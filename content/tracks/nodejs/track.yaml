@@ -1,0 +1,23 @@
+schema_version: 2
+id: nodejs
+name: "Node.js"
+archetype: language
+category: "Programming Languages"
+icon: "🟢"
+description: "High-performance JavaScript/TypeScript backends: V8, libuv, the event loop, streams and clusters."
+status: draft
+bridges_available: [java]
+belts:
+  - { name: "White Belt", required_xp: 0, title: "Console Logger" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Express Route Builder" }
+  - { name: "Green Belt", required_xp: 800, title: "Async/Await Navigator" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Stream Piper" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Event Loop Doctor" }
+  - { name: "Black Belt", required_xp: 4000, title: "V8 Performance Architect" }
+  - { name: "Sensei", required_xp: 6000, title: "Node.js Grandmaster" }
+phases:
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }

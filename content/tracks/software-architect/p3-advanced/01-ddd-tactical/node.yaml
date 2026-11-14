@@ -1,0 +1,14 @@
+id: software-architect.p3.ddd-tactical
+legacy_id: arch-04-ddd-tactical
+kind: lesson
+status: draft
+title: "Tactical DDD: Entities, Value Objects and Aggregates"
+summary: "Protecting business invariants and atomic transactional consistency."
+objectives:
+  - { id: o1, text: "Protecting business invariants and atomic transactional consistency.", skills: [software-architect.ddd-tactical] }
+prerequisites: [software-architect.p2.ddd-strategic]
+difficulty: 4
+estimated_minutes: 30
+xp: 350
+lesson: lesson.md
+bridges: bridges

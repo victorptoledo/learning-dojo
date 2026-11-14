@@ -1,0 +1,14 @@
+id: system-design.p1.dns-cdn
+legacy_id: sys-01-dns-cdn
+kind: lesson
+status: draft
+title: "DNS, Anycast and Edge CDNs"
+summary: "How traffic reaches your servers from users around the world with low latency."
+objectives:
+  - { id: o1, text: "How traffic reaches your servers from users around the world with low latency.", skills: [system-design.dns-cdn] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

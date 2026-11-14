@@ -1,0 +1,14 @@
+id: rust.p1.variables-mutability
+legacy_id: rust-02-variables-mutability
+kind: lesson
+status: draft
+title: "Variables, Immutability and Shadowing"
+summary: "Why everything in Rust is immutable by default, and the power of shadowing."
+objectives:
+  - { id: o1, text: "Why everything in Rust is immutable by default, and the power of shadowing.", skills: [rust.variables-mutability] }
+prerequisites: [rust.p0.setup]
+difficulty: 2
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

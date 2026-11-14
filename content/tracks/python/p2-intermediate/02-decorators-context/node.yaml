@@ -1,0 +1,14 @@
+id: python.p2.decorators-context
+legacy_id: py-04-decorators-context
+kind: lesson
+status: draft
+title: "Advanced Decorators and Context Managers"
+summary: "Clean metaprogramming with `functools.wraps` and the `with` protocol."
+objectives:
+  - { id: o1, text: "Clean metaprogramming with `functools.wraps` and the `with` protocol.", skills: [python.decorators-context] }
+prerequisites: [python.p2.generators-memory]
+difficulty: 3
+estimated_minutes: 30
+xp: 300
+lesson: lesson.md
+bridges: bridges

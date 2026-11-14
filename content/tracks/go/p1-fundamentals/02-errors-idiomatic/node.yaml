@@ -1,0 +1,14 @@
+id: go.p1.errors-idiomatic
+legacy_id: go-03-errors-idiomatic
+kind: lesson
+status: draft
+title: "The Famous `if err != nil`"
+summary: "Explicit error handling with multiple return values instead of exceptions."
+objectives:
+  - { id: o1, text: "Explicit error handling with multiple return values instead of exceptions.", skills: [go.errors-idiomatic] }
+prerequisites: [go.p1.types-slices]
+difficulty: 2
+estimated_minutes: 30
+xp: 200
+lesson: lesson.md
+bridges: bridges

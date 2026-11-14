@@ -1,0 +1,4 @@
+namespace: kubernetes
+skills:
+  - { id: kubernetes.control-plane, title: "The Control Plane: API Server, etcd, Scheduler and Controller Manager" }
+  - { id: kubernetes.hpa-autoscaling, title: "Horizontal Pod Autoscaler (HPA) and KEDA" }

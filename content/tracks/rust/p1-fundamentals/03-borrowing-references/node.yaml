@@ -1,0 +1,14 @@
+id: rust.p1.borrowing-references
+legacy_id: rust-04-borrowing-references
+kind: lesson
+status: draft
+title: "Borrowing: References (`&` and `&mut`)"
+summary: "Lending data without transferring ownership: the rules for shared and mutable references."
+objectives:
+  - { id: o1, text: "Lending data without transferring ownership: the rules for shared and mutable references.", skills: [rust.borrowing-references] }
+prerequisites: [rust.p1.ownership-basics]
+difficulty: 2
+estimated_minutes: 30
+xp: 250
+lesson: lesson.md
+bridges: bridges

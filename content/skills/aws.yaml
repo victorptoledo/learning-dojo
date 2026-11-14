@@ -1,0 +1,4 @@
+namespace: aws
+skills:
+  - { id: aws.iam-least-privilege, title: "IAM: Roles, Policies and Least Privilege" }
+  - { id: aws.vpc-subnets, title: "VPC: Public Subnets, Private Subnets and NAT Gateways" }

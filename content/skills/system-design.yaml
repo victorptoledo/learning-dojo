@@ -1,0 +1,8 @@
+namespace: system-design
+skills:
+  - { id: system-design.dns-cdn, title: "DNS, Anycast and Edge CDNs" }
+  - { id: system-design.load-balancing, title: "Load Balancers (L4 vs L7) and Consistent Hashing" }
+  - { id: system-design.caching-strategies, title: "Caching Strategies (Redis) and Expiration Policies" }
+  - { id: system-design.databases-replication-sharding, title: "Replication, Horizontal Sharding and Partitioning" }
+  - { id: system-design.cap-pacelc, title: "CAP, PACELC and Eventual Consistency" }
+  - { id: system-design.message-queues-events, title: "Messaging, Apache Kafka and Event Patterns" }

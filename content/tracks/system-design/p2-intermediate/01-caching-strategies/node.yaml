@@ -1,0 +1,14 @@
+id: system-design.p2.caching-strategies
+legacy_id: sys-03-caching-strategies
+kind: lesson
+status: draft
+title: "Caching Strategies (Redis) and Expiration Policies"
+summary: "Cache-aside, write-through, write-behind and eviction policies (LRU/LFU)."
+objectives:
+  - { id: o1, text: "Cache-aside, write-through, write-behind and eviction policies (LRU/LFU).", skills: [system-design.caching-strategies] }
+prerequisites: [system-design.p1.load-balancing]
+difficulty: 3
+estimated_minutes: 30
+xp: 250
+lesson: lesson.md
+bridges: bridges

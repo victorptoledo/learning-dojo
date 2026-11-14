@@ -1,0 +1,14 @@
+id: go.p3.context-lifecycle
+legacy_id: go-07-context-lifecycle
+kind: lesson
+status: draft
+title: "Context: Cancellation, Deadlines and Propagation"
+summary: "Go's core pattern for cancelling chains of operations in cascade."
+objectives:
+  - { id: o1, text: "Go's core pattern for cancelling chains of operations in cascade.", skills: [go.context-lifecycle] }
+prerequisites: [go.p3.channels-select]
+difficulty: 4
+estimated_minutes: 30
+xp: 400
+lesson: lesson.md
+bridges: bridges

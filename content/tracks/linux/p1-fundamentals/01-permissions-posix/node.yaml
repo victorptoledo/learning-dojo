@@ -1,0 +1,14 @@
+id: linux.p1.permissions-posix
+legacy_id: lnx-01-permissions-posix
+kind: lesson
+status: draft
+title: "POSIX Permissions, sudo and User Management"
+summary: "chmod (755 vs 644), chown, groups and the SUID bit."
+objectives:
+  - { id: o1, text: "chmod (755 vs 644), chown, groups and the SUID bit.", skills: [linux.permissions-posix] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

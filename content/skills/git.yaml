@@ -1,0 +1,4 @@
+namespace: git
+skills:
+  - { id: git.dag-objects, title: "Git's Object Model: Blobs, Trees, Commits and SHA Hashes" }
+  - { id: git.rebase-vs-merge, title: "Rebase vs Merge and the Reflog Safety Net" }

@@ -1,0 +1,14 @@
+id: rust.p4.async-tokio
+legacy_id: rust-10-async-tokio
+kind: lesson
+status: draft
+title: "async/await and the Tokio Runtime"
+summary: "High-performance non-blocking I/O for network services."
+objectives:
+  - { id: o1, text: "High-performance non-blocking I/O for network services.", skills: [rust.async-tokio] }
+prerequisites: [rust.p3.concurrency]
+difficulty: 5
+estimated_minutes: 30
+xp: 450
+lesson: lesson.md
+bridges: bridges

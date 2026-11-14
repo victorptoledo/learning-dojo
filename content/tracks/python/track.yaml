@@ -1,0 +1,23 @@
+schema_version: 2
+id: python
+name: "Modern Python"
+archetype: language
+category: "Programming Languages"
+icon: "🐍"
+description: "Professional, typed Python: Pydantic, asyncio, FastAPI, generators, decorators and the modern toolchain."
+status: draft
+bridges_available: [java]
+belts:
+  - { name: "White Belt", required_xp: 0, title: "Script Novice" }
+  - { name: "Yellow Belt", required_xp: 300, title: "List Comprehension Wizard" }
+  - { name: "Green Belt", required_xp: 800, title: "Type-Hinted Craftsman" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Asyncio Tamer" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Metaclass Alchemist" }
+  - { name: "Black Belt", required_xp: 4000, title: "CPython Internals Master" }
+  - { name: "Sensei", required_xp: 6000, title: "Pythonic Grandmaster" }
+phases:
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }

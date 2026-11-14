@@ -1,0 +1,4 @@
+namespace: docker
+skills:
+  - { id: docker.namespaces-cgroups, title: "What a Container Is: Namespaces, cgroups and chroot" }
+  - { id: docker.dockerfile-security, title: "Image Hardening: Non-root Users and Distroless Images" }

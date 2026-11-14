@@ -1,0 +1,14 @@
+id: typescript.p1.structural-typing
+legacy_id: ts-01-structural-typing
+kind: lesson
+status: draft
+title: "Structural vs Nominal Typing"
+summary: "Why two interfaces with the same properties are interchangeable in TypeScript."
+objectives:
+  - { id: o1, text: "Why two interfaces with the same properties are interchangeable in TypeScript.", skills: [typescript.structural-typing] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

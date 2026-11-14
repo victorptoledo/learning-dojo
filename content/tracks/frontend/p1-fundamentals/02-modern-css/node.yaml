@@ -1,0 +1,14 @@
+id: frontend.p1.modern-css
+legacy_id: fe-02-modern-css
+kind: lesson
+status: draft
+title: "Modern CSS: Flexbox, Grid, Variables and Tailwind"
+summary: "Responsive layouts, container queries, specificity and design tokens."
+objectives:
+  - { id: o1, text: "Responsive layouts, container queries, specificity and design tokens.", skills: [frontend.modern-css] }
+prerequisites: [frontend.p1.dom-rendering]
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

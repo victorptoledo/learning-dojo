@@ -1,0 +1,14 @@
+id: computer-science.p1.memory-hierarchy
+legacy_id: cs-01-memory-hierarchy
+kind: lesson
+status: draft
+title: "Memory Hierarchy: Registers, L1/L2/L3 Caches and RAM"
+summary: "Why physics dictates the performance of modern programs."
+objectives:
+  - { id: o1, text: "Why physics dictates the performance of modern programs.", skills: [computer-science.memory-hierarchy] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

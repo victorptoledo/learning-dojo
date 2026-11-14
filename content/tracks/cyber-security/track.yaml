@@ -1,0 +1,23 @@
+schema_version: 2
+id: cyber-security
+name: "Cyber Security"
+archetype: role
+category: "Careers & Roles"
+icon: "🛡️"
+description: "Defensive and offensive security: OWASP Top 10, cryptography, cloud security and penetration testing."
+status: draft
+bridges_available: [java]
+belts:
+  - { name: "White Belt", required_xp: 0, title: "Security Aware" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Vulnerability Hunter" }
+  - { name: "Green Belt", required_xp: 800, title: "AppSec Craftsman" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Cryptographic Guardian" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Threat Modeling Architect" }
+  - { name: "Black Belt", required_xp: 4000, title: "SecOps & CISO Mind" }
+  - { name: "Sensei", required_xp: 6000, title: "Cyber Security Grandmaster" }
+phases:
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does and the tools of the trade" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The minimum of each pillar of the role" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Integrating the pillars into working features" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Scale, performance and architecture decisions" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production ownership, reliability and leadership topics" }

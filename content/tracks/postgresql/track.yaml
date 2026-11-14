@@ -1,0 +1,23 @@
+schema_version: 2
+id: postgresql
+name: "PostgreSQL"
+archetype: platform
+category: "Databases"
+icon: "🐘"
+description: "The most advanced open source relational database: B-Tree/GIN indexes, EXPLAIN ANALYZE, JSONB and tuning."
+status: draft
+bridges_available: [java]
+belts:
+  - { name: "White Belt", required_xp: 0, title: "Select Star Novice" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Index Crafter" }
+  - { name: "Green Belt", required_xp: 800, title: "Query Optimizer" }
+  - { name: "Purple Belt", required_xp: 1500, title: "JSONB Hybrid Master" }
+  - { name: "Brown Belt", required_xp: 2500, title: "MVCC & Lock Specialist" }
+  - { name: "Black Belt", required_xp: 4000, title: "Database Reliability Titan" }
+  - { name: "Sensei", required_xp: 6000, title: "Postgres Grandmaster" }
+phases:
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install it, run a first command and see why it exists" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core commands, objects and basic configuration" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Composition, configuration, troubleshooting and good practices" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, security and automation" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production operation, high availability and incident handling" }

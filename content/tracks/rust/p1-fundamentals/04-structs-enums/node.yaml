@@ -1,0 +1,14 @@
+id: rust.p1.structs-enums
+legacy_id: rust-05-structs-enums
+kind: lesson
+status: draft
+title: "Structs, Enums and Pattern Matching"
+summary: "No class inheritance: modelling a domain with structs and algebraic enums (tagged unions)."
+objectives:
+  - { id: o1, text: "No class inheritance: modelling a domain with structs and algebraic enums (tagged unions).", skills: [rust.structs-enums] }
+prerequisites: [rust.p1.borrowing-references]
+difficulty: 2
+estimated_minutes: 30
+xp: 200
+lesson: lesson.md
+bridges: bridges

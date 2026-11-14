@@ -1,0 +1,14 @@
+id: ai-engineer.p3.agents-tools
+legacy_id: ai-04-agents-tools
+kind: lesson
+status: draft
+title: "AI Agents: Function Calling, ReAct and Tool Use"
+summary: "Models that make decisions, run tools in a loop and solve multi-step tasks."
+objectives:
+  - { id: o1, text: "Models that make decisions, run tools in a loop and solve multi-step tasks.", skills: [ai-engineer.agents-tools] }
+prerequisites: [ai-engineer.p2.rag-architecture]
+difficulty: 4
+estimated_minutes: 30
+xp: 450
+lesson: lesson.md
+bridges: bridges

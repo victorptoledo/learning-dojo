@@ -1,0 +1,14 @@
+id: docker.p1.namespaces-cgroups
+legacy_id: dk-01-namespaces-cgroups
+kind: lesson
+status: draft
+title: "What a Container Is: Namespaces, cgroups and chroot"
+summary: "Debunking the myth that containers are lightweight virtual machines."
+objectives:
+  - { id: o1, text: "Debunking the myth that containers are lightweight virtual machines.", skills: [docker.namespaces-cgroups] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

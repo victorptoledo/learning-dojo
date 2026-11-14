@@ -1,0 +1,14 @@
+id: git.p2.rebase-vs-merge
+legacy_id: git-02-rebase-vs-merge
+kind: lesson
+status: draft
+title: "Rebase vs Merge and the Reflog Safety Net"
+summary: "Keeping a clean, linear history and recovering lost commits with reflog."
+objectives:
+  - { id: o1, text: "Keeping a clean, linear history and recovering lost commits with reflog.", skills: [git.rebase-vs-merge] }
+prerequisites: [git.p1.dag-objects]
+difficulty: 3
+estimated_minutes: 30
+xp: 250
+lesson: lesson.md
+bridges: bridges

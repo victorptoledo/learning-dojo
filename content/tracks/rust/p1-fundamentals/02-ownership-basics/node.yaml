@@ -1,0 +1,14 @@
+id: rust.p1.ownership-basics
+legacy_id: rust-03-ownership-basics
+kind: lesson
+status: draft
+title: "Ownership: Memory Without a Garbage Collector"
+summary: "The golden rule: every value has exactly one owner, and when the owner goes out of scope the value is dropped."
+objectives:
+  - { id: o1, text: "The golden rule: every value has exactly one owner, and when the owner goes out of scope the value is dropped.", skills: [rust.ownership-basics] }
+prerequisites: [rust.p1.variables-mutability]
+difficulty: 2
+estimated_minutes: 30
+xp: 250
+lesson: lesson.md
+bridges: bridges

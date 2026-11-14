@@ -1,0 +1,4 @@
+namespace: api-design
+skills:
+  - { id: api-design.rest-maturity, title: "Richardson Maturity Model and Resource Design" }
+  - { id: api-design.grpc-protobuf, title: "gRPC and Protocol Buffers" }

@@ -1,0 +1,4 @@
+namespace: cyber-security
+skills:
+  - { id: cyber-security.owasp-top-10, title: "OWASP Top 10: Injection, Broken Authentication and SSRF" }
+  - { id: cyber-security.cryptography-secrets, title: "Modern Cryptography: Password Hashing, AES-GCM and TLS" }

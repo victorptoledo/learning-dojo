@@ -1,0 +1,14 @@
+id: kubernetes.p3.hpa-autoscaling
+legacy_id: k8s-02-hpa-autoscaling
+kind: lesson
+status: draft
+title: "Horizontal Pod Autoscaler (HPA) and KEDA"
+summary: "Scaling replicas on CPU/memory or on business metrics such as queue length."
+objectives:
+  - { id: o1, text: "Scaling replicas on CPU/memory or on business metrics such as queue length.", skills: [kubernetes.hpa-autoscaling] }
+prerequisites: [kubernetes.p1.control-plane]
+difficulty: 4
+estimated_minutes: 30
+xp: 350
+lesson: lesson.md
+bridges: bridges

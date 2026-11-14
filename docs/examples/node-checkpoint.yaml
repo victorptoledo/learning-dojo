@@ -1,0 +1,28 @@
+# content/tracks/rust/p1-fundamentals/99-checkpoint/node.yaml
+id: rust.p1.checkpoint
+kind: checkpoint
+status: reviewed
+title: "📋 Checkpoint 1: Fundamentals"
+closes_phase: p1
+covers_skills:                 # used to draw quiz items and to build the remedial plan
+  - rust.types.primitives
+  - rust.control-flow.branching
+  - rust.control-flow.loops
+  - rust.functions.basics
+  - rust.collections.vec-hashmap
+sections:
+  - id: quiz
+    type: quiz
+    bank: ../../bank/p1.yaml
+    draw: 10                   # stratified by skill
+    min_score: 0.7
+  - id: integration
+    type: kata
+    kata: kata/                # same kata layout (README, starter, tests, rubric)
+    min_review_score: 70
+pass_rule: all_sections
+on_fail:
+  remedial_plan: true          # plan with the nodes of the failed skills
+  retry_after_hours: 12
+acts_as_belt_exam: true        # becomes the Belt Exam when placement skipped this phase
+xp: 200

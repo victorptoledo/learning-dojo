@@ -1,0 +1,6 @@
+namespace: ai-engineer
+skills:
+  - { id: ai-engineer.llm-foundations, title: "Foundation Models, Tokens and Context Windows" }
+  - { id: ai-engineer.embeddings-vector, title: "Embeddings and Vector Databases" }
+  - { id: ai-engineer.rag-architecture, title: "RAG Architecture (Retrieval-Augmented Generation)" }
+  - { id: ai-engineer.agents-tools, title: "AI Agents: Function Calling, ReAct and Tool Use" }

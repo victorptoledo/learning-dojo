@@ -1,0 +1,14 @@
+id: sql.p2.cte-recursive
+legacy_id: sql-02-cte-recursive
+kind: lesson
+status: draft
+title: "Common Table Expressions (CTEs) and Recursive Queries"
+summary: "Readable complex queries with `WITH`, and walking hierarchies and trees."
+objectives:
+  - { id: o1, text: "Readable complex queries with `WITH`, and walking hierarchies and trees.", skills: [sql.cte-recursive] }
+prerequisites: [sql.p2.window-functions]
+difficulty: 3
+estimated_minutes: 30
+xp: 300
+lesson: lesson.md
+bridges: bridges

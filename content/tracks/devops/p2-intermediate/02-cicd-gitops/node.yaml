@@ -1,0 +1,14 @@
+id: devops.p2.cicd-gitops
+legacy_id: devops-04-cicd-gitops
+kind: lesson
+status: draft
+title: "CI/CD Pipelines and GitOps"
+summary: "Automated tests, security checks, artefact builds and declarative deploys (Argo CD)."
+objectives:
+  - { id: o1, text: "Automated tests, security checks, artefact builds and declarative deploys (Argo CD).", skills: [devops.cicd-gitops] }
+prerequisites: [devops.p2.kubernetes-core]
+difficulty: 3
+estimated_minutes: 30
+xp: 350
+lesson: lesson.md
+bridges: bridges

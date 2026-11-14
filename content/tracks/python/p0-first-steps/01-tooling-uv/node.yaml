@@ -1,0 +1,14 @@
+id: python.p0.tooling-uv
+legacy_id: py-01-tooling-uv
+kind: lesson
+status: draft
+title: "Project Management with uv, Poetry and pyproject.toml"
+summary: "Replacing messy `requirements.txt` files with fast, deterministic tools."
+objectives:
+  - { id: o1, text: "Replacing messy `requirements.txt` files with fast, deterministic tools.", skills: [python.tooling-uv] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

@@ -1,0 +1,14 @@
+id: rust.p2.option-result
+legacy_id: rust-06-option-result
+kind: lesson
+status: draft
+title: "No Null, No Exceptions: Option and Result"
+summary: "Idiomatic error handling with `Result<T, E>` and the `?` operator."
+objectives:
+  - { id: o1, text: "Idiomatic error handling with `Result<T, E>` and the `?` operator.", skills: [rust.option-result] }
+prerequisites: [rust.p1.structs-enums]
+difficulty: 3
+estimated_minutes: 30
+xp: 200
+lesson: lesson.md
+bridges: bridges

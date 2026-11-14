@@ -1,0 +1,52 @@
+# content/tracks/rust/p3-advanced/02-concurrent-pipeline/kata/rubric.yaml
+version: 3
+criteria:
+  - id: naming
+    category: clean_code
+    weight: 0.15
+    from_phase: 1
+    description: Names reveal intent; no obscure abbreviations or generic names (data, tmp, x).
+    levels:
+      0: Names confuse or lie about their content
+      1: Several generic names
+      2: Good names, a few slips
+      3: Names make the code self-explanatory
+  - id: functions
+    category: clean_code
+    weight: 0.15
+    from_phase: 1
+    description: Small functions, one level of abstraction, few parameters.
+  - id: error_handling
+    category: clean_code
+    weight: 0.15
+    from_phase: 2
+    description: Typed errors with Result and ?, no unwrap/expect outside tests and main.
+  - id: idioms
+    category: clean_code
+    weight: 0.10
+    from_phase: 1
+    description: Idiomatic code (iterators, pattern matching, ownership without needless clones).
+  - id: patterns
+    category: design_patterns
+    weight: 0.20
+    from_phase: 3                       # not evaluated before phase 3
+    expected: [pipeline, producer-consumer]
+    description: Patterns applied where they solve a real problem, not for decoration.
+  - id: structure
+    category: architecture
+    weight: 0.25
+    from_phase: 2
+    description: Modules with a single responsibility and dependencies pointing towards the domain.
+
+# Deterministic caps: the AI cannot score above the cap when a rule fails.
+static_checks:
+  - { tool: clippy,  args: ["-D", "warnings"], caps: { criterion: idioms, max_level: 1 } }
+  - { tool: rustfmt, args: ["--check"],        caps: { criterion: idioms, max_level: 2 } }
+  - { metric: fn_length, max: 30,              caps: { criterion: functions, max_level: 1 } }
+  - { metric: nesting_depth, max: 3,           caps: { criterion: functions, max_level: 2 } }
+
+structure:
+  required_paths: [src/domain/, src/pipeline/, src/main.rs]
+  forbid_imports:
+    - { from: "src/domain/**", to: ["crate::pipeline", "tokio"] }
+  caps_on_violation: { criterion: structure, max_level: 0 }

@@ -1,0 +1,23 @@
+[package]
+name = "dojo-app"
+description = "Learning Dojo terminal app (TUI) and `dojo` command line."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "dojo"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+clap.workspace = true
+crossterm.workspace = true
+dojo-content.workspace = true
+dojo-core.workspace = true
+ratatui.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

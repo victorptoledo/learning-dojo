@@ -1,0 +1,23 @@
+schema_version: 2
+id: go
+name: "Go"
+archetype: language
+category: "Programming Languages"
+icon: "🐹"
+description: "Radical simplicity, native concurrency with goroutines and channels, and a cloud-native ecosystem."
+status: draft
+bridges_available: [java]
+belts:
+  - { name: "White Belt", required_xp: 0, title: "Gopher Beginner" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Goroutine Novice" }
+  - { name: "Green Belt", required_xp: 800, title: "Channel Piper" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Interface Hacker" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Concurrent Architect" }
+  - { name: "Black Belt", required_xp: 4000, title: "Rob Pike Disciple" }
+  - { name: "Sensei", required_xp: 6000, title: "Cloud Native Master" }
+phases:
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }

@@ -1,0 +1,14 @@
+id: go.p3.goroutines-concurrency
+legacy_id: go-05-goroutines-concurrency
+kind: lesson
+status: draft
+title: "Goroutines: Thousands of Lightweight Threads"
+summary: "Concurrent execution at almost no cost with the `go` keyword."
+objectives:
+  - { id: o1, text: "Concurrent execution at almost no cost with the `go` keyword.", skills: [go.goroutines-concurrency] }
+prerequisites: [go.p2.interfaces-duck-typing]
+difficulty: 4
+estimated_minutes: 30
+xp: 300
+lesson: lesson.md
+bridges: bridges

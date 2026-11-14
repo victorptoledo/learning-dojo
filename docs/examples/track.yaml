@@ -1,0 +1,30 @@
+# content/tracks/rust/track.yaml
+schema_version: 2
+id: rust
+name: Rust
+archetype: language            # language | platform | concept | role
+category: Languages & Systems
+icon: "🦀"
+description: Master the systems language without fearing the borrow checker and without a garbage collector.
+status: reviewed               # draft | reviewed
+runtime:
+  image: dojo-rust             # built from runner-images/rust/Dockerfile
+  toolchain: "1.85"
+  file_ext: [rs]
+  test_runner: cargo-test
+bridges_available: [java, python, typescript, generic]
+belts:
+  - { name: White Belt,  required_xp: 0,    title: GC Refugee }
+  - { name: Yellow Belt, required_xp: 400,  title: Borrow Apprentice }
+  - { name: Green Belt,  required_xp: 1000, title: Pattern Matcher }
+  - { name: Purple Belt, required_xp: 1800, title: Trait Master }
+  - { name: Brown Belt,  required_xp: 2800, title: Pointer Alchemist }
+  - { name: Black Belt,  required_xp: 4000, title: Fearless Concurrency Master }
+  - { name: Sensei,      required_xp: 5500, title: Ferris Ascended }
+phases:                        # nodes are discovered from p<N>-*/<order>-*/ folders
+  - { id: p0, dir: p0-first-steps,   title: First Steps,       goal: Install, run and understand why Rust exists }
+  - { id: p1, dir: p1-fundamentals,  title: Real Fundamentals, goal: Types, control flow, functions and collections }
+  - { id: p2, dir: p2-intermediate,  title: Intermediate,      goal: Ownership in practice, traits, errors and testing }
+  - { id: p3, dir: p3-advanced,      title: Advanced,          goal: Concurrency, performance and architecture }
+  - { id: p4, dir: p4-mastery,       title: Mastery,           goal: Production, async, unsafe and resilience }
+feeds_careers: [backend-to-microservices, systems-engineer]

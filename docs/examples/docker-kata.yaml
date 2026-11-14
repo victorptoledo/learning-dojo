@@ -1,0 +1,39 @@
+# content/tracks/docker/p2-intermediate/03-multi-stage-build/node.yaml
+# A platform-archetype kata: the learner writes a Dockerfile, the runner builds and inspects it.
+id: docker.p2.multi-stage-build
+kind: kata
+status: draft
+title: Multi-stage builds that ship only the binary
+summary: Split build and runtime stages so the final image has no compiler and no source.
+objectives:
+  - id: o1
+    text: Use a build stage and a minimal runtime stage
+    skills: [docker.build.multi-stage]
+  - id: o2
+    text: Run the container as a non-root user
+    skills: [docker.security.non-root]
+prerequisites: [docker.p2.layer-cache]
+difficulty: 3
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges/
+kata:
+  statement: kata/README.md
+  starter: kata/starter          # a small Go HTTP app + an empty Dockerfile
+  reference: kata/reference
+  samples: kata/samples
+  rubric: kata/rubric.yaml
+  runner:
+    profile: docker-build        # builds on the host engine with a throwaway tag, then cleans up
+    lint_image: dojo-docker-lint # hadolint + asserts run in a container, no network
+    timeout_s: 300
+    asserts:
+      - { check: build_succeeds }
+      - { check: image_size_mb, max: 30 }
+      - { check: user_not_root }
+      - { check: no_paths, paths: [/usr/local/go, /src] }
+      - { check: http_get, port: 8080, path: /health, expect_status: 200 }
+mastery:
+  pass:     { asserts: all, review_score: 70 }
+  mastered: { review_score: 85 }

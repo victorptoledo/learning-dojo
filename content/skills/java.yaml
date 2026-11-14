@@ -1,0 +1,5 @@
+namespace: java
+skills:
+  - { id: java.modern-features, title: "Java 17 to 21+: Records, Pattern Matching and Sealed Classes" }
+  - { id: java.virtual-threads, title: "Virtual Threads (Project Loom): Lightweight Concurrency" }
+  - { id: java.graalvm-native, title: "GraalVM Native Image: Millisecond Startup" }

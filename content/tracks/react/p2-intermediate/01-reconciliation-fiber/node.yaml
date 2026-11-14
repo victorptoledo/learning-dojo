@@ -1,0 +1,14 @@
+id: react.p2.reconciliation-fiber
+legacy_id: react-02-reconciliation-fiber
+kind: lesson
+status: draft
+title: "React Reconciliation: the Virtual DOM and Fiber"
+summary: "How React's diffing decides what to update in the real DOM."
+objectives:
+  - { id: o1, text: "How React's diffing decides what to update in the real DOM.", skills: [react.reconciliation-fiber] }
+prerequisites: [react.p1.hooks-lifecycle]
+difficulty: 3
+estimated_minutes: 30
+xp: 300
+lesson: lesson.md
+bridges: bridges

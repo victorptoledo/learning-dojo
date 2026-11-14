@@ -1,0 +1,14 @@
+id: cyber-security.p1.owasp-top-10
+legacy_id: sec-01-owasp-top-10
+kind: lesson
+status: draft
+title: "OWASP Top 10: Injection, Broken Authentication and SSRF"
+summary: "The most common web vulnerabilities and how to prevent them from the code's architecture up."
+objectives:
+  - { id: o1, text: "The most common web vulnerabilities and how to prevent them from the code's architecture up.", skills: [cyber-security.owasp-top-10] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

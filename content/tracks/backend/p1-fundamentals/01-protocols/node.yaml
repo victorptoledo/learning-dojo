@@ -1,0 +1,14 @@
+id: backend.p1.protocols
+legacy_id: be-01-protocols
+kind: lesson
+status: draft
+title: "Web Protocols: HTTP/1.1, HTTP/2, HTTP/3 and WebSockets"
+summary: "HTTP verbs, headers, status codes, multiplexing and bidirectional connections."
+objectives:
+  - { id: o1, text: "HTTP verbs, headers, status codes, multiplexing and bidirectional connections.", skills: [backend.protocols] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

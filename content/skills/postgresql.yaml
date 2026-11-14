@@ -1,0 +1,4 @@
+namespace: postgresql
+skills:
+  - { id: postgresql.query-planner, title: "EXPLAIN (ANALYZE, BUFFERS): Reading the Query Planner" }
+  - { id: postgresql.indexes-advanced, title: "Advanced Indexes: GIN, BRIN, Partial and Expression Indexes" }

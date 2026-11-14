@@ -1,0 +1,13 @@
+[package]
+name = "dojo-core"
+description = "Pure domain model of the Learning Dojo: tracks, phases, nodes, skills and progress."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+chrono.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

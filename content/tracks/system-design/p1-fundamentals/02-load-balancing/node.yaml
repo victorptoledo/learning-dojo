@@ -1,0 +1,14 @@
+id: system-design.p1.load-balancing
+legacy_id: sys-02-load-balancing
+kind: lesson
+status: draft
+title: "Load Balancers (L4 vs L7) and Consistent Hashing"
+summary: "Smart traffic distribution, health checks and balancing algorithms."
+objectives:
+  - { id: o1, text: "Smart traffic distribution, health checks and balancing algorithms.", skills: [system-design.load-balancing] }
+prerequisites: [system-design.p1.dns-cdn]
+difficulty: 2
+estimated_minutes: 30
+xp: 200
+lesson: lesson.md
+bridges: bridges

@@ -1,0 +1,14 @@
+id: postgresql.p3.indexes-advanced
+legacy_id: pg-02-indexes-advanced
+kind: lesson
+status: draft
+title: "Advanced Indexes: GIN, BRIN, Partial and Expression Indexes"
+summary: "Choosing the right index for full-text search, JSONB and time series."
+objectives:
+  - { id: o1, text: "Choosing the right index for full-text search, JSONB and time series.", skills: [postgresql.indexes-advanced] }
+prerequisites: [postgresql.p2.query-planner]
+difficulty: 4
+estimated_minutes: 30
+xp: 300
+lesson: lesson.md
+bridges: bridges

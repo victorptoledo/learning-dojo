@@ -1,0 +1,14 @@
+id: git.p1.dag-objects
+legacy_id: git-01-dag-objects
+kind: lesson
+status: draft
+title: "Git's Object Model: Blobs, Trees, Commits and SHA Hashes"
+summary: "Git doesn't store diffs; it stores immutable snapshots in a directed acyclic graph."
+objectives:
+  - { id: o1, text: "Git doesn't store diffs; it stores immutable snapshots in a directed acyclic graph.", skills: [git.dag-objects] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

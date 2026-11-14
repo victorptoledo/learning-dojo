@@ -1,0 +1,4 @@
+namespace: design-patterns
+skills:
+  - { id: design-patterns.strategy-factory, title: "Strategy and Factory: Removing Giant if/else Chains" }
+  - { id: design-patterns.decorator-adapter, title: "Adapter and Decorator: Composition over Inheritance" }

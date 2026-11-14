@@ -1,0 +1,12 @@
+namespace: rust
+skills:
+  - { id: rust.setup, title: "Cargo, rustc and the Toolchain" }
+  - { id: rust.variables-mutability, title: "Variables, Immutability and Shadowing" }
+  - { id: rust.ownership-basics, title: "Ownership: Memory Without a Garbage Collector" }
+  - { id: rust.borrowing-references, title: "Borrowing: References (`&` and `&mut`)" }
+  - { id: rust.structs-enums, title: "Structs, Enums and Pattern Matching" }
+  - { id: rust.option-result, title: "No Null, No Exceptions: Option and Result" }
+  - { id: rust.traits-generics, title: "Traits: Interfaces with Superpowers" }
+  - { id: rust.smart-pointers, title: "Smart Pointers: Box, Rc, RefCell and Arc" }
+  - { id: rust.concurrency, title: "Threads, Channels (mpsc) and Mutex" }
+  - { id: rust.async-tokio, title: "async/await and the Tokio Runtime" }

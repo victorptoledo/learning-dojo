@@ -1,0 +1,14 @@
+id: aws.p1.iam-least-privilege
+legacy_id: aws-01-iam-least-privilege
+kind: lesson
+status: draft
+title: "IAM: Roles, Policies and Least Privilege"
+summary: "Never use the root account. Roles assumed by instances and services, without static keys."
+objectives:
+  - { id: o1, text: "Never use the root account. Roles assumed by instances and services, without static keys.", skills: [aws.iam-least-privilege] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

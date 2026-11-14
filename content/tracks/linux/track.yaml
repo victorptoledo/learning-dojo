@@ -1,0 +1,23 @@
+schema_version: 2
+id: linux
+name: "Linux"
+archetype: platform
+category: "Infrastructure & Tools"
+icon: "🐧"
+description: "The operating system of the cloud: command line, bash, permissions, processes, networking and systemd."
+status: draft
+bridges_available: [java]
+belts:
+  - { name: "White Belt", required_xp: 0, title: "GUI Dependent" }
+  - { name: "Yellow Belt", required_xp: 300, title: "CLI Navigator" }
+  - { name: "Green Belt", required_xp: 800, title: "Bash Scripter" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Process & Signal Hunter" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Kernel & Syscall Explorer" }
+  - { name: "Black Belt", required_xp: 4000, title: "SysAdmin Wizard" }
+  - { name: "Sensei", required_xp: 6000, title: "Torvalds Disciple" }
+phases:
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install it, run a first command and see why it exists" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core commands, objects and basic configuration" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Composition, configuration, troubleshooting and good practices" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, security and automation" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production operation, high availability and incident handling" }

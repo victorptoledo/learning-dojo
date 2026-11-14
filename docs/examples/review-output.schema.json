@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ReviewReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["summary", "criteria", "issues", "strengths", "follow_up", "hints"],
+  "properties": {
+    "summary": { "type": "string", "description": "2 to 4 sentences, in English" },
+    "criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "level", "comment", "evidence"],
+        "properties": {
+          "id": { "type": "string" },
+          "level": { "type": "integer", "minimum": 0, "maximum": 3 },
+          "comment": { "type": "string" },
+          "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "category", "message", "suggestion", "evidence"],
+        "properties": {
+          "severity": { "enum": ["blocker", "major", "minor", "nit"] },
+          "category": { "enum": ["clean_code", "design_patterns", "architecture", "correctness", "performance"] },
+          "message": { "type": "string" },
+          "suggestion": { "type": "string", "description": "how to improve, without handing over the full solution" },
+          "evidence": { "$ref": "#/$defs/evidence" }
+        }
+      }
+    },
+    "strengths": { "type": "array", "items": { "type": "string" } },
+    "follow_up": {
+      "type": "array",
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "statement", "skills", "difficulty"],
+        "properties": {
+          "title": { "type": "string" },
+          "statement": { "type": "string" },
+          "skills": { "type": "array", "items": { "type": "string" } },
+          "difficulty": { "type": "integer", "minimum": 1, "maximum": 5 }
+        }
+      }
+    },
+    "hints": {
+      "type": "array",
+      "maxItems": 3,
+      "description": "hint ladder: direction, concept, partial skeleton",
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "line", "quote"],
+      "properties": {
+        "file": { "type": "string" },
+        "line": { "type": "integer", "minimum": 1 },
+        "quote": { "type": "string", "description": "literal snippet, verified by the app" }
+      }
+    }
+  }
+}

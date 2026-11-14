@@ -1,0 +1,14 @@
+id: devops.p3.iac-terraform
+legacy_id: devops-05-iac-terraform
+kind: lesson
+status: draft
+title: "Terraform: Declarative Cloud and State Management"
+summary: "Reproducible infrastructure on AWS, GCP or Azure with HCL."
+objectives:
+  - { id: o1, text: "Reproducible infrastructure on AWS, GCP or Azure with HCL.", skills: [devops.iac-terraform] }
+prerequisites: [devops.p2.cicd-gitops]
+difficulty: 4
+estimated_minutes: 30
+xp: 400
+lesson: lesson.md
+bridges: bridges

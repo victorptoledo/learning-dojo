@@ -1,0 +1,14 @@
+id: full-stack.p3.deploy-serverless
+legacy_id: fs-03-deploy-serverless
+kind: lesson
+status: draft
+title: "Continuous Deployment, Edge Functions and Serverless Databases"
+summary: "Running code at the edge and using serverless databases."
+objectives:
+  - { id: o1, text: "Running code at the edge and using serverless databases.", skills: [full-stack.deploy-serverless] }
+prerequisites: [full-stack.p2.ssr-ssg]
+difficulty: 4
+estimated_minutes: 30
+xp: 350
+lesson: lesson.md
+bridges: bridges

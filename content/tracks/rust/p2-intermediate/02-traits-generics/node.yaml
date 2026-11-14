@@ -1,0 +1,14 @@
+id: rust.p2.traits-generics
+legacy_id: rust-07-traits-generics
+kind: lesson
+status: draft
+title: "Traits: Interfaces with Superpowers"
+summary: "Shared behaviour, trait bounds and monomorphisation."
+objectives:
+  - { id: o1, text: "Shared behaviour, trait bounds and monomorphisation.", skills: [rust.traits-generics] }
+prerequisites: [rust.p2.option-result]
+difficulty: 3
+estimated_minutes: 30
+xp: 300
+lesson: lesson.md
+bridges: bridges

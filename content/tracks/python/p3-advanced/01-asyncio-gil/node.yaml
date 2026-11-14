@@ -1,0 +1,14 @@
+id: python.p3.asyncio-gil
+legacy_id: py-05-asyncio-gil
+kind: lesson
+status: draft
+title: "asyncio, the Event Loop and the GIL"
+summary: "How cooperative, coroutine-based concurrency scales network operations."
+objectives:
+  - { id: o1, text: "How cooperative, coroutine-based concurrency scales network operations.", skills: [python.asyncio-gil] }
+prerequisites: [python.p2.decorators-context]
+difficulty: 4
+estimated_minutes: 30
+xp: 350
+lesson: lesson.md
+bridges: bridges

@@ -1,0 +1,30 @@
+# content/careers/backend-to-microservices.yaml
+id: backend-to-microservices
+title: From Backend to Microservices Architect
+summary: Move from CRUD to distributed systems with data, contracts and operations.
+roles: [Mid-level Backend, Senior Backend, Software Architect]
+stages:
+  - id: s1
+    title: Solid backend
+    requires:
+      - { track: backend, phase: p2 }
+      - { track: sql, phase: p2 }
+      - { any_of: [{ track: go, phase: p2 }, { track: java, phase: p2 }, { track: rust, phase: p2 }] }
+  - id: s2
+    title: Contracts and containers
+    requires:
+      - { track: api-design, phase: p3 }
+      - { track: docker, phase: p2 }
+      - { skill: core.testing.integration, min: 0.8 }
+  - id: s3
+    title: Distributed systems
+    requires:
+      - { track: system-design, phase: p3 }
+      - { track: kubernetes, phase: p2 }
+      - { track: software-architect, phase: p3 }
+  - id: s4
+    title: Operations and resilience
+    requires:
+      - { track: system-design, phase: p4 }
+      - { track: devops, phase: p3 }
+next_paths: [backend-to-devops-cloud, staff-engineer]

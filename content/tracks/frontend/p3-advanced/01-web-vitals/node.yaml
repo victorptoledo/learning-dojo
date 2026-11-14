@@ -1,0 +1,14 @@
+id: frontend.p3.web-vitals
+legacy_id: fe-04-web-vitals
+kind: lesson
+status: draft
+title: "Core Web Vitals: LCP, INP and CLS"
+summary: "Google's metrics for real-user performance and experience."
+objectives:
+  - { id: o1, text: "Google's metrics for real-user performance and experience.", skills: [frontend.web-vitals] }
+prerequisites: [frontend.p2.state-management]
+difficulty: 4
+estimated_minutes: 30
+xp: 350
+lesson: lesson.md
+bridges: bridges

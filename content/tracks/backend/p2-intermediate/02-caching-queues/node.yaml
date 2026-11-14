@@ -1,0 +1,14 @@
+id: backend.p2.caching-queues
+legacy_id: be-04-caching-queues
+kind: lesson
+status: draft
+title: "Caching (Redis) and Message Queues"
+summary: "Asynchronous decoupling with RabbitMQ/Kafka and in-memory caching strategies."
+objectives:
+  - { id: o1, text: "Asynchronous decoupling with RabbitMQ/Kafka and in-memory caching strategies.", skills: [backend.caching-queues] }
+prerequisites: [backend.p2.databases-sql-nosql]
+difficulty: 3
+estimated_minutes: 30
+xp: 400
+lesson: lesson.md
+bridges: bridges

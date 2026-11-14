@@ -1,0 +1,14 @@
+id: typescript.p2.utility-conditional
+legacy_id: ts-02-utility-conditional
+kind: lesson
+status: draft
+title: "Conditional and Utility Types (`Partial`, `Pick`, `Omit`, `infer`)"
+summary: "Compile-time metaprogramming: manipulating types like functions."
+objectives:
+  - { id: o1, text: "Compile-time metaprogramming: manipulating types like functions.", skills: [typescript.utility-conditional] }
+prerequisites: [typescript.p1.structural-typing]
+difficulty: 3
+estimated_minutes: 30
+xp: 250
+lesson: lesson.md
+bridges: bridges

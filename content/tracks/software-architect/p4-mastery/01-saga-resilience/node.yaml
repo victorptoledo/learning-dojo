@@ -1,0 +1,14 @@
+id: software-architect.p4.saga-resilience
+legacy_id: arch-06-saga-resilience
+kind: lesson
+status: draft
+title: "The Saga Pattern and Compensations in Microservices"
+summary: "Coordinating business transactions across services without two-phase commit."
+objectives:
+  - { id: o1, text: "Coordinating business transactions across services without two-phase commit.", skills: [software-architect.saga-resilience] }
+prerequisites: [software-architect.p3.cqrs-outbox]
+difficulty: 5
+estimated_minutes: 30
+xp: 450
+lesson: lesson.md
+bridges: bridges

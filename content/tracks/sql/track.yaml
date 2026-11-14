@@ -1,0 +1,23 @@
+schema_version: 2
+id: sql
+name: "SQL & Relational Databases"
+archetype: language
+category: "Databases"
+icon: "🗄️"
+description: "Deep command of the language of data: joins, window functions, CTEs, transactions and set theory."
+status: draft
+bridges_available: [java]
+belts:
+  - { name: "White Belt", required_xp: 0, title: "Select Star" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Join Harmonizer" }
+  - { name: "Green Belt", required_xp: 800, title: "Aggregate & Group Master" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Window Function Magician" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Recursive CTE Sorcerer" }
+  - { name: "Black Belt", required_xp: 4000, title: "ACID & Query Optimization Titan" }
+  - { name: "Sensei", required_xp: 6000, title: "SQL Grandmaster" }
+phases:
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }

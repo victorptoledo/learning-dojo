@@ -1,0 +1,22 @@
+# content/tracks/rust/placement.yaml
+track: rust
+strategy: milestone-adaptive
+entry_question:
+  prompt: How familiar are you with Rust?
+  options:
+    - { label: Never used it,     start_phase: p0, test: false }
+    - { label: Studied it a bit,  start_phase: p1, test: true }
+    - { label: I use it at work,  start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 5, pass: 0.8,  partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8,  partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8,  partial: 0.5, include_short_kata: true }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6, include_short_kata: true }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75     # minimum skill mastery to skip a node
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+use_cross_track_priors: true         # core.* skills mastered in other tracks
+max_items: 25
+max_minutes: 20
+confirm_with_checkpoint: true        # checkpoint of the last skipped phase becomes the Belt Exam
+placed_out_xp: full                  # confirmed skips grant the full node XP

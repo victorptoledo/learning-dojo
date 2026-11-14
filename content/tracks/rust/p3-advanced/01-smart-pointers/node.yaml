@@ -1,0 +1,14 @@
+id: rust.p3.smart-pointers
+legacy_id: rust-08-smart-pointers
+kind: lesson
+status: draft
+title: "Smart Pointers: Box, Rc, RefCell and Arc"
+summary: "When the stack isn't enough: heap allocation, reference counting and interior mutability."
+objectives:
+  - { id: o1, text: "When the stack isn't enough: heap allocation, reference counting and interior mutability.", skills: [rust.smart-pointers] }
+prerequisites: [rust.p2.traits-generics]
+difficulty: 4
+estimated_minutes: 30
+xp: 350
+lesson: lesson.md
+bridges: bridges

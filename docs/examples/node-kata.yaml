@@ -1,0 +1,32 @@
+# content/tracks/rust/p1-fundamentals/04-loops/node.yaml
+id: rust.p1.loops
+legacy_id: null                # v1 track.json ID, used to migrate progress
+kind: kata                     # lesson | kata | quiz | checkpoint | project
+status: reviewed
+title: "Loops: loop, while and for"
+summary: When to use each kind of repetition and how loop returns a value.
+objectives:
+  - id: o1
+    text: Choose between loop, while and for for a given case
+    skills: [rust.control-flow.loops]
+  - id: o2
+    text: Iterate collections with for and iterators instead of manual indexes
+    skills: [rust.iterators.basics, core.collections.iteration]
+prerequisites: [rust.p1.control-flow]
+difficulty: 2                  # 1 to 5, relative to the phase
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges/              # java.md, python.md, typescript.md, generic.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  samples: kata/samples
+  rubric: kata/rubric.yaml
+  runner: { image: dojo-rust, command: cargo-test, timeout_s: 60, network: false }
+mastery:
+  pass:     { tests: all, review_score: 70 }
+  mastered: { review_score: 85 }
+remedial: [rust.p1.loops.practice-1]   # authored remedial katas

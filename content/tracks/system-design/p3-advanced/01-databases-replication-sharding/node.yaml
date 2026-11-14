@@ -1,0 +1,14 @@
+id: system-design.p3.databases-replication-sharding
+legacy_id: sys-04-databases-replication-sharding
+kind: lesson
+status: draft
+title: "Replication, Horizontal Sharding and Partitioning"
+summary: "Scaling relational and non-relational databases beyond one server."
+objectives:
+  - { id: o1, text: "Scaling relational and non-relational databases beyond one server.", skills: [system-design.databases-replication-sharding] }
+prerequisites: [system-design.p2.caching-strategies]
+difficulty: 4
+estimated_minutes: 30
+xp: 350
+lesson: lesson.md
+bridges: bridges

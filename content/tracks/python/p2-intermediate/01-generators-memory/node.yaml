@@ -1,0 +1,14 @@
+id: python.p2.generators-memory
+legacy_id: py-03-generators-memory
+kind: lesson
+status: draft
+title: "Generators, Iterators and Data Streams"
+summary: "Processing gigabytes of data with megabytes of memory using `yield`."
+objectives:
+  - { id: o1, text: "Processing gigabytes of data with megabytes of memory using `yield`.", skills: [python.generators-memory] }
+prerequisites: [python.p1.modern-typing-pydantic]
+difficulty: 3
+estimated_minutes: 30
+xp: 250
+lesson: lesson.md
+bridges: bridges

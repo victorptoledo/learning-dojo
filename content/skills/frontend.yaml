@@ -1,0 +1,6 @@
+namespace: frontend
+skills:
+  - { id: frontend.dom-rendering, title: "How the Browser Renders: DOM, CSSOM and the Critical Rendering Path" }
+  - { id: frontend.modern-css, title: "Modern CSS: Flexbox, Grid, Variables and Tailwind" }
+  - { id: frontend.state-management, title: "State Management and Reactivity" }
+  - { id: frontend.web-vitals, title: "Core Web Vitals: LCP, INP and CLS" }

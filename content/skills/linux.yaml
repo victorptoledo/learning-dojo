@@ -1,0 +1,4 @@
+namespace: linux
+skills:
+  - { id: linux.permissions-posix, title: "POSIX Permissions, sudo and User Management" }
+  - { id: linux.systemd-services, title: "systemd: Daemons, Unit Files and journalctl" }

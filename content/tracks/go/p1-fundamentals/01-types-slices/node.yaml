@@ -1,0 +1,14 @@
+id: go.p1.types-slices
+legacy_id: go-02-types-slices
+kind: lesson
+status: draft
+title: "Structs, Slices and Pointers"
+summary: "How Go handles dynamic collections (slices), maps and simple pointers."
+objectives:
+  - { id: o1, text: "How Go handles dynamic collections (slices), maps and simple pointers.", skills: [go.types-slices] }
+prerequisites: [go.p0.tooling-modules]
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

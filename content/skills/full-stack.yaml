@@ -1,0 +1,5 @@
+namespace: full-stack
+skills:
+  - { id: full-stack.client-server, title: "Type-Safe Communication Between Client and Server" }
+  - { id: full-stack.ssr-ssg, title: "SSR, SSG, ISR and React Server Components" }
+  - { id: full-stack.deploy-serverless, title: "Continuous Deployment, Edge Functions and Serverless Databases" }

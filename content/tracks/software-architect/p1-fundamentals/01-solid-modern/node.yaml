@@ -1,0 +1,14 @@
+id: software-architect.p1.solid-modern
+legacy_id: arch-01-solid-modern
+kind: lesson
+status: draft
+title: "SOLID Revisited and Loose Coupling"
+summary: "Applying SOLID pragmatically without 15 empty classes for a CRUD."
+objectives:
+  - { id: o1, text: "Applying SOLID pragmatically without 15 empty classes for a CRUD.", skills: [software-architect.solid-modern] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

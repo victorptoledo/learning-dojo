@@ -1,0 +1,7 @@
+namespace: python
+skills:
+  - { id: python.tooling-uv, title: "Project Management with uv, Poetry and pyproject.toml" }
+  - { id: python.modern-typing-pydantic, title: "Type Hints, Pydantic v2 and Protocols" }
+  - { id: python.generators-memory, title: "Generators, Iterators and Data Streams" }
+  - { id: python.decorators-context, title: "Advanced Decorators and Context Managers" }
+  - { id: python.asyncio-gil, title: "asyncio, the Event Loop and the GIL" }

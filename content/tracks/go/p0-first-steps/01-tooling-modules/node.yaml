@@ -1,0 +1,14 @@
+id: go.p0.tooling-modules
+legacy_id: go-01-tooling-modules
+kind: lesson
+status: draft
+title: "Go Toolchain and Modules"
+summary: "Dependency management with go.mod and the core commands (`go run`, `go build`, `go test`)."
+objectives:
+  - { id: o1, text: "Dependency management with go.mod and the core commands (`go run`, `go build`, `go test`).", skills: [go.tooling-modules] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

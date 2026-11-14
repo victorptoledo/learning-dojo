@@ -1,0 +1,14 @@
+id: sql.p2.window-functions
+legacy_id: sql-01-window-functions
+kind: lesson
+status: draft
+title: "Window Functions: OVER, PARTITION BY, ROW_NUMBER and RANK"
+summary: "Analytical calculations over sets of rows without collapsing them with GROUP BY."
+objectives:
+  - { id: o1, text: "Analytical calculations over sets of rows without collapsing them with GROUP BY.", skills: [sql.window-functions] }
+prerequisites: []
+difficulty: 3
+estimated_minutes: 30
+xp: 200
+lesson: lesson.md
+bridges: bridges

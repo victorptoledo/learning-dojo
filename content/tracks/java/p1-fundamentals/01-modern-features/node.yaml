@@ -1,0 +1,14 @@
+id: java.p1.modern-features
+legacy_id: java-01-modern-features
+kind: lesson
+status: draft
+title: "Java 17 to 21+: Records, Pattern Matching and Sealed Classes"
+summary: "Writing clean, immutable Java without libraries like Lombok."
+objectives:
+  - { id: o1, text: "Writing clean, immutable Java without libraries like Lombok.", skills: [java.modern-features] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

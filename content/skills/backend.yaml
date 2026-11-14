@@ -1,0 +1,6 @@
+namespace: backend
+skills:
+  - { id: backend.protocols, title: "Web Protocols: HTTP/1.1, HTTP/2, HTTP/3 and WebSockets" }
+  - { id: backend.auth-security, title: "Authentication: JWT, Sessions, OAuth2 and OIDC" }
+  - { id: backend.databases-sql-nosql, title: "Relational Databases (ACID) vs NoSQL" }
+  - { id: backend.caching-queues, title: "Caching (Redis) and Message Queues" }

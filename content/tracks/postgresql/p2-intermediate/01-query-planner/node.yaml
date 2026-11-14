@@ -1,0 +1,14 @@
+id: postgresql.p2.query-planner
+legacy_id: pg-01-query-planner
+kind: lesson
+status: draft
+title: "EXPLAIN (ANALYZE, BUFFERS): Reading the Query Planner"
+summary: "Spotting Seq Scan, Index Scan and Bitmap Heap Scan to turn minute-long queries into milliseconds."
+objectives:
+  - { id: o1, text: "Spotting Seq Scan, Index Scan and Bitmap Heap Scan to turn minute-long queries into milliseconds.", skills: [postgresql.query-planner] }
+prerequisites: []
+difficulty: 3
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

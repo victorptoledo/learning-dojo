@@ -1,0 +1,14 @@
+id: rust.p0.setup
+legacy_id: rust-01-setup
+kind: lesson
+status: draft
+title: "Cargo, rustc and the Toolchain"
+summary: "Rust's ecosystem: building, testing and managing dependencies."
+objectives:
+  - { id: o1, text: "Rust's ecosystem: building, testing and managing dependencies.", skills: [rust.setup] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

@@ -1,0 +1,40 @@
+# content/tracks/rust/bank/p1.yaml (phase 1 question bank)
+phase: p1
+items:
+  - id: rust.q.loops.01
+    type: predict_output       # single_choice | multi_choice | predict_output | fill_code | short_kata
+    skills: [rust.control-flow.loops]
+    difficulty: 2
+    use_in: [placement, checkpoint]
+    prompt: What does this program print?
+    code: |
+      fn main() {
+          let mut n = 0;
+          let r = loop { n += 3; if n > 7 { break n * 2; } };
+          println!("{r}");
+      }
+    answer: "18"
+    explanation: The loop ends when n = 9 and break returns 9 * 2.
+
+  - id: rust.q.types.03
+    type: single_choice
+    skills: [rust.types.primitives]
+    difficulty: 3
+    use_in: [placement, checkpoint]
+    prompt: "A u8 holding 255 is incremented by 1 at runtime in a debug build. What happens?"
+    options:
+      - It becomes 0
+      - It panics with an overflow
+      - It is promoted to u16
+      - I don't know             # every question has this option, with no penalty
+    answer: 1
+    explanation: Debug builds panic on arithmetic overflow; release builds wrap unless overflow-checks is enabled.
+
+  - id: rust.q.fn.02
+    type: fill_code
+    skills: [rust.functions.basics]
+    difficulty: 2
+    use_in: [placement]
+    prompt: Complete the signature so the function returns the sum without using return.
+    code: "fn sum(a: i32, b: i32) ____ { a + b }"
+    answer: "-> i32"

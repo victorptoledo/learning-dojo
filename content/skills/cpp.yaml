@@ -1,0 +1,4 @@
+namespace: cpp
+skills:
+  - { id: cpp.raii-memory, title: "RAII and Smart Pointers (`std::unique_ptr`, `std::shared_ptr`)" }
+  - { id: cpp.move-semantics, title: "Move Semantics and Rvalue References (`&&`, `std::move`)" }

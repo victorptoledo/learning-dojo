@@ -1,0 +1,14 @@
+id: data-engineer.p3.spark-distributed
+legacy_id: de-03-spark-distributed
+kind: lesson
+status: draft
+title: "Apache Spark, DataFrames and Data Partitioning"
+summary: "Distributed in-memory processing over terabytes of data with PySpark or Scala."
+objectives:
+  - { id: o1, text: "Distributed in-memory processing over terabytes of data with PySpark or Scala.", skills: [data-engineer.spark-distributed] }
+prerequisites: [data-engineer.p2.columnar-storage]
+difficulty: 4
+estimated_minutes: 30
+xp: 350
+lesson: lesson.md
+bridges: bridges

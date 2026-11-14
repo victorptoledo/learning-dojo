@@ -1,0 +1,4 @@
+namespace: datastructures-and-algorithms
+skills:
+  - { id: datastructures-and-algorithms.hash-tables, title: "Hash Tables Inside: Hash Functions, Collisions and Load Factor" }
+  - { id: datastructures-and-algorithms.graphs-bfs-dfs, title: "Graphs: BFS, DFS and Dijkstra" }

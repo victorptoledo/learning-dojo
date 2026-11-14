@@ -1,0 +1,4 @@
+namespace: sql
+skills:
+  - { id: sql.window-functions, title: "Window Functions: OVER, PARTITION BY, ROW_NUMBER and RANK" }
+  - { id: sql.cte-recursive, title: "Common Table Expressions (CTEs) and Recursive Queries" }

@@ -1,0 +1,14 @@
+id: api-design.p1.rest-maturity
+legacy_id: api-01-rest-maturity
+kind: lesson
+status: draft
+title: "Richardson Maturity Model and Resource Design"
+summary: "Noun-based URIs, the right HTTP methods and hypermedia."
+objectives:
+  - { id: o1, text: "Noun-based URIs, the right HTTP methods and hypermedia.", skills: [api-design.rest-maturity] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

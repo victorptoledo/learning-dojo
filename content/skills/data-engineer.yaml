@@ -1,0 +1,5 @@
+namespace: data-engineer
+skills:
+  - { id: data-engineer.etl-vs-elt, title: "ETL vs ELT and Dimensional Modelling (Kimball)" }
+  - { id: data-engineer.columnar-storage, title: "Columnar Formats: Parquet, ORC and Compression" }
+  - { id: data-engineer.spark-distributed, title: "Apache Spark, DataFrames and Data Partitioning" }

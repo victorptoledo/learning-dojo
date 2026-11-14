@@ -1,0 +1,23 @@
+schema_version: 2
+id: react
+name: "React Developer"
+archetype: role
+category: "Careers & Roles"
+icon: "⚛️"
+description: "The most used UI library: hooks, Fiber, reconciliation, Suspense and Server Components."
+status: draft
+bridges_available: [java]
+belts:
+  - { name: "White Belt", required_xp: 0, title: "useState Novice" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Component Modularizer" }
+  - { name: "Green Belt", required_xp: 800, title: "Custom Hook Crafter" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Context & Memo Tuner" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Fiber & Suspense Pro" }
+  - { name: "Black Belt", required_xp: 4000, title: "RSC & Server Component Architect" }
+  - { name: "Sensei", required_xp: 6000, title: "React Grandmaster" }
+phases:
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does and the tools of the trade" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The minimum of each pillar of the role" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Integrating the pillars into working features" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Scale, performance and architecture decisions" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production ownership, reliability and leadership topics" }

@@ -1,0 +1,4 @@
+namespace: typescript
+skills:
+  - { id: typescript.structural-typing, title: "Structural vs Nominal Typing" }
+  - { id: typescript.utility-conditional, title: "Conditional and Utility Types (`Partial`, `Pick`, `Omit`, `infer`)" }

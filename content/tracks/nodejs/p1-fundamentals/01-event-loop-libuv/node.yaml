@@ -1,0 +1,14 @@
+id: nodejs.p1.event-loop-libuv
+legacy_id: node-01-event-loop-libuv
+kind: lesson
+status: draft
+title: "The Node.js Event Loop and libuv"
+summary: "The phases of the event loop: timers, pending callbacks, poll, check (`setImmediate`) and close."
+objectives:
+  - { id: o1, text: "The phases of the event loop: timers, pending callbacks, poll, check (`setImmediate`) and close.", skills: [nodejs.event-loop-libuv] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 200
+lesson: lesson.md
+bridges: bridges

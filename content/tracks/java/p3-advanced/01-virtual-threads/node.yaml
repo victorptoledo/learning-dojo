@@ -1,0 +1,14 @@
+id: java.p3.virtual-threads
+legacy_id: java-02-virtual-threads
+kind: lesson
+status: draft
+title: "Virtual Threads (Project Loom): Lightweight Concurrency"
+summary: "Millions of concurrent threads without leaving the blocking, synchronous programming model."
+objectives:
+  - { id: o1, text: "Millions of concurrent threads without leaving the blocking, synchronous programming model.", skills: [java.virtual-threads] }
+prerequisites: [java.p1.modern-features]
+difficulty: 4
+estimated_minutes: 30
+xp: 250
+lesson: lesson.md
+bridges: bridges

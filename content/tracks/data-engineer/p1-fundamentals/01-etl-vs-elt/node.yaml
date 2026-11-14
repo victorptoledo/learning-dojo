@@ -1,0 +1,14 @@
+id: data-engineer.p1.etl-vs-elt
+legacy_id: de-01-etl-vs-elt
+kind: lesson
+status: draft
+title: "ETL vs ELT and Dimensional Modelling (Kimball)"
+summary: "Star and snowflake schemas, fact and dimension tables, and the move to modern ELT."
+objectives:
+  - { id: o1, text: "Star and snowflake schemas, fact and dimension tables, and the move to modern ELT.", skills: [data-engineer.etl-vs-elt] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

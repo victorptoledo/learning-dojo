@@ -1,0 +1,264 @@
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+
+pub type TrackId = String;
+pub type PhaseId = String;
+pub type NodeId = String;
+
+/// Source-language key of the bridge shown when the learner's language has none.
+pub const GENERIC_BRIDGE: &str = "generic";
+
+/// How a track is taught and how its katas are checked.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Archetype {
+    Language,
+    Platform,
+    Concept,
+    Role,
+}
+
+/// Editorial state of a piece of content. Only `Reviewed` content is meant for learners.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ContentStatus {
+    Draft,
+    Reviewed,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum NodeKind {
+    Lesson,
+    Kata,
+    Quiz,
+    Checkpoint,
+    Project,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Belt {
+    pub name: String,
+    pub required_xp: u32,
+    pub title: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Objective {
+    pub id: String,
+    pub text: String,
+    pub skills: Vec<String>,
+}
+
+/// Rosetta bridge: the node's concept explained from a given source language.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Bridge {
+    pub from: String,
+    pub concept: String,
+    pub from_way: String,
+    pub native_way: String,
+    pub sensei_tip: String,
+    pub body: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Node {
+    pub id: NodeId,
+    pub legacy_id: Option<String>,
+    pub kind: NodeKind,
+    pub status: ContentStatus,
+    pub title: String,
+    pub summary: String,
+    pub objectives: Vec<Objective>,
+    pub prerequisites: Vec<NodeId>,
+    pub difficulty: u8,
+    pub estimated_minutes: u32,
+    pub xp: u32,
+    pub lesson: Option<String>,
+    /// Bridges keyed by source language (`java`, `python`, ..., `generic`).
+    pub bridges: BTreeMap<String, Bridge>,
+}
+
+impl Node {
+    /// Bridge for the learner's source language, falling back to the generic one.
+    pub fn bridge_for(&self, source_language: &str) -> Option<&Bridge> {
+        self.bridges
+            .get(source_language)
+            .or_else(|| self.bridges.get(GENERIC_BRIDGE))
+    }
+
+    pub fn skills(&self) -> impl Iterator<Item = &str> {
+        self.objectives
+            .iter()
+            .flat_map(|objective| objective.skills.iter().map(String::as_str))
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Phase {
+    pub id: PhaseId,
+    pub order: u8,
+    pub title: String,
+    pub goal: String,
+    pub nodes: Vec<Node>,
+}
+
+impl Phase {
+    pub fn checkpoint(&self) -> Option<&Node> {
+        self.nodes
+            .iter()
+            .find(|node| node.kind == NodeKind::Checkpoint)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Track {
+    pub id: TrackId,
+    pub name: String,
+    pub archetype: Archetype,
+    pub category: String,
+    pub icon: String,
+    pub description: String,
+    pub status: ContentStatus,
+    pub belts: Vec<Belt>,
+    pub phases: Vec<Phase>,
+}
+
+impl Track {
+    pub fn nodes(&self) -> impl Iterator<Item = &Node> {
+        self.phases.iter().flat_map(|phase| phase.nodes.iter())
+    }
+
+    pub fn node(&self, node_id: &str) -> Option<&Node> {
+        self.nodes().find(|node| node.id == node_id)
+    }
+
+    pub fn phase_of(&self, node_id: &str) -> Option<&Phase> {
+        self.phases
+            .iter()
+            .find(|phase| phase.nodes.iter().any(|node| node.id == node_id))
+    }
+
+    pub fn node_count(&self) -> usize {
+        self.phases.iter().map(|phase| phase.nodes.len()).sum()
+    }
+
+    pub fn total_xp(&self) -> u32 {
+        self.nodes().map(|node| node.xp).sum()
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod fixtures {
+    use super::*;
+
+    pub fn node(id: &str, prerequisites: &[&str], xp: u32) -> Node {
+        Node {
+            id: id.to_string(),
+            legacy_id: None,
+            kind: NodeKind::Kata,
+            status: ContentStatus::Draft,
+            title: id.to_string(),
+            summary: String::new(),
+            objectives: vec![],
+            prerequisites: prerequisites.iter().map(|p| p.to_string()).collect(),
+            difficulty: 1,
+            estimated_minutes: 10,
+            xp,
+            lesson: None,
+            bridges: BTreeMap::new(),
+        }
+    }
+
+    pub fn bridge(from: &str) -> Bridge {
+        Bridge {
+            from: from.to_string(),
+            concept: format!("concept from {from}"),
+            from_way: String::new(),
+            native_way: String::new(),
+            sensei_tip: String::new(),
+            body: String::new(),
+        }
+    }
+
+    pub fn track(phases: Vec<Vec<Node>>) -> Track {
+        Track {
+            id: "rust".to_string(),
+            name: "Rust".to_string(),
+            archetype: Archetype::Language,
+            category: "Programming Languages".to_string(),
+            icon: "🦀".to_string(),
+            description: String::new(),
+            status: ContentStatus::Draft,
+            belts: vec![
+                Belt {
+                    name: "White Belt".into(),
+                    required_xp: 0,
+                    title: "Novice".into(),
+                },
+                Belt {
+                    name: "Yellow Belt".into(),
+                    required_xp: 300,
+                    title: "Apprentice".into(),
+                },
+                Belt {
+                    name: "Green Belt".into(),
+                    required_xp: 800,
+                    title: "Adept".into(),
+                },
+            ],
+            phases: phases
+                .into_iter()
+                .enumerate()
+                .map(|(order, nodes)| Phase {
+                    id: format!("p{order}"),
+                    order: order as u8,
+                    title: format!("Phase {order}"),
+                    goal: String::new(),
+                    nodes,
+                })
+                .collect(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::fixtures::{bridge, node, track};
+    use super::*;
+
+    #[test]
+    fn bridge_prefers_the_learner_language() {
+        let mut loops = node("rust.p1.loops", &[], 100);
+        loops.bridges.insert("java".into(), bridge("java"));
+        loops
+            .bridges
+            .insert(GENERIC_BRIDGE.into(), bridge(GENERIC_BRIDGE));
+
+        assert_eq!(loops.bridge_for("java").unwrap().from, "java");
+    }
+
+    #[test]
+    fn bridge_falls_back_to_generic_then_to_none() {
+        let mut loops = node("rust.p1.loops", &[], 100);
+        assert!(loops.bridge_for("python").is_none());
+
+        loops
+            .bridges
+            .insert(GENERIC_BRIDGE.into(), bridge(GENERIC_BRIDGE));
+        assert_eq!(loops.bridge_for("python").unwrap().from, GENERIC_BRIDGE);
+    }
+
+    #[test]
+    fn track_finds_nodes_and_their_phase_across_phases() {
+        let rust = track(vec![
+            vec![node("rust.p0.setup", &[], 100)],
+            vec![node("rust.p1.loops", &["rust.p0.setup"], 150)],
+        ]);
+
+        assert_eq!(rust.node_count(), 2);
+        assert_eq!(rust.total_xp(), 250);
+        assert_eq!(rust.phase_of("rust.p1.loops").unwrap().id, "p1");
+        assert!(rust.node("rust.p9.missing").is_none());
+    }
+}

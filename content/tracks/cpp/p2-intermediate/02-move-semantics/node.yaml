@@ -1,0 +1,14 @@
+id: cpp.p2.move-semantics
+legacy_id: cpp-02-move-semantics
+kind: lesson
+status: draft
+title: "Move Semantics and Rvalue References (`&&`, `std::move`)"
+summary: "Transferring resources without allocating or deep-copying memory."
+objectives:
+  - { id: o1, text: "Transferring resources without allocating or deep-copying memory.", skills: [cpp.move-semantics] }
+prerequisites: [cpp.p2.raii-memory]
+difficulty: 3
+estimated_minutes: 30
+xp: 300
+lesson: lesson.md
+bridges: bridges

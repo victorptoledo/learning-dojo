@@ -1,0 +1,14 @@
+id: kubernetes.p1.control-plane
+legacy_id: k8s-01-control-plane
+kind: lesson
+status: draft
+title: "The Control Plane: API Server, etcd, Scheduler and Controller Manager"
+summary: "How Kubernetes' brain reconciles the desired state with the actual state."
+objectives:
+  - { id: o1, text: "How Kubernetes' brain reconciles the desired state with the actual state.", skills: [kubernetes.control-plane] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 200
+lesson: lesson.md
+bridges: bridges

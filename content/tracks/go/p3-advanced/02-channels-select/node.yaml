@@ -1,0 +1,14 @@
+id: go.p3.channels-select
+legacy_id: go-06-channels-select
+kind: lesson
+status: draft
+title: "Channels and the `select` Statement"
+summary: "Safe communication between goroutines and event multiplexing."
+objectives:
+  - { id: o1, text: "Safe communication between goroutines and event multiplexing.", skills: [go.channels-select] }
+prerequisites: [go.p3.goroutines-concurrency]
+difficulty: 4
+estimated_minutes: 30
+xp: 350
+lesson: lesson.md
+bridges: bridges

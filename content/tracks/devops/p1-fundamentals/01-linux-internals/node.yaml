@@ -1,0 +1,14 @@
+id: devops.p1.linux-internals
+legacy_id: devops-01-linux-internals
+kind: lesson
+status: draft
+title: "Linux: Processes, Signals and Networking"
+summary: "Essential commands, POSIX permissions, systemd, ports and TCP networking."
+objectives:
+  - { id: o1, text: "Essential commands, POSIX permissions, systemd, ports and TCP networking.", skills: [devops.linux-internals] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

@@ -1,0 +1,14 @@
+id: full-stack.p1.client-server
+legacy_id: fs-01-client-server
+kind: lesson
+status: draft
+title: "Type-Safe Communication Between Client and Server"
+summary: "Shared data contracts, tRPC, OpenAPI and generated typed clients."
+objectives:
+  - { id: o1, text: "Shared data contracts, tRPC, OpenAPI and generated typed clients.", skills: [full-stack.client-server] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

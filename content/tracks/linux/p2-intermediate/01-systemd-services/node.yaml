@@ -1,0 +1,14 @@
+id: linux.p2.systemd-services
+legacy_id: lnx-02-systemd-services
+kind: lesson
+status: draft
+title: "systemd: Daemons, Unit Files and journalctl"
+summary: "Turning any program into a resilient background service that restarts after failures."
+objectives:
+  - { id: o1, text: "Turning any program into a resilient background service that restarts after failures.", skills: [linux.systemd-services] }
+prerequisites: [linux.p1.permissions-posix]
+difficulty: 3
+estimated_minutes: 30
+xp: 200
+lesson: lesson.md
+bridges: bridges

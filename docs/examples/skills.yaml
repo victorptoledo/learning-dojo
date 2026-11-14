@@ -1,0 +1,11 @@
+# content/skills/rust.yaml (core.* skills live in content/skills/core.yaml)
+namespace: rust
+skills:
+  - { id: rust.types.primitives,        title: Primitive types and overflow, maps_to: [core.types.primitives] }
+  - { id: rust.control-flow.branching,  title: if, match and expressions,    maps_to: [core.control-flow] }
+  - { id: rust.control-flow.loops,      title: loop, while and for,          maps_to: [core.control-flow] }
+  - { id: rust.functions.basics,        title: Functions and tail expressions, maps_to: [core.functions] }
+  - { id: rust.collections.vec-hashmap, title: Vec and HashMap,              maps_to: [core.collections.basics] }
+  - { id: rust.iterators.basics,        title: Iterators and adapters,       maps_to: [core.collections.iteration] }
+  - { id: rust.ownership.move,          title: Move and Drop }
+  - { id: rust.concurrency.channels,    title: mpsc channels and threads,    maps_to: [core.concurrency.message-passing] }

@@ -1,0 +1,14 @@
+id: java.p4.graalvm-native
+legacy_id: java-03-graalvm-native
+kind: lesson
+status: draft
+title: "GraalVM Native Image: Millisecond Startup"
+summary: "Ahead-of-time compilation that turns Java applications into native executables."
+objectives:
+  - { id: o1, text: "Ahead-of-time compilation that turns Java applications into native executables.", skills: [java.graalvm-native] }
+prerequisites: [java.p3.virtual-threads]
+difficulty: 5
+estimated_minutes: 30
+xp: 350
+lesson: lesson.md
+bridges: bridges

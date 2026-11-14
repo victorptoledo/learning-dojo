@@ -1,0 +1,14 @@
+id: rust.p3.concurrency
+legacy_id: rust-09-concurrency
+kind: lesson
+status: draft
+title: "Threads, Channels (mpsc) and Mutex"
+summary: "Concurrency free of data races, guaranteed at compile time by `Send` and `Sync`."
+objectives:
+  - { id: o1, text: "Concurrency free of data races, guaranteed at compile time by `Send` and `Sync`.", skills: [rust.concurrency] }
+prerequisites: [rust.p3.smart-pointers]
+difficulty: 4
+estimated_minutes: 30
+xp: 400
+lesson: lesson.md
+bridges: bridges

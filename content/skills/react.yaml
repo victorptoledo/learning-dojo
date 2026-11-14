@@ -1,0 +1,4 @@
+namespace: react
+skills:
+  - { id: react.hooks-lifecycle, title: "useState, useEffect and the Synchronisation Mindset" }
+  - { id: react.reconciliation-fiber, title: "React Reconciliation: the Virtual DOM and Fiber" }

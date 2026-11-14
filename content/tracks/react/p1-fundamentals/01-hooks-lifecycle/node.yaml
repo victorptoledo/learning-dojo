@@ -1,0 +1,14 @@
+id: react.p1.hooks-lifecycle
+legacy_id: react-01-hooks-lifecycle
+kind: lesson
+status: draft
+title: "useState, useEffect and the Synchronisation Mindset"
+summary: "Why `useEffect` is not a lifecycle method and how to avoid infinite re-render loops."
+objectives:
+  - { id: o1, text: "Why `useEffect` is not a lifecycle method and how to avoid infinite re-render loops.", skills: [react.hooks-lifecycle] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges

@@ -1,0 +1,9 @@
+namespace: go
+skills:
+  - { id: go.tooling-modules, title: "Go Toolchain and Modules" }
+  - { id: go.types-slices, title: "Structs, Slices and Pointers" }
+  - { id: go.errors-idiomatic, title: "The Famous `if err != nil`" }
+  - { id: go.interfaces-duck-typing, title: "Implicit Interfaces (Structural Typing)" }
+  - { id: go.goroutines-concurrency, title: "Goroutines: Thousands of Lightweight Threads" }
+  - { id: go.channels-select, title: "Channels and the `select` Statement" }
+  - { id: go.context-lifecycle, title: "Context: Cancellation, Deadlines and Propagation" }

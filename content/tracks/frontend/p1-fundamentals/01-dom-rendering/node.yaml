@@ -1,0 +1,14 @@
+id: frontend.p1.dom-rendering
+legacy_id: fe-01-dom-rendering
+kind: lesson
+status: draft
+title: "How the Browser Renders: DOM, CSSOM and the Critical Rendering Path"
+summary: "HTML parsing, render tree construction, layout (reflow) and paint (repaint)."
+objectives:
+  - { id: o1, text: "HTML parsing, render tree construction, layout (reflow) and paint (repaint).", skills: [frontend.dom-rendering] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges

@@ -1,0 +1,8 @@
+namespace: devops
+skills:
+  - { id: devops.linux-internals, title: "Linux: Processes, Signals and Networking" }
+  - { id: devops.docker-containers, title: "Docker: Multi-stage Builds and Layer Optimisation" }
+  - { id: devops.kubernetes-core, title: "Kubernetes: Pods, Deployments and Services" }
+  - { id: devops.cicd-gitops, title: "CI/CD Pipelines and GitOps" }
+  - { id: devops.iac-terraform, title: "Terraform: Declarative Cloud and State Management" }
+  - { id: devops.observability-sre, title: "Observability: Metrics, Logs and Distributed Tracing" }

@@ -1,0 +1,4 @@
+namespace: nodejs
+skills:
+  - { id: nodejs.event-loop-libuv, title: "The Node.js Event Loop and libuv" }
+  - { id: nodejs.streams-buffers, title: "Streams and Buffers: Processing Files Without Exhausting Memory" }

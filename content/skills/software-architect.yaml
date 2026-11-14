@@ -1,0 +1,8 @@
+namespace: software-architect
+skills:
+  - { id: software-architect.solid-modern, title: "SOLID Revisited and Loose Coupling" }
+  - { id: software-architect.clean-hexagonal, title: "Hexagonal Architecture (Ports and Adapters)" }
+  - { id: software-architect.ddd-strategic, title: "Strategic DDD: Ubiquitous Language and Bounded Contexts" }
+  - { id: software-architect.ddd-tactical, title: "Tactical DDD: Entities, Value Objects and Aggregates" }
+  - { id: software-architect.cqrs-outbox, title: "CQRS and the Transactional Outbox" }
+  - { id: software-architect.saga-resilience, title: "The Saga Pattern and Compensations in Microservices" }

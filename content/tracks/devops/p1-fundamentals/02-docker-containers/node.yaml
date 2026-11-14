@@ -1,0 +1,14 @@
+id: devops.p1.docker-containers
+legacy_id: devops-02-docker-containers
+kind: lesson
+status: draft
+title: "Docker: Multi-stage Builds and Layer Optimisation"
+summary: "How containers isolate processes using Linux cgroups and namespaces."
+objectives:
+  - { id: o1, text: "How containers isolate processes using Linux cgroups and namespaces.", skills: [devops.docker-containers] }
+prerequisites: [devops.p1.linux-internals]
+difficulty: 2
+estimated_minutes: 30
+xp: 200
+lesson: lesson.md
+bridges: bridges

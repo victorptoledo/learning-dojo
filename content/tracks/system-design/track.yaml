@@ -1,0 +1,23 @@
+schema_version: 2
+id: system-design
+name: "System Design"
+archetype: concept
+category: "Architecture & Engineering"
+icon: "🏛️"
+description: "Design very large systems: distributed resilience, caching, partitioned databases and messaging."
+status: draft
+bridges_available: [java]
+belts:
+  - { name: "White Belt", required_xp: 0, title: "Monolith Builder" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Cache Master" }
+  - { name: "Green Belt", required_xp: 800, title: "Sharding Specialist" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Message Queue Wrangler" }
+  - { name: "Brown Belt", required_xp: 2500, title: "High Availability Guru" }
+  - { name: "Black Belt", required_xp: 4000, title: "Distributed Systems Titan" }
+  - { name: "Sensei", required_xp: 6000, title: "Staff+ Infrastructure Architect" }
+phases:
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Why the discipline exists and the vocabulary to talk about it" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core concepts and mental models" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Trade-offs, combining concepts and common practices" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Advanced techniques and architecture at scale" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Real production cases, failure modes and resilience" }
