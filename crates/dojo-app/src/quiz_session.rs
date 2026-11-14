@@ -23,6 +23,8 @@ pub struct QuizSession {
     /// What the learner typed for a text question.
     pub input: String,
     pub stage: Stage,
+    /// Indexes of the questions answered wrong.
+    pub missed: Vec<usize>,
 }
 
 impl QuizSession {
@@ -36,6 +38,7 @@ impl QuizSession {
             correct: 0,
             input: String::new(),
             stage: Stage::Asking,
+            missed: Vec::new(),
         }
     }
 
@@ -87,6 +90,8 @@ impl QuizSession {
         let correct = self.question().is_correct(answer);
         if correct {
             self.correct += 1;
+        } else {
+            self.missed.push(self.index);
         }
         self.stage = Stage::Feedback { correct };
     }
@@ -99,6 +104,14 @@ impl QuizSession {
         } else {
             self.stage = Stage::Finished(self.quiz.score(self.correct));
         }
+    }
+
+    /// Skills of the questions answered wrong.
+    pub fn missed_skills(&self) -> std::collections::HashSet<String> {
+        self.missed
+            .iter()
+            .flat_map(|&index| self.quiz.questions[index].skills.iter().cloned())
+            .collect()
     }
 
     pub fn score(&self) -> Option<QuizScore> {
@@ -126,6 +139,7 @@ mod tests {
                         answer: 1,
                     },
                     explanation: String::new(),
+                    skills: vec![],
                 },
                 Question {
                     id: "q2".into(),
@@ -135,6 +149,7 @@ mod tests {
                         answers: vec!["42".into()],
                     },
                     explanation: String::new(),
+                    skills: vec![],
                 },
             ],
         }

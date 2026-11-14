@@ -3,7 +3,7 @@
 use crate::app::{App, NodeKey, Screen, checkpoint_missing_part};
 use crate::quiz_session::QuizSession;
 use chrono::Utc;
-use dojo_core::{Evidence, Node, ProgressEvent, QuizAttempt, QuizScore, Refusal, Track};
+use dojo_core::{Evidence, Node, QuizAttempt, QuizScore, Refusal, Track};
 
 impl App {
     /// Enter on a lesson: opens its document in the editor.
@@ -82,8 +82,11 @@ impl App {
     fn quiz_outcome(&mut self, session: &QuizSession, score: QuizScore) -> String {
         let summary = format!("{}/{} correct", score.correct, score.total);
         if !score.passed {
+            let missed_skills = session.missed_skills();
+            let revoked =
+                self.revoke_missed_skills(&session.track_id, &session.node_id, &missed_skills);
             return format!(
-                "📝 {summary} — {} needed. Reread the lesson and press [Enter] to try again.",
+                "📝 {summary} — {} needed. Reread the lesson and press [Q] to try again.{revoked}",
                 session.quiz.needed()
             );
         }
@@ -105,14 +108,10 @@ impl App {
             .and_then(|(evidence, _)| checkpoint_missing_part(evidence));
         let decision = decision.map(|(_, decision)| decision);
         match decision {
-            Some(Ok(event)) => {
-                let xp = match &event {
-                    ProgressEvent::NodeCompleted { xp, .. } => *xp,
-                    ProgressEvent::NodeReset { .. } => 0,
-                };
-                self.record(event);
-                format!("✅ Quiz passed: {summary}. +{xp} XP.")
-            }
+            Some(Ok(event)) => format!(
+                "✅ Quiz passed: {summary}.{}",
+                self.record_completion(event)
+            ),
             Some(Err(Refusal::AlreadyCompleted)) | None => {
                 format!("✅ Quiz passed again: {summary}.")
             }

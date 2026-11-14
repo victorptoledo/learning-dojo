@@ -61,6 +61,7 @@ fn catalog() -> Catalog {
             status: ContentStatus::Draft,
             belts: vec![],
             phases: vec![phase],
+            placement: None,
             requirements: vec![],
         }],
         skills: BTreeMap::new(),
@@ -73,7 +74,7 @@ fn new_store_has_no_settings_and_no_events() {
 
     assert!(store.load_settings().unwrap().is_none());
     assert!(store.load_events().unwrap().is_empty());
-    assert_eq!(store.schema_version().unwrap(), 3);
+    assert_eq!(store.schema_version().unwrap(), 4);
 }
 
 #[test]
@@ -262,4 +263,32 @@ fn quiz_attempts_are_stored_and_the_latest_is_returned() {
         store.latest_quiz_attempt("rust", "rust.p0.setup").unwrap(),
         Some(attempt(5, true, 2))
     );
+}
+
+#[test]
+fn placement_events_round_trip() {
+    let mut store = SqliteStore::open_in_memory().unwrap();
+    let on = chrono::NaiveDate::from_ymd_opt(2026, 11, 14).unwrap();
+    let events = vec![
+        ProgressEvent::NodePlacedOut {
+            track_id: "rust".into(),
+            node_id: "rust.p0.setup".into(),
+            on,
+        },
+        ProgressEvent::BeltExamAssigned {
+            track_id: "rust".into(),
+            node_id: "rust.p1.checkpoint".into(),
+            on,
+        },
+        ProgressEvent::PlacementRevoked {
+            track_id: "rust".into(),
+            node_id: "rust.p0.setup".into(),
+            on,
+        },
+    ];
+    for event in &events {
+        store.append_event(event).unwrap();
+    }
+
+    assert_eq!(store.load_events().unwrap(), events);
 }

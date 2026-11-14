@@ -29,6 +29,7 @@ pub fn render(frame: &mut Frame, app: &App) {
                 render_setup(frame, session, frame.area());
             }
         }
+        Screen::Placement => crate::placement_view::render_placement(frame, app, frame.area()),
         Screen::TrackView => {}
     }
 }
@@ -187,6 +188,8 @@ fn node_status(app: &App, track: &Track, node: &Node) -> (&'static str, Style) {
                 .fg(Color::Green)
                 .add_modifier(Modifier::BOLD),
         )
+    } else if app.profile.is_placed_out(&track.id, &node.id) {
+        ("⏭", Style::default().fg(Color::Cyan))
     } else if node.under_construction() {
         ("🚧", Style::default().fg(Color::DarkGray))
     } else if !app.profile.is_unlocked(track, node) {
@@ -195,6 +198,8 @@ fn node_status(app: &App, track: &Track, node: &Node) -> (&'static str, Style) {
         ("⏳", Style::default().fg(Color::Cyan))
     } else if kata_started(app, track, node) {
         ("◐", Style::default().fg(Color::Yellow))
+    } else if app.profile.belt_exam(&track.id) == Some(node.id.as_str()) {
+        ("🥋", Style::default().fg(Color::Magenta))
     } else if node.kind == NodeKind::Checkpoint {
         ("📋", Style::default().fg(Color::Yellow))
     } else {
@@ -243,6 +248,13 @@ fn render_kata(
     let key = (track.id.clone(), node.id.clone());
     let mut lines = Vec::new();
     if node.kind == NodeKind::Checkpoint {
+        if app.profile.belt_exam(&track.id) == Some(node.id.as_str()) {
+            lines.push(Line::from(
+                "🥋 Belt Exam: passing this checkpoint confirms the nodes you placed out (⏭) and gives their XP."
+                    .bold()
+                    .yellow(),
+            ));
+        }
         lines.push(Line::from(
             "📋 Checkpoint: pass the quiz [Q] and the integration kata below."
                 .bold()
@@ -358,7 +370,7 @@ fn render_summary(
     area: Rect,
 ) {
     let (icon, style) = node_status(app, track, node);
-    let lines = vec![
+    let mut lines = vec![
         Line::from(vec![
             format!(
                 "{} {} · {:?} · +{} XP · ~{} min · ",
@@ -386,6 +398,20 @@ fn render_summary(
             .dark_gray(),
         ),
     ];
+    if app.profile.is_placed_out(&track.id, &node.id) {
+        let exam = app
+            .profile
+            .belt_exam(&track.id)
+            .and_then(|id| track.node(id))
+            .map_or("the Belt Exam".to_string(), |exam| exam.title.clone());
+        lines.insert(
+            1,
+            Line::from(
+                format!("⏭ Placed out by the placement test. {exam} confirms it; you can still study it now.")
+                    .cyan(),
+            ),
+        );
+    }
     let paragraph = Paragraph::new(lines)
         .wrap(Wrap { trim: true })
         .block(titled(format!(" 📖 {} ", node.title)));
@@ -406,8 +432,12 @@ pub(crate) fn labelled<'a>(label: &str, text: &'a str, color: Color) -> Line<'a>
 
 fn render_footer(frame: &mut Frame, app: &App, area: Rect) {
     let text = app.status_message.clone().unwrap_or_else(|| {
-        "[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Lesson quiz | [C] Check kata | [B] Bridge | [Esc] Quit"
-            .to_string()
+        let placement = if app.profile.can_take_placement(app.active_track()) {
+            " | [P] Placement test"
+        } else {
+            ""
+        };
+        format!("[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Quiz | [C] Check kata | [B] Bridge{placement} | [Esc] Quit")
     });
     let mode = match app.mode {
         Mode::Learner => "",

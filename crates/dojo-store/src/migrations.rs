@@ -42,6 +42,22 @@ const MIGRATIONS: &[&str] = &[
          taken_at TEXT    NOT NULL
      );
      CREATE INDEX quiz_attempt_by_node ON quiz_attempt (track_id, node_id, id);",
+    // 4: placement events. SQLite cannot change a CHECK, so the event table is rebuilt.
+    "CREATE TABLE event_v4 (
+         id          INTEGER PRIMARY KEY AUTOINCREMENT,
+         kind        TEXT    NOT NULL CHECK (kind IN ('node_completed', 'node_reset',
+                         'node_placed_out', 'belt_exam_assigned', 'placement_revoked')),
+         track_id    TEXT    NOT NULL,
+         node_id     TEXT    NOT NULL,
+         xp          INTEGER NOT NULL CHECK (xp >= 0),
+         occurred_on TEXT    NOT NULL,
+         recorded_at TEXT    NOT NULL
+     );
+     INSERT INTO event_v4 (id, kind, track_id, node_id, xp, occurred_on, recorded_at)
+         SELECT id, kind, track_id, node_id, xp, occurred_on, recorded_at FROM event;
+     DROP TABLE event;
+     ALTER TABLE event_v4 RENAME TO event;
+     CREATE INDEX event_by_node ON event (track_id, node_id);",
 ];
 
 pub fn apply(connection: &mut Connection) -> Result<()> {

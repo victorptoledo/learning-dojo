@@ -129,9 +129,25 @@ fn handle_key(app: &mut App, key: KeyEvent) -> Flow {
         Screen::TrackSelector => handle_selector_key(app, key.code),
         Screen::Quiz => handle_quiz_key(app, key.code),
         Screen::Setup => handle_setup_key(app, key.code),
+        Screen::Placement => handle_placement_key(app, key.code),
         Screen::TrackView => return handle_track_key(app, key.code),
     }
     Flow::Continue
+}
+
+fn handle_placement_key(app: &mut App, code: KeyCode) {
+    let typing = matches!(
+        app.placement_question_kind(),
+        Some(dojo_core::QuestionKind::Text { .. })
+    );
+    match code {
+        KeyCode::Esc => app.cancel_placement(),
+        KeyCode::Enter => app.placement_confirm(),
+        KeyCode::Backspace => app.placement_backspace(),
+        KeyCode::Char(character) if typing => app.placement_type(character),
+        KeyCode::Char(digit @ '0'..='9') => app.placement_choose(digit as usize - '0' as usize),
+        _ => {}
+    }
 }
 
 fn handle_setup_key(app: &mut App, code: KeyCode) {
@@ -191,6 +207,7 @@ fn handle_track_key(app: &mut App, code: KeyCode) -> Flow {
         KeyCode::Char('q' | 'Q') => app.start_lesson_quiz(),
         KeyCode::Char('o' | 'O') => app.open_selected(),
         KeyCode::Char('b' | 'B') => app.cycle_bridge_language(),
+        KeyCode::Char('p' | 'P') => app.start_placement(),
         KeyCode::PageDown => app.scroll_detail_down(),
         KeyCode::PageUp => app.scroll_detail_up(),
         _ => {}

@@ -5,6 +5,7 @@
 
 pub mod catalog;
 pub mod check;
+pub mod placement;
 pub mod ports;
 pub mod progress;
 pub mod quiz;
@@ -13,6 +14,10 @@ pub mod track;
 
 pub use catalog::{Catalog, Skill, SkillId};
 pub use check::{CheckOutcome, CheckRecord, CheckReport, TestCase};
+pub use placement::{
+    EarlyStop, EntryOption, PhaseRule, PhaseVerdict, PlacementAnswer, PlacementConfig,
+    PlacementItem, PlacementPlan, PlacementSession,
+};
 pub use ports::{KataRunner, ProgressStore, RunnerError, StoreError};
 pub use progress::{Evidence, Mode, Profile, ProgressEvent, Refusal, Settings, StreakBaseline};
 pub use quiz::{

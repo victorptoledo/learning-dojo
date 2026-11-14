@@ -57,6 +57,25 @@ pub enum ProgressEvent {
         xp: u32,
         on: NaiveDate,
     },
+    /// The placement test skipped this node. It counts as done for unlocking, gives no
+    /// XP yet, and becomes a completion when the Belt Exam passes.
+    NodePlacedOut {
+        track_id: String,
+        node_id: String,
+        on: NaiveDate,
+    },
+    /// The checkpoint whose pass confirms the track's skipped nodes.
+    BeltExamAssigned {
+        track_id: String,
+        node_id: String,
+        on: NaiveDate,
+    },
+    /// A failed Belt Exam sends a skipped node back to study.
+    PlacementRevoked {
+        track_id: String,
+        node_id: String,
+        on: NaiveDate,
+    },
 }
 
 /// Who is asking to change progress. Dev mode bypasses the evidence rules.
@@ -116,6 +135,8 @@ pub struct Profile {
     pub last_trained: Option<NaiveDate>,
     current_streak: u32,
     completed: HashMap<String, HashSet<String>>,
+    placed_out: HashMap<String, HashSet<String>>,
+    belt_exams: HashMap<String, String>,
 }
 
 impl Profile {
@@ -128,6 +149,8 @@ impl Profile {
             last_trained: baseline.last_trained,
             current_streak: baseline.current,
             completed: HashMap::new(),
+            placed_out: HashMap::new(),
+            belt_exams: HashMap::new(),
         }
     }
 
@@ -155,7 +178,32 @@ impl Profile {
                 if newly_completed {
                     self.total_xp += xp;
                 }
+                if let Some(placed) = self.placed_out.get_mut(track_id) {
+                    placed.remove(node_id);
+                }
                 self.record_training(*on);
+            }
+            ProgressEvent::NodePlacedOut {
+                track_id, node_id, ..
+            } => {
+                if !self.is_completed(track_id, node_id) {
+                    self.placed_out
+                        .entry(track_id.clone())
+                        .or_default()
+                        .insert(node_id.clone());
+                }
+            }
+            ProgressEvent::BeltExamAssigned {
+                track_id, node_id, ..
+            } => {
+                self.belt_exams.insert(track_id.clone(), node_id.clone());
+            }
+            ProgressEvent::PlacementRevoked {
+                track_id, node_id, ..
+            } => {
+                if let Some(placed) = self.placed_out.get_mut(track_id) {
+                    placed.remove(node_id);
+                }
             }
             ProgressEvent::NodeReset {
                 track_id,
@@ -275,6 +323,115 @@ impl Profile {
             .is_some_and(|nodes| nodes.contains(node_id))
     }
 
+    /// Skipped by the placement test and not yet confirmed by the Belt Exam.
+    pub fn is_placed_out(&self, track_id: &str, node_id: &str) -> bool {
+        self.placed_out
+            .get(track_id)
+            .is_some_and(|nodes| nodes.contains(node_id))
+    }
+
+    /// Completed, or skipped by the placement test: either way it no longer blocks.
+    pub fn is_satisfied(&self, track_id: &str, node_id: &str) -> bool {
+        self.is_completed(track_id, node_id) || self.is_placed_out(track_id, node_id)
+    }
+
+    /// The checkpoint that confirms the track's skipped nodes, while some are pending.
+    pub fn belt_exam(&self, track_id: &str) -> Option<&str> {
+        let pending = self
+            .placed_out
+            .get(track_id)
+            .is_some_and(|nodes| !nodes.is_empty());
+        self.belt_exams
+            .get(track_id)
+            .map(String::as_str)
+            .filter(|_| pending)
+    }
+
+    /// The placement test is offered only on a track the learner has not started.
+    pub fn can_take_placement(&self, track: &Track) -> bool {
+        track.placement.is_some()
+            && track
+                .nodes()
+                .all(|node| !self.is_satisfied(&track.id, &node.id))
+    }
+
+    /// Events that apply a placement plan: the skipped nodes and their Belt Exam.
+    pub fn apply_placement(
+        &self,
+        track: &Track,
+        plan: &crate::placement::PlacementPlan,
+        today: NaiveDate,
+    ) -> Vec<ProgressEvent> {
+        if !self.can_take_placement(track) || plan.is_empty() {
+            return Vec::new();
+        }
+        let mut events: Vec<ProgressEvent> = plan
+            .placed_out
+            .iter()
+            .map(|node_id| ProgressEvent::NodePlacedOut {
+                track_id: track.id.clone(),
+                node_id: node_id.clone(),
+                on: today,
+            })
+            .collect();
+        if let Some(exam) = &plan.belt_exam {
+            events.push(ProgressEvent::BeltExamAssigned {
+                track_id: track.id.clone(),
+                node_id: exam.clone(),
+                on: today,
+            });
+        }
+        events
+    }
+
+    /// After `node` is completed: if it was the Belt Exam, every skipped node of the
+    /// track becomes a completion with its full XP.
+    pub fn placement_confirmations(
+        &self,
+        track: &Track,
+        node: &Node,
+        today: NaiveDate,
+    ) -> Vec<ProgressEvent> {
+        if self.belt_exam(&track.id) != Some(node.id.as_str())
+            || !self.is_completed(&track.id, &node.id)
+        {
+            return Vec::new();
+        }
+        track
+            .nodes()
+            .filter(|skipped| self.is_placed_out(&track.id, &skipped.id))
+            .map(|skipped| ProgressEvent::NodeCompleted {
+                track_id: track.id.clone(),
+                node_id: skipped.id.clone(),
+                xp: skipped.xp,
+                on: today,
+            })
+            .collect()
+    }
+
+    /// After a failed Belt Exam quiz: skipped nodes that teach a missed skill go back.
+    pub fn placement_revocations(
+        &self,
+        track: &Track,
+        node: &Node,
+        missed_skills: &HashSet<String>,
+        today: NaiveDate,
+    ) -> Vec<ProgressEvent> {
+        if self.belt_exam(&track.id) != Some(node.id.as_str()) {
+            return Vec::new();
+        }
+        track
+            .nodes()
+            .filter(|skipped| self.is_placed_out(&track.id, &skipped.id))
+            .filter(|skipped| skipped.skills().any(|skill| missed_skills.contains(skill)))
+            .map(|skipped| ProgressEvent::PlacementRevoked {
+                track_id: track.id.clone(),
+                node_id: skipped.id.clone(),
+                on: today,
+            })
+            .collect()
+    }
+
     pub fn completed_count(&self, track: &Track) -> usize {
         track
             .nodes()
@@ -288,7 +445,7 @@ impl Profile {
         let prerequisites_done = node
             .prerequisites
             .iter()
-            .all(|prerequisite| self.is_completed(&track.id, prerequisite));
+            .all(|prerequisite| self.is_satisfied(&track.id, prerequisite));
         prerequisites_done
             && self.earlier_phases_done(track, node)
             && self.checkpoint_ready(track, node)
@@ -304,7 +461,7 @@ impl Profile {
                 .nodes
                 .iter()
                 .filter(|other| other.id != node.id)
-                .all(|other| self.is_completed(&track.id, &other.id))
+                .all(|other| self.is_satisfied(&track.id, &other.id))
         })
     }
 
@@ -317,7 +474,7 @@ impl Profile {
             .iter()
             .filter(|earlier| earlier.order < phase.order)
             .flat_map(|earlier| earlier.nodes.iter())
-            .all(|earlier| self.is_completed(&track.id, &earlier.id))
+            .all(|earlier| self.is_satisfied(&track.id, &earlier.id))
     }
 
     pub fn track_xp(&self, track: &Track) -> u32 {
@@ -371,6 +528,117 @@ mod tests {
             vec![lesson("rust.p0.setup", &[], 100)],
             vec![lesson("rust.p1.loops", &["rust.p0.setup"], 250)],
         ])
+    }
+
+    fn with_skill(mut node: Node, skill: &str) -> Node {
+        node.objectives = vec![crate::track::Objective {
+            id: "o1".into(),
+            text: "learn".into(),
+            skills: vec![skill.into()],
+        }];
+        node
+    }
+
+    /// p0: setup · p1: loops (skill s.loops), maps (s.maps), checkpoint · p2: traits
+    fn placement_track() -> Track {
+        let mut rust = track(vec![
+            vec![lesson("rust.p0.setup", &[], 50)],
+            vec![
+                with_skill(lesson("rust.p1.loops", &[], 100), "s.loops"),
+                with_skill(lesson("rust.p1.maps", &[], 100), "s.maps"),
+                Node {
+                    kind: NodeKind::Checkpoint,
+                    ..node("rust.p1.checkpoint", &[], 300)
+                },
+            ],
+            vec![lesson("rust.p2.traits", &[], 100)],
+        ]);
+        rust.placement = Some(crate::placement::PlacementConfig {
+            entry_prompt: String::new(),
+            entry_options: vec![],
+            phases: Default::default(),
+            early_stop: crate::placement::EarlyStop { wrong: 2, of: 3 },
+            skill_threshold: 0.75,
+            weights_by_difficulty: Default::default(),
+            max_items: 10,
+            items: vec![],
+        });
+        rust
+    }
+
+    fn placed(profile: &mut Profile, rust: &Track) {
+        let plan = crate::placement::PlacementPlan {
+            placed_out: vec![
+                "rust.p0.setup".into(),
+                "rust.p1.loops".into(),
+                "rust.p1.maps".into(),
+            ],
+            belt_exam: Some("rust.p1.checkpoint".into()),
+        };
+        assert!(profile.can_take_placement(rust));
+        for event in profile.apply_placement(rust, &plan, day(14)) {
+            profile.apply(&event);
+        }
+    }
+
+    #[test]
+    fn placed_out_nodes_unlock_what_follows_but_give_no_xp_until_the_belt_exam() {
+        let rust = placement_track();
+        let mut profile = fresh_profile();
+        placed(&mut profile, &rust);
+
+        let checkpoint = rust.node("rust.p1.checkpoint").unwrap();
+        assert!(profile.is_unlocked(&rust, checkpoint));
+        assert!(!profile.is_unlocked(&rust, rust.node("rust.p2.traits").unwrap()));
+        assert_eq!(profile.total_xp, 0);
+        assert_eq!(profile.belt_exam("rust"), Some("rust.p1.checkpoint"));
+        assert!(
+            !profile.can_take_placement(&rust),
+            "only once, on a fresh track"
+        );
+
+        complete(&mut profile, &rust, "rust.p1.checkpoint", day(15));
+        let confirmations = profile.placement_confirmations(&rust, checkpoint, day(15));
+        assert_eq!(confirmations.len(), 3);
+        for event in &confirmations {
+            profile.apply(event);
+        }
+        assert_eq!(profile.total_xp, 300 + 50 + 100 + 100);
+        assert!(!profile.is_placed_out("rust", "rust.p1.loops"));
+        assert!(profile.is_completed("rust", "rust.p1.loops"));
+        assert_eq!(profile.belt_exam("rust"), None);
+    }
+
+    #[test]
+    fn a_failed_belt_exam_sends_back_only_the_nodes_of_the_missed_skills() {
+        let rust = placement_track();
+        let mut profile = fresh_profile();
+        placed(&mut profile, &rust);
+        let checkpoint = rust.node("rust.p1.checkpoint").unwrap();
+
+        let missed: HashSet<String> = ["s.maps".to_string()].into();
+        for event in profile.placement_revocations(&rust, checkpoint, &missed, day(15)) {
+            profile.apply(&event);
+        }
+
+        assert!(profile.is_placed_out("rust", "rust.p1.loops"));
+        assert!(!profile.is_placed_out("rust", "rust.p1.maps"));
+        assert!(!profile.is_unlocked(&rust, checkpoint), "study maps first");
+        assert!(profile.is_unlocked(&rust, rust.node("rust.p1.maps").unwrap()));
+    }
+
+    #[test]
+    fn a_failed_quiz_elsewhere_revokes_nothing() {
+        let rust = placement_track();
+        let mut profile = fresh_profile();
+        placed(&mut profile, &rust);
+        let missed: HashSet<String> = ["s.maps".to_string()].into();
+        let traits = rust.node("rust.p2.traits").unwrap();
+        assert!(
+            profile
+                .placement_revocations(&rust, traits, &missed, day(15))
+                .is_empty()
+        );
     }
 
     #[test]

@@ -1,7 +1,7 @@
 //! Rules that need the whole catalog (cross-file references, graph shape, completeness).
 
 use crate::report::{Report, Severity};
-use dojo_core::{Catalog, ContentStatus, Track};
+use dojo_core::{Catalog, ContentStatus, NodeKind, Track};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 const MIN_NODES_PER_TRACK: usize = 15;
@@ -20,6 +20,8 @@ pub fn check_catalog(catalog: &Catalog, report: &mut Report) {
         check_prerequisite_cycles(track, report);
         check_node_skills(track, catalog, report);
         check_completeness(track, report);
+        check_placement(track, catalog, report);
+        check_checkpoint_question_skills(track, catalog, report);
     }
 }
 
@@ -186,6 +188,129 @@ fn check_node_skills(track: &Track, catalog: &Catalog, report: &mut Report) {
                     node_location(track, &node.id),
                     format!("unknown skill `{skill}`"),
                 );
+            }
+        }
+    }
+}
+
+/// The placement test must point at real phases and skills and have enough questions.
+fn check_placement(track: &Track, catalog: &Catalog, report: &mut Report) {
+    let Some(config) = &track.placement else {
+        return;
+    };
+    let location = format!("tracks/{}/placement.yaml", track.id);
+    let has_phase = |id: &str| track.phases.iter().any(|phase| phase.id == id);
+    for option in &config.entry_options {
+        if !has_phase(&option.start_phase) {
+            report.error(
+                &location,
+                format!(
+                    "entry option `{}` starts at unknown phase `{}`",
+                    option.label, option.start_phase
+                ),
+            );
+        }
+    }
+    if config.early_stop.wrong > config.early_stop.of {
+        report.error(&location, "early_stop: wrong_in_first cannot exceed of");
+    }
+    let mut ids = BTreeSet::new();
+    for item in &config.items {
+        if !ids.insert(&item.question.id) {
+            report.error(
+                &location,
+                format!("duplicate question id `{}`", item.question.id),
+            );
+        }
+        if !config.phases.contains_key(&item.phase) {
+            report.error(
+                &location,
+                format!(
+                    "question `{}`: phase `{}` has no rule under phases",
+                    item.question.id, item.phase
+                ),
+            );
+        }
+        for skill in &item.question.skills {
+            if !catalog.skills.contains_key(skill) {
+                report.error(
+                    &location,
+                    format!("question `{}`: unknown skill `{skill}`", item.question.id),
+                );
+            }
+        }
+    }
+    for (phase, rule) in &config.phases {
+        if !has_phase(phase) {
+            report.error(&location, format!("rule for unknown phase `{phase}`"));
+        }
+        if rule.partial > rule.pass {
+            report.error(
+                &location,
+                format!("phase `{phase}`: partial cannot exceed pass"),
+            );
+        }
+        let available = config
+            .items
+            .iter()
+            .filter(|item| item.phase == *phase)
+            .count();
+        if available < rule.items {
+            report.warning(
+                &location,
+                format!(
+                    "phase `{phase}` draws {} questions but has only {available}",
+                    rule.items
+                ),
+            );
+        }
+        // Nodes of a partly known phase are skipped by the skills the test measured.
+        let asked: BTreeSet<&str> = config
+            .items
+            .iter()
+            .filter(|item| item.phase.as_str() <= phase.as_str())
+            .flat_map(|item| item.question.skills.iter().map(String::as_str))
+            .collect();
+        let phase_nodes = track
+            .phases
+            .iter()
+            .filter(|p| p.id == *phase)
+            .flat_map(|p| p.nodes.iter());
+        for node in phase_nodes.filter(|node| node.kind != NodeKind::Checkpoint) {
+            if !node.skills().any(|skill| asked.contains(skill)) {
+                report.warning(
+                    &location,
+                    format!("phase `{phase}`: no question tests a skill of `{}`, so it is only skipped with the whole phase", node.id),
+                );
+            }
+        }
+    }
+}
+
+/// A checkpoint is a Belt Exam: a missed question sends back the nodes of its skills,
+/// so every checkpoint question should name the skills it tests.
+fn check_checkpoint_question_skills(track: &Track, catalog: &Catalog, report: &mut Report) {
+    for node in track
+        .nodes()
+        .filter(|node| node.kind == NodeKind::Checkpoint)
+    {
+        let Some(quiz) = &node.quiz else {
+            continue;
+        };
+        for question in &quiz.questions {
+            if question.skills.is_empty() {
+                report.warning(
+                    node_location(track, &node.id),
+                    format!("checkpoint question `{}` names no skills", question.id),
+                );
+            }
+            for skill in &question.skills {
+                if !catalog.skills.contains_key(skill) {
+                    report.error(
+                        node_location(track, &node.id),
+                        format!("question `{}`: unknown skill `{skill}`", question.id),
+                    );
+                }
             }
         }
     }

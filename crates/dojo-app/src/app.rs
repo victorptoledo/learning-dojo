@@ -38,6 +38,7 @@ pub enum Screen {
     TrackSelector,
     Quiz,
     Setup,
+    Placement,
 }
 
 /// Everything the TUI shows and the actions it can take. Rendering lives in `ui`.
@@ -67,6 +68,8 @@ pub struct App {
     pub quiz_history: HashMap<NodeKey, QuizAttempt>,
     /// The quiz being taken, while `screen` is `Screen::Quiz`.
     pub quiz: Option<QuizSession>,
+    /// The placement test, while `screen` is `Screen::Placement`.
+    pub placement: Option<crate::placement_flow::PlacementFlow>,
     /// Full report of checks run in this session (details are not stored).
     pub last_reports: HashMap<NodeKey, CheckReport>,
     pub(crate) checks: CheckQueue,
@@ -119,6 +122,7 @@ impl App {
             check_history,
             quiz_history,
             quiz: None,
+            placement: None,
             last_reports: HashMap::new(),
             checks: CheckQueue::new(runner),
             store,
@@ -189,10 +193,14 @@ impl App {
             return;
         }
         self.profile.apply(&event);
-        self.status_message = Some(match event {
+        let message = match event {
             ProgressEvent::NodeCompleted { xp, .. } => format!("⭐ Node completed! +{xp} XP"),
             ProgressEvent::NodeReset { xp, .. } => format!("Node reset (-{xp} XP)."),
-        });
+            ProgressEvent::NodePlacedOut { .. }
+            | ProgressEvent::BeltExamAssigned { .. }
+            | ProgressEvent::PlacementRevoked { .. } => return,
+        };
+        self.status_message = Some(message);
     }
 
     /// Cycles the Rosetta bridge source language among those available in the catalog.

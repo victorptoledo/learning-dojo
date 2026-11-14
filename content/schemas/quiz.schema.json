@@ -4,7 +4,9 @@
   "title": "Lesson quiz (quiz.yaml next to node.yaml)",
   "type": "object",
   "additionalProperties": false,
-  "required": ["questions"],
+  "required": [
+    "questions"
+  ],
   "properties": {
     "pass_percent": {
       "type": "integer",
@@ -18,30 +20,92 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "prompt", "explanation"],
+        "required": [
+          "id",
+          "prompt",
+          "explanation"
+        ],
         "properties": {
-          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-          "prompt": { "type": "string", "minLength": 1 },
-          "code": { "type": "string", "description": "Code shown under the prompt." },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "code": {
+            "type": "string",
+            "description": "Code shown under the prompt."
+          },
           "options": {
             "type": "array",
             "minItems": 2,
             "maxItems": 6,
-            "items": { "type": "string", "minLength": 1 },
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
             "description": "Single choice: the learner picks one option."
           },
-          "answer": { "type": "integer", "minimum": 0, "description": "Index of the correct option." },
+          "answer": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Index of the correct option."
+          },
           "answers": {
             "type": "array",
             "minItems": 1,
-            "items": { "type": "string", "minLength": 1 },
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
             "description": "Typed answer: any of these is accepted, ignoring case and spaces."
           },
-          "explanation": { "type": "string", "minLength": 1 }
+          "explanation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true,
+            "description": "Skills the question tests. In a checkpoint, a wrong answer sends placed-out nodes with these skills back to study."
+          }
         },
         "oneOf": [
-          { "required": ["options", "answer"], "not": { "required": ["answers"] } },
-          { "required": ["answers"], "not": { "anyOf": [{ "required": ["options"] }, { "required": ["answer"] }] } }
+          {
+            "required": [
+              "options",
+              "answer"
+            ],
+            "not": {
+              "required": [
+                "answers"
+              ]
+            }
+          },
+          {
+            "required": [
+              "answers"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "options"
+                  ]
+                },
+                {
+                  "required": [
+                    "answer"
+                  ]
+                }
+              ]
+            }
+          }
         ]
       }
     }

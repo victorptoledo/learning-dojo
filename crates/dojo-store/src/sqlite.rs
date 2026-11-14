@@ -245,6 +245,21 @@ impl EventRow {
                 xp,
                 on,
             }),
+            "node_placed_out" => Ok(ProgressEvent::NodePlacedOut {
+                track_id,
+                node_id,
+                on,
+            }),
+            "belt_exam_assigned" => Ok(ProgressEvent::BeltExamAssigned {
+                track_id,
+                node_id,
+                on,
+            }),
+            "placement_revoked" => Ok(ProgressEvent::PlacementRevoked {
+                track_id,
+                node_id,
+                on,
+            }),
             other => Err(format!("unknown event kind `{other}`").into()),
         }
     }
@@ -264,6 +279,21 @@ fn insert_event(connection: &Connection, event: &ProgressEvent) -> Result<(), St
             xp,
             on,
         } => ("node_reset", track_id, node_id, xp, on),
+        ProgressEvent::NodePlacedOut {
+            track_id,
+            node_id,
+            on,
+        } => ("node_placed_out", track_id, node_id, &0, on),
+        ProgressEvent::BeltExamAssigned {
+            track_id,
+            node_id,
+            on,
+        } => ("belt_exam_assigned", track_id, node_id, &0, on),
+        ProgressEvent::PlacementRevoked {
+            track_id,
+            node_id,
+            on,
+        } => ("placement_revoked", track_id, node_id, &0, on),
     };
     connection.execute(
         "INSERT INTO event (kind, track_id, node_id, xp, occurred_on, recorded_at)

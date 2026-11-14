@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learning-dojo.local/schemas/placement.schema.json",
+  "title": "Placement test of a track (placement.yaml next to track.yaml)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "entry_question",
+    "phases",
+    "early_stop",
+    "skill_placed_out_threshold",
+    "weights_by_difficulty",
+    "max_items",
+    "items"
+  ],
+  "properties": {
+    "entry_question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prompt",
+        "options"
+      ],
+      "properties": {
+        "prompt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "label",
+              "start_phase",
+              "test"
+            ],
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "start_phase": {
+                "type": "string",
+                "pattern": "^p[0-4]$"
+              },
+              "test": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "phases": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "patternProperties": {
+        "^p[0-4]$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "items_per_phase",
+            "pass",
+            "partial"
+          ],
+          "properties": {
+            "items_per_phase": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "pass": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "partial": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      },
+      "description": "Phases that can be tested and their cut-offs."
+    },
+    "early_stop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "wrong_in_first",
+        "of"
+      ],
+      "properties": {
+        "wrong_in_first": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "of": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "skill_placed_out_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Minimum skill mastery to skip a node of a partially known phase."
+    },
+    "weights_by_difficulty": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[1-5]$": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "max_items": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "phase",
+          "skills",
+          "difficulty",
+          "prompt",
+          "explanation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "code": {
+            "type": "string",
+            "description": "Code shown under the prompt."
+          },
+          "options": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 6,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Single choice: the learner picks one option."
+          },
+          "answer": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Index of the correct option."
+          },
+          "answers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Typed answer: any of these is accepted, ignoring case and spaces."
+          },
+          "explanation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "skills": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "phase": {
+            "type": "string",
+            "pattern": "^p[0-4]$"
+          },
+          "difficulty": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "options",
+              "answer"
+            ],
+            "not": {
+              "required": [
+                "answers"
+              ]
+            }
+          },
+          {
+            "required": [
+              "answers"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "options"
+                  ]
+                },
+                {
+                  "required": [
+                    "answer"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

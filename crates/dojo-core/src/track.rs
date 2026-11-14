@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
+use crate::placement::PlacementConfig;
 use crate::quiz::Quiz;
 use crate::requirement::{Requirement, merge};
 
@@ -153,7 +154,7 @@ impl Phase {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Track {
     pub id: TrackId,
     pub name: String,
@@ -166,6 +167,8 @@ pub struct Track {
     pub phases: Vec<Phase>,
     /// What every node of the track needs.
     pub requirements: Vec<Requirement>,
+    /// The placement test, when the track has one.
+    pub placement: Option<PlacementConfig>,
 }
 
 impl Track {
@@ -272,6 +275,7 @@ pub(crate) mod fixtures {
                 })
                 .collect(),
             requirements: vec![],
+            placement: None,
         }
     }
 }

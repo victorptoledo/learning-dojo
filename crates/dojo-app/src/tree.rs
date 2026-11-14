@@ -127,6 +127,7 @@ mod tests {
             belts: vec![],
             phases,
             requirements: vec![],
+            placement: None,
         }
     }
 

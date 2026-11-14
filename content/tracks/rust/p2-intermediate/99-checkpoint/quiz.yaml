@@ -1,5 +1,6 @@
 questions:
   - id: question-mark
+    skills: [rust.option-result]
     prompt: In which functions can you use the ? operator on a Result?
     options:
       - "Any function"
@@ -8,10 +9,12 @@ questions:
     answer: 1
     explanation: "? returns the error early, so the function itself must return a compatible type. (Option and Result)"
   - id: ok-or
+    skills: [rust.option-result]
     prompt: "Which method turns an Option<T> into a Result<T, E>, given an error value?"
     answers: ["ok_or", "ok_or()", "ok_or_else"]
     explanation: "opt.ok_or(err) gives Ok(v) for Some(v) and Err(err) for None. (Option and Result)"
   - id: unwrap-when
+    skills: [rust.option-result]
     prompt: When is unwrap() acceptable in production code?
     options:
       - "Whenever the code compiles"
@@ -20,10 +23,12 @@ questions:
     answer: 1
     explanation: "unwrap and expect panic. Use them for invariants, not for input that can legitimately be wrong. (Option and Result)"
   - id: display-impl
+    skills: [rust.traits-generics]
     prompt: Which trait do you implement so that format!("{}", value) works?
     answers: ["Display", "std::fmt::Display", "fmt::Display"]
     explanation: "Display is for user-facing text; Debug ({:?}) can usually be derived. (Traits and Generics)"
   - id: generic-vs-dyn
+    skills: [rust.traits-generics]
     prompt: "What is the difference between fn show<T: Summary>(x: &T) and fn show(x: &dyn Summary)?"
     options:
       - "None"
@@ -32,6 +37,7 @@ questions:
     answer: 1
     explanation: "Generics are monomorphised; trait objects allow mixing types in one collection at a small run-time cost. (Traits and Generics)"
   - id: chain-result
+    skills: [rust.iterators-closures]
     prompt: What does this evaluate to?
     code: |
       let words = ["kata", "dojo", "belt", "do"];
@@ -39,11 +45,13 @@ questions:
     answers: ["3"]
     explanation: "kata, dojo and belt have four letters. (Iterators and Closures)"
   - id: collect-results
+    skills: [rust.iterators-closures]
     prompt: "What does collecting an iterator of Result<i32, E> into Result<Vec<i32>, E> do on the first Err?"
     options: ["Skips it", "Stops and returns that Err", "Panics"]
     answer: 1
     explanation: "collect short-circuits: one bad item makes the whole result an Err. (Iterators and Closures)"
   - id: pub-crate
+    skills: [rust.modules-testing]
     prompt: Which visibility makes an item usable anywhere inside your crate but not outside it?
     answers: ["pub(crate)"]
     explanation: "pub(crate) is ideal for helpers shared between modules that are not part of your public API. (Modules and Tests)"

@@ -18,6 +18,8 @@ pub struct Question {
     pub kind: QuestionKind,
     /// Shown after answering, right or wrong.
     pub explanation: String,
+    /// Skills the question tests; a wrong answer in a Belt Exam sends them back to study.
+    pub skills: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -118,6 +120,7 @@ mod tests {
                 answer: 1,
             },
             explanation: String::new(),
+            skills: vec![],
         }
     }
 

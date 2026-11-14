@@ -5,7 +5,7 @@ use crate::app::{App, NodeKey, checkpoint_missing_part, refusal_message};
 use crate::checks::{CheckTarget, FinishedCheck};
 use crate::workspace::{CommitOutcome, Prepared, STATEMENT_FILE};
 use chrono::Utc;
-use dojo_core::{CheckRecord, CheckReport, Evidence, Kata, Node, ProgressEvent, Refusal, Track};
+use dojo_core::{CheckRecord, CheckReport, Evidence, Kata, Node, Refusal, Track};
 use std::path::{Component, Path, PathBuf};
 use std::time::{Duration, Instant};
 
@@ -237,14 +237,7 @@ impl App {
             .and_then(|(evidence, _)| checkpoint_missing_part(evidence));
         let decision = decision.map(|(_, decision)| decision);
         let progress = match decision {
-            Some(Ok(event)) => {
-                let xp = match &event {
-                    ProgressEvent::NodeCompleted { xp, .. } => *xp,
-                    ProgressEvent::NodeReset { .. } => 0,
-                };
-                self.record(event);
-                format!(" +{xp} XP.")
-            }
+            Some(Ok(event)) => self.record_completion(event),
             Some(Err(Refusal::AlreadyCompleted)) | None => String::new(),
             Some(Err(Refusal::NotPassed)) if missing_part.is_some() => {
                 format!(" {}", missing_part.unwrap_or_default())

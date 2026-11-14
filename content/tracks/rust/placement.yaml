@@ -1,0 +1,357 @@
+# Placement test of the Rust track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with Rust?
+  options:
+    - { label: "Never used it", start_phase: p0, test: false }
+    - { label: "Studied it a bit (ownership, structs, enums)", start_phase: p1, test: true }
+    - { label: "I use it (traits, errors, iterators)", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-mut-error
+    phase: p1
+    skills: [rust.variables-mutability]
+    difficulty: 2
+    prompt: "What happens when you compile this?"
+    code: |
+      let count = 1;
+      count += 1;
+      println!("{count}");
+    options:
+      - "It prints 2"
+      - "Compile error: cannot assign twice to immutable variable"
+      - "It prints 1"
+    answer: 1
+    explanation: "Bindings are immutable by default; write let mut count = 1;."
+  - id: p1-shadow-type
+    phase: p1
+    skills: [rust.variables-mutability]
+    difficulty: 2
+    prompt: "Does this compile, and what is the type of spaces at the end?"
+    code: |
+      let spaces = "   ";
+      let spaces = spaces.len();
+    options:
+      - "It does not compile: a variable cannot change type"
+      - "It compiles; spaces is a usize"
+      - "It compiles; spaces is still a &str"
+    answer: 1
+    explanation: "Shadowing creates a new binding, which may have a different type."
+  - id: p1-move-print
+    phase: p1
+    skills: [rust.ownership-basics]
+    difficulty: 2
+    prompt: "What does the compiler say?"
+    code: |
+      let a = String::from("dojo");
+      let b = a;
+      println!("{a} {b}");
+    options:
+      - "Nothing, it prints dojo dojo"
+      - "borrow of moved value: `a`"
+      - "cannot borrow `b` as mutable"
+    answer: 1
+    explanation: "let b = a moves the String; a can no longer be used."
+  - id: p1-clone-cost
+    phase: p1
+    skills: [rust.ownership-basics]
+    difficulty: 3
+    prompt: "Which call copies the heap data of a String s, so both values own separate text?"
+    answers: ["s.clone()", "clone", "clone()"]
+    explanation: "clone() makes a deep copy; a plain assignment only moves ownership."
+  - id: p1-borrow-mut-twice
+    phase: p1
+    skills: [rust.borrowing-references]
+    difficulty: 3
+    prompt: "Why is this rejected?"
+    code: |
+      let mut v = vec![1, 2];
+      let a = &mut v;
+      let b = &mut v;
+      a.push(3);
+      b.push(4);
+    options:
+      - "Vectors cannot be borrowed mutably"
+      - "Two mutable borrows of v are alive at the same time"
+      - "push needs ownership of v"
+    answer: 1
+    explanation: "Only one &mut may exist while it is in use; a is still used after b is created."
+  - id: p1-len-borrow
+    phase: p1
+    skills: [rust.borrowing-references]
+    difficulty: 2
+    prompt: "Which signature lets the caller keep using its String after the call?"
+    options:
+      - "fn size(s: String) -> usize"
+      - "fn size(s: &str) -> usize"
+      - "fn size(mut s: String) -> usize"
+    answer: 1
+    explanation: "Borrowing with &str does not take ownership."
+  - id: p1-match-guard
+    phase: p1
+    skills: [rust.structs-enums]
+    difficulty: 3
+    prompt: "What does describe(Shape::Circle(0.0)) return?"
+    code: |
+      enum Shape { Circle(f64), Square(f64) }
+
+      fn describe(shape: Shape) -> &'static str {
+          match shape {
+              Shape::Circle(r) if r == 0.0 => "dot",
+              Shape::Circle(_) => "circle",
+              Shape::Square(_) => "square",
+          }
+      }
+    answers: ["dot", "\"dot\""]
+    explanation: "The first arm's guard matches a zero radius."
+  - id: p1-impl-new
+    phase: p1
+    skills: [rust.structs-enums]
+    difficulty: 2
+    prompt: "Inside impl Point, what does Self mean?"
+    options: ["The current instance", "The type Point", "A mutable reference to the instance"]
+    answer: 1
+    explanation: "Self is the type the impl block is for; self (lower case) is the instance."
+  - id: p1-hashmap-entry
+    phase: p1
+    skills: [rust.collections]
+    difficulty: 3
+    prompt: "What is counts[\"b\"] after this loop?"
+    code: |
+      let mut counts = std::collections::HashMap::new();
+      for c in "abcbb".chars() {
+          *counts.entry(c.to_string()).or_insert(0) += 1;
+      }
+    answers: ["3"]
+    explanation: "The entry API inserts 0 the first time and increments on every b."
+  - id: p1-string-index
+    phase: p1
+    skills: [rust.collections]
+    difficulty: 2
+    prompt: "How do you get the first character of a String s safely?"
+    options: ["s[0]", "s.chars().next()", "s.first()"]
+    answer: 1
+    explanation: "Strings are UTF-8 and cannot be indexed; chars().next() returns an Option<char>."
+
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-question-mark
+    phase: p2
+    skills: [rust.option-result]
+    difficulty: 3
+    prompt: "In fn read() -> Result<u32, ParseIntError>, what does \"42x\".parse::<u32>()? do?"
+    options:
+      - "Panics"
+      - "Returns the Err from read() immediately"
+      - "Gives 0 and continues"
+    answer: 1
+    explanation: "? returns the error to the caller when the value is an Err."
+  - id: p2-option-map
+    phase: p2
+    skills: [rust.option-result]
+    difficulty: 2
+    prompt: "What is the value?"
+    code: |
+      Some(4).map(|n| n * 2).unwrap_or(0)
+    answers: ["8"]
+    explanation: "map transforms the Some; unwrap_or is only used for None."
+  - id: p2-trait-bound
+    phase: p2
+    skills: [rust.traits-generics]
+    difficulty: 3
+    prompt: "fn largest<T: PartialOrd + Copy>(items: &[T]) -> T. What does the bound promise?"
+    options:
+      - "T is a number"
+      - "Values of T can be compared with < and copied out of the slice"
+      - "T lives forever"
+    answer: 1
+    explanation: "Trait bounds list the abilities the function body needs."
+  - id: p2-derive
+    phase: p2
+    skills: [rust.traits-generics]
+    difficulty: 2
+    prompt: "Which attribute lets you print a struct with {:?}?"
+    answers: ["#[derive(Debug)]", "derive(Debug)", "Debug"]
+    explanation: "Debug is derivable; Display must be written by hand."
+  - id: p2-iter-chain
+    phase: p2
+    skills: [rust.iterators-closures]
+    difficulty: 3
+    prompt: "What is the result?"
+    code: |
+      let words = ["a", "bb", "ccc", "dd"];
+      words.iter().filter(|w| w.len() == 2).count()
+    answers: ["2"]
+    explanation: "bb and dd have two characters."
+  - id: p2-closure-capture
+    phase: p2
+    skills: [rust.iterators-closures]
+    difficulty: 4
+    prompt: "A closure that pushes into a Vec it captured implements which trait at most?"
+    options: ["Fn", "FnMut", "Only FnOnce"]
+    answer: 1
+    explanation: "Changing a captured value needs &mut access, which is FnMut."
+  - id: p2-cfg-test
+    phase: p2
+    skills: [rust.modules-testing]
+    difficulty: 2
+    prompt: "What does #[cfg(test)] on mod tests do?"
+    options:
+      - "Runs the module at start-up"
+      - "Compiles the module only for cargo test"
+      - "Marks every function as a test"
+    answer: 1
+    explanation: "The module, and the dependencies it pulls in, stay out of normal builds."
+  - id: p2-pub-field
+    phase: p2
+    skills: [rust.modules-testing]
+    difficulty: 3
+    prompt: "pub struct Account { balance: u64 } in mod bank. Can main write account.balance = 5?"
+    options:
+      - "Yes, the struct is pub"
+      - "No, the field is private to mod bank"
+      - "Only with unsafe"
+    answer: 1
+    explanation: "Fields are private unless marked pub, even when the struct is public."
+
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-lifetime-needed
+    phase: p3
+    skills: [rust.lifetimes]
+    difficulty: 3
+    prompt: "Why does fn pick(a: &str, b: &str) -> &str need a lifetime annotation?"
+    options:
+      - "Functions returning references always need one"
+      - "With two reference inputs and no self, elision cannot tell which one the result borrows"
+      - "Because &str is not Copy"
+    answer: 1
+    explanation: "Elision gives the output the single input lifetime, or self's; here there are two."
+  - id: p3-return-local
+    phase: p3
+    skills: [rust.lifetimes]
+    difficulty: 3
+    prompt: "fn make() -> &String { let s = String::new(); &s } fails. What is the fix?"
+    options: ["Add 'static", "Return String", "Use &mut String"]
+    answer: 1
+    explanation: "s is dropped at the end of the function; give ownership to the caller."
+  - id: p3-struct-ref
+    phase: p3
+    skills: [rust.lifetimes]
+    difficulty: 4
+    prompt: "What must a struct that stores a &str declare?"
+    answers: ["a lifetime parameter", "lifetime", "a lifetime", "'a"]
+    explanation: "struct Excerpt<'a> { text: &'a str } ties the struct to the borrowed data."
+  - id: p3-rc-count
+    phase: p3
+    skills: [rust.smart-pointers]
+    difficulty: 3
+    prompt: "What does this print?"
+    code: |
+      use std::rc::Rc;
+      let a = Rc::new(5);
+      let b = Rc::clone(&a);
+      let c = Rc::clone(&a);
+      println!("{}", Rc::strong_count(&b));
+    answers: ["3"]
+    explanation: "a, b and c share one allocation with three strong references."
+  - id: p3-refcell
+    phase: p3
+    skills: [rust.smart-pointers]
+    difficulty: 4
+    prompt: "When does RefCell report a borrow error?"
+    options: ["At compile time", "At run time, with a panic", "Never"]
+    answer: 1
+    explanation: "RefCell moves the borrow rules to run time; two active borrow_mut calls panic."
+  - id: p3-box-recursive
+    phase: p3
+    skills: [rust.smart-pointers]
+    difficulty: 2
+    prompt: "Why does enum List { Cons(i32, List), Nil } not compile, while Cons(i32, Box<List>) does?"
+    options:
+      - "Box makes the size known: a pointer instead of an infinitely nested value"
+      - "Enums cannot hold integers"
+      - "Box makes the list immutable"
+    answer: 0
+    explanation: "A recursive type needs indirection so the compiler can compute its size."
+  - id: p3-arc-mutex
+    phase: p3
+    skills: [rust.concurrency]
+    difficulty: 3
+    prompt: "Which type shares a counter that several threads increment?"
+    options: ["Rc<RefCell<u32>>", "Arc<Mutex<u32>>", "Box<u32>"]
+    answer: 1
+    explanation: "Arc is the thread-safe reference count; Mutex gives one thread at a time mutable access."
+  - id: p3-move-thread
+    phase: p3
+    skills: [rust.concurrency]
+    difficulty: 3
+    prompt: "Why does thread::spawn(|| println!(\"{v:?}\")) need move when v is a local Vec?"
+    options:
+      - "The thread may outlive the function, so it must own v"
+      - "println! needs ownership"
+      - "Vectors are not Send"
+    answer: 0
+    explanation: "spawn requires 'static; move transfers ownership of v to the thread."
+
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-lazy-future
+    phase: p4
+    skills: [rust.async-tokio]
+    difficulty: 3
+    prompt: "You call an async fn without .await. What runs?"
+    options: ["The whole body", "Nothing: futures are lazy", "The body up to the first .await"]
+    answer: 1
+    explanation: "An async fn returns a future; only polling it (through .await or a runtime) runs it."
+  - id: p4-join
+    phase: p4
+    skills: [rust.async-tokio]
+    difficulty: 4
+    prompt: "Two 300 ms async sleeps inside tokio::join! take about how long in total?"
+    options: ["600 ms", "300 ms", "0 ms"]
+    answer: 1
+    explanation: "join! polls both futures concurrently."
+  - id: p4-blocking
+    phase: p4
+    skills: [rust.async-tokio]
+    difficulty: 4
+    prompt: "How should a long CPU-bound computation run inside a Tokio application?"
+    options:
+      - "Directly in the async task"
+      - "In tokio::task::spawn_blocking"
+      - "With std::thread::sleep between steps"
+    answer: 1
+    explanation: "Blocking the runtime thread stalls every task on it."
+  - id: p4-anyhow-context
+    phase: p4
+    skills: [rust.production]
+    difficulty: 3
+    prompt: "In an application, which crate gives one error type for everything plus .context(...)?"
+    answers: ["anyhow"]
+    explanation: "anyhow suits applications; libraries expose typed errors, often with thiserror."
+  - id: p4-rust-log
+    phase: p4
+    skills: [rust.production]
+    difficulty: 2
+    prompt: "Which environment variable changes the log level of a tracing EnvFilter without recompiling?"
+    answers: ["RUST_LOG"]
+    explanation: "For example RUST_LOG=my_app=debug,warn."
+  - id: p4-release
+    phase: p4
+    skills: [rust.production]
+    difficulty: 2
+    prompt: "Why must you benchmark and deploy a --release build?"
+    options:
+      - "Debug builds are unoptimised and can be many times slower"
+      - "Debug builds cannot run outside cargo"
+      - "Release builds include more checks"
+    answer: 0
+    explanation: "--release turns on optimisations; debug builds favour compile speed and debugging."

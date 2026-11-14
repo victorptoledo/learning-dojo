@@ -220,6 +220,14 @@ impl PlacementEngine<'_> {
 
 Pure and deterministic (seeded draw), testable without a terminal.
 
+**Implemented in M3+M4** (`dojo-core::placement`, `content/tracks/<track>/placement.yaml`, schema `placement.schema.json`):
+- Offered with `P` only on a track the learner has not started; `Esc` records nothing, `Enter` applies the plan.
+- Events `node_placed_out`, `belt_exam_assigned`, `placement_revoked` (store schema v4). A placed-out node counts as done for unlocking but gives no XP.
+- Belt Exam: the checkpoint of the last fully skipped phase, or else the first checkpoint after the skipped nodes. It is never placed out, so later phases stay locked until it passes. Passing it completes every placed-out node with full XP.
+- A failed Belt Exam quiz revokes only the placed-out nodes that teach a skill of a missed question (checkpoint questions declare `skills`). A failing kata revokes nothing.
+- Partial phase: a node is skipped when every skill the test measured is mastered (≥ threshold); unmeasured skills are ignored.
+- Not yet: short katas inside the test, cross-track priors, the 20-minute cap.
+
 ## 8. Layered code review
 
 ```

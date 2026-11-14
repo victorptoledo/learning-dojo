@@ -658,3 +658,120 @@ fn a_checkpoint_stays_locked_until_its_phase_is_done() {
 
     assert!(h.app.quiz.is_none());
 }
+
+/// Answers the open placement test, right while `right(phase)` says so, until it ends.
+fn answer_placement(app: &mut App, right: impl Fn(&str) -> bool) {
+    use crate::placement_flow::PlacementStage;
+    for _ in 0..100 {
+        let Some(PlacementStage::Asking { session, .. }) = app.placement.as_ref().map(|f| &f.stage)
+        else {
+            return;
+        };
+        let item = session.current().unwrap().clone();
+        match (item.question.kind, right(&item.phase)) {
+            (QuestionKind::SingleChoice { answer, .. }, true) => app.placement_choose(answer + 1),
+            (QuestionKind::SingleChoice { .. }, false) => app.placement_choose(0),
+            (QuestionKind::Text { answers }, true) => {
+                answers[0].chars().for_each(|c| app.placement_type(c));
+                app.placement_confirm();
+            }
+            (QuestionKind::Text { .. }, false) => app.placement_confirm(),
+        }
+    }
+    panic!("the placement test did not end");
+}
+
+#[test]
+fn never_used_it_places_nothing_out() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p0.setup");
+    h.app.start_placement();
+    assert!(screen_text(&h.app).contains("How familiar are you with Rust?"));
+
+    h.app.placement_choose(1);
+    h.app.placement_confirm();
+
+    assert!(h.app.placement.is_none());
+    assert!(!h.app.profile.is_placed_out("rust", "rust.p0.setup"));
+    assert!(h.app.profile.can_take_placement(h.app.active_track()));
+}
+
+#[test]
+fn a_strong_learner_skips_to_the_belt_exam_and_passing_it_confirms_every_skip() {
+    let mut h = harness(
+        memory_store(),
+        Mode::Learner,
+        FakeRunner::returning(&[CheckOutcome::Passed]),
+    );
+    select(&mut h.app, "rust.p0.setup");
+    h.app.start_placement();
+    h.app.placement_choose(2);
+    answer_placement(&mut h.app, |phase| phase != "p4");
+    let screen = screen_text(&h.app);
+    assert!(screen.contains("Belt Exam"), "{screen}");
+    h.app.placement_confirm();
+
+    let profile = &h.app.profile;
+    assert!(profile.is_placed_out("rust", "rust.p1.checkpoint"));
+    assert!(profile.is_placed_out("rust", "rust.p3.lifetimes"));
+    assert!(!profile.is_placed_out("rust", "rust.p4.async-tokio"));
+    assert_eq!(profile.belt_exam("rust"), Some("rust.p2.checkpoint"));
+    assert_eq!(profile.total_xp, 0);
+    assert!(!profile.can_take_placement(h.app.active_track()));
+    let track = h.app.active_track().clone();
+    assert!(!profile.is_unlocked(&track, track.node("rust.p4.async-tokio").unwrap()));
+
+    select(&mut h.app, "rust.p2.checkpoint");
+    h.app.start_lesson_quiz();
+    take_quiz(&mut h.app, 0);
+    h.app.activate_selected();
+    run_check(&mut h.app);
+
+    let message = h.app.status_message.clone().unwrap();
+    assert!(message.contains("Belt Exam passed"), "{message}");
+    assert!(h.app.profile.is_completed("rust", "rust.p3.lifetimes"));
+    assert!(!h.app.profile.is_placed_out("rust", "rust.p1.checkpoint"));
+    let skipped_xp: u32 = track
+        .nodes()
+        .filter(|node| h.app.profile.is_completed("rust", &node.id))
+        .map(|node| node.xp)
+        .sum();
+    assert_eq!(h.app.profile.total_xp, skipped_xp);
+}
+
+#[test]
+fn a_failed_belt_exam_quiz_sends_the_missed_skills_back() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p0.setup");
+    h.app.start_placement();
+    h.app.placement_choose(2);
+    answer_placement(&mut h.app, |phase| phase == "p1");
+    h.app.placement_confirm();
+    assert_eq!(h.app.profile.belt_exam("rust"), Some("rust.p1.checkpoint"));
+
+    select(&mut h.app, "rust.p1.checkpoint");
+    h.app.start_lesson_quiz();
+    take_quiz(&mut h.app, 8);
+
+    let message = h.app.status_message.clone().unwrap();
+    assert!(message.contains("Back to study"), "{message}");
+    assert!(!h.app.profile.is_placed_out("rust", "rust.p1.collections"));
+    let track = h.app.active_track().clone();
+    assert!(
+        !h.app
+            .profile
+            .is_unlocked(&track, track.node("rust.p1.checkpoint").unwrap())
+    );
+}
+
+#[test]
+fn esc_leaves_the_placement_test_without_recording_anything() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p0.setup");
+    h.app.start_placement();
+    h.app.placement_choose(2);
+    h.app.cancel_placement();
+
+    assert!(h.app.placement.is_none());
+    assert!(h.app.profile.can_take_placement(h.app.active_track()));
+}

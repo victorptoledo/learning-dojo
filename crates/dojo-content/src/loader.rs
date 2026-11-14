@@ -1,14 +1,16 @@
 use crate::front_matter;
 use crate::manifest::{
     BeltManifest, BridgeFrontMatter, KataManifest, NodeManifest, ObjectiveManifest, PhaseManifest,
-    QuestionManifest, QuizManifest, RequirementManifest, SkillsManifest, TrackManifest,
+    PlacementManifest, QuestionManifest, QuizManifest, RequirementManifest, SkillsManifest,
+    TrackManifest,
 };
 use crate::report::Report;
 use crate::schema::{self, Schemas};
 use anyhow::{Result, bail};
 use dojo_core::{
-    Belt, Bridge, Catalog, DEFAULT_PASS_PERCENT, Kata, Node, Objective, Phase, Question,
-    QuestionKind, Quiz, Requirement, RequirementKind, RunnerSpec, Skill, SkillId, Track,
+    Belt, Bridge, Catalog, DEFAULT_PASS_PERCENT, EarlyStop, EntryOption, Kata, Node, Objective,
+    Phase, PhaseRule, PlacementConfig, PlacementItem, Question, QuestionKind, Quiz, Requirement,
+    RequirementKind, RunnerSpec, Skill, SkillId, Track,
 };
 use regex::Regex;
 use serde::de::DeserializeOwned;
@@ -28,6 +30,7 @@ enum FileKind {
     Skills,
     Bridge,
     Quiz,
+    Placement,
 }
 
 pub fn load_catalog(root: &Path, report: &mut Report) -> Result<Catalog> {
@@ -126,6 +129,12 @@ impl ContentReader<'_> {
             .iter()
             .map(|phase| self.load_phase(&manifest.id, phase, &track_dir.join(&phase.dir)))
             .collect();
+        let placement_path = track_dir.join("placement.yaml");
+        let placement = if placement_path.is_file() {
+            self.load_placement(&placement_path)
+        } else {
+            None
+        };
         Some(Track {
             id: manifest.id,
             name: manifest.name,
@@ -141,6 +150,56 @@ impl ContentReader<'_> {
                 .into_iter()
                 .map(to_requirement)
                 .collect(),
+            placement,
+        })
+    }
+
+    fn load_placement(&mut self, path: &Path) -> Option<PlacementConfig> {
+        let manifest = self.read_manifest::<PlacementManifest>(path, FileKind::Placement)?;
+        let location = self.relative(path);
+        let mut items = Vec::new();
+        for item in manifest.items {
+            match to_question(item.question) {
+                Ok(question) => items.push(PlacementItem {
+                    phase: item.phase,
+                    difficulty: item.difficulty,
+                    question,
+                }),
+                Err(message) => self.report.error(&location, message),
+            }
+        }
+        Some(PlacementConfig {
+            entry_prompt: manifest.entry_question.prompt,
+            entry_options: manifest
+                .entry_question
+                .options
+                .into_iter()
+                .map(|option| EntryOption {
+                    label: option.label,
+                    start_phase: option.start_phase,
+                    test: option.test,
+                })
+                .collect(),
+            phases: manifest
+                .phases
+                .into_iter()
+                .map(|(phase, rule)| {
+                    let rule = PhaseRule {
+                        items: rule.items_per_phase,
+                        pass: rule.pass,
+                        partial: rule.partial,
+                    };
+                    (phase, rule)
+                })
+                .collect(),
+            early_stop: EarlyStop {
+                wrong: manifest.early_stop.wrong_in_first,
+                of: manifest.early_stop.of,
+            },
+            skill_threshold: manifest.skill_placed_out_threshold,
+            weights_by_difficulty: manifest.weights_by_difficulty,
+            max_items: manifest.max_items,
+            items,
         })
     }
 
@@ -362,6 +421,7 @@ impl ContentReader<'_> {
             FileKind::Skills => &self.schemas.skills,
             FileKind::Bridge => &self.schemas.bridge,
             FileKind::Quiz => &self.schemas.quiz,
+            FileKind::Placement => &self.schemas.placement,
         }
     }
 
@@ -429,6 +489,7 @@ fn to_question(manifest: QuestionManifest) -> Result<Question, String> {
         code: manifest.code,
         kind,
         explanation: manifest.explanation,
+        skills: manifest.skills,
     })
 }
 

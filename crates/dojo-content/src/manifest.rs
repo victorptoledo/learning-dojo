@@ -107,6 +107,53 @@ pub struct QuestionManifest {
     #[serde(default)]
     pub answers: Option<Vec<String>>,
     pub explanation: String,
+    #[serde(default)]
+    pub skills: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PlacementManifest {
+    pub entry_question: EntryQuestionManifest,
+    pub phases: std::collections::BTreeMap<String, PhaseRuleManifest>,
+    pub early_stop: EarlyStopManifest,
+    pub skill_placed_out_threshold: f64,
+    pub weights_by_difficulty: std::collections::BTreeMap<u8, f64>,
+    pub max_items: usize,
+    pub items: Vec<PlacementItemManifest>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct EntryQuestionManifest {
+    pub prompt: String,
+    pub options: Vec<EntryOptionManifest>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct EntryOptionManifest {
+    pub label: String,
+    pub start_phase: String,
+    pub test: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PhaseRuleManifest {
+    pub items_per_phase: usize,
+    pub pass: f64,
+    pub partial: f64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct EarlyStopManifest {
+    pub wrong_in_first: usize,
+    pub of: usize,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PlacementItemManifest {
+    pub phase: String,
+    pub difficulty: u8,
+    #[serde(flatten)]
+    pub question: QuestionManifest,
 }
 
 #[derive(Debug, Deserialize)]
