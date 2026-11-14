@@ -1,0 +1,76 @@
+{
+  "id": "cpp",
+  "name": "C++ Moderno (C++20/23)",
+  "category": "Linguagens & Sistemas",
+  "icon": "⚡",
+  "description": "Performance máxima e controle de hardware: RAII, Smart Pointers, Templates, Move Semantics e Concepts.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "Raw Pointer Novice"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "RAII Practitioner"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Move Semantics Fighter"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "Template Metaprogrammer"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Zero-Cost Optimizer"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "Systems Core Master"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "C++ Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "cpp-01-raii-memory",
+      "section": "Gerenciamento de Memória",
+      "title": "RAII e Smart Pointers (`std::unique_ptr`, `std::shared_ptr`)",
+      "description": "O princípio fundamental que inspirou o Ownership do Rust: desalocação automática no destrutor.",
+      "prerequisites": [],
+      "xp": 150,
+      "rosetta": {
+        "concept": "Resource Acquisition Is Initialization (RAII)",
+        "java_way": "Depender de `try-with-resources` ou do Garbage Collector para limpar recursos.",
+        "rust_way": "Quando um objeto sai de escopo em C++, seu destrutor `~ClassName()` roda imediatamente, liberando arquivos e memória.",
+        "sensei_tip": "Nunca use `new` e `delete` manuais no C++ moderno! Sempre use `std::make_unique` e referências."
+      }
+    },
+    {
+      "id": "cpp-02-move-semantics",
+      "section": "Performance sem Cópia",
+      "title": "Move Semantics e Rvalue References (`&&`, `std::move`)",
+      "description": "Transferência de recursos sem alocação ou cópia profunda na memória.",
+      "prerequisites": [
+        "cpp-01-raii-memory"
+      ],
+      "xp": 300,
+      "rosetta": {
+        "concept": "Semântica de Movimentação",
+        "java_way": "Toda atribuição copia apenas a referência do objeto na Heap.",
+        "rust_way": "No C++, tipos de valor podem 'roubar' os ponteiros internos de outro objeto temporário (`std::move`), evitando cópias de buffers de megabytes.",
+        "sensei_tip": "`std::move` na verdade não move nada: ele apenas faz um cast para rvalue (`T&&`), habilitando o construtor de movimento."
+      }
+    }
+  ]
+}

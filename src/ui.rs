@@ -228,8 +228,7 @@ fn render_footer(frame: &mut Frame, state: &AppState, area: Rect) {
 
 // Modal para selecionar trilhas
 fn render_track_selector(frame: &mut Frame, state: &AppState, area: Rect) {
-    // Cria uma área centralizada de 70% de largura e 70% de altura
-    let popup_area = centered_rect(75, 75, area);
+    let popup_area = centered_rect(85, 80, area);
 
     frame.render_widget(Clear, popup_area); // Limpa o fundo atrás da modal
 
@@ -254,21 +253,28 @@ fn render_track_selector(frame: &mut Frame, state: &AppState, area: Rect) {
             let line = Line::from(vec![
                 Span::styled(prefix, Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
                 Span::styled(format!("{} ", track.icon), Style::default().fg(Color::White)),
-                Span::styled(format!("{:<25} ", track.name), Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
-                Span::styled(format!("[{}] ", track.category), Style::default().fg(Color::Magenta)),
-                Span::styled(format!("{}/{} Katas ({} XP) ", completed, total_nodes, xp), Style::default().fg(Color::White)),
-                Span::styled(format!("Faixa: {}", belt.name), Style::default().fg(Color::Yellow)),
+                Span::styled(format!("{:<28} ", track.name), Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+                Span::styled(format!("[{:<22}] ", track.category), Style::default().fg(Color::Magenta)),
+                Span::styled(format!("{}/{} Katas ({:>4} XP) ", completed, total_nodes, xp), Style::default().fg(Color::White)),
+                Span::styled(format!("| Faixa: {}", belt.name), Style::default().fg(Color::Yellow)),
             ]);
 
             ListItem::new(line)
         })
         .collect();
 
+    let title_text = format!(
+        " 🥋 SELETOR DE JORNADAS (ROADMAP.SH) — {} Trilhas [{}/{}] ",
+        state.tracks.len(),
+        state.selector_cursor_idx + 1,
+        state.tracks.len()
+    );
+
     let list = List::new(items)
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .title("🥋 SELETOR DE JORNADAS (ROADMAP.SH) — Escolha seu Tatame")
+                .title(title_text)
                 .title_alignment(Alignment::Center)
                 .style(Style::default().bg(Color::Rgb(20, 24, 30))),
         )

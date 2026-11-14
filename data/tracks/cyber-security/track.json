@@ -1,0 +1,76 @@
+{
+  "id": "cyber-security",
+  "name": "Cyber Security",
+  "category": "Carreiras & Roles",
+  "icon": "🛡️",
+  "description": "Segurança defensiva e ofensiva: OWASP Top 10, criptografia, segurança em nuvem e pentest.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "Security Aware"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "Vulnerability Hunter"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "AppSec Craftsman"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "Cryptographic Guardian"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Threat Modeling Architect"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "SecOps & CISO Mind"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "Cyber Security Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "sec-01-owasp-top-10",
+      "section": "Segurança de Aplicações",
+      "title": "OWASP Top 10: Injeções, Quebra de Autenticação e SSRF",
+      "description": "As vulnerabilidades web mais comuns e como preveni-las desde a arquitetura de código.",
+      "prerequisites": [],
+      "xp": 150,
+      "rosetta": {
+        "concept": "Postura Defensiva",
+        "java_way": "Confiar cegamente que frameworks cuidam de sanitizar todo input de usuário.",
+        "rust_way": "Validação rigorosa nas bordas, prepared statements universais e política de privilégios mínimos.",
+        "sensei_tip": "SSRF (Server-Side Request Forgery) é um dos ataques mais críticos da era Cloud: nunca permita que sua aplicação faça requisições HTTP para URLs enviadas diretamente pelo usuário sem validação estrita de IP."
+      }
+    },
+    {
+      "id": "sec-02-cryptography-secrets",
+      "section": "Criptografia & Chaves",
+      "title": "Criptografia Moderna: Hashing de Senhas, AES-GCM e TLS",
+      "description": "Argon2 vs bcrypt, chaves simétricas e assimétricas, e gestão de segredos no Vault.",
+      "prerequisites": [
+        "sec-01-owasp-top-10"
+      ],
+      "xp": 250,
+      "rosetta": {
+        "concept": "Proteção de Dados em Trânsito e Repouso",
+        "java_way": "Salvar senhas com MD5 ou SHA256 puro em vez de funções de derivação de chave com salt e custo.",
+        "rust_way": "Argon2id (vencedor da Password Hashing Competition) protege contra ataques de força bruta com GPUs e ASICs.",
+        "sensei_tip": "Nunca comite segredos ou tokens no Git: use ferramentas de varredura pré-commit (`gitleaks`) e guarde segredos em AWS Secrets Manager ou HashiCorp Vault."
+      }
+    }
+  ]
+}

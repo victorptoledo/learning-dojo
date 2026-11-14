@@ -1,0 +1,92 @@
+{
+  "id": "full-stack",
+  "name": "Full Stack Developer",
+  "category": "Carreiras & Roles",
+  "icon": "🌐",
+  "description": "A união de cliente, servidor, banco de dados e deploy: criando produtos digitais de ponta a ponta.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "Page Builder"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "REST Connector"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Fullstack Integrator"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "SSR / Jamstack Pro"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Serverless Specialist"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "End-to-End Architect"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "Fullstack Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "fs-01-client-server",
+      "section": "Integração",
+      "title": "Comunicação Type-Safe entre Cliente e Servidor",
+      "description": "Contratos de dados compartilhados, tRPC, OpenAPI e geração de clientes tipados.",
+      "prerequisites": [],
+      "xp": 150,
+      "rosetta": {
+        "concept": "Contratos Tipados",
+        "java_way": "Backend Java e Frontend JS separados onde qualquer mudança de campo no DTO quebra o front silenciosamente.",
+        "rust_way": "Tipos compartilhados de ponta a ponta: uma mudança no backend avisa o compilador do frontend instantaneamente.",
+        "sensei_tip": "Gere seus tipos TypeScript automaticamente a partir do OpenAPI ou use tRPC para nunca mais ter bugs de tipagem entre front e back."
+      }
+    },
+    {
+      "id": "fs-02-ssr-ssg",
+      "section": "Modelos de Renderização",
+      "title": "SSR, SSG, ISR e Server Components (RSC)",
+      "description": "Quando renderizar no cliente (SPA) vs no servidor (SSR) vs em tempo de build (SSG).",
+      "prerequisites": [
+        "fs-01-client-server"
+      ],
+      "xp": 250,
+      "rosetta": {
+        "concept": "Estratégia de Renderização",
+        "java_way": "Monolito tradicional ou SPA pesada que demora 5 segundos para exibir o primeiro conteúdo em redes lentas.",
+        "rust_way": "Renderizar no servidor para SEO e LCP imediato; hidratar componentes interativos no cliente sob demanda.",
+        "sensei_tip": "Páginas públicas de marketing devem ser SSG/ISR (estáticas e cacheadas em CDN); painéis autenticados podem ser SPA pura."
+      }
+    },
+    {
+      "id": "fs-03-deploy-serverless",
+      "section": "Operação & Nuvem",
+      "title": "Deploy Contínuo, Edge Functions e Bancos Serverless",
+      "description": "Executando código no edge com Vercel/Cloudflare e bancos serverless (Neon, Supabase).",
+      "prerequisites": [
+        "fs-02-ssr-ssg"
+      ],
+      "xp": 350,
+      "rosetta": {
+        "concept": "Infraestrutura Moderna",
+        "java_way": "Manter um servidor EC2 ou VM rodando 24/7 custando caro mesmo quando não há acessos.",
+        "rust_way": "Funções Serverless sob demanda que escalam a zero quando ninguém usa e sobem em milissegundos.",
+        "sensei_tip": "Atenção ao Cold Start de conexões de banco de dados em funções serverless: use connection poolers como PgBouncer ou Prisma Accelerate."
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "id": "design-patterns",
+  "name": "Design Patterns",
+  "category": "Arquitetura & Engenharia",
+  "icon": "🧩",
+  "description": "Os 23 padrões clássicos do GoF (Gang of Four) adaptados para a era moderna: Criacionais, Estruturais e Comportamentais.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "Singleton Abuser"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "Factory Practitioner"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Strategy Implementer"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "Observer & Event Master"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Composite & Decorator Pro"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "Pattern Discerning Architect"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "GoF Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "dp-01-strategy-factory",
+      "section": "Padrões Criacionais & Comportamentais",
+      "title": "Strategy e Factory: Eliminando Cadeias Gigantes de if/else",
+      "description": "Encapsulando algoritmos intercambiáveis e desacoplando a instanciação do uso.",
+      "prerequisites": [],
+      "xp": 150,
+      "rosetta": {
+        "concept": "Polimorfismo Comportamental",
+        "java_way": "Um método `calcularFrete()` com 15 `if (tipo == SEDEX) ... else if (tipo == PAC)`.",
+        "rust_way": "Uma Trait `CalculadoraFrete` implementada por cada modalidade. A Factory retorna a estratégia correta sem mudar o código que calcula.",
+        "sensei_tip": "No Rust e linguagens modernas com funções de primeira classe, muitas vezes uma Strategy é simplesmente passar uma closure ou função como parâmetro!"
+      }
+    },
+    {
+      "id": "dp-02-decorator-adapter",
+      "section": "Padrões Estruturais",
+      "title": "Adapter e Decorator: Composição sobre Herança",
+      "description": "Adicionando comportamento dinamicamente e conectando interfaces incompatíveis.",
+      "prerequisites": [
+        "dp-01-strategy-factory"
+      ],
+      "xp": 250,
+      "rosetta": {
+        "concept": "Composição de Objetos",
+        "java_way": "Criar subclasses profundas (`LoggingBufferedTransactionalUserService`) herdando 5 níveis.",
+        "rust_way": "O Decorator envolve o objeto original implementando a mesma interface, delegando a chamada e adicionando logging ou métricas.",
+        "sensei_tip": "O lema supremo do GoF é 'Prefira Composição a Herança'. Decorator é o exemplo perfeito dessa filosofia."
+      }
+    }
+  ]
+}

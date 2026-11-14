@@ -1,0 +1,60 @@
+{
+  "id": "prompt-engineering",
+  "name": "Prompt Engineering",
+  "category": "Dados & IA",
+  "icon": "🧠",
+  "description": "Técnicas de engenharia de prompt: Few-Shot, Chain-of-Thought, ReAct, RAG e Structured Outputs.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "Chatter"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "System Prompt Crafter"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Few-Shot Tuner"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "Chain-of-Thought Master"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Structured Output Engineer"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "Metaprompt Architect"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "Prompt Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "pe-01-cot-few-shot",
+      "section": "Técnicas Fundamentais",
+      "title": "Few-Shot Prompting e Chain-of-Thought (CoT)",
+      "description": "Como forçar o modelo a 'pensar passo a passo' para resolver raciocínios lógicos sem alucinações.",
+      "prerequisites": [],
+      "xp": 150,
+      "rosetta": {
+        "concept": "Orientação de Raciocínio",
+        "java_way": "Esperar que o modelo adivinhe a resposta correta de uma query complexa em um único tiro (Zero-Shot).",
+        "rust_way": "Instruir 'Pense passo a passo' e fornecer 2 ou 3 exemplos (Few-Shot) eleva a acurácia de raciocínio de 40% para mais de 90%.",
+        "sensei_tip": "Em tarefas de extração de dados, sempre exija Structured Output (JSON Schema rigoroso) para garantir que a resposta possa ser parseada pelo seu código sem quebras."
+      }
+    }
+  ]
+}

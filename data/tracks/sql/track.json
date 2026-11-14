@@ -1,0 +1,76 @@
+{
+  "id": "sql",
+  "name": "SQL & Relational Databases",
+  "category": "Engenharia & Sistemas",
+  "icon": "🗄️",
+  "description": "Domínio profundo da linguagem dos dados: Joins, Window Functions, CTEs, Transações e Teoria dos Conjuntos.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "Select Star"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "Join Harmonizer"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Aggregate & Group Master"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "Window Function Magician"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Recursive CTE Sorcerer"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "ACID & Query Optimization Titan"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "SQL Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "sql-01-window-functions",
+      "section": "SQL Avançado",
+      "title": "Window Functions: OVER, PARTITION BY, ROW_NUMBER e RANK",
+      "description": "Cálculos analíticos sobre conjuntos de linhas sem colapsar os dados em um `GROUP BY`.",
+      "prerequisites": [],
+      "xp": 200,
+      "rosetta": {
+        "concept": "Cálculo Relacional sem Colapso",
+        "java_way": "Trazer milhares de linhas para a memória da JVM e rodar loops em Java para calcular médias móveis ou rankings.",
+        "rust_way": "`ROW_NUMBER() OVER (PARTITION BY departamento_id ORDER BY salario DESC)` calcula o ranking diretamente no motor do banco.",
+        "sensei_tip": "Aprender Window Functions transforma problemas que precisavam de 50 linhas de código backend em uma query SQL elegante e executada em 5ms."
+      }
+    },
+    {
+      "id": "sql-02-cte-recursive",
+      "section": "SQL Avançado",
+      "title": "Common Table Expressions (CTEs) e Queries Recursivas",
+      "description": "Organizando queries complexas com legibilidade (`WITH`) e navegando em hierarquias e árvores.",
+      "prerequisites": [
+        "sql-01-window-functions"
+      ],
+      "xp": 300,
+      "rosetta": {
+        "concept": "Expressões de Tabela Comuns & Grafos",
+        "java_way": "Subqueries aninhadas ilegíveis com 5 níveis de parênteses.",
+        "rust_way": "`WITH hierarquia AS (SELECT ... UNION ALL SELECT ...)` percorre árvores genealógicas ou categorias pai-filho recursivamente.",
+        "sensei_tip": "No PostgreSQL 12+, CTEs simples são inlined automaticamente pelo otimizador de queries, tendo zero custo de performance extra."
+      }
+    }
+  ]
+}

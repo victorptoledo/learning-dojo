@@ -1,0 +1,76 @@
+{
+  "id": "api-design",
+  "name": "API Design Guidelines",
+  "category": "Arquitetura & Engenharia",
+  "icon": "🔌",
+  "description": "Padrões de projeto de interfaces de programação: RESTful, gRPC, versionamento, idempotência e tratamento de erros.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "Endpoint Maker"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "Status Code Purist"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "OpenAPI Documenter"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "gRPC & Protobuf Pro"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "API Governance Architect"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "Contract Design Titan"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "API Mastermind"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "api-01-rest-maturity",
+      "section": "REST & Recursos",
+      "title": "Modelo de Maturidade de Richardson e Design de Recursos",
+      "description": "URIs orientadas a substantivos, métodos HTTP corretos e hipermídia.",
+      "prerequisites": [],
+      "xp": 150,
+      "rosetta": {
+        "concept": "Design Semântico de APIs",
+        "java_way": "Criar endpoints como `/getUser` ou `/deleteProduct` via POST ignorando os verbos HTTP.",
+        "rust_way": "Recursos são substantivos plurais (`/users/123`), os verbos HTTP ditam a ação (`GET`, `POST`, `PUT`, `DELETE`).",
+        "sensei_tip": "Use `PUT` para substituição completa (idempotente) e `PATCH` para atualizações parciais de campos."
+      }
+    },
+    {
+      "id": "api-02-grpc-protobuf",
+      "section": "APIs Binárias de Alta Performance",
+      "title": "gRPC e Protocol Buffers (Protobuf)",
+      "description": "Comunicação RPC binária sobre HTTP/2 com tipagem forte e latência mínima para comunicação entre microsserviços.",
+      "prerequisites": [
+        "api-01-rest-maturity"
+      ],
+      "xp": 300,
+      "rosetta": {
+        "concept": "Serialização Binária vs JSON",
+        "java_way": "Serializar e deserializar JSONs verbosos em texto em cada chamada interna entre serviços.",
+        "rust_way": "Protobuf codifica dados em formato binário comprimido até 10x menor que JSON, com validação de tipos em compilação.",
+        "sensei_tip": "Use REST/GraphQL para APIs públicas voltadas ao frontend/usuário; use gRPC estritamente para comunicação interna entre microsserviços."
+      }
+    }
+  ]
+}

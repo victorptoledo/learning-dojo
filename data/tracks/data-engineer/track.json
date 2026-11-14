@@ -1,0 +1,92 @@
+{
+  "id": "data-engineer",
+  "name": "Data Engineer",
+  "category": "Dados & IA",
+  "icon": "📊",
+  "description": "Pipelines de dados em larga escala, ETL/ELT, Data Lakes, Data Warehouses, Apache Spark e dbt.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "SQL Querier"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "ETL Scripter"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Pipeline Builder"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "Data Lakehouse Architect"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Distributed Spark Specialist"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "Big Data Titan"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "Data Engineering Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "de-01-etl-vs-elt",
+      "section": "Fundamentos de Dados",
+      "title": "ETL vs ELT e Modelagem Dimensional (Kimball)",
+      "description": "Star Schema, Snowflake Schema, tabelas Fato e Dimensões, e a transição para ELT moderno.",
+      "prerequisites": [],
+      "xp": 150,
+      "rosetta": {
+        "concept": "Processamento de Dados",
+        "java_way": "Processar dados linha por linha em batch com código imperativo Java.",
+        "rust_way": "Carregar dados brutos diretamente no Data Warehouse (EL) e transformar usando poder de processamento em massa do banco (T com dbt).",
+        "sensei_tip": "Tabelas fato guardam métricas numéricas e eventos históricos; tabelas dimensão guardam contexto textual (quem, quando, onde)."
+      }
+    },
+    {
+      "id": "de-02-columnar-storage",
+      "section": "Armazenamento & Formatos",
+      "title": "Formatos Colunares: Parquet, ORC e Compressão Snappy",
+      "description": "Por que formatos orientados a colunas superam CSV e JSON em velocidade e custo analítico.",
+      "prerequisites": [
+        "de-01-etl-vs-elt"
+      ],
+      "xp": 250,
+      "rosetta": {
+        "concept": "Armazenamento em Disco para Analytics",
+        "java_way": "Exportar e ler dumps em CSV gigantescos de gigabytes.",
+        "rust_way": "Arquivos Parquet armazenam dados por coluna com estatísticas de min/max nos metadados, permitindo pular leitura de dados irrelevantes.",
+        "sensei_tip": "Consultas analíticas do tipo `SELECT AVG(salary)` em Parquet leem apenas 1 coluna do disco, sendo até 100x mais rápidas que em CSV."
+      }
+    },
+    {
+      "id": "de-03-spark-distributed",
+      "section": "Big Data Distribuído",
+      "title": "Apache Spark, DataFrames e Particionamento de Dados",
+      "description": "Processamento distribuído em memória sobre terabytes de dados com PySpark/Scala.",
+      "prerequisites": [
+        "de-02-columnar-storage"
+      ],
+      "xp": 350,
+      "rosetta": {
+        "concept": "Computação Distribuída em Memória",
+        "java_way": "Tentar carregar arquivos de 50GB na memória da JVM gerando `OutOfMemoryError`.",
+        "rust_way": "O Spark divide os dados em partições e distribui o cálculo entre dezenas de nós executores em cluster.",
+        "sensei_tip": "O maior vilão do Spark é o 'Data Skew': quando uma partição recebe 90% dos dados e atrasa todo o cluster. Use salting de chaves para balancear."
+      }
+    }
+  ]
+}

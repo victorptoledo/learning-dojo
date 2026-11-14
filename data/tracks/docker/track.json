@@ -1,0 +1,76 @@
+{
+  "id": "docker",
+  "name": "Docker & Containers",
+  "category": "Infra & DevOps",
+  "icon": "📦",
+  "description": "Isolamento de processos, imagens imutáveis, Docker Compose, redes virtuais e segurança de containers.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "Image Puller"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "Dockerfile Crafter"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Compose Conductor"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "Layer Optimization Pro"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Container Security Hardener"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "Runtime Virtuoso"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "Docker Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "dk-01-namespaces-cgroups",
+      "section": "Fundamentos de Containers",
+      "title": "O que é um Container: Namespaces, cgroups e Chroot",
+      "description": "Desmistificando o mito de que 'containers são máquinas virtuais leves'.",
+      "prerequisites": [],
+      "xp": 150,
+      "rosetta": {
+        "concept": "Isolamento em Nível de Kernel",
+        "java_way": "Pensar que o Docker emula hardware ou roda um sistema operacional completo.",
+        "rust_way": "Um container é apenas um processo Linux normal rodando isolado por Namespaces (rede, PID, filesystem) e limitado por cgroups (CPU, RAM).",
+        "sensei_tip": "Como containers compartilham o kernel do host, eles têm overhead de CPU próximo de zero!"
+      }
+    },
+    {
+      "id": "dk-02-dockerfile-security",
+      "section": "Boas Práticas de Imagem",
+      "title": "Hardening de Imagens: Usuários Não-Root e Imagens Distroless",
+      "description": "Eliminando vulnerabilidades e vetores de ataque em containers de produção.",
+      "prerequisites": [
+        "dk-01-namespaces-cgroups"
+      ],
+      "xp": 250,
+      "rosetta": {
+        "concept": "Princípio do Menor Privilégio",
+        "java_way": "Rodar a aplicação Java dentro do container como usuário `root` padrão.",
+        "rust_way": "Criar um usuário de sistema (`USER nonroot`) e remover shells (`/bin/sh`) e gerenciadores de pacote da imagem final.",
+        "sensei_tip": "Se um invasor conseguir Remote Code Execution (RCE) na sua aplicação mas o container for Distroless sem root, ele nem sequer terá um shell para rodar comandos!"
+      }
+    }
+  ]
+}

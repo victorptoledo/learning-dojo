@@ -2,7 +2,7 @@
 
 Uma plataforma de aprendizado gamificada e extensível diretamente no terminal (TUI), construída em **Rust** com [`ratatui`](https://ratatui.rs/).
 
-Inspirada no [roadmap.sh](https://roadmap.sh/), com **árvore de habilidades interativa**, **sistema de faixas e graus**, **streak diário global** e uma camada de **tradução mental (Rosetta Stone)** comparando a visão tradicional do ecossistema Java com cada tecnologia.
+Inspirada no catálogo completo do [roadmap.sh](https://roadmap.sh/), com **29 jornadas oficiais**, **árvore de habilidades interativa (Katas)**, **sistema de faixas e graus**, **streak diário global** e uma camada de **tradução mental (Rosetta Stone)** comparando a visão tradicional do ecossistema Java com cada tecnologia.
 
 ---
 
@@ -17,35 +17,63 @@ cargo run
 
 ---
 
-## 🗺️ Trilhas Oficiais Disponíveis (do roadmap.sh)
+## 🗺️ Catálogo de Jornadas Disponíveis (29 Trilhas do roadmap.sh)
 
-Aperte **`M`** a qualquer momento dentro do app para abrir o **Menu de Jornadas** e escolher seu tatame:
+Aperte **`M`** ou **`T`** a qualquer momento no app para abrir o **Menu de Jornadas** e escolher seu tatame:
 
-| Ícone | Trilha | Categoria | Foco Principal |
-| :---: | :--- | :--- | :--- |
-| 🦀 | **Rust** (`roadmap.sh/rust`) | Linguagens & Sistemas | Ownership, Borrow Checker, Lifetimes, Traits, Concorrência e Tokio. |
-| 🐹 | **Go** (`roadmap.sh/golang`) | Linguagens & Backend | Goroutines, Channels, Interfaces implícitas, Context e Microserviços. |
-| 🏛️ | **System Design** (`roadmap.sh/system-design`) | Arquitetura & Escala | CDN, Load Balancers, Redis, Sharding, CAP/PACELC, Kafka e Resiliência. |
-| 🐳 | **DevOps & Cloud** (`roadmap.sh/devops`) | Infraestrutura & Cloud | Linux, Docker, Kubernetes, CI/CD GitOps, Terraform e Observabilidade. |
-| 📐 | **Software Architecture** (`roadmap.sh/software-architect`) | Arquitetura & Engenharia | DDD Estratégico/Tático, Clean Architecture, Hexagonal, CQRS e Sagas. |
-| 🐍 | **Python Moderno** (`roadmap.sh/python`) | Linguagens & Backend | Type Hints, Pydantic v2, Generators, Decorators, Asyncio e FastAPI. |
+### 💼 Carreiras & Roles
+* ⚙️ **Backend Developer** (`backend`): HTTP, JWT/OAuth2, SQL vs NoSQL, Caching & Message Queues.
+* 🎨 **Frontend Developer** (`frontend`): DOM, CSS Grid/Flexbox, Reatividade, Core Web Vitals.
+* 🌐 **Full Stack Developer** (`full-stack`): Type-safe APIs, SSR/SSG/ISR, Edge & Serverless.
+* 🤖 **AI Engineer** (`ai-engineer`): LLMs, Embeddings, Bancos Vetoriais, RAG, AI Agents.
+* 📊 **Data Engineer** (`data-engineer`): ETL vs ELT, Kimball, Parquet, Apache Spark distribuído.
+* 🛡️ **Cyber Security** (`cyber-security`): OWASP Top 10, SSRF, Criptografia, Argon2, Secrets Management.
+* 🐳 **DevOps & Cloud** (`devops`): Linux, Docker, Kubernetes, CI/CD GitOps, Terraform, Observabilidade.
+* 📐 **Software Architecture** (`software-architect`): DDD Estratégico/Tático, Hexagonal, CQRS, Sagas.
+* ⚛️ **React Developer** (`react`): Hooks, Fiber, Diffing, Suspense e Server Components.
+
+### 💻 Linguagens de Programação
+* 🦀 **Rust** (`rust`): Ownership, Borrow Checker, Lifetimes, Traits, Smart Pointers, Concorrência e Tokio.
+* 🐹 **Go** (`go`): Goroutines, Channels, Interfaces Duck-Typing, `if err != nil`, Context e Microsserviços.
+* ☕ **Java Moderno & Spring Boot** (`java`): Records, Pattern Matching, Virtual Threads (Project Loom), GraalVM.
+* 🐍 **Python Moderno** (`python`): Type Hints, Pydantic v2, Generators, Decorators, Asyncio e FastAPI.
+* 🔷 **TypeScript** (`typescript`): Tipagem Estrutural, Tipos Condicionais, Utilitários e Type Narrowing.
+* ⚡ **C++ Moderno** (`cpp`): RAII, Smart Pointers, Move Semantics, Templates e Zero-Cost Abstractions.
+* 🟢 **Node.js** (`nodejs`): Event Loop, Libuv, Streams, Buffers e I/O não bloqueante.
+
+### 🏛️ Arquitetura, Engenharia & Sistemas
+* 🏛️ **System Design** (`system-design`): CDNs, Load Balancers, Redis, Sharding, CAP/PACELC, Kafka e Resiliência.
+* 🔌 **API Design Guidelines** (`api-design`): RESTful Maturity Model, gRPC, Protobuf, Versionamento e Idempotência.
+* 🧩 **Design Patterns** (`design-patterns`): Strategy, Factory, Decorator, Adapter e Composição sobre Herança.
+* 🧠 **Prompt Engineering** (`prompt-engineering`): Few-Shot, Chain-of-Thought (CoT), ReAct e Structured Outputs.
+
+### 🗄️ Bancos de Dados & Persistência
+* 🐘 **PostgreSQL** (`postgresql`): EXPLAIN ANALYZE, Índices GIN/BRIN/Parciais, MVCC e Tuning.
+* 🗄️ **SQL & Relational DBs** (`sql`): Window Functions, CTEs Recursivas, Transações e Teoria dos Conjuntos.
+
+### ☁️ Infraestrutura, Cloud & Ferramentas
+* 📦 **Docker & Containers** (`docker`): Namespaces, cgroups, Multi-stage builds, Distroless e Hardening.
+* ☸️ **Kubernetes Mastery** (`kubernetes`): Control Plane, etcd, HPA, KEDA, Ingress e Operators.
+* 🐧 **Linux Mastery** (`linux`): Permissões POSIX, systemd, Signals, Network sockets e Bash.
+* 🐙 **Git & GitHub** (`git`): DAG de commits, Blobs/Trees, Rebase interativo, Bisect e Git Reflog.
+* ☁️ **AWS Cloud Architecture** (`aws`): IAM Roles, VPC, Subnets Privadas, Well-Architected Framework.
+
+### 🎓 Fundamentos da Computação
+* 🎓 **Computer Science Fundamentals** (`computer-science`): Hierarquia de Memória (L1/RAM), Cache Lines, Big-O.
+* 🧠 **Data Structures & Algorithms** (`datastructures-and-algorithms`): Hash Tables, Grafos, BFS/DFS, Árvores.
 
 ---
 
 ## 🎮 Mecânicas do Tatame (Gamificação)
 
 * **🔥 Daily Streak Global:**
-  * Seu streak diário é unificado! Se hoje você treinar um kata de Rust e amanhã ler um conceito de System Design, sua chama diária continua subindo.
-* **🥋 Faixas & Títulos Temáticos por Trilha:**
-  * Cada trilha possui sua própria progressão de faixas (da Faixa Branca à Faixa Preta / Sensei) e títulos temáticos (ex: *Java Refugee*, *Borrow Apprentice*, *Goroutine Novice*, *Cache Master*).
+  * Seu streak diário é unificado entre todas as 29 jornadas! Estude um kata por dia para manter sua chama ativa.
+* **🥋 Faixas & Títulos Temáticos:**
+  * Cada trilha possui suas próprias faixas (da Faixa Branca à Faixa Preta / Sensei) e títulos temáticos divertidos.
 * **🗺️ Skill Tree com Pré-requisitos:**
-  * Os katas avançados ficam bloqueados (`[🔒]`) até que você domine os fundamentos daquela trilha.
+  * Katas avançados só são liberados quando os pré-requisitos forem dominados.
 * **🥋 Tradução Mental (Rosetta Stone):**
-  * Para cada nó, o app explica:
-    * 🎯 O Conceito Chave.
-    * ☕ Ponto de Partida (como você pensaria em Java/Tradicional).
-    * 🚀 O Jeito Desta Trilha.
-    * 💡 O Conselho do Sensei.
+  * Toda trilha possui notas explicando o conceito, como você pensaria em Java/Tradicional, o jeito moderno da tecnologia e a dica do Sensei.
 
 ---
 
@@ -58,9 +86,3 @@ Aperte **`M`** a qualquer momento dentro do app para abrir o **Menu de Jornadas*
 | `↓` ou `j` | Descer no menu ou na Skill Tree |
 | `Espaço` ou `Enter` | Dominar Kata / Confirmar Trilha |
 | `q` ou `Esc` | Fechar modal ou sair do Dojo (salvando progresso) |
-
----
-
-## 🔌 Adicionando Novas Trilhas no Futuro
-
-Para criar qualquer nova trilha (ex: *Kubernetes avançado*, *C++*, *SQL & PostgreSQL*), basta criar uma subpasta em `data/tracks/<nome>/track.json`. O Dojo descobre e carrega a nova jornada automaticamente na inicialização!

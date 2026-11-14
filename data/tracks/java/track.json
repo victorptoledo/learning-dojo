@@ -1,0 +1,92 @@
+{
+  "id": "java",
+  "name": "Java Moderno & Spring Boot",
+  "category": "Linguagens & Backend",
+  "icon": "☕",
+  "description": "Java contemporâneo: Records, Pattern Matching, Virtual Threads (Project Loom), Spring Boot 3 e GraalVM.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "Java 8 Legacy"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "Spring Booter"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Stream & Record Master"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "Virtual Threads Pioneer"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "JVM Tuning Specialist"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "GraalVM Native Champion"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "Java Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "java-01-modern-features",
+      "section": "Sintaxe Moderna",
+      "title": "Java 17 a 21+: Records, Pattern Matching e Sealed Classes",
+      "description": "Como escrever Java limpo e imutável sem necessidade de bibliotecas como Lombok.",
+      "prerequisites": [],
+      "xp": 100,
+      "rosetta": {
+        "concept": "Evolução do Java",
+        "java_way": "Classes verbosas com 200 linhas de Getters, Setters, `equals()` e `hashCode()` manuais.",
+        "rust_way": "`record User(String name, int age) {}` define uma estrutura imutável completa em uma única linha, inspirada nas Structs funcionais.",
+        "sensei_tip": "Combine `sealed interface` com `switch pattern matching` para garantir exaustividade de tipos em tempo de compilação, assim como no Rust."
+      }
+    },
+    {
+      "id": "java-02-virtual-threads",
+      "section": "Concorrência Moderna",
+      "title": "Virtual Threads (Project Loom): Concorrência Leve no Java",
+      "description": "Milhões de threads simultâneas sem mudar o modelo de programação bloqueante síncrono.",
+      "prerequisites": [
+        "java-01-modern-features"
+      ],
+      "xp": 250,
+      "rosetta": {
+        "concept": "Fim do Reactive Spaghetti",
+        "java_way": "Usar Mono e Flux do Spring WebFlux para conseguir alta concorrência sacrificando legibilidade e stack traces.",
+        "rust_way": "Virtual Threads rodam no código síncrono normal (`Thread.ofVirtual()`), mas a JVM desassocia a thread quando há I/O bloqueante.",
+        "sensei_tip": "Com Virtual Threads no Java 21, esqueça WebFlux e volte para o bom e velho código síncrono legível com Spring MVC!"
+      }
+    },
+    {
+      "id": "java-03-graalvm-native",
+      "section": "Performance & Cloud",
+      "title": "GraalVM Native Image: Startup em Milissegundos",
+      "description": "Compilação Ahead-of-Time (AOT) para transformar aplicações Java em binários nativos executáveis.",
+      "prerequisites": [
+        "java-02-virtual-threads"
+      ],
+      "xp": 350,
+      "rosetta": {
+        "concept": "Compilação JIT vs AOT",
+        "java_way": "A JVM demora 10 a 20 segundos para iniciar e precisa de 500MB de RAM de warmup.",
+        "rust_way": "GraalVM gera um binário nativo executável direto no SO que inicia em 0,05 segundos e consome apenas 30MB de memória.",
+        "sensei_tip": "GraalVM é a solução definitiva para rodar Java em funções AWS Lambda sem sofrer com cold start."
+      }
+    }
+  ]
+}

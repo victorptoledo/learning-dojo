@@ -1,0 +1,76 @@
+{
+  "id": "postgresql",
+  "name": "PostgreSQL",
+  "category": "Engenharia & Sistemas",
+  "icon": "🐘",
+  "description": "O banco de dados relacional mais avançado do mundo: índices B-Tree/GIN, EXPLAIN ANALYZE, JSONB e Tuning.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "Select Star Novice"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "Index Crafter"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Query Optimizer"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "JSONB Hybrid Master"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "MVCC & Lock Specialist"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "Database Reliability Titan"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "Postgres Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "pg-01-query-planner",
+      "section": "Performance & Execução",
+      "title": "EXPLAIN (ANALYZE, BUFFERS): Lendo o Query Planner",
+      "description": "Identificando Seq Scan, Index Scan e Bitmap Heap Scan para transformar queries de minutos em milissegundos.",
+      "prerequisites": [],
+      "xp": 150,
+      "rosetta": {
+        "concept": "Plano de Execução de Queries",
+        "java_way": "Apenas olhar o log do Hibernate e não saber por que a query trava o banco em produção.",
+        "rust_way": "`EXPLAIN ANALYZE` executa a query e mostra o tempo real gasto em cada nó do plano de execução do Postgres.",
+        "sensei_tip": "Fique atento ao número de 'Shared Hit' vs 'Shared Read' no `BUFFERS`: leituras em disco são 10.000x mais lentas que na memória RAM."
+      }
+    },
+    {
+      "id": "pg-02-indexes-advanced",
+      "section": "Otimização de Índices",
+      "title": "Índices Avançados: GIN, BRIN, Índices Parciais e Índices em Expressões",
+      "description": "Escolhendo o tipo certo de índice para buscas de texto, JSONB e séries temporais.",
+      "prerequisites": [
+        "pg-01-query-planner"
+      ],
+      "xp": 300,
+      "rosetta": {
+        "concept": "Estratégia de Indexação",
+        "java_way": "Colocar índice normal B-Tree em todas as colunas aleatoriamente.",
+        "rust_way": "Índices parciais (`WHERE active = true`) indexam apenas uma fração da tabela, economizando 90% de espaço em disco e acelerando escrita.",
+        "sensei_tip": "Para colunas com datas sequenciais gigantescas (logs/métricas), o índice BRIN usa quase zero de espaço comparado ao B-Tree tradicional."
+      }
+    }
+  ]
+}

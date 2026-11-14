@@ -1,0 +1,76 @@
+{
+  "id": "kubernetes",
+  "name": "Kubernetes Mastery",
+  "category": "Infra & DevOps",
+  "icon": "☸️",
+  "description": "Orquestração em nível industrial: Ingress, NetworkPolicies, Helm, StatefulSets, HPA e Service Meshes.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "kubectl Applier"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "Pod Navigator"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Helm Packager"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "Traffic & Ingress Controller"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Auto-scaling Architect"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "Cluster Operator"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "Kubernetes Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "k8s-01-control-plane",
+      "section": "Arquitetura de Cluster",
+      "title": "O Control Plane: API Server, etcd, Scheduler e Controller Manager",
+      "description": "Como o cérebro do Kubernetes reconcilia o estado desejado com o estado real.",
+      "prerequisites": [],
+      "xp": 200,
+      "rosetta": {
+        "concept": "Loop de Reconciliação Declarativo",
+        "java_way": "Scripts imperativos que checam 'se caiu, reinicie' via crontab.",
+        "rust_way": "O etcd guarda a verdade absoluta do cluster. Os controllers observam continuamente e convergem o estado real para o declarado.",
+        "sensei_tip": "O `etcd` usa o algoritmo de consenso Raft: ele é o coração do cluster, portanto requer discos SSD de baixíssima latência."
+      }
+    },
+    {
+      "id": "k8s-02-hpa-autoscaling",
+      "section": "Escalabilidade Automática",
+      "title": "Horizontal Pod Autoscaler (HPA) e KEDA",
+      "description": "Escalando réplicas com base em CPU/Memória ou métricas de negócio (tamanho de fila no Kafka).",
+      "prerequisites": [
+        "k8s-01-control-plane"
+      ],
+      "xp": 350,
+      "rosetta": {
+        "concept": "Elasticidade Automática",
+        "java_way": "Provisionar dezenas de servidores no tamanho máximo para aguentar o pico da Black Friday o ano inteiro.",
+        "rust_way": "O HPA aumenta e diminui o número de réplicas dinamicamente conforme a demanda real.",
+        "sensei_tip": "Use KEDA (Kubernetes Event-driven Autoscaling) para escalar pods baseado no tamanho de filas SQS/Kafka em vez de métricas genéricas de CPU."
+      }
+    }
+  ]
+}

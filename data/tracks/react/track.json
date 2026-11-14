@@ -1,0 +1,76 @@
+{
+  "id": "react",
+  "name": "React Developer",
+  "category": "Carreiras & Roles",
+  "icon": "⚛️",
+  "description": "A biblioteca de UI mais usada do mundo: Hooks, Fiber, Reconciliação, Suspense, Server Components.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "useState Novice"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "Component Modularizer"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Custom Hook Crafter"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "Context & Memo Tuner"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Fiber & Suspense Pro"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "RSC & Server Component Architect"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "React Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "react-01-hooks-lifecycle",
+      "section": "Fundamentos de Hooks",
+      "title": "useState, useEffect e a Mentalidade de Sincronização",
+      "description": "Por que useEffect não é um substituto de ciclo de vida e como evitar loops infinitos de re-render.",
+      "prerequisites": [],
+      "xp": 150,
+      "rosetta": {
+        "concept": "Ciclo de Vida vs Sincronização",
+        "java_way": "Pensar em métodos imperativos de classes como `componentDidMount()` e `componentDidUpdate()`.",
+        "rust_way": "Componentes funcionais são executados a cada renderização. `useEffect` sincroniza o componente com um sistema externo (API, timers).",
+        "sensei_tip": "Se você está usando `useEffect` para calcular dados a partir de outros estados, pare! Calcule diretamente durante a renderização ou use `useMemo`."
+      }
+    },
+    {
+      "id": "react-02-reconciliation-fiber",
+      "section": "Performance do React",
+      "title": "A Reconciliação do React: Virtual DOM e Fiber Architecture",
+      "description": "Como o algoritmo de Diffing do React decide o que atualizar na árvore do DOM real.",
+      "prerequisites": [
+        "react-01-hooks-lifecycle"
+      ],
+      "xp": 300,
+      "rosetta": {
+        "concept": "Diffing e Chaves de Listas",
+        "java_way": "Atualizar a interface manipulando nós do DOM diretamente com jQuery.",
+        "rust_way": "O React compara duas árvores virtuais em memória ($O(N)$) e envia apenas as alterações mínimas para o browser real.",
+        "sensei_tip": "Nunca use o índice do array (`key={index}`) como chave se a lista puder ser reordenada, filtrada ou deletada: isso confunde a reconciliação e gera bugs visuais graves."
+      }
+    }
+  ]
+}

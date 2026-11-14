@@ -1,0 +1,108 @@
+{
+  "id": "frontend",
+  "name": "Frontend Developer",
+  "category": "Carreiras & Roles",
+  "icon": "🎨",
+  "description": "Interface, experiência do usuário, DOM, navegadores, acessibilidade e frameworks modernos.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "HTML Styler"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "DOM Manipulator"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Component Craftsman"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "State Architect"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Web Performance Ninja"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "Design System Titan"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "Frontend Grandmaster"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "fe-01-dom-rendering",
+      "section": "Fundamentos da Web",
+      "title": "Como o Navegador Renderiza: DOM, CSSOM e Critical Rendering Path",
+      "description": "Parsing de HTML, construção de render tree, layout (reflow) e pintura (repaint).",
+      "prerequisites": [],
+      "xp": 100,
+      "rosetta": {
+        "concept": "Renderização do Browser",
+        "java_way": "Renderização no servidor (JSP/Thymeleaf) gerando páginas estáticas recarregadas a cada clique.",
+        "rust_way": "O browser constrói o DOM e o CSSOM em árvore de nós na memória. Alterações em classes disparam Reflow e Repaint que consomem GPU/CPU.",
+        "sensei_tip": "Para animações a 60fps, altere apenas propriedades que a GPU renderiza sem reflow: `transform` e `opacity`."
+      }
+    },
+    {
+      "id": "fe-02-modern-css",
+      "section": "Estilização & Layout",
+      "title": "CSS Moderno: Flexbox, Grid, Variáveis e Tailwind",
+      "description": "Layouts responsivos, container queries, specificity e design tokens.",
+      "prerequisites": [
+        "fe-01-dom-rendering"
+      ],
+      "xp": 150,
+      "rosetta": {
+        "concept": "Design Responsivo",
+        "java_way": "Tabelas HTML antigas ou Bootstrap engessado com classes pesadas.",
+        "rust_way": "CSS Grid para layouts bidimensionais e Flexbox para alinhamentos unidimensionais. Variáveis CSS (`var(--primary)`) para temas dinâmicos.",
+        "sensei_tip": "Prefira Tailwind CSS ou CSS Modules para eliminar o medo de que alterar uma classe quebre a tela de outra página."
+      }
+    },
+    {
+      "id": "fe-03-state-management",
+      "section": "Arquitetura Frontend",
+      "title": "Gerenciamento de Estado e Reatividade",
+      "description": "Estado local vs global, imutabilidade, signals e sincronização com o servidor (TanStack Query).",
+      "prerequisites": [
+        "fe-02-modern-css"
+      ],
+      "xp": 300,
+      "rosetta": {
+        "concept": "Estado da Interface",
+        "java_way": "Sessão HTTP no servidor ou estado guardado em variáveis globais.",
+        "rust_way": "UI é uma função pura do estado: $UI = f(State)$. Estados de servidor devem ser cacheados com invalidação automática.",
+        "sensei_tip": "Pare de guardar dados de API no Redux/Zustand: use TanStack Query (React Query) para cuidar de cache, refetch e loading automaticamente."
+      }
+    },
+    {
+      "id": "fe-04-web-vitals",
+      "section": "Performance & Otimização",
+      "title": "Core Web Vitals: LCP, FID/INP e CLS",
+      "description": "Métricas oficiais do Google para medir performance e experiência real do usuário.",
+      "prerequisites": [
+        "fe-03-state-management"
+      ],
+      "xp": 350,
+      "rosetta": {
+        "concept": "Métricas de Performance do Usuário",
+        "java_way": "Medir apenas o tempo de resposta no log do servidor (Response Time).",
+        "rust_way": "LCP (tempo para carregar o maior bloco visual), INP (tempo de resposta ao primeiro clique) e CLS (estabilidade visual sem pulos).",
+        "sensei_tip": "Sempre defina `width` e `height` explícitos em tags `<img>` para zerar o CLS (Cumulative Layout Shift)."
+      }
+    }
+  ]
+}

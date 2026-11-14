@@ -1,0 +1,76 @@
+{
+  "id": "linux",
+  "name": "Linux Mastery",
+  "category": "Infra & DevOps",
+  "icon": "🐧",
+  "description": "O sistema operacional da nuvem: linha de comando, bash, permissões, processos, redes e systemd.",
+  "belts": [
+    {
+      "name": "Faixa Branca",
+      "required_xp": 0,
+      "title": "GUI Dependent"
+    },
+    {
+      "name": "Faixa Amarela",
+      "required_xp": 300,
+      "title": "CLI Navigator"
+    },
+    {
+      "name": "Faixa Verde",
+      "required_xp": 800,
+      "title": "Bash Scripter"
+    },
+    {
+      "name": "Faixa Roxa",
+      "required_xp": 1500,
+      "title": "Process & Signal Hunter"
+    },
+    {
+      "name": "Faixa Marrom",
+      "required_xp": 2500,
+      "title": "Kernel & Syscall Explorer"
+    },
+    {
+      "name": "Faixa Preta",
+      "required_xp": 4000,
+      "title": "SysAdmin Wizard"
+    },
+    {
+      "name": "Sensei",
+      "required_xp": 6000,
+      "title": "Torvalds Disciple"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "lnx-01-permissions-posix",
+      "section": "Fundamentos do Sistema",
+      "title": "Permissões POSIX, Sudo e Gerenciamento de Usuários",
+      "description": "chmod (755 vs 644), chown, grupos e o bit SUID.",
+      "prerequisites": [],
+      "xp": 100,
+      "rosetta": {
+        "concept": "Controle de Acesso em Nível de Arquivo",
+        "java_way": "Pensar em permissões de aplicação gerenciadas por código em vez de permissões reais do SO.",
+        "rust_way": "Todo arquivo tem 3 grupos de bits: Read (4), Write (2), Execute (1) para Dono, Grupo e Outros.",
+        "sensei_tip": "Nunca use `chmod 777` para 'fazer funcionar'! Entenda quem é o usuário do processo e dê apenas a permissão estritamente necessária (ex: 644 para leitura, 755 para binários)."
+      }
+    },
+    {
+      "id": "lnx-02-systemd-services",
+      "section": "Gerenciamento de Serviços",
+      "title": "systemd: Daemons, Unit Files e Journalctl",
+      "description": "Como transformar qualquer programa em um serviço de background resiliente que reinicia após falhas.",
+      "prerequisites": [
+        "lnx-01-permissions-posix"
+      ],
+      "xp": 200,
+      "rosetta": {
+        "concept": "Gerenciamento de Processos em Produção",
+        "java_way": "Rodar `nohup java -jar app.jar &` e torcer para o processo não morrer se o terminal fechar.",
+        "rust_way": "Criar um arquivo `/etc/systemd/system/app.service` com `Restart=always` e gerenciar com `systemctl`.",
+        "sensei_tip": "Use `journalctl -u app.service -f` para seguir os logs do serviço em tempo real com timestamp unificado do SO."
+      }
+    }
+  ]
+}
