@@ -1,0 +1,29 @@
+questions:
+  - id: default
+    prompt: "You add spring-boot-starter-security and nothing else. What happens to your endpoints?"
+    options: ["Nothing changes", "Every endpoint requires a login", "Only POST endpoints are protected"]
+    answer: 1
+    explanation: "The default configuration authenticates every request."
+  - id: order
+    prompt: "Rules: anyRequest().authenticated() first, then requestMatchers(\"/public/**\").permitAll(). Can an anonymous user read /public/info?"
+    options: ["Yes", "No: the first matching rule (anyRequest) wins, so put specific rules first"]
+    answer: 1
+    explanation: "Authorization rules are evaluated in order and the first match decides."
+  - id: status
+    prompt: "A user is logged in but lacks the ADMIN role for /admin. Which status do they get?"
+    answers: ["403", "403 Forbidden", "Forbidden"]
+    explanation: "401 means not authenticated; 403 means authenticated but not allowed."
+  - id: password
+    prompt: "How should passwords be stored?"
+    options: ["Plain text in a database", "SHA-256 hashes", "An adaptive hash such as bcrypt"]
+    answer: 2
+    explanation: "Adaptive hashes like bcrypt or argon2 are slow by design and salted."
+  - id: other-owner
+    prompt: "User ada asks for note 7, which belongs to linus. Which answer leaks the least?"
+    options: ["403 Forbidden", "404 Not Found", "200 with an empty body"]
+    answer: 1
+    explanation: "404 does not reveal that the note exists."
+  - id: test-user
+    prompt: "Which annotation runs a test as a logged-in user with role USER, without a password?"
+    answers: ["@WithMockUser", "@WithMockUser(roles = \"USER\")", "WithMockUser"]
+    explanation: "@WithMockUser puts an authenticated user in the security context for the test."

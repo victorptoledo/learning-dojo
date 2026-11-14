@@ -1,0 +1,45 @@
+questions:
+  - id: by-feature
+    prompt: "What is the main advantage of packaging by feature (catalog/, orders/) over by layer (controllers/, services/)?"
+    options:
+      - "Fewer files"
+      - "Most classes can be package-private, so other features cannot reach into them"
+      - "Spring scans it faster"
+    answer: 1
+    explanation: "Feature packages turn Java visibility into an enforced boundary."
+  - id: modular-monolith
+    prompt: "What is a modular monolith?"
+    options:
+      - "A monolith with no modules"
+      - "One deployable application made of modules with explicit, checked boundaries"
+      - "A set of microservices in one repository"
+    answer: 1
+    explanation: "It keeps one process and one deploy while enforcing module boundaries."
+  - id: verify
+    prompt: "Which Spring Modulith call fails a test when a module uses another module's internal types?"
+    answers: ["ApplicationModules.of(ShopApplication.class).verify()", "verify()", "ApplicationModules.verify"]
+    explanation: "verify() checks module dependencies, internal access and cycles."
+  - id: events-between
+    prompt: "Why prefer events between modules over direct calls?"
+    options:
+      - "Events are faster"
+      - "Dependencies stay one-way and the publisher does not need to know its listeners"
+      - "Direct calls are not allowed in Spring"
+    answer: 1
+    explanation: "The publisher depends on nothing; listeners depend on the event."
+  - id: port
+    prompt: "In ports and adapters, where does the interface OrderStore live, and where does JpaOrderStore live?"
+    options:
+      - "Both in the core"
+      - "The port in the core, the JPA adapter outside it"
+      - "Both in the adapter"
+    answer: 1
+    explanation: "The core defines what it needs; adapters implement it with a technology."
+  - id: split
+    prompt: "Which is a good reason to split a module into its own service?"
+    options:
+      - "The module has many classes"
+      - "Another team must release it independently and it scales very differently"
+      - "Microservices are the modern way"
+    answer: 1
+    explanation: "Independent deployment, scaling or isolation justify the cost of distribution."

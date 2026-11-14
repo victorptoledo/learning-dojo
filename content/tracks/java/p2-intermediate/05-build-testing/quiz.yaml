@@ -26,7 +26,7 @@ questions:
     options:
       - "It runs once for the whole class, which is faster"
       - "Each test gets a fresh object, so tests do not depend on each other"
-      - "It is required by JUnit 5"
+      - "It is required by JUnit 6"
     answer: 1
     explanation: "@BeforeEach runs before every test, keeping tests independent."
   - id: parameterized

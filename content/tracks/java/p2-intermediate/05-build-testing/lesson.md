@@ -1,8 +1,8 @@
-# Packages, Maven and JUnit 5
+# Packages, Maven and JUnit 6
 
 Code that works on your machine is half the job. The other half is code that others can
 **build** with one command and **trust** because it is tested. In Java that means packages
-and visibility, a build tool (Maven here, Gradle is the other common one) and JUnit 5.
+and visibility, a build tool (Maven here, Gradle is the other common one) and JUnit 6.
 
 ## Packages and visibility
 
@@ -56,7 +56,7 @@ Maven describes a project in `pom.xml` and builds it by convention:
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.13.4</version>
+            <version>6.0.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -84,7 +84,11 @@ Each command runs every **lifecycle phase** before it: `package` implies `compil
 `test`. Many projects ship the **Maven Wrapper** (`mvnw`), which downloads the right Maven
 version for you.
 
-## JUnit 5
+## JUnit 6
+
+JUnit 6 (2025) keeps the **Jupiter** programming model introduced by JUnit 5: the same
+annotations and assertions, now with one version number for all modules and Java 17 as the
+minimum. Tests written for JUnit 5 run unchanged; most articles you find say "JUnit 5".
 
 ```java
 package shop.pricing;
@@ -165,6 +169,6 @@ when the inputs are objects.
 
 - Packages group classes; package-private is the default you should reach for.
 - Maven: coordinates, scopes, the standard layout and `mvn test` / `mvn package`.
-- JUnit 5: `@Test`, `@BeforeEach`, `assertEquals(expected, actual)`, `assertThrows`, and
+- JUnit 6: `@Test`, `@BeforeEach`, `assertEquals(expected, actual)`, `assertThrows`, and
   `@ParameterizedTest` with `@CsvSource` or `@ValueSource`.
 - Good tests check one behaviour, follow arrange-act-assert and do not depend on each other.

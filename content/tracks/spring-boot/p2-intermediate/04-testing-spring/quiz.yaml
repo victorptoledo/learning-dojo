@@ -1,0 +1,33 @@
+questions:
+  - id: smallest
+    prompt: "You want to test a pricing rule in a service that has two constructor dependencies. What is the best test?"
+    options: ["@SpringBootTest", "@WebMvcTest", "A plain JUnit test that builds the service with new and fakes"]
+    answer: 2
+    explanation: "Business rules need no Spring; a plain unit test is the fastest and clearest."
+  - id: webmvctest
+    prompt: "In a @WebMvcTest, the controller needs a TodoService. How do you provide it?"
+    answers: ["@MockitoBean", "@MockitoBean TodoService todos", "with @MockitoBean"]
+    explanation: "Web slices do not create services; @MockitoBean adds a Mockito mock to the context."
+  - id: mockbean
+    prompt: "In Spring Boot 4, what happened to @MockBean?"
+    options: ["Nothing", "It was removed; use @MockitoBean from Spring Framework", "It moved to JUnit"]
+    answer: 1
+    explanation: "@MockitoBean and @MockitoSpyBean replace @MockBean and @SpyBean."
+  - id: datajpatest
+    prompt: "What does @DataJpaTest do with the data a test writes?"
+    options: ["Keeps it for the next test", "Rolls it back at the end of each test", "Writes it to a file"]
+    answer: 1
+    explanation: "Each @DataJpaTest test runs in a transaction that is rolled back."
+  - id: context-cache
+    prompt: "Why can adding a different @MockitoBean to each test class make a suite slow?"
+    options:
+      - "Mockito is slow"
+      - "Each distinct configuration needs its own application context, so the cache is not reused"
+      - "MockitoBeans run in parallel"
+    answer: 1
+    explanation: "Spring caches contexts by configuration; every variation starts a new one."
+  - id: testcontainers
+    prompt: "Why use Testcontainers instead of H2 for some tests?"
+    options: ["It is faster", "It runs the same database as production, with its real SQL and types", "H2 cannot run in tests"]
+    answer: 1
+    explanation: "Dialect and behaviour differ between H2 and PostgreSQL; Testcontainers tests against the real thing."

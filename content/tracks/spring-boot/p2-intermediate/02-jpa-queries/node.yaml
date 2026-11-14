@@ -1,0 +1,16 @@
+id: spring-boot.p2.jpa-queries
+kind: lesson
+status: draft
+title: "Relationships, Queries and Pagination"
+summary: "Relationships between entities, the N+1 problem, JPQL queries, projections and pages."
+objectives:
+  - { id: o1, text: "Map one-to-many and many-to-one relationships and choose fetch types", skills: [spring.jpa-queries] }
+  - { id: o2, text: "Spot and fix N+1 queries with fetch joins or entity graphs", skills: [spring.jpa-queries] }
+  - { id: o3, text: "Write @Query methods, projections and paginated queries", skills: [spring.jpa-queries] }
+prerequisites: [spring-boot.p2.data-jpa]
+difficulty: 3
+estimated_minutes: 40
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

@@ -398,7 +398,7 @@ fn repository_content_has_no_errors() {
     let loaded = load(&content).unwrap();
 
     assert!(errors(&loaded).is_empty(), "{:#?}", errors(&loaded));
-    assert_eq!(loaded.catalog.tracks.len(), 29);
+    assert_eq!(loaded.catalog.tracks.len(), 30);
 }
 
 #[test]

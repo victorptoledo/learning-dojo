@@ -1,0 +1,17 @@
+namespace: spring
+skills:
+  - { id: spring.setup, title: "Spring Boot Projects, Starters and Auto-configuration" }
+  - { id: spring.dependency-injection, title: "Beans and Dependency Injection" }
+  - { id: spring.configuration, title: "Configuration Properties and Profiles" }
+  - { id: spring.rest, title: "REST Controllers with Spring MVC" }
+  - { id: spring.validation-errors, title: "Bean Validation and Problem Details" }
+  - { id: spring.data-jpa, title: "Spring Data JPA and Transactions" }
+  - { id: spring.jpa-queries, title: "Relationships, Queries and Pagination" }
+  - { id: spring.testing, title: "Testing Spring Applications" }
+  - { id: spring.http-clients, title: "Calling Other Services: RestClient and HTTP Interfaces" }
+  - { id: spring.security, title: "Spring Security: Authentication and Authorization" }
+  - { id: spring.observability, title: "Actuator, Metrics and Tracing" }
+  - { id: spring.async-caching, title: "Events, Async Work, Scheduling and Caching" }
+  - { id: spring.production, title: "Spring Boot in Production" }
+  - { id: spring.native-aot, title: "AOT, Native Images and Fast Startup" }
+  - { id: spring.architecture, title: "Application Architecture: Modular Monoliths and Services" }

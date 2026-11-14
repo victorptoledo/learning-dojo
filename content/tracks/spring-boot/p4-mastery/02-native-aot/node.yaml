@@ -1,0 +1,16 @@
+id: spring-boot.p4.native-aot
+kind: lesson
+status: draft
+title: "AOT, Native Images and Fast Startup"
+summary: "Spring AOT, GraalVM native images, the JVM AOT cache and when each one is worth it."
+objectives:
+  - { id: o1, text: "Explain what Spring AOT processing generates", skills: [spring.native-aot] }
+  - { id: o2, text: "Build a native image of a Boot service and handle its limits", skills: [spring.native-aot] }
+  - { id: o3, text: "Compare native images with the JVM AOT cache for startup", skills: [spring.native-aot] }
+prerequisites: [spring-boot.p4.production-boot]
+difficulty: 5
+estimated_minutes: 35
+xp: 400
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

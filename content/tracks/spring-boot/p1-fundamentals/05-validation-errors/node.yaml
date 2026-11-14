@@ -1,0 +1,15 @@
+id: spring-boot.p1.validation-errors
+kind: lesson
+status: draft
+title: "Validation and Problem Details"
+summary: "Reject bad input at the edge with Bean Validation and answer every error with a clear Problem Detail."
+objectives:
+  - { id: o1, text: "Validate request bodies with Jakarta Bean Validation annotations and @Valid", skills: [spring.validation-errors] }
+  - { id: o2, text: "Map exceptions to responses with @RestControllerAdvice and ProblemDetail", skills: [spring.validation-errors] }
+prerequisites: [spring-boot.p1.todo-api]
+difficulty: 2
+estimated_minutes: 35
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

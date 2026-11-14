@@ -1,0 +1,56 @@
+id: spring-boot.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata, a configurable catalog API."
+objectives:
+  - { id: o1, text: "Explain beans, configuration, controllers and validation in your own words", skills: [spring.dependency-injection, spring.configuration, spring.rest, spring.validation-errors] }
+  - { id: o2, text: "Build a configurable, validated REST API with a service and error handling", skills: [spring.dependency-injection, spring.configuration, spring.rest, spring.validation-errors] }
+prerequisites: [spring-boot.p1.signup-validation]
+difficulty: 3
+estimated_minutes: 70
+xp: 300
+closes_phase: p1
+covers_skills: [spring.configuration, spring.dependency-injection, spring.rest, spring.validation-errors]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Start with the configuration: until `CatalogProperties` is a registered bean, the service cannot ask for it in its constructor. Then, for each row of the controller table, which service method does it call, and which `CatalogException` can come out?
+    - |-
+      `@ConfigurationProperties("catalog")` and `@Validated` on the record, `@ConfigurationPropertiesScan` on `DojoApplication`, and `ProductService(CatalogProperties catalog)` as the constructor. Constraints on request parameters (`@Min(0) int page`) are validated by Spring 7 and answer 400. One `@ExceptionHandler(CatalogException.class)` returning `ProblemDetail.forStatusAndDetail(e.status(), e.getMessage())` covers every domain error.
+    - |-
+      ```java
+      public ProductPage list(String category, int page, int size) {
+          if (size > catalog.maxPageSize()) {
+              throw CatalogException.pageTooLarge(size, catalog.maxPageSize());
+          }
+          List<Product> matching = products.values().stream()
+                  .filter(p -> category == null || /* same category, stripped and lowercased */)
+                  .toList();
+          List<Product> items = matching.stream().skip((long) page * size).limit(size).toList();
+          return new ProductPage(items, page, size, matching.size(), catalog.currency());
+      }
+
+      @GetMapping("/products")
+      public ProductPage list(@RequestParam(required = false) String category,
+                              @RequestParam(defaultValue = "0") @Min(0) int page,
+                              @RequestParam(defaultValue = "10") @Min(1) int size) {
+          return products.list(category, page, size);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

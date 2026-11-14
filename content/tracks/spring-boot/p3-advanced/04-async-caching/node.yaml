@@ -1,0 +1,16 @@
+id: spring-boot.p3.async-caching
+kind: lesson
+status: draft
+title: "Events, Async Work, Scheduling and Caching"
+summary: "Decouple with application events, run work in the background, schedule jobs and cache results."
+objectives:
+  - { id: o1, text: "Publish and listen to application events, including after commit", skills: [spring.async-caching] }
+  - { id: o2, text: "Run @Async and @Scheduled work on virtual threads", skills: [spring.async-caching] }
+  - { id: o3, text: "Cache method results with @Cacheable and evict them correctly", skills: [spring.async-caching] }
+prerequisites: [spring-boot.p3.observability]
+difficulty: 4
+estimated_minutes: 35
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

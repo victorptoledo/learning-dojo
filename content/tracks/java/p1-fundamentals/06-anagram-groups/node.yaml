@@ -46,4 +46,4 @@ requirements:
   - kind: docker-image
     name: dojo-java runner image
     image: dojo-java
-    why: The container with JDK 25 and JUnit 5 that runs the grading tests.
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

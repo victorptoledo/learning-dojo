@@ -1,0 +1,15 @@
+id: spring-boot.p1.configuration
+kind: lesson
+status: draft
+title: "Configuration Properties and Profiles"
+summary: "Move settings out of the code: application.yaml, typed @ConfigurationProperties records and profiles."
+objectives:
+  - { id: o1, text: "Read settings into a validated @ConfigurationProperties record", skills: [spring.configuration] }
+  - { id: o2, text: "Override settings with profiles, environment variables and arguments", skills: [spring.configuration] }
+prerequisites: [spring-boot.p1.dependency-injection]
+difficulty: 2
+estimated_minutes: 30
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

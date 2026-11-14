@@ -1,0 +1,36 @@
+questions:
+  - id: valid
+    prompt: "SignupRequest has constraint annotations. What makes Spring check them on POST?"
+    options:
+      - "Nothing: constraints always run"
+      - "@Valid on the @RequestBody parameter"
+      - "@Validated on the record"
+    answer: 1
+    explanation: "@Valid (or @Validated) on the parameter triggers validation of the request body."
+  - id: email-null
+    prompt: "A record component has only @Email. The client sends no email at all (null). Is it valid?"
+    options: ["No: @Email rejects null", "Yes: most constraints accept null; add @NotBlank to require it"]
+    answer: 1
+    explanation: "Only @NotNull, @NotBlank and @NotEmpty reject null."
+  - id: method-not-run
+    prompt: "A @Valid body fails validation. Does the controller method run?"
+    options: ["Yes, with the invalid values", "No: Spring throws MethodArgumentNotValidException and answers 400"]
+    answer: 1
+    explanation: "Validation happens before the method is called."
+  - id: conflict
+    prompt: "Which status fits \"this email is already registered\"?"
+    answers: ["409", "409 Conflict", "Conflict"]
+    explanation: "409 Conflict means the request conflicts with the current state of the resource."
+  - id: advice
+    prompt: "Where do you translate EmailTakenException into a 409 response for every controller?"
+    options:
+      - "In each controller with try/catch"
+      - "In an @ExceptionHandler method of a @RestControllerAdvice class"
+      - "In application.properties"
+    answer: 1
+    explanation: "A @RestControllerAdvice applies its exception handlers to all controllers."
+  - id: problem-type
+    prompt: "What is the media type of an RFC 9457 Problem Details response?"
+    options: ["text/plain", "application/problem+json", "application/error"]
+    answer: 1
+    explanation: "Problem Details use application/problem+json (MediaType.APPLICATION_PROBLEM_JSON)."

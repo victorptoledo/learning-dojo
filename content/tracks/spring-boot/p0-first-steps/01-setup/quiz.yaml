@@ -1,0 +1,43 @@
+questions:
+  - id: bean
+    prompt: "What is a bean in Spring?"
+    options:
+      - "Any Java class"
+      - "An object created and managed by the Spring container"
+      - "A JSON document"
+      - "A Maven dependency"
+    answer: 1
+    explanation: "Beans are the objects the application context creates, wires and manages."
+  - id: starter
+    prompt: "Why do you not write versions for Spring Boot starters in the pom?"
+    options:
+      - "Maven picks the newest one"
+      - "The spring-boot-starter-parent (BOM) manages compatible versions"
+      - "Starters have no versions"
+    answer: 1
+    explanation: "The parent imports the Spring Boot BOM, which fixes a tested set of versions."
+  - id: auto-config
+    prompt: "Spring Security is on the classpath and you configured nothing. What happens?"
+    options:
+      - "Nothing until you add a bean"
+      - "Auto-configuration secures every endpoint with a generated login"
+      - "The app does not start"
+    answer: 1
+    explanation: "Auto-configuration reacts to the classpath; with Security present, endpoints require authentication by default."
+  - id: scanning
+    prompt: "DojoApplication is in package dojo. Which controller is NOT found by component scanning?"
+    options: ["dojo.GreetingController", "dojo.web.GreetingController", "other.GreetingController"]
+    answer: 2
+    explanation: "@SpringBootApplication scans its own package and the packages below it."
+  - id: rest-controller
+    prompt: "Which annotation makes a method's return value the HTTP response body?"
+    answers: ["@RestController", "RestController", "@ResponseBody"]
+    explanation: "@RestController is @Controller plus @ResponseBody on every method."
+  - id: mockmvc
+    prompt: "What does MockMvc do in a test?"
+    options:
+      - "Starts a real Tomcat on port 8080"
+      - "Sends requests straight into Spring MVC without a network, and checks the responses"
+      - "Mocks every bean"
+    answer: 1
+    explanation: "MockMvc drives the DispatcherServlet in memory, so tests are fast and need no port."

@@ -19,7 +19,7 @@ Java katas.
 
 > [!NOTE]
 > You do **not** need a JDK on your machine to complete the katas. The dojo checks them in a
-> Docker container that already has JDK 25 and JUnit 5. A local JDK lets VS Code show errors
+> Docker container that already has JDK 25 and JUnit 6. A local JDK lets VS Code show errors
 > as you type and run or debug the visible tests.
 
 ### Install it on Windows
@@ -100,7 +100,7 @@ the standard one, so any IDE understands it:
 ```text
 hello-dojo/
 ├── README.md                 the challenge
-├── pom.xml                   project description: Java 25, JUnit 5
+├── pom.xml                   project description: Java 25, JUnit 6
 └── src/
     ├── main/java/dojo/
     │   └── Greeter.java      your code
@@ -117,7 +117,7 @@ hello-dojo/
   tests**, compiles everything with `javac` and runs JUnit. The result appears in the kata
   panel.
 
-## A first look at a JUnit 5 test
+## A first look at a JUnit 6 test
 
 ```java
 package dojo;
@@ -134,7 +134,7 @@ class GreeterTest {
 }
 ```
 
-- `@Test` marks a test method. It needs no `public` in JUnit 5.
+- `@Test` marks a test method. It needs no `public` in JUnit 6.
 - `assertEquals(expected, actual)`: expected first. When it fails you read
   `expected: <...> but was: <...>`.
 - The dojo shows the test name with spaces, so names like `greets_by_name` read as sentences.

@@ -1,0 +1,16 @@
+id: spring-boot.p1.dependency-injection
+kind: lesson
+status: draft
+title: "Beans and Dependency Injection"
+summary: "Let the container build and wire your objects: components, constructor injection and @Bean methods."
+objectives:
+  - { id: o1, text: "Declare beans with @Component, @Service and @Bean methods", skills: [spring.dependency-injection] }
+  - { id: o2, text: "Inject through constructors and choose between several candidates", skills: [spring.dependency-injection] }
+  - { id: o3, text: "Explain singleton scope and why beans should be stateless", skills: [spring.dependency-injection] }
+prerequisites: [spring-boot.p0.hello-dojo]
+difficulty: 2
+estimated_minutes: 35
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

@@ -357,6 +357,14 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
     ]
 }
 
+/// The failure comes from code still to write: Rust's `todo!()`, or a Java kata's
+/// `UnsupportedOperationException("todo ...")`, also when Spring wraps it.
+fn is_placeholder(message: &str) -> bool {
+    message.starts_with("not yet implemented")
+        || message.starts_with("todo")
+        || message.contains("UnsupportedOperationException: todo")
+}
+
 /// One line per failing test, or the compiler output when the code does not build.
 fn report_lines(report: &CheckReport) -> Vec<Line<'static>> {
     let mut lines = Vec::new();
@@ -372,11 +380,7 @@ fn report_lines(report: &CheckReport) -> Vec<Line<'static>> {
     }
     for test in report.tests.iter().filter(|test| !test.passed) {
         let explanation = match test.message.as_deref() {
-            Some(message)
-                if message.starts_with("not yet implemented") || message.starts_with("todo") =>
-            {
-                "not written yet (still todo!)".to_string()
-            }
+            Some(message) if is_placeholder(message) => "not written yet (still todo!)".to_string(),
             Some(message) => message.lines().collect::<Vec<_>>().join(" · "),
             None => "failed".to_string(),
         };

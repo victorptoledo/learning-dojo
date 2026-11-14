@@ -1,0 +1,16 @@
+id: spring-boot.p2.testing-spring
+kind: lesson
+status: draft
+title: "Testing Spring Applications"
+summary: "Unit tests without Spring, test slices, @SpringBootTest, MockMvc, @MockitoBean and Testcontainers."
+objectives:
+  - { id: o1, text: "Choose between a plain unit test, a slice and a full context", skills: [spring.testing] }
+  - { id: o2, text: "Test controllers with MockMvc and repositories with @DataJpaTest", skills: [spring.testing] }
+  - { id: o3, text: "Replace beans with @MockitoBean and keep the context cache warm", skills: [spring.testing] }
+prerequisites: [spring-boot.p2.library-api]
+difficulty: 3
+estimated_minutes: 40
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

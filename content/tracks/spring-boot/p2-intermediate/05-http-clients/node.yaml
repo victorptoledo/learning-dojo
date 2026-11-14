@@ -1,0 +1,16 @@
+id: spring-boot.p2.http-clients
+kind: lesson
+status: draft
+title: "Calling Other Services"
+summary: "RestClient, declarative HTTP interfaces, timeouts, retries and errors from remote services."
+objectives:
+  - { id: o1, text: "Call a JSON API with RestClient and map errors", skills: [spring.http-clients] }
+  - { id: o2, text: "Declare a client as an interface with @HttpExchange", skills: [spring.http-clients] }
+  - { id: o3, text: "Set timeouts and decide what to retry", skills: [spring.http-clients] }
+prerequisites: [spring-boot.p2.testing-spring]
+difficulty: 3
+estimated_minutes: 35
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

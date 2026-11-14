@@ -1,0 +1,49 @@
+id: spring-boot.p1.todo-api
+kind: kata
+status: draft
+title: "Todo API"
+summary: "A small REST API over an in-memory service: create, list, read, update and delete todos."
+objectives:
+  - { id: o1, text: "Build a CRUD controller with the right methods, paths and status codes", skills: [spring.rest] }
+  - { id: o2, text: "Keep the logic in a service bean injected into the controller", skills: [spring.dependency-injection] }
+prerequisites: [spring-boot.p1.rest-controllers]
+difficulty: 2
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Write the service first and think of the controller as a translator: for each row of the table, which service method does it call, and how does an empty `Optional` or a `false` become a 404?
+    - |-
+      `ResponseEntity.of(optional)` answers 200 with the value or 404 when empty. For the location, add a `UriComponentsBuilder uri` parameter and use `uri.path("/todos/{id}").build(id)`. A `Boolean done` (capital B) request parameter is `null` when `?done=` is missing, which means "no filter".
+    - |-
+      ```java
+      @PostMapping
+      public ResponseEntity<Todo> create(@RequestBody NewTodo body, UriComponentsBuilder uri) {
+          if (/* title missing or blank */) {
+              return ResponseEntity.badRequest().build();
+          }
+          Todo created = todos.create(body.title());
+          return ResponseEntity.created(uri.path("/todos/{id}").build(created.id())).body(created);
+      }
+
+      @DeleteMapping("/{id}")
+      public ResponseEntity<Void> delete(@PathVariable long id) {
+          return todos.delete(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

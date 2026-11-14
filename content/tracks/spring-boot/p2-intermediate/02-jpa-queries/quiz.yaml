@@ -1,0 +1,36 @@
+questions:
+  - id: owner
+    prompt: "Book has @ManyToOne Author author and Author has @OneToMany(mappedBy = \"author\") books. Which table holds the foreign key?"
+    options: ["authors", "books (author_id)", "a join table"]
+    answer: 1
+    explanation: "The many-to-one side owns the foreign key; mappedBy marks the inverse side."
+  - id: n-plus-one
+    prompt: "Listing 100 books and reading book.getAuthor().getName() for each runs how many queries with lazy loading?"
+    options: ["1", "2", "101", "100"]
+    answer: 2
+    explanation: "One query for the books plus one per book for its author: the N+1 problem."
+  - id: fetch-join
+    prompt: "Which JPQL loads books and their authors in one query?"
+    options:
+      - "select b from Book b"
+      - "select b from Book b join fetch b.author"
+      - "select b from Book b where b.author is not null"
+    answer: 1
+    explanation: "join fetch loads the association in the same query."
+  - id: lazy-exception
+    prompt: "A controller touches a lazy collection of an entity after the service's transaction ended. What happens?"
+    answers: ["LazyInitializationException", "a LazyInitializationException is thrown"]
+    explanation: "Lazy associations need an open persistence context; map to records inside the transaction."
+  - id: named-param
+    prompt: "Why use :author in @Query instead of concatenating the value into the string?"
+    options:
+      - "It is shorter"
+      - "It prevents injection and lets the database reuse the query plan"
+      - "JPQL has no string concatenation"
+    answer: 1
+    explanation: "Bound parameters are never parsed as query text."
+  - id: page
+    prompt: "Which repository parameter returns results one page at a time with a total count?"
+    options: ["int limit", "Pageable, returning Page<Book>", "Stream<Book>"]
+    answer: 1
+    explanation: "A Pageable argument makes Spring Data add limit, offset and sort, and Page adds the total."

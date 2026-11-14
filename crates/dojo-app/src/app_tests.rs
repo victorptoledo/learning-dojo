@@ -225,7 +225,7 @@ fn renders_real_content_after_importing_a_v1_profile() {
     assert!(screen.contains("Quiz:"), "{screen}");
 
     h.app.open_selector();
-    assert!(screen_text(&h.app).contains("29 available"));
+    assert!(screen_text(&h.app).contains("30 available"));
 }
 
 #[test]

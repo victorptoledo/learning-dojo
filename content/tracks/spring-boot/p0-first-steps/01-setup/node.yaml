@@ -1,0 +1,15 @@
+id: spring-boot.p0.setup
+kind: lesson
+status: draft
+title: "Spring Boot: What It Does for You"
+summary: "The Spring container, starters and auto-configuration, and the anatomy of a Boot project."
+objectives:
+  - { id: o1, text: "Explain what the Spring container and auto-configuration do", skills: [spring.setup] }
+  - { id: o2, text: "Create a project with start.spring.io and run it", skills: [spring.setup] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

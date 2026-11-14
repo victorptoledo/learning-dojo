@@ -1,0 +1,16 @@
+id: spring-boot.p1.rest-controllers
+kind: lesson
+status: draft
+title: "REST Controllers with Spring MVC"
+summary: "Map URLs to methods, read paths, parameters and JSON bodies, and answer with the right status."
+objectives:
+  - { id: o1, text: "Map requests with @GetMapping, @PostMapping and friends", skills: [spring.rest] }
+  - { id: o2, text: "Bind path variables, query parameters and JSON bodies to records", skills: [spring.rest] }
+  - { id: o3, text: "Return the right status codes and headers with ResponseEntity", skills: [spring.rest] }
+prerequisites: [spring-boot.p1.configuration]
+difficulty: 2
+estimated_minutes: 40
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

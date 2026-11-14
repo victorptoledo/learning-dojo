@@ -215,7 +215,7 @@ items:
     phase: p2
     skills: [java.build-testing]
     difficulty: 2
-    prompt: "Which JUnit 5 call checks that parse(\"x\") throws NumberFormatException and lets you check the message?"
+    prompt: "Which JUnit 6 call checks that parse(\"x\") throws NumberFormatException and lets you check the message?"
     options:
       - "@Test(expected = NumberFormatException.class)"
       - "assertThrows(NumberFormatException.class, () -> parse(\"x\"))"

@@ -1,0 +1,32 @@
+questions:
+  - id: default-exposure
+    prompt: "With the actuator starter and no configuration, which endpoint is exposed over HTTP?"
+    answers: ["health", "/actuator/health"]
+    explanation: "Only health is exposed by default; others must be included explicitly."
+  - id: sensitive
+    prompt: "Why must /actuator/env and /actuator/heapdump not be public?"
+    options: ["They are slow", "They reveal configuration, secrets in memory and internals", "They are deprecated"]
+    answer: 1
+    explanation: "Management endpoints expose internals; protect them or serve them on an internal port."
+  - id: counter-gauge
+    prompt: "Which meter type fits the current number of messages waiting in a queue?"
+    options: ["Counter", "Gauge", "Timer"]
+    answer: 1
+    explanation: "A gauge reports a current value that can go up and down."
+  - id: cardinality
+    prompt: "Why is a tag userId on a request metric a bad idea?"
+    options:
+      - "Tags cannot be strings"
+      - "It creates one time series per user, which can overwhelm the metrics backend"
+      - "Users would see each other's metrics"
+    answer: 1
+    explanation: "Tag values must be bounded; unbounded tags explode the number of series."
+  - id: probes
+    prompt: "Which actuator health groups does Kubernetes use to decide whether to restart a pod or to send it traffic?"
+    options: ["liveness and readiness", "info and metrics", "env and loggers"]
+    answer: 0
+    explanation: "Liveness says restart me; readiness says whether to route traffic to me."
+  - id: trace-logs
+    prompt: "What links a log line to the trace of the request that wrote it?"
+    answers: ["the traceId", "traceId", "trace id"]
+    explanation: "With tracing on, Boot adds traceId and spanId to the logging context of each request."

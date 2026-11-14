@@ -1,0 +1,33 @@
+questions:
+  - id: layers
+    prompt: "Why does Spring Boot write the JAR in layers?"
+    options:
+      - "To encrypt it"
+      - "So container images keep dependencies in their own layer and a code change rebuilds only a small one"
+      - "Layers start faster"
+    answer: 1
+    explanation: "Dependencies change rarely; separate layers make image builds and pulls small."
+  - id: ddl-auto
+    prompt: "Which spring.jpa.hibernate.ddl-auto value fits production with Flyway migrations?"
+    answers: ["validate", "none"]
+    explanation: "Flyway changes the schema; Hibernate should only validate it (or do nothing)."
+  - id: readiness
+    prompt: "The readiness probe fails. What does the orchestrator do?"
+    options: ["Restarts the container", "Stops sending it traffic until it is ready again", "Nothing"]
+    answer: 1
+    explanation: "Readiness controls routing; liveness controls restarts."
+  - id: graceful
+    prompt: "What happens to requests in flight when Boot receives SIGTERM, by default?"
+    options: ["They are cut off", "New requests are refused and in-flight ones may finish within the shutdown timeout", "They are retried elsewhere"]
+    answer: 1
+    explanation: "Graceful shutdown is the default in Spring Boot."
+  - id: pool
+    prompt: "With virtual threads handling thousands of requests, how should you size the database connection pool?"
+    options: ["One connection per request", "From what the database can handle; requests queue for connections", "Unlimited"]
+    answer: 1
+    explanation: "The database is the scarce resource; virtual threads waiting for a connection are cheap."
+  - id: same-image
+    prompt: "Why build the image once and promote it through test and production?"
+    options: ["It is faster to type", "What you tested is exactly what you run; only configuration changes", "Registries charge per build"]
+    answer: 1
+    explanation: "Rebuilding per environment risks shipping something different from what was tested."

@@ -1,0 +1,16 @@
+id: spring-boot.p3.observability
+kind: lesson
+status: draft
+title: "Actuator, Metrics and Tracing"
+summary: "Health checks, metrics with Micrometer, traces with OpenTelemetry and logs that line up."
+objectives:
+  - { id: o1, text: "Expose health, info and metrics endpoints safely", skills: [spring.observability] }
+  - { id: o2, text: "Record custom metrics and observations", skills: [spring.observability] }
+  - { id: o3, text: "Correlate logs and traces across requests", skills: [spring.observability] }
+prerequisites: [spring-boot.p3.security]
+difficulty: 4
+estimated_minutes: 35
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

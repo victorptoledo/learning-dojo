@@ -1,0 +1,16 @@
+id: spring-boot.p4.architecture
+kind: lesson
+status: draft
+title: "Application Architecture with Spring"
+summary: "Package by feature, modular monoliths with Spring Modulith, hexagonal ports and when to split services."
+objectives:
+  - { id: o1, text: "Organise a Boot application by feature with clear module boundaries", skills: [spring.architecture] }
+  - { id: o2, text: "Verify module boundaries and use events between modules", skills: [spring.architecture] }
+  - { id: o3, text: "Decide when a module should become a separate service", skills: [spring.architecture] }
+prerequisites: [spring-boot.p4.production-boot]
+difficulty: 5
+estimated_minutes: 40
+xp: 400
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

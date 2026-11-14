@@ -1,0 +1,16 @@
+id: spring-boot.p4.production-boot
+kind: lesson
+status: draft
+title: "Spring Boot in Production"
+summary: "Packaging, container images, configuration and secrets, graceful shutdown and probes."
+objectives:
+  - { id: o1, text: "Build an efficient container image with layered jars or buildpacks", skills: [spring.production] }
+  - { id: o2, text: "Configure a service per environment without rebuilding", skills: [spring.production] }
+  - { id: o3, text: "Shut down gracefully behind liveness and readiness probes", skills: [spring.production] }
+prerequisites: [spring-boot.p3.async-caching]
+difficulty: 4
+estimated_minutes: 40
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

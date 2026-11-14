@@ -1,0 +1,33 @@
+questions:
+  - id: entity-record
+    prompt: "Why are JPA entities usually classes rather than records?"
+    options:
+      - "Records cannot have annotations"
+      - "Hibernate needs a no-argument constructor and mutable fields it can fill and track"
+      - "Records are slower"
+    answer: 1
+    explanation: "Entities are created empty, filled and change-tracked by Hibernate; records are final and immutable."
+  - id: derived
+    prompt: "Which repository method finds books whose title contains a text, ignoring case?"
+    answers: ["findByTitleContainingIgnoreCase", "findByTitleContainingIgnoreCase(String text)", "List<Book> findByTitleContainingIgnoreCase(String text)"]
+    explanation: "Derived query keywords: Containing for LIKE %x%, IgnoreCase for case-insensitive comparison."
+  - id: rollback
+    prompt: "A @Transactional method saves a loan, then throws IllegalStateException. What happens to the loan?"
+    options: ["It is saved", "It is rolled back", "It is saved only if the loan is valid"]
+    answer: 1
+    explanation: "A runtime exception rolls back the whole transaction."
+  - id: checked-rollback
+    prompt: "The same method throws a checked IOException instead. By default?"
+    options: ["It rolls back", "It commits: checked exceptions do not roll back unless rollbackFor says so"]
+    answer: 1
+    explanation: "Spring rolls back on RuntimeException and Error by default; use rollbackFor for checked ones."
+  - id: dirty-checking
+    prompt: "Inside a @Transactional method you load a Book and call book.lend(). Do you need books.save(book)?"
+    options: ["Yes, always", "No: the entity is managed and the change is written at commit"]
+    answer: 1
+    explanation: "Dirty checking flushes changes to managed entities when the transaction commits."
+  - id: self-invocation
+    prompt: "A method in the same class calls this.transfer(...), which is @Transactional. Is there a transaction?"
+    options: ["Yes", "No: the call skips the Spring proxy"]
+    answer: 1
+    explanation: "Transactions are applied by a proxy around the bean; internal calls bypass it."

@@ -1,11 +1,11 @@
 id: java.p2.build-testing
 kind: lesson
 status: draft
-title: "Packages, Maven and JUnit 5"
-summary: "Organise code in packages, build it with Maven and test it with JUnit 5."
+title: "Packages, Maven and JUnit 6"
+summary: "Organise code in packages, build it with Maven and test it with JUnit 6."
 objectives:
   - { id: o1, text: "Lay out a Maven project and run its tests", skills: [java.build-testing] }
-  - { id: o2, text: "Write JUnit 5 tests, including parameterized tests and assertThrows", skills: [java.build-testing] }
+  - { id: o2, text: "Write JUnit 6 tests, including parameterized tests and assertThrows", skills: [java.build-testing] }
   - { id: o3, text: "Control visibility with packages and modules", skills: [java.build-testing] }
 prerequisites: [java.p2.csv-report]
 difficulty: 2

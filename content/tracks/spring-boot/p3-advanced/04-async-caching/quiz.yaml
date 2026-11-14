@@ -1,0 +1,32 @@
+questions:
+  - id: sync-listener
+    prompt: "A plain @EventListener throws an exception while the publisher's transaction is open. What happens?"
+    options: ["Nothing: listeners are isolated", "The exception reaches the publisher and the transaction rolls back", "The event is retried"]
+    answer: 1
+    explanation: "By default listeners run synchronously in the publisher's thread and transaction."
+  - id: after-commit
+    prompt: "Which listener sends the confirmation email only if the order was really committed?"
+    answers: ["@TransactionalEventListener", "TransactionalEventListener"]
+    explanation: "@TransactionalEventListener runs after commit by default."
+  - id: async-self
+    prompt: "An @Async method is called from another method of the same class. Does it run asynchronously?"
+    options: ["Yes", "No: the call does not go through the Spring proxy"]
+    answer: 1
+    explanation: "Like @Transactional and @Cacheable, @Async needs a call through the proxy."
+  - id: fixed-delay
+    prompt: "A job takes 4 minutes. With @Scheduled(fixedDelayString = \"PT5M\"), when does the next run start?"
+    options: ["5 minutes after the previous one started", "5 minutes after the previous one finished", "Immediately"]
+    answer: 1
+    explanation: "fixedDelay waits after the previous run finished, so runs never overlap."
+  - id: cluster
+    prompt: "Three instances of a service each have @Scheduled(cron = \"0 0 3 * * *\"). How many times does the job run at 03:00?"
+    answers: ["3", "three", "three times"]
+    explanation: "Every instance runs its own schedule; use a lock or a job scheduler for run-once jobs."
+  - id: cache-plan
+    prompt: "What must you decide before putting @Cacheable on a method?"
+    options:
+      - "Nothing: caches manage themselves"
+      - "How stale the data may be, what evicts it and how large the cache may grow"
+      - "Only the cache name"
+    answer: 1
+    explanation: "Without expiry, eviction and size limits, a cache serves stale data and grows without bound."

@@ -8,7 +8,7 @@ skills:
   - { id: java.generics-lambdas, title: "Generics, Lambdas and Functional Interfaces" }
   - { id: java.streams, title: "Streams and Collectors" }
   - { id: java.errors, title: "Optional and Exceptions" }
-  - { id: java.build-testing, title: "Packages, Maven and JUnit 5" }
+  - { id: java.build-testing, title: "Packages, Maven and JUnit 6" }
   - { id: java.virtual-threads, title: "Virtual Threads (Project Loom): Lightweight Concurrency" }
   - { id: java.concurrency, title: "Executors, CompletableFuture and Thread Safety" }
   - { id: java.design-patterns, title: "Design Patterns in Modern Java" }

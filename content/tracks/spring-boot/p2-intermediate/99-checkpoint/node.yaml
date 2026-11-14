@@ -1,0 +1,58 @@
+id: spring-boot.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz and an integration kata, an order service that keeps stock consistent."
+objectives:
+  - { id: o1, text: "Explain entities, repositories, transactions and test slices in your own words", skills: [spring.data-jpa, spring.jpa-queries, spring.testing, spring.http-clients] }
+  - { id: o2, text: "Build a transactional service over JPA with a REST API and error handling", skills: [spring.data-jpa, spring.jpa-queries, spring.testing] }
+prerequisites: [spring-boot.p2.http-clients]
+difficulty: 3
+estimated_minutes: 80
+xp: 350
+closes_phase: p2
+covers_skills: [spring.data-jpa, spring.http-clients, spring.jpa-queries, spring.testing]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      `Product.reserve` already changes the stock and throws when there is not enough. What decides whether the stock of the lines reserved before the failing one is kept or undone? And when the service returns an order, are its lines already loaded?
+    - |-
+      Put `@Transactional` on `place` and `cancel`: the `ShopException` is a runtime exception, so it rolls back every `reserve` made in the same transaction. The products you change are managed entities, so no `save` is needed for them; save the new `ShopOrder` (its lines cascade). Load orders with `left join fetch o.lines` and build the `OrderView` before the method returns.
+    - |-
+      ```java
+      @Transactional
+      public OrderView place(OrderRequest request) {
+          ShopOrder order = new ShopOrder();
+          for (OrderRequest.Line line : request.lines()) {
+              String sku = line.sku().strip();
+              Product product = products.findBySku(sku).orElseThrow(() -> ShopException.unknownProduct(sku));
+              product.reserve(line.quantity());
+              order.addLine(sku, line.quantity(), product.getPriceCents());
+          }
+          return OrderView.of(orders.save(order));
+      }
+
+      @Transactional
+      public OrderView cancel(long id) {
+          ShopOrder order = orders.findWithLines(id).orElseThrow(() -> ShopException.orderNotFound(id));
+          order.cancel();
+          // release the stock of each line
+          return OrderView.of(order);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

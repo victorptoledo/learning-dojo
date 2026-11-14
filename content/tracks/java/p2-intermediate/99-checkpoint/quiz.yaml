@@ -45,7 +45,7 @@ questions:
     explanation: "Unchecked exceptions compose with functional code; callers that can react still catch the specific type."
   - id: before-each-fresh
     skills: [java.build-testing]
-    prompt: "In a JUnit 5 class, a field is set in @BeforeEach. What does each test see?"
+    prompt: "In a JUnit 6 class, a field is set in @BeforeEach. What does each test see?"
     options: ["The value left by the previous test", "A freshly set value", "null"]
     answer: 1
     explanation: "JUnit creates a new instance per test and runs @BeforeEach before each one."

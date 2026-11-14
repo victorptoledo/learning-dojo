@@ -8,7 +8,7 @@ import org.w3c.dom.NodeList;
 /**
  * Turns the JUnit XML reports into the output of `cargo test`, the format the dojo reads:
  * one "test NAME ... ok|FAILED" line per test and a "---- NAME stdout ----" block with the
- * failure message. Exits with 1 when a test failed or none ran.
+ * failure message. Exits with 1 when a test failed and 2 when none ran.
  */
 public class DojoReport {
     record Result(String name, String failure) {}
@@ -48,7 +48,7 @@ public class DojoReport {
         }
         System.out.printf("%ntest result: %s. %d passed; %d failed%n",
                 failed.isEmpty() ? "ok" : "FAILED", results.size() - failed.size(), failed.size());
-        System.exit(failed.isEmpty() && !results.isEmpty() ? 0 : 1);
+        System.exit(results.isEmpty() ? 2 : failed.isEmpty() ? 0 : 1);
     }
 
     /** "greets_a_stranger()" in class "dojo.GreeterTest" -> "GreeterTest::greets_a_stranger". */

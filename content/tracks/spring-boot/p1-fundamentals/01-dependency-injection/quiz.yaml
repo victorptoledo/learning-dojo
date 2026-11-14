@@ -1,0 +1,39 @@
+questions:
+  - id: constructor
+    prompt: "Why is constructor injection the recommended style?"
+    options:
+      - "It is the only style Spring supports"
+      - "Fields can be final, dependencies are visible, and tests can use plain new"
+      - "It makes the application start faster"
+    answer: 1
+    explanation: "Constructor injection gives complete, immutable objects that are easy to build in tests."
+  - id: bean-method
+    prompt: "How do you make a java.time.Clock (a JDK class you cannot annotate) a bean?"
+    options:
+      - "Add @Component to Clock"
+      - "Return it from a @Bean method in a @Configuration class"
+      - "Inject it with @Autowired"
+    answer: 1
+    explanation: "@Bean methods register objects of classes you do not own."
+  - id: two-candidates
+    prompt: "Two beans implement MoneyFormatter and a constructor asks for one MoneyFormatter. What happens without @Primary or @Qualifier?"
+    options: ["Spring picks the first one", "Startup fails with NoUniqueBeanDefinitionException", "Both are injected"]
+    answer: 1
+    explanation: "Spring will not guess; mark one @Primary, qualify the injection point, or ask for a List."
+  - id: all-implementations
+    prompt: "Which constructor parameter receives every bean that implements PaymentMethod?"
+    answers: ["List<PaymentMethod>", "List<PaymentMethod> methods", "java.util.List<PaymentMethod>"]
+    explanation: "Spring injects all matching beans into a List (or a Map keyed by bean name)."
+  - id: singleton-state
+    prompt: "A @Service stores the order being processed in a field. What is wrong?"
+    options:
+      - "Nothing"
+      - "The service is a shared singleton: concurrent requests overwrite each other's order"
+      - "Services cannot have fields"
+    answer: 1
+    explanation: "Singleton beans are shared by all threads; keep request data in parameters and local variables."
+  - id: cycle
+    prompt: "OrderService needs InvoiceService and InvoiceService needs OrderService, both through constructors. What happens?"
+    options: ["It works", "Startup fails and reports the cycle", "One of them is null"]
+    answer: 1
+    explanation: "Constructor injection cannot resolve a cycle; extract a third bean or use an event."

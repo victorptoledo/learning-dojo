@@ -1,0 +1,36 @@
+questions:
+  - id: builder
+    prompt: "How should you create a RestClient in a Spring Boot application?"
+    options:
+      - "RestClient.create() in every method"
+      - "From the auto-configured RestClient.Builder, once per remote service, as a bean"
+      - "new RestTemplate()"
+    answer: 1
+    explanation: "The auto-configured builder brings Jackson, metrics and tracing; build one client per service."
+  - id: uri-template
+    prompt: "Why write .uri(\"/quotes?to={to}\", to) instead of concatenating the value?"
+    options: ["It is shorter", "The value is encoded correctly and cannot change the URL's structure", "Concatenation is not allowed"]
+    answer: 1
+    explanation: "URI templates encode the values, avoiding broken or injected URLs."
+  - id: default-error
+    prompt: "By default, what does retrieve().body(Quote.class) do when the server answers 500?"
+    answers: ["throws HttpServerErrorException", "HttpServerErrorException", "throws an exception"]
+    explanation: "4xx and 5xx responses throw HttpClientErrorException and HttpServerErrorException unless you handle them with onStatus."
+  - id: timeouts
+    prompt: "Which two timeouts should every HTTP client have?"
+    options: ["Connect and read", "DNS and TLS", "None: the server decides"]
+    answer: 0
+    explanation: "A connect timeout and a read timeout keep a slow service from holding your threads."
+  - id: retry-idempotent
+    prompt: "Which call is safe to retry automatically?"
+    options: ["POST /payments without an idempotency key", "GET /quotes/42", "Any request that returned 400"]
+    answer: 1
+    explanation: "Retry idempotent, transient failures only; a 400 will fail again, and a payment could be charged twice."
+  - id: http-interface
+    prompt: "What is the advantage of declaring a client as an @HttpExchange interface?"
+    options:
+      - "It is faster at run time"
+      - "The calls read like method calls and tests can replace the interface with a fake"
+      - "It does not need a base URL"
+    answer: 1
+    explanation: "HTTP interfaces separate what you call from how; a fake implementation is enough in unit tests."

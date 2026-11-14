@@ -1,0 +1,51 @@
+questions:
+  - id: tx-rollback
+    skills: [spring.data-jpa]
+    prompt: "In a @Transactional method, the first line's stock is reserved, then the second line throws a RuntimeException. What happens to the first reservation?"
+    options: ["It is kept", "It is rolled back with the rest of the transaction", "It depends on the database"]
+    answer: 1
+    explanation: "A runtime exception rolls back every change made in the transaction."
+  - id: managed-save
+    skills: [spring.data-jpa]
+    prompt: "Inside a transaction you load a Product and change its stock. Must you call save(product)?"
+    options: ["Yes", "No: managed entities are written at commit (dirty checking)"]
+    answer: 1
+    explanation: "Changes to managed entities are flushed automatically."
+  - id: fetch-lines
+    skills: [spring.jpa-queries]
+    prompt: "Which query loads an order and its lines in one statement?"
+    answers: ["select o from ShopOrder o left join fetch o.lines where o.id = :id", "left join fetch"]
+    explanation: "A (left) join fetch loads the collection with the parent; left keeps orders with no lines."
+  - id: open-in-view
+    skills: [spring.jpa-queries]
+    prompt: "With spring.jpa.open-in-view=false, a controller reads order.getLines() of an entity returned by the service. What happens?"
+    options: ["The lines load normally", "LazyInitializationException", "An empty list"]
+    answer: 1
+    explanation: "The persistence context closed with the service's transaction; map to records inside it."
+  - id: slice-choice
+    skills: [spring.testing]
+    prompt: "Which test fits checking that GET /orders/7 answers 404 when the service throws orderNotFound?"
+    options: ["@DataJpaTest", "@WebMvcTest with a @MockitoBean OrderService", "A plain unit test of the repository"]
+    answer: 1
+    explanation: "A web slice with a mocked service tests the HTTP mapping alone."
+  - id: shared-context
+    skills: [spring.testing]
+    prompt: "Many @SpringBootTest classes share one context and one in-memory database. How do tests stay independent?"
+    options:
+      - "Run them in a fixed order"
+      - "Each test uses its own data (for example unique skus)"
+      - "Restart the JVM between tests"
+    answer: 1
+    explanation: "A cached context shares state; independent data (or rollback) keeps tests from affecting each other."
+  - id: client-timeout
+    skills: [spring.http-clients]
+    prompt: "Your endpoint must answer within 1 second and calls a shipping API. Which read timeout makes sense for that call?"
+    options: ["None", "30 seconds", "Well under 1 second, leaving time for the rest of the request"]
+    answer: 2
+    explanation: "Downstream timeouts must fit inside your own response budget."
+  - id: client-retry
+    skills: [spring.http-clients]
+    prompt: "A POST that creates a shipment times out. When is retrying it safe?"
+    options: ["Always", "When the request carries an idempotency key the server deduplicates", "Never send POST again"]
+    answer: 1
+    explanation: "Without idempotency, a retry may create a second shipment."

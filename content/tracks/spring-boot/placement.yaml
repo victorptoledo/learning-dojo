@@ -1,0 +1,303 @@
+# Placement test of the Spring Boot track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with Spring Boot?
+  options:
+    - { label: "Never used it", start_phase: p0, test: false }
+    - { label: "I built small APIs (controllers, beans, properties)", start_phase: p1, test: true }
+    - { label: "I use it at work (JPA, tests, security)", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-injection-final
+    phase: p1
+    skills: [spring.dependency-injection]
+    difficulty: 2
+    prompt: "A @Service has exactly one constructor with two parameters. What must you add for Spring to inject them?"
+    options: ["@Autowired on the constructor", "Nothing", "@Inject on each parameter", "A setter per dependency"]
+    answer: 1
+    explanation: "With a single constructor, Spring uses it without any annotation."
+  - id: p1-primary
+    phase: p1
+    skills: [spring.dependency-injection]
+    difficulty: 3
+    prompt: "Two beans implement Notifier. Which annotation on one of them makes it the default injected one?"
+    answers: ["@Primary", "Primary"]
+    explanation: "@Primary marks the bean chosen when several candidates match and no qualifier is given."
+  - id: p1-stateless
+    phase: p1
+    skills: [spring.dependency-injection]
+    difficulty: 3
+    prompt: "Why is a counter field (int requests;) in a @RestController a problem?"
+    options:
+      - "Controllers cannot have fields"
+      - "The controller is a singleton shared by all request threads, so the updates race"
+      - "It resets on every request"
+    answer: 1
+    explanation: "Singleton beans are shared; mutable state needs thread safety or should not be there."
+  - id: p1-env-var
+    phase: p1
+    skills: [spring.configuration]
+    difficulty: 2
+    prompt: "Which environment variable overrides the property shop.max-items-per-order?"
+    options: ["shop.max-items-per-order", "SHOP_MAXITEMSPERORDER", "SHOP-MAX-ITEMS", "MAX_ITEMS"]
+    answer: 1
+    explanation: "Relaxed binding: uppercase, dots become underscores, dashes are removed."
+  - id: p1-profile-file
+    phase: p1
+    skills: [spring.configuration]
+    difficulty: 2
+    prompt: "Which file is loaded only when the prod profile is active?"
+    answers: ["application-prod.yaml", "application-prod.properties", "application-prod.yml"]
+    explanation: "Profile-specific files are named application-{profile}."
+  - id: p1-request-param
+    phase: p1
+    skills: [spring.rest]
+    difficulty: 2
+    prompt: "GET /orders?status=open. Which parameter declaration reads status, and is null when it is missing?"
+    options:
+      - "@PathVariable String status"
+      - "@RequestParam(required = false) String status"
+      - "@RequestBody String status"
+    answer: 1
+    explanation: "Query parameters are read with @RequestParam; required = false allows it to be missing."
+  - id: p1-created
+    phase: p1
+    skills: [spring.rest]
+    difficulty: 3
+    prompt: "Which return value answers 201 with a Location header and the created body?"
+    options:
+      - "ResponseEntity.ok(body)"
+      - "ResponseEntity.created(location).body(body)"
+      - "ResponseEntity.status(201).build()"
+    answer: 1
+    explanation: "created(uri) sets 201 and Location; body(...) adds the representation."
+  - id: p1-valid-missing
+    phase: p1
+    skills: [spring.validation-errors]
+    difficulty: 2
+    prompt: "The record has @NotBlank String name, but the controller declares @RequestBody NewUser body without @Valid. A blank name arrives. What happens?"
+    options: ["400 Bad Request", "The method runs with the blank name", "500"]
+    answer: 1
+    explanation: "Constraints are only checked when the parameter is annotated with @Valid or @Validated."
+  - id: p1-advice
+    phase: p1
+    skills: [spring.validation-errors]
+    difficulty: 3
+    prompt: "What does an @ExceptionHandler method in a @RestControllerAdvice apply to?"
+    options: ["Only the advice class", "Exceptions thrown by any controller", "Only checked exceptions"]
+    answer: 1
+    explanation: "Controller advice handlers are shared by all controllers."
+  - id: p1-problem
+    phase: p1
+    skills: [spring.validation-errors]
+    difficulty: 3
+    prompt: "Which Spring class represents an RFC 9457 error body?"
+    answers: ["ProblemDetail", "org.springframework.http.ProblemDetail"]
+    explanation: "ProblemDetail is written as application/problem+json."
+
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-entity-ctor
+    phase: p2
+    skills: [spring.data-jpa]
+    difficulty: 2
+    prompt: "What does every JPA entity need besides @Entity?"
+    options: ["A public setter per field", "An @Id and a no-argument constructor", "A record declaration", "A toString"]
+    answer: 1
+    explanation: "Hibernate identifies rows by the id and instantiates entities through a no-arg constructor."
+  - id: p2-derived-exists
+    phase: p2
+    skills: [spring.data-jpa]
+    difficulty: 2
+    prompt: "Which repository method checks whether a user with an email exists, without loading it?"
+    answers: ["existsByEmail", "boolean existsByEmail(String email)", "existsByEmail(String email)"]
+    explanation: "existsBy derived queries return a boolean."
+  - id: p2-readonly
+    phase: p2
+    skills: [spring.data-jpa]
+    difficulty: 3
+    prompt: "What does @Transactional(readOnly = true) on a query method mainly tell Hibernate?"
+    options: ["Reject any read", "It can skip dirty checking because nothing will be written", "Use a second database"]
+    answer: 1
+    explanation: "Read-only transactions avoid change tracking overhead."
+  - id: p2-nplus1
+    phase: p2
+    skills: [spring.jpa-queries]
+    difficulty: 3
+    prompt: "A page of 50 orders shows each customer's name and runs 51 queries. What is the usual fix?"
+    options:
+      - "Make the association EAGER everywhere"
+      - "Fetch the customers in the same query (join fetch or @EntityGraph)"
+      - "Add a cache"
+    answer: 1
+    explanation: "N+1 is fixed by fetching what the use case needs in the query."
+  - id: p2-page-endpoint
+    phase: p2
+    skills: [spring.jpa-queries, spring.rest]
+    difficulty: 3
+    prompt: "An endpoint returns every product in the table. What should it do instead?"
+    options:
+      - "Return a page (Pageable/Page) mapped to a response record"
+      - "Return the entities directly"
+      - "Add more memory"
+    answer: 0
+    explanation: "Unbounded lists grow with the data; pages with a total keep responses bounded."
+  - id: p2-mockitobean
+    phase: p2
+    skills: [spring.testing]
+    difficulty: 2
+    prompt: "In Spring Boot 4, which annotation replaces @MockBean?"
+    answers: ["@MockitoBean", "MockitoBean"]
+    explanation: "@MockitoBean comes from Spring Framework's test support."
+  - id: p2-datajpa-rollback
+    phase: p2
+    skills: [spring.testing]
+    difficulty: 3
+    prompt: "Two @DataJpaTest tests each insert a product with sku A-1 (unique). Do they clash?"
+    options: ["Yes", "No: each test's transaction is rolled back"]
+    answer: 1
+    explanation: "@DataJpaTest wraps every test in a transaction that is rolled back."
+  - id: p2-timeout
+    phase: p2
+    skills: [spring.http-clients]
+    difficulty: 3
+    prompt: "A remote API sometimes hangs. What protects your service first?"
+    options: ["A larger thread pool", "Connect and read timeouts on the client", "Retrying immediately"]
+    answer: 1
+    explanation: "Without timeouts, hanging calls hold threads (and connections) indefinitely."
+  - id: p2-http-interface
+    phase: p2
+    skills: [spring.http-clients]
+    difficulty: 3
+    prompt: "Which annotation declares an interface method as an HTTP GET of a remote service?"
+    answers: ["@GetExchange", "GetExchange"]
+    explanation: "HTTP interfaces use @HttpExchange, @GetExchange, @PostExchange and friends."
+
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-rule-order
+    phase: p3
+    skills: [spring.security]
+    difficulty: 3
+    prompt: "Where should .anyRequest().authenticated() go in authorizeHttpRequests?"
+    options: ["First", "Last", "Anywhere"]
+    answer: 1
+    explanation: "Rules are matched in order; anyRequest is the catch-all at the end."
+  - id: p3-401-403
+    phase: p3
+    skills: [spring.security]
+    difficulty: 2
+    prompt: "A request with no credentials reaches a protected endpoint. Which status?"
+    answers: ["401", "401 Unauthorized", "Unauthorized"]
+    explanation: "401 means not authenticated; 403 is for authenticated users without permission."
+  - id: p3-csrf
+    phase: p3
+    skills: [spring.security]
+    difficulty: 4
+    prompt: "When is it reasonable to disable CSRF protection?"
+    options:
+      - "Always: it slows requests"
+      - "For a stateless API that authenticates each request with a header token, not cookies"
+      - "For any app with form login"
+    answer: 1
+    explanation: "CSRF exploits credentials the browser sends automatically, such as session cookies."
+  - id: p3-security-test
+    phase: p3
+    skills: [spring.security, spring.testing]
+    difficulty: 3
+    prompt: "In a MockMvc test, which request post-processor sends real Basic credentials through the filter chain?"
+    answers: ["httpBasic", "httpBasic(\"user\", \"password\")", ".with(httpBasic(user, password))"]
+    explanation: "SecurityMockMvcRequestPostProcessors.httpBasic adds an Authorization header that the chain checks."
+  - id: p3-actuator-expose
+    phase: p3
+    skills: [spring.observability]
+    difficulty: 3
+    prompt: "Which property chooses the actuator endpoints exposed over HTTP?"
+    answers: ["management.endpoints.web.exposure.include"]
+    explanation: "Only health is exposed by default; list the others explicitly."
+  - id: p3-timer
+    phase: p3
+    skills: [spring.observability]
+    difficulty: 3
+    prompt: "You want the count and the latency percentiles of payment calls. Which Micrometer meter?"
+    options: ["Counter", "Gauge", "Timer"]
+    answer: 2
+    explanation: "A Timer records how often and how long."
+  - id: p3-after-commit
+    phase: p3
+    skills: [spring.async-caching]
+    difficulty: 3
+    prompt: "An email must be sent only if the order transaction commits. Which listener?"
+    options: ["@EventListener", "@TransactionalEventListener", "@Scheduled"]
+    answer: 1
+    explanation: "@TransactionalEventListener runs after commit by default."
+  - id: p3-cache-self
+    phase: p3
+    skills: [spring.async-caching]
+    difficulty: 4
+    prompt: "A @Cacheable method is called from another method of the same bean. Is the result cached?"
+    options: ["Yes", "No: the call bypasses the proxy"]
+    answer: 1
+    explanation: "Caching, transactions and @Async are applied by proxies; self-invocation skips them."
+
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-flyway
+    phase: p4
+    skills: [spring.production]
+    difficulty: 3
+    prompt: "In production with Flyway, what should Hibernate do with the schema?"
+    options: ["create-drop", "update", "validate (or nothing)"]
+    answer: 2
+    explanation: "Migrations own the schema; Hibernate only checks it matches the entities."
+  - id: p4-liveness
+    phase: p4
+    skills: [spring.production]
+    difficulty: 3
+    prompt: "Which probe failing makes Kubernetes restart the container?"
+    answers: ["liveness", "the liveness probe"]
+    explanation: "Liveness failures restart; readiness failures only stop traffic."
+  - id: p4-native-profile
+    phase: p4
+    skills: [spring.native-aot]
+    difficulty: 4
+    prompt: "A native image is built with the dev profile's beans. You start it with --spring.profiles.active=prod. Which beans exist?"
+    options: ["The prod ones", "The ones fixed at build time by AOT processing", "None"]
+    answer: 1
+    explanation: "AOT fixes the bean configuration when it runs; build per configuration that changes beans."
+  - id: p4-aot-cache
+    phase: p4
+    skills: [spring.native-aot]
+    difficulty: 4
+    prompt: "Which JVM option reuses the classes and profiles recorded in a training run?"
+    answers: ["-XX:AOTCache", "-XX:AOTCache=app.aot", "AOTCache"]
+    explanation: "Create the cache with -XX:AOTCacheOutput, use it with -XX:AOTCache."
+  - id: p4-modulith
+    phase: p4
+    skills: [spring.architecture]
+    difficulty: 4
+    prompt: "What does a Spring Modulith verify() test catch?"
+    options:
+      - "Slow SQL queries"
+      - "A module using another module's internal types, or cycles between modules"
+      - "Missing tests"
+    answer: 1
+    explanation: "It checks the module structure against the allowed dependencies."
+  - id: p4-split
+    phase: p4
+    skills: [spring.architecture]
+    difficulty: 3
+    prompt: "Which is the strongest reason to extract a module into a separate service?"
+    options:
+      - "It has more than 50 classes"
+      - "A separate team must deploy it independently and it scales differently"
+      - "To use a newer Spring version in one place"
+    answer: 1
+    explanation: "Independent deployment and scaling justify the costs of distribution."

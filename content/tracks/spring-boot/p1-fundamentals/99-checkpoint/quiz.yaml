@@ -1,0 +1,59 @@
+questions:
+  - id: constructor-injection
+    skills: [spring.dependency-injection]
+    prompt: "A service needs CatalogProperties. What is the recommended way to get it?"
+    options:
+      - "@Autowired on a private field"
+      - "A constructor parameter, stored in a final field"
+      - "new CatalogProperties(...) inside the service"
+    answer: 1
+    explanation: "Constructor injection keeps the dependency visible, final and easy to replace in tests."
+  - id: singleton-shared
+    skills: [spring.dependency-injection]
+    prompt: "How many ProductService instances serve the requests of a running application, by default?"
+    answers: ["1", "one", "a single one"]
+    explanation: "Beans are singletons by default, shared by every request: keep them stateless or thread-safe."
+  - id: properties-register
+    skills: [spring.configuration]
+    prompt: "A @ConfigurationProperties record is not injected anywhere: 'No qualifying bean'. What is missing?"
+    options:
+      - "A @Component on the record"
+      - "Registration with @ConfigurationPropertiesScan or @EnableConfigurationProperties"
+      - "A setter for every component"
+    answer: 1
+    explanation: "Properties records become beans when scanned or explicitly enabled."
+  - id: override-test
+    skills: [spring.configuration]
+    prompt: "How does a test start the application with catalog.max-page-size=2?"
+    options:
+      - "@SpringBootTest(properties = \"catalog.max-page-size=2\")"
+      - "Edit application.properties before each test"
+      - "System.setProperty in the test method"
+    answer: 0
+    explanation: "Test properties override the application's own for that test context."
+  - id: location
+    skills: [spring.rest]
+    prompt: "Which header tells the client where a newly created resource lives?"
+    answers: ["Location", "Location header"]
+    explanation: "201 Created comes with a Location header pointing at the new resource."
+  - id: param-vs-path
+    skills: [spring.rest]
+    prompt: "GET /products?category=books&page=1. How are category and page read?"
+    options: ["@PathVariable", "@RequestParam", "@RequestBody", "@RequestHeader"]
+    answer: 1
+    explanation: "The query string is read with @RequestParam; @PathVariable reads {segments} of the path."
+  - id: business-rule-status
+    skills: [spring.validation-errors]
+    prompt: "A discount of 60% is well-formed JSON but above the shop's maximum. Which status fits best?"
+    options: ["200", "404", "422 Unprocessable Content", "500"]
+    answer: 2
+    explanation: "The request is valid in shape but breaks a business rule: 422 (or 400), never 500."
+  - id: override-handler
+    skills: [spring.validation-errors]
+    prompt: "Your advice extends ResponseEntityExceptionHandler. How do you shape the response for @Valid failures?"
+    options:
+      - "Add @ExceptionHandler(MethodArgumentNotValidException.class)"
+      - "Override handleMethodArgumentNotValid"
+      - "Catch the exception in the controller"
+    answer: 1
+    explanation: "The base class already handles that exception; override its method instead of adding a second handler."

@@ -1,0 +1,40 @@
+id: spring-boot.p0.hello-dojo
+kind: kata
+status: draft
+title: "Hello, Dojo: Your First Endpoint"
+summary: "Write a GET endpoint and see it tested with MockMvc."
+objectives:
+  - { id: o1, text: "Answer an HTTP GET with a @RestController method and a request parameter", skills: [spring.setup, spring.rest] }
+prerequisites: [spring-boot.p0.setup]
+difficulty: 1
+estimated_minutes: 20
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      The mapping and the parameter are already there: which values of `name` mean "no name"? There are three, and one of them is `null`.
+    - |-
+      `@RequestParam(required = false) String name` is `null` when `?name=` is missing and `""` when it is empty. Check `name == null || name.isBlank()` before `strip()`.
+    - |-
+      ```java
+      @GetMapping("/greet")
+      public String greet(@RequestParam(required = false) String name) {
+          String who = /* null or blank */ ? "stranger" : name.strip();
+          return "Welcome to the dojo, %s!".formatted(who);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

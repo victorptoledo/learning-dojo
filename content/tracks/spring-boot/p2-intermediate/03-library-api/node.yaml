@@ -1,0 +1,51 @@
+id: spring-boot.p2.library-api
+kind: kata
+status: draft
+title: "Library API with JPA"
+summary: "Books and authors stored with Spring Data JPA in H2, served by a REST API with pages."
+objectives:
+  - { id: o1, text: "Map two related entities and query them with derived and @Query methods", skills: [spring.data-jpa, spring.jpa-queries] }
+  - { id: o2, text: "Serve paginated results without exposing entities", skills: [spring.jpa-queries, spring.rest] }
+prerequisites: [spring-boot.p2.jpa-queries]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      List what each endpoint needs from the database, then decide which repository method answers it. For the search and the author page, ask: when `BookView.of` reads the author's name, is the author already loaded?
+    - |-
+      Derived methods cover `findByName`, `existsByIsbn` and `findByAuthorName(String, Pageable)` (which navigates `author.name`). Add `@EntityGraph(attributePaths = "author")` to load the author in the same query, or write a `@Query` with `join fetch b.author`. Case-insensitive search in JPQL: `lower(b.title) like lower(concat('%', :text, '%'))`. Mark the service methods `@Transactional` (`readOnly = true` for reads).
+    - |-
+      ```java
+      public interface BookRepository extends JpaRepository<Book, Long> {
+          @EntityGraph(attributePaths = "author")
+          Optional<Book> findByIsbn(String isbn);
+
+          boolean existsByIsbn(String isbn);
+
+          @Query("select b from Book b join fetch b.author where lower(b.title) like lower(concat('%', :text, '%')) order by b.title")
+          List<Book> search(@Param("text") String text);
+
+          @EntityGraph(attributePaths = "author")
+          Page<Book> findByAuthorName(String name, Pageable pageable);
+
+          @Query("select new dojo.AuthorStats(a.name, count(b)) from Book b join b.author a group by a.name order by /* ... */")
+          List<AuthorStats> stats();
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

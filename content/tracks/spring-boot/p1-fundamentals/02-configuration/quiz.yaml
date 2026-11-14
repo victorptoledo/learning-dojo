@@ -1,0 +1,39 @@
+questions:
+  - id: properties-record
+    prompt: "What is the advantage of a @ConfigurationProperties record over many @Value fields?"
+    options:
+      - "It is the only way to read properties"
+      - "Settings are grouped, typed, validated at startup and injected as one bean"
+      - "It encrypts the values"
+    answer: 1
+    explanation: "A properties record gives one typed, validated object instead of string keys spread through the code."
+  - id: precedence
+    prompt: "application.properties says shop.currency=EUR and the environment has SHOP_CURRENCY=USD. Which value is used?"
+    answers: ["USD"]
+    explanation: "Environment variables override the properties file packaged in the JAR."
+  - id: validated
+    prompt: "A @Validated properties record has @Min(1) int maxItems, and the property is 0. When do you find out?"
+    options: ["At the first request", "At startup: the application refuses to start", "Never"]
+    answer: 1
+    explanation: "Validation runs when the properties are bound, during startup."
+  - id: profile
+    prompt: "How do you activate the dev profile from the command line?"
+    options:
+      - "java -jar app.jar --spring.profiles.active=dev"
+      - "java -jar app.jar --profile dev"
+      - "java -jar app.jar -dev"
+    answer: 0
+    explanation: "spring.profiles.active selects the active profiles, from any property source."
+  - id: duration
+    prompt: "Which value can bind to a Duration property?"
+    options: ["\"30m\"", "\"half an hour\"", "\"1800 seconds please\""]
+    answer: 0
+    explanation: "Boot converts simple forms like 30m, 10s or ISO-8601 PT30M to Duration."
+  - id: secrets
+    prompt: "Where should the production database password come from?"
+    options:
+      - "application.properties in the repository"
+      - "An environment variable or a secret manager"
+      - "A @DefaultValue"
+    answer: 1
+    explanation: "Secrets are injected at run time and never committed."

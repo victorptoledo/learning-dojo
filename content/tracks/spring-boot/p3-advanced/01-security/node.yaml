@@ -1,0 +1,16 @@
+id: spring-boot.p3.security
+kind: lesson
+status: draft
+title: "Spring Security"
+summary: "The filter chain, authentication, password hashing, authorization rules and JWT resource servers."
+objectives:
+  - { id: o1, text: "Configure a SecurityFilterChain with authorization rules", skills: [spring.security] }
+  - { id: o2, text: "Store users with hashed passwords and read the current user", skills: [spring.security] }
+  - { id: o3, text: "Protect methods with @PreAuthorize and test with mock users", skills: [spring.security] }
+prerequisites: [spring-boot.p2.checkpoint]
+difficulty: 4
+estimated_minutes: 45
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

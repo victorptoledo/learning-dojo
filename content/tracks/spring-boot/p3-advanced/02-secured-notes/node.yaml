@@ -1,0 +1,56 @@
+id: spring-boot.p3.secured-notes
+kind: kata
+status: draft
+title: "Secured Notes"
+summary: "A notes API where users see only their own notes and admins see everything."
+objectives:
+  - { id: o1, text: "Secure endpoints by role and ownership", skills: [spring.security] }
+  - { id: o2, text: "Test security rules with MockMvc, httpBasic and @WithMockUser", skills: [spring.security, spring.testing] }
+prerequisites: [spring-boot.p3.security]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Two different questions: the filter chain decides **who may call which URL** (public, logged in, admin), and the service decides **which note** a logged-in user may touch. In which order must the URL rules be written so the public one is not swallowed by `anyRequest()`?
+    - |-
+      Rules run top to bottom: `requestMatchers(HttpMethod.GET, "/notes/count").permitAll()`, then `requestMatchers("/admin/**").hasRole("ADMIN")`, then `anyRequest().authenticated()`. An `Authentication` parameter in the controller gives `getName()` and `getAuthorities()`; pass the name and an `isAdmin` flag to the service, which throws `NoteNotFoundException` for notes the user does not own.
+    - |-
+      ```java
+      @Bean
+      SecurityFilterChain api(HttpSecurity http) throws Exception {
+          return http
+                  .authorizeHttpRequests(auth -> auth
+                          .requestMatchers(HttpMethod.GET, "/notes/count").permitAll()
+                          .requestMatchers("/admin/**").hasRole("ADMIN")
+                          .anyRequest().authenticated())
+                  .httpBasic(Customizer.withDefaults())
+                  .csrf(csrf -> csrf.disable())
+                  .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                  .build();
+      }
+
+      public Note get(long id, String user, boolean admin) {
+          Note note = notes.get(id);
+          if (note == null || /* not the owner and not an admin */) {
+              throw new NoteNotFoundException(id);
+          }
+          return note;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

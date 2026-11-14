@@ -1,0 +1,53 @@
+id: spring-boot.p1.signup-validation
+kind: kata
+status: draft
+title: "Validated Sign-up"
+summary: "A sign-up endpoint that validates its input and answers errors as Problem Details."
+objectives:
+  - { id: o1, text: "Validate a request record and report field errors", skills: [spring.validation-errors] }
+  - { id: o2, text: "Turn domain exceptions into 409 and 404 Problem Details", skills: [spring.validation-errors, spring.rest] }
+prerequisites: [spring-boot.p1.validation-errors]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Three layers, three jobs: the record's annotations say what valid input looks like, the service enforces the rule validation cannot see (a unique email), and the advice turns each exception into a response. Which exception does Spring throw when `@Valid` fails, and which method of `ResponseEntityExceptionHandler` handles it?
+    - |-
+      `@NotBlank @Size(max = 40)`, `@NotBlank @Email`, `@NotNull @Min(13)` on the record components; `@Valid @RequestBody SignupRequest request` in the controller. In `ApiErrors`, override `handleMethodArgumentNotValid` for the 400 (loop over `e.getBindingResult().getFieldErrors()` and keep the first message per field), and write one `@ExceptionHandler(X.class)` method per domain exception returning `ProblemDetail.forStatusAndDetail(...)`. A separate `@ExceptionHandler(MethodArgumentNotValidException.class)` would clash with the inherited handler.
+    - |-
+      ```java
+      @Override
+      protected ResponseEntity<Object> handleMethodArgumentNotValid(
+              MethodArgumentNotValidException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+          ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "invalid request");
+          problem.setTitle("Invalid request");
+          Map<String, String> errors = new TreeMap<>();
+          for (FieldError error : e.getBindingResult().getFieldErrors()) {
+              errors.putIfAbsent(error.getField(), error.getDefaultMessage());
+          }
+          problem.setProperty("errors", errors);
+          return handleExceptionInternal(e, problem, headers, status, request);
+      }
+
+      @ExceptionHandler(EmailTakenException.class)
+      public ProblemDetail emailTaken(EmailTakenException e) {
+          // 409, title "Email already registered", detail e.getMessage()
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

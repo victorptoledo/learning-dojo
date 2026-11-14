@@ -1,0 +1,33 @@
+questions:
+  - id: aot-what
+    prompt: "What does Spring AOT processing generate at build time?"
+    options:
+      - "A WAR file"
+      - "Code that registers the bean definitions, plus reachability metadata"
+      - "A database schema"
+    answer: 1
+    explanation: "AOT evaluates the configuration once and generates bean registration code and GraalVM hints."
+  - id: closed-profiles
+    prompt: "With AOT processing, when are @Profile and @ConditionalOnProperty decisions made?"
+    options: ["At run time, as usual", "At build time"]
+    answer: 1
+    explanation: "The bean configuration is fixed when the AOT build runs."
+  - id: native-gain
+    prompt: "What is the main gain of a GraalVM native image of a Boot service?"
+    options: ["Higher peak throughput", "Startup in milliseconds and lower memory", "Shorter builds"]
+    answer: 1
+    explanation: "Native images trade build time and some peak performance for fast startup and small footprint."
+  - id: reflection-hint
+    prompt: "Your code serialises MyDto through reflection that Spring cannot see. Which annotation registers it for the native image?"
+    answers: ["@RegisterReflectionForBinding", "@RegisterReflectionForBinding(MyDto.class)", "RegisterReflectionForBinding"]
+    explanation: "It adds reflection hints for binding; RuntimeHintsRegistrar covers other cases."
+  - id: aot-cache
+    prompt: "Which option speeds up startup but keeps the normal JVM, its tooling and the JIT?"
+    options: ["GraalVM native image", "The JVM AOT cache created by a training run", "Disabling auto-configuration"]
+    answer: 1
+    explanation: "-XX:AOTCacheOutput / -XX:AOTCache (Java 24+) reuse class loading and profiles from a training run."
+  - id: choose
+    prompt: "A service runs 24/7 with steady heavy traffic. What is usually the best runtime?"
+    options: ["Native image", "The JVM (optionally with the AOT cache)", "CRaC on every request"]
+    answer: 1
+    explanation: "After warm-up the JIT gives the best throughput; startup time barely matters."

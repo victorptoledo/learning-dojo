@@ -1,0 +1,32 @@
+questions:
+  - id: create-status
+    prompt: "What should POST /todos answer after creating a todo?"
+    options: ["200 OK", "201 Created with a Location header", "204 No Content", "302 Found"]
+    answer: 1
+    explanation: "201 Created plus the Location of the new resource is the REST convention for creation."
+  - id: path-variable
+    prompt: "Which annotation binds the 7 in GET /todos/7 to a method parameter?"
+    answers: ["@PathVariable", "PathVariable"]
+    explanation: "A {id} segment in the mapping is read with @PathVariable."
+  - id: bad-conversion
+    prompt: "GET /todos/abc hits @GetMapping(\"/{id}\") with a long id parameter. What happens?"
+    options: ["id is 0", "Spring answers 400 Bad Request before the method runs", "500 Internal Server Error"]
+    answer: 1
+    explanation: "Type conversion failures on request parameters become 400 responses."
+  - id: separate-records
+    prompt: "Why use a NewTodo record for input instead of the Todo entity?"
+    options:
+      - "Entities cannot be JSON"
+      - "So clients can only send the fields they are allowed to set, and the API is decoupled from storage"
+      - "Records are faster"
+    answer: 1
+    explanation: "Input records limit what clients can set (no id, no internal fields) and keep the API independent of the database model."
+  - id: delete-status
+    prompt: "A successful DELETE with no body usually answers with which status?"
+    answers: ["204", "204 No Content", "No Content"]
+    explanation: "204 No Content says it worked and there is nothing to return."
+  - id: thin
+    prompt: "Where does the rule \"a todo cannot be completed twice\" belong?"
+    options: ["In the controller", "In a service (or the domain object)", "In application.properties"]
+    answer: 1
+    explanation: "Controllers translate HTTP; business rules live in services and domain objects, testable without HTTP."
