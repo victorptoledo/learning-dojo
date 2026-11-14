@@ -1,16 +1,16 @@
 use crate::front_matter;
 use crate::manifest::{
-    BeltManifest, BridgeFrontMatter, KataManifest, NodeManifest, ObjectiveManifest, PhaseManifest,
-    PlacementManifest, QuestionManifest, QuizManifest, RequirementManifest, SkillsManifest,
-    TrackManifest,
+    BeltManifest, BridgeFrontMatter, CareerManifest, CareerRequirementManifest, KataManifest,
+    NodeManifest, ObjectiveManifest, PhaseManifest, PlacementManifest, QuestionManifest,
+    QuizManifest, RequirementManifest, SkillsManifest, TrackManifest,
 };
 use crate::report::Report;
 use crate::schema::{self, Schemas};
 use anyhow::{Result, bail};
 use dojo_core::{
-    Belt, Bridge, Catalog, DEFAULT_PASS_PERCENT, EarlyStop, EntryOption, Kata, Node, Objective,
-    Phase, PhaseRule, PlacementConfig, PlacementItem, Question, QuestionKind, Quiz, Requirement,
-    RequirementKind, RunnerSpec, Skill, SkillId, Track,
+    Belt, Bridge, Career, CareerRequirement, Catalog, DEFAULT_PASS_PERCENT, EarlyStop, EntryOption,
+    Kata, Node, Objective, Phase, PhaseRule, PlacementConfig, PlacementItem, Question,
+    QuestionKind, Quiz, Requirement, RequirementKind, RunnerSpec, Skill, SkillId, Stage, Track,
 };
 use regex::Regex;
 use serde::de::DeserializeOwned;
@@ -31,6 +31,7 @@ enum FileKind {
     Bridge,
     Quiz,
     Placement,
+    Career,
 }
 
 pub fn load_catalog(root: &Path, report: &mut Report) -> Result<Catalog> {
@@ -45,7 +46,12 @@ pub fn load_catalog(root: &Path, report: &mut Report) -> Result<Catalog> {
     };
     let skills = reader.load_skills();
     let tracks = reader.load_tracks();
-    Ok(Catalog { tracks, skills })
+    let careers = reader.load_careers();
+    Ok(Catalog {
+        tracks,
+        skills,
+        careers,
+    })
 }
 
 struct ContentReader<'a> {
@@ -375,6 +381,16 @@ impl ContentReader<'_> {
         })
     }
 
+    // ---- careers ------------------------------------------------------------
+
+    fn load_careers(&mut self) -> Vec<Career> {
+        files_with_extension(&self.root.join("careers"), "yaml")
+            .into_iter()
+            .filter_map(|path| self.read_manifest::<CareerManifest>(&path, FileKind::Career))
+            .map(to_career)
+            .collect()
+    }
+
     // ---- file helpers -------------------------------------------------------
 
     fn read_manifest<T: DeserializeOwned>(&mut self, path: &Path, kind: FileKind) -> Option<T> {
@@ -423,6 +439,7 @@ impl ContentReader<'_> {
             FileKind::Bridge => &self.schemas.bridge,
             FileKind::Quiz => &self.schemas.quiz,
             FileKind::Placement => &self.schemas.placement,
+            FileKind::Career => &self.schemas.career,
         }
     }
 
@@ -446,6 +463,41 @@ impl ContentReader<'_> {
 }
 
 // ---- conversions ------------------------------------------------------------
+
+fn to_career(manifest: CareerManifest) -> Career {
+    Career {
+        id: manifest.id,
+        title: manifest.title,
+        summary: manifest.summary,
+        roles: manifest.roles,
+        stages: manifest
+            .stages
+            .into_iter()
+            .map(|stage| Stage {
+                id: stage.id,
+                title: stage.title,
+                requires: stage
+                    .requires
+                    .into_iter()
+                    .map(to_career_requirement)
+                    .collect(),
+            })
+            .collect(),
+        next_paths: manifest.next_paths,
+    }
+}
+
+fn to_career_requirement(manifest: CareerRequirementManifest) -> CareerRequirement {
+    match manifest {
+        CareerRequirementManifest::TrackPhase { track, phase } => {
+            CareerRequirement::TrackPhase { track, phase }
+        }
+        CareerRequirementManifest::Skill { skill, min } => CareerRequirement::Skill { skill, min },
+        CareerRequirementManifest::AnyOf { any_of } => {
+            CareerRequirement::AnyOf(any_of.into_iter().map(to_career_requirement).collect())
+        }
+    }
+}
 
 fn to_belt(belt: BeltManifest) -> Belt {
     Belt {

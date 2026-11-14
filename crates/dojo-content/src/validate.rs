@@ -1,7 +1,7 @@
 //! Rules that need the whole catalog (cross-file references, graph shape, completeness).
 
 use crate::report::{Report, Severity};
-use dojo_core::{Catalog, ContentStatus, NodeKind, Track};
+use dojo_core::{CareerRequirement, Catalog, ContentStatus, NodeKind, Track};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 const MIN_NODES_PER_TRACK: usize = 15;
@@ -13,6 +13,7 @@ pub fn check_catalog(catalog: &Catalog, report: &mut Report) {
     check_unique_tracks(catalog, report);
     check_unique_nodes(catalog, report);
     check_skill_mappings(catalog, report);
+    check_careers(catalog, report);
     for track in &catalog.tracks {
         check_phases(track, report);
         check_belts(track, report);
@@ -23,6 +24,62 @@ pub fn check_catalog(catalog: &Catalog, report: &mut Report) {
         check_placement(track, catalog, report);
         check_checkpoint_question_skills(track, catalog, report);
         check_kata_hints(track, report);
+    }
+}
+
+/// Career paths must point at real tracks, phases, skills and careers.
+fn check_careers(catalog: &Catalog, report: &mut Report) {
+    let mut ids = BTreeSet::new();
+    for career in &catalog.careers {
+        let location = format!("careers/{}.yaml", career.id);
+        if !ids.insert(career.id.as_str()) {
+            report.error(&location, format!("duplicate career id `{}`", career.id));
+        }
+        for stage in &career.stages {
+            for requirement in &stage.requires {
+                check_career_requirement(catalog, requirement, &location, &stage.id, report);
+            }
+        }
+        for next in &career.next_paths {
+            if catalog.career(next).is_none() {
+                report.error(&location, format!("next path `{next}` is not a career"));
+            }
+        }
+    }
+}
+
+fn check_career_requirement(
+    catalog: &Catalog,
+    requirement: &CareerRequirement,
+    location: &str,
+    stage: &str,
+    report: &mut Report,
+) {
+    match requirement {
+        CareerRequirement::TrackPhase { track, phase } => match catalog.track(track) {
+            None => report.error(
+                location,
+                format!("stage `{stage}`: unknown track `{track}`"),
+            ),
+            Some(found) if !found.phases.iter().any(|p| p.id == *phase) => report.error(
+                location,
+                format!("stage `{stage}`: track `{track}` has no phase `{phase}`"),
+            ),
+            Some(_) => {}
+        },
+        CareerRequirement::Skill { skill, .. } => {
+            if !catalog.skills.contains_key(skill) {
+                report.error(
+                    location,
+                    format!("stage `{stage}`: unknown skill `{skill}`"),
+                );
+            }
+        }
+        CareerRequirement::AnyOf(options) => {
+            for option in options {
+                check_career_requirement(catalog, option, location, stage, report);
+            }
+        }
     }
 }
 

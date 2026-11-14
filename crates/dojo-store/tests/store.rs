@@ -51,6 +51,7 @@ fn catalog() -> Catalog {
         ],
     };
     Catalog {
+        careers: vec![],
         tracks: vec![Track {
             id: "rust".into(),
             name: "Rust".into(),
@@ -83,6 +84,7 @@ fn settings_round_trip_including_streak_baseline() {
     let mut settings = Settings::new("docker");
     settings.name = "Victor".into();
     settings.bridge_from = "python".into();
+    settings.target_career = Some("rust-systems-engineer".into());
     settings.streak_baseline = StreakBaseline {
         current: 3,
         best: 7,

@@ -3,6 +3,7 @@
 //! No file system, terminal or network access lives here: content loading,
 //! storage and UI are adapters built on top of these types and the `ports`.
 
+pub mod career;
 pub mod catalog;
 pub mod check;
 pub mod placement;
@@ -13,6 +14,10 @@ pub mod requirement;
 pub mod review;
 pub mod track;
 
+pub use career::{
+    Career, CareerProgress, CareerRequirement, Reason, Recommendation, Stage, recommend,
+    skill_mastery,
+};
 pub use catalog::{Catalog, Skill, SkillId};
 pub use check::{CheckOutcome, CheckRecord, CheckReport, TestCase};
 pub use placement::{

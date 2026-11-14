@@ -326,6 +326,14 @@ score(candidate) = 0.35·target_career_gap + 0.25·weak_skill_reinforcement
 
   Candidates: available nodes in the current track + entry nodes of other tracks whose skill prerequisites are met. The learner picks a target career and interests at onboarding; both are editable.
 
+**Implemented in M7b** (`dojo-core::career`, `content/careers/*.yaml`, schema `career.schema.json`):
+- Requirements: `{ track, phase }` (every node up to that phase completed), `{ skill, min }` (that share of the catalog's nodes teaching the skill completed) and `{ any_of: [...] }`. Content not written yet counts as 0, never as done; placed-out nodes count once the Belt Exam confirms them.
+- A stage's progress is the mean of its requirements; the current stage is the first one not finished.
+- No onboarding: `G` opens the career screen, where Enter sets or clears the target career (stored in settings). "Declared interest" is replaced by "on the active track".
+- Score as above, with `career_gap` = 1 when the node teaches a skill the current stage needs and 0.5 when only its track is needed; `weak_skill` = a skill whose last review answer was wrong; `momentum` = the track is started; `difficulty_jump` = how far the node's difficulty is above the mean of the completed nodes of its track. Candidates are the open nodes of every track.
+- The career screen shows the 3 best; passing a checkpoint points at the first one.
+- Four paths so far: Rust Systems Engineer, Backend to Microservices Architect, Backend to DevOps and Cloud, Developer to AI Engineer.
+
 ## 10. Terminal UI
 
 ```

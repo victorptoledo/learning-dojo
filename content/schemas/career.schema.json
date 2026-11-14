@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learning-dojo.local/schemas/career.schema.json",
+  "title": "Career path (careers/<id>.yaml)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "summary", "stages"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "title": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "minLength": 1 },
+    "roles": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "requires"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "requires": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/requirement" } }
+        }
+      }
+    },
+    "next_paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Ids of careers that naturally follow this one."
+    }
+  },
+  "$defs": {
+    "requirement": {
+      "description": "A track done up to a phase, a skill mastered to a share of its nodes, or any one of several requirements.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["track", "phase"],
+          "properties": {
+            "track": { "type": "string" },
+            "phase": { "type": "string", "pattern": "^p[0-9]$" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["skill", "min"],
+          "properties": {
+            "skill": { "type": "string" },
+            "min": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["any_of"],
+          "properties": {
+            "any_of": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/requirement" } }
+          }
+        }
+      ]
+    }
+  }
+}

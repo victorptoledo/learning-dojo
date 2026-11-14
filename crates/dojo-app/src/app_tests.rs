@@ -646,7 +646,12 @@ fn a_checkpoint_needs_both_its_quiz_and_its_kata() {
     h.app.activate_selected();
     run_check(&mut h.app);
     assert!(h.app.profile.is_completed("rust", "rust.p1.checkpoint"));
-    assert!(h.app.status_message.as_deref().unwrap().contains("+300 XP"));
+    let message = h.app.status_message.clone().unwrap();
+    assert!(message.contains("+300 XP"), "{message}");
+    assert!(
+        message.contains("🧭 Next:"),
+        "closing a phase points at the next step: {message}"
+    );
 }
 
 #[test]
@@ -867,4 +872,54 @@ fn due_questions_are_reviewed_with_r_and_their_answers_recorded() {
             .unwrap()
             .starts_with("🔁 Nothing to review today. Next review:")
     );
+}
+
+#[test]
+fn the_career_screen_sets_a_target_that_steers_the_next_steps() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p0.setup");
+    h.app.status_message = None;
+    assert!(screen_text(&h.app).contains("[G] Career"));
+
+    h.app.open_careers();
+    assert_eq!(h.app.screen, Screen::Career);
+    let rust_path = h
+        .app
+        .catalog
+        .careers
+        .iter()
+        .position(|career| career.id == "rust-systems-engineer")
+        .expect("the Rust career exists");
+    while h.app.career_cursor != rust_path {
+        h.app.career_down();
+    }
+    h.app.toggle_target_career();
+    assert_eq!(
+        h.app.profile.settings.target_career.as_deref(),
+        Some("rust-systems-engineer")
+    );
+    let saved = h.app.store.load_settings().unwrap().unwrap();
+    assert_eq!(
+        saved.target_career.as_deref(),
+        Some("rust-systems-engineer")
+    );
+
+    let screen = screen_text(&h.app);
+    assert!(screen.contains("Career paths"), "{screen}");
+    assert!(screen.contains("Rust up to P2"), "{screen}");
+    assert!(screen.contains("Next steps"), "{screen}");
+    let first = h.app.recommendations().into_iter().next().unwrap();
+    assert_eq!(
+        first.node_id, "rust.p0.setup",
+        "the first open node of the needed track"
+    );
+    assert!(first.reasons.contains(&dojo_core::Reason::CareerGap));
+
+    h.app.toggle_target_career();
+    assert_eq!(
+        h.app.profile.settings.target_career, None,
+        "Enter again clears it"
+    );
+    h.app.close_careers();
+    assert_eq!(h.app.screen, Screen::TrackView);
 }

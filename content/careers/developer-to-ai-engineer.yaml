@@ -1,0 +1,26 @@
+id: developer-to-ai-engineer
+title: "Developer to AI Engineer"
+summary: "Build products on top of language models: prompts, retrieval, evaluation and data."
+roles: [AI Engineer, ML Application Developer]
+stages:
+  - id: s1
+    title: "Python and the basics"
+    requires:
+      - { track: python, phase: p2 }
+      - { track: git, phase: p1 }
+  - id: s2
+    title: "Working with models"
+    requires:
+      - { track: prompt-engineering, phase: p2 }
+      - { track: ai-engineer, phase: p2 }
+  - id: s3
+    title: "Data and retrieval"
+    requires:
+      - { track: data-engineer, phase: p2 }
+      - { track: ai-engineer, phase: p3 }
+  - id: s4
+    title: "AI in production"
+    requires:
+      - { track: ai-engineer, phase: p4 }
+      - { track: system-design, phase: p2 }
+next_paths: [backend-to-devops-cloud]

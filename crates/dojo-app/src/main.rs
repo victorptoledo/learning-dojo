@@ -1,6 +1,8 @@
 mod app;
 #[cfg(test)]
 mod app_tests;
+mod career_actions;
+mod career_view;
 mod checks;
 mod code_workspace;
 mod config;

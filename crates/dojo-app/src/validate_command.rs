@@ -19,9 +19,10 @@ pub fn run(content_dir: &Path, strict: bool) -> Result<ExitCode> {
         .map(|track| track.node_count())
         .sum();
     println!(
-        "\n{} tracks, {nodes} nodes, {} skills — {errors} errors, {warnings} warnings",
+        "\n{} tracks, {nodes} nodes, {} skills, {} careers — {errors} errors, {warnings} warnings",
         loaded.catalog.tracks.len(),
         loaded.catalog.skills.len(),
+        loaded.catalog.careers.len(),
     );
 
     let failed = errors > 0 || (strict && warnings > 0);

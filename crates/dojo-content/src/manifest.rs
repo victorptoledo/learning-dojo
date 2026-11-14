@@ -157,6 +157,41 @@ pub struct PlacementItemManifest {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct CareerManifest {
+    pub id: String,
+    pub title: String,
+    pub summary: String,
+    #[serde(default)]
+    pub roles: Vec<String>,
+    pub stages: Vec<StageManifest>,
+    #[serde(default)]
+    pub next_paths: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct StageManifest {
+    pub id: String,
+    pub title: String,
+    pub requires: Vec<CareerRequirementManifest>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum CareerRequirementManifest {
+    TrackPhase {
+        track: String,
+        phase: String,
+    },
+    Skill {
+        skill: String,
+        min: f64,
+    },
+    AnyOf {
+        any_of: Vec<CareerRequirementManifest>,
+    },
+}
+
+#[derive(Debug, Deserialize)]
 pub struct KataManifest {
     pub statement: String,
     pub starter: String,

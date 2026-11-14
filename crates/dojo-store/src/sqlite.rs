@@ -17,6 +17,7 @@ const KEY_BRIDGE_FROM: &str = "bridge_from";
 const KEY_STREAK_CURRENT: &str = "streak_baseline_current";
 const KEY_STREAK_BEST: &str = "streak_baseline_best";
 const KEY_STREAK_LAST: &str = "streak_baseline_last_trained";
+const KEY_TARGET_CAREER: &str = "target_career";
 
 /// Progress stored in a single SQLite file (`~/.dojo/dojo.db` by default).
 pub struct SqliteStore {
@@ -79,6 +80,7 @@ impl ProgressStore for SqliteStore {
         if let Some(bridge_from) = values.get(KEY_BRIDGE_FROM) {
             settings.bridge_from = bridge_from.clone();
         }
+        settings.target_career = values.get(KEY_TARGET_CAREER).cloned();
         settings.streak_baseline = StreakBaseline {
             current: parse_or_default(values.get(KEY_STREAK_CURRENT))?,
             best: parse_or_default(values.get(KEY_STREAK_BEST))?,
@@ -401,6 +403,9 @@ fn write_settings(connection: &Connection, settings: &Settings) -> Result<(), St
     if let Some(last) = baseline.last_trained {
         pairs.push((KEY_STREAK_LAST, last.format(DATE_FORMAT).to_string()));
     }
+    if let Some(career) = &settings.target_career {
+        pairs.push((KEY_TARGET_CAREER, career.clone()));
+    }
     for (key, value) in pairs {
         connection.execute(
             "INSERT INTO settings (key, value) VALUES (?1, ?2)
@@ -412,6 +417,12 @@ fn write_settings(connection: &Connection, settings: &Settings) -> Result<(), St
         connection.execute(
             "DELETE FROM settings WHERE key = ?1",
             params![KEY_STREAK_LAST],
+        )?;
+    }
+    if settings.target_career.is_none() {
+        connection.execute(
+            "DELETE FROM settings WHERE key = ?1",
+            params![KEY_TARGET_CAREER],
         )?;
     }
     Ok(())

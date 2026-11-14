@@ -1,3 +1,4 @@
+use crate::career::Career;
 use crate::track::Track;
 use std::collections::BTreeMap;
 
@@ -12,16 +13,22 @@ pub struct Skill {
     pub maps_to: Vec<SkillId>,
 }
 
-/// Everything the dojo can teach: tracks plus the skill taxonomy they reference.
+/// Everything the dojo can teach: tracks, the skill taxonomy they reference, and the
+/// career paths built from them.
 #[derive(Debug, Clone, Default)]
 pub struct Catalog {
     pub tracks: Vec<Track>,
     pub skills: BTreeMap<SkillId, Skill>,
+    pub careers: Vec<Career>,
 }
 
 impl Catalog {
     pub fn track(&self, track_id: &str) -> Option<&Track> {
         self.tracks.iter().find(|track| track.id == track_id)
+    }
+
+    pub fn career(&self, career_id: &str) -> Option<&Career> {
+        self.careers.iter().find(|career| career.id == career_id)
     }
 
     pub fn track_index(&self, track_id: &str) -> Option<usize> {

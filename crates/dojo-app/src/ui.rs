@@ -30,6 +30,7 @@ pub fn render(frame: &mut Frame, app: &App) {
             }
         }
         Screen::Placement => crate::placement_view::render_placement(frame, app, frame.area()),
+        Screen::Career => crate::career_view::render_careers(frame, app, frame.area()),
         Screen::TrackView => {}
     }
 }
@@ -492,7 +493,7 @@ fn render_footer(frame: &mut Frame, app: &App, area: Rect) {
         } else {
             String::new()
         };
-        format!("[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Quiz | [C] Check kata{hint} | [B] Bridge{review}{placement} | [Esc] Quit")
+        format!("[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Quiz | [C] Check kata{hint} | [B] Bridge{review} | [G] Career{placement} | [Esc] Quit")
     });
     let mode = match app.mode {
         Mode::Learner => "",

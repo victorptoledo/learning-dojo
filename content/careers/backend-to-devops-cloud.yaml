@@ -1,0 +1,27 @@
+id: backend-to-devops-cloud
+title: "Backend to DevOps and Cloud"
+summary: "Ship and run what you build: Linux, containers, pipelines, Kubernetes and the cloud."
+roles: [DevOps Engineer, Platform Engineer, Site Reliability Engineer]
+stages:
+  - id: s1
+    title: "Linux and version control"
+    requires:
+      - { track: linux, phase: p2 }
+      - { track: git, phase: p2 }
+      - { track: backend, phase: p1 }
+  - id: s2
+    title: "Containers and pipelines"
+    requires:
+      - { track: docker, phase: p3 }
+      - { track: devops, phase: p2 }
+  - id: s3
+    title: "Orchestration and cloud"
+    requires:
+      - { track: kubernetes, phase: p3 }
+      - { track: aws, phase: p2 }
+  - id: s4
+    title: "Reliability at scale"
+    requires:
+      - { track: devops, phase: p4 }
+      - { track: system-design, phase: p3 }
+next_paths: [backend-to-microservices]

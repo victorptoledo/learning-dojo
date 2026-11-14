@@ -130,6 +130,7 @@ fn handle_key(app: &mut App, key: KeyEvent) -> Flow {
         Screen::Quiz => handle_quiz_key(app, key.code),
         Screen::Setup => handle_setup_key(app, key.code),
         Screen::Placement => handle_placement_key(app, key.code),
+        Screen::Career => handle_career_key(app, key.code),
         Screen::TrackView => return handle_track_key(app, key.code),
     }
     Flow::Continue
@@ -146,6 +147,16 @@ fn handle_placement_key(app: &mut App, code: KeyCode) {
         KeyCode::Backspace => app.placement_backspace(),
         KeyCode::Char(character) if typing => app.placement_type(character),
         KeyCode::Char(digit @ '0'..='9') => app.placement_choose(digit as usize - '0' as usize),
+        _ => {}
+    }
+}
+
+fn handle_career_key(app: &mut App, code: KeyCode) {
+    match code {
+        KeyCode::Esc | KeyCode::Char('g' | 'G' | 'q') => app.close_careers(),
+        KeyCode::Down | KeyCode::Char('j') => app.career_down(),
+        KeyCode::Up | KeyCode::Char('k') => app.career_up(),
+        KeyCode::Enter | KeyCode::Char(' ') => app.toggle_target_career(),
         _ => {}
     }
 }
@@ -210,6 +221,7 @@ fn handle_track_key(app: &mut App, code: KeyCode) -> Flow {
         KeyCode::Char('p' | 'P') => app.start_placement(),
         KeyCode::Char('h' | 'H') => app.reveal_hint(),
         KeyCode::Char('r' | 'R') => app.start_review(),
+        KeyCode::Char('g' | 'G') => app.open_careers(),
         KeyCode::PageDown => app.scroll_detail_down(),
         KeyCode::PageUp => app.scroll_detail_up(),
         _ => {}

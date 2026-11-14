@@ -243,8 +243,9 @@ impl App {
                     .placement_confirmations(track, node, Self::today())
             })
             .unwrap_or_default();
+        let next = self.next_step_after(&track_id, &node_id);
         if confirmations.is_empty() {
-            return format!(" +{xp} XP.");
+            return format!(" +{xp} XP.{next}");
         }
         let count = confirmations.len();
         let bonus: u32 = confirmations
@@ -257,7 +258,24 @@ impl App {
         for confirmation in confirmations {
             self.record(confirmation);
         }
-        format!(" +{xp} XP. 🥋 Belt Exam passed: {count} skipped nodes confirmed, +{bonus} XP.")
+        format!(
+            " +{xp} XP. 🥋 Belt Exam passed: {count} skipped nodes confirmed, +{bonus} XP.{}",
+            self.next_step_after(&track_id, &node_id)
+        )
+    }
+
+    /// The next-step hint, shown only when a checkpoint closed its phase.
+    fn next_step_after(&self, track_id: &str, node_id: &str) -> String {
+        let is_checkpoint = self
+            .catalog
+            .track(track_id)
+            .and_then(|track| track.node(node_id))
+            .is_some_and(|node| node.kind == dojo_core::NodeKind::Checkpoint);
+        if is_checkpoint {
+            self.next_step_hint()
+        } else {
+            String::new()
+        }
     }
 
     /// After a failed quiz: if it was the Belt Exam, skipped nodes that teach a missed

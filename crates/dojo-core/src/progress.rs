@@ -33,6 +33,8 @@ pub struct Settings {
     /// Source language used to pick the Rosetta bridge of each node.
     pub bridge_from: String,
     pub streak_baseline: StreakBaseline,
+    /// The career path the learner aims at; it steers the recommendations.
+    pub target_career: Option<String>,
 }
 
 impl Settings {
@@ -42,6 +44,7 @@ impl Settings {
             active_track_id: active_track_id.to_string(),
             bridge_from: DEFAULT_SOURCE_LANGUAGE.to_string(),
             streak_baseline: StreakBaseline::default(),
+            target_career: None,
         }
     }
 }
@@ -482,6 +485,44 @@ impl Profile {
             .collect();
         due.sort_by_key(|item| (item.card.step, item.card.due));
         due
+    }
+
+    /// Skills of the questions whose last review answer was wrong, plus the skills of
+    /// the nodes they come from.
+    pub fn weak_skills(&self, track: &Track) -> HashSet<String> {
+        let mut weak = HashSet::new();
+        for ((track_id, node_id, question_id), card) in &self.cards {
+            if track_id != &track.id || card.step != 0 {
+                continue;
+            }
+            let Some(node) = track.node(node_id) else {
+                continue;
+            };
+            weak.extend(node.skills().map(str::to_string));
+            if let Some(question) = node
+                .quiz
+                .iter()
+                .flat_map(|quiz| quiz.questions.iter())
+                .find(|question| &question.id == question_id)
+            {
+                weak.extend(question.skills.iter().cloned());
+            }
+        }
+        weak
+    }
+
+    /// Mean difficulty of the completed nodes of a track; 1 when none is done.
+    pub fn average_difficulty(&self, track: &Track) -> f64 {
+        let done: Vec<f64> = track
+            .nodes()
+            .filter(|node| self.is_completed(&track.id, &node.id))
+            .map(|node| f64::from(node.difficulty))
+            .collect();
+        if done.is_empty() {
+            1.0
+        } else {
+            done.iter().sum::<f64>() / done.len() as f64
+        }
     }
 
     /// The next day something comes up for review, if anything does.

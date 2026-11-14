@@ -1,0 +1,27 @@
+id: rust-systems-engineer
+title: "Rust Systems Engineer"
+summary: "Write fast, safe software close to the machine: CLIs, services and tools in Rust."
+roles: [Rust Developer, Systems Engineer, Infrastructure Engineer]
+stages:
+  - id: s1
+    title: "Rust foundations"
+    requires:
+      - { track: rust, phase: p2 }
+  - id: s2
+    title: "The working environment"
+    requires:
+      - { track: git, phase: p2 }
+      - { track: linux, phase: p2 }
+      - { track: docker, phase: p2 }
+  - id: s3
+    title: "Advanced Rust and algorithms"
+    requires:
+      - { track: rust, phase: p4 }
+      - { skill: rust.concurrency, min: 1 }
+      - { track: datastructures-and-algorithms, phase: p2 }
+  - id: s4
+    title: "Systems at scale"
+    requires:
+      - { track: system-design, phase: p3 }
+      - { track: computer-science, phase: p3 }
+next_paths: [backend-to-microservices, backend-to-devops-cloud]

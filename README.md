@@ -4,7 +4,7 @@ A gamified learning platform for the terminal (TUI), written in **Rust** with [`
 
 29 tracks inspired by the [roadmap.sh](https://roadmap.sh/) catalogue, each organised in five phases (First Steps → Fundamentals → Intermediate → Advanced → Mastery) with checkpoints, XP belts, a global daily streak and a **Rosetta bridge** that explains every concept from the programming language you already know.
 
-> **Status: v2 milestone M7a.** Content model and validator (M0), SQLite progress (M1), katas checked in Docker (M2a), the complete Rust track (M2b: 22 nodes, 7 katas, Checkpoints 1 and 2), the placement test with Belt Exam (M3+M4: press `P` on a track you have not started) and mentoring without AI (M7a: kata hints with `H`, spaced review with `R`). The 29 tracks are English drafts (106 nodes). Career paths and recommendations (M7b) come next; AI review (M5) is postponed — see [`docs/architecture.md`](docs/architecture.md).
+> **Status: v2 milestone M7.** Content model and validator (M0), SQLite progress (M1), katas checked in Docker (M2a), the complete Rust track (M2b: 22 nodes, 7 katas, Checkpoints 1 and 2), the placement test with Belt Exam (M3+M4: press `P` on a track you have not started) and mentoring without AI (M7: kata hints with `H`, spaced review with `R`, career paths and next steps with `G`). The 29 tracks are English drafts (106 nodes). Content review and the Docker track come next; AI review (M5) is postponed — see [`docs/architecture.md`](docs/architecture.md).
 
 ## Run
 

@@ -39,6 +39,7 @@ pub enum Screen {
     Quiz,
     Setup,
     Placement,
+    Career,
 }
 
 /// Everything the TUI shows and the actions it can take. Rendering lives in `ui`.
@@ -49,6 +50,8 @@ pub struct App {
     pub screen: Screen,
     pub tree: TrackTree,
     pub selector_cursor: usize,
+    /// Highlighted career on the career screen.
+    pub career_cursor: usize,
     pub status_message: Option<String>,
     /// Lines scrolled in the detail panel (PageUp/PageDown).
     pub detail_scroll: u16,
@@ -110,6 +113,7 @@ impl App {
             mode,
             screen: Screen::TrackView,
             selector_cursor: active_track,
+            career_cursor: 0,
             status_message: None,
             detail_scroll: 0,
             quiet_kata: None,
@@ -262,7 +266,7 @@ impl App {
         self.save_settings();
     }
 
-    fn save_settings(&mut self) {
+    pub(crate) fn save_settings(&mut self) {
         if let Err(error) = self.store.save_settings(&self.profile.settings) {
             self.status_message = Some(format!("⚠ Could not save settings: {error}"));
         }
