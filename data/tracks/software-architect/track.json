@@ -1,0 +1,102 @@
+{
+  "id": "software-architect",
+  "name": "Software Architecture (roadmap.sh/software-architect)",
+  "category": "Arquitetura & Engenharia",
+  "description": "Domain-Driven Design (DDD), Clean Architecture, Hexagonal, CQRS, Sagas e Microsserviços Resilientes.",
+  "icon": "📐",
+  "belts": [
+    { "name": "Faixa Branca", "required_xp": 0, "title": "Spaghetti Untangler" },
+    { "name": "Faixa Amarela", "required_xp": 300, "title": "SOLID Craftsman" },
+    { "name": "Faixa Verde", "required_xp": 800, "title": "Clean Architecture Disciple" },
+    { "name": "Faixa Roxa", "required_xp": 1500, "title": "Bounded Context Navigator" },
+    { "name": "Faixa Marrom", "required_xp": 2500, "title": "Event-Driven Strategist" },
+    { "name": "Faixa Preta", "required_xp": 4000, "title": "Enterprise System Architect" },
+    { "name": "Sensei", "required_xp": 6000, "title": "Grand Domain Master" }
+  ],
+  "nodes": [
+    {
+      "id": "arch-01-solid-modern",
+      "section": "Fundamentos de Design",
+      "title": "SOLID Revisitado & Baixo Acoplamento",
+      "description": "Como aplicar SOLID de forma pragmática sem criar 15 classes vazias para um CRUD.",
+      "prerequisites": [],
+      "xp": 100,
+      "rosetta": {
+        "concept": "Princípios de Design Orientado a Objetos",
+        "java_way": "Criar `UserServiceImpl` implementando `UserService` só por obrigação cerimonial de código.",
+        "rust_way": "Inversão de Dependência genuína: o domínio central dita as regras e define Traits/Interfaces; adaptadores externos (banco, HTTP) as implementam.",
+        "sensei_tip": "Acoplamento não é sobre ter referências; é sobre o custo de mudança: se alterar o schema do banco quebra sua regra de negócio, seu acoplamento está perigoso."
+      }
+    },
+    {
+      "id": "arch-02-clean-hexagonal",
+      "section": "Estilos Arquiteturais",
+      "title": "Arquitetura Hexagonal (Ports & Adapters)",
+      "description": "Isolando o núcleo de regras de negócio de frameworks, bibliotecas e bancos de dados.",
+      "prerequisites": ["arch-01-solid-modern"],
+      "xp": 250,
+      "rosetta": {
+        "concept": "Separação de Preocupações & Portas",
+        "java_way": "Anotar entidades do domínio diretamente com `@Entity` e `@Table` do JPA/Hibernate, acoplando a regra ao ORM.",
+        "rust_way": "Entidades de domínio puras sem dependência externa. O banco de dados é apenas um Adaptador secundário que implementa uma Porta (Trait).",
+        "sensei_tip": "Regra de ouro: se você trocar Spring Boot por outro framework ou trocar Postgres por DynamoDB, zero linhas da sua pasta de domínio devem ser alteradas."
+      }
+    },
+    {
+      "id": "arch-03-ddd-strategic",
+      "section": "Domain-Driven Design",
+      "title": "DDD Estratégico: Linguagem Ubíqua e Bounded Contexts",
+      "description": "Modelando os limites reais do negócio antes de escrever qualquer linha de código.",
+      "prerequisites": ["arch-02-clean-hexagonal"],
+      "xp": 300,
+      "rosetta": {
+        "concept": "Fronteiras de Modelagem",
+        "java_way": "Um único objeto `User` gigante com 40 colunas compartilhado por Auth, Faturamento, Suporte e Vendas.",
+        "rust_way": "Bounded Contexts: No contexto de Vendas, o cliente é um `Buyer`; no contexto de Faturamento, é um `BillingAccount`. Modelos distintos para problemas distintos.",
+        "sensei_tip": "Nunca crie um 'Modelo Canônico Único' para toda a empresa. Isso gera um monolito distribuído amarrado."
+      }
+    },
+    {
+      "id": "arch-04-ddd-tactical",
+      "section": "Domain-Driven Design",
+      "title": "DDD Tático: Entities, Value Objects e Aggregates",
+      "description": "Garantindo invariantes de negócio e consistência transacional atômica.",
+      "prerequisites": ["arch-03-ddd-strategic"],
+      "xp": 350,
+      "rosetta": {
+        "concept": "Invariantes e Agregados",
+        "java_way": "Setters públicos soltos (`order.setStatus('PAID')`) permitindo que qualquer camada coloque o objeto em estado inválido.",
+        "rust_way": "Value Objects imutáveis (ex: `Money`, `Email`). Agregados controlam a raiz e protegem suas próprias regras internas via métodos ricos (`order.pay(paymentInfo)`).",
+        "sensei_tip": "Um Agregado deve ser pequeno e representar o menor limite de consistência transacional do seu banco."
+      }
+    },
+    {
+      "id": "arch-05-cqrs-outbox",
+      "section": "Padrões de Dados Avançados",
+      "title": "CQRS e o Padrão Transactional Outbox",
+      "description": "Separando escrita de leitura e publicando eventos para o Kafka com garantia transacional.",
+      "prerequisites": ["arch-04-ddd-tactical"],
+      "xp": 400,
+      "rosetta": {
+        "concept": "Dual-Write Problem",
+        "java_way": "Salvar no banco relacional e logo em seguida disparar mensagem no Kafka na mesma requisição (se o Kafka falhar, os dados ficam dessincronizados).",
+        "rust_way": "Transactional Outbox: Salva a entidade e o evento na mesma transação ACID do banco. Um processo de background lê a tabela de outbox e publica no broker com retry confiável.",
+        "sensei_tip": "CQRS não precisa de bancos diferentes! Você pode ter o mesmo Postgres com tabelas normais para escrita e Views ou tabelas desnormalizadas para leituras ultra rápidas."
+      }
+    },
+    {
+      "id": "arch-06-saga-resilience",
+      "section": "Consistência Distribuída",
+      "title": "Padrão Saga e Compensações em Microsserviços",
+      "description": "Como coordenar transações de negócio entre múltiplos serviços sem 2-Phase Commit.",
+      "prerequisites": ["arch-05-cqrs-outbox"],
+      "xp": 450,
+      "rosetta": {
+        "concept": "Rollback Distribuído",
+        "java_way": "Tentar usar transações distribuídas XA/2PC lentas que travam conexões em rede.",
+        "rust_way": "Saga: Uma sequência de transações locais. Se o passo 3 falhar, o coordenador dispara transações de compensação (ex: estornar pagamento, cancelar reserva).",
+        "sensei_tip": "Escolha entre Coreografia (orientado a eventos simples) para fluxos de até 3 serviços; use Orquestração (com uma máquina de estados central) para fluxos mais complexos."
+      }
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "id": "rust",
+  "name": "Rust (roadmap.sh/rust)",
+  "category": "Linguagens & Sistemas",
+  "description": "Domine a linguagem de sistemas sem medo do borrow checker e sem garbage collector.",
+  "icon": "🦀",
+  "belts": [
+    { "name": "Faixa Branca", "required_xp": 0, "title": "Java Refugee" },
+    { "name": "Faixa Amarela", "required_xp": 300, "title": "Borrow Apprentice" },
+    { "name": "Faixa Verde", "required_xp": 800, "title": "Pattern Matcher" },
+    { "name": "Faixa Roxa", "required_xp": 1500, "title": "Trait Master" },
+    { "name": "Faixa Marrom", "required_xp": 2500, "title": "Pointer Alchemist" },
+    { "name": "Faixa Preta", "required_xp": 4000, "title": "Fearless Concurrency Master" },
+    { "name": "Sensei", "required_xp": 6000, "title": "Ferris Ascended" }
+  ],
+  "nodes": [
+    {
+      "id": "rust-01-setup",
+      "section": "Fundamentos do Tatame",
+      "title": "Cargo, Rustc e Toolchain",
+      "description": "O ecossistema do Rust: como compilar, rodar testes e gerenciar dependências.",
+      "prerequisites": [],
+      "xp": 100,
+      "rosetta": {
+        "concept": "Build Tool & Package Manager",
+        "java_way": "Maven (pom.xml) ou Gradle (build.gradle) com múltiplos plugins e complexidade XML/Groovy/Kotlin.",
+        "rust_way": "Cargo (Cargo.toml). Cargo é compilador, gerenciador de dependências, test runner e linter (clippy) tudo em um só binário.",
+        "sensei_tip": "No Java você roda `mvn test` ou `gradle test`. No Rust é simplesmente `cargo test`. Rápido e padronizado por toda a comunidade."
+      }
+    },
+    {
+      "id": "rust-02-variables-mutability",
+      "section": "Fundamentos do Tatame",
+      "title": "Variáveis, Imutabilidade e Shadowing",
+      "description": "Por que tudo em Rust é imutável por padrão e o poder do Shadowing.",
+      "prerequisites": ["rust-01-setup"],
+      "xp": 100,
+      "rosetta": {
+        "concept": "Imutabilidade por padrão",
+        "java_way": "Tudo é mutável por padrão a menos que você marque como `final`. E mesmo com `final`, objetos internos podem ser mutados.",
+        "rust_way": "`let x = 5;` é 100% imutável. Para permitir mutação, você DEVE declarar explicitamente `let mut x = 5;`.",
+        "sensei_tip": "Rust tem 'Shadowing': você pode redeclarar `let x = \"42\";` e depois `let x: i32 = x.parse().unwrap();` reaproveitando o nome sem criar variáveis temporárias feias como `xStr`."
+      }
+    },
+    {
+      "id": "rust-03-ownership-basics",
+      "section": "A Arte do Desapego",
+      "title": "Ownership: O Fim do Garbage Collector",
+      "description": "A regra de ouro: cada valor tem exatamente um dono. Quando o dono sai de escopo, a memória é liberada (Drop).",
+      "prerequisites": ["rust-02-variables-mutability"],
+      "xp": 250,
+      "rosetta": {
+        "concept": "Gerenciamento de Memória (Sem GC)",
+        "java_way": "Objetos são alocados na Heap via `new`. O Garbage Collector varre a memória periodicamente e limpa objetos inacessíveis com pausas de stop-the-world.",
+        "rust_way": "Sem Garbage Collector. Alocação na Stack por padrão. Strings na Heap têm UM único proprietário. Ao sair de escopo (`}`), o Rust chama `drop()` determinístico instantaneamente.",
+        "sensei_tip": "Aqui ocorre o 'Move': passar uma String para um método transfere a posse. O chamador perde o acesso em tempo de compilação! Se tentar usar depois, o compilador te bloqueia."
+      }
+    },
+    {
+      "id": "rust-04-borrowing-references",
+      "section": "A Arte do Desapego",
+      "title": "Borrowing: Empréstimos & Referências (& e &mut)",
+      "description": "Como emprestar dados sem transferir ownership: as regras de referências imutáveis vs mutáveis.",
+      "prerequisites": ["rust-03-ownership-basics"],
+      "xp": 250,
+      "rosetta": {
+        "concept": "Passagem por Referência vs Aliasing",
+        "java_way": "Passa ponteiros para objetos livremente. Múltiplas threads ou métodos podem alterar o mesmo objeto ao mesmo tempo, gerando race conditions e bugs misteriosos.",
+        "rust_way": "Regra dos Leitores/Escritor: Você pode ter infinitas referências imutáveis (`&T`) OU apenas UMA referência mutável (`&mut T`), NUNCA ambas ao mesmo tempo.",
+        "sensei_tip": "Essa regra simples em tempo de compilação elimina 99% dos data races e bugs de ponteiro nulo da história da computação."
+      }
+    },
+    {
+      "id": "rust-05-structs-enums",
+      "section": "Modelagem sem Classes",
+      "title": "Structs, Enums e Pattern Matching",
+      "description": "Adeus herança de classes! Como modelar domínio com Structs e Enums algébricos (Tagged Unions).",
+      "prerequisites": ["rust-04-borrowing-references"],
+      "xp": 200,
+      "rosetta": {
+        "concept": "Modelagem de Dados e Polimorfismo",
+        "java_way": "Classes abstratas, herança (`extends`), Enums simples (ou Records) e hierarquia de objetos pesada.",
+        "rust_way": "Structs contêm dados puros. Enums podem carregar valores diferentes dentro de cada variante (`enum WebEvent { PageLoad, KeyPress(char), Click { x: i64, y: i64 } }`).",
+        "sensei_tip": "O `match` do Rust é exaustivo: se você adicionar uma nova variante no Enum, o compilador quebra em todos os lugares onde você esqueceu de tratar!"
+      }
+    },
+    {
+      "id": "rust-06-option-result",
+      "section": "Modelagem sem Classes",
+      "title": "Sem Null, Sem Exceptions: Option & Result",
+      "description": "Tratamento de erros idiomático com Result<T, E> e operador `?`.",
+      "prerequisites": ["rust-05-structs-enums"],
+      "xp": 200,
+      "rosetta": {
+        "concept": "Null Safety e Erros",
+        "java_way": "`null` (o erro de 1 bilhão de dólares) causando `NullPointerException`, além de `try/catch` para Checked/Unchecked Exceptions.",
+        "rust_way": "Não existe `null`. Existe `Option<T>` (`Some(T)` ou `None`). Não existem exceptions. Erros são valores normais: `Result<T, E>` (`Ok(T)` ou `Err(E)`).",
+        "sensei_tip": "O operador `?` propaga o erro para quem chamou em uma linha, muito mais limpo que blocos aninhados de `try/catch`."
+      }
+    },
+    {
+      "id": "rust-07-traits-generics",
+      "section": "Maestria de Comportamento",
+      "title": "Traits: As Interfaces com Superpoderes",
+      "description": "Definindo comportamento compartilhado, trait bounds e monomorphization.",
+      "prerequisites": ["rust-06-option-result"],
+      "xp": 300,
+      "rosetta": {
+        "concept": "Interfaces vs Traits",
+        "java_way": "`interface Flyable { void fly(); }`. Para uma classe implementar, deve declarar `implements` no momento da criação da classe.",
+        "rust_way": "`trait Flyable { fn fly(&self); }`. Você pode implementar uma Trait para qualquer tipo existente — até tipos da stdlib como `i32`!",
+        "sensei_tip": "Traits usam despacho estático (Monomorphization) por padrão: zero custo de runtime (ao contrário das chamadas virtuais `vtable` do Java), a não ser que você peça explicitamente `dyn Trait`."
+      }
+    },
+    {
+      "id": "rust-08-smart-pointers",
+      "section": "Alocação Avançada",
+      "title": "Smart Pointers: Box, Rc, RefCell e Arc",
+      "description": "Quando a Stack não basta: alocação dinâmica, contagem de referências e mutabilidade interior.",
+      "prerequisites": ["rust-07-traits-generics"],
+      "xp": 350,
+      "rosetta": {
+        "concept": "Contagem de Referências & Heap",
+        "java_way": "Todo objeto é implicitamente referenciado e o GC cuida do ciclo de vida.",
+        "rust_way": "`Box<T>` coloca na Heap. `Rc<T>` conta referências em thread única. `Arc<T>` conta referências atômicas entre threads. `RefCell<T>` valida o borrow checker em runtime.",
+        "sensei_tip": "Use `Arc<Mutex<T>>` quando precisar de estado compartilhado mutável seguro entre threads."
+      }
+    },
+    {
+      "id": "rust-09-concurrency",
+      "section": "Concorrência Destemida",
+      "title": "Threads, Channels (mpsc) e Mutex",
+      "description": "Concorrência sem data races garantida em tempo de compilação por Send e Sync.",
+      "prerequisites": ["rust-08-smart-pointers"],
+      "xp": 400,
+      "rosetta": {
+        "concept": "Multithreading & Sincronização",
+        "java_way": "Threads manuais, `synchronized`, `ReentrantLock` e o pesadelo de race conditions silenciosas.",
+        "rust_way": "As traits `Send` e `Sync` impedem que dados não seguros atravessem threads. Channels (`mpsc`) permitem comunicação por passagem de mensagens.",
+        "sensei_tip": "O lema do Rust: 'Não comunique compartilhando memória; compartilhe memória comunicando'."
+      }
+    },
+    {
+      "id": "rust-10-async-tokio",
+      "section": "Concorrência Destemida",
+      "title": "Async/Await e Tokio Runtime",
+      "description": "I/O não bloqueante de altíssima performance para microserviços e redes.",
+      "prerequisites": ["rust-09-concurrency"],
+      "xp": 450,
+      "rosetta": {
+        "concept": "Async I/O & Event Loop",
+        "java_way": "Threads do OS pesadas, ou `CompletableFuture` e Project Loom (Virtual Threads).",
+        "rust_way": "Futures no Rust são lazy (não fazem nada até serem esperadas com `.await`). Sem alocação oculta. Runtimes como `tokio` orquestram milhares de tarefas leves.",
+        "sensei_tip": "Em Rust, cancelar uma tarefa assíncrona é tão simples quanto dropar a Future (`drop(future)`)."
+      }
+    }
+  ]
+}

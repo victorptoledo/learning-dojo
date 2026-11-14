@@ -1,0 +1,102 @@
+{
+  "id": "system-design",
+  "name": "System Design (roadmap.sh/system-design)",
+  "category": "Arquitetura & Escala",
+  "description": "Projete sistemas de altíssima escala, resiliência distribuída, caching, bancos particionados e mensageria.",
+  "icon": "🏛️",
+  "belts": [
+    { "name": "Faixa Branca", "required_xp": 0, "title": "Monolith Builder" },
+    { "name": "Faixa Amarela", "required_xp": 300, "title": "Cache Master" },
+    { "name": "Faixa Verde", "required_xp": 800, "title": "Sharding Specialist" },
+    { "name": "Faixa Roxa", "required_xp": 1500, "title": "Message Queue Wrangler" },
+    { "name": "Faixa Marrom", "required_xp": 2500, "title": "High Availability Guru" },
+    { "name": "Faixa Preta", "required_xp": 4000, "title": "Distributed Systems Titan" },
+    { "name": "Sensei", "required_xp": 6000, "title": "Staff+ Infrastructure Architect" }
+  ],
+  "nodes": [
+    {
+      "id": "sys-01-dns-cdn",
+      "section": "Borda & Rede",
+      "title": "DNS, Anycast e CDNs de Borda",
+      "description": "Como o tráfego atinge seus servidores a partir do usuário global com baixa latência.",
+      "prerequisites": [],
+      "xp": 100,
+      "rosetta": {
+        "concept": "Roteamento e Caching na Borda",
+        "java_way": "Pensar na aplicação Java recebendo requests diretos no Tomcat ou Spring Boot.",
+        "rust_way": "90% das requisições estáticas nem chegam ao backend: são servidas por PoPs de CDN (Cloudflare/CloudFront) usando roteamento Anycast.",
+        "sensei_tip": "Configure headers `Cache-Control: public, max-age=...` e invalidação inteligente de cache via webhooks/tags para reduzir custos de infraestrutura em 80%."
+      }
+    },
+    {
+      "id": "sys-02-load-balancing",
+      "section": "Distribuição de Carga",
+      "title": "Load Balancers (L4 vs L7) e Consistent Hashing",
+      "description": "Distribuição inteligente de tráfego, health checks e algoritmos de balanceamento.",
+      "prerequisites": ["sys-01-dns-cdn"],
+      "xp": 200,
+      "rosetta": {
+        "concept": "Camada de Transporte vs Aplicação",
+        "java_way": "Apenas colocar um Nginx básico fazendo round-robin na frente das instâncias Java.",
+        "rust_way": "L4 (TCP/UDP, ex: AWS NLB) roteia milhões de pacotes brutos. L7 (HTTP, ex: ALB/Envoy) lê headers, cookies e URLs para roteamento inteligente de microsserviços.",
+        "sensei_tip": "Quando precisar manter sessões sem estado compartilhado no banco, use **Consistent Hashing**: apenas $1/N$ chaves são remapeadas quando um nó cai."
+      }
+    },
+    {
+      "id": "sys-03-caching-strategies",
+      "section": "Armazenamento & Performance",
+      "title": "Estratégias de Cache (Redis) e Políticas de Expiração",
+      "description": "Cache-Aside, Write-Through, Write-Behind e políticas de desalocação (LRU/LFU).",
+      "prerequisites": ["sys-02-load-balancing"],
+      "xp": 250,
+      "rosetta": {
+        "concept": "Invalidação e Consistência de Cache",
+        "java_way": "Usar anotações como `@Cacheable` do Spring sem entender o que acontece na falha de rede do Redis.",
+        "rust_way": "Projetar a estratégia explicitamente: Cache-Aside para leituras pesadas, Write-Through para consistência crítica. Prevenir Cache Avalanche adicionando jitter ao TTL.",
+        "sensei_tip": "Cuidado com o 'Cache Stampede' (Thundering Herd): quando uma chave muito acessada expira, milhares de threads atacam o banco ao mesmo tempo. Use mutex distribuído ou pre-warming."
+      }
+    },
+    {
+      "id": "sys-04-databases-replication-sharding",
+      "section": "Bancos de Dados",
+      "title": "Replicação, Sharding Horizontal e Particionamento",
+      "description": "Como escalar bancos de dados relacionais e não-relacionais além de um único servidor.",
+      "prerequisites": ["sys-03-caching-strategies"],
+      "xp": 350,
+      "rosetta": {
+        "concept": "Escala de Dados: Vertical vs Horizontal",
+        "java_way": "Aumentar a máquina do Postgres/MySQL (Scale-up) e rezar para as conexões do HikariCP aguentarem.",
+        "rust_way": "Separar leituras (Read Replicas) de escritas (Primary). Particionar tabelas gigantescas horizontalmente (Sharding por tenant_id ou user_id).",
+        "sensei_tip": "O maior perigo do Sharding é escolher uma 'Shard Key' ruim: você cria um *Hot Partition* que sobrecarrega um único servidor enquanto os outros ficam ociosos."
+      }
+    },
+    {
+      "id": "sys-05-cap-pacelc",
+      "section": "Sistemas Distribuídos",
+      "title": "Teorema CAP, PACELC e Consistência Eventual",
+      "description": "Os limites fundamentais da física de redes: Consistência vs Disponibilidade em partições de rede.",
+      "prerequisites": ["sys-04-databases-replication-sharding"],
+      "xp": 400,
+      "rosetta": {
+        "concept": "Trade-offs Teóricos de Redes",
+        "java_way": "Assumir transações ACID locais perfeitas (`@Transactional`) para tudo.",
+        "rust_way": "Em redes distribuídas, partições ocorrem inevitavelmente (P). Você DEVE escolher entre Consistência (C) ou Disponibilidade (A).",
+        "sensei_tip": "O teorema PACELC é mais realista que o CAP: mesmo quando NÃO há partição (Else), há um trade-off permanente entre Latência (L) e Consistência (C)."
+      }
+    },
+    {
+      "id": "sys-06-message-queues-events",
+      "section": "Comunicação Assíncrona",
+      "title": "Mensageria, Apache Kafka e Padrões de Eventos",
+      "description": "Desacoplamento assíncrono, processamento de streams, partições do Kafka e idempotência.",
+      "prerequisites": ["sys-05-cap-pacelc"],
+      "xp": 450,
+      "rosetta": {
+        "concept": "Filas vs Logs de Eventos",
+        "java_way": "Chamar outros serviços sincronamente via REST/Feign client em cadeia (HTTP sobre HTTP).",
+        "rust_way": "Event-Driven: Serviços publicam eventos em tópicos particionados (Kafka). Consumidores leem na sua própria velocidade sem derrubar o produtor.",
+        "sensei_tip": "Garantir 'Exactly-Once' na rede é uma ilusão cara. O padrão da indústria é **At-Least-Once Delivery + Consumidor Idempotente** (usando chaves de unicidade / Outbox Pattern)."
+      }
+    }
+  ]
+}
