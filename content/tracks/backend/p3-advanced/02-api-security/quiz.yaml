@@ -1,0 +1,36 @@
+questions:
+  - id: bola
+    prompt: "A user changes /invoices/1043 to /invoices/1044 and sees another customer's invoice. Which risk is this?"
+    answers: ["BOLA", "broken object level authorization", "broken object-level authorization", "IDOR"]
+    explanation: "Every object access must check that the caller may access that object."
+  - id: mass-assignment
+    prompt: "A client sends {\"name\": \"Ada\", \"role\": \"ADMIN\"} and becomes an admin. What prevents this?"
+    options:
+      - "Validating the name"
+      - "Binding requests to input records that only contain fields the client may set"
+      - "HTTPS"
+    answer: 1
+    explanation: "Mass assignment happens when requests bind directly onto entities."
+  - id: resource
+    prompt: "GET /orders?size=1000000 makes the service run out of memory. Which fix?"
+    options: ["More memory", "A maximum page size, answering 400 above it", "Caching the response"]
+    answer: 1
+    explanation: "Limit page sizes, bodies, uploads and rates to stop resource exhaustion."
+  - id: ssrf
+    prompt: "An endpoint downloads an image from a URL the client sends. What attack must you prevent?"
+    options: ["SQL injection", "Server-side request forgery to internal addresses", "Cross-site scripting"]
+    answer: 1
+    explanation: "Allow-list destinations and block private and metadata addresses."
+  - id: cors
+    prompt: "Which CORS setting is dangerous?"
+    options:
+      - "A fixed list of allowed origins"
+      - "Reflecting any Origin header back together with Access-Control-Allow-Credentials: true"
+      - "Allowing only GET from a public site"
+    answer: 1
+    explanation: "It lets any website make authenticated requests on the user's behalf."
+  - id: secrets
+    prompt: "Where should an API key for a payment provider live?"
+    options: ["In application.properties in git", "In the environment or a secret manager", "In a comment"]
+    answer: 1
+    explanation: "Secrets stay out of the repository, logs and URLs."

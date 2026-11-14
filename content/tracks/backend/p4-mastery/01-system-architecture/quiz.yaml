@@ -1,0 +1,33 @@
+questions:
+  - id: start
+    prompt: "A new product with one team of six. Which architecture is usually the best start?"
+    options: ["Twenty microservices", "A modular monolith", "Event sourcing everywhere"]
+    answer: 1
+    explanation: "One deployable with enforced boundaries keeps things simple and ready to split later."
+  - id: bounded-context
+    prompt: "What does a bounded context own?"
+    options: ["Nothing; data is shared", "Its own model, language and data", "Only its user interface"]
+    answer: 1
+    explanation: "Each context owns its data; others use its API or events."
+  - id: async
+    prompt: "What is the main benefit of asynchronous events between services?"
+    options:
+      - "Immediate consistency"
+      - "The publisher does not depend on consumers being up or fast"
+      - "Fewer moving parts"
+    answer: 1
+    explanation: "Events decouple availability and scaling, at the cost of eventual consistency."
+  - id: saga
+    prompt: "Payment fails after stock was reserved in another service. What does a saga do?"
+    answers: ["runs a compensating action", "releases the stock", "compensate", "a compensating transaction"]
+    explanation: "Each step has a compensation; release the stock to undo the reservation."
+  - id: orchestration
+    prompt: "What is an advantage of orchestrating a saga over choreographing it?"
+    options: ["No coordinator to run", "The flow is explicit in one place, easier to change and observe", "It needs no idempotency"]
+    answer: 1
+    explanation: "Choreography spreads the flow across services; orchestration makes it visible."
+  - id: adr
+    prompt: "What does an ADR record?"
+    options: ["Test results", "The context, options, decision and consequences of an architecture choice", "Deployment logs"]
+    answer: 1
+    explanation: "Architecture decision records keep the why of decisions for later readers."

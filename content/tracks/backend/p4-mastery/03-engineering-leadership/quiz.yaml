@@ -1,0 +1,33 @@
+questions:
+  - id: design-doc
+    prompt: "Which section helps reviewers most to challenge a design?"
+    options: ["The author's biography", "Alternatives considered and why they lost", "A list of every class"]
+    answer: 1
+    explanation: "Showing the options and trade-offs invites the right questions."
+  - id: review-order
+    prompt: "What should a code review look at first?"
+    options: ["Formatting and naming", "Correctness and safety: security, data loss, concurrency", "Whether you would have written it the same way"]
+    answer: 1
+    explanation: "Correctness and safety matter most; style is for formatters and linters."
+  - id: small-prs
+    prompt: "Why prefer small pull requests?"
+    options: ["They look busier", "They get real reviews and are easier to roll back", "Git requires it"]
+    answer: 1
+    explanation: "Large changes get rubber-stamped and hide problems."
+  - id: debt-interest
+    prompt: "Which technical debt should usually be paid first?"
+    options: ["Debt in code that never changes", "Debt in code the team changes every week", "The oldest debt"]
+    answer: 1
+    explanation: "Debt in frequently changed code charges interest on every change."
+  - id: on-call
+    prompt: "An on-call engineer is paged five times a night every week. What is the right response?"
+    answers: ["fix the alerts or the system", "improve the system and the alerts", "reduce the noise"]
+    explanation: "Frequent pages mean noisy alerts or a fragile system; reserve time to fix them."
+  - id: business
+    prompt: "How should you argue for a database migration to the business?"
+    options:
+      - "\"We need to shard, trust us\""
+      - "In terms of risk, cost and time, with options and a recommendation"
+      - "By starting it without telling anyone"
+    answer: 1
+    explanation: "Translate technical needs into outcomes the business can weigh."

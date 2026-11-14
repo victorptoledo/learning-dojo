@@ -1,0 +1,295 @@
+# Placement test of the Backend Developer track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How much backend work have you done?
+  options:
+    - { label: "None yet", start_phase: p0, test: false }
+    - { label: "I build CRUD APIs with a database", start_phase: p1, test: true }
+    - { label: "I run services in production (caching, queues, incidents)", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-get-state
+    phase: p1
+    skills: [backend.protocols]
+    difficulty: 2
+    prompt: "A link in an email is GET /subscriptions/42/unsubscribe and it unsubscribes the user. Why is that a problem?"
+    options:
+      - "GET cannot have path segments"
+      - "GET must be safe: mail scanners and prefetchers follow links and would unsubscribe users"
+      - "It should be a PUT"
+    answer: 1
+    explanation: "State changes need a non-safe method (or a confirmation page that POSTs)."
+  - id: p1-304
+    phase: p1
+    skills: [backend.protocols]
+    difficulty: 3
+    prompt: "Which request header lets a client revalidate a cached response using its ETag?"
+    answers: ["If-None-Match", "if-none-match"]
+    explanation: "If-None-Match with the ETag returns 304 Not Modified when nothing changed."
+  - id: p1-503
+    phase: p1
+    skills: [backend.protocols]
+    difficulty: 2
+    prompt: "A service is overloaded for a moment. Which status and header invite clients to come back later?"
+    options: ["500 Internal Server Error", "503 Service Unavailable with Retry-After", "404 Not Found"]
+    answer: 1
+    explanation: "503 with Retry-After signals a temporary condition worth retrying later."
+  - id: p1-resource
+    phase: p1
+    skills: [backend.api-design]
+    difficulty: 2
+    prompt: "How do you design 'approve expense report 9' in a REST API?"
+    options: ["GET /approveReport?id=9", "POST /expense-reports/9/approval", "PUT /approve/9/now"]
+    answer: 1
+    explanation: "Model the action as a sub-resource you create with POST."
+  - id: p1-cursor
+    phase: p1
+    skills: [backend.api-design]
+    difficulty: 3
+    prompt: "Deep pages of a 50-million-row feed are slow with ?page=40000. What pagination style fixes it?"
+    answers: ["cursor", "cursor pagination", "keyset", "keyset pagination"]
+    explanation: "A cursor continues after the last seen key with an indexed range scan."
+  - id: p1-additive
+    phase: p1
+    skills: [backend.api-design]
+    difficulty: 3
+    prompt: "Which change can you ship without a new API version?"
+    options: ["Removing a response field", "Adding an optional field to a response", "Changing a field from number to string"]
+    answer: 1
+    explanation: "Additive changes are compatible when clients ignore unknown fields."
+  - id: p1-index
+    phase: p1
+    skills: [backend.sql]
+    difficulty: 3
+    prompt: "A frequent query is WHERE customer_id = ? ORDER BY created_at DESC LIMIT 20. Which index serves it best?"
+    options: ["(created_at)", "(customer_id, created_at)", "(created_at, customer_id)"]
+    answer: 1
+    explanation: "Equality column first, then the ordering column."
+  - id: p1-left-join
+    phase: p1
+    skills: [backend.sql]
+    difficulty: 2
+    prompt: "Which query lists customers who have never ordered?"
+    options:
+      - "select * from customers join orders on ..."
+      - "select c.* from customers c where not exists (select 1 from orders o where o.customer_id = c.id)"
+      - "select * from orders where customer_id is null"
+    answer: 1
+    explanation: "NOT EXISTS (or a LEFT JOIN with IS NULL) finds rows without a match."
+  - id: p1-jwt-read
+    phase: p1
+    skills: [backend.auth-security]
+    difficulty: 2
+    prompt: "Can a user read the claims inside their own JWT access token?"
+    options: ["No, they are encrypted", "Yes: the payload is only Base64url-encoded", "Only with the server's key"]
+    answer: 1
+    explanation: "Signed JWTs are readable by anyone; never put secrets in them."
+  - id: p1-pkce
+    phase: p1
+    skills: [backend.auth-security]
+    difficulty: 4
+    prompt: "What does PKCE protect in the OAuth2 authorization code flow?"
+    options:
+      - "The access token from being read"
+      - "The authorization code from being redeemed by someone who intercepted it"
+      - "The user's password at the API"
+    answer: 1
+    explanation: "Only the client holding the code_verifier can exchange the code for tokens."
+
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-isolation
+    phase: p2
+    skills: [backend.databases-sql-nosql]
+    difficulty: 3
+    prompt: "Under read committed, two doctors each check that someone else is on call and both go off call. Which anomaly?"
+    answers: ["write skew", "a write skew"]
+    explanation: "Each transaction's check passed on its own snapshot; together they break the rule."
+  - id: p2-for-update
+    phase: p2
+    skills: [backend.databases-sql-nosql]
+    difficulty: 3
+    prompt: "Which SQL locks a row so others wait until you commit?"
+    answers: ["select ... for update", "for update", "SELECT ... FOR UPDATE"]
+    explanation: "Pessimistic locking holds the row until the transaction ends."
+  - id: p2-stampede
+    phase: p2
+    skills: [backend.caching-queues]
+    difficulty: 3
+    prompt: "Many hot keys were cached at the same time with the same TTL and now expire together. What helps?"
+    options: ["Longer TTLs", "Adding random jitter to each TTL", "Disabling the cache"]
+    answer: 1
+    explanation: "Jitter spreads expirations so the database is not hit all at once."
+  - id: p2-queue-202
+    phase: p2
+    skills: [backend.caching-queues]
+    difficulty: 2
+    prompt: "Generating an export takes 3 minutes. What should POST /exports do?"
+    options:
+      - "Keep the connection open for 3 minutes"
+      - "Enqueue the job and answer 202 Accepted with a status URL"
+      - "Return 500 if it takes too long"
+    answer: 1
+    explanation: "Slow work goes to a queue; the client polls or is notified."
+  - id: p2-idempotency
+    phase: p2
+    skills: [backend.reliability, backend.api-design]
+    difficulty: 3
+    prompt: "Which header makes a payment POST safe for clients to retry?"
+    answers: ["Idempotency-Key", "idempotency-key"]
+    explanation: "The server stores the outcome per key and replays it for a repeated request."
+  - id: p2-token-bucket
+    phase: p2
+    skills: [backend.reliability]
+    difficulty: 3
+    prompt: "A token bucket has capacity 10 and refills 1 token per second. What does the capacity control?"
+    options: ["The sustained rate", "How large a burst is allowed", "The response time"]
+    answer: 1
+    explanation: "Capacity sets the burst; the refill rate sets the sustained limit."
+  - id: p2-outbox
+    phase: p2
+    skills: [backend.messaging]
+    difficulty: 4
+    prompt: "Why write an event to an outbox table instead of publishing it right after the database commit?"
+    options:
+      - "It is faster"
+      - "A crash between the commit and the publish would lose the event; the outbox commits both together"
+      - "Brokers cannot receive events directly"
+    answer: 1
+    explanation: "The outbox makes the change and its event atomic; a relay publishes afterwards."
+  - id: p2-dedup
+    phase: p2
+    skills: [backend.messaging]
+    difficulty: 3
+    prompt: "A consumer may receive the same event twice. What makes processing it safe?"
+    options: ["Exactly-once delivery", "Recording processed event ids in the same transaction as the effect", "Processing slowly"]
+    answer: 1
+    explanation: "Idempotent consumers turn at-least-once delivery into effectively-once processing."
+
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-sticky
+    phase: p3
+    skills: [backend.scalability]
+    difficulty: 3
+    prompt: "Why avoid sticky sessions on a load balancer?"
+    options: ["They are slower", "They keep state on instances, causing uneven load and lost sessions when an instance dies", "They need HTTP/3"]
+    answer: 1
+    explanation: "Stateless instances scale and fail more gracefully."
+  - id: p3-replica
+    phase: p3
+    skills: [backend.scalability]
+    difficulty: 4
+    prompt: "Reads go to asynchronous replicas. A user updates their address and then sees the old one. What fixes it for that user?"
+    options: ["More replicas", "Reading the user's own recent writes from the primary", "A longer TTL"]
+    answer: 1
+    explanation: "Read-your-writes consistency for that user avoids stale replica reads."
+  - id: p3-bola
+    phase: p3
+    skills: [backend.api-security]
+    difficulty: 3
+    prompt: "GET /accounts/{id}/statements loads by id only. What is missing?"
+    options: ["Caching", "A check that the account belongs to the caller", "Pagination"]
+    answer: 1
+    explanation: "Broken object-level authorization: always check ownership of the object."
+  - id: p3-ssrf
+    phase: p3
+    skills: [backend.api-security]
+    difficulty: 4
+    prompt: "A webhook URL field accepts http://169.254.169.254/latest/meta-data. What is the risk?"
+    answers: ["SSRF", "server-side request forgery", "server side request forgery"]
+    explanation: "The server would fetch internal or cloud metadata addresses for the attacker."
+  - id: p3-retry-4xx
+    phase: p3
+    skills: [backend.resilience]
+    difficulty: 2
+    prompt: "Should a client automatically retry a request that returned 400 Bad Request?"
+    options: ["Yes, three times", "No: the request is wrong and will fail again", "Only with backoff"]
+    answer: 1
+    explanation: "Retry transient failures (timeouts, 503), never client errors."
+  - id: p3-breaker
+    phase: p3
+    skills: [backend.resilience]
+    difficulty: 3
+    prompt: "What does an open circuit breaker do with new calls?"
+    options: ["Queues them", "Fails them fast without calling the dependency", "Sends them twice"]
+    answer: 1
+    explanation: "It protects both the caller and the struggling dependency until a trial call succeeds."
+  - id: p3-slo
+    phase: p3
+    skills: [backend.sre]
+    difficulty: 3
+    prompt: "What does an error budget of 0.1% decide?"
+    options:
+      - "How many developers to hire"
+      - "Whether to keep shipping features or to stop and invest in reliability"
+      - "The size of the database"
+    answer: 1
+    explanation: "While budget remains, ship; when it is spent, stabilise."
+  - id: p3-symptom
+    phase: p3
+    skills: [backend.sre]
+    difficulty: 3
+    prompt: "Which signal should page someone?"
+    options: ["Disk 70% full on a log volume", "p99 latency of checkout above its SLO for 10 minutes", "A slow nightly batch job"]
+    answer: 1
+    explanation: "Page on user-facing symptoms tied to an SLO."
+
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-sync-chain
+    phase: p4
+    skills: [backend.architecture]
+    difficulty: 4
+    prompt: "A request synchronously calls five services in a row, each 99.9% available. What is the request's best-case availability?"
+    options: ["99.9%", "About 99.5%", "100%"]
+    answer: 1
+    explanation: "0.999^5 ≈ 0.995: chained dependencies multiply their failures."
+  - id: p4-saga
+    phase: p4
+    skills: [backend.architecture]
+    difficulty: 4
+    prompt: "How is a business transaction across three services with their own databases usually coordinated?"
+    answers: ["a saga", "saga", "sagas with compensating actions"]
+    explanation: "Local transactions with compensations, choreographed or orchestrated."
+  - id: p4-expand
+    phase: p4
+    skills: [backend.delivery]
+    difficulty: 4
+    prompt: "During a rolling deploy, the new version drops a column the old version still reads. What should have been done?"
+    options: ["Deploy at night", "Expand and contract: stop using the column first, drop it in a later release", "Skip the migration"]
+    answer: 1
+    explanation: "Old and new versions overlap, so schema changes must be backward compatible."
+  - id: p4-flag
+    phase: p4
+    skills: [backend.delivery]
+    difficulty: 3
+    prompt: "A new feature misbehaves in production. What lets you disable it in seconds without a deploy?"
+    answers: ["a feature flag", "feature flag", "feature toggle"]
+    explanation: "Flags separate deploying code from releasing features."
+  - id: p4-review
+    phase: p4
+    skills: [backend.leadership]
+    difficulty: 3
+    prompt: "A 3,000-line pull request arrives. What is the best response?"
+    options: ["Approve it to keep things moving", "Ask to split it into smaller, reviewable changes", "Review only the tests"]
+    answer: 1
+    explanation: "Huge changes cannot be reviewed well; small ones get real feedback and roll back easily."
+  - id: p4-debt
+    phase: p4
+    skills: [backend.leadership]
+    difficulty: 3
+    prompt: "How do you get time to pay down technical debt?"
+    options:
+      - "Ask for a refactoring quarter"
+      - "Tie the work to outcomes: faster delivery or fewer incidents in code that changes often"
+      - "Do it secretly"
+    answer: 1
+    explanation: "Debt framed as business cost gets prioritised."

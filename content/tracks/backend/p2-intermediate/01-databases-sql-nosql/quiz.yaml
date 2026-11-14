@@ -1,0 +1,36 @@
+questions:
+  - id: default-level
+    prompt: "What is PostgreSQL's default isolation level?"
+    options: ["Read uncommitted", "Read committed", "Repeatable read", "Serializable"]
+    answer: 1
+    explanation: "PostgreSQL (and Oracle, SQL Server) default to read committed."
+  - id: lost-update
+    prompt: "Two transactions read stock = 5, each subtracts 1 and writes it back. Stock ends at 4. Which anomaly is this?"
+    answers: ["lost update", "a lost update"]
+    explanation: "The second write overwrote the first; an atomic update or a lock prevents it."
+  - id: atomic
+    prompt: "Which statement withdraws 100 safely without reading first?"
+    options:
+      - "select balance; then update balance = <value - 100>"
+      - "update accounts set balance = balance - 100 where id = 7 and balance >= 100"
+      - "delete from accounts where id = 7"
+    answer: 1
+    explanation: "The database computes and checks in one statement; 0 rows means not enough money."
+  - id: optimistic
+    prompt: "When does optimistic locking (a version column) fit better than select ... for update?"
+    options:
+      - "When conflicts are rare and users think between reading and writing"
+      - "When every request updates the same hot row"
+      - "Never"
+    answer: 0
+    explanation: "Optimistic locking costs nothing without conflicts; under heavy contention it causes many retries."
+  - id: serializable
+    prompt: "Under serializable isolation, what must the application be ready to do?"
+    options: ["Nothing", "Retry transactions aborted with a serialization failure", "Disable indexes"]
+    answer: 1
+    explanation: "Serializable aborts one of two conflicting transactions; retrying is part of the contract."
+  - id: nosql-choice
+    prompt: "Which store fits full-text search with facets over product descriptions?"
+    options: ["A key-value store", "A search engine such as Elasticsearch/OpenSearch", "A graph database"]
+    answer: 1
+    explanation: "Search engines index text for relevance and facets; keep the source of truth elsewhere."

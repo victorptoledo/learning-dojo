@@ -1,0 +1,67 @@
+id: backend.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz and an integration kata, order events published through an outbox."
+objectives:
+  - { id: o1, text: "Explain transactions, caching, delivery guarantees and idempotency in your own words", skills: [backend.databases-sql-nosql, backend.caching-queues, backend.messaging, backend.reliability] }
+  - { id: o2, text: "Publish domain events reliably with an outbox and consume them idempotently", skills: [backend.databases-sql-nosql, backend.messaging, backend.reliability] }
+prerequisites: [backend.p2.idempotent-payments]
+difficulty: 4
+estimated_minutes: 80
+xp: 350
+closes_phase: p2
+covers_skills: [backend.caching-queues, backend.databases-sql-nosql, backend.messaging, backend.reliability]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Three parts, three guarantees: the order and its event commit together (atomicity), events leave in the order they were written and a failure never lets a later one overtake (ordering), and processing an event twice has no extra effect (idempotency). For each part, which database feature gives that guarantee?
+    - |-
+      `place`: `@Transactional`, save the order, save the outbox event with the formatted payload, then check for `blocked`: the exception rolls back both. Relay: load pending events ordered by id, and on the first `RuntimeException` call `event.failed()` and return (the change to the managed event is saved at commit). Consumer: inside `transaction.execute(...)` do `processed.saveAndFlush(new ProcessedEvent(eventId))` then save the shipment; catch `DataIntegrityViolationException` outside it and return false.
+    - |-
+      ```java
+      @Transactional
+      public RelayResult publishPending(int batchSize) {
+          int published = 0;
+          for (OutboxEvent event : outbox.pending(PageRequest.of(0, batchSize))) {
+              try {
+                  broker.publish(event.getEventId(), event.getType(), event.getPayload());
+              } catch (RuntimeException e) {
+                  event.failed();
+                  return new RelayResult(published, true);
+              }
+              event.published(clock.instant());
+              published++;
+          }
+          return new RelayResult(published, false);
+      }
+
+      public boolean on(String eventId, String type, String payload) {
+          long orderId = /* read "orderId" from the payload */;
+          try {
+              return Boolean.TRUE.equals(transaction.execute(status -> {
+                  processed.saveAndFlush(new ProcessedEvent(eventId));
+                  shipments.save(new Shipment(orderId));
+                  return true;
+              }));
+          } catch (DataIntegrityViolationException duplicate) {
+              return false;
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

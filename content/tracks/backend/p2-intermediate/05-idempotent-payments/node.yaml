@@ -1,0 +1,52 @@
+id: backend.p2.idempotent-payments
+kind: kata
+status: draft
+title: "Idempotent Payments"
+summary: "A payments endpoint that never charges twice: Idempotency-Key, stored responses and conflicting retries."
+objectives:
+  - { id: o1, text: "Make a POST safe to retry with an idempotency key", skills: [backend.reliability, backend.api-design] }
+  - { id: o2, text: "Store and replay the first response, and reject a changed retry", skills: [backend.reliability] }
+prerequisites: [backend.p2.messaging-reliability]
+difficulty: 3
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      The key is claimed by inserting a row, and the database's primary key decides who wins a race. So the order is: claim (or find) the key, decide (replay, 422, 409, or go on), charge, record the outcome. Why must the claim be committed before calling the gateway, and why must the gateway call be outside any transaction?
+    - |-
+      Inject a `TransactionTemplate` and run three small steps: `executeWithoutResult(s -> keys.saveAndFlush(new IdempotencyRecord(key, fingerprint)))` to claim (catch `DataIntegrityViolationException`, then re-read the record); `gateway.charge(...)` with no transaction; then `execute(s -> { save the payment; record.finish(201, payment.getId(), null); ... })`. For an existing record, compare fingerprints first, then `isDone()`, then replay the payment or the 402.
+    - |-
+      ```java
+      public PaymentOutcome pay(String key, PaymentRequest request) {
+          String fingerprint = request.fingerprint();
+          IdempotencyRecord existing = keys.findById(key).orElse(null);
+          if (existing == null) {
+              try {
+                  transaction.executeWithoutResult(s -> keys.saveAndFlush(new IdempotencyRecord(key, fingerprint)));
+              } catch (DataIntegrityViolationException e) {
+                  existing = keys.findById(key).orElseThrow(PaymentException::inProgress);
+              }
+          }
+          if (existing != null) {
+              return replay(existing, fingerprint);   // 422 / 409 / replayed 201 / replayed 402
+          }
+          // charge outside a transaction; on DeclinedException finish(402, ...) and throw declined
+          // otherwise save the payment and finish(201, id, null) in one transaction
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

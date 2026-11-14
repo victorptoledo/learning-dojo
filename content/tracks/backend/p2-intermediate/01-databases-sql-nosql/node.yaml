@@ -2,13 +2,16 @@ id: backend.p2.databases-sql-nosql
 legacy_id: be-03-databases-sql-nosql
 kind: lesson
 status: draft
-title: "Relational Databases (ACID) vs NoSQL"
-summary: "Transactions, isolation (MVCC), normalisation vs denormalisation and NoSQL use cases."
+title: "Transactions, Isolation and NoSQL"
+summary: "ACID, isolation levels and their anomalies, locking and MVCC, and when a NoSQL store is the better tool."
 objectives:
-  - { id: o1, text: "Transactions, isolation (MVCC), normalisation vs denormalisation and NoSQL use cases.", skills: [backend.databases-sql-nosql] }
-prerequisites: [backend.p1.auth-security]
+  - { id: o1, text: "Explain the isolation levels and the anomalies each one allows", skills: [backend.databases-sql-nosql] }
+  - { id: o2, text: "Choose between optimistic and pessimistic locking", skills: [backend.databases-sql-nosql] }
+  - { id: o3, text: "Pick a document, key-value, wide-column or graph store for a use case", skills: [backend.databases-sql-nosql] }
+prerequisites: [backend.p1.checkpoint]
 difficulty: 3
-estimated_minutes: 30
+estimated_minutes: 45
 xp: 300
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml

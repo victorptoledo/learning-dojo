@@ -1,0 +1,36 @@
+questions:
+  - id: stateless
+    prompt: "Why must instances be stateless to scale horizontally?"
+    options:
+      - "Stateless code runs faster"
+      - "So any instance can serve any request and instances can come and go"
+      - "Load balancers reject stateful services"
+    answer: 1
+    explanation: "State in memory ties a user to one instance and is lost when it dies."
+  - id: sessions
+    prompt: "Where should user sessions live in a horizontally scaled service?"
+    options: ["In each instance's memory", "In a shared store such as Redis, or in self-contained tokens", "In local files"]
+    answer: 1
+    explanation: "A shared store or tokens let every instance recognise the user."
+  - id: replica-lag
+    prompt: "A user saves their profile and immediately reloads it from a read replica, seeing the old data. Why?"
+    answers: ["replication lag", "the replica lags behind the primary", "asynchronous replication"]
+    explanation: "Asynchronous replicas can be slightly behind; read your own writes from the primary."
+  - id: shard-key
+    prompt: "What makes a good shard key?"
+    options:
+      - "One that most queries filter on and that spreads load evenly"
+      - "The creation date, so new data goes to the newest shard"
+      - "A random value per query"
+    answer: 0
+    explanation: "Queries should hit one shard and no shard should get most of the traffic."
+  - id: cap
+    prompt: "During a network partition, what does CAP say a distributed system must choose between?"
+    options: ["Cost and performance", "Consistency and availability", "Caching and sharding"]
+    answer: 1
+    explanation: "With a partition, either some requests fail (consistent) or some answers are stale (available)."
+  - id: estimate
+    prompt: "About how many requests per second, on average, are 200 million requests per day?"
+    options: ["About 230", "About 2,300", "About 23,000"]
+    answer: 1
+    explanation: "A day has 86,400 seconds; 200,000,000 / 86,400 ≈ 2,300."

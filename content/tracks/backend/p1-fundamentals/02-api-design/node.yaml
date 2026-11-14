@@ -1,0 +1,16 @@
+id: backend.p1.api-design
+kind: lesson
+status: draft
+title: "REST API Design"
+summary: "Resources, URLs, pagination, filtering, partial updates, errors, versioning and contracts."
+objectives:
+  - { id: o1, text: "Model resources and URLs that read naturally", skills: [backend.api-design] }
+  - { id: o2, text: "Design pagination, filtering, partial updates and errors consistently", skills: [backend.api-design] }
+  - { id: o3, text: "Evolve an API without breaking clients, documented with OpenAPI", skills: [backend.api-design] }
+prerequisites: [backend.p1.protocols]
+difficulty: 2
+estimated_minutes: 40
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

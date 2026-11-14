@@ -1,0 +1,32 @@
+questions:
+  - id: action-resource
+    prompt: "What is the most RESTful way to cancel order 42?"
+    options: ["GET /orders/42/cancel", "POST /cancelOrder?id=42", "POST /orders/42/cancellation", "DELETE /orders"]
+    answer: 2
+    explanation: "Model the action as a resource you create; never change state with GET."
+  - id: cursor
+    prompt: "Why are cursor (keyset) pages better than offsets for a large, changing table?"
+    options:
+      - "They are easier to implement"
+      - "Each page is an indexed range scan and rows inserted meanwhile do not shift the pages"
+      - "They allow jumping to page 500"
+    answer: 1
+    explanation: "Offsets make the database skip rows and shift when data changes; cursors continue from the last item."
+  - id: merge-patch
+    prompt: "With JSON Merge Patch, what does {\"assignee\": null} do?"
+    options: ["Leaves assignee unchanged", "Removes the assignee", "Is invalid"]
+    answer: 1
+    explanation: "In merge patch, null removes the field; absent fields stay as they are."
+  - id: breaking
+    prompt: "Which change breaks existing clients?"
+    options: ["Adding a field to a response", "Adding a new endpoint", "Renaming a response field"]
+    answer: 2
+    explanation: "Renaming or removing fields breaks clients; additive changes do not (if clients ignore unknown fields)."
+  - id: problem-type
+    prompt: "Which Problem Details field should clients branch on in code?"
+    answers: ["type", "the type field"]
+    explanation: "type is a stable identifier; detail is a human-readable message that may change."
+  - id: contract
+    prompt: "Which specification describes REST endpoints, parameters and schemas in a machine-readable way?"
+    answers: ["OpenAPI", "OpenAPI Specification", "Swagger"]
+    explanation: "OpenAPI (formerly Swagger) documents and generates clients, mocks and tests."

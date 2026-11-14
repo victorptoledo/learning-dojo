@@ -1,6 +1,18 @@
 namespace: backend
 skills:
+  - { id: backend.role, title: "The Backend Role and the Life of a Request" }
   - { id: backend.protocols, title: "Web Protocols: HTTP/1.1, HTTP/2, HTTP/3 and WebSockets" }
+  - { id: backend.api-design, title: "REST API Design" }
+  - { id: backend.sql, title: "Relational Modelling, SQL and Indexes" }
   - { id: backend.auth-security, title: "Authentication: JWT, Sessions, OAuth2 and OIDC" }
   - { id: backend.databases-sql-nosql, title: "Relational Databases (ACID) vs NoSQL" }
   - { id: backend.caching-queues, title: "Caching (Redis) and Message Queues" }
+  - { id: backend.reliability, title: "Reliable APIs: Idempotency and Rate Limiting" }
+  - { id: backend.messaging, title: "Messaging: Delivery Guarantees, Outbox and Idempotent Consumers" }
+  - { id: backend.scalability, title: "Scalability: Statelessness, Replication, Sharding and CAP" }
+  - { id: backend.api-security, title: "API Security: OWASP API Top 10" }
+  - { id: backend.resilience, title: "Resilience: Timeouts, Retries and Circuit Breakers" }
+  - { id: backend.sre, title: "SRE: SLIs, SLOs, Alerts and Incidents" }
+  - { id: backend.architecture, title: "System Architecture: Monoliths, Services and Events" }
+  - { id: backend.delivery, title: "Delivery: CI/CD, Zero-Downtime Deploys and Feature Flags" }
+  - { id: backend.leadership, title: "Engineering Leadership: Design Docs, Reviews and On-call" }

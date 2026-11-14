@@ -1,0 +1,58 @@
+id: backend.p2.rate-limiter
+kind: kata
+status: draft
+title: "Rate Limiter"
+summary: "A thread-safe token bucket per client, driven by a clock you can control in tests."
+objectives:
+  - { id: o1, text: "Implement a token bucket with refill and burst", skills: [backend.reliability] }
+  - { id: o2, text: "Keep one bucket per client safely under concurrency", skills: [backend.reliability] }
+prerequisites: [backend.p2.caching-queues]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Do not run a timer that adds tokens. Instead, every time someone asks, work out how many tokens the time since the last call has added, cap it at the capacity, and then answer. What do you need to remember between calls for that?
+    - |-
+      Remember two things: the token amount and the instant of the last refill. Keep tokens as a `long` in exact units (one token = `periodNanos`, each elapsed nanosecond adds `refillTokens`), cap at `capacity * periodNanos`, and make every method `synchronized`. In the limiter, `buckets.computeIfAbsent(client, k -> new TokenBucket(...))`, then acquire and read `available()` and `retryAfter()` while holding that bucket's lock, so the decision is consistent.
+    - |-
+      ```java
+      private void refill() {
+          Instant now = clock.instant();
+          long elapsed = Duration.between(last, now).toNanos();
+          if (elapsed > 0) {
+              units = Math.min(capacityUnits, units + elapsed * refillTokens);   // watch overflow for huge gaps
+              last = now;
+          }
+      }
+
+      public synchronized boolean tryAcquire(long tokens) {
+          refill();
+          long needed = tokens * periodNanos;
+          if (units < needed) return false;
+          units -= needed;
+          return true;
+      }
+
+      public synchronized Duration retryAfter() {
+          refill();
+          long missing = periodNanos - units;
+          return missing <= 0 ? Duration.ZERO : Duration.ofNanos(/* ceil(missing / refillTokens) */);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

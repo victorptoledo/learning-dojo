@@ -1,0 +1,16 @@
+id: backend.p3.scalability
+kind: lesson
+status: draft
+title: "Scaling a Backend"
+summary: "Stateless services, load balancing, read replicas, partitioning, CAP and consistency models."
+objectives:
+  - { id: o1, text: "Scale horizontally with stateless services behind a load balancer", skills: [backend.scalability] }
+  - { id: o2, text: "Use replicas and partitioning, and know their consistency costs", skills: [backend.scalability] }
+  - { id: o3, text: "Reason with CAP and PACELC about a design", skills: [backend.scalability] }
+prerequisites: [backend.p2.checkpoint]
+difficulty: 4
+estimated_minutes: 45
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

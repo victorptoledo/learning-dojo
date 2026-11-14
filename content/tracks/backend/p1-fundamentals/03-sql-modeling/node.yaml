@@ -1,0 +1,16 @@
+id: backend.p1.sql-modeling
+kind: lesson
+status: draft
+title: "Relational Modelling, SQL and Indexes"
+summary: "Tables, keys and constraints, joins and aggregates, and the indexes that make queries fast."
+objectives:
+  - { id: o1, text: "Model entities and relationships with keys and constraints", skills: [backend.sql] }
+  - { id: o2, text: "Write joins, aggregates and subqueries", skills: [backend.sql] }
+  - { id: o3, text: "Choose indexes and read a query plan", skills: [backend.sql] }
+prerequisites: [backend.p1.api-design]
+difficulty: 2
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

@@ -1,0 +1,30 @@
+questions:
+  - id: hash
+    prompt: "Which algorithm is appropriate for storing passwords?"
+    options: ["SHA-256", "MD5", "argon2id or bcrypt", "Base64"]
+    answer: 2
+    explanation: "Adaptive, salted hashes are slow by design; fast hashes help attackers."
+  - id: revoke
+    prompt: "A user's account is compromised. With which mechanism can you cut off their access immediately?"
+    options: ["A server-side session", "A long-lived JWT", "Both equally"]
+    answer: 0
+    explanation: "Deleting the session ends access at once; a JWT stays valid until it expires unless you keep a deny list."
+  - id: payload
+    prompt: "Is the payload of a JWT encrypted?"
+    options: ["Yes, always", "No: it is Base64url-encoded and anyone can read it", "Only with HS256"]
+    answer: 1
+    explanation: "Signed JWTs are readable; never put secrets in them."
+  - id: alg-none
+    prompt: "A token arrives with header {\"alg\": \"none\"} and no signature. What should the verifier do?"
+    answers: ["reject it", "refuse it", "reject"]
+    explanation: "Only accept the algorithm you expect; unsigned tokens must be rejected."
+  - id: pkce
+    prompt: "Which OAuth2 flow should a single-page app use to log users in?"
+    options: ["Implicit", "Resource owner password", "Authorization code with PKCE", "Client credentials"]
+    answer: 2
+    explanation: "Authorization code with PKCE is the recommended flow for public clients."
+  - id: service
+    prompt: "A billing service calls the reports API on its own, with no user involved. Which flow?"
+    options: ["Client credentials", "Authorization code", "Implicit"]
+    answer: 0
+    explanation: "Client credentials issues a token to the service itself."

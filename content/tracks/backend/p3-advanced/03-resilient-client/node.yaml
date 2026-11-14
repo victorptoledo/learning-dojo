@@ -1,0 +1,54 @@
+id: backend.p3.resilient-client
+kind: kata
+status: draft
+title: "Resilient Client"
+summary: "Retries with exponential backoff and a circuit breaker around a flaky dependency, tested with a fake clock."
+objectives:
+  - { id: o1, text: "Retry transient failures with capped exponential backoff", skills: [backend.resilience] }
+  - { id: o2, text: "Open, half-open and close a circuit breaker on a clock", skills: [backend.resilience] }
+prerequisites: [backend.p3.api-security]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Three small pieces: a formula, a state machine and a loop. Draw the breaker's states and, for each one, write what `call` does and what moves it to another state. In the loop, which exceptions should end it immediately?
+    - |-
+      `delayBefore`: `Math.pow(multiplier, attempt - 2)` times the initial delay, then `Math.min` with the cap. Breaker: fields `state`, `failures`, `openedAt`; in `state()`, an OPEN circuit whose `openedAt + openDuration` is not after now becomes HALF_OPEN. In `call`: OPEN → throw `CircuitOpenException`; on success reset; on failure count, and open it when in HALF_OPEN or at the threshold. Client: `for` attempts, sleep before every attempt after the first, `catch (TransientException e)` only.
+    - |-
+      ```java
+      public synchronized <T> T call(Supplier<T> action) {
+          if (state() == State.OPEN) {
+              throw new CircuitOpenException();
+          }
+          try {
+              T result = action.get();
+              state = State.CLOSED;
+              failures = 0;
+              return result;
+          } catch (RuntimeException e) {
+              failures++;
+              if (/* half-open trial failed, or threshold reached */) {
+                  state = State.OPEN;
+                  openedAt = clock.instant();
+              }
+              throw e;
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

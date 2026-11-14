@@ -1,0 +1,54 @@
+id: backend.p1.url-shortener
+kind: kata
+status: draft
+title: "URL Shortener"
+summary: "Short codes stored in a database, redirects with the right status, and click statistics."
+objectives:
+  - { id: o1, text: "Design a small API around a resource and its redirects", skills: [backend.api-design, backend.protocols] }
+  - { id: o2, text: "Store and query it with unique constraints and an aggregate", skills: [backend.sql] }
+prerequisites: [backend.p1.sql-modeling]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Three separate concerns: is the input safe to redirect to, is the code valid and free, and does each click get counted exactly once. For the last one, what happens when two requests both read `clicks = 5`, add one and save?
+    - |-
+      Parse with `URI.create(url.strip())` and accept only `http`/`https` with a non-null host; catch `IllegalArgumentException`. For clicks, a `@Modifying @Query("update ShortLink l set l.clicks = l.clicks + 1 where l.code = :code")` returning `int` does the increment atomically in one statement and returns 0 for an unknown code. Redirect with `ResponseEntity.status(HttpStatus.FOUND).location(URI.create(target)).build()`.
+    - |-
+      ```java
+      @Transactional
+      public String follow(String code) {
+          if (links.addClick(code) == 0) {
+              throw LinkException.notFound(code);
+          }
+          return links.findByCode(code).orElseThrow().getTargetUrl();
+      }
+
+      private static String validUrl(String url) {
+          if (url == null) throw LinkException.invalidUrl(null);
+          try {
+              URI uri = URI.create(url.strip());
+              // scheme must be http or https, and there must be a host
+              return uri.toString();
+          } catch (IllegalArgumentException e) {
+              throw LinkException.invalidUrl(url);
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

@@ -1,0 +1,16 @@
+id: backend.p4.delivery
+kind: lesson
+status: draft
+title: "Delivery: From Commit to Production"
+summary: "CI/CD pipelines, zero-downtime deploys, expand-and-contract migrations, feature flags and progressive rollout."
+objectives:
+  - { id: o1, text: "Build a CI/CD pipeline with the right gates", skills: [backend.delivery] }
+  - { id: o2, text: "Deploy and migrate schemas without downtime", skills: [backend.delivery] }
+  - { id: o3, text: "Release gradually with feature flags and canaries", skills: [backend.delivery] }
+prerequisites: [backend.p4.system-architecture]
+difficulty: 4
+estimated_minutes: 40
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

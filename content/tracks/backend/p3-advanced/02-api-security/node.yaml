@@ -1,0 +1,16 @@
+id: backend.p3.api-security
+kind: lesson
+status: draft
+title: "API Security: The OWASP API Top 10"
+summary: "Broken object-level authorization, injection, mass assignment, resource abuse, SSRF and how to stop them."
+objectives:
+  - { id: o1, text: "Recognise and prevent the OWASP API Security Top 10 risks", skills: [backend.api-security] }
+  - { id: o2, text: "Validate input, parameterise queries and limit resource use", skills: [backend.api-security] }
+  - { id: o3, text: "Handle secrets, CORS and TLS correctly", skills: [backend.api-security] }
+prerequisites: [backend.p3.scalability]
+difficulty: 4
+estimated_minutes: 45
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

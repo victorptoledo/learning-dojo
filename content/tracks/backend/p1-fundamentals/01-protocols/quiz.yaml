@@ -1,0 +1,30 @@
+questions:
+  - id: safe
+    prompt: "Which method must never change state on the server?"
+    options: ["POST", "GET", "PATCH", "DELETE"]
+    answer: 1
+    explanation: "GET is safe: crawlers, prefetchers and caches may call it at any time."
+  - id: idempotent
+    prompt: "Which method is NOT idempotent?"
+    options: ["PUT", "DELETE", "POST", "GET"]
+    answer: 2
+    explanation: "Two identical POSTs may create two resources; PUT, DELETE and GET can be repeated safely."
+  - id: not-modified
+    prompt: "A client sends If-None-Match with the current ETag. What should the server answer?"
+    answers: ["304", "304 Not Modified", "Not Modified"]
+    explanation: "304 tells the client its cached copy is still current, without sending the body again."
+  - id: lost-update
+    prompt: "Which status answers a PUT whose If-Match no longer matches the resource's ETag?"
+    options: ["409 Conflict", "412 Precondition Failed", "304 Not Modified", "400 Bad Request"]
+    answer: 1
+    explanation: "A failed precondition header is 412; the client must reload and retry."
+  - id: no-store
+    prompt: "Which Cache-Control directive forbids storing a response anywhere?"
+    options: ["no-cache", "no-store", "private", "max-age=0"]
+    answer: 1
+    explanation: "no-store means never store; no-cache means store but revalidate before use."
+  - id: http3
+    prompt: "What does HTTP/3 run on?"
+    options: ["TCP", "QUIC over UDP", "WebSockets", "SCTP"]
+    answer: 1
+    explanation: "HTTP/3 uses QUIC, which avoids TCP head-of-line blocking and has faster handshakes."

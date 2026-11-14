@@ -2,13 +2,16 @@ id: backend.p1.protocols
 legacy_id: be-01-protocols
 kind: lesson
 status: draft
-title: "Web Protocols: HTTP/1.1, HTTP/2, HTTP/3 and WebSockets"
-summary: "HTTP verbs, headers, status codes, multiplexing and bidirectional connections."
+title: "HTTP in Depth: Methods, Status, Caching, HTTP/2 and HTTP/3"
+summary: "The HTTP contract every API relies on, and what changed with HTTP/2, HTTP/3, WebSockets and SSE."
 objectives:
-  - { id: o1, text: "HTTP verbs, headers, status codes, multiplexing and bidirectional connections.", skills: [backend.protocols] }
-prerequisites: []
+  - { id: o1, text: "Use methods by their safety and idempotency, and status codes by their meaning", skills: [backend.protocols] }
+  - { id: o2, text: "Control caching with Cache-Control, ETag and conditional requests", skills: [backend.protocols] }
+  - { id: o3, text: "Choose between HTTP/1.1, HTTP/2, HTTP/3, WebSockets and SSE", skills: [backend.protocols] }
+prerequisites: [backend.p0.hello-http]
 difficulty: 2
-estimated_minutes: 30
-xp: 100
+estimated_minutes: 40
+xp: 200
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml

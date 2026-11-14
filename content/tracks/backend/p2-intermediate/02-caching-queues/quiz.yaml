@@ -1,0 +1,30 @@
+questions:
+  - id: delete-on-write
+    prompt: "In cache-aside, what should a write do to the cached entry?"
+    options: ["Write the new value into the cache", "Delete the entry", "Nothing: the TTL handles it"]
+    answer: 1
+    explanation: "Deleting avoids races where an older value lands in the cache after a newer one; the next read reloads."
+  - id: ttl
+    prompt: "Why give every cache entry a TTL, even when you invalidate on write?"
+    options: ["It makes reads faster", "It bounds staleness if an invalidation is ever missed", "Redis requires it"]
+    answer: 1
+    explanation: "A missed invalidation would otherwise serve stale data forever."
+  - id: stampede
+    prompt: "A hot key expires and 1,000 requests recompute it at once. What is this called?"
+    answers: ["a cache stampede", "stampede", "cache stampede", "thundering herd"]
+    explanation: "Single flight, jittered TTLs or refresh-ahead prevent it."
+  - id: accepted
+    prompt: "An endpoint enqueues a report job and returns immediately. Which status?"
+    options: ["200 OK", "201 Created", "202 Accepted", "204 No Content"]
+    answer: 2
+    explanation: "202 means received for processing, not finished; point to a status resource."
+  - id: kafka
+    prompt: "What does Kafka do with a message after a consumer reads it?"
+    options: ["Deletes it", "Keeps it for the retention period; consumers track their own offset", "Sends it back"]
+    answer: 1
+    explanation: "Kafka is a log: messages stay and can be replayed."
+  - id: shared-cache
+    prompt: "Ten instances must see the same rate-limit counters. Which cache?"
+    options: ["An in-process Caffeine cache", "A shared cache such as Redis", "The browser cache"]
+    answer: 1
+    explanation: "In-process caches are per instance; shared state needs a shared store."

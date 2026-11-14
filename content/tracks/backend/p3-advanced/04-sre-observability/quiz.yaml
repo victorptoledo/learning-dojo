@@ -1,0 +1,33 @@
+questions:
+  - id: sli
+    prompt: "Which is a good availability SLI for an API?"
+    options: ["CPU usage", "Successful requests divided by all requests", "Number of deploys"]
+    answer: 1
+    explanation: "SLIs measure what users experience, as a ratio of good events to all events."
+  - id: budget
+    prompt: "An SLO of 99.9% over 30 days allows roughly how much downtime?"
+    options: ["4 minutes", "43 minutes", "7 hours"]
+    answer: 1
+    explanation: "0.1% of 30 days is about 43 minutes: the error budget."
+  - id: percentiles
+    prompt: "Why track latency as p95/p99 instead of the average?"
+    options: ["Averages are harder to compute", "Averages hide the slow tail that many users actually hit", "Percentiles are always smaller"]
+    answer: 1
+    explanation: "A good average can hide many very slow requests."
+  - id: symptoms
+    prompt: "Which alert should page an engineer at night?"
+    options:
+      - "CPU above 80% on one instance"
+      - "Checkout errors are consuming the monthly error budget fast"
+      - "A new version was deployed"
+    answer: 1
+    explanation: "Page on user-facing symptoms; causes like CPU go to dashboards."
+  - id: mitigate
+    prompt: "During an incident caused by a deploy, what comes first?"
+    options: ["Finding the root cause", "Mitigating: roll back the deploy", "Writing the postmortem"]
+    answer: 1
+    explanation: "Restore service first; investigate once users are fine."
+  - id: blameless
+    prompt: "What is the point of a blameless postmortem?"
+    answers: ["to fix the conditions that allowed the failure, not to blame a person", "learning", "improve the system"]
+    explanation: "People share what really happened when they are not blamed, so the system can be improved."

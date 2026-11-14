@@ -1,0 +1,33 @@
+questions:
+  - id: foreign-key
+    prompt: "What does a foreign key from orders.customer_id to customers.id guarantee?"
+    options: ["The column is indexed", "Every order points to a customer that exists", "Customers have at least one order"]
+    answer: 1
+    explanation: "A foreign key enforces that the referenced row exists. It does not create an index in PostgreSQL."
+  - id: many-to-many
+    prompt: "How do you model students and courses, where each student takes many courses and each course has many students?"
+    options: ["A course_id column in students", "A link table with student_id and course_id", "A comma-separated list in a column"]
+    answer: 1
+    explanation: "Many-to-many relationships need a link (join) table."
+  - id: having
+    prompt: "Which clause filters groups after GROUP BY, for example customers with more than 10 orders?"
+    answers: ["HAVING", "having"]
+    explanation: "WHERE filters rows before grouping; HAVING filters the groups."
+  - id: left-join
+    prompt: "You want every customer, including those without orders. Which join?"
+    options: ["inner join", "left join (customers on the left)", "cross join"]
+    answer: 1
+    explanation: "A left join keeps every row of the left table, with nulls when nothing matches."
+  - id: composite
+    prompt: "An index on (status, placed_at). Which query can use it best?"
+    options:
+      - "where placed_at > '2026-01-01'"
+      - "where status = 'PAID' order by placed_at"
+      - "where total_cents > 100"
+    answer: 1
+    explanation: "A composite index serves its leading column, and the next one for ordering or ranges after it."
+  - id: injection
+    prompt: "How do you prevent SQL injection?"
+    options: ["Escape quotes by hand", "Bind parameters (?, :name) instead of concatenating input", "Only allow POST requests"]
+    answer: 1
+    explanation: "Bound parameters are sent separately and never parsed as SQL."

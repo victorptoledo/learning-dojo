@@ -1,0 +1,53 @@
+questions:
+  - id: lost-update-fix
+    skills: [backend.databases-sql-nosql]
+    prompt: "Which statement decrements stock without a lost update under read committed?"
+    options:
+      - "Read the stock in Java, subtract, save the entity"
+      - "update products set stock = stock - 1 where id = ? and stock > 0"
+      - "select stock; sleep; update"
+    answer: 1
+    explanation: "One atomic statement reads and writes in the database; 0 rows means out of stock."
+  - id: unique-race
+    skills: [backend.databases-sql-nosql]
+    prompt: "Two requests check that an email is free and then insert it. What reliably prevents duplicates?"
+    answers: ["a unique constraint", "unique constraint", "unique index", "a unique index"]
+    explanation: "The check-then-insert races; the database constraint decides and the loser gets an error."
+  - id: cache-invalidate
+    skills: [backend.caching-queues]
+    prompt: "After updating a product in the database, what should a cache-aside service do with the cached product?"
+    options: ["Leave it until it expires", "Delete it", "Write the old value back"]
+    answer: 1
+    explanation: "Delete on write; the next read loads the fresh value."
+  - id: accepted-later
+    skills: [backend.caching-queues]
+    prompt: "An API enqueues a video for transcoding. Which status and header tell the client to check later?"
+    options: ["200 with the video", "202 Accepted with a Location to a status resource", "500"]
+    answer: 1
+    explanation: "202 means accepted for processing; Location points at where to poll for the result."
+  - id: idempotency-key
+    skills: [backend.reliability]
+    prompt: "A payment POST with an Idempotency-Key times out and the client retries with the same key and body. What should happen?"
+    options: ["A second charge", "The first outcome is returned and nothing is charged again", "A 409 forever"]
+    answer: 1
+    explanation: "The server stores the outcome per key and replays it."
+  - id: retry-after
+    skills: [backend.reliability]
+    prompt: "A client is over its rate limit. Which status and header should the API answer?"
+    answers: ["429 with Retry-After", "429 Too Many Requests and Retry-After", "429"]
+    explanation: "429 Too Many Requests, with Retry-After saying when to try again."
+  - id: outbox-why
+    skills: [backend.messaging]
+    prompt: "What problem does the transactional outbox solve?"
+    options:
+      - "Slow brokers"
+      - "Saving a change and publishing its event are two systems that cannot commit together"
+      - "Message ordering across topics"
+    answer: 1
+    explanation: "The event is written with the change in one transaction and published afterwards."
+  - id: consumer-duplicate
+    skills: [backend.messaging, backend.reliability]
+    prompt: "A relay may publish an outbox event twice. What keeps the effect single?"
+    options: ["Exactly-once delivery from the broker", "An idempotent consumer that records processed event ids", "Publishing slower"]
+    answer: 1
+    explanation: "Delivery is at least once; consumers deduplicate by event id."

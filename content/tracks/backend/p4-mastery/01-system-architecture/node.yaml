@@ -1,0 +1,16 @@
+id: backend.p4.system-architecture
+kind: lesson
+status: draft
+title: "System Architecture"
+summary: "Monoliths, modular monoliths and microservices, bounded contexts, events, sagas and their trade-offs."
+objectives:
+  - { id: o1, text: "Choose a deployment architecture for a team and a domain", skills: [backend.architecture] }
+  - { id: o2, text: "Draw bounded contexts and integrate them with events", skills: [backend.architecture] }
+  - { id: o3, text: "Coordinate a distributed workflow with a saga", skills: [backend.architecture] }
+prerequisites: [backend.p3.sre-observability]
+difficulty: 5
+estimated_minutes: 45
+xp: 400
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

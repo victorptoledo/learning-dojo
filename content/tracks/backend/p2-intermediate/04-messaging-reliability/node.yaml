@@ -1,0 +1,16 @@
+id: backend.p2.messaging-reliability
+kind: lesson
+status: draft
+title: "Messaging You Can Trust"
+summary: "Delivery guarantees, idempotent consumers, the transactional outbox, retries, dead letters and ordering."
+objectives:
+  - { id: o1, text: "Explain at-most-once, at-least-once and effectively-once delivery", skills: [backend.messaging] }
+  - { id: o2, text: "Publish reliably with a transactional outbox", skills: [backend.messaging] }
+  - { id: o3, text: "Consume idempotently, retry and dead-letter safely", skills: [backend.messaging, backend.reliability] }
+prerequisites: [backend.p2.rate-limiter]
+difficulty: 3
+estimated_minutes: 40
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

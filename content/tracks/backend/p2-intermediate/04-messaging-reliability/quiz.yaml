@@ -1,0 +1,33 @@
+questions:
+  - id: at-least-once
+    prompt: "A consumer acknowledges a message only after processing it, then crashes before the ack arrives. What happens?"
+    options: ["The message is lost", "The message is delivered again", "The broker stops"]
+    answer: 1
+    explanation: "With at-least-once delivery an unacknowledged message is redelivered, so duplicates happen."
+  - id: effectively-once
+    prompt: "What turns at-least-once delivery into effectively-once processing?"
+    answers: ["idempotent processing", "idempotent consumers", "idempotency", "deduplication"]
+    explanation: "Processing a duplicate must have no extra effect, for example by recording processed message ids."
+  - id: dual-write
+    prompt: "A service saves an order and then publishes OrderPlaced to a broker. What can go wrong?"
+    options:
+      - "Nothing"
+      - "A crash between the two leaves an order without its event"
+      - "The broker reorders the bytes"
+    answer: 1
+    explanation: "Two systems cannot commit together; that is the dual-write problem."
+  - id: outbox
+    prompt: "In the outbox pattern, where is the event first written?"
+    options: ["Directly to the broker", "To an outbox table in the same transaction as the change", "To a log file"]
+    answer: 1
+    explanation: "Writing it with the change makes both atomic; a relay publishes it afterwards."
+  - id: dlq
+    prompt: "A message fails every time because its data is invalid. What should happen after a few retries?"
+    options: ["Retry forever", "Move it to a dead-letter queue and alert", "Delete it silently"]
+    answer: 1
+    explanation: "A DLQ stops poison messages from blocking the queue, and keeps them for inspection and replay."
+  - id: ordering
+    prompt: "How do you keep all events of one order in sequence in Kafka?"
+    options: ["Use one topic per order", "Use the order id as the message key, so they share a partition", "Send them slowly"]
+    answer: 1
+    explanation: "Kafka orders messages within a partition; the key decides the partition."

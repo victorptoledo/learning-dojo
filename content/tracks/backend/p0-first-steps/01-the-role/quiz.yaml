@@ -1,0 +1,30 @@
+questions:
+  - id: dns
+    prompt: "What does DNS do in the life of a request?"
+    options: ["Encrypts the connection", "Turns a host name into an IP address", "Balances load between servers", "Stores the session"]
+    answer: 1
+    explanation: "DNS resolves names to addresses; the answer is cached for its TTL."
+  - id: tls
+    prompt: "What does the TLS handshake establish?"
+    options: ["The user's identity", "The server's identity (certificate) and the encryption keys", "The route to the database"]
+    answer: 1
+    explanation: "TLS authenticates the server with its certificate and agrees on keys for encryption."
+  - id: load-balancer
+    prompt: "What is a load balancer's main job?"
+    options: ["Running SQL", "Sending each request to one of several healthy instances", "Compiling the code"]
+    answer: 1
+    explanation: "It spreads traffic across instances and stops sending to unhealthy ones."
+  - id: slowest
+    prompt: "Which is usually slowest?"
+    options: ["Reading a value from memory", "An indexed query on a local database", "A round trip to another continent"]
+    answer: 2
+    explanation: "An intercontinental round trip is around 150 ms, orders of magnitude slower than memory or a local indexed query."
+  - id: curl
+    prompt: "Which curl option prints the status line and response headers along with the body?"
+    answers: ["-i", "--include", "curl -i"]
+    explanation: "curl -i includes the response headers; -v shows the whole exchange."
+  - id: sequential
+    prompt: "Why are ten sequential calls to another service a performance problem?"
+    options: ["They use too much CPU", "Each one adds a network round trip, so latency adds up", "HTTP forbids it"]
+    answer: 1
+    explanation: "Network round trips dominate; batch the calls or run them concurrently."

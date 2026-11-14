@@ -1,0 +1,48 @@
+id: backend.p0.hello-http
+kind: kata
+status: draft
+title: "Hello, HTTP: Methods, Headers and ETags"
+summary: "An endpoint that speaks proper HTTP: the right methods, content types, caching headers and 304s."
+objectives:
+  - { id: o1, text: "Answer with the right status, content type and caching headers", skills: [backend.protocols, backend.role] }
+prerequisites: [backend.p0.the-role]
+difficulty: 1
+estimated_minutes: 25
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Two headers carry the conversation: the server **sends** `ETag` with every article, and the client **echoes** it back in `If-None-Match` ("I have this version, is it still current?") or `If-Match` ("only change it if it is still this version"). For each one, which status answers "yes" and which answers "no"?
+    - |-
+      Build the ETag as `"\"v" + version + "\""`. In GET, compare it with `If-None-Match`: equal → `304` with the ETag and no body; otherwise `200` with `.eTag(...)` and `.cacheControl(CacheControl.maxAge(Duration.ofSeconds(60)))`. In PUT, a non-null `If-Match` that differs → `412`; else update and answer the new ETag. Unmapped `DELETE` and the `consumes` attribute give 405 and 415 for free.
+    - |-
+      ```java
+      @GetMapping(value = "/articles/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+      public ResponseEntity<Article> get(@PathVariable long id,
+                                         @RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch) {
+          return store.find(id).map(article -> {
+              String etag = "\"v" + article.version() + "\"";
+              if (etag.equals(ifNoneMatch)) {
+                  return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).<Article>build();
+              }
+              return ResponseEntity.ok().eTag(etag)
+                      .cacheControl(CacheControl.maxAge(Duration.ofSeconds(60)))
+                      .body(article);
+          }).orElse(ResponseEntity.notFound().build());
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

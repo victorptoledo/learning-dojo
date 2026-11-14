@@ -1,0 +1,16 @@
+id: backend.p4.engineering-leadership
+kind: lesson
+status: draft
+title: "Engineering Leadership"
+summary: "Design docs and ADRs, code review, on-call, technical debt and growing other engineers."
+objectives:
+  - { id: o1, text: "Write a design document and an ADR that others can decide on", skills: [backend.leadership] }
+  - { id: o2, text: "Review code and run on-call in a way that helps the team", skills: [backend.leadership] }
+  - { id: o3, text: "Manage technical debt with the business, not against it", skills: [backend.leadership] }
+prerequisites: [backend.p4.system-architecture]
+difficulty: 4
+estimated_minutes: 40
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

@@ -1,0 +1,50 @@
+id: backend.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata, an issue tracker API with optimistic concurrency."
+objectives:
+  - { id: o1, text: "Explain HTTP semantics, API design, SQL modelling and authentication in your own words", skills: [backend.protocols, backend.api-design, backend.sql, backend.auth-security] }
+  - { id: o2, text: "Build a paginated, filterable API with conditional updates over a relational model", skills: [backend.protocols, backend.api-design, backend.sql] }
+prerequisites: [backend.p1.jwt-tokens]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+closes_phase: p1
+covers_skills: [backend.api-design, backend.auth-security, backend.protocols, backend.sql]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Sort the endpoints by what they need: creation needs the next number, the list needs optional filters and a page, and the patch needs three checks before touching the entity (is there an If-Match, does it match the version, are the fields allowed). In which order must those checks happen so a refused patch changes nothing?
+    - |-
+      `select coalesce(max(i.number), 0) from Issue i where i.project = :project` gives the highest number. Optional filters fit in one JPQL query: `(:status is null or i.status = :status)`. Parse `If-Match` by removing the quotes; compare it with `issue.getVersion()` before applying the patch. Map keys tell you which fields are present: `patch.containsKey("assignee")` with a null value means clear it. `saveAndFlush` returns the entity with the incremented `@Version`.
+    - |-
+      ```java
+      @Transactional
+      public IssueView patch(String projectKey, int number, Long expectedVersion, Map<String, Object> patch) {
+          Issue issue = issue(projectKey, number);                      // 404s
+          if (expectedVersion == null) throw TrackerException.ifMatchRequired();
+          if (expectedVersion != issue.getVersion()) throw TrackerException.stale(issue.getVersion());
+          // refuse keys other than title, status and assignee
+          if (patch.containsKey("title")) { /* not blank, then setTitle */ }
+          if (patch.containsKey("status")) { /* IssueStatus.valueOf, or badRequest */ }
+          if (patch.containsKey("assignee")) { /* null clears it */ }
+          return IssueView.of(issues.saveAndFlush(issue));
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

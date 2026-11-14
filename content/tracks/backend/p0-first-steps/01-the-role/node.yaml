@@ -1,0 +1,15 @@
+id: backend.p0.the-role
+kind: lesson
+status: draft
+title: "The Backend Role and the Life of a Request"
+summary: "What a backend developer owns, and everything that happens between a click and a database row."
+objectives:
+  - { id: o1, text: "Describe the responsibilities of the backend role", skills: [backend.role] }
+  - { id: o2, text: "Follow a request through DNS, TLS, load balancer, server, database and back", skills: [backend.role] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

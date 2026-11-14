@@ -2,13 +2,16 @@ id: backend.p2.caching-queues
 legacy_id: be-04-caching-queues
 kind: lesson
 status: draft
-title: "Caching (Redis) and Message Queues"
-summary: "Asynchronous decoupling with RabbitMQ/Kafka and in-memory caching strategies."
+title: "Caching and Queues"
+summary: "Cache-aside, expiry and invalidation, stampedes, and moving slow work to a queue."
 objectives:
-  - { id: o1, text: "Asynchronous decoupling with RabbitMQ/Kafka and in-memory caching strategies.", skills: [backend.caching-queues] }
+  - { id: o1, text: "Apply cache-aside, write-through and expiry, and plan invalidation", skills: [backend.caching-queues] }
+  - { id: o2, text: "Protect a cache from stampedes and stale data", skills: [backend.caching-queues] }
+  - { id: o3, text: "Move slow work to a queue and answer 202 Accepted", skills: [backend.caching-queues] }
 prerequisites: [backend.p2.databases-sql-nosql]
 difficulty: 3
-estimated_minutes: 30
-xp: 400
+estimated_minutes: 40
+xp: 300
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml

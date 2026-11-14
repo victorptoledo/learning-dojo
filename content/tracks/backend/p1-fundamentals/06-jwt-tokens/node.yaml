@@ -1,0 +1,48 @@
+id: backend.p1.jwt-tokens
+kind: kata
+status: draft
+title: "JWT from Scratch"
+summary: "Build and verify HS256 JSON Web Tokens with only the JDK: encoding, signing, expiry and tampering."
+objectives:
+  - { id: o1, text: "Encode, sign and verify a JWT with HMAC-SHA256", skills: [backend.auth-security] }
+  - { id: o2, text: "Reject expired, tampered and unsigned tokens", skills: [backend.auth-security] }
+prerequisites: [backend.p1.auth-security]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Issuing is three encodings and one HMAC. Verifying is the same computation on the received header and payload, compared with the received signature. Why must the algorithm be checked before anything is trusted, and why must the comparison not stop at the first different byte?
+    - |-
+      `Base64.getUrlEncoder().withoutPadding()` encodes; `Base64.getUrlDecoder()` decodes and throws `IllegalArgumentException` on bad input (that is `malformed`). Build the payload with `MiniJson.write` of a `LinkedHashMap` (`sub`, `exp`, `roles`). Sign `header + "." + payload` with `Mac` HmacSHA256; verify with `MessageDigest.isEqual(expected, received)`; expiry is `!clock.instant().isBefore(Instant.ofEpochSecond(exp))`.
+    - |-
+      ```java
+      public Claims verify(String token) {
+          String[] parts = token == null ? new String[0] : token.split("\\.", -1);
+          if (parts.length != 3) throw new InvalidTokenException("malformed");
+          Map<String, Object> header = json(parts[0]);              // decode + MiniJson.read, or "malformed"
+          if (!"HS256".equals(header.get("alg"))) throw new InvalidTokenException("unsupported algorithm");
+          byte[] received = /* decode parts[2], or "malformed" */;
+          if (!MessageDigest.isEqual(sign(parts[0] + "." + parts[1]), received)) {
+              throw new InvalidTokenException("bad signature");
+          }
+          Map<String, Object> payload = json(parts[1]);
+          // sub (String) and exp (Long) must be there; then the expiry check; then new Claims(...)
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

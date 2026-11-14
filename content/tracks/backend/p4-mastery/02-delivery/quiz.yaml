@@ -1,0 +1,36 @@
+questions:
+  - id: dora
+    prompt: "Which is NOT one of the four DORA metrics?"
+    options: ["Deployment frequency", "Lead time for changes", "Lines of code per day", "Time to restore"]
+    answer: 2
+    explanation: "DORA measures deployment frequency, lead time, change failure rate and time to restore."
+  - id: canary
+    prompt: "What does a canary release do?"
+    options:
+      - "Deploys to all servers at once"
+      - "Sends a small share of traffic to the new version and compares it before going further"
+      - "Tests only in staging"
+    answer: 1
+    explanation: "Canaries limit the blast radius and stop automatically if the new version is worse."
+  - id: expand-contract
+    prompt: "How do you rename a column without downtime?"
+    options:
+      - "ALTER TABLE ... RENAME in the deploy"
+      - "Add the new column, write both, backfill, read the new one, then drop the old one later"
+      - "Stop the service during the migration"
+    answer: 1
+    explanation: "Expand and contract keeps old and new versions working while both run."
+  - id: build-once
+    prompt: "Why build one image and promote it through environments?"
+    options: ["It saves disk space", "What was tested is exactly what runs in production", "Registries require it"]
+    answer: 1
+    explanation: "Rebuilding per environment risks shipping something different from what passed the tests."
+  - id: flags
+    prompt: "What does a feature flag separate?"
+    answers: ["deploying from releasing", "deploy from release", "deployment from release"]
+    explanation: "Code can be deployed off and released (turned on) later, gradually, or turned off fast."
+  - id: overlap
+    prompt: "During a rolling deploy, what must every change be compatible with?"
+    options: ["Nothing", "The previous version, because both run at the same time", "Only the next version"]
+    answer: 1
+    explanation: "Old and new instances overlap, sharing the database, events and APIs."

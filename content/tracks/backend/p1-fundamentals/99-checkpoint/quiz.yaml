@@ -1,0 +1,47 @@
+questions:
+  - id: idempotent-put
+    skills: [backend.protocols]
+    prompt: "A client times out on a PUT and sends it again. Is that safe?"
+    options: ["No, PUT is never safe to repeat", "Yes: PUT is idempotent, a repeat has the same effect", "Only with HTTP/2"]
+    answer: 1
+    explanation: "PUT replaces the resource, so repeating it leaves the same state."
+  - id: precondition-required
+    skills: [backend.protocols]
+    prompt: "An API requires If-Match on updates and a client omits it. Which status fits best?"
+    answers: ["428", "428 Precondition Required"]
+    explanation: "428 tells the client the request must be conditional; 412 is for a condition that failed."
+  - id: nesting
+    skills: [backend.api-design]
+    prompt: "Which URL fits issue 31 of project DOJO?"
+    options: ["/getIssue?project=DOJO&n=31", "/projects/DOJO/issues/31", "/issues/DOJO/31/get"]
+    answer: 1
+    explanation: "A sub-collection under its project, addressed with nouns and identifiers."
+  - id: merge-patch-absent
+    skills: [backend.api-design]
+    prompt: "With JSON Merge Patch, what happens to a field that is not in the patch?"
+    options: ["It is set to null", "It stays as it is", "The patch is invalid"]
+    answer: 1
+    explanation: "Absent fields are unchanged; null removes; present values replace."
+  - id: unique-per-project
+    skills: [backend.sql]
+    prompt: "Which constraint guarantees no two issues of one project share a number?"
+    options: ["unique (number)", "unique (project_id, number)", "primary key (number)"]
+    answer: 1
+    explanation: "Numbers repeat across projects, so uniqueness is on the pair."
+  - id: index-fk
+    skills: [backend.sql]
+    prompt: "Listing a project's issues filters on issues.project_id. What should exist on that column?"
+    answers: ["an index", "index", "a b-tree index"]
+    explanation: "Foreign keys used in filters and joins need an index; PostgreSQL does not add one automatically."
+  - id: jwt-verify
+    skills: [backend.auth-security]
+    prompt: "Which check must a JWT verifier make first?"
+    options: ["That the payload has a sub", "That the alg is the one it expects", "That the token is short"]
+    answer: 1
+    explanation: "Never let the token choose its algorithm; reject anything but the expected one before trusting the rest."
+  - id: session-revoke
+    skills: [backend.auth-security]
+    prompt: "Why do many teams keep access tokens short-lived (minutes)?"
+    options: ["They are cheaper to sign", "A stolen token is useful only briefly, since JWTs are hard to revoke", "Browsers require it"]
+    answer: 1
+    explanation: "Short expiry limits the damage of a leak; refresh tokens get new ones."

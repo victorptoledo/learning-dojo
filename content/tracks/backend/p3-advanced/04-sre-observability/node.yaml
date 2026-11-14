@@ -1,0 +1,16 @@
+id: backend.p3.sre-observability
+kind: lesson
+status: draft
+title: "SRE: SLIs, SLOs and Incidents"
+summary: "Measure what users feel, set objectives and error budgets, alert on symptoms and learn from incidents."
+objectives:
+  - { id: o1, text: "Define SLIs and SLOs and spend an error budget", skills: [backend.sre] }
+  - { id: o2, text: "Alert on symptoms with the golden signals and burn rates", skills: [backend.sre] }
+  - { id: o3, text: "Run an incident and write a blameless postmortem", skills: [backend.sre] }
+prerequisites: [backend.p3.resilient-client]
+difficulty: 4
+estimated_minutes: 40
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
