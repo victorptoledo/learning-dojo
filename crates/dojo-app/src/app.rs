@@ -1,14 +1,21 @@
 use crate::checks::CheckQueue;
+use crate::code_workspace::CodeWorkspace;
+use crate::editor::Editor;
+use crate::environment::Environment;
+use crate::quiz_session::QuizSession;
+use crate::setup::SetupSession;
 use crate::tree::TrackTree;
 use crate::workspace::Workspace;
 use anyhow::{Result, anyhow, bail};
 use chrono::NaiveDate;
 use dojo_core::{
     Catalog, CheckRecord, CheckReport, KataRunner, Mode, NodeKind, Profile, ProgressEvent,
-    ProgressStore, Refusal, Settings, Track,
+    ProgressStore, QuizAttempt, Refusal, Settings, Track,
 };
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::Arc;
+
+const DETAIL_SCROLL_STEP: u16 = 5;
 
 /// Key of per-node state kept in memory: `(track_id, node_id)`.
 pub type NodeKey = (String, String);
@@ -18,14 +25,19 @@ pub struct Services {
     pub store: Box<dyn ProgressStore>,
     pub runner: Arc<dyn KataRunner + Send + Sync>,
     pub workspace: Workspace,
-    /// Command that opens a kata folder (`explorer`, `idea64`, `code`, ...).
-    pub editor: String,
+    pub editor: Editor,
+    /// Regenerated when a kata folder is created, so rust-analyzer picks it up.
+    pub code_workspace: Option<CodeWorkspace>,
+    /// Checks and installs what nodes need; `None` skips the setup step (tests).
+    pub environment: Option<Environment>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Screen {
     TrackView,
     TrackSelector,
+    Quiz,
+    Setup,
 }
 
 /// Everything the TUI shows and the actions it can take. Rendering lives in `ui`.
@@ -37,10 +49,24 @@ pub struct App {
     pub tree: TrackTree,
     pub selector_cursor: usize,
     pub status_message: Option<String>,
+    /// Lines scrolled in the detail panel (PageUp/PageDown).
+    pub detail_scroll: u16,
+    /// A kata folder just created by the dojo: its own file writes must not trigger a check.
+    pub(crate) quiet_kata: Option<(std::path::PathBuf, std::time::Instant)>,
     pub workspace: Workspace,
-    pub editor: String,
+    pub editor: Editor,
+    pub(crate) code_workspace: Option<CodeWorkspace>,
+    pub(crate) environment: Option<Environment>,
+    /// The setup step on screen, while `screen` is `Screen::Setup`.
+    pub setup: Option<SetupSession>,
+    /// Nodes whose setup already passed in this session.
+    pub(crate) setup_cleared: HashSet<NodeKey>,
     /// Latest stored check and attempt count per kata.
     pub check_history: HashMap<NodeKey, (CheckRecord, u32)>,
+    /// Latest quiz attempt per lesson.
+    pub quiz_history: HashMap<NodeKey, QuizAttempt>,
+    /// The quiz being taken, while `screen` is `Screen::Quiz`.
+    pub quiz: Option<QuizSession>,
     /// Full report of checks run in this session (details are not stored).
     pub last_reports: HashMap<NodeKey, CheckReport>,
     pub(crate) checks: CheckQueue,
@@ -55,6 +81,8 @@ impl App {
             runner,
             workspace,
             editor,
+            code_workspace,
+            environment,
         } = services;
         if catalog.tracks.is_empty() {
             bail!("no tracks found in the content folder");
@@ -70,6 +98,7 @@ impl App {
         settings.active_track_id = catalog.tracks[active_track].id.clone();
         let events = store.load_events().map_err(|error| anyhow!(error))?;
         let check_history = load_check_history(&catalog, store.as_ref())?;
+        let quiz_history = load_quiz_history(&catalog, store.as_ref())?;
 
         let mut app = Self {
             tree: TrackTree::new(&catalog.tracks[active_track]),
@@ -79,9 +108,17 @@ impl App {
             screen: Screen::TrackView,
             selector_cursor: active_track,
             status_message: None,
+            detail_scroll: 0,
+            quiet_kata: None,
             workspace,
             editor,
+            code_workspace,
+            environment,
+            setup: None,
+            setup_cleared: HashSet::new(),
             check_history,
+            quiz_history,
+            quiz: None,
             last_reports: HashMap::new(),
             checks: CheckQueue::new(runner),
             store,
@@ -91,6 +128,14 @@ impl App {
             app.save_settings();
         }
         Ok(app)
+    }
+
+    pub fn scroll_detail_down(&mut self) {
+        self.detail_scroll = self.detail_scroll.saturating_add(DETAIL_SCROLL_STEP);
+    }
+
+    pub fn scroll_detail_up(&mut self) {
+        self.detail_scroll = self.detail_scroll.saturating_sub(DETAIL_SCROLL_STEP);
     }
 
     pub fn active_track(&self) -> &Track {
@@ -109,11 +154,13 @@ impl App {
 
     pub fn move_down(&mut self) {
         self.tree.move_down();
+        self.detail_scroll = 0;
         self.status_message = None;
     }
 
     pub fn move_up(&mut self) {
         self.tree.move_up();
+        self.detail_scroll = 0;
         self.status_message = None;
     }
 
@@ -220,7 +267,11 @@ pub(crate) fn refusal_message(refusal: Refusal) -> String {
             kind_label(kind)
         ),
         Refusal::DevOnly => "Already done. Undoing a completion needs --dev.".to_string(),
-        Refusal::ChecksFailed => "The checks did not pass yet.".to_string(),
+        Refusal::NotPassed => "Not passed yet.".to_string(),
+        Refusal::NeedsQuiz => "A lesson is completed by passing its quiz: press [Enter].".to_string(),
+        Refusal::UnderConstruction => {
+            "🚧 Under construction: this node still needs its document and test. It unlocks once they are written.".to_string()
+        }
         Refusal::AlreadyCompleted => "Already done.".to_string(),
         Refusal::NotCompleted => "Nothing to undo.".to_string(),
     }
@@ -251,6 +302,24 @@ fn load_check_history(
                     .check_count(&track.id, &node.id)
                     .map_err(|error| anyhow!(error))?;
                 history.insert((track.id.clone(), node.id.clone()), (record, attempts));
+            }
+        }
+    }
+    Ok(history)
+}
+
+fn load_quiz_history(
+    catalog: &Catalog,
+    store: &dyn ProgressStore,
+) -> Result<HashMap<NodeKey, QuizAttempt>> {
+    let mut history = HashMap::new();
+    for track in &catalog.tracks {
+        for node in track.nodes().filter(|node| node.quiz.is_some()) {
+            if let Some(attempt) = store
+                .latest_quiz_attempt(&track.id, &node.id)
+                .map_err(|error| anyhow!(error))?
+            {
+                history.insert((track.id.clone(), node.id.clone()), attempt);
             }
         }
     }

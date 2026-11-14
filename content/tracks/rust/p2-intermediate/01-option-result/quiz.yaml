@@ -1,0 +1,33 @@
+questions:
+  - id: no-null
+    prompt: How does Rust represent "maybe there is no value"?
+    options: ["null", "Option<T>", "An exception", "A zero value"]
+    answer: 1
+    explanation: "Option<T> is Some(value) or None, and the compiler makes you handle both."
+  - id: question-mark
+    prompt: Inside a function returning Result, what does ? do with an Err?
+    options:
+      - "Panics"
+      - "Ignores it and continues"
+      - "Returns the error to the caller immediately"
+      - "Converts it to None"
+    answer: 2
+    explanation: "? returns early with the error, or unwraps the Ok value and continues."
+  - id: double-output
+    prompt: What does double("21") return?
+    code: |
+      fn double(text: &str) -> Result<i32, std::num::ParseIntError> {
+          let n: i32 = text.parse()?;
+          Ok(n * 2)
+      }
+    answers: ["Ok(42)"]
+    explanation: "\"21\" parses to 21, and the function returns Ok(21 * 2)."
+  - id: unwrap-risk
+    prompt: What happens when you call unwrap() on None?
+    options: ["It returns 0", "The program panics", "It returns None again", "It does not compile"]
+    answer: 1
+    explanation: "unwrap panics on None or Err, which is why real code prefers match, ? or unwrap_or."
+  - id: unwrap-or
+    prompt: "Which method returns the value inside an Option, or a default when it is None?"
+    answers: ["unwrap_or", "unwrap_or()", ".unwrap_or()", "unwrap_or_default", "unwrap_or_default()"]
+    explanation: "option.unwrap_or(default) never panics."

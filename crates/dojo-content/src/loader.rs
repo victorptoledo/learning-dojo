@@ -1,13 +1,14 @@
 use crate::front_matter;
 use crate::manifest::{
     BeltManifest, BridgeFrontMatter, KataManifest, NodeManifest, ObjectiveManifest, PhaseManifest,
-    SkillsManifest, TrackManifest,
+    QuestionManifest, QuizManifest, RequirementManifest, SkillsManifest, TrackManifest,
 };
 use crate::report::Report;
 use crate::schema::{self, Schemas};
 use anyhow::{Result, bail};
 use dojo_core::{
-    Belt, Bridge, Catalog, Kata, Node, Objective, Phase, RunnerSpec, Skill, SkillId, Track,
+    Belt, Bridge, Catalog, DEFAULT_PASS_PERCENT, Kata, Node, Objective, Phase, Question,
+    QuestionKind, Quiz, Requirement, RequirementKind, RunnerSpec, Skill, SkillId, Track,
 };
 use regex::Regex;
 use serde::de::DeserializeOwned;
@@ -26,6 +27,7 @@ enum FileKind {
     Node,
     Skills,
     Bridge,
+    Quiz,
 }
 
 pub fn load_catalog(root: &Path, report: &mut Report) -> Result<Catalog> {
@@ -134,6 +136,11 @@ impl ContentReader<'_> {
             status: manifest.status,
             belts: manifest.belts.into_iter().map(to_belt).collect(),
             phases,
+            requirements: manifest
+                .requirements
+                .into_iter()
+                .map(to_requirement)
+                .collect(),
         })
     }
 
@@ -194,7 +201,38 @@ impl ContentReader<'_> {
             .kata
             .as_ref()
             .and_then(|kata| self.load_kata(node_dir, kata));
-        Some(to_node(manifest, lesson, bridges, kata))
+        let quiz = manifest
+            .quiz
+            .as_ref()
+            .and_then(|file| self.load_quiz(&node_dir.join(file)));
+        let lesson_file = manifest.lesson.as_ref().map(|file| node_dir.join(file));
+        Some(to_node(
+            manifest,
+            (lesson, lesson_file),
+            bridges,
+            kata,
+            quiz,
+        ))
+    }
+
+    fn load_quiz(&mut self, path: &Path) -> Option<Quiz> {
+        let manifest: QuizManifest = self.read_manifest(path, FileKind::Quiz)?;
+        let location = self.relative(path);
+        let questions = manifest
+            .questions
+            .into_iter()
+            .filter_map(|question| match to_question(question) {
+                Ok(question) => Some(question),
+                Err(problem) => {
+                    self.report.error(&location, problem);
+                    None
+                }
+            })
+            .collect();
+        Some(Quiz {
+            pass_percent: manifest.pass_percent.unwrap_or(DEFAULT_PASS_PERCENT),
+            questions,
+        })
     }
 
     /// Resolves the kata folders and reads its statement; every missing piece is reported.
@@ -323,6 +361,7 @@ impl ContentReader<'_> {
             FileKind::Node => &self.schemas.node,
             FileKind::Skills => &self.schemas.skills,
             FileKind::Bridge => &self.schemas.bridge,
+            FileKind::Quiz => &self.schemas.quiz,
         }
     }
 
@@ -363,12 +402,76 @@ fn to_objective(objective: ObjectiveManifest) -> Objective {
     }
 }
 
+/// The schema guarantees one of the two shapes; only the answer index needs checking here.
+fn to_question(manifest: QuestionManifest) -> Result<Question, String> {
+    let kind = match (manifest.options, manifest.answer, manifest.answers) {
+        (Some(options), Some(answer), None) if answer < options.len() => {
+            QuestionKind::SingleChoice { options, answer }
+        }
+        (Some(options), Some(answer), None) => {
+            return Err(format!(
+                "question `{}`: answer {answer} is out of range ({} options, counted from 0)",
+                manifest.id,
+                options.len()
+            ));
+        }
+        (None, None, Some(answers)) => QuestionKind::Text { answers },
+        _ => {
+            return Err(format!(
+                "question `{}`: needs options + answer, or answers",
+                manifest.id
+            ));
+        }
+    };
+    Ok(Question {
+        id: manifest.id,
+        prompt: manifest.prompt,
+        code: manifest.code,
+        kind,
+        explanation: manifest.explanation,
+    })
+}
+
+/// The schema guarantees the fields each kind needs.
+fn to_requirement(manifest: RequirementManifest) -> Requirement {
+    let kind = match manifest.kind.as_str() {
+        "tool" => RequirementKind::Tool {
+            command: manifest.command.unwrap_or_default(),
+            version_args: manifest.version_args,
+            min_version: manifest.min_version,
+            install_hint: manifest.install_hint.unwrap_or_default(),
+            update: manifest.update,
+        },
+        "vscode-extension" => RequirementKind::VsCodeExtension {
+            id: manifest.id.unwrap_or_default(),
+        },
+        "docker-engine" => RequirementKind::DockerEngine {
+            install_hint: manifest.install_hint.unwrap_or_default(),
+        },
+        _ => RequirementKind::DockerImage {
+            image: manifest.image.unwrap_or_default(),
+        },
+    };
+    Requirement {
+        name: manifest.name,
+        why: manifest.why,
+        required: manifest.required,
+        kind,
+    }
+}
+
 fn to_node(
     manifest: NodeManifest,
-    lesson: Option<String>,
+    (lesson, lesson_file): (Option<String>, Option<PathBuf>),
     bridges: BTreeMap<String, Bridge>,
     kata: Option<Kata>,
+    quiz: Option<Quiz>,
 ) -> Node {
+    let requirements = manifest
+        .requirements
+        .into_iter()
+        .map(to_requirement)
+        .collect();
     Node {
         id: manifest.id,
         legacy_id: manifest.legacy_id,
@@ -382,8 +485,11 @@ fn to_node(
         estimated_minutes: manifest.estimated_minutes,
         xp: manifest.xp,
         lesson,
+        lesson_file,
         bridges,
         kata,
+        quiz,
+        requirements,
     }
 }
 

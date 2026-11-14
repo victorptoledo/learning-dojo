@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learning-dojo.local/schemas/quiz.schema.json",
+  "title": "Lesson quiz (quiz.yaml next to node.yaml)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["questions"],
+  "properties": {
+    "pass_percent": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "description": "Correct answers needed to pass, in percent (rounded up). Defaults to 80."
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "prompt", "explanation"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "prompt": { "type": "string", "minLength": 1 },
+          "code": { "type": "string", "description": "Code shown under the prompt." },
+          "options": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 6,
+            "items": { "type": "string", "minLength": 1 },
+            "description": "Single choice: the learner picks one option."
+          },
+          "answer": { "type": "integer", "minimum": 0, "description": "Index of the correct option." },
+          "answers": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 },
+            "description": "Typed answer: any of these is accepted, ignoring case and spaces."
+          },
+          "explanation": { "type": "string", "minLength": 1 }
+        },
+        "oneOf": [
+          { "required": ["options", "answer"], "not": { "required": ["answers"] } },
+          { "required": ["answers"], "not": { "anyOf": [{ "required": ["options"] }, { "required": ["answer"] }] } }
+        ]
+      }
+    }
+  }
+}

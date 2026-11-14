@@ -5,6 +5,7 @@
 //! always reproduces the same state.
 
 use crate::check::CheckReport;
+use crate::quiz::QuizScore;
 use crate::track::{Belt, Node, NodeKind, Track};
 use chrono::NaiveDate;
 use std::collections::{HashMap, HashSet};
@@ -73,9 +74,29 @@ pub enum Refusal {
     /// Katas, quizzes, checkpoints and projects are completed by evidence
     /// (tests, scores, reviews), not by ticking them.
     NeedsEvidence(NodeKind),
-    /// Evidence was offered but the checks did not pass.
-    ChecksFailed,
+    /// A lesson is completed by passing its quiz.
+    NeedsQuiz,
+    /// The node lacks its document, quiz or exercise; it cannot be completed yet.
+    UnderConstruction,
+    /// Evidence was offered but did not pass (failing checks or quiz score).
+    NotPassed,
     DevOnly,
+}
+
+/// What proves a node was learned.
+#[derive(Debug, Clone, Copy)]
+pub enum Evidence<'a> {
+    Checks(&'a CheckReport),
+    Quiz(QuizScore),
+}
+
+impl Evidence<'_> {
+    pub fn is_pass(&self) -> bool {
+        match self {
+            Self::Checks(report) => report.is_pass(),
+            Self::Quiz(score) => score.passed,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -179,8 +200,8 @@ impl Profile {
         if !self.is_unlocked(track, node) {
             return Err(Refusal::Locked);
         }
-        if mode == Mode::Learner && node.kind != NodeKind::Lesson {
-            return Err(Refusal::NeedsEvidence(node.kind));
+        if mode == Mode::Learner {
+            return Err(learner_refusal(node));
         }
         Ok(ProgressEvent::NodeCompleted {
             track_id: track.id.clone(),
@@ -190,12 +211,12 @@ impl Profile {
         })
     }
 
-    /// Completes a kata (or any evidence-based node) whose checks passed.
+    /// Completes a node whose evidence passed: a kata's checks or a lesson's quiz.
     pub fn complete_by_evidence(
         &self,
         track: &Track,
         node: &Node,
-        report: &CheckReport,
+        evidence: Evidence,
         today: NaiveDate,
     ) -> Result<ProgressEvent, Refusal> {
         if self.is_completed(&track.id, &node.id) {
@@ -204,8 +225,8 @@ impl Profile {
         if !self.is_unlocked(track, node) {
             return Err(Refusal::Locked);
         }
-        if !report.is_pass() {
-            return Err(Refusal::ChecksFailed);
+        if !evidence.is_pass() {
+            return Err(Refusal::NotPassed);
         }
         Ok(ProgressEvent::NodeCompleted {
             track_id: track.id.clone(),
@@ -252,10 +273,26 @@ impl Profile {
             .count()
     }
 
+    /// A node opens when its prerequisites are done and every node of the earlier
+    /// phases is done: a phase must be finished before the next one starts.
     pub fn is_unlocked(&self, track: &Track, node: &Node) -> bool {
-        node.prerequisites
+        let prerequisites_done = node
+            .prerequisites
             .iter()
-            .all(|prerequisite| self.is_completed(&track.id, prerequisite))
+            .all(|prerequisite| self.is_completed(&track.id, prerequisite));
+        prerequisites_done && self.earlier_phases_done(track, node)
+    }
+
+    fn earlier_phases_done(&self, track: &Track, node: &Node) -> bool {
+        let Some(phase) = track.phase_of(&node.id) else {
+            return true;
+        };
+        track
+            .phases
+            .iter()
+            .filter(|earlier| earlier.order < phase.order)
+            .flat_map(|earlier| earlier.nodes.iter())
+            .all(|earlier| self.is_completed(&track.id, &earlier.id))
     }
 
     pub fn track_xp(&self, track: &Track) -> u32 {
@@ -274,6 +311,17 @@ impl Profile {
     pub fn next_belt<'a>(&self, track: &'a Track) -> Option<&'a Belt> {
         let xp = self.track_xp(track);
         track.belts.iter().find(|belt| xp < belt.required_xp)
+    }
+}
+
+/// Why a learner cannot simply tick `node`.
+fn learner_refusal(node: &Node) -> Refusal {
+    if node.under_construction() {
+        Refusal::UnderConstruction
+    } else if node.kind == NodeKind::Lesson {
+        Refusal::NeedsQuiz
+    } else {
+        Refusal::NeedsEvidence(node.kind)
     }
 }
 
@@ -300,6 +348,28 @@ mod tests {
         ])
     }
 
+    #[test]
+    fn a_phase_opens_only_when_every_node_of_the_earlier_phases_is_done() {
+        let rust = track(vec![
+            vec![
+                lesson("rust.p0.setup", &[], 100),
+                lesson("rust.p0.hello", &[], 100),
+            ],
+            vec![lesson("rust.p1.loops", &["rust.p0.setup"], 250)],
+        ]);
+        let loops = rust.node("rust.p1.loops").unwrap();
+        let mut profile = fresh_profile();
+
+        complete(&mut profile, &rust, "rust.p0.setup", day(14));
+        assert!(
+            !profile.is_unlocked(&rust, loops),
+            "rust.p0.hello is still open in the earlier phase"
+        );
+
+        complete(&mut profile, &rust, "rust.p0.hello", day(14));
+        assert!(profile.is_unlocked(&rust, loops));
+    }
+
     fn fresh_profile() -> Profile {
         Profile::new(Settings::new("rust"))
     }
@@ -307,9 +377,17 @@ mod tests {
     fn complete(profile: &mut Profile, track: &Track, node_id: &str, on: NaiveDate) {
         let node = track.node(node_id).unwrap();
         let event = profile
-            .request_completion(track, node, on, Mode::Learner)
+            .complete_by_evidence(track, node, passed_quiz(), on)
             .unwrap();
         profile.apply(&event);
+    }
+
+    fn passed_quiz() -> Evidence<'static> {
+        Evidence::Quiz(QuizScore {
+            correct: 4,
+            total: 5,
+            passed: true,
+        })
     }
 
     #[test]
@@ -335,6 +413,26 @@ mod tests {
     }
 
     #[test]
+    fn learner_cannot_tick_anything_and_unfinished_nodes_say_so() {
+        use crate::quiz::Quiz;
+        let mut ready = lesson("rust.p0.ready", &[], 100);
+        ready.lesson = Some("# Ready".into());
+        ready.quiz = Some(Quiz {
+            pass_percent: 80,
+            questions: vec![],
+        });
+        let rust = track(vec![vec![ready, lesson("rust.p0.draft", &[], 100)]]);
+        let profile = fresh_profile();
+
+        let ask = |id: &str| {
+            profile.request_completion(&rust, rust.node(id).unwrap(), day(14), Mode::Learner)
+        };
+
+        assert_eq!(ask("rust.p0.ready"), Err(Refusal::NeedsQuiz));
+        assert_eq!(ask("rust.p0.draft"), Err(Refusal::UnderConstruction));
+    }
+
+    #[test]
     fn learner_cannot_tick_a_kata_but_dev_can() {
         let rust = track(vec![vec![node("rust.p0.kata", &[], 100)]]);
         let kata = rust.node("rust.p0.kata").unwrap();
@@ -342,7 +440,8 @@ mod tests {
 
         assert_eq!(
             profile.request_completion(&rust, kata, day(14), Mode::Learner),
-            Err(Refusal::NeedsEvidence(NodeKind::Kata))
+            Err(Refusal::UnderConstruction),
+            "a kata node without its exercise is still being written"
         );
         assert!(
             profile
@@ -369,17 +468,17 @@ mod tests {
         };
 
         assert_eq!(
-            profile.complete_by_evidence(&rust, kata, &failing, day(14)),
-            Err(Refusal::ChecksFailed)
+            profile.complete_by_evidence(&rust, kata, Evidence::Checks(&failing), day(14)),
+            Err(Refusal::NotPassed)
         );
         let event = profile
-            .complete_by_evidence(&rust, kata, &passing, day(14))
+            .complete_by_evidence(&rust, kata, Evidence::Checks(&passing), day(14))
             .unwrap();
         profile.apply(&event);
 
         assert_eq!(profile.total_xp, 120);
         assert_eq!(
-            profile.complete_by_evidence(&rust, kata, &passing, day(14)),
+            profile.complete_by_evidence(&rust, kata, Evidence::Checks(&passing), day(14)),
             Err(Refusal::AlreadyCompleted)
         );
     }

@@ -1,0 +1,38 @@
+questions:
+  - id: method-receiver
+    prompt: A method that only reads the struct should take which first parameter?
+    options: ["self", "&self", "&mut self", "Self"]
+    answer: 1
+    explanation: "&self borrows the struct immutably, so the caller keeps ownership."
+  - id: match-exhaustive
+    prompt: "You add a variant Triangle to enum Shape. What happens to a match on Shape that has no arm for it and no _?"
+    options:
+      - "It silently ignores triangles"
+      - "It panics when a Triangle reaches it"
+      - "It stops compiling until the case is handled"
+    answer: 2
+    explanation: "match must cover every possible value; the compiler lists the missing patterns."
+  - id: match-output
+    prompt: What does classify(7) return?
+    code: |
+      fn classify(n: i32) -> &'static str {
+          match n {
+              0 => "zero",
+              1..=9 => "small",
+              _ => "large",
+          }
+      }
+    answers: ["small", "\"small\""]
+    explanation: "7 falls in the range 1..=9, so the second arm matches."
+  - id: constructor
+    prompt: "How do you call the associated function new of struct Point with 3 and 4?"
+    answers: ["Point::new(3, 4)", "Point::new(3,4)"]
+    explanation: "Associated functions without self are called with the type name and ::."
+  - id: if-let
+    prompt: When is if let a better fit than match?
+    options:
+      - "When you need to handle every variant"
+      - "When only one pattern matters and the rest can be ignored"
+      - "When matching on integers"
+    answer: 1
+    explanation: "if let handles a single pattern without writing a catch-all arm."

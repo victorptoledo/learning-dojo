@@ -17,3 +17,17 @@ kata:
   tests: kata/tests
   reference: kata/reference
   runner: { image: dojo-rust, timeout_secs: 120 }
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-rust runner image
+    image: dojo-rust
+    why: The container with Rust, clippy and rustfmt that runs the grading tests.
+  - kind: vscode-extension
+    name: CodeLLDB
+    id: vadimcn.vscode-lldb
+    required: false
+    why: Breakpoints and step-by-step debugging of your tests.

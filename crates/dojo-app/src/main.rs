@@ -2,9 +2,20 @@ mod app;
 #[cfg(test)]
 mod app_tests;
 mod checks;
+mod code_workspace;
 mod config;
+mod doctor;
+mod editor;
+mod environment;
 mod kata_actions;
 mod kata_commands;
+mod lesson_actions;
+mod lesson_view;
+mod quiz_session;
+mod setup;
+mod setup_actions;
+mod setup_view;
+mod single_instance;
 mod tree;
 mod tui;
 mod ui;
@@ -15,6 +26,7 @@ mod workspace;
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use config::{Config, dojo_home};
+use single_instance::Acquired;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
@@ -58,6 +70,13 @@ enum Command {
         #[command(subcommand)]
         action: RunnerAction,
     },
+    /// Write dojo.code-workspace (lessons + solutions) and open it in VS Code.
+    Vscode,
+    /// Check that this machine has everything a track needs.
+    Doctor {
+        #[arg(default_value = "rust")]
+        track: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -94,6 +113,11 @@ fn main() -> Result<ExitCode> {
                 editor: config.editor,
                 dev: cli.dev,
             };
+            let Acquired::Lock(_lock) = single_instance::acquire(&dojo_home().join("dojo.lock"))?
+            else {
+                println!("Leaving the other Dojo open.");
+                return Ok(ExitCode::SUCCESS);
+            };
             tui::run(&options)?;
             Ok(ExitCode::SUCCESS)
         }
@@ -106,5 +130,18 @@ fn main() -> Result<ExitCode> {
         Some(Command::Runner {
             action: RunnerAction::Build { images },
         }) => kata_commands::build_runner_images(&images),
+        Some(Command::Doctor { track }) => {
+            let config = Config::load(&dojo_home().join("config.toml"))?;
+            let environment = environment::Environment::new(
+                editor::Editor::new(&config.editor),
+                &std::path::absolute("runner-images")?,
+            );
+            doctor::run(&cli.content, &track, &environment)
+        }
+        Some(Command::Vscode) => {
+            let config = Config::load(&dojo_home().join("config.toml"))?;
+            let workspace = cli.workspace.unwrap_or(config.workspace);
+            code_workspace::open_in_vscode(&cli.content, &workspace, &config.editor)
+        }
     }
 }

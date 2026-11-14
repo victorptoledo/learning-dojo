@@ -1,4 +1,8 @@
 use crate::app::{App, Screen, Services};
+use crate::code_workspace;
+use crate::editor::Editor;
+use crate::environment::Environment;
+use crate::setup::SetupJob;
 use crate::ui;
 use crate::watcher::WorkspaceWatcher;
 use crate::workspace::Workspace;
@@ -40,11 +44,23 @@ pub fn run(options: &Options) -> Result<()> {
         Mode::Learner
     };
     fs::create_dir_all(&options.workspace)?;
+    let code_workspace = code_workspace::for_dojo(&options.content_dir, &options.workspace)?;
+    let mut editor = Editor::new(&options.editor);
+    let mut code_workspace_for_app = None;
+    if editor.is_vscode_like() {
+        editor = editor.with_project(code_workspace.write()?);
+        code_workspace_for_app = Some(code_workspace);
+    }
     let services = Services {
         store: Box::new(store),
         runner: Arc::new(DockerRunner::default()),
         workspace: Workspace::new(&options.workspace),
-        editor: options.editor.clone(),
+        environment: Some(Environment::new(
+            editor.clone(),
+            &std::path::absolute("runner-images")?,
+        )),
+        editor,
+        code_workspace: code_workspace_for_app,
     };
     let mut app = App::new(loaded.catalog, services, mode)?;
     app.status_message = startup_message(loaded.report.count(Severity::Error), &import);
@@ -85,6 +101,7 @@ fn event_loop(
 ) -> Result<()> {
     loop {
         app.poll_checks();
+        app.poll_setup();
         if let Some(changed) = watcher.settled_change() {
             app.on_workspace_change(&changed);
         }
@@ -110,9 +127,46 @@ enum Flow {
 fn handle_key(app: &mut App, key: KeyEvent) -> Flow {
     match app.screen {
         Screen::TrackSelector => handle_selector_key(app, key.code),
+        Screen::Quiz => handle_quiz_key(app, key.code),
+        Screen::Setup => handle_setup_key(app, key.code),
         Screen::TrackView => return handle_track_key(app, key.code),
     }
     Flow::Continue
+}
+
+fn handle_setup_key(app: &mut App, code: KeyCode) {
+    match code {
+        KeyCode::Esc => app.close_setup(),
+        KeyCode::Enter => app.setup_continue(),
+        KeyCode::Char('i' | 'I') => app.setup_run(SetupJob::Install),
+        KeyCode::Char('u' | 'U') => app.setup_run(SetupJob::Update),
+        KeyCode::Char('r' | 'R') => app.setup_run(SetupJob::Check),
+        _ => {}
+    }
+}
+
+fn handle_quiz_key(app: &mut App, code: KeyCode) {
+    let finished = app
+        .quiz
+        .as_ref()
+        .is_some_and(|session| session.score().is_some());
+    if finished {
+        if matches!(code, KeyCode::Enter | KeyCode::Esc) {
+            app.close_finished_quiz();
+        }
+        return;
+    }
+    let Some(session) = app.quiz.as_mut() else {
+        return;
+    };
+    match code {
+        KeyCode::Esc => app.abandon_quiz(),
+        KeyCode::Enter => session.confirm(),
+        KeyCode::Backspace => session.backspace(),
+        KeyCode::Char(character) if session.is_text_question() => session.type_char(character),
+        KeyCode::Char(digit @ '1'..='9') => session.choose(digit as usize - '0' as usize),
+        _ => {}
+    }
 }
 
 fn handle_selector_key(app: &mut App, code: KeyCode) {
@@ -127,15 +181,18 @@ fn handle_selector_key(app: &mut App, code: KeyCode) {
 
 fn handle_track_key(app: &mut App, code: KeyCode) -> Flow {
     match code {
-        KeyCode::Esc | KeyCode::Char('q') => return Flow::Quit,
+        KeyCode::Esc => return Flow::Quit,
         KeyCode::Char('m' | 'M' | 't' | 'T') => app.open_selector(),
         KeyCode::Down | KeyCode::Char('j') => app.move_down(),
         KeyCode::Up | KeyCode::Char('k') => app.move_up(),
         KeyCode::Enter => app.activate_selected(),
         KeyCode::Char(' ') => app.toggle_selected(),
         KeyCode::Char('c' | 'C') => app.check_selected(),
+        KeyCode::Char('q' | 'Q') => app.start_lesson_quiz(),
         KeyCode::Char('o' | 'O') => app.open_selected(),
         KeyCode::Char('b' | 'B') => app.cycle_bridge_language(),
+        KeyCode::PageDown => app.scroll_detail_down(),
+        KeyCode::PageUp => app.scroll_detail_up(),
         _ => {}
     }
     Flow::Continue

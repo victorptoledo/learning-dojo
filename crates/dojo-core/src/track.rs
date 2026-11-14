@@ -2,6 +2,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
+use crate::quiz::Quiz;
+use crate::requirement::{Requirement, merge};
+
 pub type TrackId = String;
 pub type PhaseId = String;
 pub type NodeId = String;
@@ -95,9 +98,14 @@ pub struct Node {
     pub estimated_minutes: u32,
     pub xp: u32,
     pub lesson: Option<String>,
+    /// The lesson document on disk, opened in the editor.
+    pub lesson_file: Option<PathBuf>,
     /// Bridges keyed by source language (`java`, `python`, ..., `generic`).
     pub bridges: BTreeMap<String, Bridge>,
     pub kata: Option<Kata>,
+    pub quiz: Option<Quiz>,
+    /// What this node needs on top of the track's requirements.
+    pub requirements: Vec<Requirement>,
 }
 
 impl Node {
@@ -106,6 +114,17 @@ impl Node {
         self.bridges
             .get(source_language)
             .or_else(|| self.bridges.get(GENERIC_BRIDGE))
+    }
+
+    /// True while the node lacks what a learner needs to complete it: a lesson
+    /// needs its document and quiz, a kata its exercise. Quizzes, checkpoints and
+    /// projects have no engine yet.
+    pub fn under_construction(&self) -> bool {
+        match self.kind {
+            NodeKind::Lesson => self.lesson.is_none() || self.quiz.is_none(),
+            NodeKind::Kata => self.kata.is_none(),
+            NodeKind::Quiz | NodeKind::Checkpoint | NodeKind::Project => true,
+        }
     }
 
     pub fn skills(&self) -> impl Iterator<Item = &str> {
@@ -143,6 +162,8 @@ pub struct Track {
     pub status: ContentStatus,
     pub belts: Vec<Belt>,
     pub phases: Vec<Phase>,
+    /// What every node of the track needs.
+    pub requirements: Vec<Requirement>,
 }
 
 impl Track {
@@ -162,6 +183,11 @@ impl Track {
 
     pub fn node_count(&self) -> usize {
         self.phases.iter().map(|phase| phase.nodes.len()).sum()
+    }
+
+    /// Everything `node` needs: the track's requirements plus the node's own.
+    pub fn requirements_for<'a>(&'a self, node: &'a Node) -> Vec<&'a Requirement> {
+        merge(&self.requirements, &node.requirements)
     }
 
     pub fn total_xp(&self) -> u32 {
@@ -187,8 +213,11 @@ pub(crate) mod fixtures {
             estimated_minutes: 10,
             xp,
             lesson: None,
+            lesson_file: None,
             bridges: BTreeMap::new(),
             kata: None,
+            quiz: None,
+            requirements: vec![],
         }
     }
 
@@ -240,6 +269,7 @@ pub(crate) mod fixtures {
                     nodes,
                 })
                 .collect(),
+            requirements: vec![],
         }
     }
 }

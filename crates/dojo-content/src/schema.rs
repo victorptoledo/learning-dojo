@@ -10,6 +10,7 @@ pub struct Schemas {
     pub node: Validator,
     pub skills: Validator,
     pub bridge: Validator,
+    pub quiz: Validator,
 }
 
 impl Schemas {
@@ -19,6 +20,7 @@ impl Schemas {
             node: compile(schema_dir, "node.schema.json")?,
             skills: compile(schema_dir, "skills.schema.json")?,
             bridge: compile(schema_dir, "bridge.schema.json")?,
+            quiz: compile(schema_dir, "quiz.schema.json")?,
         })
     }
 }

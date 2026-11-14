@@ -19,6 +19,7 @@ dojo-core.workspace = true
 dojo-store.workspace = true
 dojo-runner.workspace = true
 notify.workspace = true
+regex.workspace = true
 serde.workspace = true
 toml.workspace = true
 ratatui.workspace = true

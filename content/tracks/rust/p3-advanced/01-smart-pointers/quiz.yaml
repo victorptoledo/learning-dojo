@@ -1,0 +1,33 @@
+questions:
+  - id: recursive-type
+    prompt: Why does enum List { Node(i32, Box<List>), Empty } need the Box?
+    options:
+      - "Box makes the list thread-safe"
+      - "Without it the type would contain itself and have infinite size"
+      - "Box makes the values immutable"
+    answer: 1
+    explanation: "Box has a fixed size (a pointer), so the enum's size becomes known."
+  - id: rc-count
+    prompt: What does this print?
+    code: |
+      use std::rc::Rc;
+      let shared = Rc::new(5);
+      let a = Rc::clone(&shared);
+      let b = Rc::clone(&shared);
+      println!("{}", Rc::strong_count(&shared));
+    answers: ["3"]
+    explanation: "shared, a and b are three owners of the same value."
+  - id: refcell-violation
+    prompt: What happens when RefCell's borrow rules are broken (two borrow_mut at once)?
+    options: ["Compile error", "The program panics at runtime", "The second borrow waits", "Nothing"]
+    answer: 1
+    explanation: "RefCell moves the checks to runtime, so a violation is a panic."
+  - id: threads-pointer
+    prompt: Which pointer shares ownership of a value between threads?
+    options: ["Rc<T>", "Box<T>", "Arc<T>", "RefCell<T>"]
+    answer: 2
+    explanation: "Arc uses an atomic reference count, which is safe across threads; Rc is not."
+  - id: shared-mutable-threads
+    prompt: Which combination gives shared, mutable state across threads?
+    answers: ["Arc<Mutex<T>>", "Arc<Mutex<T> >", "Arc<RwLock<T>>"]
+    explanation: "Arc shares ownership and Mutex makes sure only one thread mutates at a time."

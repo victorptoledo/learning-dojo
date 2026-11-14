@@ -290,6 +290,108 @@ fn bridge_file_name_must_match_its_language() {
     );
 }
 
+const QUIZ: &str = "pass_percent: 75
+questions:
+  - id: q1
+    prompt: Pick b.
+    options: [a, b]
+    answer: 1
+    explanation: It is b.
+  - id: q2
+    prompt: What does it print?
+    code: |
+      println!(\"{}\", 1 + 1);
+    answers: [\"2\"]
+    explanation: One plus one.
+  - id: q3
+    prompt: Type yes.
+    answers: [yes, y]
+    explanation: Yes.
+";
+
+fn lesson_with_quiz(fixture: &Fixture, quiz: &str) {
+    fixture.node(
+        "p0-first-steps/01-setup",
+        &format!(
+            "{}quiz: quiz.yaml\n",
+            node_yaml("demo.p0.setup", &[], "demo.basics")
+        ),
+    );
+    fixture.write("tracks/demo/p0-first-steps/01-setup/quiz.yaml", quiz);
+}
+
+#[test]
+fn a_lesson_with_document_and_quiz_is_ready_for_learners() {
+    let fixture = Fixture::new();
+    lesson_with_quiz(&fixture, QUIZ);
+
+    let content = fixture.load();
+
+    assert!(errors(&content).is_empty(), "{:?}", errors(&content));
+    let node = content
+        .catalog
+        .track("demo")
+        .unwrap()
+        .node("demo.p0.setup")
+        .unwrap();
+    let quiz = node.quiz.as_ref().unwrap();
+    assert_eq!(quiz.pass_percent, 75);
+    assert_eq!(quiz.questions.len(), 3);
+    assert_eq!(
+        quiz.questions[1].code.as_deref(),
+        Some("println!(\"{}\", 1 + 1);\n")
+    );
+    assert!(!node.under_construction());
+}
+
+#[test]
+fn a_lesson_without_quiz_is_reported_as_under_construction() {
+    let fixture = Fixture::new();
+    fixture.node(
+        "p0-first-steps/01-setup",
+        &node_yaml("demo.p0.setup", &[], "demo.basics"),
+    );
+
+    let content = fixture.load();
+
+    assert!(
+        content
+            .report
+            .issues()
+            .iter()
+            .any(|issue| issue.message.contains("under construction"))
+    );
+}
+
+#[test]
+fn quiz_answer_out_of_range_is_an_error() {
+    let fixture = Fixture::new();
+    lesson_with_quiz(
+        &fixture,
+        "questions:\n  - { id: q1, prompt: P, options: [a, b], answer: 2, explanation: E }\n",
+    );
+
+    let found = errors(&fixture.load());
+
+    assert!(
+        found.iter().any(|e| e.contains("out of range")),
+        "{found:?}"
+    );
+}
+
+#[test]
+fn question_with_both_options_and_typed_answers_breaks_the_schema() {
+    let fixture = Fixture::new();
+    lesson_with_quiz(
+        &fixture,
+        "questions:\n  - { id: q1, prompt: P, options: [a, b], answer: 0, answers: [a], explanation: E }\n",
+    );
+
+    let found = errors(&fixture.load());
+
+    assert!(found.iter().any(|e| e.contains("schema")), "{found:?}");
+}
+
 #[test]
 fn repository_content_has_no_errors() {
     let content = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../content");
@@ -297,4 +399,19 @@ fn repository_content_has_no_errors() {
 
     assert!(errors(&loaded).is_empty(), "{:#?}", errors(&loaded));
     assert_eq!(loaded.catalog.tracks.len(), 29);
+}
+
+#[test]
+fn every_rust_node_is_ready_for_learners() {
+    let content = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../content");
+    let catalog = load(&content).unwrap().catalog;
+    let rust = catalog.track("rust").unwrap();
+
+    let unfinished: Vec<&str> = rust
+        .nodes()
+        .filter(|node| node.under_construction())
+        .map(|node| node.id.as_str())
+        .collect();
+
+    assert!(unfinished.is_empty(), "{unfinished:?}");
 }

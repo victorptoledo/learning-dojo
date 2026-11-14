@@ -35,6 +35,8 @@ impl CheckOutcome {
 pub struct TestCase {
     pub name: String,
     pub passed: bool,
+    /// Panic or assertion message of a failing test.
+    pub message: Option<String>,
 }
 
 /// What one run of a kata's checks produced.
@@ -112,6 +114,7 @@ mod tests {
                 .map(|(i, passed)| TestCase {
                     name: format!("t{i}"),
                     passed: *passed,
+                    message: None,
                 })
                 .collect(),
             details: String::new(),

@@ -136,6 +136,20 @@ Example files: [`track.yaml`](examples/track.yaml), [`node-kata.yaml`](examples/
 
 The learner picks a source language at onboarding (`config.toml: bridge_from = "java"`, changeable any time). Each node keeps one bridge per source language in `bridges/<lang>.md` (front matter: `concept`, `from_way`, `native_way`, `sensei_tip`). Resolution order: the chosen language → `generic.md` (concept explained with no comparison) → no bridge tab. Missing bridges can be drafted by AI and marked `status: draft` until reviewed. The existing `rosetta` blocks migrate to `bridges/java.md`.
 
+### 5.2b Completion rules (implemented 2026-11-14)
+
+- A lesson is completed only by passing its quiz (`quiz.yaml` next to `node.yaml`: single-choice or typed answers, typed ones compared ignoring case and spaces; `pass_percent`, default 80, rounded up). Attempts are stored (`quiz_attempt`).
+- A node is *under construction* when it lacks what a learner needs: a lesson without `lesson.md` or quiz, a kata without its exercise; quiz, checkpoint and project nodes until their engines exist. It shows 🚧, cannot be completed, and so blocks what comes after it.
+- A node unlocks when its prerequisites are done **and** every node of the earlier phases is done.
+- `--dev` can tick and undo anything (locks still apply).
+
+### 5.2c Per-step setup (implemented 2026-11-14)
+
+- `requirements` on a track apply to every node; a node adds its own, and an entry with the same key replaces the track's. Kinds: `tool` (command, version args, `min_version`, install hint, update command), `vscode-extension`, `docker-engine`, `docker-image`. `required` defaults to true.
+- Opening a node runs the checks on a background thread (once per session per node). All ready: the node opens by itself. Something missing: the Prepare screen. Required gaps block `Enter`.
+- The dojo installs only what is safe to automate on request (`I`): VS Code extensions, runner images, starting Docker Desktop. Tools are installed by the learner from the hint. `U` runs update commands.
+- `dojo doctor <track>` prints the same report for a whole track.
+
 ### 5.3 Node state for a learner
 
 ```
@@ -318,6 +332,8 @@ ustp1│  Workspace: ~/.dojo/workspace/rust/p1/04-loops   │4-lo │
 
 - Icons: 🔒 locked · ○ available · ◐ in progress · ✓ passed · ★ mastered · ⏭ placed out · 📋 checkpoint.
 - Screens: track selector grouped by category with progress %; placement wizard; review (findings navigable by file:line, level per criterion); career map; settings (source language, AI backend).
+- One instance at a time: `~/.dojo/dojo.lock` holds the PID and start time; a second launch offers to close the first (two instances would both watch the workspace and run every check and commit twice). On Windows, `dojo.cmd` builds and runs a copy of the binary so an open Dojo never blocks the build.
+- Kata panel order (after user testing on 2026-11-14): numbered steps, then the last check with one line per failing test (its panic message; `todo!` shown as "not written yet"), then the statement. Creating a kata folder does not trigger a check (3 s quiet period).
 - Subcommands: `dojo`, `dojo placement <track>`, `dojo check`, `dojo submit`, `dojo hint`, `dojo runner build`, `dojo content validate`, `dojo review eval <track>`.
 
 ## 11. Content volume

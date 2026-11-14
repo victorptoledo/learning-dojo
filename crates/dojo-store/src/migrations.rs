@@ -31,6 +31,17 @@ const MIGRATIONS: &[&str] = &[
          ran_at       TEXT    NOT NULL
      );
      CREATE INDEX check_run_by_node ON check_run (track_id, node_id, id);",
+    // 3: lesson quiz attempts.
+    "CREATE TABLE quiz_attempt (
+         id       INTEGER PRIMARY KEY AUTOINCREMENT,
+         track_id TEXT    NOT NULL,
+         node_id  TEXT    NOT NULL,
+         correct  INTEGER NOT NULL CHECK (correct >= 0),
+         total    INTEGER NOT NULL CHECK (total >= correct),
+         passed   INTEGER NOT NULL CHECK (passed IN (0, 1)),
+         taken_at TEXT    NOT NULL
+     );
+     CREATE INDEX quiz_attempt_by_node ON quiz_attempt (track_id, node_id, id);",
 ];
 
 pub fn apply(connection: &mut Connection) -> Result<()> {

@@ -7,6 +7,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 const MIN_NODES_PER_TRACK: usize = 15;
 const MAX_NODES_PER_TRACK: usize = 25;
 const PHASES_WITH_CHECKPOINT: [&str; 2] = ["p1", "p2"];
+const MIN_QUIZ_QUESTIONS: usize = 3;
 
 pub fn check_catalog(catalog: &Catalog, report: &mut Report) {
     check_unique_tracks(catalog, report);
@@ -238,5 +239,26 @@ fn check_completeness(track: &Track, report: &mut Report) {
             node_location(track, &node.id),
             "node has no lesson",
         );
+    }
+    for node in track.nodes().filter(|node| node.under_construction()) {
+        report.push(
+            severity,
+            node_location(track, &node.id),
+            "learners see this node as under construction (a lesson needs its document and quiz, a kata its exercise)",
+        );
+    }
+    for node in track.nodes() {
+        if let Some(quiz) = &node.quiz
+            && quiz.questions.len() < MIN_QUIZ_QUESTIONS
+        {
+            report.push(
+                severity,
+                node_location(track, &node.id),
+                format!(
+                    "quiz has {} questions; expected at least {MIN_QUIZ_QUESTIONS}",
+                    quiz.questions.len()
+                ),
+            );
+        }
     }
 }

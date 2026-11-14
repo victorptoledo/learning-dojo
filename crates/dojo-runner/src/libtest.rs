@@ -2,12 +2,15 @@
 
 use dojo_core::{CheckOutcome, CheckReport, TestCase};
 use regex::Regex;
+use std::collections::HashMap;
 use std::sync::LazyLock;
 
 const MAX_DETAIL_LINES: usize = 40;
 
 static TEST_LINE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^test (\S+) \.\.\. (ok|FAILED|ignored)").expect("valid regex"));
+static FAILURE_HEADER: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^---- (\S+) stdout ----").expect("valid regex"));
 static COMPILE_ERROR: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^error(\[E\d{4}\])?: ").expect("valid regex"));
 
@@ -38,15 +41,45 @@ pub fn parse_cargo_test(output: &str, exit_ok: bool, duration_ms: u64) -> CheckR
 }
 
 fn parse_test_lines(output: &str) -> Vec<TestCase> {
+    let mut messages = failure_messages(output);
     output
         .lines()
         .filter_map(|line| TEST_LINE.captures(line.trim_end()))
         .filter(|caps| &caps[2] != "ignored")
-        .map(|caps| TestCase {
-            name: caps[1].to_string(),
-            passed: &caps[2] == "ok",
+        .map(|caps| {
+            let passed = &caps[2] == "ok";
+            TestCase {
+                name: caps[1].to_string(),
+                passed,
+                message: if passed {
+                    None
+                } else {
+                    messages.remove(&caps[1])
+                },
+            }
         })
         .collect()
+}
+
+/// Panic message of each failing test: the lines after `panicked at ...:`
+/// in its `---- name stdout ----` block, up to the first blank line.
+fn failure_messages(output: &str) -> HashMap<String, String> {
+    let mut messages = HashMap::new();
+    let mut lines = output.lines();
+    while let Some(line) = lines.next() {
+        let Some(caps) = FAILURE_HEADER.captures(line) else {
+            continue;
+        };
+        let message: Vec<&str> = lines
+            .by_ref()
+            .skip_while(|line| !line.contains("panicked at"))
+            .skip(1)
+            .take_while(|line| !line.trim().is_empty() && !line.starts_with("note: "))
+            .map(str::trim_end)
+            .collect();
+        messages.insert(caps[1].to_string(), message.join("\n"));
+    }
+    messages
 }
 
 /// The `---- name stdout ----` blocks: panic messages with expected and actual values.
@@ -174,6 +207,55 @@ error: could not compile `kata` (lib) due to 1 previous error
                 .contains("right: \"Welcome to the dojo, Ferris!\"")
         );
         assert!(!report.details.contains("RUST_BACKTRACE"));
+        let failed = report.tests.iter().find(|test| !test.passed).unwrap();
+        assert_eq!(
+            failed.message.as_deref(),
+            Some(
+                "assertion `left == right` failed
+  left: \"Hello Ferris\"
+ right: \"Welcome to the dojo, Ferris!\""
+            )
+        );
+        assert!(
+            report
+                .tests
+                .iter()
+                .filter(|test| test.passed)
+                .all(|test| test.message.is_none())
+        );
+    }
+
+    #[test]
+    fn todo_panics_are_captured_per_test() {
+        let output = "test a ... FAILED
+test b ... FAILED
+
+failures:
+
+---- a stdout ----
+
+thread 'a' (155) panicked at src/lib.rs:3:5:
+not yet implemented: greet
+note: run with `RUST_BACKTRACE=1`
+
+---- b stdout ----
+
+thread 'b' (156) panicked at src/lib.rs:3:5:
+not yet implemented: greet
+
+
+failures:
+    a
+    b
+";
+        let report = parse_cargo_test(output, false, 1);
+
+        assert!(
+            report
+                .tests
+                .iter()
+                .all(|test| test.message.as_deref() == Some("not yet implemented: greet"))
+        );
     }
 
     #[test]

@@ -1,0 +1,41 @@
+questions:
+  - id: reassign
+    prompt: What happens when this code is compiled?
+    code: |
+      let x = 5;
+      x = 6;
+    options:
+      - "It compiles and x becomes 6"
+      - "Compile error: x is immutable"
+      - "It panics at runtime"
+    answer: 1
+    explanation: "Variables are immutable unless declared with mut, and the compiler rejects the second assignment."
+  - id: declare-mut
+    prompt: Write the declaration of a variable count, starting at 0, that can change later.
+    answers: ["let mut count = 0;", "let mut count = 0", "let mut count: i32 = 0;", "let mut count: i32 = 0"]
+    explanation: "let mut count = 0; declares a mutable binding."
+  - id: shadow-block
+    prompt: What does this program print?
+    code: |
+      let x = 1;
+      {
+          let x = x * 10;
+          print!("{x} ");
+      }
+      print!("{x}");
+    answers: ["10 1"]
+    explanation: "The inner x shadows the outer one only inside the block; after it, x is 1 again."
+  - id: shadow-type
+    prompt: Which statement about shadowing is true?
+    options:
+      - "Shadowing changes the value of the same variable, like mut"
+      - "Shadowing creates a new variable, which may even have a different type"
+      - "Shadowing is only allowed for constants"
+      - "Shadowing makes the variable mutable"
+    answer: 1
+    explanation: "let input: i32 = input.parse()... declares a brand-new variable that reuses the name."
+  - id: const-rule
+    prompt: What does a const always need that a let does not?
+    options: ["A type annotation", "The mut keyword", "A function around it", "An unsafe block"]
+    answer: 0
+    explanation: "const MAX: u32 = 10; must spell out its type; let can rely on inference."

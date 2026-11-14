@@ -8,9 +8,13 @@ A gamified learning platform for the terminal (TUI), written in **Rust** with [`
 
 ## Run
 
+On Windows, start it with the launcher:
+
 ```bash
-cargo run --bin dojo
+.\dojo
 ```
+
+`dojo.cmd` builds the app and runs a copy of the binary, so a Dojo left open in another window never blocks the next build (arguments are passed through: `.\dojo --dev`, `.\dojo content validate`). `cargo run --bin dojo` works too. Only one Dojo runs at a time: opening a second one offers to close the first, because both would watch the workspace and check and commit twice.
 
 Validate the content folder (schemas, IDs, prerequisites, skills, completeness):
 
@@ -28,7 +32,7 @@ Katas are checked in Docker, so Docker Desktop must be running. Build the runner
 cargo run --bin dojo -- runner build
 ```
 
-In the TUI, press `Enter` on a kata to create its folder in your workspace (default `C:\dev\dojo-workspace`), `O` to open it and `C` to check it. Saving any file in the folder runs the checks too. When every test passes the kata is completed and its folder is committed to the workspace git repository (never pushed). The grading tests stay in the dojo and are copied into the container only.
+In the TUI, press `Enter` on a kata to create its folder in your workspace (default `C:\dev\dojo-workspace`) and open it in your editor, with the statement (`README.md`) and `src/lib.rs`; `C` checks it. Saving any file in the folder runs the checks too. When every test passes the kata is completed and its folder is committed to the workspace git repository (never pushed). The grading tests stay in the dojo and are copied into the container only.
 
 Check that every kata's reference solution passes and its starter fails:
 
@@ -40,7 +44,46 @@ Optional `~/.dojo/config.toml`:
 
 ```toml
 workspace = 'C:\dev\dojo-workspace'
-editor = 'idea64'   # command that opens a folder; defaults to explorer
+editor = 'C:\Users\you\AppData\Local\Programs\antigravity\Antigravity.exe'
+# Any command that opens a folder or file. VS Code-like editors (code.cmd, Antigravity, Cursor)
+# open the folder plus files in one window; IntelliJ (idea64.exe) opens it as a project.
+# Default: VS Code if installed, else IntelliJ, else Explorer.
+```
+
+## Inside VS Code (recommended)
+
+```bash
+.\dojo vscode
+```
+
+This writes `dojo.code-workspace` in your workspace and opens it: one window with two roots,
+**📖 Lessons** (the course, read-only, with answers, grading tests and manifests hidden) and
+**🥋 Solutions** (your katas, a git repository). Markdown opens as a rendered preview,
+rust-analyzer gets every kata, and the **Dojo** task starts the dojo in VS Code's terminal when
+the workspace opens (VS Code asks once to allow automatic tasks). From that terminal, `Enter`
+opens lessons and kata files in the same window. The file is regenerated on every start and
+whenever a kata folder is created, and it is ignored by git.
+
+**Run and debug.** With a local Rust toolchain, the visible tests run in VS Code: **▶ Run Test** above each `#[test]` (or `cargo test` in the kata folder). With CodeLLDB, **⚙ Debug** next to it stops on your breakpoints. Only the hidden grading tests, run in Docker, complete a kata. The workspace recommends the extensions it relies on: rust-analyzer, CodeLLDB, Even Better TOML, Error Lens, Docker and YAML.
+
+IntelliJ works too (`editor` pointing at `idea64.exe`; from its terminal, files open in the same
+window), but it has no equivalent of the two-root workspace.
+
+## Preparing each step
+
+Every track lists what all of its nodes need, and each node adds its own (`requirements` in
+`track.yaml` and `node.yaml`): command-line tools with a minimum version, VS Code extensions, a
+running Docker engine, runner images. Required items block the step; optional ones only advise.
+
+When you open a node for the first time in a session, the dojo checks them. If anything is
+missing, a **Prepare** screen lists each item with ✓/✗, the version found and why the step
+needs it: `I` installs what it can (VS Code extensions, runner images, starting Docker Desktop;
+tools such as Rust show how to install them), `U` updates (for example `rustup update stable`,
+extension updates, rebuilding the image with a fresh base), `R` checks again, `Enter` continues
+when nothing required is missing. To see the whole track at once:
+
+```bash
+.\dojo doctor rust
 ```
 
 ## Controls
@@ -49,12 +92,15 @@ editor = 'idea64'   # command that opens a folder; defaults to explorer
 | :--- | :--- |
 | `M` or `T` | Open the track selector |
 | `↑` / `k`, `↓` / `j` | Move through the tree (or the selector) |
-| `Enter` | Start the selected kata, or mark a lesson as done / pick a track |
-| `Space` | Mark a lesson as done (`--dev`: tick or undo any node) |
+| `Enter` | Open the lesson document, or the kata folder (created on first use) with its statement and `src/lib.rs`, in your editor / pick a track |
+| `Q` | Take the quiz of the selected lesson |
+| `1`–`9`, typing, `Enter`, `Esc` | Answer a quiz question, confirm, leave the quiz |
+| `Space` | `--dev` only: tick or undo any node |
 | `C` | Check the selected kata now |
-| `O` | Open the kata folder in your editor |
+| `O` | Open the kata folder in your editor again |
+| `PgUp` / `PgDn` | Scroll the detail panel |
 | `B` | Change the bridge source language |
-| `q` / `Esc` | Close the selector or quit (progress is saved) |
+| `Esc` | Close the selector or quit (progress is saved) |
 
 ## Layout
 
@@ -69,7 +115,7 @@ content/
   schemas/        JSON Schema for every content file type
   skills/         skill taxonomy, one file per namespace
   tracks/<id>/    track.yaml + p0-first-steps/ ... p4-mastery/<NN-slug>/
-                  node.yaml, lesson.md, bridges/<language>.md,
+                  node.yaml, lesson.md, quiz.yaml, bridges/<language>.md,
                   kata/ (README.md, starter/, tests/, reference/)
 runner-images/   one Dockerfile per runtime (rust/)
 docs/
@@ -78,7 +124,7 @@ docs/
 
 Progress lives in `~/.dojo/dojo.db` (SQLite: settings plus an append-only event log; change it with `--db`). On first run a v1 `data/profile.json` is imported and renamed to `profile.v1.json`.
 
-Lessons can be marked as done; katas are completed by passing their checks (quizzes and checkpoints come later). `--dev` lifts that rule and lets you undo completions:
+Nothing is ticked by hand. A lesson is a document plus a quiz: pass the quiz (80% by default) to complete it. A kata is completed when its tests pass. A node without its document and quiz (or exercise) shows 🚧 and cannot be completed, and a phase opens only when every node of the earlier phases is done. The Rust track is fully written; the other tracks are still drafts. `--dev` lifts these rules and lets you undo completions:
 
 ```bash
 cargo run --bin dojo -- --dev

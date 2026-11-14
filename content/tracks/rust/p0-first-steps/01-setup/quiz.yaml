@@ -1,0 +1,28 @@
+questions:
+  - id: new-project
+    prompt: Which command creates a new Rust project called hello?
+    answers: ["cargo new hello"]
+    explanation: "`cargo new <name>` creates the folder, Cargo.toml and src/main.rs."
+  - id: manifest
+    prompt: Where do you declare the dependencies of a Rust project?
+    options: ["src/main.rs", "Cargo.toml", "Cargo.lock", "target/deps"]
+    answer: 1
+    explanation: "Cargo.toml is the manifest. Cargo.lock only records the exact versions Cargo picked."
+  - id: check-vs-build
+    prompt: Why use cargo check instead of cargo build while writing code?
+    options:
+      - "It also runs the tests"
+      - "It is faster because it checks the code without producing an executable"
+      - "It formats the code"
+      - "It downloads missing toolchains"
+    answer: 1
+    explanation: "cargo check runs the compiler's analysis but skips code generation, so feedback is quicker."
+  - id: run-tests
+    prompt: Which command compiles and runs the tests of a project?
+    answers: ["cargo test"]
+    explanation: "cargo test builds the test targets and runs every #[test] function."
+  - id: library-file
+    prompt: A kata in this dojo is a library crate. Which file holds its code?
+    options: ["src/main.rs", "src/lib.rs", "Cargo.toml", "tests/visible.rs"]
+    answer: 1
+    explanation: "Library crates start at src/lib.rs; binaries start at src/main.rs."

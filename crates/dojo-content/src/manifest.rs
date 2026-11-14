@@ -15,6 +15,8 @@ pub struct TrackManifest {
     pub status: ContentStatus,
     pub belts: Vec<BeltManifest>,
     pub phases: Vec<PhaseManifest>,
+    #[serde(default)]
+    pub requirements: Vec<RequirementManifest>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -52,6 +54,59 @@ pub struct NodeManifest {
     pub bridges: Option<String>,
     #[serde(default)]
     pub kata: Option<KataManifest>,
+    #[serde(default)]
+    pub quiz: Option<String>,
+    #[serde(default)]
+    pub requirements: Vec<RequirementManifest>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RequirementManifest {
+    pub kind: String,
+    pub name: String,
+    pub why: String,
+    #[serde(default = "required_by_default")]
+    pub required: bool,
+    #[serde(default)]
+    pub command: Option<String>,
+    #[serde(default)]
+    pub version_args: Vec<String>,
+    #[serde(default)]
+    pub min_version: Option<String>,
+    #[serde(default)]
+    pub install_hint: Option<String>,
+    #[serde(default)]
+    pub update: Option<Vec<String>>,
+    #[serde(default)]
+    pub id: Option<String>,
+    #[serde(default)]
+    pub image: Option<String>,
+}
+
+fn required_by_default() -> bool {
+    true
+}
+
+#[derive(Debug, Deserialize)]
+pub struct QuizManifest {
+    #[serde(default)]
+    pub pass_percent: Option<u8>,
+    pub questions: Vec<QuestionManifest>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct QuestionManifest {
+    pub id: String,
+    pub prompt: String,
+    #[serde(default)]
+    pub code: Option<String>,
+    #[serde(default)]
+    pub options: Option<Vec<String>>,
+    #[serde(default)]
+    pub answer: Option<usize>,
+    #[serde(default)]
+    pub answers: Option<Vec<String>>,
+    pub explanation: String,
 }
 
 #[derive(Debug, Deserialize)]

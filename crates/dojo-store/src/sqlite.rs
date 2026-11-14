@@ -1,7 +1,8 @@
 use crate::migrations;
 use chrono::{DateTime, NaiveDate, Utc};
 use dojo_core::{
-    CheckOutcome, CheckRecord, ProgressEvent, ProgressStore, Settings, StoreError, StreakBaseline,
+    CheckOutcome, CheckRecord, ProgressEvent, ProgressStore, QuizAttempt, QuizScore, Settings,
+    StoreError, StreakBaseline,
 };
 use rusqlite::{Connection, params};
 use std::collections::HashMap;
@@ -167,6 +168,48 @@ impl ProgressStore for SqliteStore {
             params![track_id, node_id],
             |row| row.get(0),
         )?)
+    }
+
+    fn append_quiz_attempt(&mut self, attempt: &QuizAttempt) -> Result<(), StoreError> {
+        self.connection.execute(
+            "INSERT INTO quiz_attempt (track_id, node_id, correct, total, passed, taken_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![
+                attempt.track_id,
+                attempt.node_id,
+                attempt.score.correct,
+                attempt.score.total,
+                attempt.score.passed,
+                attempt.taken_at.to_rfc3339(),
+            ],
+        )?;
+        Ok(())
+    }
+
+    fn latest_quiz_attempt(
+        &self,
+        track_id: &str,
+        node_id: &str,
+    ) -> Result<Option<QuizAttempt>, StoreError> {
+        let mut statement = self.connection.prepare(
+            "SELECT correct, total, passed, taken_at FROM quiz_attempt
+             WHERE track_id = ?1 AND node_id = ?2 ORDER BY id DESC LIMIT 1",
+        )?;
+        let mut rows = statement.query(params![track_id, node_id])?;
+        let Some(row) = rows.next()? else {
+            return Ok(None);
+        };
+        let taken_at: String = row.get(3)?;
+        Ok(Some(QuizAttempt {
+            track_id: track_id.to_string(),
+            node_id: node_id.to_string(),
+            score: QuizScore {
+                correct: row.get(0)?,
+                total: row.get(1)?,
+                passed: row.get(2)?,
+            },
+            taken_at: DateTime::parse_from_rfc3339(&taken_at)?.with_timezone(&Utc),
+        }))
     }
 }
 

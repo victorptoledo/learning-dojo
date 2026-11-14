@@ -1,0 +1,38 @@
+questions:
+  - id: lazy
+    prompt: What happens when you call an async fn without .await?
+    options:
+      - "It runs in the background"
+      - "It returns a future and nothing runs until it is awaited"
+      - "It blocks the thread"
+      - "It does not compile"
+    answer: 1
+    explanation: "Rust futures are lazy: they do nothing until awaited or spawned."
+  - id: runtime
+    prompt: Why does an async program need a runtime like Tokio?
+    options:
+      - "The standard library defines futures but does not run them"
+      - "To compile async syntax"
+      - "To make code thread-safe"
+    answer: 0
+    explanation: "A runtime schedules tasks and drives futures; std only provides the trait."
+  - id: spawn-total
+    prompt: What does this print?
+    code: |
+      let a = tokio::spawn(async { 1 });
+      let b = tokio::spawn(async { 2 });
+      println!("{}", a.await.unwrap() + b.await.unwrap());
+    answers: ["3"]
+    explanation: "Each spawned task returns its value through its JoinHandle."
+  - id: first-wins
+    prompt: Which macro waits for the first of several futures and drops the rest?
+    answers: ["tokio::select!", "select!", "tokio::select"]
+    explanation: "select! races futures; join! waits for all of them."
+  - id: blocking
+    prompt: What is the problem with std::thread::sleep inside an async task?
+    options:
+      - "Nothing, it is the same as tokio::time::sleep"
+      - "It blocks the thread, so other tasks on it stop running"
+      - "It does not compile in async code"
+    answer: 1
+    explanation: "Blocking calls freeze the executor thread; use tokio::time::sleep or spawn_blocking."

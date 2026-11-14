@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 struct ConfigFile {
     /// Folder where kata solutions live (a git repository of its own).
     workspace: Option<PathBuf>,
-    /// Command that opens a folder, e.g. `idea64` or `code`.
+    /// Command that opens a folder or file, e.g. `code.cmd` or a path to `idea64.exe`.
     editor: Option<String>,
 }
 
@@ -31,7 +31,7 @@ impl Config {
         };
         Ok(Self {
             workspace: file.workspace.unwrap_or_else(default_workspace),
-            editor: file.editor.unwrap_or_else(default_editor),
+            editor: file.editor.unwrap_or_else(crate::editor::detect_default),
         })
     }
 }
@@ -50,15 +50,6 @@ fn default_workspace() -> PathBuf {
     }
 }
 
-fn default_editor() -> String {
-    if cfg!(windows) {
-        "explorer"
-    } else {
-        "xdg-open"
-    }
-    .to_string()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -67,7 +58,10 @@ mod tests {
     fn missing_file_gives_defaults_and_keys_override_them() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("config.toml");
-        assert_eq!(Config::load(&path).unwrap().editor, default_editor());
+        assert_eq!(
+            Config::load(&path).unwrap().editor,
+            crate::editor::detect_default()
+        );
 
         fs::write(&path, "workspace = 'D:/katas'\neditor = 'idea64'\n").unwrap();
         let config = Config::load(&path).unwrap();

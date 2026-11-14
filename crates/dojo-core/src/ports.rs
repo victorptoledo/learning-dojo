@@ -2,6 +2,7 @@
 
 use crate::check::{CheckRecord, CheckReport};
 use crate::progress::{ProgressEvent, Settings};
+use crate::quiz::QuizAttempt;
 use crate::track::Kata;
 use std::path::Path;
 
@@ -23,6 +24,12 @@ pub trait ProgressStore {
         node_id: &str,
     ) -> Result<Option<CheckRecord>, StoreError>;
     fn check_count(&self, track_id: &str, node_id: &str) -> Result<u32, StoreError>;
+    fn append_quiz_attempt(&mut self, attempt: &QuizAttempt) -> Result<(), StoreError>;
+    fn latest_quiz_attempt(
+        &self,
+        track_id: &str,
+        node_id: &str,
+    ) -> Result<Option<QuizAttempt>, StoreError>;
 }
 
 /// Runs a kata's grading tests against a solution folder.

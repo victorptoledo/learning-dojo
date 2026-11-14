@@ -34,8 +34,11 @@ fn catalog() -> Catalog {
         estimated_minutes: 10,
         xp: 150,
         lesson: None,
+        lesson_file: None,
         bridges: BTreeMap::new(),
         kata: None,
+        quiz: None,
+        requirements: vec![],
     };
     let phase = Phase {
         id: "p0".into(),
@@ -58,6 +61,7 @@ fn catalog() -> Catalog {
             status: ContentStatus::Draft,
             belts: vec![],
             phases: vec![phase],
+            requirements: vec![],
         }],
         skills: BTreeMap::new(),
     }
@@ -69,7 +73,7 @@ fn new_store_has_no_settings_and_no_events() {
 
     assert!(store.load_settings().unwrap().is_none());
     assert!(store.load_events().unwrap().is_empty());
-    assert_eq!(store.schema_version().unwrap(), 2);
+    assert_eq!(store.schema_version().unwrap(), 3);
 }
 
 #[test]
@@ -229,4 +233,33 @@ fn check_history_keeps_every_attempt_and_returns_the_latest() {
         Some(attempt(CheckOutcome::Passed, 5, 2))
     );
     assert_eq!(store.check_count("rust", "other").unwrap(), 0);
+}
+
+#[test]
+fn quiz_attempts_are_stored_and_the_latest_is_returned() {
+    use chrono::{TimeZone, Utc};
+    use dojo_core::{QuizAttempt, QuizScore};
+    let mut store = SqliteStore::open_in_memory().unwrap();
+    let attempt = |correct, passed, minute| QuizAttempt {
+        track_id: "rust".into(),
+        node_id: "rust.p0.setup".into(),
+        score: QuizScore {
+            correct,
+            total: 5,
+            passed,
+        },
+        taken_at: Utc.with_ymd_and_hms(2026, 11, 14, 15, minute, 0).unwrap(),
+    };
+    assert_eq!(
+        store.latest_quiz_attempt("rust", "rust.p0.setup").unwrap(),
+        None
+    );
+
+    store.append_quiz_attempt(&attempt(2, false, 1)).unwrap();
+    store.append_quiz_attempt(&attempt(5, true, 2)).unwrap();
+
+    assert_eq!(
+        store.latest_quiz_attempt("rust", "rust.p0.setup").unwrap(),
+        Some(attempt(5, true, 2))
+    );
 }

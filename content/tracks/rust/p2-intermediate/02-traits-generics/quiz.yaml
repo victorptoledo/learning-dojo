@@ -1,0 +1,34 @@
+questions:
+  - id: default-method
+    prompt: Ninja implements Describe but not shout. What does ninja.shout() do?
+    options:
+      - "It does not compile"
+      - "It uses the default shout from the trait"
+      - "It panics"
+    answer: 1
+    explanation: "Types inherit default methods they don't override."
+  - id: orphan
+    prompt: Which implementation is NOT allowed in your crate?
+    options:
+      - "Your trait for i32"
+      - "std::fmt::Display for your struct"
+      - "std::fmt::Display for i32"
+      - "Your trait for your struct"
+    answer: 2
+    explanation: "Orphan rule: the trait or the type must be yours. Display and i32 both come from std."
+  - id: static-dispatch
+    prompt: "How are calls through a generic bound like <T: Describe> dispatched?"
+    options:
+      - "At runtime through a vtable"
+      - "At compile time: a copy of the function is generated per type"
+      - "By reflection"
+    answer: 1
+    explanation: "Monomorphisation creates specialised code for each type, so there is no runtime lookup."
+  - id: mixed-collection
+    prompt: Which type stores a Ninja and a Samurai, both implementing Describe, in one Vec?
+    answers: ["Vec<Box<dyn Describe>>"]
+    explanation: "Box<dyn Describe> is a trait object; each element can be a different concrete type."
+  - id: derive
+    prompt: Which attribute generates Debug and Clone for a struct?
+    answers: ["#[derive(Debug, Clone)]", "#[derive(Clone, Debug)]"]
+    explanation: "derive asks the compiler to write the standard implementations."

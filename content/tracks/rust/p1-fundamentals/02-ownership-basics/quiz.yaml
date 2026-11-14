@@ -1,0 +1,43 @@
+questions:
+  - id: use-after-move
+    prompt: Does this code compile?
+    code: |
+      let a = String::from("dojo");
+      let b = a;
+      println!("{a}");
+    options:
+      - "Yes, it prints dojo"
+      - "No: a was moved into b"
+      - "Yes, but it prints an empty line"
+    answer: 1
+    explanation: "Assigning a String moves it. Using a afterwards is a compile error: borrow of moved value."
+  - id: copy-types
+    prompt: Which type is copied, not moved, on assignment?
+    options: ["String", "Vec<i32>", "i32", "Box<i32>"]
+    answer: 2
+    explanation: "i32 implements Copy because it lives entirely on the stack. String, Vec and Box own heap memory."
+  - id: drop-point
+    prompt: When is the String below freed?
+    code: |
+      fn main() {
+          {
+              let name = String::from("Ferris");
+          }
+          println!("done");
+      }
+    options:
+      - "When the program ends"
+      - "At the closing brace of the inner block"
+      - "When the garbage collector runs"
+      - "Never, it leaks"
+    answer: 1
+    explanation: "name goes out of scope at the end of the inner block, and Rust drops the value right there."
+  - id: function-move
+    prompt: "After calling shout(word), where shout takes a String parameter, can you still use word?"
+    options: ["Yes", "No, ownership moved into the function"]
+    answer: 1
+    explanation: "Passing a String by value moves it into the function's parameter."
+  - id: clone-method
+    prompt: Which method makes an independent deep copy of a String?
+    answers: ["clone", "clone()", ".clone()"]
+    explanation: "a.clone() copies the heap data so both variables own their own String."

@@ -97,8 +97,11 @@ mod tests {
             estimated_minutes: 10,
             xp: 100,
             lesson: None,
+            lesson_file: None,
             bridges: BTreeMap::new(),
             kata: None,
+            quiz: None,
+            requirements: vec![],
         }
     }
 
@@ -123,6 +126,7 @@ mod tests {
             status: ContentStatus::Draft,
             belts: vec![],
             phases,
+            requirements: vec![],
         }
     }
 

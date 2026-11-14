@@ -1,6 +1,8 @@
 use crate::app::{App, Screen};
+use crate::lesson_view::{render_lesson, render_quiz};
+use crate::setup_view::render_setup;
 use crate::tree::TreeRow;
-use dojo_core::{CheckOutcome, Kata, Mode, Node, NodeKind, Phase, Track};
+use dojo_core::{CheckOutcome, CheckReport, Kata, Mode, Node, NodeKind, Phase, Track};
 use ratatui::{
     Frame,
     layout::{Constraint, Layout, Rect},
@@ -19,8 +21,15 @@ pub fn render(frame: &mut Frame, app: &App) {
     render_header(frame, app, header);
     render_body(frame, app, body);
     render_footer(frame, app, footer);
-    if app.screen == Screen::TrackSelector {
-        render_track_selector(frame, app, frame.area());
+    match app.screen {
+        Screen::TrackSelector => render_track_selector(frame, app, frame.area()),
+        Screen::Quiz => render_quiz(frame, app, frame.area()),
+        Screen::Setup => {
+            if let Some(session) = &app.setup {
+                render_setup(frame, session, frame.area());
+            }
+        }
+        Screen::TrackView => {}
     }
 }
 
@@ -178,6 +187,8 @@ fn node_status(app: &App, track: &Track, node: &Node) -> (&'static str, Style) {
                 .fg(Color::Green)
                 .add_modifier(Modifier::BOLD),
         )
+    } else if node.under_construction() {
+        ("🚧", Style::default().fg(Color::DarkGray))
     } else if !app.profile.is_unlocked(track, node) {
         ("🔒", Style::default().fg(Color::DarkGray))
     } else if app.is_checking(&track.id, &node.id) {
@@ -198,12 +209,17 @@ fn render_detail(frame: &mut Frame, app: &App, area: Rect) {
         frame.render_widget(empty, area);
         return;
     };
-    let [summary_area, bridge_area] =
-        Layout::vertical([Constraint::Percentage(40), Constraint::Percentage(60)]).areas(area);
+    // The lower panel holds the lesson document or the kata; the summary stays short.
+    let summary_height = 25;
+    let [summary_area, bridge_area] = Layout::vertical([
+        Constraint::Percentage(summary_height),
+        Constraint::Percentage(100 - summary_height),
+    ])
+    .areas(area);
     render_summary(frame, app, track, phase, node, summary_area);
     match &node.kata {
         Some(kata) => render_kata(frame, app, track, phase, node, kata, bridge_area),
-        None => render_bridge(frame, app, node, bridge_area),
+        None => render_lesson(frame, app, track, node, bridge_area),
     }
 }
 
@@ -225,27 +241,14 @@ fn render_kata(
 ) {
     let dir = app.workspace.kata_dir(track, phase, node);
     let key = (track.id.clone(), node.id.clone());
-    let folder = dir.display().to_string();
-    let mut lines = vec![if dir.exists() {
-        labelled("📁 Folder: ", &folder, Color::Cyan)
-    } else {
-        Line::from("📁 Not started yet — press [Enter] to create your kata folder.".yellow())
-    }];
+    let mut lines = kata_steps(&dir);
+    lines.push(Line::from(""));
     lines.push(check_status_line(app, &key));
-    if let Some(report) = app
-        .last_reports
-        .get(&key)
-        .filter(|report| !report.details.is_empty())
-    {
-        lines.push(Line::from(""));
-        lines.extend(
-            report
-                .details
-                .lines()
-                .map(|line| Line::from(line.to_string().light_red())),
-        );
+    if let Some(report) = app.last_reports.get(&key) {
+        lines.extend(report_lines(report));
     }
     lines.push(Line::from(""));
+    lines.push(Line::from("📜 The challenge".bold().cyan()));
     lines.extend(
         kata.statement
             .lines()
@@ -253,8 +256,63 @@ fn render_kata(
     );
     let paragraph = Paragraph::new(lines)
         .wrap(Wrap { trim: false })
-        .block(titled(" 🥋 Kata "));
+        .scroll((app.detail_scroll, 0))
+        .block(titled(" 🥋 Kata · [PgUp/PgDn] scroll "));
     frame.render_widget(paragraph, area);
+}
+
+/// What to do next, as numbered steps that depend on whether the kata was started.
+fn kata_steps(dir: &std::path::Path) -> Vec<Line<'static>> {
+    if !dir.exists() {
+        return vec![
+            Line::from("👉 How to start".bold().yellow()),
+            Line::from("1. Press [Enter] to create your kata folder with the starter code."),
+            Line::from("2. Then press [O] to open it in your editor."),
+        ];
+    }
+    vec![
+        Line::from("👉 What to do".bold().yellow()),
+        Line::from(format!("1. Press [O] to open {}.", dir.display())),
+        Line::from(
+            "2. Edit src/lib.rs. Each function that still has todo!(...) is yours to write:",
+        ),
+        Line::from(
+            "   todo!() is a placeholder that stops the program, so its tests fail until you replace it.",
+        ),
+        Line::from("3. Save the file. The tests run by themselves and the result appears below."),
+        Line::from(
+            "4. When every test passes, the kata is done (+XP) and your solution is committed.",
+        ),
+    ]
+}
+
+/// One line per failing test, or the compiler output when the code does not build.
+fn report_lines(report: &CheckReport) -> Vec<Line<'static>> {
+    let mut lines = Vec::new();
+    if report.outcome == CheckOutcome::CompileError || report.outcome == CheckOutcome::TimedOut {
+        lines.push(Line::from(""));
+        lines.extend(
+            report
+                .details
+                .lines()
+                .map(|line| Line::from(line.to_string().light_red())),
+        );
+        return lines;
+    }
+    for test in report.tests.iter().filter(|test| !test.passed) {
+        let explanation = match test.message.as_deref() {
+            Some(message) if message.starts_with("not yet implemented") => {
+                "not written yet (still todo!)".to_string()
+            }
+            Some(message) => message.lines().collect::<Vec<_>>().join(" · "),
+            None => "failed".to_string(),
+        };
+        lines.push(Line::from(vec![
+            format!("✗ {}", test.name.replace('_', " ")).light_red(),
+            format!(" — {explanation}").dark_gray(),
+        ]));
+    }
+    lines
 }
 
 fn check_status_line(app: &App, key: &(String, String)) -> Line<'static> {
@@ -324,48 +382,7 @@ fn render_summary(
     frame.render_widget(paragraph, area);
 }
 
-fn render_bridge(frame: &mut Frame, app: &App, node: &Node, area: Rect) {
-    let source = &app.profile.settings.bridge_from;
-    let Some(bridge) = node.bridge_for(source) else {
-        let missing = Paragraph::new(format!(
-            "No bridge from {source} for this node yet. Press [B] to change language."
-        ))
-        .wrap(Wrap { trim: true })
-        .block(titled(" 🥋 Rosetta Bridge "));
-        frame.render_widget(missing, area);
-        return;
-    };
-    let mut lines = vec![
-        labelled("🎯 Key concept: ", &bridge.concept, Color::Cyan),
-        Line::from(""),
-        labelled(
-            &format!("↩ The {} way: ", bridge.from),
-            &bridge.from_way,
-            Color::LightRed,
-        ),
-        Line::from(""),
-        labelled(
-            "🚀 The way of this track: ",
-            &bridge.native_way,
-            Color::LightGreen,
-        ),
-        Line::from(""),
-        labelled("💡 Sensei tip: ", &bridge.sensei_tip, Color::Yellow),
-    ];
-    if !bridge.body.is_empty() {
-        lines.push(Line::from(""));
-        lines.extend(bridge.body.lines().map(Line::from));
-    }
-    let paragraph = Paragraph::new(lines)
-        .wrap(Wrap { trim: true })
-        .block(titled(format!(
-            " 🥋 Rosetta Bridge (from {}) ",
-            bridge.from
-        )));
-    frame.render_widget(paragraph, area);
-}
-
-fn labelled<'a>(label: &str, text: &'a str, color: Color) -> Line<'a> {
+pub(crate) fn labelled<'a>(label: &str, text: &'a str, color: Color) -> Line<'a> {
     Line::from(vec![
         Span::styled(
             label.to_string(),
@@ -379,7 +396,7 @@ fn labelled<'a>(label: &str, text: &'a str, color: Color) -> Line<'a> {
 
 fn render_footer(frame: &mut Frame, app: &App, area: Rect) {
     let text = app.status_message.clone().unwrap_or_else(|| {
-        "[M] Tracks | [↑/↓] Move | [Enter] Start kata / mark lesson | [C] Check | [O] Open folder | [B] Bridge | [q] Quit"
+        "[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Lesson quiz | [C] Check kata | [B] Bridge | [Esc] Quit"
             .to_string()
     });
     let mode = match app.mode {
@@ -442,7 +459,7 @@ fn selector_item<'a>(app: &App, track: &'a Track, is_active: bool) -> ListItem<'
     ]))
 }
 
-fn centered(area: Rect, width_percent: u16, height_percent: u16) -> Rect {
+pub(crate) fn centered(area: Rect, width_percent: u16, height_percent: u16) -> Rect {
     let [_, middle, _] = Layout::vertical([
         Constraint::Percentage((100 - height_percent) / 2),
         Constraint::Percentage(height_percent),
@@ -458,6 +475,6 @@ fn centered(area: Rect, width_percent: u16, height_percent: u16) -> Rect {
     center
 }
 
-fn titled<'a>(title: impl Into<Line<'a>>) -> Block<'a> {
+pub(crate) fn titled<'a>(title: impl Into<Line<'a>>) -> Block<'a> {
     Block::default().borders(Borders::ALL).title(title)
 }

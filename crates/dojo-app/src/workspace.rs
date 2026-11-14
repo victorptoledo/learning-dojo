@@ -6,6 +6,9 @@ use dojo_runner::copy_dir;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+/// The kata statement, copied into the kata folder so it opens next to the code.
+pub const STATEMENT_FILE: &str = "README.md";
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum Prepared {
     Created,
@@ -44,10 +47,17 @@ impl Workspace {
     /// Copies the starter the first time; never overwrites an existing solution.
     pub fn prepare(&self, kata: &Kata, kata_dir: &Path) -> Result<Prepared> {
         if kata_dir.exists() {
+            let statement = kata_dir.join(STATEMENT_FILE);
+            if !statement.exists() {
+                std::fs::write(&statement, &kata.statement)
+                    .with_context(|| format!("cannot write {}", statement.display()))?;
+            }
             return Ok(Prepared::AlreadyThere);
         }
         copy_dir(&kata.starter_dir, kata_dir)
             .with_context(|| format!("cannot create {}", kata_dir.display()))?;
+        std::fs::write(kata_dir.join(STATEMENT_FILE), &kata.statement)
+            .with_context(|| format!("cannot write the statement in {}", kata_dir.display()))?;
         Ok(Prepared::Created)
     }
 
@@ -124,6 +134,7 @@ mod tests {
             tests: vec![TestCase {
                 name: "a".into(),
                 passed: true,
+                message: None,
             }],
             details: String::new(),
             duration_ms: 1,

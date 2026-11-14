@@ -331,6 +331,7 @@ dependencies = [
  "dojo-store",
  "notify",
  "ratatui",
+ "regex",
  "serde",
  "serde_json",
  "tempfile",

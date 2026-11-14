@@ -12,3 +12,4 @@ estimated_minutes: 30
 xp: 100
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml

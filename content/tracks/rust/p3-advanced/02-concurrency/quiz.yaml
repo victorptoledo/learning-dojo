@@ -1,0 +1,38 @@
+questions:
+  - id: move-closure
+    prompt: Why does a thread closure that uses a local String need move?
+    options:
+      - "To make the String immutable"
+      - "Because the thread may outlive the function, so it must own the data"
+      - "Because threads cannot read Strings"
+    answer: 1
+    explanation: "Borrowing would risk a dangling reference; move gives the thread ownership."
+  - id: join
+    prompt: What does handle.join() do?
+    options:
+      - "Starts the thread"
+      - "Waits for the thread to finish and returns its result"
+      - "Merges two threads into one"
+    answer: 1
+    explanation: "join blocks until the thread ends and gives back its return value (or its panic)."
+  - id: channel-sum
+    prompt: What is total?
+    code: |
+      let (sender, receiver) = mpsc::channel();
+      for id in 0..3 {
+          let sender = sender.clone();
+          thread::spawn(move || sender.send(id * 10).unwrap());
+      }
+      drop(sender);
+      let total: i32 = receiver.iter().sum();
+    answers: ["30"]
+    explanation: "The threads send 0, 10 and 20; the loop ends once every sender is dropped."
+  - id: rc-thread
+    prompt: Sending an Rc<T> to another thread...
+    options: ["works fine", "is a compile error because Rc is not Send", "panics at runtime"]
+    answer: 1
+    explanation: "Rc's counter is not atomic, so it does not implement Send. Arc does."
+  - id: mpsc-meaning
+    prompt: "What does mpsc stand for?"
+    answers: ["multiple producer, single consumer", "multiple producers, single consumer", "multiple producer single consumer", "multiple producers single consumer"]
+    explanation: "Many senders can be cloned; there is one receiver."

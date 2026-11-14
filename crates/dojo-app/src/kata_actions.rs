@@ -3,11 +3,14 @@
 
 use crate::app::{App, NodeKey, refusal_message};
 use crate::checks::{CheckTarget, FinishedCheck};
-use crate::workspace::{CommitOutcome, Prepared};
+use crate::workspace::{CommitOutcome, Prepared, STATEMENT_FILE};
 use chrono::Utc;
-use dojo_core::{CheckRecord, CheckReport, Kata, Node, ProgressEvent, Refusal, Track};
+use dojo_core::{CheckRecord, CheckReport, Evidence, Kata, Node, ProgressEvent, Refusal, Track};
 use std::path::{Component, Path, PathBuf};
-use std::process::Command;
+use std::time::{Duration, Instant};
+
+/// Ignore file events in a kata folder for this long after creating it.
+const QUIET_AFTER_CREATE: Duration = Duration::from_secs(3);
 
 /// The selected node when it is a kata, with everything needed to act on it.
 pub struct SelectedKata<'a> {
@@ -31,33 +34,61 @@ impl App {
         })
     }
 
-    /// Enter: starts the selected kata, or marks a lesson as done.
+    /// Enter: opens the selected kata (creating its folder first) or lesson in the editor.
     pub fn activate_selected(&mut self) {
+        if self.begin_setup_if_needed() {
+            return;
+        }
         match self.selected_kata() {
             Some(selected) => {
                 let (kata, dir) = (selected.kata.clone(), selected.dir.clone());
                 self.start_kata(&kata, &dir);
             }
-            None => self.toggle_selected(),
+            None => self.open_lesson_document(),
         }
     }
 
     fn start_kata(&mut self, kata: &Kata, dir: &Path) {
-        self.status_message = Some(match self.workspace.prepare(kata, dir) {
-            Ok(Prepared::Created) => {
-                format!(
-                    "Kata ready in {}. [O] opens it; saving runs the checks.",
-                    dir.display()
-                )
+        let prepared = match self.workspace.prepare(kata, dir) {
+            Ok(prepared) => prepared,
+            Err(error) => {
+                self.status_message =
+                    Some(format!("⚠ Could not create the kata folder: {error:#}"));
+                return;
             }
-            Ok(Prepared::AlreadyThere) => {
-                format!(
-                    "Your solution is in {}. [O] opens it, [C] checks it.",
-                    dir.display()
-                )
+        };
+        if prepared == Prepared::Created {
+            self.quiet_kata = Some((dir.to_path_buf(), Instant::now() + QUIET_AFTER_CREATE));
+            if let Some(code_workspace) = &self.code_workspace
+                && let Err(error) = code_workspace.write()
+            {
+                self.status_message = Some(format!(
+                    "⚠ Could not update the VS Code workspace: {error:#}"
+                ));
             }
-            Err(error) => format!("⚠ Could not create the kata folder: {error:#}"),
-        });
+        }
+        let opened = self.open_kata_folder(dir);
+        let created = if prepared == Prepared::Created {
+            "Kata folder created. "
+        } else {
+            ""
+        };
+        self.status_message = Some(format!(
+            "{created}{opened} Save a file to run the checks, or press [C]."
+        ));
+    }
+
+    /// Opens the kata folder with its statement and code, and says what happened.
+    fn open_kata_folder(&self, dir: &Path) -> String {
+        let files = [dir.join(STATEMENT_FILE), dir.join("src").join("lib.rs")];
+        let existing: Vec<_> = files.into_iter().filter(|file| file.is_file()).collect();
+        match self.editor.open_folder(dir, &existing) {
+            Ok(()) => format!("Opened {} in `{}`.", dir.display(), self.editor.command()),
+            Err(error) => format!(
+                "⚠ {error}. Set `editor` in ~/.dojo/config.toml. The kata is in {}.",
+                dir.display()
+            ),
+        }
     }
 
     /// C: checks the selected kata now.
@@ -97,17 +128,14 @@ impl App {
             return;
         }
         let dir = selected.dir.clone();
-        self.status_message = Some(match Command::new(&self.editor).arg(&dir).spawn() {
-            Ok(_) => format!("Opened {} with `{}`.", dir.display(), self.editor),
-            Err(error) => format!(
-                "⚠ Could not run `{}`: {error}. Set `editor` in ~/.dojo/config.toml.",
-                self.editor
-            ),
-        });
+        self.status_message = Some(self.open_kata_folder(&dir));
     }
 
     /// A file changed in the workspace: check the kata it belongs to.
     pub fn on_workspace_change(&mut self, changed: &Path) {
+        if self.is_quiet(changed) {
+            return;
+        }
         let Some((track_id, phase_id, slug)) = kata_components(self.workspace.root(), changed)
         else {
             return;
@@ -133,6 +161,13 @@ impl App {
             },
             kata,
         );
+    }
+
+    /// True while the dojo's own copy of a fresh starter is still settling.
+    fn is_quiet(&self, changed: &Path) -> bool {
+        self.quiet_kata
+            .as_ref()
+            .is_some_and(|(dir, until)| changed.starts_with(dir) && Instant::now() < *until)
     }
 
     /// Called every tick: applies the result of a finished background check.
@@ -189,8 +224,12 @@ impl App {
             .track(&target.track_id)
             .and_then(|track| Some((track, track.node(&target.node_id)?)))
             .map(|(track, node)| {
-                self.profile
-                    .complete_by_evidence(track, node, report, Self::today())
+                self.profile.complete_by_evidence(
+                    track,
+                    node,
+                    Evidence::Checks(report),
+                    Self::today(),
+                )
             });
         let progress = match decision {
             Some(Ok(event)) => {

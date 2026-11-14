@@ -1,0 +1,37 @@
+questions:
+  - id: borrow-rule
+    prompt: Which combination of references to the same value is allowed at the same time?
+    options:
+      - "Two &mut references"
+      - "One &mut and one & reference"
+      - "Any number of & references"
+      - "Any references, as long as they are in different functions"
+    answer: 2
+    explanation: "Many readers or one writer, never both: any number of shared references is fine."
+  - id: push-while-borrowed
+    prompt: Why does this fail to compile?
+    code: |
+      let mut list = vec![1, 2, 3];
+      let first = &list[0];
+      list.push(4);
+      println!("{first}");
+    options:
+      - "push needs the list to be immutable"
+      - "list is borrowed by first while push needs a mutable borrow"
+      - "vec! cannot hold integers"
+    answer: 1
+    explanation: "first still uses a shared borrow, so the mutable borrow that push needs is refused."
+  - id: mut-call
+    prompt: "add_bang takes text: &mut String. How do you call it with a variable word?"
+    answers: ["add_bang(&mut word)", "add_bang(&mut word);"]
+    explanation: "The caller must write &mut explicitly, and word must be declared with let mut."
+  - id: str-param
+    prompt: Which parameter type accepts both "hello" and &String::from("hello")?
+    options: ["String", "&String", "&str", "&mut String"]
+    answer: 2
+    explanation: "&String coerces to &str, and string literals are already &str."
+  - id: after-borrow
+    prompt: "After let n = length(&word); can you still use word?"
+    options: ["Yes, it was only borrowed", "No, it was moved"]
+    answer: 0
+    explanation: "Passing &word lends the value; ownership stays with word."

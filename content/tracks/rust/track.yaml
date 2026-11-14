@@ -21,3 +21,22 @@ phases:
   - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
   - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
   - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }
+requirements:
+  - kind: tool
+    name: Rust toolchain (cargo)
+    command: cargo
+    min_version: "1.85"
+    required: false
+    why: Runs and debugs the visible tests in VS Code. The grading checks run in Docker and do not need it.
+    install_hint: "install rustup: winget install Rustlang.Rustup, then reopen the terminal"
+    update: [rustup, update, stable]
+  - kind: vscode-extension
+    name: rust-analyzer
+    id: rust-lang.rust-analyzer
+    required: false
+    why: Shows errors as you type and adds the Run Test and Debug buttons.
+  - kind: vscode-extension
+    name: Even Better TOML
+    id: tamasfe.even-better-toml
+    required: false
+    why: Highlights and checks Cargo.toml.
