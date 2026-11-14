@@ -1,24 +1,39 @@
-use crate::app::{App, Mode};
-use crate::profile_file::ProfileFile;
+use crate::app::{App, Screen};
 use crate::ui;
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use dojo_content::Severity;
+use dojo_core::Mode;
+use dojo_store::{ImportOutcome, SqliteStore, import_v1_profile};
 use ratatui::DefaultTerminal;
-use std::path::Path;
+use std::path::PathBuf;
 use std::time::Duration;
 
 const POLL_INTERVAL: Duration = Duration::from_millis(100);
 
-pub fn run(content_dir: &Path, profile_path: &Path) -> Result<()> {
-    let loaded = dojo_content::load(content_dir)?;
-    let errors = loaded.report.count(Severity::Error);
-    let mut app = App::new(loaded.catalog, ProfileFile::new(profile_path))?;
-    if errors > 0 {
-        app.status_message = Some(format!(
-            "⚠ Content has {errors} errors — run `dojo content validate`."
-        ));
-    }
+pub struct Options {
+    pub content_dir: PathBuf,
+    pub db_path: PathBuf,
+    pub v1_profile: PathBuf,
+    pub dev: bool,
+}
+
+pub fn run(options: &Options) -> Result<()> {
+    let loaded = dojo_content::load(&options.content_dir)?;
+    let mut store = SqliteStore::open(&options.db_path).map_err(|error| anyhow!(error))?;
+    let import = import_v1_profile(
+        &options.v1_profile,
+        &loaded.catalog,
+        &mut store,
+        App::today(),
+    )?;
+    let mode = if options.dev {
+        Mode::Dev
+    } else {
+        Mode::Learner
+    };
+    let mut app = App::new(loaded.catalog, Box::new(store), mode)?;
+    app.status_message = startup_message(loaded.report.count(Severity::Error), &import);
 
     let mut terminal = ratatui::init();
     let result = event_loop(&mut terminal, &mut app);
@@ -26,6 +41,25 @@ pub fn run(content_dir: &Path, profile_path: &Path) -> Result<()> {
     result?;
     println!("🥋 Good training at the Learning Dojo. See you on the mat!");
     Ok(())
+}
+
+fn startup_message(content_errors: usize, import: &ImportOutcome) -> Option<String> {
+    if content_errors > 0 {
+        return Some(format!(
+            "⚠ Content has {content_errors} errors — run `dojo content validate`."
+        ));
+    }
+    match import {
+        ImportOutcome::NothingToImport => None,
+        ImportOutcome::Imported {
+            completed_nodes,
+            unknown_nodes,
+            backup,
+        } => Some(format!(
+            "Imported {completed_nodes} completed nodes from the v1 profile ({unknown_nodes} no longer exist); old file kept as {}.",
+            backup.display()
+        )),
+    }
 }
 
 fn event_loop(terminal: &mut DefaultTerminal, app: &mut App) -> Result<()> {
@@ -50,9 +84,9 @@ enum Flow {
 }
 
 fn handle_key(app: &mut App, key: KeyEvent) -> Flow {
-    match app.mode {
-        Mode::TrackSelector => handle_selector_key(app, key.code),
-        Mode::TrackView => return handle_track_key(app, key.code),
+    match app.screen {
+        Screen::TrackSelector => handle_selector_key(app, key.code),
+        Screen::TrackView => return handle_track_key(app, key.code),
     }
     Flow::Continue
 }

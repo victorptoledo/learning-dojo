@@ -1,56 +1,220 @@
-use crate::track::{Belt, Node, Track};
+//! Learner progress, rebuilt from an append-only list of events.
+//!
+//! The store keeps the events; `Profile` is the in-memory projection used by the UI.
+//! `Profile::apply` is the only way progress changes, so replaying the stored events
+//! always reproduces the same state.
+
+use crate::track::{Belt, Node, NodeKind, Track};
 use chrono::NaiveDate;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 
-const DEFAULT_SOURCE_LANGUAGE: &str = "java";
+pub const DEFAULT_SOURCE_LANGUAGE: &str = "java";
+pub const DEFAULT_LEARNER_NAME: &str = "Dev Sensei";
 
-/// Learner progress. Temporary JSON-backed model until the SQLite store (M1) replaces it.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Profile {
-    pub name: String,
-    pub total_xp: u32,
-    pub current_streak: u32,
-    pub best_streak: u32,
+/// Streak values carried over from a v1 profile, which stored totals instead of events.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct StreakBaseline {
+    pub current: u32,
+    pub best: u32,
     pub last_trained: Option<NaiveDate>,
-    pub active_track_id: String,
-    /// Source language used to pick the Rosetta bridge of each node.
-    #[serde(default = "default_source_language")]
-    pub bridge_from: String,
-    /// Completed node IDs per track.
-    #[serde(default)]
-    pub track_progress: HashMap<String, HashSet<String>>,
 }
 
-fn default_source_language() -> String {
-    DEFAULT_SOURCE_LANGUAGE.to_string()
+/// Learner preferences that are not progress.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Settings {
+    pub name: String,
+    pub active_track_id: String,
+    /// Source language used to pick the Rosetta bridge of each node.
+    pub bridge_from: String,
+    pub streak_baseline: StreakBaseline,
+}
+
+impl Settings {
+    pub fn new(active_track_id: &str) -> Self {
+        Self {
+            name: DEFAULT_LEARNER_NAME.to_string(),
+            active_track_id: active_track_id.to_string(),
+            bridge_from: DEFAULT_SOURCE_LANGUAGE.to_string(),
+            streak_baseline: StreakBaseline::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ProgressEvent {
+    NodeCompleted {
+        track_id: String,
+        node_id: String,
+        xp: u32,
+        on: NaiveDate,
+    },
+    /// Undoes a completion. Only produced in dev mode.
+    NodeReset {
+        track_id: String,
+        node_id: String,
+        xp: u32,
+        on: NaiveDate,
+    },
+}
+
+/// Who is asking to change progress. Dev mode bypasses the evidence rules.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Mode {
+    Learner,
+    Dev,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ToggleOutcome {
-    Completed { xp: u32 },
-    Uncompleted { xp: u32 },
+pub enum Refusal {
+    AlreadyCompleted,
+    NotCompleted,
     Locked,
+    /// Katas, quizzes, checkpoints and projects are completed by evidence
+    /// (tests, scores, reviews), not by ticking them.
+    NeedsEvidence(NodeKind),
+    DevOnly,
+}
+
+#[derive(Debug, Clone)]
+pub struct Profile {
+    pub settings: Settings,
+    pub total_xp: u32,
+    pub best_streak: u32,
+    pub last_trained: Option<NaiveDate>,
+    current_streak: u32,
+    completed: HashMap<String, HashSet<String>>,
 }
 
 impl Profile {
-    pub fn new(name: &str, active_track_id: &str) -> Self {
+    pub fn new(settings: Settings) -> Self {
+        let baseline = settings.streak_baseline.clone();
         Self {
-            name: name.to_string(),
+            settings,
             total_xp: 0,
-            current_streak: 0,
-            best_streak: 0,
-            last_trained: None,
-            active_track_id: active_track_id.to_string(),
-            bridge_from: default_source_language(),
-            track_progress: HashMap::new(),
+            best_streak: baseline.best,
+            last_trained: baseline.last_trained,
+            current_streak: baseline.current,
+            completed: HashMap::new(),
         }
     }
 
+    pub fn replay(settings: Settings, events: &[ProgressEvent]) -> Self {
+        let mut profile = Self::new(settings);
+        for event in events {
+            profile.apply(event);
+        }
+        profile
+    }
+
+    pub fn apply(&mut self, event: &ProgressEvent) {
+        match event {
+            ProgressEvent::NodeCompleted {
+                track_id,
+                node_id,
+                xp,
+                on,
+            } => {
+                let newly_completed = self
+                    .completed
+                    .entry(track_id.clone())
+                    .or_default()
+                    .insert(node_id.clone());
+                if newly_completed {
+                    self.total_xp += xp;
+                }
+                self.record_training(*on);
+            }
+            ProgressEvent::NodeReset {
+                track_id,
+                node_id,
+                xp,
+                ..
+            } => {
+                let removed = self
+                    .completed
+                    .get_mut(track_id)
+                    .is_some_and(|nodes| nodes.remove(node_id));
+                if removed {
+                    self.total_xp = self.total_xp.saturating_sub(*xp);
+                }
+            }
+        }
+    }
+
+    /// Extends the streak on consecutive days and restarts it after a gap.
+    fn record_training(&mut self, day: NaiveDate) {
+        match self.last_trained.map(|last| (day - last).num_days()) {
+            Some(days) if days <= 0 => {}
+            Some(1) => self.current_streak += 1,
+            _ => self.current_streak = 1,
+        }
+        self.best_streak = self.best_streak.max(self.current_streak);
+        self.last_trained = Some(self.last_trained.map_or(day, |last| last.max(day)));
+    }
+
+    /// Streak as seen on `today`: it is broken once a whole day passes without training.
+    pub fn streak_on(&self, today: NaiveDate) -> u32 {
+        match self.last_trained {
+            Some(last) if (today - last).num_days() <= 1 => self.current_streak,
+            _ => 0,
+        }
+    }
+
+    // ---- decisions ----------------------------------------------------------
+
+    /// Decides whether `node` may be marked as done and returns the event to record.
+    pub fn request_completion(
+        &self,
+        track: &Track,
+        node: &Node,
+        today: NaiveDate,
+        mode: Mode,
+    ) -> Result<ProgressEvent, Refusal> {
+        if self.is_completed(&track.id, &node.id) {
+            return Err(Refusal::AlreadyCompleted);
+        }
+        if !self.is_unlocked(track, node) {
+            return Err(Refusal::Locked);
+        }
+        if mode == Mode::Learner && node.kind != NodeKind::Lesson {
+            return Err(Refusal::NeedsEvidence(node.kind));
+        }
+        Ok(ProgressEvent::NodeCompleted {
+            track_id: track.id.clone(),
+            node_id: node.id.clone(),
+            xp: node.xp,
+            on: today,
+        })
+    }
+
+    /// Decides whether a completion may be undone (dev mode only).
+    pub fn request_reset(
+        &self,
+        track: &Track,
+        node: &Node,
+        today: NaiveDate,
+        mode: Mode,
+    ) -> Result<ProgressEvent, Refusal> {
+        if mode != Mode::Dev {
+            return Err(Refusal::DevOnly);
+        }
+        if !self.is_completed(&track.id, &node.id) {
+            return Err(Refusal::NotCompleted);
+        }
+        Ok(ProgressEvent::NodeReset {
+            track_id: track.id.clone(),
+            node_id: node.id.clone(),
+            xp: node.xp,
+            on: today,
+        })
+    }
+
+    // ---- queries ------------------------------------------------------------
+
     pub fn is_completed(&self, track_id: &str, node_id: &str) -> bool {
-        self.track_progress
+        self.completed
             .get(track_id)
-            .is_some_and(|completed| completed.contains(node_id))
+            .is_some_and(|nodes| nodes.contains(node_id))
     }
 
     pub fn completed_count(&self, track: &Track) -> usize {
@@ -64,52 +228,6 @@ impl Profile {
         node.prerequisites
             .iter()
             .all(|prerequisite| self.is_completed(&track.id, prerequisite))
-    }
-
-    /// Manual completion toggle, kept for dev mode until katas are checked by the runner.
-    pub fn toggle_complete(
-        &mut self,
-        track: &Track,
-        node: &Node,
-        today: NaiveDate,
-    ) -> ToggleOutcome {
-        if self.is_completed(&track.id, &node.id) {
-            self.uncomplete(&track.id, node);
-            return ToggleOutcome::Uncompleted { xp: node.xp };
-        }
-        if !self.is_unlocked(track, node) {
-            return ToggleOutcome::Locked;
-        }
-        self.complete(&track.id, node, today);
-        ToggleOutcome::Completed { xp: node.xp }
-    }
-
-    fn complete(&mut self, track_id: &str, node: &Node, today: NaiveDate) {
-        self.track_progress
-            .entry(track_id.to_string())
-            .or_default()
-            .insert(node.id.clone());
-        self.total_xp += node.xp;
-        self.record_training(today);
-    }
-
-    fn uncomplete(&mut self, track_id: &str, node: &Node) {
-        if let Some(completed) = self.track_progress.get_mut(track_id) {
-            completed.remove(&node.id);
-        }
-        self.total_xp = self.total_xp.saturating_sub(node.xp);
-    }
-
-    /// Extends the streak on consecutive days and restarts it after a gap.
-    pub fn record_training(&mut self, today: NaiveDate) {
-        let days_since_last = self.last_trained.map(|last| (today - last).num_days());
-        match days_since_last {
-            Some(0) => {}
-            Some(1) => self.current_streak += 1,
-            _ => self.current_streak = 1,
-        }
-        self.best_streak = self.best_streak.max(self.current_streak);
-        self.last_trained = Some(today);
     }
 
     pub fn track_xp(&self, track: &Track) -> u32 {
@@ -129,26 +247,6 @@ impl Profile {
         let xp = self.track_xp(track);
         track.belts.iter().find(|belt| xp < belt.required_xp)
     }
-
-    /// Rewrites v1 node IDs (`rust-03-ownership-basics`) to their current IDs.
-    /// Returns how many entries were migrated.
-    pub fn migrate_legacy_ids(&mut self, legacy_to_current: &BTreeMap<String, String>) -> usize {
-        let mut migrated = 0;
-        for completed in self.track_progress.values_mut() {
-            let renamed: HashSet<String> = completed
-                .drain()
-                .map(|id| match legacy_to_current.get(&id) {
-                    Some(current) => {
-                        migrated += 1;
-                        current.clone()
-                    }
-                    None => id,
-                })
-                .collect();
-            *completed = renamed;
-        }
-        migrated
-    }
 }
 
 #[cfg(test)]
@@ -160,92 +258,161 @@ mod tests {
         NaiveDate::from_ymd_opt(2026, 11, d).unwrap()
     }
 
-    fn two_node_track() -> Track {
+    fn lesson(id: &str, prerequisites: &[&str], xp: u32) -> Node {
+        Node {
+            kind: NodeKind::Lesson,
+            ..node(id, prerequisites, xp)
+        }
+    }
+
+    fn two_lesson_track() -> Track {
         track(vec![
-            vec![node("rust.p0.setup", &[], 100)],
-            vec![node("rust.p1.loops", &["rust.p0.setup"], 250)],
+            vec![lesson("rust.p0.setup", &[], 100)],
+            vec![lesson("rust.p1.loops", &["rust.p0.setup"], 250)],
         ])
     }
 
-    #[test]
-    fn locked_node_cannot_be_completed() {
-        let rust = two_node_track();
-        let loops = rust.node("rust.p1.loops").unwrap().clone();
-        let mut profile = Profile::new("tester", "rust");
+    fn fresh_profile() -> Profile {
+        Profile::new(Settings::new("rust"))
+    }
 
-        assert_eq!(
-            profile.toggle_complete(&rust, &loops, day(14)),
-            ToggleOutcome::Locked
-        );
-        assert_eq!(profile.total_xp, 0);
+    fn complete(profile: &mut Profile, track: &Track, node_id: &str, on: NaiveDate) {
+        let node = track.node(node_id).unwrap();
+        let event = profile
+            .request_completion(track, node, on, Mode::Learner)
+            .unwrap();
+        profile.apply(&event);
     }
 
     #[test]
-    fn completing_prerequisite_unlocks_next_node_and_grants_xp() {
-        let rust = two_node_track();
-        let setup = rust.node("rust.p0.setup").unwrap().clone();
-        let loops = rust.node("rust.p1.loops").unwrap().clone();
-        let mut profile = Profile::new("tester", "rust");
+    fn locked_node_is_refused() {
+        let rust = two_lesson_track();
+        let loops = rust.node("rust.p1.loops").unwrap();
 
-        profile.toggle_complete(&rust, &setup, day(14));
+        let result = fresh_profile().request_completion(&rust, loops, day(14), Mode::Learner);
 
-        assert!(profile.is_unlocked(&rust, &loops));
+        assert_eq!(result, Err(Refusal::Locked));
+    }
+
+    #[test]
+    fn completing_a_lesson_unlocks_the_next_and_grants_xp() {
+        let rust = two_lesson_track();
+        let mut profile = fresh_profile();
+
+        complete(&mut profile, &rust, "rust.p0.setup", day(14));
+
+        assert!(profile.is_unlocked(&rust, rust.node("rust.p1.loops").unwrap()));
         assert_eq!(profile.track_xp(&rust), 100);
+        assert_eq!(profile.total_xp, 100);
+    }
+
+    #[test]
+    fn learner_cannot_tick_a_kata_but_dev_can() {
+        let rust = track(vec![vec![node("rust.p0.kata", &[], 100)]]);
+        let kata = rust.node("rust.p0.kata").unwrap();
+        let profile = fresh_profile();
+
         assert_eq!(
-            profile.toggle_complete(&rust, &setup, day(14)),
-            ToggleOutcome::Uncompleted { xp: 100 }
+            profile.request_completion(&rust, kata, day(14), Mode::Learner),
+            Err(Refusal::NeedsEvidence(NodeKind::Kata))
         );
+        assert!(
+            profile
+                .request_completion(&rust, kata, day(14), Mode::Dev)
+                .is_ok()
+        );
+    }
+
+    #[test]
+    fn reset_is_dev_only_and_removes_xp() {
+        let rust = two_lesson_track();
+        let setup = rust.node("rust.p0.setup").unwrap();
+        let mut profile = fresh_profile();
+        complete(&mut profile, &rust, "rust.p0.setup", day(14));
+
+        assert_eq!(
+            profile.request_reset(&rust, setup, day(14), Mode::Learner),
+            Err(Refusal::DevOnly)
+        );
+        let reset = profile
+            .request_reset(&rust, setup, day(14), Mode::Dev)
+            .unwrap();
+        profile.apply(&reset);
+
+        assert!(!profile.is_completed("rust", "rust.p0.setup"));
         assert_eq!(profile.total_xp, 0);
+        assert_eq!(
+            profile.request_reset(&rust, setup, day(14), Mode::Dev),
+            Err(Refusal::NotCompleted)
+        );
+    }
+
+    #[test]
+    fn completing_twice_is_refused_and_replayed_duplicates_count_once() {
+        let rust = two_lesson_track();
+        let setup = rust.node("rust.p0.setup").unwrap();
+        let mut profile = fresh_profile();
+        complete(&mut profile, &rust, "rust.p0.setup", day(14));
+
+        assert_eq!(
+            profile.request_completion(&rust, setup, day(14), Mode::Dev),
+            Err(Refusal::AlreadyCompleted)
+        );
+        let duplicate = ProgressEvent::NodeCompleted {
+            track_id: "rust".into(),
+            node_id: "rust.p0.setup".into(),
+            xp: 100,
+            on: day(14),
+        };
+        profile.apply(&duplicate);
+        assert_eq!(profile.total_xp, 100);
     }
 
     #[test]
     fn belts_follow_track_xp() {
-        let rust = two_node_track();
-        let setup = rust.node("rust.p0.setup").unwrap().clone();
-        let loops = rust.node("rust.p1.loops").unwrap().clone();
-        let mut profile = Profile::new("tester", "rust");
-
+        let rust = two_lesson_track();
+        let mut profile = fresh_profile();
         assert_eq!(profile.current_belt(&rust).unwrap().name, "White Belt");
-        profile.toggle_complete(&rust, &setup, day(14));
-        profile.toggle_complete(&rust, &loops, day(14));
+
+        complete(&mut profile, &rust, "rust.p0.setup", day(14));
+        complete(&mut profile, &rust, "rust.p1.loops", day(14));
 
         assert_eq!(profile.current_belt(&rust).unwrap().name, "Yellow Belt");
         assert_eq!(profile.next_belt(&rust).unwrap().name, "Green Belt");
     }
 
     #[test]
-    fn streak_grows_on_consecutive_days_and_restarts_after_a_gap() {
-        let mut profile = Profile::new("tester", "rust");
+    fn streak_grows_on_consecutive_days_restarts_after_a_gap_and_expires() {
+        let rust = two_lesson_track();
+        let mut profile = fresh_profile();
 
-        profile.record_training(day(10));
-        profile.record_training(day(10));
-        profile.record_training(day(11));
-        assert_eq!(profile.current_streak, 2);
-
-        profile.record_training(day(14));
-        assert_eq!(profile.current_streak, 1);
+        complete(&mut profile, &rust, "rust.p0.setup", day(10));
+        complete(&mut profile, &rust, "rust.p1.loops", day(11));
+        assert_eq!(profile.streak_on(day(11)), 2);
+        assert_eq!(profile.streak_on(day(12)), 2, "still alive the next day");
+        assert_eq!(profile.streak_on(day(13)), 0, "broken after a full day off");
         assert_eq!(profile.best_streak, 2);
     }
 
     #[test]
-    fn legacy_ids_are_rewritten_and_unknown_ids_kept() {
-        let mut profile = Profile::new("tester", "rust");
-        profile.track_progress.insert(
-            "rust".into(),
-            HashSet::from(["rust-01-setup".to_string(), "custom".to_string()]),
-        );
-        let map = BTreeMap::from([("rust-01-setup".to_string(), "rust.p0.setup".to_string())]);
+    fn replay_starts_from_the_imported_v1_streak() {
+        let mut settings = Settings::new("rust");
+        settings.streak_baseline = StreakBaseline {
+            current: 5,
+            best: 9,
+            last_trained: Some(day(13)),
+        };
+        let event = ProgressEvent::NodeCompleted {
+            track_id: "rust".into(),
+            node_id: "rust.p0.setup".into(),
+            xp: 100,
+            on: day(14),
+        };
 
-        assert_eq!(profile.migrate_legacy_ids(&map), 1);
-        assert!(profile.is_completed("rust", "rust.p0.setup"));
-        assert!(profile.is_completed("rust", "custom"));
-    }
+        let profile = Profile::replay(settings, &[event]);
 
-    #[test]
-    fn v1_profile_without_bridge_language_defaults_to_java() {
-        let v1 = r#"{"name":"Dev","total_xp":0,"current_streak":1,"best_streak":1,
-                     "last_trained":"2026-11-14","active_track_id":"backend","track_progress":{}}"#;
-        let profile: Profile = serde_json::from_str(v1).unwrap();
-        assert_eq!(profile.bridge_from, "java");
+        assert_eq!(profile.streak_on(day(14)), 6);
+        assert_eq!(profile.best_streak, 9);
+        assert_eq!(profile.total_xp, 100);
     }
 }

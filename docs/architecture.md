@@ -1,6 +1,6 @@
 # Learning Dojo v2 Architecture
 
-> Status: **M0 implemented** (2026-11-14): workspace, `dojo-core`, `dojo-content`, JSON Schemas, `dojo content validate` and the 29 tracks migrated as English drafts. Later milestones are still design.
+> Status: **M0 and M1 implemented** (2026-11-14): workspace, `dojo-core`, `dojo-content`, JSON Schemas, `dojo content validate`, the 29 tracks migrated as English drafts, and the SQLite progress store (`dojo-store`). Later milestones are still design.
 > Full example content files live in [`docs/examples/`](examples/).
 
 ## 0. Decisions so far
@@ -150,6 +150,8 @@ A prerequisite is met by `Passed | Mastered | PlacedOut`. XP: `Passed` grants th
 | `submission` | `id`, `node_id`, `code_hash`, `tests_json`, `static_json`, `review_json`, `score`, `reviewer`, `rubric_version`, `created_at` |
 | `placement_session` | `track_id`, `started_at`, `answers_json`, `result_json` |
 | `event` | append-only log (xp, streak, belt); the profile is derived from it |
+
+Implemented in M1: `settings` (key/value) and `event` (`node_completed`, `node_reset`), with schema versions tracked by `PRAGMA user_version`. The profile is rebuilt by replaying events (`Profile::replay`). `node_progress`, `skill_mastery`, `submission` and `placement_session` are added by migrations in the milestones that need them (M2, M4, M5). Completion rule: lessons can be marked as read; other kinds need evidence, except in `--dev`.
 
 Migration: on first run each node in `profile.json`'s `track_progress` becomes `Passed` (mapped via `legacy_id` in `node.yaml`), and the file is renamed `profile.v1.json`.
 
@@ -323,7 +325,7 @@ score(candidate) = 0.35·target_career_gap + 0.25·weak_skill_reinforcement
 | Milestone | Delivery | Done when |
 |---|---|---|
 | M0 | Cargo workspace, `dojo-core` and `dojo-content` with schema v2 | all 29 current tracks migrated to phases (each node placed in the phase it belongs to, as English drafts) and validating — **done 2026-11-14** |
-| M1 | `dojo-store` (SQLite) + `profile.json` migration + tree TUI | old progress preserved; manual toggle behind `--dev` |
+| M1 | `dojo-store` (SQLite) + `profile.json` migration + tree TUI | old progress preserved; manual toggle behind `--dev` — **done 2026-11-14** (tree TUI landed in M0; learners may still mark lessons as read) |
 | M2 | Docker runner + Rust pilot track (20 nodes) | `dojo check` runs tests in a container with file watching |
 | M3 | Checkpoints and quiz engine | Rust checkpoints 1 and 2 working |
 | M4 | Placement | Rust placement produces a plan and a belt exam |

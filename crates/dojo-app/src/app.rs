@@ -1,11 +1,13 @@
-use crate::profile_file::ProfileFile;
 use crate::tree::TrackTree;
-use anyhow::{Result, bail};
-use dojo_core::{Catalog, Profile, ToggleOutcome, Track};
+use anyhow::{Result, anyhow, bail};
+use chrono::NaiveDate;
+use dojo_core::{
+    Catalog, Mode, NodeKind, Profile, ProgressEvent, ProgressStore, Refusal, Settings, Track,
+};
 use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Mode {
+pub enum Screen {
     TrackView,
     TrackSelector,
 }
@@ -15,15 +17,16 @@ pub struct App {
     pub catalog: Catalog,
     pub profile: Profile,
     pub mode: Mode,
+    pub screen: Screen,
     pub tree: TrackTree,
     pub selector_cursor: usize,
     pub status_message: Option<String>,
     active_track: usize,
-    profile_file: ProfileFile,
+    store: Box<dyn ProgressStore>,
 }
 
 impl App {
-    pub fn new(mut catalog: Catalog, profile_file: ProfileFile) -> Result<Self> {
+    pub fn new(mut catalog: Catalog, store: Box<dyn ProgressStore>, mode: Mode) -> Result<Self> {
         if catalog.tracks.is_empty() {
             bail!("no tracks found in the content folder");
         }
@@ -31,26 +34,26 @@ impl App {
             .tracks
             .sort_by(|a, b| (&a.category, &a.name).cmp(&(&b.category, &b.name)));
 
-        let mut profile = profile_file.load_or_new(&catalog.tracks[0].id)?;
-        let migrated = profile.migrate_legacy_ids(&catalog.legacy_id_map());
-        let active_track = catalog.track_index(&profile.active_track_id).unwrap_or(0);
-        profile.active_track_id = catalog.tracks[active_track].id.clone();
+        let stored_settings = store.load_settings().map_err(|error| anyhow!(error))?;
+        let is_first_run = stored_settings.is_none();
+        let mut settings = stored_settings.unwrap_or_else(|| Settings::new(&catalog.tracks[0].id));
+        let active_track = catalog.track_index(&settings.active_track_id).unwrap_or(0);
+        settings.active_track_id = catalog.tracks[active_track].id.clone();
+        let events = store.load_events().map_err(|error| anyhow!(error))?;
 
         let mut app = Self {
             tree: TrackTree::new(&catalog.tracks[active_track]),
+            profile: Profile::replay(settings, &events),
             catalog,
-            profile,
-            mode: Mode::TrackView,
+            mode,
+            screen: Screen::TrackView,
             selector_cursor: active_track,
             status_message: None,
             active_track,
-            profile_file,
+            store,
         };
-        if migrated > 0 {
-            app.save();
-            app.status_message = Some(format!(
-                "Migrated {migrated} completed nodes from the v1 profile."
-            ));
+        if is_first_run {
+            app.save_settings();
         }
         Ok(app)
     }
@@ -61,6 +64,10 @@ impl App {
 
     pub fn active_track_index(&self) -> usize {
         self.active_track
+    }
+
+    pub fn today() -> NaiveDate {
+        chrono::Local::now().date_naive()
     }
 
     // ---- track view ---------------------------------------------------------
@@ -75,22 +82,35 @@ impl App {
         self.status_message = None;
     }
 
-    /// Marks the selected node as done (or undone). Replaced by evidence-based completion later.
+    /// Marks the selected node as done, or undoes it in dev mode.
     pub fn toggle_selected(&mut self) {
         let track = &self.catalog.tracks[self.active_track];
         let Some((_, node)) = self.tree.selected(track) else {
             return;
         };
-        let today = chrono::Local::now().date_naive();
-        let outcome = self.profile.toggle_complete(track, node, today);
-        self.status_message = Some(match outcome {
-            ToggleOutcome::Completed { xp } => format!("⭐ Node completed! +{xp} XP"),
-            ToggleOutcome::Uncompleted { xp } => format!("Node marked as not done (-{xp} XP)."),
-            ToggleOutcome::Locked => "🔒 Complete the prerequisites first.".to_string(),
-        });
-        if outcome != ToggleOutcome::Locked {
-            self.save();
+        let today = Self::today();
+        let decision = if self.profile.is_completed(&track.id, &node.id) {
+            self.profile.request_reset(track, node, today, self.mode)
+        } else {
+            self.profile
+                .request_completion(track, node, today, self.mode)
+        };
+        match decision {
+            Ok(event) => self.record(event),
+            Err(refusal) => self.status_message = Some(refusal_message(refusal)),
         }
+    }
+
+    fn record(&mut self, event: ProgressEvent) {
+        if let Err(error) = self.store.append_event(&event) {
+            self.status_message = Some(format!("⚠ Could not save progress: {error}"));
+            return;
+        }
+        self.profile.apply(&event);
+        self.status_message = Some(match event {
+            ProgressEvent::NodeCompleted { xp, .. } => format!("⭐ Node completed! +{xp} XP"),
+            ProgressEvent::NodeReset { xp, .. } => format!("Node reset (-{xp} XP)."),
+        });
     }
 
     /// Cycles the Rosetta bridge source language among those available in the catalog.
@@ -100,16 +120,14 @@ impl App {
             self.status_message = Some("No bridges available yet.".to_string());
             return;
         }
+        let settings = &mut self.profile.settings;
         let current = languages
             .iter()
-            .position(|lang| *lang == self.profile.bridge_from);
+            .position(|lang| *lang == settings.bridge_from);
         let next = current.map_or(0, |index| (index + 1) % languages.len());
-        self.profile.bridge_from = languages[next].clone();
-        self.status_message = Some(format!(
-            "Bridges now explained from {}.",
-            self.profile.bridge_from
-        ));
-        self.save();
+        settings.bridge_from = languages[next].clone();
+        self.status_message = Some(format!("Bridges now explained from {}.", languages[next]));
+        self.save_settings();
     }
 
     fn bridge_languages(&self) -> BTreeSet<String> {
@@ -125,12 +143,12 @@ impl App {
 
     pub fn open_selector(&mut self) {
         self.selector_cursor = self.active_track;
-        self.mode = Mode::TrackSelector;
+        self.screen = Screen::TrackSelector;
         self.status_message = Some("Pick a track and press Enter.".to_string());
     }
 
     pub fn close_selector(&mut self) {
-        self.mode = Mode::TrackView;
+        self.screen = Screen::TrackView;
         self.status_message = None;
     }
 
@@ -146,15 +164,38 @@ impl App {
     pub fn confirm_selection(&mut self) {
         self.active_track = self.selector_cursor;
         self.tree = TrackTree::new(&self.catalog.tracks[self.active_track]);
-        self.profile.active_track_id = self.active_track().id.clone();
-        self.mode = Mode::TrackView;
+        self.profile.settings.active_track_id = self.active_track().id.clone();
+        self.screen = Screen::TrackView;
         self.status_message = Some(format!("🥋 Now training: {}", self.active_track().name));
-        self.save();
+        self.save_settings();
     }
 
-    fn save(&mut self) {
-        if let Err(error) = self.profile_file.save(&self.profile) {
-            self.status_message = Some(format!("⚠ Could not save progress: {error:#}"));
+    fn save_settings(&mut self) {
+        if let Err(error) = self.store.save_settings(&self.profile.settings) {
+            self.status_message = Some(format!("⚠ Could not save settings: {error}"));
         }
+    }
+}
+
+fn refusal_message(refusal: Refusal) -> String {
+    match refusal {
+        Refusal::Locked => "🔒 Complete the prerequisites first.".to_string(),
+        Refusal::NeedsEvidence(kind) => format!(
+            "This {} is completed by passing its checks, not by ticking it. Use --dev to tick it.",
+            kind_label(kind)
+        ),
+        Refusal::DevOnly => "Already done. Undoing a completion needs --dev.".to_string(),
+        Refusal::AlreadyCompleted => "Already done.".to_string(),
+        Refusal::NotCompleted => "Nothing to undo.".to_string(),
+    }
+}
+
+fn kind_label(kind: NodeKind) -> &'static str {
+    match kind {
+        NodeKind::Lesson => "lesson",
+        NodeKind::Kata => "kata",
+        NodeKind::Quiz => "quiz",
+        NodeKind::Checkpoint => "checkpoint",
+        NodeKind::Project => "project",
     }
 }

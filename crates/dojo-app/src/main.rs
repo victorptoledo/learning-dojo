@@ -1,5 +1,4 @@
 mod app;
-mod profile_file;
 mod tree;
 mod tui;
 mod ui;
@@ -18,9 +17,17 @@ struct Cli {
     #[arg(long, global = true, default_value = "content")]
     content: PathBuf,
 
-    /// Progress file (temporary JSON store until the SQLite store lands).
+    /// Progress database. Defaults to `~/.dojo/dojo.db`.
+    #[arg(long, global = true)]
+    db: Option<PathBuf>,
+
+    /// v1 progress file imported into the database on first run, then renamed to `profile.v1.json`.
     #[arg(long, global = true, default_value = "data/profile.json")]
-    profile: PathBuf,
+    import_v1: PathBuf,
+
+    /// Dev mode: tick any node and undo completions, bypassing the evidence rules.
+    #[arg(long, global = true)]
+    dev: bool,
 
     #[command(subcommand)]
     command: Option<Command>,
@@ -49,11 +56,24 @@ fn main() -> Result<ExitCode> {
     let cli = Cli::parse();
     match cli.command {
         None => {
-            tui::run(&cli.content, &cli.profile)?;
+            let options = tui::Options {
+                content_dir: cli.content,
+                db_path: cli.db.unwrap_or_else(default_db_path),
+                v1_profile: cli.import_v1,
+                dev: cli.dev,
+            };
+            tui::run(&options)?;
             Ok(ExitCode::SUCCESS)
         }
         Some(Command::Content {
             action: ContentAction::Validate { strict },
         }) => validate_command::run(&cli.content, strict),
     }
+}
+
+fn default_db_path() -> PathBuf {
+    std::env::home_dir()
+        .unwrap_or_default()
+        .join(".dojo")
+        .join("dojo.db")
 }

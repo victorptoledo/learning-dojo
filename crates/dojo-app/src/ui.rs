@@ -1,6 +1,6 @@
-use crate::app::{App, Mode};
+use crate::app::{App, Screen};
 use crate::tree::TreeRow;
-use dojo_core::{Node, NodeKind, Phase, Track};
+use dojo_core::{Mode, Node, NodeKind, Phase, Track};
 use ratatui::{
     Frame,
     layout::{Constraint, Layout, Rect},
@@ -19,7 +19,7 @@ pub fn render(frame: &mut Frame, app: &App) {
     render_header(frame, app, header);
     render_body(frame, app, body);
     render_footer(frame, app, footer);
-    if app.mode == Mode::TrackSelector {
+    if app.screen == Screen::TrackSelector {
         render_track_selector(frame, app, frame.area());
     }
 }
@@ -47,7 +47,7 @@ fn render_header(frame: &mut Frame, app: &App, area: Rect) {
         ),
         Line::from(vec![
             Span::raw(" 🥋 "),
-            Span::raw(&app.profile.name).bold(),
+            Span::raw(&app.profile.settings.name).bold(),
             Span::raw(" | "),
             Span::raw(belt_label).yellow(),
         ]),
@@ -62,7 +62,7 @@ fn render_header(frame: &mut Frame, app: &App, area: Rect) {
     let streak = vec![
         Line::from(vec![
             " 🔥 STREAK ".bold().red(),
-            format!("{} days", app.profile.current_streak)
+            format!("{} days", app.profile.streak_on(App::today()))
                 .bold()
                 .yellow(),
         ]),
@@ -244,7 +244,7 @@ fn render_summary(
 }
 
 fn render_bridge(frame: &mut Frame, app: &App, node: &Node, area: Rect) {
-    let source = &app.profile.bridge_from;
+    let source = &app.profile.settings.bridge_from;
     let Some(bridge) = node.bridge_for(source) else {
         let missing = Paragraph::new(format!(
             "No bridge from {source} for this node yet. Press [B] to change language."
@@ -301,8 +301,12 @@ fn render_footer(frame: &mut Frame, app: &App, area: Rect) {
         "[M] Tracks | [↑/↓] Move | [Space/Enter] Mark done | [B] Bridge language | [q/Esc] Quit"
             .to_string()
     });
-    let footer =
-        Paragraph::new(text).block(titled(format!(" Bridge: {} ", app.profile.bridge_from)));
+    let mode = match app.mode {
+        Mode::Learner => "",
+        Mode::Dev => " · DEV MODE",
+    };
+    let title = format!(" Bridge: {}{mode} ", app.profile.settings.bridge_from);
+    let footer = Paragraph::new(text).block(titled(title));
     frame.render_widget(footer, area);
 }
 
@@ -381,7 +385,8 @@ fn titled<'a>(title: impl Into<Line<'a>>) -> Block<'a> {
 mod tests {
     use super::render;
     use crate::app::App;
-    use crate::profile_file::ProfileFile;
+    use dojo_core::{Mode, ProgressStore};
+    use dojo_store::{SqliteStore, import_v1_profile};
     use ratatui::{Terminal, backend::TestBackend};
     use std::path::Path;
 
@@ -392,21 +397,30 @@ mod tests {
         buffer.content().iter().map(|cell| cell.symbol()).collect()
     }
 
-    #[test]
-    fn renders_real_content_and_migrates_a_v1_profile() {
+    fn real_catalog() -> dojo_core::Catalog {
         let content = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../content");
-        let catalog = dojo_content::load(&content).unwrap().catalog;
+        dojo_content::load(&content).unwrap().catalog
+    }
+
+    fn app_with(store: SqliteStore, mode: Mode) -> App {
+        App::new(real_catalog(), Box::new(store), mode).unwrap()
+    }
+
+    #[test]
+    fn renders_real_content_after_importing_a_v1_profile() {
         let dir = tempfile::tempdir().unwrap();
-        let profile_path = dir.path().join("profile.json");
+        let v1_path = dir.path().join("profile.json");
         std::fs::write(
-            &profile_path,
+            &v1_path,
             r#"{"name":"Dev Sensei","total_xp":100,"current_streak":1,"best_streak":1,
                "last_trained":"2026-11-14","active_track_id":"rust",
                "track_progress":{"rust":["rust-01-setup"]}}"#,
         )
         .unwrap();
+        let mut store = SqliteStore::open_in_memory().unwrap();
+        import_v1_profile(&v1_path, &real_catalog(), &mut store, App::today()).unwrap();
 
-        let mut app = App::new(catalog, ProfileFile::new(&profile_path)).unwrap();
+        let mut app = app_with(store, Mode::Learner);
 
         assert!(app.profile.is_completed("rust", "rust.p0.setup"));
         let screen = screen_text(&app);
@@ -416,5 +430,51 @@ mod tests {
 
         app.open_selector();
         assert!(screen_text(&app).contains("29 available"));
+    }
+
+    #[test]
+    fn learner_completes_a_lesson_but_cannot_undo_it() {
+        let mut app = app_with(SqliteStore::open_in_memory().unwrap(), Mode::Learner);
+        let (track_id, node_id) = selected_ids(&app);
+
+        app.toggle_selected();
+        assert!(app.profile.is_completed(&track_id, &node_id));
+        app.toggle_selected();
+
+        assert!(app.profile.is_completed(&track_id, &node_id));
+        assert!(app.status_message.as_deref().unwrap().contains("--dev"));
+    }
+
+    #[test]
+    fn dev_mode_can_undo_and_shows_its_badge() {
+        let mut app = app_with(SqliteStore::open_in_memory().unwrap(), Mode::Dev);
+        let (track_id, node_id) = selected_ids(&app);
+
+        app.toggle_selected();
+        app.toggle_selected();
+
+        assert!(!app.profile.is_completed(&track_id, &node_id));
+        assert!(screen_text(&app).contains("DEV MODE"));
+    }
+
+    #[test]
+    fn first_run_saves_settings_so_the_store_is_no_longer_empty() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = dir.path().join("dojo.db");
+        app_with(SqliteStore::open(&db).unwrap(), Mode::Learner);
+
+        assert!(
+            SqliteStore::open(&db)
+                .unwrap()
+                .load_settings()
+                .unwrap()
+                .is_some()
+        );
+    }
+
+    fn selected_ids(app: &App) -> (String, String) {
+        let track = app.active_track();
+        let (_, node) = app.tree.selected(track).unwrap();
+        (track.id.clone(), node.id.clone())
     }
 }
