@@ -14,3 +14,10 @@ xp: 250
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'For a feature with a controller, a service and a repository with one custom query, describe which tests you would write at each level (unit, slice, full context) and what each one checks.'
+  criteria:
+    - 'Unit tests for the service rules without Spring'
+    - '@WebMvcTest with @MockitoBean for the HTTP behaviour'
+    - '@DataJpaTest (or Testcontainers) for the custom query'
+    - 'Few @SpringBootTest flows and awareness of context caching'

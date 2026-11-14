@@ -14,3 +14,10 @@ xp: 250
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Explain what a lifetime annotation says with the example of `fn longest<''a>(a: &''a str, b: &''a str) -> &''a str`, and why the compiler sometimes needs it and sometimes does not (elision).'
+  criteria:
+    - 'Explains that lifetimes describe how long references are valid, not how long they live'
+    - 'Correctly explains the longest example'
+    - 'Explains the elision rules in outline'
+    - 'Does not confuse lifetimes with garbage collection or runtime cost'

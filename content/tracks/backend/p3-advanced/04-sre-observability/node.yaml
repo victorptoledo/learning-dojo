@@ -14,3 +14,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Define one SLI and SLO for the checkout of an online shop, compute the monthly error budget, and describe the alert you would create and what the team does when the budget is spent.'
+  criteria:
+    - 'The SLI is user-facing and expressed as a good/total ratio'
+    - 'The SLO has a target and a window, and the budget is computed correctly'
+    - 'The alert is on symptoms or burn rate and actionable'
+    - 'Explains the budget policy (slow down releases, invest in reliability)'

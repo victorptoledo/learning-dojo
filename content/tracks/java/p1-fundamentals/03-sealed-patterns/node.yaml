@@ -14,3 +14,10 @@ xp: 250
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Design a sealed hierarchy for payment methods (or another closed set of alternatives) with records, and write one operation as a switch with record patterns. Explain why you leave out `default`.'
+  criteria:
+    - 'The sealed interface and permitted records are correct'
+    - 'The switch uses record patterns and maybe a guard'
+    - 'Explains that exhaustiveness breaks the build when a new type is added'
+    - 'Compares briefly with the visitor pattern or polymorphism'

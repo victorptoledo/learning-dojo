@@ -14,3 +14,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Pick one classic design pattern (strategy, command, visitor, builder or decorator) and show how you would write it in modern Java, compared with the classic version. What did you gain and what did you lose?'
+  criteria:
+    - 'Describes the classic form correctly'
+    - 'The modern version uses lambdas, records or sealed types appropriately'
+    - 'Names a concrete gain (less code, compile-time checks)'
+    - 'Names a limit or a case where the classic form is still better'

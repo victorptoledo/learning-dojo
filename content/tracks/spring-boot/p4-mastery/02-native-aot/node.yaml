@@ -14,3 +14,10 @@ xp: 400
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Compare three ways to start a Spring Boot service faster (native image, the JVM AOT cache, CRaC) and recommend one for a service that scales from zero on demand. Justify it.'
+  criteria:
+    - 'Describes each option accurately'
+    - 'Names the build-time closed-world trade-off of AOT and native'
+    - 'The recommendation fits scale-to-zero'
+    - 'Mentions measuring before deciding'

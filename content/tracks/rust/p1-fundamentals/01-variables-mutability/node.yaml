@@ -13,3 +13,9 @@ xp: 100
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Write a short piece of Rust (a few lines) that uses `let`, `let mut` and shadowing, and explain in your own words when each one is the right choice and why immutability is the default.'
+  criteria:
+    - 'The code is valid and shows all three forms'
+    - 'Explains the difference between mut and shadowing (shadowing can change the type)'
+    - 'Gives a reason for immutability by default (fewer surprises, easier reasoning, concurrency)'

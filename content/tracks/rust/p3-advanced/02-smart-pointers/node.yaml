@@ -13,3 +13,10 @@ xp: 350
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Compare `Box`, `Rc`, `RefCell` and `Arc`: what problem each one solves, a situation for each, and the cost or risk each one brings.'
+  criteria:
+    - 'Box for heap allocation and recursive types'
+    - 'Rc for shared ownership in one thread; Arc across threads'
+    - 'RefCell for interior mutability with runtime borrow checks (can panic)'
+    - 'Mentions reference cycles and Weak'

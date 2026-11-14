@@ -13,3 +13,10 @@ xp: 250
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Explain ownership with an example of a `String` passed to a function by value. What happens to the original variable, why does Rust do this instead of using a garbage collector, and how would you keep using the value afterwards?'
+  criteria:
+    - 'States the three ownership rules or their effect'
+    - 'Explains the move and why the original can no longer be used'
+    - 'Explains drop at the end of scope instead of a garbage collector'
+    - 'Offers borrowing or clone as ways to keep using the value, with their trade-off'

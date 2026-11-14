@@ -13,3 +13,10 @@ xp: 100
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Explain to a colleague who only knows Java what `cargo new`, `cargo build`, `cargo run` and `cargo test` do, and what `Cargo.toml` and `Cargo.lock` are for. Compare each one with what they would use in the Java world.'
+  criteria:
+    - 'Describes each cargo command correctly'
+    - 'Explains Cargo.toml (manifest, dependencies) and Cargo.lock (exact versions)'
+    - 'Makes a sensible comparison with Maven or Gradle'
+    - 'Mentions that the compiler catches errors before running'

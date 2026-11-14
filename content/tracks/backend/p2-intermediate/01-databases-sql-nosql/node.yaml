@@ -15,3 +15,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Two users try to book the last seat of a flight at the same moment. Explain what can go wrong under read committed and show two different ways to make sure only one booking succeeds.'
+  criteria:
+    - 'Identifies the race (lost update or double booking)'
+    - 'Shows an atomic update or a unique constraint solution'
+    - 'Shows optimistic or pessimistic locking'
+    - 'Compares the two approaches'

@@ -13,3 +13,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Define a small trait for your own domain, implement it for two types, and explain the difference between a generic function (`fn f<T: Trait>`) and a trait object (`&dyn Trait`), and when you would pick each.'
+  criteria:
+    - 'The trait and implementations are valid and meaningful'
+    - 'Explains static dispatch (monomorphisation) versus dynamic dispatch'
+    - 'Gives a fitting use case for each (performance versus heterogeneous collections)'
+    - 'Compares traits with Java interfaces accurately'

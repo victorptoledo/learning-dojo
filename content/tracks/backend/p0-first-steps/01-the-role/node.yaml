@@ -13,3 +13,10 @@ xp: 100
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Describe, step by step, everything that happens between a user pressing ''Pay'' in a shop''s web page and the confirmation appearing, naming the components involved and where the request could fail.'
+  criteria:
+    - 'Covers DNS, TLS, load balancer, application, database and the response'
+    - 'Mentions at least one external call (the payment provider)'
+    - 'Identifies realistic failure points'
+    - 'Mentions logs, metrics or traces'

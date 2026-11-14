@@ -13,3 +13,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Model a traffic light (or another small domain of your choice) with an enum and a struct, write a `match` that decides the next state, and explain why `match` must be exhaustive and what that buys you.'
+  criteria:
+    - 'The enum and struct model the domain sensibly'
+    - 'The match is exhaustive and returns the next state'
+    - 'Explains exhaustiveness as a compile-time guarantee when variants are added'
+    - 'Uses methods with the right receiver (&self / self)'

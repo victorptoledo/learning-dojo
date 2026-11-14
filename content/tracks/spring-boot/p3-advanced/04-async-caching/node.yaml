@@ -14,3 +14,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'After an order is placed, you must send an email and update a search index. Explain how you would do it with events, why the listener should run after commit, and what you would cache in this flow (if anything).'
+  criteria:
+    - 'Publishes an event from the service instead of calling every module'
+    - 'Uses @TransactionalEventListener or explains after-commit'
+    - 'Mentions async execution or an outbox for reliability'
+    - 'Caching choice with staleness and eviction considered'

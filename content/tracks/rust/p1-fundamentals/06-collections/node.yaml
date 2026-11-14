@@ -14,3 +14,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Describe when you would choose a `Vec`, a `HashMap` and a `BTreeMap`, and explain the difference between `String` and `&str` with an example of a function signature that accepts both.'
+  criteria:
+    - 'Gives a correct use case for each collection'
+    - 'Mentions ordering and lookup costs'
+    - 'Explains owned String versus borrowed &str'
+    - 'Shows a function taking &str and why it accepts String too'

@@ -9,7 +9,7 @@ use crate::schema::{self, Schemas};
 use anyhow::{Result, bail};
 use dojo_core::{
     Belt, Bridge, Career, CareerRequirement, Catalog, DEFAULT_PASS_PERCENT, EarlyStop, EntryOption,
-    Kata, Node, Objective, Phase, PhaseRule, PlacementConfig, PlacementItem, Question,
+    Exercise, Kata, Node, Objective, Phase, PhaseRule, PlacementConfig, PlacementItem, Question,
     QuestionKind, Quiz, Requirement, RequirementKind, RunnerSpec, Skill, SkillId, Stage, Track,
 };
 use regex::Regex;
@@ -586,6 +586,10 @@ fn to_node(
         .into_iter()
         .map(to_requirement)
         .collect();
+    let exercise = manifest.exercise.map(|exercise| Exercise {
+        task: exercise.task,
+        criteria: exercise.criteria,
+    });
     Node {
         id: manifest.id,
         legacy_id: manifest.legacy_id,
@@ -603,6 +607,7 @@ fn to_node(
         bridges,
         kata,
         quiz,
+        exercise,
         requirements,
     }
 }

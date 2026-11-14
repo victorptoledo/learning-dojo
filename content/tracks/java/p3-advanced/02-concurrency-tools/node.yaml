@@ -14,3 +14,10 @@ xp: 350
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Several threads update a shared map of word counts. Show two correct ways to do it and one wrong way, and explain why the wrong one loses updates.'
+  criteria:
+    - 'A correct way with ConcurrentHashMap.merge or compute'
+    - 'Another correct way (confinement and merge, or a lock)'
+    - 'A wrong way such as get-then-put on a shared HashMap'
+    - 'Explains the race (read-modify-write is not atomic)'

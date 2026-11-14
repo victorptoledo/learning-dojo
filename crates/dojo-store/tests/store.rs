@@ -38,6 +38,7 @@ fn catalog() -> Catalog {
         bridges: BTreeMap::new(),
         kata: None,
         quiz: None,
+        exercise: None,
         requirements: vec![],
     };
     let phase = Phase {

@@ -14,3 +14,10 @@ xp: 250
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Model a library (books, authors, members, loans) as tables with keys and constraints, and name the indexes you would add for the two queries you expect to be most frequent.'
+  criteria:
+    - 'Tables with primary and foreign keys and sensible constraints'
+    - 'Handles the many-to-many between books and authors'
+    - 'Indexes match the stated queries, including column order'
+    - 'Explains one constraint that protects against a race or bad data'

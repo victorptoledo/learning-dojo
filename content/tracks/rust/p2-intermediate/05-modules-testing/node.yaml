@@ -14,3 +14,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Describe how you would organise a small library into modules, what `pub` and `pub(crate)` mean, and where unit tests and integration tests live in a Cargo project.'
+  criteria:
+    - 'Proposes a sensible module layout'
+    - 'Explains visibility with pub and pub(crate)'
+    - 'Places unit tests in #[cfg(test)] modules and integration tests in tests/'
+    - 'Mentions documentation tests or test naming'

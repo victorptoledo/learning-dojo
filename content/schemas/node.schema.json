@@ -212,6 +212,21 @@
       "pattern": "\\.yaml$",
       "description": "Quiz file (quiz.yaml) that completes this lesson."
     },
+    "exercise": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task", "criteria"],
+      "description": "An open written exercise. The learner answers in ANSWER.md and the dojo builds a review prompt for an AI of their choice. Feedback only: it never gates progress.",
+      "properties": {
+        "task": { "type": "string", "minLength": 20 },
+        "criteria": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 6,
+          "items": { "type": "string", "minLength": 5 }
+        }
+      }
+    },
     "requirements": {
       "type": "array",
       "items": {

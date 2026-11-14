@@ -14,3 +14,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'List what you would put in place before running a Rust service in production: error handling, logging, configuration and packaging. Justify each choice briefly.'
+  criteria:
+    - 'Error handling strategy (thiserror for libraries, anyhow for applications, or equivalent)'
+    - 'Structured logging or tracing'
+    - 'Configuration from the environment with validation'
+    - 'A small, reproducible build or container image'

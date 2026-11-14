@@ -15,3 +15,10 @@ xp: 250
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'A service calls three slow remote APIs for each request. Explain how you would use virtual threads to answer faster, what you would still limit, and which kind of work would not benefit.'
+  criteria:
+    - 'Runs the calls concurrently with a virtual-thread executor and joins the results'
+    - 'Explains why blocking is cheap with virtual threads (unmounting)'
+    - 'Limits the scarce resource (connections, a Semaphore) instead of pooling threads'
+    - 'Identifies CPU-bound work as not benefiting'

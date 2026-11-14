@@ -14,3 +14,10 @@ xp: 250
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Design the API of a small task manager (projects and tasks): URLs, methods, pagination, filtering, partial updates and the error format. Point out one decision you made to keep it evolvable.'
+  criteria:
+    - 'Resource-oriented URLs and correct methods'
+    - 'Pagination and filters as query parameters with limits'
+    - 'PATCH with merge patch or a justified alternative'
+    - 'Problem Details errors and an evolution rule (additive changes)'

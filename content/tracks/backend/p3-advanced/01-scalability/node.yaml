@@ -14,3 +14,10 @@ xp: 350
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'An application has grown from 100 to 50,000 requests per second. Describe, in order, the steps you would take to scale it, starting with the cheapest, and the consistency trade-offs each step introduces.'
+  criteria:
+    - 'Starts with optimisation and measurement'
+    - 'Makes instances stateless behind a load balancer'
+    - 'Adds caching and read replicas, noting replication lag'
+    - 'Considers sharding last with a shard key and its costs'

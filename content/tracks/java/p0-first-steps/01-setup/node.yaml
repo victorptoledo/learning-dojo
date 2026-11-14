@@ -13,3 +13,10 @@ xp: 100
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Explain to a teammate the three ways to run Java code you saw (jshell, `java File.java`, `javac` + `java`) and when each one fits. Then describe the layout of a Maven project and where code and tests go.'
+  criteria:
+    - 'Describes each way to run code and a fitting use for it'
+    - 'Explains the src/main/java and src/test/java layout and packages'
+    - 'Mentions that the JDK includes compiler and runtime (no separate JRE)'
+    - 'Mentions LTS releases and why the track uses Java 25'

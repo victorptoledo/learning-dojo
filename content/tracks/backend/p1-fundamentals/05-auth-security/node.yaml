@@ -15,3 +15,10 @@ xp: 250
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'A mobile app and a web app share one backend. Explain how users log in and how each request is authenticated, choosing between sessions, JWTs and OAuth2 flows, and justify the choice.'
+  criteria:
+    - 'Chooses an appropriate OAuth2 flow (authorization code with PKCE) or justified alternative'
+    - 'Explains token lifetimes and refresh'
+    - 'Explains how the API verifies tokens (signature, expiry, issuer, audience)'
+    - 'Addresses revocation and password storage'

@@ -13,3 +13,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Describe how your API answers four kinds of failure: an invalid field, malformed JSON, a duplicate resource and an unknown id. Give the status code and an example Problem Details body for each.'
+  criteria:
+    - 'Uses Bean Validation and @Valid for invalid fields (400 with field errors)'
+    - 'Malformed JSON answered as 400 Problem Details'
+    - 'Duplicate as 409 and unknown id as 404'
+    - 'One advice class translates domain exceptions; no internals leaked'

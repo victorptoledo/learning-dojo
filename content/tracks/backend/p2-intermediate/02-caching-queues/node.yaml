@@ -15,3 +15,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'A product page is slow because it computes recommendations on every request. Propose a caching and/or queue design, and explain how fresh the data stays and what happens when the cache is empty or a hot key expires.'
+  criteria:
+    - 'Chooses a cache layer and pattern (cache-aside) with a TTL'
+    - 'States the acceptable staleness and the invalidation rule'
+    - 'Handles stampedes (single flight, jitter, refresh ahead)'
+    - 'Considers precomputing in the background through a queue'

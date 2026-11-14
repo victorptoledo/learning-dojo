@@ -24,6 +24,7 @@ pub fn check_catalog(catalog: &Catalog, report: &mut Report) {
         check_placement(track, catalog, report);
         check_checkpoint_question_skills(track, catalog, report);
         check_kata_hints(track, report);
+        check_lesson_exercises(track, report);
     }
 }
 
@@ -370,6 +371,20 @@ fn check_checkpoint_question_skills(track: &Track, catalog: &Catalog, report: &m
                     );
                 }
             }
+        }
+    }
+}
+
+/// A ready lesson (document and quiz written) should offer a written exercise for AI review.
+fn check_lesson_exercises(track: &Track, report: &mut Report) {
+    for node in track.nodes() {
+        let ready_lesson =
+            node.kind == NodeKind::Lesson && node.lesson.is_some() && node.quiz.is_some();
+        if ready_lesson && node.exercise.is_none() {
+            report.warning(
+                node_location(track, &node.id),
+                "lesson has no exercise: add one under `exercise` (task and criteria)",
+            );
         }
     }
 }

@@ -14,3 +14,10 @@ xp: 100
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Take a piece of Java 8 style code you know (or invent one) with a switch statement and an instanceof check followed by a cast, rewrite it with a switch expression and pattern matching, and explain what improved.'
+  criteria:
+    - 'The rewrite uses a switch expression with arrows and is equivalent'
+    - 'Uses instanceof with a binding variable'
+    - 'Explains exhaustiveness and no fall-through'
+    - 'Uses var or text blocks only where they help, and says why'

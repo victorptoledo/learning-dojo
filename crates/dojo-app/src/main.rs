@@ -1,9 +1,11 @@
+mod ai_prompt_actions;
 mod app;
 #[cfg(test)]
 mod app_tests;
 mod career_actions;
 mod career_view;
 mod checks;
+mod clipboard;
 mod code_workspace;
 mod config;
 mod doctor;
@@ -17,6 +19,7 @@ mod mentor_actions;
 mod placement_flow;
 mod placement_view;
 mod quiz_session;
+mod review_prompt;
 mod setup;
 mod setup_actions;
 mod setup_view;

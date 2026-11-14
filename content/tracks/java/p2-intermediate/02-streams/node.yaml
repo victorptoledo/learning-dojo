@@ -14,3 +14,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Given a list of sales (region, product, amount), write a stream pipeline that returns the total amount per region sorted by region, and explain when you would prefer a plain loop over a stream.'
+  criteria:
+    - 'The pipeline uses groupingBy with a map factory and a summing collector'
+    - 'The result is sorted by region'
+    - 'Explains laziness or single use of streams'
+    - 'Gives a sound case for a loop (early exit, checked exceptions, several results)'

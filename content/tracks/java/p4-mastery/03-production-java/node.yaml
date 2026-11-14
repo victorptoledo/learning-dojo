@@ -14,3 +14,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'List the checks you would make before a Java service goes to production: logging, configuration, packaging and observability. For each, say what good looks like.'
+  criteria:
+    - 'Logging with levels, placeholders, ids and no secrets'
+    - 'Configuration from the environment validated at startup'
+    - 'A small non-root container image or runnable JAR'
+    - 'Metrics, traces or health checks'

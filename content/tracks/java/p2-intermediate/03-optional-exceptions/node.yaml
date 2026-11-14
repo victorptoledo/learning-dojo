@@ -14,3 +14,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Design the error handling for a method that loads a user by email: what it returns when there is no user, what it throws for invalid input, and how a caller should consume the result. Justify each choice.'
+  criteria:
+    - 'Uses Optional for a normal absence and consumes it without get()'
+    - 'Uses an unchecked exception with a clear message for invalid input'
+    - 'Explains checked versus unchecked trade-offs'
+    - 'Mentions keeping the cause when translating exceptions'

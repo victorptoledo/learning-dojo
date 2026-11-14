@@ -14,3 +14,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'You must count how many times each word appears in a text and then list the words in alphabetical order. Explain which collections and Map methods you would use and why, including the difference between List.of and new ArrayList.'
+  criteria:
+    - 'Chooses a map and a sorted output sensibly (TreeMap or sorting)'
+    - 'Uses merge or computeIfAbsent correctly'
+    - 'Explains unmodifiable factories versus mutable collections'
+    - 'Mentions null handling or ordering guarantees'

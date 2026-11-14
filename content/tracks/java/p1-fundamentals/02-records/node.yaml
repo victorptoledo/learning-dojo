@@ -15,3 +15,10 @@ xp: 250
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Model a value from a domain you know as a record (for example Money or an Address). Show its compact constructor with validation, explain what the compiler generates, and say when you would not use a record.'
+  criteria:
+    - 'The record and its validation are correct'
+    - 'Lists the generated members (accessors, equals, hashCode, toString)'
+    - 'Keeps list components immutable (copyOf) if there are any'
+    - 'Gives a good case for a class instead (identity, mutable state)'

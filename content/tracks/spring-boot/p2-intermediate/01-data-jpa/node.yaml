@@ -14,3 +14,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Explain what happens, step by step, in a @Transactional service method that loads an entity, changes it and then throws a runtime exception. Then explain what changes if the same method is called from another method of the same class.'
+  criteria:
+    - 'Describes managed entities and dirty checking'
+    - 'Explains the rollback on a runtime exception'
+    - 'Explains that self-invocation bypasses the proxy and the transaction'
+    - 'Mentions keeping transactions short'

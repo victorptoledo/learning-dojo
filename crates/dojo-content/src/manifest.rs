@@ -57,7 +57,15 @@ pub struct NodeManifest {
     #[serde(default)]
     pub quiz: Option<String>,
     #[serde(default)]
+    pub exercise: Option<ExerciseManifest>,
+    #[serde(default)]
     pub requirements: Vec<RequirementManifest>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ExerciseManifest {
+    pub task: String,
+    pub criteria: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]

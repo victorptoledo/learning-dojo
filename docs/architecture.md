@@ -314,6 +314,12 @@ Common rules:
 - Events `hint_revealed` and `review_answered` (store schema v5). `Esc` leaves a review without recording it.
 - Not yet: authored `remedial` katas and AI-generated challenges.
 
+**Review prompts without an AI integration** (`review_prompt.rs`, `ai_prompt_actions.rs`, `clipboard.rs`; decision D022):
+- Every ready lesson has one written `exercise` in `node.yaml`: a `task` and 2–6 `criteria` (the validator warns when it is missing).
+- `A` on a lesson creates `<workspace>/<track>/<phase>/<slug>/ANSWER.md` from a template and opens it; once there is text below the marker, `A` builds the prompt with the task, criteria and answer.
+- `A` on a started kata builds a code-review prompt with the statement, the last check result and the source files to attach (`src/**/*.rs`, or `src/main/**/*.java`).
+- The prompt is saved to `<workspace>/.dojo/prompts/<node_id>.md` and copied to the clipboard with the platform command (`clip`, `pbcopy`, `wl-copy`/`xclip`). The learner pastes it into any AI chat. The dojo never calls an AI and the review never changes progress or XP.
+
 ## 9. Careers and next steps
 
 - **Paths** in `content/careers/*.yaml`: stages with requirements such as "track X up to phase N" or "skill Y ≥ 0.8". Examples: *Backend → Microservices Architect*, *Backend → DevOps/Cloud*, *Developer → AI Engineer*.

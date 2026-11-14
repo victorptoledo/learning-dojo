@@ -14,3 +14,10 @@ xp: 350
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Review this endpoint in your head: PUT /users/{id} binds the JSON body onto the User entity and saves it. List the security problems you see and how you would fix each.'
+  criteria:
+    - 'Identifies BOLA (no check that the caller owns the user)'
+    - 'Identifies mass assignment (role, id, password fields)'
+    - 'Proposes input records and an ownership check'
+    - 'Mentions validation, rate limits or not returning the entity'

@@ -13,3 +13,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Write a @ConfigurationProperties record for the settings of an email sender (host, port, sender address, timeout) with validation, and explain how you would set different values in development and production.'
+  criteria:
+    - 'The record is annotated and validated correctly'
+    - 'Uses appropriate types (int, Duration)'
+    - 'Explains profiles and environment variables, with precedence'
+    - 'Keeps secrets out of the repository'

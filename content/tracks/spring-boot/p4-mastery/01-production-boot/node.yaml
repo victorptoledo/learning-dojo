@@ -14,3 +14,10 @@ xp: 350
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Write the production checklist for deploying a Spring Boot service to a container platform: image, configuration, database migrations, probes and shutdown.'
+  criteria:
+    - 'A layered or buildpack image running as non-root'
+    - 'Configuration and secrets from the environment, same image everywhere'
+    - 'Flyway migrations with ddl-auto validate'
+    - 'Liveness and readiness probes and graceful shutdown'

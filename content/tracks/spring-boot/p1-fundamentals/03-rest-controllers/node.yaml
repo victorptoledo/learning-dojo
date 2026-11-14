@@ -14,3 +14,10 @@ xp: 250
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Design the endpoints of a small ''books'' resource: URLs, methods, status codes and the request and response records. Explain why the input and output records are different.'
+  criteria:
+    - 'URLs and methods follow REST conventions'
+    - 'Status codes are right (201 with Location, 204, 404)'
+    - 'Separates input and output records with a reason'
+    - 'Keeps the controller thin and delegates to a service'

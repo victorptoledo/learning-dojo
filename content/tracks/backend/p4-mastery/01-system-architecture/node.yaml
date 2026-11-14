@@ -14,3 +14,10 @@ xp: 400
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Your company is splitting a monolith. Describe how you would choose the first service to extract, how it would communicate with the rest, and how you would handle a business transaction that spans both.'
+  criteria:
+    - 'Uses bounded contexts and ownership of data to pick the boundary'
+    - 'Justifies the extraction with deployment, scaling or isolation needs'
+    - 'Chooses synchronous or asynchronous communication with reasons'
+    - 'Handles the cross-service transaction with a saga and compensations'

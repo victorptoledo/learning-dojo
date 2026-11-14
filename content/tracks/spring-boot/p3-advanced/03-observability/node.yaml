@@ -14,3 +14,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Choose the health checks, two business metrics and one alert you would add to an order service, and explain what each tells you and how you would keep the actuator endpoints safe.'
+  criteria:
+    - 'Health and readiness checks tied to real dependencies'
+    - 'Business metrics with bounded tags'
+    - 'An alert on a user-facing symptom'
+    - 'Protects or hides sensitive actuator endpoints'

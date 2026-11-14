@@ -13,3 +13,10 @@ xp: 400
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Explain how Rust prevents data races at compile time (Send and Sync), and compare sharing state with `Arc<Mutex<T>>` and passing messages through a channel, with an example of when each fits.'
+  criteria:
+    - 'Explains Send and Sync and that races are compile errors'
+    - 'Shows or describes Arc<Mutex<T>> correctly'
+    - 'Describes channels (mpsc) and ownership transfer'
+    - 'Gives a sensible use case for each approach'

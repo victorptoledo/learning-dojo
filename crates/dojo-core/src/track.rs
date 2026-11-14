@@ -105,6 +105,16 @@ impl Kata {
     }
 }
 
+/// An open question answered in writing and reviewed by an AI the learner chooses.
+/// It is feedback only: it never gates progress.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Exercise {
+    /// What to write, in Markdown.
+    pub task: String,
+    /// What a good answer covers; the review prompt grades against these.
+    pub criteria: Vec<String>,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Node {
     pub id: NodeId,
@@ -125,6 +135,8 @@ pub struct Node {
     pub bridges: BTreeMap<String, Bridge>,
     pub kata: Option<Kata>,
     pub quiz: Option<Quiz>,
+    /// An optional written exercise reviewed by an AI.
+    pub exercise: Option<Exercise>,
     /// What this node needs on top of the track's requirements.
     pub requirements: Vec<Requirement>,
 }
@@ -242,6 +254,7 @@ pub(crate) mod fixtures {
             bridges: BTreeMap::new(),
             kata: None,
             quiz: None,
+            exercise: None,
             requirements: vec![],
         }
     }

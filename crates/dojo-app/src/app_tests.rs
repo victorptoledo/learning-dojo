@@ -85,6 +85,7 @@ fn harness_with(
         editor: Editor::new("no-editor-in-tests"),
         code_workspace: None,
         environment,
+        clipboard: None,
     };
     Harness {
         app: App::new(real_catalog(), services, mode).unwrap(),
@@ -922,4 +923,77 @@ fn the_career_screen_sets_a_target_that_steers_the_next_steps() {
     );
     h.app.close_careers();
     assert_eq!(h.app.screen, Screen::TrackView);
+}
+
+#[test]
+fn a_on_a_lesson_first_opens_answer_md_then_saves_a_review_prompt_with_the_answer() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p0.setup");
+
+    h.app.ai_review_prompt();
+    let answer_file = h.workspace.path().join("rust/p0/setup/ANSWER.md");
+    let template = std::fs::read_to_string(&answer_file).expect("ANSWER.md created");
+    assert!(template.contains(crate::review_prompt::ANSWER_MARKER));
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("ANSWER.md")
+    );
+    let prompt_file = h.workspace.path().join(".dojo/prompts/rust.p0.setup.md");
+    assert!(
+        !prompt_file.exists(),
+        "no prompt before an answer is written"
+    );
+
+    std::fs::write(
+        &answer_file,
+        format!("{template}cargo build compiles the crate.\n"),
+    )
+    .unwrap();
+    h.app.ai_review_prompt();
+
+    let prompt = std::fs::read_to_string(&prompt_file).expect("prompt saved");
+    assert!(prompt.contains("cargo build compiles the crate."));
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("Review prompt saved")
+    );
+    assert!(
+        !h.app.profile.is_completed("rust", "rust.p0.setup"),
+        "feedback only"
+    );
+}
+
+#[test]
+fn a_on_a_kata_lists_the_files_to_attach() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    pass_lesson(&mut h.app, "rust.p0.setup");
+    select(&mut h.app, "rust.p0.hello-dojo");
+
+    h.app.ai_review_prompt();
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("Start the kata first")
+    );
+
+    h.app.activate_selected();
+    h.app.ai_review_prompt();
+
+    let status = h.app.status_message.clone().unwrap();
+    assert!(status.contains("Attach: src/lib.rs"), "{status}");
+    let prompt = std::fs::read_to_string(
+        h.workspace
+            .path()
+            .join(".dojo/prompts/rust.p0.hello-dojo.md"),
+    )
+    .unwrap();
+    assert!(prompt.contains("src/lib.rs"));
 }

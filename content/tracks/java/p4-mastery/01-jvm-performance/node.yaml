@@ -14,3 +14,10 @@ xp: 400
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'A Java service in a container with a 2 GB limit is slow and does frequent garbage collections. Describe how you would investigate, what you would measure, and which settings you might change.'
+  criteria:
+    - 'Measures before changing (latency percentiles, GC logs)'
+    - 'Uses JFR or jcmd to find hot paths and allocations'
+    - 'Checks heap sizing in containers (MaxRAMPercentage)'
+    - 'Considers collector choice (G1 or ZGC) with a reason'

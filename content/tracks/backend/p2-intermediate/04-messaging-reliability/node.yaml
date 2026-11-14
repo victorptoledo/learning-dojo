@@ -14,3 +14,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'An order service must notify shipping when an order is placed, and no order may ever be shipped twice or forgotten. Describe the end-to-end design: how the event is published and how it is consumed.'
+  criteria:
+    - 'Uses a transactional outbox (or CDC) to avoid the dual write'
+    - 'Assumes at-least-once delivery'
+    - 'Makes the consumer idempotent with processed event ids'
+    - 'Covers retries and a dead-letter queue'

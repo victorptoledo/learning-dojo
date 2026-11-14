@@ -284,6 +284,11 @@ fn render_kata(
     }
     lines.extend(hint_lines(app, track, node, kata));
     lines.push(Line::from(""));
+    lines.push(Line::from(
+        "🤖 [A] copies a review prompt for an AI of your choice: attach your files and get a code review (feedback only)."
+            .dark_gray(),
+    ));
+    lines.push(Line::from(""));
     lines.push(Line::from("📜 The challenge".bold().cyan()));
     lines.extend(
         kata.statement
@@ -511,7 +516,7 @@ fn render_footer(frame: &mut Frame, app: &App, area: Rect) {
         } else {
             String::new()
         };
-        format!("[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Quiz | [C] Check kata{hint} | [B] Bridge{review} | [G] Career{placement} | [Esc] Quit")
+        format!("[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Quiz | [C] Check kata{hint} | [A] AI review | [B] Bridge{review} | [G] Career{placement} | [Esc] Quit")
     });
     let mode = match app.mode {
         Mode::Learner => "",

@@ -14,3 +14,10 @@ xp: 350
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Design the security of a notes API where users see only their own notes and admins see all. Describe the filter chain rules, how passwords are stored, how ownership is checked and which tests you would write.'
+  criteria:
+    - 'Rules in the right order with a public endpoint, an admin area and authenticated by default'
+    - 'Passwords hashed with bcrypt or similar'
+    - 'Ownership checked per object, answering 404 for others'' notes'
+    - 'Tests for 401, 403 and the ownership case'

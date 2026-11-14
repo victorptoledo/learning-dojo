@@ -14,3 +14,10 @@ xp: 400
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Sketch the modules of an online shop built as a modular monolith: name the modules, their public APIs and the events between them, and say which module you would extract first into a service, and why.'
+  criteria:
+    - 'Modules follow business capabilities with clear public APIs'
+    - 'Modules communicate through events where possible'
+    - 'Each module owns its data'
+    - 'The extraction choice is justified by deployment, scaling or isolation'

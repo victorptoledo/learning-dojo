@@ -101,6 +101,7 @@ mod tests {
             bridges: BTreeMap::new(),
             kata: None,
             quiz: None,
+            exercise: None,
             requirements: vec![],
         }
     }

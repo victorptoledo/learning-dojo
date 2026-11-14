@@ -14,3 +14,10 @@ xp: 350
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'You need to rename a column that the running service reads, without downtime, while deploying several times a day. Describe the sequence of releases and migrations.'
+  criteria:
+    - 'Follows expand, migrate, switch, contract'
+    - 'Keeps old and new versions compatible during rolling deploys'
+    - 'Backfills in batches'
+    - 'Mentions rollback or feature flags'

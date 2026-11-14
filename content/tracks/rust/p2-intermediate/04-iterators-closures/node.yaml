@@ -14,3 +14,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Rewrite a loop that filters, transforms and sums a list into an iterator chain, and explain laziness and the difference between `iter`, `iter_mut` and `into_iter`.'
+  criteria:
+    - 'The chain is correct and equivalent to the loop'
+    - 'Explains that adapters are lazy until a consumer runs'
+    - 'Explains the three iteration modes and ownership'
+    - 'Mentions that closures capture their environment'

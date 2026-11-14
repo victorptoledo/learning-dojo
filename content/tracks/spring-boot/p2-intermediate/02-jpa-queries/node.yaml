@@ -14,3 +14,10 @@ xp: 300
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'A page that lists 50 orders with their customer names runs 51 SQL queries. Explain why, show two ways to fix it, and describe how you would notice the problem in the first place.'
+  criteria:
+    - 'Identifies the N+1 caused by lazy loading'
+    - 'Shows a fetch join or an entity graph'
+    - 'Shows a projection into a record as another fix'
+    - 'Mentions watching SQL logs or statistics'

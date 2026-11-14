@@ -14,3 +14,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Write (in prose or code) the tests you would give a class that converts Celsius to Fahrenheit and rejects temperatures below absolute zero, using JUnit features from the lesson.'
+  criteria:
+    - 'Includes a parameterized test with several input and expected pairs'
+    - 'Tests the rejection with assertThrows and checks the message'
+    - 'Tests are independent and named after behaviour'
+    - 'Mentions boundary values (absolute zero exactly)'

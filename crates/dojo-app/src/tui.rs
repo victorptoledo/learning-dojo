@@ -61,6 +61,7 @@ pub fn run(options: &Options) -> Result<()> {
         )),
         editor,
         code_workspace: code_workspace_for_app,
+        clipboard: Some(crate::clipboard::copy),
     };
     let mut app = App::new(loaded.catalog, services, mode)?;
     app.status_message = startup_message(loaded.report.count(Severity::Error), &import);
@@ -222,6 +223,7 @@ fn handle_track_key(app: &mut App, code: KeyCode) -> Flow {
         KeyCode::Char('h' | 'H') => app.reveal_hint(),
         KeyCode::Char('r' | 'R') => app.start_review(),
         KeyCode::Char('g' | 'G') => app.open_careers(),
+        KeyCode::Char('a' | 'A') => app.ai_review_prompt(),
         KeyCode::PageDown => app.scroll_detail_down(),
         KeyCode::PageUp => app.scroll_detail_up(),
         _ => {}

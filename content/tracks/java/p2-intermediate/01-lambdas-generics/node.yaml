@@ -14,3 +14,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Explain the PECS rule (producer extends, consumer super) with a method signature of your own, and show two lambdas or method references that implement standard functional interfaces.'
+  criteria:
+    - 'States and applies PECS correctly'
+    - 'The signature compiles and is genuinely more flexible'
+    - 'Matches the lambdas to the right functional interfaces'
+    - 'Explains why List<Integer> is not a List<Number>'

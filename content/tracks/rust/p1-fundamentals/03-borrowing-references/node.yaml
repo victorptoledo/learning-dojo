@@ -13,3 +13,10 @@ xp: 250
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Explain the borrowing rules (`&` and `&mut`) and give one example of code the borrow checker rejects, with the error it prevents in other languages and how you would fix it.'
+  criteria:
+    - 'States: many shared references or one mutable reference, not both'
+    - 'The rejected example is realistic and correctly explained'
+    - 'Names the bug it prevents (data race, iterator invalidation, dangling reference)'
+    - 'The fix is valid Rust'

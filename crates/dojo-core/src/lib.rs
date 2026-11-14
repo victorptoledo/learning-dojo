@@ -37,6 +37,6 @@ pub use requirement::{
 };
 pub use review::{Card, ReviewItem};
 pub use track::{
-    Archetype, Belt, Bridge, ContentStatus, GENERIC_BRIDGE, Kata, KataLanguage, Node, NodeId,
-    NodeKind, Objective, Phase, PhaseId, RunnerSpec, Track, TrackId,
+    Archetype, Belt, Bridge, ContentStatus, Exercise, GENERIC_BRIDGE, Kata, KataLanguage, Node,
+    NodeId, NodeKind, Objective, Phase, PhaseId, RunnerSpec, Track, TrackId,
 };

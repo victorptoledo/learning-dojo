@@ -15,3 +15,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Explain how you would make an article endpoint cache-friendly and safe against lost updates using HTTP alone: which headers you send, which the client sends back, and which status codes result.'
+  criteria:
+    - 'Uses Cache-Control with a sensible policy'
+    - 'Uses ETag with If-None-Match and 304'
+    - 'Uses If-Match with 412 for safe updates'
+    - 'Explains safe and idempotent methods'

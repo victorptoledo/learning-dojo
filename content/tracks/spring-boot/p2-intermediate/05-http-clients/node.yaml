@@ -14,3 +14,10 @@ xp: 200
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Your service calls a shipping API that is sometimes slow and sometimes returns 503. Describe the client you would build: timeouts, error mapping, retries and how you would test it.'
+  criteria:
+    - 'Sets connect and read timeouts that fit the caller''s budget'
+    - 'Maps 4xx and 5xx into domain exceptions'
+    - 'Retries only idempotent, transient failures with backoff'
+    - 'Tests with a fake interface or a stub server'

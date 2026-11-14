@@ -20,12 +20,41 @@ pub fn render_lesson(frame: &mut Frame, app: &App, track: &Track, node: &Node, a
         lines.extend(markdown_lines(node.lesson.as_deref().unwrap_or_default()));
         lines
     };
+    lines.extend(exercise_lines(node));
     lines.extend(bridge_lines(app, node));
     let paragraph = Paragraph::new(lines)
         .wrap(Wrap { trim: false })
         .scroll((app.detail_scroll, 0))
         .block(titled(" 📖 Lesson · [PgUp/PgDn] scroll "));
     frame.render_widget(paragraph, area);
+}
+
+/// The optional written exercise, reviewed by an AI the learner chooses.
+fn exercise_lines(node: &Node) -> Vec<Line<'static>> {
+    let Some(exercise) = &node.exercise else {
+        return Vec::new();
+    };
+    let mut lines = vec![
+        Line::from(""),
+        Line::from(
+            "✍ Exercise (optional, reviewed by an AI of your choice)"
+                .bold()
+                .cyan(),
+        ),
+    ];
+    lines.extend(markdown_lines(exercise.task.trim()));
+    lines.push(Line::from("A good answer covers:".dark_gray()));
+    lines.extend(
+        exercise
+            .criteria
+            .iter()
+            .map(|criterion| Line::from(format!("  • {criterion}").dark_gray())),
+    );
+    lines.push(Line::from(
+        "[A] write your answer in ANSWER.md, then [A] again copies a review prompt for your AI chat. Feedback only: it does not change your progress."
+            .dark_gray(),
+    ));
+    lines
 }
 
 fn under_construction_lines() -> Vec<Line<'static>> {

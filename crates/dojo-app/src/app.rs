@@ -21,6 +21,9 @@ const DETAIL_SCROLL_STEP: u16 = 5;
 pub type NodeKey = (String, String);
 
 /// Adapters the app talks to.
+/// Copies text to the system clipboard.
+pub type CopyToClipboard = fn(&str) -> Result<(), String>;
+
 pub struct Services {
     pub store: Box<dyn ProgressStore>,
     pub runner: Arc<dyn KataRunner + Send + Sync>,
@@ -30,6 +33,8 @@ pub struct Services {
     pub code_workspace: Option<CodeWorkspace>,
     /// Checks and installs what nodes need; `None` skips the setup step (tests).
     pub environment: Option<Environment>,
+    /// Copies review prompts to the clipboard; `None` only saves them (tests).
+    pub clipboard: Option<CopyToClipboard>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -61,6 +66,7 @@ pub struct App {
     pub editor: Editor,
     pub(crate) code_workspace: Option<CodeWorkspace>,
     pub(crate) environment: Option<Environment>,
+    pub(crate) clipboard: Option<CopyToClipboard>,
     /// The setup step on screen, while `screen` is `Screen::Setup`.
     pub setup: Option<SetupSession>,
     /// Nodes whose setup already passed in this session.
@@ -89,6 +95,7 @@ impl App {
             editor,
             code_workspace,
             environment,
+            clipboard,
         } = services;
         if catalog.tracks.is_empty() {
             bail!("no tracks found in the content folder");
@@ -121,6 +128,7 @@ impl App {
             editor,
             code_workspace,
             environment,
+            clipboard,
             setup: None,
             setup_cleared: HashSet::new(),
             check_history,

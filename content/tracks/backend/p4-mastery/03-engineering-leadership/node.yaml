@@ -14,3 +14,10 @@ xp: 350
 lesson: lesson.md
 bridges: bridges
 quiz: quiz.yaml
+exercise:
+  task: 'Write the outline of a one-page design document for introducing a message broker into your system, including the alternatives you considered and how you would roll it out safely.'
+  criteria:
+    - 'States the problem, goals and non-goals'
+    - 'Describes the proposal and how it fails'
+    - 'Lists real alternatives with trade-offs'
+    - 'Covers rollout, rollback and monitoring'
