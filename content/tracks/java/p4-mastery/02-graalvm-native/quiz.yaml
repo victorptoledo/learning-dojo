@@ -1,0 +1,39 @@
+questions:
+  - id: closed-world
+    prompt: "Why can a native image miss a class that the JVM loads fine?"
+    options:
+      - "Native images do not support classes"
+      - "The closed-world analysis only includes code it can reach statically; reflection hides it"
+      - "The class is too big"
+    answer: 1
+    explanation: "Classes used only through reflection, proxies or Class.forName need reachability metadata."
+  - id: agent
+    prompt: "What does the native-image tracing agent do?"
+    options:
+      - "Speeds up the native build"
+      - "Records reflection, resources and proxies used while the app runs on the JVM, as metadata files"
+      - "Profiles CPU usage in production"
+    answer: 1
+    explanation: "Run the app with -agentlib:native-image-agent to generate the JSON metadata."
+  - id: tradeoff
+    prompt: "Which service gains the most from a native image?"
+    options:
+      - "A long-running service under constant heavy load"
+      - "A serverless function that starts on every request"
+      - "A batch job that runs for six hours"
+    answer: 1
+    explanation: "Startup time and memory at rest dominate short-lived processes; the JIT wins for long, hot workloads."
+  - id: target-os
+    prompt: "You build a native executable on Windows. Where does it run?"
+    options: ["Anywhere with a JVM", "On Windows only", "On any OS"]
+    answer: 1
+    explanation: "A native image is machine code for the OS and CPU it was built for; build Linux images in a Linux builder."
+  - id: native-test
+    prompt: "Why run the tests in native mode as well?"
+    answers: ["reflection problems only show up in the image", "to find missing metadata", "missing reflection metadata"]
+    explanation: "Missing metadata only fails inside the native image, so test it there too."
+  - id: aot-cache
+    prompt: "Which option speeds up startup but keeps the normal JVM and JIT?"
+    options: ["GraalVM native image", "The AOT cache (-XX:AOTCache), Java 24+", "-Xint"]
+    answer: 1
+    explanation: "The AOT cache stores loaded classes and profiles from a training run and reuses them on the JVM."

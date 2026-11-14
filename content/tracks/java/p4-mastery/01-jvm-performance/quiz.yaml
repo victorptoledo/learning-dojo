@@ -1,0 +1,36 @@
+questions:
+  - id: heap
+    prompt: "Where does the object created by new Order(...) live?"
+    options: ["On the thread's stack", "On the heap", "In metaspace", "In the code cache"]
+    answer: 1
+    explanation: "Objects live on the heap; the local variable on the stack holds a reference to it."
+  - id: default-gc
+    prompt: "Which garbage collector does the JVM use by default on a typical server?"
+    answers: ["G1", "G1GC", "Garbage First"]
+    explanation: "G1 has been the default since Java 9."
+  - id: zgc
+    prompt: "When is ZGC a better choice than G1?"
+    options:
+      - "For tiny command-line tools"
+      - "When pause times must stay under a millisecond, even with a large heap"
+      - "Never; it is experimental"
+    answer: 1
+    explanation: "Generational ZGC keeps pauses very short at the cost of some CPU and memory."
+  - id: container-heap
+    prompt: "A JVM runs alone in a container with a 2 GB limit. Which flag lets the heap use most of it?"
+    options: ["-Xss2g", "-XX:MaxRAMPercentage=75", "-XX:+UseSerialGC", "-XX:MaxMetaspaceSize=2g"]
+    answer: 1
+    explanation: "By default the maximum heap is 25% of the available memory; MaxRAMPercentage raises it."
+  - id: benchmark
+    prompt: "Why is a loop timed with System.nanoTime a poor benchmark?"
+    options:
+      - "nanoTime is not precise"
+      - "Warm-up and JIT optimisations (even dead-code removal) distort it; JMH handles them"
+      - "Loops cannot be measured"
+    answer: 1
+    explanation: "Without warm-up, forks and blackholes you measure the interpreter or code the JIT removed."
+  - id: jfr
+    prompt: "Which built-in JVM tool records CPU samples, allocations and GC pauses with about 1% overhead?"
+    options: ["Java Flight Recorder (JFR)", "jshell", "javadoc", "jlink"]
+    answer: 0
+    explanation: "JFR is cheap enough for production; open its recordings in JDK Mission Control."

@@ -1,0 +1,16 @@
+id: java.p4.production-java
+kind: lesson
+status: draft
+title: "Production Java: Logs, Config and Packaging"
+summary: "What a Java service needs before it ships: logging, configuration, packaging and observability."
+objectives:
+  - { id: o1, text: "Log with SLF4J-style APIs and System.Logger at the right level", skills: [java.production] }
+  - { id: o2, text: "Read configuration from the environment and fail fast on bad values", skills: [java.production] }
+  - { id: o3, text: "Package with a runnable jar, jlink and a small container image", skills: [java.production] }
+prerequisites: [java.p4.jvm-performance]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

@@ -1,0 +1,17 @@
+id: java.p4.graalvm-native
+legacy_id: java-03-graalvm-native
+kind: lesson
+status: draft
+title: "GraalVM Native Image: Millisecond Startup"
+summary: "Compile ahead of time into a native executable, and know what it costs you."
+objectives:
+  - { id: o1, text: "Build a native executable and compare startup and memory with the JVM", skills: [java.graalvm-native] }
+  - { id: o2, text: "Handle reflection and resources with reachability metadata", skills: [java.graalvm-native] }
+  - { id: o3, text: "Decide between JIT, AOT cache and native image for a service", skills: [java.graalvm-native] }
+prerequisites: [java.p4.jvm-performance]
+difficulty: 5
+estimated_minutes: 35
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

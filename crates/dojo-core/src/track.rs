@@ -88,6 +88,23 @@ pub struct Kata {
     pub hints: Vec<String>,
 }
 
+/// The language a kata is written in, known from its runner image.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum KataLanguage {
+    Rust,
+    Java,
+}
+
+impl Kata {
+    pub fn language(&self) -> KataLanguage {
+        if self.runner.image == "dojo-java" {
+            KataLanguage::Java
+        } else {
+            KataLanguage::Rust
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Node {
     pub id: NodeId,

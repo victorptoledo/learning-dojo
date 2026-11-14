@@ -1,0 +1,55 @@
+id: java.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata that prices orders."
+objectives:
+  - { id: o1, text: "Explain records, sealed types and switch patterns in your own words", skills: [java.modern-syntax, java.records, java.pattern-matching] }
+  - { id: o2, text: "Model a small domain with records, a sealed hierarchy and collections", skills: [java.records, java.pattern-matching, java.collections] }
+prerequisites: [java.p1.anagram-groups]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+closes_phase: p1
+covers_skills: [java.modern-syntax, java.records, java.pattern-matching, java.collections]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 120 }
+  hints:
+    - |-
+      Do `Item` and `Order` first: every test builds them. Then, for `discountFor`, ask of each discount type: which items does it look at, and what number does it produce? For `BuyXGetY`, how many complete groups of `buy + free` fit in the quantity?
+    - |-
+      Validate, then reassign the parameters (`sku = sku.strip();`) in the compact constructor; `items = List.copyOf(items);` makes the order's list unmodifiable. In `discountFor`, `switch (discount)` with record patterns such as `case PercentOff(var category, var percent) ->`. Groups are `quantity / (buy + free)` (integer division) and each group makes `free` units free. `TreeMap` plus `merge(category, subtotal, Long::sum)` gives sorted subtotals.
+    - |-
+      ```java
+      public static long discountFor(Order order, Discount discount) {
+          return switch (discount) {
+              case PercentOff(var category, var percent) -> {
+                  long categorySubtotal = 0;
+                  // add the subtotals of the items in this category
+                  yield categorySubtotal * percent / 100;
+              }
+              case AmountOff(var cents, var minimum) -> /* subtotal(order) >= minimum ? ... : ... */;
+              case BuyXGetY(var sku, var buy, var free) -> {
+                  long off = 0;
+                  // for each item with this sku: groups = quantity / (buy + free),
+                  // off += groups * free * unitCents
+                  yield off;
+              }
+          };
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 5 that runs the grading tests.

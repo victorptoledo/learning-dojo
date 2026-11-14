@@ -21,8 +21,9 @@ const HIDDEN_COURSE_FILES: [&str; 6] = [
 ];
 
 /// Extensions VS Code offers to install when the workspace opens.
-const RECOMMENDED_EXTENSIONS: [&str; 6] = [
+const RECOMMENDED_EXTENSIONS: [&str; 7] = [
     "rust-lang.rust-analyzer",
+    "vscjava.vscode-java-pack",
     "vadimcn.vscode-lldb",
     "tamasfe.even-better-toml",
     "usernamehw.errorlens",

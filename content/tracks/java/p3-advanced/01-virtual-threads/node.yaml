@@ -2,13 +2,16 @@ id: java.p3.virtual-threads
 legacy_id: java-02-virtual-threads
 kind: lesson
 status: draft
-title: "Virtual Threads (Project Loom): Lightweight Concurrency"
-summary: "Millions of concurrent threads without leaving the blocking, synchronous programming model."
+title: "Virtual Threads (Project Loom)"
+summary: "Thousands of blocking tasks at once without callbacks: how virtual threads work and when they help."
 objectives:
-  - { id: o1, text: "Millions of concurrent threads without leaving the blocking, synchronous programming model.", skills: [java.virtual-threads] }
-prerequisites: [java.p1.modern-features]
+  - { id: o1, text: "Start virtual threads and use a virtual-thread-per-task executor", skills: [java.virtual-threads] }
+  - { id: o2, text: "Explain mounting, unmounting and why blocking is cheap again", skills: [java.virtual-threads] }
+  - { id: o3, text: "Avoid the pitfalls: pooling, pinning and CPU-bound work", skills: [java.virtual-threads] }
+prerequisites: [java.p2.checkpoint]
 difficulty: 4
-estimated_minutes: 30
+estimated_minutes: 35
 xp: 250
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml

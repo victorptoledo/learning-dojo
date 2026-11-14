@@ -1,0 +1,37 @@
+id: java.p0.hello-dojo
+kind: kata
+status: draft
+title: "Hello, Dojo: Your First Java Kata"
+summary: "Write your first method, run its tests and see how Java katas are checked."
+objectives:
+  - { id: o1, text: "Write a static method that cleans its input and builds a String", skills: [java.setup] }
+prerequisites: [java.p0.setup]
+difficulty: 1
+estimated_minutes: 15
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 120 }
+  hints:
+    - |-
+      Which inputs mean "no name"? Write them down: there are three. Which one must you check before calling any method on `name`?
+    - |-
+      Check `name == null` first, then `name.isBlank()`: `||` stops at the first true, so `null` never reaches `isBlank()`. Use `strip()` only for a real name.
+    - |-
+      ```java
+      String who = name == null || /* blank? */ ? "stranger" : /* the name without spaces */;
+      return "Welcome to the dojo, %s!".formatted(who);
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 5 that runs the grading tests.

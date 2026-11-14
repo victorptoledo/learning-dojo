@@ -1,0 +1,16 @@
+id: java.p3.concurrency-tools
+kind: lesson
+status: draft
+title: "Executors, Futures and Thread Safety"
+summary: "Coordinate tasks with futures and timeouts, share state safely and pass context with scoped values."
+objectives:
+  - { id: o1, text: "Combine tasks with Future, invokeAll and CompletableFuture", skills: [java.concurrency] }
+  - { id: o2, text: "Protect shared state with atomics, concurrent collections and locks", skills: [java.concurrency] }
+  - { id: o3, text: "Pass request context with ScopedValue instead of ThreadLocal", skills: [java.concurrency] }
+prerequisites: [java.p3.virtual-threads]
+difficulty: 4
+estimated_minutes: 40
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

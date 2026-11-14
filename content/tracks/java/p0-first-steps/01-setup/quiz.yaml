@@ -1,0 +1,34 @@
+questions:
+  - id: lts
+    prompt: "Which of these Java versions is a long-term support (LTS) release?"
+    options: ["Java 22", "Java 24", "Java 25", "Java 23"]
+    answer: 2
+    explanation: "LTS releases come every two years: 11, 17, 21 and 25. The others are supported for six months."
+  - id: run-source
+    prompt: "Which command runs Hello.java without compiling it first with javac?"
+    options: ["javac Hello.java", "java Hello.java", "jshell Hello", "mvn Hello.java"]
+    answer: 1
+    explanation: "The java launcher compiles a source file in memory and runs it. javac only compiles."
+  - id: compact-main
+    prompt: "Since Java 25, what is the shortest valid main method in a compact source file?"
+    options:
+      - "public static void main(String[] args) is still required"
+      - "void main() { }"
+      - "main() { }"
+      - "static main { }"
+    answer: 1
+    explanation: "Compact source files accept an instance main without public, static or parameters."
+  - id: folder-layout
+    prompt: "In a Maven project, where does the class declared with package dojo; live?"
+    options: ["src/dojo/", "src/main/java/dojo/", "dojo/src/", "src/test/java/"]
+    answer: 1
+    explanation: "Production code goes under src/main/java, and the folders follow the package name."
+  - id: is-blank
+    prompt: "Which expression is true for \"   \" (three spaces)?"
+    options: ["\"   \".isEmpty()", "\"   \".isBlank()", "\"   \".length() == 0", "\"   \" == \"\""]
+    answer: 1
+    explanation: "isBlank is true for empty or whitespace-only text; isEmpty only for length 0."
+  - id: assert-order
+    prompt: "In assertEquals(a, b), which argument is the expected value?"
+    answers: ["a", "the first", "first"]
+    explanation: "JUnit reads assertEquals(expected, actual), so the failure message says expected: <a> but was: <b>."

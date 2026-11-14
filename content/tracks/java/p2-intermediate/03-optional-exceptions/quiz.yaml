@@ -1,0 +1,36 @@
+questions:
+  - id: of-null
+    prompt: "What does Optional.of(null) do?"
+    options: ["Returns Optional.empty()", "Throws NullPointerException", "Returns an Optional holding null"]
+    answer: 1
+    explanation: "Optional.of requires a value; use Optional.ofNullable when the value may be null."
+  - id: or-else-get
+    prompt: "Why prefer orElseGet(() -> loadDefault()) over orElse(loadDefault())?"
+    options:
+      - "orElse does not accept method calls"
+      - "orElse always evaluates loadDefault(), even when a value is present"
+      - "orElseGet is the only one that works with Strings"
+    answer: 1
+    explanation: "The argument of orElse is evaluated before the call; orElseGet only runs the supplier when empty."
+  - id: flatmap-optional
+    prompt: "user.manager() returns Optional<User>. Which call gives Optional<User> for the manager of findUser(id)?"
+    options: ["findUser(id).map(User::manager)", "findUser(id).flatMap(User::manager)", "findUser(id).get().manager()"]
+    answer: 1
+    explanation: "map would give Optional<Optional<User>>; flatMap unwraps one level."
+  - id: checked
+    prompt: "Which of these is a checked exception?"
+    options: ["IllegalArgumentException", "NullPointerException", "IOException", "IllegalStateException"]
+    answer: 2
+    explanation: "IOException extends Exception but not RuntimeException, so it must be caught or declared."
+  - id: cause
+    prompt: "When you catch an exception and throw your own, what should you pass to keep the original stack trace?"
+    answers: ["the cause", "the original exception as the cause", "cause", "e"]
+    explanation: "Pass the caught exception as the cause argument: new MyException(message, e)."
+  - id: try-resources
+    prompt: "What does try-with-resources guarantee?"
+    options:
+      - "The body never throws"
+      - "Every resource is closed, in reverse order, even when the body throws"
+      - "Exceptions from close() are ignored silently"
+    answer: 1
+    explanation: "Resources are closed in reverse order; an exception from close is kept as suppressed when the body also threw."

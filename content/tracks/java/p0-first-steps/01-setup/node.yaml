@@ -1,0 +1,15 @@
+id: java.p0.setup
+kind: lesson
+status: draft
+title: "Setting Up JDK 25"
+summary: "Install the JDK, run Java without a build tool and learn how the dojo checks Java katas."
+objectives:
+  - { id: o1, text: "Install JDK 25 and run java, javac and jshell", skills: [java.setup] }
+  - { id: o2, text: "Run a compact source file and read a Maven project layout", skills: [java.setup] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

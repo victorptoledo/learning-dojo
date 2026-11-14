@@ -1,0 +1,54 @@
+id: java.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz and an integration kata that runs a small library's loans."
+objectives:
+  - { id: o1, text: "Explain generics, streams, Optional and exceptions in your own words", skills: [java.generics-lambdas, java.streams, java.errors] }
+  - { id: o2, text: "Build a small service with a generic repository, Optional lookups, exceptions and stream queries", skills: [java.generics-lambdas, java.streams, java.errors, java.build-testing] }
+prerequisites: [java.p2.build-testing]
+difficulty: 3
+estimated_minutes: 70
+xp: 350
+closes_phase: p2
+covers_skills: [java.generics-lambdas, java.streams, java.errors, java.build-testing]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 120 }
+  hints:
+    - |-
+      Write the repository first: the library is built on three of them. Which `Map` keeps the first-saved order and still replaces by key? Then, in `lend`, each refusal is one check: in which order do they come, and which repository answers each?
+    - |-
+      A `LinkedHashMap<ID, T>` keyed by `item.id()` does all of `save`, `findById` (`Optional.ofNullable(map.get(id))`) and `delete` (`remove(id) != null`). In `lend`, `books.findById(isbn).orElseThrow(() -> new LibraryException.NotFound("book", isbn))` reads the book or refuses in one line; the loan repository is keyed by isbn, so `loans.findById(isbn).isPresent()` means "already lent". `today.get().plusDays(LOAN_DAYS)` is the due date.
+    - |-
+      ```java
+      public Loan lend(String isbn, String memberId) {
+          Book book = books.findById(isbn).orElseThrow(() -> new LibraryException.NotFound("book", isbn));
+          Member member = /* the same for members */;
+          if (loans.findById(isbn).isPresent()) {
+              throw new LibraryException.NotAvailable(isbn);
+          }
+          int held = loans.findAll(loan -> loan.memberId().equals(memberId)).size();
+          // refuse when held >= member.maxLoans()
+          return loans.save(new Loan(isbn, memberId, today.get().plusDays(LOAN_DAYS)));
+      }
+
+      public Map<String, List<String>> titlesByMember() {
+          // loans.findAll().stream().collect(groupingBy(Loan::memberId, TreeMap::new,
+          //         mapping(loan -> title of loan.isbn(), toList()))), then sort each list
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 5 that runs the grading tests.

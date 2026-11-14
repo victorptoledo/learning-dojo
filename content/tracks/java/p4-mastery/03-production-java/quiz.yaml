@@ -1,0 +1,45 @@
+questions:
+  - id: placeholders
+    prompt: "Which logging call is preferred?"
+    options:
+      - "log.info(\"order \" + id + \" placed\");"
+      - "log.info(\"order {} placed\", id);"
+      - "System.out.println(\"order placed\");"
+    answer: 1
+    explanation: "Placeholders avoid building the message when the level is off and keep the template searchable."
+  - id: exception-log
+    prompt: "How do you log an exception with its stack trace in SLF4J?"
+    options:
+      - "log.error(\"failed \" + e.getMessage());"
+      - "log.error(\"payment failed for {}\", orderId, e);  (exception as the last argument)"
+      - "log.error(e.toString());"
+    answer: 1
+    explanation: "A Throwable passed as the last argument is printed with its stack trace."
+  - id: fail-fast
+    prompt: "DATABASE_URL is missing. When should the service notice?"
+    options:
+      - "When the first request needs the database"
+      - "At startup, refusing to start"
+      - "Never; use a default"
+    answer: 1
+    explanation: "Validate configuration at startup so a bad deploy fails immediately and visibly."
+  - id: secrets
+    prompt: "Where do database passwords belong?"
+    options:
+      - "In application.properties in the repository"
+      - "In the environment or a secret manager"
+      - "In a constant in the code"
+    answer: 1
+    explanation: "Secrets never go into the repository; inject them at run time."
+  - id: jlink
+    prompt: "Which JDK tool builds a smaller runtime that contains only the modules your application needs?"
+    answers: ["jlink"]
+    explanation: "jlink assembles a custom runtime image from the selected modules."
+  - id: container-user
+    prompt: "Why add USER app to a Java service's Dockerfile?"
+    options:
+      - "Java requires it"
+      - "So the process does not run as root inside the container"
+      - "It makes the image smaller"
+    answer: 1
+    explanation: "Running as a non-root user limits the damage if the process is compromised."

@@ -1,0 +1,353 @@
+# Placement test of the Modern Java track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with Java?
+  options:
+    - { label: "Never used it", start_phase: p0, test: false }
+    - { label: "I know Java 8 (classes, collections, a few streams)", start_phase: p1, test: true }
+    - { label: "I use modern Java (records, switch patterns, Optional)", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-var-diamond
+    phase: p1
+    skills: [java.modern-syntax]
+    difficulty: 2
+    prompt: "Does this compile?"
+    code: |
+      var names = new ArrayList<>();
+      names.add("Ada");
+      String first = names.get(0);
+    options:
+      - "Yes"
+      - "No: with var and <>, the list is ArrayList<Object>, so get returns Object"
+      - "No: var cannot hold a list"
+    answer: 1
+    explanation: "With nothing to infer from, the diamond gives ArrayList<Object>; write new ArrayList<String>()."
+  - id: p1-switch-value
+    phase: p1
+    skills: [java.modern-syntax]
+    difficulty: 2
+    prompt: "What is size for code = 3?"
+    code: |
+      String size = switch (code) {
+          case 1, 2 -> "small";
+          case 3 -> "medium";
+          default -> "large";
+      };
+    answers: ["medium", "\"medium\""]
+    explanation: "Arrow cases do not fall through; case 3 produces \"medium\"."
+  - id: p1-text-block-newline
+    phase: p1
+    skills: [java.modern-syntax]
+    difficulty: 3
+    prompt: "How many line breaks does this string contain?"
+    code: |
+      String s = """
+          one
+          two""";
+    options: ["0", "1", "2", "3"]
+    answer: 1
+    explanation: "The line break after the opening delimiter is not part of the text, and the closing delimiter is on the last line, so only the break after 'one' remains."
+  - id: p1-record-accessor
+    phase: p1
+    skills: [java.records]
+    difficulty: 1
+    prompt: "record User(String name, int age) {}. Which call compiles?"
+    options: ["user.getName()", "user.name()", "user.name", "user.getName"]
+    answer: 1
+    explanation: "Record accessors are named after their components."
+  - id: p1-record-field
+    phase: p1
+    skills: [java.records]
+    difficulty: 3
+    prompt: "Which line is NOT allowed inside a record body?"
+    options:
+      - "static int count = 0;"
+      - "private final int extra;"
+      - "public String upperName() { return name.toUpperCase(); }"
+      - "public static User of(String name) { return new User(name, 0); }"
+    answer: 1
+    explanation: "Records cannot declare extra instance fields; static fields and any methods are fine."
+  - id: p1-record-set-key
+    phase: p1
+    skills: [java.records]
+    difficulty: 2
+    prompt: "What is the size of this set?"
+    code: |
+      record Cell(int row, int col) {}
+      var cells = new HashSet<Cell>();
+      cells.add(new Cell(1, 1));
+      cells.add(new Cell(1, 1));
+    answers: ["1"]
+    explanation: "Records have value-based equals and hashCode, so the second Cell is a duplicate."
+  - id: p1-sealed-permits
+    phase: p1
+    skills: [java.pattern-matching]
+    difficulty: 2
+    prompt: "sealed interface Animal permits Cat, Dog {}. A third class Bird implements Animal. What happens?"
+    options: ["It compiles", "Compile error: Bird is not permitted", "A ClassCastException at run time"]
+    answer: 1
+    explanation: "Only the types listed in permits may implement a sealed interface."
+  - id: p1-pattern-deconstruct
+    phase: p1
+    skills: [java.pattern-matching]
+    difficulty: 3
+    prompt: "record Point(int x, int y) {}. What does describe(new Point(0, 5)) return?"
+    code: |
+      static String describe(Object o) {
+          return switch (o) {
+              case Point(int x, int y) when x == 0 && y == 0 -> "origin";
+              case Point(int x, int y) when x == 0 -> "on the y axis";
+              case Point p -> "somewhere";
+              default -> "not a point";
+          };
+      }
+    answers: ["on the y axis", "\"on the y axis\""]
+    explanation: "Cases are tried in order; the first guard is false, the second is true."
+  - id: p1-unmodifiable
+    phase: p1
+    skills: [java.collections]
+    difficulty: 2
+    prompt: "Which of these lists can you add elements to?"
+    options: ["List.of(1, 2)", "List.copyOf(other)", "new ArrayList<>(List.of(1, 2))", "stream.toList()"]
+    answer: 2
+    explanation: "List.of, List.copyOf and Stream.toList are unmodifiable; a new ArrayList is not."
+  - id: p1-group-map
+    phase: p1
+    skills: [java.collections]
+    difficulty: 3
+    prompt: "byLetter is a Map<Character, List<String>>. Which line adds word to its letter's list, creating the list when needed?"
+    options:
+      - "byLetter.put(word.charAt(0), List.of(word));"
+      - "byLetter.computeIfAbsent(word.charAt(0), c -> new ArrayList<>()).add(word);"
+      - "byLetter.merge(word.charAt(0), word, String::concat);"
+    answer: 1
+    explanation: "computeIfAbsent returns the existing list or stores a new one, ready for add."
+
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-method-ref-kind
+    phase: p2
+    skills: [java.generics-lambdas]
+    difficulty: 2
+    prompt: "Which method reference fits Function<String, Integer>?"
+    options: ["String::length", "Integer::sum", "System.out::println", "ArrayList::new"]
+    answer: 0
+    explanation: "String::length takes a String and returns an int (boxed to Integer)."
+  - id: p2-wildcard-read
+    phase: p2
+    skills: [java.generics-lambdas]
+    difficulty: 4
+    prompt: "Inside void total(List<? extends Number> values), which call compiles?"
+    options: ["values.add(1)", "values.add(null) only, and Number n = values.get(0)", "values.add(1.5)"]
+    answer: 1
+    explanation: "A ? extends list is a producer: you can read Numbers from it, but you cannot add anything except null."
+  - id: p2-stream-count
+    phase: p2
+    skills: [java.streams]
+    difficulty: 2
+    prompt: "What is the result?"
+    code: |
+      Stream.of("ada", "bob", "cy", "dee")
+            .filter(s -> s.length() == 3)
+            .map(String::toUpperCase)
+            .count();
+    answers: ["3", "3L"]
+    explanation: "Three names have three letters; map does not change the count."
+  - id: p2-grouping
+    phase: p2
+    skills: [java.streams]
+    difficulty: 3
+    prompt: "Which pipeline gives Map<Integer, Long> from word length to how many words have it?"
+    options:
+      - "words.stream().collect(Collectors.toMap(String::length, w -> 1L))"
+      - "words.stream().collect(Collectors.groupingBy(String::length, Collectors.counting()))"
+      - "words.stream().map(String::length).distinct().toList()"
+    answer: 1
+    explanation: "groupingBy with counting() counts per key; toMap would throw on duplicate lengths."
+  - id: p2-flatmap-lines
+    phase: p2
+    skills: [java.streams]
+    difficulty: 3
+    prompt: "lines is a List<String>. Which operation gives a Stream<String> of all their words?"
+    answers: ["flatMap", "flatMap(line -> Arrays.stream(line.split(\" \")))"]
+    explanation: "flatMap maps each line to a stream of words and concatenates the streams."
+  - id: p2-optional-chain
+    phase: p2
+    skills: [java.errors]
+    difficulty: 3
+    prompt: "find(id) returns Optional<User>. What does find(id).map(User::email).orElse(\"none\") return when there is no user?"
+    answers: ["none", "\"none\""]
+    explanation: "map on an empty Optional stays empty, so orElse returns its argument."
+  - id: p2-execution-checked
+    phase: p2
+    skills: [java.errors]
+    difficulty: 3
+    prompt: "Why does this not compile?"
+    code: |
+      List<String> lines = paths.stream()
+              .map(path -> Files.readString(path))
+              .toList();
+    options:
+      - "Files.readString does not exist"
+      - "readString throws the checked IOException, which Function.apply cannot throw"
+      - "toList needs a collector"
+    answer: 1
+    explanation: "Checked exceptions do not pass through standard functional interfaces; catch and wrap it, or use a loop."
+  - id: p2-resources-order
+    phase: p2
+    skills: [java.errors]
+    difficulty: 4
+    prompt: "try (var a = open(\"a\"); var b = open(\"b\")) { ... }. In which order are they closed?"
+    options: ["a, then b", "b, then a", "In parallel", "Only a"]
+    answer: 1
+    explanation: "Resources close in the reverse order of their declaration."
+  - id: p2-junit-exception
+    phase: p2
+    skills: [java.build-testing]
+    difficulty: 2
+    prompt: "Which JUnit 5 call checks that parse(\"x\") throws NumberFormatException and lets you check the message?"
+    options:
+      - "@Test(expected = NumberFormatException.class)"
+      - "assertThrows(NumberFormatException.class, () -> parse(\"x\"))"
+      - "assertEquals(NumberFormatException.class, parse(\"x\"))"
+    answer: 1
+    explanation: "assertThrows returns the exception; the expected attribute was JUnit 4."
+
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-virtual-sleep
+    phase: p3
+    skills: [java.virtual-threads]
+    difficulty: 3
+    prompt: "10,000 tasks each call Thread.sleep(1 second) on a virtual-thread-per-task executor. About how long does it take on 4 cores?"
+    options: ["About 1 second", "About 2,500 seconds", "About 40 seconds"]
+    answer: 0
+    explanation: "Sleeping virtual threads unmount, so all of them wait at the same time."
+  - id: p3-virtual-pool
+    phase: p3
+    skills: [java.virtual-threads]
+    difficulty: 3
+    prompt: "A service makes 5,000 concurrent calls but the partner API allows 50 at a time. With virtual threads, what limits the calls?"
+    options:
+      - "A fixed pool of 50 virtual threads"
+      - "A Semaphore(50) acquired around the call"
+      - "Thread.sleep between calls"
+    answer: 1
+    explanation: "Do not pool virtual threads; limit the scarce resource itself."
+  - id: p3-virtual-cpu
+    phase: p3
+    skills: [java.virtual-threads]
+    difficulty: 4
+    prompt: "Image resizing (pure CPU) is moved from a fixed pool of 8 threads on 8 cores to virtual threads. What changes?"
+    options: ["It becomes much faster", "Little or nothing: the cores were already busy", "It deadlocks"]
+    answer: 1
+    explanation: "Virtual threads help tasks that wait; CPU-bound work is limited by the cores."
+  - id: p3-future-cause
+    phase: p3
+    skills: [java.concurrency]
+    difficulty: 3
+    prompt: "future.get() throws ExecutionException. Where is the exception the task threw?"
+    answers: ["getCause()", "e.getCause()", "in getCause", "the cause"]
+    explanation: "ExecutionException wraps the task's failure as its cause."
+  - id: p3-counter
+    phase: p3
+    skills: [java.concurrency]
+    difficulty: 3
+    prompt: "Many threads increment a shared hit counter. Which is correct and simplest?"
+    options: ["int hits; hits++", "volatile int hits; hits++", "LongAdder hits; hits.increment()"]
+    answer: 2
+    explanation: "volatile does not make ++ atomic; LongAdder (or AtomicLong) does."
+  - id: p3-concurrent-merge
+    phase: p3
+    skills: [java.concurrency]
+    difficulty: 4
+    prompt: "counts is a ConcurrentHashMap<String, Integer> shared by threads. Which update is atomic?"
+    options:
+      - "counts.put(w, counts.getOrDefault(w, 0) + 1)"
+      - "counts.merge(w, 1, Integer::sum)"
+      - "if (!counts.containsKey(w)) counts.put(w, 1); else counts.put(w, counts.get(w) + 1);"
+    answer: 1
+    explanation: "merge is atomic per key on ConcurrentHashMap; get-then-put can lose updates."
+  - id: p3-strategy
+    phase: p3
+    skills: [java.design-patterns]
+    difficulty: 2
+    prompt: "A Discount interface has one method long apply(long cents). How do you write a 10% discount without a new class?"
+    answers: ["cents -> cents * 90 / 100", "c -> c * 90 / 100", "cents -> cents - cents / 10"]
+    explanation: "A one-method interface is functional, so a lambda implements the strategy."
+  - id: p3-visitor
+    phase: p3
+    skills: [java.design-patterns]
+    difficulty: 4
+    prompt: "You need a new operation over a sealed Expr hierarchy of records. What is the modern choice?"
+    options:
+      - "Add an accept method and a new Visitor class"
+      - "Write a method with an exhaustive switch over Expr with record patterns"
+      - "Use reflection to find the subtype"
+    answer: 1
+    explanation: "Sealed types plus pattern switches give visitor completeness with much less code."
+
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-gc-latency
+    phase: p4
+    skills: [java.jvm]
+    difficulty: 4
+    prompt: "A trading service needs GC pauses under 1 ms with a 64 GB heap. Which collector fits?"
+    options: ["Serial", "Parallel", "ZGC", "No collector can do it"]
+    answer: 2
+    explanation: "Generational ZGC keeps pauses sub-millisecond independent of heap size."
+  - id: p4-container-oom
+    phase: p4
+    skills: [java.jvm]
+    difficulty: 4
+    prompt: "A JVM in a 1 GB container never uses more than 256 MB of heap and is slow with frequent GCs. Most likely cause?"
+    options:
+      - "The default maximum heap is 25% of the container memory"
+      - "Virtual threads"
+      - "Compact object headers"
+    answer: 0
+    explanation: "Raise it with -XX:MaxRAMPercentage, leaving room for non-heap memory."
+  - id: p4-native-reflection
+    phase: p4
+    skills: [java.graalvm-native]
+    difficulty: 4
+    prompt: "A native image throws ClassNotFoundException for a class loaded with Class.forName. Why?"
+    options:
+      - "Native images do not support exceptions"
+      - "The closed-world analysis did not see it; it needs reachability metadata"
+      - "The class was too large"
+    answer: 1
+    explanation: "Reflection hides classes from the static analysis; declare them in the metadata or let the tracing agent record them."
+  - id: p4-native-when
+    phase: p4
+    skills: [java.graalvm-native]
+    difficulty: 3
+    prompt: "Which workload benefits most from GraalVM native image?"
+    options: ["A CLI tool run thousands of times a day", "A busy server that runs for months", "A long batch job"]
+    answer: 0
+    explanation: "Short-lived processes pay startup on every run; native images remove most of it."
+  - id: p4-log-once
+    phase: p4
+    skills: [java.production]
+    difficulty: 3
+    prompt: "An exception travels up through 4 layers. Where should it be logged with its stack trace?"
+    options: ["In every layer", "Once, where it is handled", "Never"]
+    answer: 1
+    explanation: "Logging and rethrowing in every layer duplicates the same error in the logs."
+  - id: p4-config
+    phase: p4
+    skills: [java.production]
+    difficulty: 3
+    prompt: "Where should the database URL for production come from?"
+    options: ["A constant in the code", "The environment, validated at startup", "A comment in the README"]
+    answer: 1
+    explanation: "Configuration lives in the environment; the same artifact runs everywhere."

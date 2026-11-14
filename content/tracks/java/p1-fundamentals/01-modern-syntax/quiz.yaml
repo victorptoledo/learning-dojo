@@ -1,0 +1,54 @@
+questions:
+  - id: var-field
+    prompt: "Where can you NOT use var?"
+    options:
+      - "for (var item : items)"
+      - "var total = 0;"
+      - "As the type of a field: private var count = 0;"
+      - "try (var reader = Files.newBufferedReader(path))"
+    answer: 2
+    explanation: "var is only for local variables (including for loops and try resources), never for fields, parameters or return types."
+  - id: var-static
+    prompt: "What happens with: var x = 10; x = \"ten\";"
+    options:
+      - "It compiles: var is dynamic"
+      - "Compile error: x is an int"
+      - "x becomes an Object"
+    answer: 1
+    explanation: "var infers a fixed static type at compile time. x is int, so a String cannot be assigned."
+  - id: text-block-indent
+    prompt: "What does this text block contain?"
+    code: |
+      String s = """
+              Hi
+                there
+              """;
+    options:
+      - "\"        Hi\\n          there\\n\""
+      - "\"Hi\\n  there\\n\""
+      - "\"Hi there\""
+      - "\"\\nHi\\n  there\""
+    answer: 1
+    explanation: "The common indentation (including the closing delimiter's) is removed; the relative indent of 'there' and the final newline stay."
+  - id: switch-exhaustive
+    prompt: "A switch expression over an enum lists every constant. Does it need a default branch?"
+    options: ["Yes, always", "No: covering every constant makes it exhaustive", "Only if it returns a String"]
+    answer: 1
+    explanation: "Switch expressions must be exhaustive; listing every enum constant is enough, and the compiler complains when a constant is added later."
+  - id: yield
+    prompt: "In a switch expression, which keyword returns the value from a block case { ... }?"
+    answers: ["yield"]
+    explanation: "Inside a block case, yield produces the value of the switch expression; return would leave the whole method."
+  - id: instanceof-scope
+    prompt: "Does this compile?"
+    code: |
+      if (!(obj instanceof String text)) {
+          return 0;
+      }
+      return text.length();
+    options:
+      - "Yes: after the early return, text is definitely a String"
+      - "No: text only exists inside the if"
+      - "No: you cannot negate an instanceof pattern"
+    answer: 0
+    explanation: "Flow scoping puts the binding in scope wherever the match is certain, including after an early return."

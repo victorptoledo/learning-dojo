@@ -1,0 +1,42 @@
+questions:
+  - id: strategy
+    prompt: "A strategy interface has one method and no state. What is the simplest modern form?"
+    options: ["An abstract class", "A lambda for a functional interface", "A singleton", "A builder"]
+    answer: 1
+    explanation: "A single-method strategy is a functional interface; each strategy can be a lambda or method reference."
+  - id: visitor
+    prompt: "What replaces the visitor pattern over a closed hierarchy in Java 21+?"
+    options:
+      - "Reflection"
+      - "A sealed interface and an exhaustive switch with record patterns"
+      - "instanceof chains with a default branch"
+    answer: 1
+    explanation: "A pattern switch over a sealed type gives the same compile-time completeness without accept/visit methods."
+  - id: static-factory
+    prompt: "Which is an advantage of a static factory such as Money.euros(500) over a constructor?"
+    options:
+      - "It has a name and can return a cached instance or a subtype"
+      - "It is always faster"
+      - "It cannot validate its arguments"
+    answer: 0
+    explanation: "Static factories have descriptive names and freedom over what they return."
+  - id: builder
+    prompt: "When is a builder worth it?"
+    options:
+      - "For a record with two required fields"
+      - "When an object has many parameters, several of them optional"
+      - "For every class"
+    answer: 1
+    explanation: "Builders make many optional parameters readable; small records use their constructor."
+  - id: compose
+    prompt: "Complete so that pipeline strips, then lowercases: Function<String, String> pipeline = clean.______(String::toLowerCase);"
+    answers: ["andThen"]
+    explanation: "f.andThen(g) applies f first, then g; compose does the opposite order."
+  - id: singleton
+    prompt: "Why prefer passing one shared instance into constructors over a static singleton?"
+    options:
+      - "Static fields are slower"
+      - "Dependencies become visible and tests can pass a fake"
+      - "Singletons cannot have methods"
+    answer: 1
+    explanation: "Injected dependencies show up in the constructor and are easy to replace in tests."

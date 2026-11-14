@@ -1,0 +1,42 @@
+questions:
+  - id: unmount
+    prompt: "What happens when a virtual thread blocks on a socket read?"
+    options:
+      - "Its carrier thread blocks until the data arrives"
+      - "The JVM unmounts it and runs another virtual thread on the carrier"
+      - "It throws an exception"
+    answer: 1
+    explanation: "Blocking operations park the virtual thread and free its carrier for other work."
+  - id: executor
+    prompt: "Which executor starts a new virtual thread for every submitted task?"
+    answers: ["Executors.newVirtualThreadPerTaskExecutor()", "newVirtualThreadPerTaskExecutor", "Executors.newVirtualThreadPerTaskExecutor"]
+    explanation: "newVirtualThreadPerTaskExecutor creates one virtual thread per task; there is no pool."
+  - id: cpu-bound
+    prompt: "Which workload gains the least from virtual threads?"
+    options:
+      - "10,000 HTTP calls to another service"
+      - "Hashing 10,000 large files already in memory"
+      - "Many database queries at once"
+    answer: 1
+    explanation: "CPU-bound work keeps carriers busy; virtual threads help when tasks mostly wait."
+  - id: pool
+    prompt: "Should you put virtual threads in a fixed-size pool of 200?"
+    options:
+      - "Yes, to save memory"
+      - "No: create one per task, and limit the scarce resource (connections, a Semaphore) instead"
+      - "Yes, the JVM requires it"
+    answer: 1
+    explanation: "Pools limit expensive things; virtual threads are cheap, the database connections are not."
+  - id: close-waits
+    prompt: "What does the end of try (var executor = Executors.newVirtualThreadPerTaskExecutor()) { ... } do?"
+    options:
+      - "Cancels every running task"
+      - "Waits for the submitted tasks to finish, then shuts the executor down"
+      - "Nothing; you must call shutdown()"
+    answer: 1
+    explanation: "ExecutorService.close() (Java 19) shuts down and waits for the submitted tasks."
+  - id: pinning
+    prompt: "Since Java 24, does blocking inside a synchronized block pin a virtual thread to its carrier?"
+    options: ["Yes, always", "No, not any more", "Only on Windows"]
+    answer: 1
+    explanation: "JEP 491 (Java 24) lets virtual threads unmount inside synchronized; on Java 21 prefer ReentrantLock there."

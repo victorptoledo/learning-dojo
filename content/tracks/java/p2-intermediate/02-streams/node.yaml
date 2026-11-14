@@ -1,0 +1,16 @@
+id: java.p2.streams
+kind: lesson
+status: draft
+title: "Streams and Collectors"
+summary: "Filter, transform, group and summarise data with streams instead of loops."
+objectives:
+  - { id: o1, text: "Build stream pipelines with filter, map, flatMap and sorted", skills: [java.streams] }
+  - { id: o2, text: "Group and summarise with Collectors.groupingBy and friends", skills: [java.streams] }
+  - { id: o3, text: "Know when a loop is clearer than a stream", skills: [java.streams] }
+prerequisites: [java.p2.lambdas-generics]
+difficulty: 3
+estimated_minutes: 40
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

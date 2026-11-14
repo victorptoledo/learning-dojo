@@ -1,0 +1,32 @@
+questions:
+  - id: list-of-add
+    prompt: "What happens with: var list = List.of(1, 2); list.add(3);"
+    options: ["list becomes [1, 2, 3]", "UnsupportedOperationException", "A compile error", "It is ignored"]
+    answer: 1
+    explanation: "List.of returns an unmodifiable list; every mutating method throws UnsupportedOperationException at run time."
+  - id: map-of-order
+    prompt: "In which order does a for loop visit the entries of Map.of(\"a\", 1, \"b\", 2, \"c\", 3)?"
+    options: ["a, b, c", "Sorted by value", "No defined order"]
+    answer: 2
+    explanation: "Map.of and Set.of have no defined iteration order; use LinkedHashMap or TreeMap when order matters."
+  - id: merge-count
+    prompt: "Complete the counting line: counts.______(word, 1, Integer::sum);"
+    answers: ["merge"]
+    explanation: "merge puts 1 for a new key and otherwise stores Integer.sum(old, 1)."
+  - id: compute-if-absent
+    prompt: "Which line groups words by their first letter into Map<Character, List<String>> groups?"
+    options:
+      - "groups.put(w.charAt(0), new ArrayList<>()).add(w);"
+      - "groups.computeIfAbsent(w.charAt(0), k -> new ArrayList<>()).add(w);"
+      - "groups.getOrDefault(w.charAt(0), new ArrayList<>()).add(w);"
+    answer: 1
+    explanation: "computeIfAbsent stores a new list only when the key is missing and returns the list to add to. getOrDefault would add to a list that is never stored."
+  - id: queue
+    prompt: "Which class should you use for a stack or a queue in new code?"
+    options: ["Stack", "Vector", "ArrayDeque", "LinkedList"]
+    answer: 2
+    explanation: "ArrayDeque is the recommended general-purpose stack and queue; Stack is legacy and synchronized."
+  - id: last-element
+    prompt: "Since Java 21, how do you read the last element of a List<String> names?"
+    answers: ["names.getLast()", "getLast()", "names.getLast();"]
+    explanation: "Sequenced collections added getFirst, getLast and reversed to List, Deque and ordered sets."

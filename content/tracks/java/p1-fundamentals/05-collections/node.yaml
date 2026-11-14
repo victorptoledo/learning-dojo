@@ -1,0 +1,16 @@
+id: java.p1.collections
+kind: lesson
+status: draft
+title: "Collections: List, Set, Map and Friends"
+summary: "Immutable factories, the Map methods that replace boilerplate and the sequenced collections of Java 21."
+objectives:
+  - { id: o1, text: "Choose between List.of, new ArrayList and the other implementations", skills: [java.collections] }
+  - { id: o2, text: "Count and group with merge, computeIfAbsent and getOrDefault", skills: [java.collections] }
+  - { id: o3, text: "Use getFirst, getLast and reversed on sequenced collections", skills: [java.collections] }
+prerequisites: [java.p1.shapes]
+difficulty: 2
+estimated_minutes: 35
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

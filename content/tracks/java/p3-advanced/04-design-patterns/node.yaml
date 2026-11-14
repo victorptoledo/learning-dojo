@@ -1,0 +1,16 @@
+id: java.p3.design-patterns
+kind: lesson
+status: draft
+title: "Design Patterns in Modern Java"
+summary: "Strategy, builder, factory, decorator and visitor, rewritten with lambdas, records and sealed types."
+objectives:
+  - { id: o1, text: "Replace strategy and command classes with lambdas", skills: [java.design-patterns] }
+  - { id: o2, text: "Pick records, builders or static factories to create objects", skills: [java.design-patterns] }
+  - { id: o3, text: "Replace visitors with sealed types and switch patterns", skills: [java.design-patterns, java.pattern-matching] }
+prerequisites: [java.p3.virtual-threads]
+difficulty: 4
+estimated_minutes: 35
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

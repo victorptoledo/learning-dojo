@@ -2,7 +2,9 @@ use crate::app::{App, Screen};
 use crate::lesson_view::{quiz_status_line, render_lesson, render_quiz};
 use crate::setup_view::render_setup;
 use crate::tree::TreeRow;
-use dojo_core::{CheckOutcome, CheckReport, Kata, Mode, Node, NodeKind, Phase, Track};
+use dojo_core::{
+    CheckOutcome, CheckReport, Kata, KataLanguage, Mode, Node, NodeKind, Phase, Track,
+};
 use ratatui::{
     Frame,
     layout::{Constraint, Layout, Rect},
@@ -274,7 +276,7 @@ fn render_kata(
         lines.push(quiz_status_line(app, track, node));
         lines.push(Line::from(""));
     }
-    lines.extend(kata_steps(&dir));
+    lines.extend(kata_steps(&dir, kata.language()));
     lines.push(Line::from(""));
     lines.push(check_status_line(app, &key));
     if let Some(report) = app.last_reports.get(&key) {
@@ -321,7 +323,7 @@ fn hint_lines(app: &App, track: &Track, node: &Node, kata: &Kata) -> Vec<Line<'s
 }
 
 /// What to do next, as numbered steps that depend on whether the kata was started.
-fn kata_steps(dir: &std::path::Path) -> Vec<Line<'static>> {
+fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static>> {
     if !dir.exists() {
         return vec![
             Line::from("👉 How to start".bold().yellow()),
@@ -332,12 +334,22 @@ fn kata_steps(dir: &std::path::Path) -> Vec<Line<'static>> {
     vec![
         Line::from("👉 What to do".bold().yellow()),
         Line::from(format!("1. Press [O] to open {}.", dir.display())),
-        Line::from(
-            "2. Edit src/lib.rs. Each function that still has todo!(...) is yours to write:",
-        ),
-        Line::from(
-            "   todo!() is a placeholder that stops the program, so its tests fail until you replace it.",
-        ),
+        Line::from(match language {
+            KataLanguage::Rust => {
+                "2. Edit src/lib.rs. Each function that still has todo!(...) is yours to write:"
+            }
+            KataLanguage::Java => {
+                "2. Edit the classes in src/main/java. Each method that still throws UnsupportedOperationException(\"todo ...\") is yours to write:"
+            }
+        }),
+        Line::from(match language {
+            KataLanguage::Rust => {
+                "   todo!() is a placeholder that stops the program, so its tests fail until you replace it."
+            }
+            KataLanguage::Java => {
+                "   that throw is a placeholder, so its tests fail until you replace it."
+            }
+        }),
         Line::from("3. Save the file. The tests run by themselves and the result appears below."),
         Line::from(
             "4. When every test passes, the kata is done (+XP) and your solution is committed.",
@@ -360,7 +372,9 @@ fn report_lines(report: &CheckReport) -> Vec<Line<'static>> {
     }
     for test in report.tests.iter().filter(|test| !test.passed) {
         let explanation = match test.message.as_deref() {
-            Some(message) if message.starts_with("not yet implemented") => {
+            Some(message)
+                if message.starts_with("not yet implemented") || message.starts_with("todo") =>
+            {
                 "not written yet (still todo!)".to_string()
             }
             Some(message) => message.lines().collect::<Vec<_>>().join(" · "),

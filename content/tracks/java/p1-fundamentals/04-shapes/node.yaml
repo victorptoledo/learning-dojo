@@ -1,0 +1,53 @@
+id: java.p1.shapes
+kind: kata
+status: draft
+title: "Shapes: Records Meet Pattern Matching"
+summary: "Compute areas, perimeters and descriptions over a sealed hierarchy of record shapes."
+objectives:
+  - { id: o1, text: "Model shapes as records that implement a sealed interface", skills: [java.records, java.pattern-matching] }
+  - { id: o2, text: "Write exhaustive switch expressions with record patterns and guards", skills: [java.pattern-matching] }
+prerequisites: [java.p1.sealed-patterns]
+difficulty: 2
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with the three compact constructors: what makes each shape impossible? Then, for `describe`, which cases are special versions of a general case, and in which order must they come?
+    - |-
+      In a compact constructor, `if (bad) throw new IllegalArgumentException(...)`; the fields are assigned after it. In `switch (shape)`, a record pattern like `case Rectangle(double w, double h)` gives you the components, and `when w == h` adds the condition. Special cases go first, the general `case Rectangle r` after.
+    - |-
+      ```java
+      public static String describe(Shape shape) {
+          return switch (shape) {
+              case Circle(double r) when r == 0 -> "point";
+              case Circle c -> "circle";
+              case Rectangle(double w, double h) when w == h -> "square";
+              case Rectangle r -> "rectangle";
+              // equilateral first, then isosceles (any two equal), then the rest
+          };
+      }
+
+      public static double totalArea(List<Shape> shapes) {
+          double total = 0;
+          for (Shape shape : shapes) {
+              // add its area
+          }
+          return total;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 5 that runs the grading tests.

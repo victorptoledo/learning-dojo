@@ -1,0 +1,46 @@
+questions:
+  - id: permits
+    prompt: "What does sealed interface Shape permits Circle, Square {} guarantee?"
+    options:
+      - "Shape has no methods"
+      - "Only Circle and Square can implement Shape"
+      - "Circle and Square cannot have fields"
+      - "Shape cannot be used in a switch"
+    answer: 1
+    explanation: "permits lists every allowed subtype; any other implementation is a compile error."
+  - id: record-final
+    prompt: "Records implementing a sealed interface need which modifier?"
+    options: ["final", "non-sealed", "None: records are implicitly final", "sealed"]
+    answer: 2
+    explanation: "Every permitted subtype must be final, sealed or non-sealed, and records are already final."
+  - id: no-default
+    prompt: "Why leave default out of a switch over a sealed type?"
+    options:
+      - "default is not allowed with patterns"
+      - "So that adding a new subtype breaks the build where a case is missing"
+      - "It makes the switch faster"
+    answer: 1
+    explanation: "An exhaustive switch without default is re-checked whenever the hierarchy changes; default would hide the new case."
+  - id: dominance
+    prompt: "Why does this switch not compile?"
+    code: |
+      return switch (shape) {
+          case Circle c -> "circle";
+          case Circle(double r) when r == 0 -> "point";
+          case Square s -> "square";
+      };
+    options:
+      - "Record patterns cannot have guards"
+      - "The second case can never match: case Circle c already covers every circle"
+      - "It needs a default branch"
+    answer: 1
+    explanation: "Cases are tried in order; a case dominated by an earlier one is a compile error. Put the guarded case first."
+  - id: deconstruct
+    prompt: "Complete the case so that w and h are the components of record Rectangle(double width, double height): case ______ -> w * h;"
+    answers: ["Rectangle(double w, double h)", "Rectangle(var w, var h)"]
+    explanation: "A record pattern names the record and binds its components in order; var works for the types."
+  - id: null-switch
+    prompt: "What happens when shape is null in a pattern switch without case null?"
+    options: ["The first case runs", "It throws NullPointerException", "It returns null"]
+    answer: 1
+    explanation: "Without case null, switch throws NullPointerException on null, as it always has."

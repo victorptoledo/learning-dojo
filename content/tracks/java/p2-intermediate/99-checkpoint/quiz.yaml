@@ -1,0 +1,60 @@
+questions:
+  - id: function-type
+    skills: [java.generics-lambdas]
+    prompt: "Which interface fits a lambda that takes a Book and returns its title?"
+    options: ["Supplier<Book>", "Predicate<Book>", "Function<Book, String>", "Consumer<Book>"]
+    answer: 2
+    explanation: "Function<T, R> maps a T to an R."
+  - id: wildcard
+    skills: [java.generics-lambdas]
+    prompt: "A method takes Predicate<? super Book>. Can you pass a Predicate<Object>?"
+    options: ["Yes: ? super Book accepts Book and its supertypes", "No: only Predicate<Book>", "Only with a cast"]
+    answer: 0
+    explanation: "A consumer of Books (the predicate tests them) can be declared for any supertype of Book."
+  - id: stream-sorted-names
+    skills: [java.streams]
+    prompt: "Complete: books.stream().map(Book::title).______().toList() gives the titles in alphabetical order."
+    answers: ["sorted"]
+    explanation: "sorted() uses the natural order of the elements, here String's alphabetical order."
+  - id: grouping-treemap
+    skills: [java.streams]
+    prompt: "How do you make groupingBy return a map sorted by key?"
+    options:
+      - "Call .sorted() before collect"
+      - "Pass TreeMap::new as the map factory: groupingBy(key, TreeMap::new, downstream)"
+      - "groupingBy always sorts its keys"
+    answer: 1
+    explanation: "The three-argument groupingBy takes the map factory; TreeMap keeps the keys sorted."
+  - id: optional-throw
+    skills: [java.errors]
+    prompt: "findById returns Optional<Book>. Which call returns the book or throws your NotFound exception?"
+    options:
+      - "findById(id).get()"
+      - "findById(id).orElseThrow(() -> new NotFound(\"book\", id))"
+      - "findById(id).orElse(null)"
+    answer: 1
+    explanation: "orElseThrow with a supplier throws your exception only when the Optional is empty."
+  - id: unchecked-choice
+    skills: [java.errors]
+    prompt: "Why are the library's refusals unchecked exceptions (RuntimeException)?"
+    options:
+      - "Checked exceptions cannot have messages"
+      - "They work with lambdas and streams and do not force every caller to declare them"
+      - "RuntimeException is faster"
+    answer: 1
+    explanation: "Unchecked exceptions compose with functional code; callers that can react still catch the specific type."
+  - id: before-each-fresh
+    skills: [java.build-testing]
+    prompt: "In a JUnit 5 class, a field is set in @BeforeEach. What does each test see?"
+    options: ["The value left by the previous test", "A freshly set value", "null"]
+    answer: 1
+    explanation: "JUnit creates a new instance per test and runs @BeforeEach before each one."
+  - id: test-clock
+    skills: [java.build-testing]
+    prompt: "Code calls LocalDate.now() inside. How do you test what happens 30 days later?"
+    options:
+      - "Wait 30 days"
+      - "Pass the date source in (a Clock or Supplier<LocalDate>) so the test controls it"
+      - "Change the computer's clock"
+    answer: 1
+    explanation: "Inject the clock: tests then set any date and stay repeatable."

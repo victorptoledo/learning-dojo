@@ -1,0 +1,16 @@
+id: java.p1.sealed-patterns
+kind: lesson
+status: draft
+title: "Sealed Types and Pattern Matching"
+summary: "Model closed hierarchies with sealed interfaces and take them apart with exhaustive switch patterns."
+objectives:
+  - { id: o1, text: "Restrict a hierarchy with sealed and permits", skills: [java.pattern-matching] }
+  - { id: o2, text: "Deconstruct records with record patterns and guards in switch", skills: [java.pattern-matching] }
+  - { id: o3, text: "Rely on the compiler's exhaustiveness check instead of a default branch", skills: [java.pattern-matching] }
+prerequisites: [java.p1.records]
+difficulty: 2
+estimated_minutes: 35
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

@@ -1,0 +1,37 @@
+questions:
+  - id: lazy
+    prompt: "What does this print?"
+    code: |
+      Stream.of("a", "b", "c")
+            .peek(s -> System.out.print(s))
+            .filter(s -> s.equals("b"));
+    options: ["abc", "b", "Nothing: there is no terminal operation", "ab"]
+    answer: 2
+    explanation: "Intermediate operations are lazy; without a terminal operation nothing runs."
+  - id: reuse
+    prompt: "What happens when you call a terminal operation twice on the same Stream object?"
+    options: ["It runs twice", "IllegalStateException: the stream has already been operated upon or closed", "The second call returns an empty result"]
+    answer: 1
+    explanation: "A stream can be consumed only once; create a new one from the source."
+  - id: flatmap
+    prompt: "Which operation turns a Stream<List<String>> into a Stream<String>?"
+    answers: ["flatMap", "flatMap(List::stream)", "flatMap(l -> l.stream())"]
+    explanation: "flatMap maps each element to a stream and concatenates them."
+  - id: grouping-count
+    prompt: "Which collector builds Map<String, Long> from product name to number of sales?"
+    options:
+      - "Collectors.toMap(Sale::product, 1L)"
+      - "Collectors.groupingBy(Sale::product, Collectors.counting())"
+      - "Collectors.partitioningBy(Sale::product)"
+    answer: 1
+    explanation: "groupingBy with the counting() downstream collector counts the elements of each group."
+  - id: tomap-duplicate
+    prompt: "What does Collectors.toMap(Sale::region, Sale::cents) do when two sales share a region?"
+    options: ["Keeps the last one", "Keeps the first one", "Throws IllegalStateException (duplicate key)", "Sums them"]
+    answer: 2
+    explanation: "Without a merge function toMap throws on duplicate keys; pass one such as Long::sum."
+  - id: to-list
+    prompt: "What is true about the list returned by stream.toList() (Java 16)?"
+    options: ["It is an ArrayList you can add to", "It is unmodifiable", "It is sorted"]
+    answer: 1
+    explanation: "Stream.toList returns an unmodifiable list."

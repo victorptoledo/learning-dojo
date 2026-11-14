@@ -1,0 +1,63 @@
+questions:
+  - id: var-inference
+    skills: [java.modern-syntax]
+    prompt: "What is the static type of list after: var list = new ArrayList<String>();"
+    options: ["Object", "List<String>", "ArrayList<String>", "It has no static type"]
+    answer: 2
+    explanation: "var infers the exact type of the initializer: ArrayList<String>."
+  - id: switch-arrow
+    skills: [java.modern-syntax]
+    prompt: "What does an arrow case (case A -> ...) never do, unlike case A: in a switch statement?"
+    answers: ["fall through", "fall-through", "fallthrough", "fall through to the next case"]
+    explanation: "Arrow cases run only their own right-hand side, so there is no fall-through and no break."
+  - id: record-equals
+    skills: [java.records]
+    prompt: "record Money(long cents, String currency) {}. When are two Money values equal?"
+    options:
+      - "Only when they are the same object"
+      - "When cents and currency are both equal"
+      - "When cents are equal"
+    answer: 1
+    explanation: "Records generate equals and hashCode from every component."
+  - id: record-copy
+    skills: [java.records]
+    prompt: "A record has a List<String> component. How do you keep the record immutable?"
+    options:
+      - "Mark the component final"
+      - "Copy it with List.copyOf in the compact constructor"
+      - "Records copy lists automatically"
+    answer: 1
+    explanation: "Components are already final, but the list itself can change; List.copyOf stores an unmodifiable copy."
+  - id: sealed-default
+    skills: [java.pattern-matching]
+    prompt: "A switch over a sealed interface covers every permitted record. What happens when a new record is added to permits?"
+    options:
+      - "The switch silently ignores it"
+      - "Every switch without a case for it stops compiling"
+      - "It throws at run time"
+    answer: 1
+    explanation: "Exhaustiveness is checked at compile time, so a missing case is a compile error (unless you hid it behind default)."
+  - id: guard-order
+    skills: [java.pattern-matching]
+    prompt: "Where must case Rectangle(var w, var h) when w == h go?"
+    options:
+      - "Before case Rectangle r"
+      - "After case Rectangle r"
+      - "Anywhere: the compiler reorders cases"
+    answer: 0
+    explanation: "Cases are tried in order, and a case dominated by an earlier one is a compile error."
+  - id: map-sorted
+    skills: [java.collections]
+    prompt: "Which map keeps its keys sorted?"
+    options: ["HashMap", "LinkedHashMap", "TreeMap", "Map.of(...)"]
+    answer: 2
+    explanation: "TreeMap is a SortedMap; LinkedHashMap keeps insertion order; HashMap and Map.of have no defined order."
+  - id: merge-sum
+    skills: [java.collections]
+    prompt: "totals is a Map<String, Long>. Which line adds amount to the category's total, creating it if missing?"
+    options:
+      - "totals.put(category, totals.get(category) + amount);"
+      - "totals.merge(category, amount, Long::sum);"
+      - "totals.computeIfAbsent(category, amount);"
+    answer: 1
+    explanation: "merge stores amount for a new key and old + amount otherwise; the first line throws for a missing key."

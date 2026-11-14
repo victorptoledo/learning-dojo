@@ -1,0 +1,38 @@
+questions:
+  - id: execution-exception
+    prompt: "A task submitted to an executor throws IllegalStateException. What does future.get() throw?"
+    options:
+      - "IllegalStateException"
+      - "ExecutionException, with the IllegalStateException as its cause"
+      - "Nothing; it returns null"
+    answer: 1
+    explanation: "get wraps the task's failure in ExecutionException; read it with getCause()."
+  - id: timeout
+    prompt: "Which call waits at most 2 seconds for a Future's result?"
+    answers: ["future.get(2, TimeUnit.SECONDS)", "get(2, TimeUnit.SECONDS)", "future.get(2, SECONDS)"]
+    explanation: "get(timeout, unit) throws TimeoutException when the result is not ready in time."
+  - id: invoke-all-order
+    prompt: "In which order does invokeAll(tasks) return its futures?"
+    options: ["In completion order", "In the same order as the tasks", "In random order"]
+    answer: 1
+    explanation: "invokeAll returns the futures in the order of the task list, after all of them completed."
+  - id: race
+    prompt: "Why is hits++ on a shared int field unsafe with several threads?"
+    options:
+      - "++ is not allowed on fields"
+      - "It is a read, an add and a write; two threads can read the same value and lose an update"
+      - "ints are immutable"
+    answer: 1
+    explanation: "The steps are not atomic. Use AtomicInteger.incrementAndGet or LongAdder."
+  - id: interrupted
+    prompt: "You catch InterruptedException and cannot rethrow it. What should you do?"
+    options:
+      - "Ignore it"
+      - "Call Thread.currentThread().interrupt() to restore the flag"
+      - "Call System.exit"
+    answer: 1
+    explanation: "Restoring the interrupt flag lets the code above see that the thread was asked to stop."
+  - id: scoped-value
+    prompt: "What replaces ThreadLocal for passing request context, final in Java 25?"
+    answers: ["ScopedValue", "scoped values", "ScopedValue.where"]
+    explanation: "ScopedValue binds an immutable value for the duration of a call and works well with virtual threads."

@@ -1,0 +1,46 @@
+questions:
+  - id: accessor
+    prompt: "For record Point(int x, int y), how do you read x?"
+    options: ["point.getX()", "point.x()", "point.x", "Point.x(point)"]
+    answer: 1
+    explanation: "Record accessors are named after the component, without the get prefix."
+  - id: equality
+    prompt: "What does new Point(1, 2).equals(new Point(1, 2)) return?"
+    options: ["false: they are two objects", "true: records compare their components", "It does not compile"]
+    answer: 1
+    explanation: "Records generate equals and hashCode from every component."
+  - id: extend
+    prompt: "Which of these can a record do?"
+    options:
+      - "Extend another class"
+      - "Declare an extra private instance field"
+      - "Implement an interface"
+      - "Have a setter that changes a component"
+    answer: 2
+    explanation: "Records are final, extend java.lang.Record and have only their component fields, but they can implement interfaces."
+  - id: compact
+    prompt: "What does this compact constructor do with \"  ADA@Mail.com \"?"
+    code: |
+      record Email(String value) {
+          Email {
+              value = value.strip().toLowerCase();
+          }
+      }
+    options:
+      - "It does not compile: you must write this.value = ..."
+      - "Stores \"ada@mail.com\""
+      - "Stores the original text; reassigning the parameter has no effect"
+    answer: 1
+    explanation: "The fields are assigned after the compact constructor body, from the parameters' final values."
+  - id: defensive-copy
+    prompt: "Which line in a compact constructor keeps a List component from changing behind the record's back?"
+    answers: ["members = List.copyOf(members);", "members = List.copyOf(members)", "List.copyOf(members)"]
+    explanation: "List.copyOf makes an unmodifiable copy, so neither the caller's list nor members().add(...) can change the record."
+  - id: when-record
+    prompt: "Which type is the best fit for a record?"
+    options:
+      - "A database connection pool"
+      - "The result of a price calculation: amount and currency"
+      - "A counter that is incremented by many threads"
+    answer: 1
+    explanation: "Records model values defined by their data; objects with identity or changing state stay classes."

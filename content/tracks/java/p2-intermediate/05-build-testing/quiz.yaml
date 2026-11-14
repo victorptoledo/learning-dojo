@@ -1,0 +1,36 @@
+questions:
+  - id: package-private
+    prompt: "A class is declared without public: class DiscountRules { }. Who can use it?"
+    options: ["Every class", "Only classes in the same package", "Only subclasses", "Nobody"]
+    answer: 1
+    explanation: "No modifier means package-private: visible inside its package only."
+  - id: test-scope
+    prompt: "What does <scope>test</scope> on a Maven dependency mean?"
+    options:
+      - "It is only downloaded when tests fail"
+      - "It is on the classpath for compiling and running tests, not for the main code"
+      - "It is a test version of the library"
+    answer: 1
+    explanation: "Test-scoped dependencies such as JUnit are available to src/test/java only and are not packaged."
+  - id: mvn-package
+    prompt: "Which Maven command runs the tests and then builds the JAR?"
+    answers: ["mvn package"]
+    explanation: "package runs the earlier lifecycle phases (compile, test) and then packages target/*.jar."
+  - id: assert-throws
+    prompt: "What does assertThrows(IllegalArgumentException.class, () -> pricing.gross(-1)) return?"
+    options: ["Nothing", "true or false", "The thrown exception, so you can check its message"]
+    answer: 2
+    explanation: "assertThrows returns the exception it caught, ready for more assertions."
+  - id: before-each
+    prompt: "Why use @BeforeEach to build the object under test?"
+    options:
+      - "It runs once for the whole class, which is faster"
+      - "Each test gets a fresh object, so tests do not depend on each other"
+      - "It is required by JUnit 5"
+    answer: 1
+    explanation: "@BeforeEach runs before every test, keeping tests independent."
+  - id: parameterized
+    prompt: "Which annotation feeds a test with rows like \"1000, 1210\"?"
+    options: ["@ValueSource", "@CsvSource", "@MethodSource", "@RepeatedTest"]
+    answer: 1
+    explanation: "@CsvSource gives one comma-separated row of arguments per invocation."

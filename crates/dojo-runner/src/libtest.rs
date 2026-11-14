@@ -126,6 +126,44 @@ fn cap_lines(lines: &[&str]) -> String {
 mod tests {
     use super::*;
 
+    /// What the dojo-java image prints (`runner-images/java/DojoReport.java`).
+    const JAVA_FAILING: &str = "
+running 2 tests
+test GreeterGradingTest::greets_a_stranger ... FAILED
+test GreeterGradingTest::greets_by_name ... ok
+
+failures:
+
+---- GreeterGradingTest::greets_a_stranger stdout ----
+thread 'GreeterGradingTest::greets_a_stranger' panicked at GreeterGradingTest::greets_a_stranger:
+expected: <Welcome to the dojo, stranger!> but was: <Welcome to the dojo, !>
+
+failures:
+
+test result: FAILED. 1 passed; 1 failed
+";
+
+    #[test]
+    fn reads_the_java_image_output_like_cargo_test() {
+        let report = parse_cargo_test(JAVA_FAILING, false, 7);
+        assert_eq!(report.outcome, CheckOutcome::TestsFailed);
+        assert_eq!(report.tests.len(), 2);
+        let failed = &report.tests[0];
+        assert_eq!(failed.name, "GreeterGradingTest::greets_a_stranger");
+        assert_eq!(
+            failed.message.as_deref(),
+            Some("expected: <Welcome to the dojo, stranger!> but was: <Welcome to the dojo, !>")
+        );
+
+        let compile = parse_cargo_test(
+            "error: the code does not compile\nsrc/main/java/dojo/Greeter.java:6: error: ';' expected\n",
+            false,
+            7,
+        );
+        assert_eq!(compile.outcome, CheckOutcome::CompileError);
+        assert!(compile.details.contains("Greeter.java:6"));
+    }
+
     const PASSING: &str = "\
    Compiling kata v0.1.0 (/work)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.20s

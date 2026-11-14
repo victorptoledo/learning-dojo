@@ -1,0 +1,51 @@
+id: java.p2.csv-report
+kind: kata
+status: draft
+title: "Sales CSV Report"
+summary: "Parse sales lines into records, reject bad lines with a precise exception and summarise with streams."
+objectives:
+  - { id: o1, text: "Parse text into records and report the first bad line with a custom exception", skills: [java.errors] }
+  - { id: o2, text: "Summarise data with streams and collectors", skills: [java.streams] }
+prerequisites: [java.p2.optional-exceptions]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 120 }
+  hints:
+    - |-
+      Split the work: a loop that numbers every line and skips blank and `#` lines, and a `parseLine(number, text)` that turns one line into a `Sale` or throws. Which check comes first, and why must you count the fields before reading them?
+    - |-
+      `text.split(",", -1)` keeps empty trailing fields, so `"a,b,"` has 3 fields. Wrap `LocalDate.parse` and `Integer.parseInt` in try/catch and rethrow `new BadLineException(line, reason, e)` so the cause is kept. For the report: `groupingBy(key, TreeMap::new, summingLong(...))` sorts by key; `Map.Entry.comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey())` orders the top products.
+    - |-
+      ```java
+      private static Sale parseLine(int line, String text) {
+          String[] fields = text.split(",", -1);
+          if (fields.length != 5) {
+              throw new BadLineException(line, "expected 5 fields but found " + fields.length);
+          }
+          // strip every field
+          LocalDate date;
+          try {
+              date = LocalDate.parse(fields[0]);
+          } catch (DateTimeParseException e) {
+              throw new BadLineException(line, "bad date '" + fields[0] + "'", e);
+          }
+          // region and product not empty; units >= 1 and price >= 0 with the same try/catch
+          return new Sale(date, fields[1], fields[2], units, price);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 5 that runs the grading tests.

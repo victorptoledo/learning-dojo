@@ -1,23 +1,37 @@
 schema_version: 2
 id: java
-name: "Modern Java & Spring Boot"
+name: "Modern Java"
 archetype: language
 category: "Programming Languages"
 icon: "☕"
-description: "Contemporary Java: records, pattern matching, virtual threads (Project Loom), Spring Boot 3 and GraalVM."
+description: "Java 25 as it is written today: records, sealed types, pattern matching, streams, virtual threads and the JVM in production."
 status: draft
 bridges_available: [java]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Java 8 Legacy" }
-  - { name: "Yellow Belt", required_xp: 300, title: "Spring Booter" }
-  - { name: "Green Belt", required_xp: 800, title: "Stream & Record Master" }
-  - { name: "Purple Belt", required_xp: 1500, title: "Virtual Threads Pioneer" }
-  - { name: "Brown Belt", required_xp: 2500, title: "JVM Tuning Specialist" }
-  - { name: "Black Belt", required_xp: 4000, title: "GraalVM Native Champion" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Record Keeper" }
+  - { name: "Green Belt", required_xp: 800, title: "Pattern Matcher" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Stream Master" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Virtual Threads Pioneer" }
+  - { name: "Black Belt", required_xp: 4000, title: "JVM Tuning Specialist" }
   - { name: "Sensei", required_xp: 6000, title: "Java Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install JDK 25, run a first program and meet the dojo's Java katas" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Modern syntax, records, sealed types, pattern matching and collections" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Lambdas, generics, streams, errors, builds and tests" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Virtual threads, concurrency tools and design patterns in modern Java" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "The JVM under load, native images and Java in production" }
+requirements:
+  - kind: tool
+    name: JDK 25 (java)
+    command: java
+    version_args: ["--version"]
+    min_version: "25"
+    required: false
+    why: Runs and debugs the visible tests in VS Code. The grading checks run in Docker and do not need it.
+    install_hint: "install Temurin 25: winget install EclipseAdoptium.Temurin.25.JDK, then reopen the terminal"
+  - kind: vscode-extension
+    name: Extension Pack for Java
+    id: vscjava.vscode-java-pack
+    required: false
+    why: Shows errors as you type and adds the Run Test and Debug buttons to JUnit tests.

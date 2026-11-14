@@ -1,0 +1,17 @@
+id: java.p1.records
+legacy_id: java-01-modern-features
+kind: lesson
+status: draft
+title: "Records: Immutable Data in One Line"
+summary: "Replace hand-written value classes with records, and validate them in compact constructors."
+objectives:
+  - { id: o1, text: "Declare records and know what the compiler generates", skills: [java.records] }
+  - { id: o2, text: "Validate and normalise fields in a compact constructor", skills: [java.records] }
+  - { id: o3, text: "Keep records immutable, including their lists", skills: [java.records] }
+prerequisites: [java.p1.modern-syntax]
+difficulty: 2
+estimated_minutes: 30
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

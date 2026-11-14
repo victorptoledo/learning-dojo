@@ -1,0 +1,16 @@
+id: java.p2.optional-exceptions
+kind: lesson
+status: draft
+title: "Optional and Exceptions"
+summary: "Say 'maybe absent' with Optional, fail with the right exception and always release resources."
+objectives:
+  - { id: o1, text: "Return and consume Optional without calling get blindly", skills: [java.errors] }
+  - { id: o2, text: "Choose checked or unchecked exceptions and design your own", skills: [java.errors] }
+  - { id: o3, text: "Close resources with try-with-resources", skills: [java.errors] }
+prerequisites: [java.p2.streams]
+difficulty: 3
+estimated_minutes: 35
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

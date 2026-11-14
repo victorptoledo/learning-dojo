@@ -4,7 +4,7 @@ A gamified learning platform for the terminal (TUI), written in **Rust** with [`
 
 29 tracks inspired by the [roadmap.sh](https://roadmap.sh/) catalogue, each organised in five phases (First Steps → Fundamentals → Intermediate → Advanced → Mastery) with checkpoints, XP belts, a global daily streak and a **Rosetta bridge** that explains every concept from the programming language you already know.
 
-> **Status: v2 milestone M7.** Content model and validator (M0), SQLite progress (M1), katas checked in Docker (M2a), the complete Rust track (M2b: 22 nodes, 7 katas, Checkpoints 1 and 2), the placement test with Belt Exam (M3+M4: press `P` on a track you have not started) and mentoring without AI (M7: kata hints with `H`, spaced review with `R`, career paths and next steps with `G`). The 29 tracks are English drafts (106 nodes). Content review and the Docker track come next; AI review (M5) is postponed — see [`docs/architecture.md`](docs/architecture.md).
+> **Status: v2 milestone M7.** Content model and validator (M0), SQLite progress (M1), katas checked in Docker (M2a), the complete Rust track (M2b: 22 nodes, 7 katas, Checkpoints 1 and 2), the complete Modern Java track (Java 25: 22 nodes, 7 katas, Checkpoints 1 and 2, placement bank), the placement test with Belt Exam (M3+M4: press `P` on a track you have not started) and mentoring without AI (M7: kata hints with `H`, spaced review with `R`, career paths and next steps with `G`). The other tracks are English drafts. The Spring Boot and Backend tracks come next; AI review (M5) is postponed — see [`docs/architecture.md`](docs/architecture.md).
 
 ## Run
 
@@ -32,7 +32,7 @@ Katas are checked in Docker, so Docker Desktop must be running. Build the runner
 cargo run --bin dojo -- runner build
 ```
 
-In the TUI, press `Enter` on a kata to create its folder in your workspace (default `C:\dev\dojo-workspace`) and open it in your editor, with the statement (`README.md`) and `src/lib.rs`; `C` checks it. Saving any file in the folder runs the checks too. When every test passes the kata is completed and its folder is committed to the workspace git repository (never pushed). The grading tests stay in the dojo and are copied into the container only.
+In the TUI, press `Enter` on a kata to create its folder in your workspace (default `C:\dev\dojo-workspace`) and open it in your editor, with the statement (`README.md`) and the code to write (`src/lib.rs` for Rust, the classes under `src/main/java` for Java); `C` checks it. Saving any file in the folder runs the checks too. When every test passes the kata is completed and its folder is committed to the workspace git repository (never pushed). The grading tests stay in the dojo and are copied into the container only.
 
 Check that every kata's reference solution passes and its starter fails:
 
@@ -117,7 +117,7 @@ content/
   tracks/<id>/    track.yaml + p0-first-steps/ ... p4-mastery/<NN-slug>/
                   node.yaml, lesson.md, quiz.yaml, bridges/<language>.md,
                   kata/ (README.md, starter/, tests/, reference/)
-runner-images/   one Dockerfile per runtime (rust/)
+runner-images/   one Dockerfile per runtime (rust/, java/)
 docs/
   architecture.md full v2 design; examples/ shows every planned file format
 ```

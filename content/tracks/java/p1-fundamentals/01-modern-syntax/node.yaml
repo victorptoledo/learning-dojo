@@ -1,0 +1,16 @@
+id: java.p1.modern-syntax
+kind: lesson
+status: draft
+title: "Modern Syntax: var, Text Blocks and switch"
+summary: "The Java you write after Java 8: local type inference, multi-line strings and switch as an expression."
+objectives:
+  - { id: o1, text: "Use var where it helps and know where it cannot be used", skills: [java.modern-syntax] }
+  - { id: o2, text: "Write text blocks and switch expressions with arrows and yield", skills: [java.modern-syntax] }
+  - { id: o3, text: "Test and cast in one step with pattern matching for instanceof", skills: [java.modern-syntax] }
+prerequisites: [java.p0.setup]
+difficulty: 2
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

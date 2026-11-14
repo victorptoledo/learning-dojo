@@ -1,5 +1,17 @@
 namespace: java
 skills:
-  - { id: java.modern-features, title: "Java 17 to 21+: Records, Pattern Matching and Sealed Classes" }
+  - { id: java.setup, title: "JDK, javac, java and jshell" }
+  - { id: java.modern-syntax, title: "Modern Syntax: var, Text Blocks, switch Expressions" }
+  - { id: java.records, title: "Records: Immutable Data Types" }
+  - { id: java.pattern-matching, title: "Sealed Types and Pattern Matching" }
+  - { id: java.collections, title: "Collections: List, Set, Map and Sequenced Collections" }
+  - { id: java.generics-lambdas, title: "Generics, Lambdas and Functional Interfaces" }
+  - { id: java.streams, title: "Streams and Collectors" }
+  - { id: java.errors, title: "Optional and Exceptions" }
+  - { id: java.build-testing, title: "Packages, Maven and JUnit 5" }
   - { id: java.virtual-threads, title: "Virtual Threads (Project Loom): Lightweight Concurrency" }
+  - { id: java.concurrency, title: "Executors, CompletableFuture and Thread Safety" }
+  - { id: java.design-patterns, title: "Design Patterns in Modern Java" }
+  - { id: java.jvm, title: "The JVM: Memory, Garbage Collection and Profiling" }
   - { id: java.graalvm-native, title: "GraalVM Native Image: Millisecond Startup" }
+  - { id: java.production, title: "Production Java: Logging, Configuration and Packaging" }

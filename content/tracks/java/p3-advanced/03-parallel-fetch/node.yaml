@@ -1,0 +1,56 @@
+id: java.p3.parallel-fetch
+kind: kata
+status: draft
+title: "Parallel Fetch"
+summary: "Run many slow calls at once on virtual threads, keep their order and survive failures and timeouts."
+objectives:
+  - { id: o1, text: "Run tasks concurrently with a virtual-thread executor and collect them in order", skills: [java.virtual-threads, java.concurrency] }
+  - { id: o2, text: "Turn failures and timeouts into values with a sealed result type", skills: [java.concurrency, java.pattern-matching] }
+prerequisites: [java.p3.concurrency-tools]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 120 }
+  hints:
+    - |-
+      Submit **every** call first, and only then wait for the futures one by one. Why does waiting right after each submit make the calls run one after another? And if each call got its own full timeout, how long could 3 slow calls take?
+    - |-
+      Compute `long deadline = System.nanoTime() + timeout.toNanos()` once. For each future, `future.get(Math.max(0, deadline - System.nanoTime()), TimeUnit.NANOSECONDS)`: `TimeoutException` means `TimedOut` (and `future.cancel(true)`), `ExecutionException` means `Failure` with `getCause()`'s message. Cancelling matters because the executor's `close()` waits for every task.
+    - |-
+      ```java
+      public static <T> List<Outcome<T>> fetchAll(List<Callable<T>> calls, Duration timeout) {
+          long deadline = System.nanoTime() + timeout.toNanos();
+          List<Outcome<T>> outcomes = new ArrayList<>();
+          try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+              List<Future<T>> futures = calls.stream().map(executor::submit).toList();
+              for (Future<T> future : futures) {
+                  try {
+                      long left = Math.max(0, deadline - System.nanoTime());
+                      outcomes.add(new Outcome.Success<>(future.get(left, TimeUnit.NANOSECONDS)));
+                  } catch (TimeoutException e) {
+                      // cancel it and record TimedOut
+                  } catch (ExecutionException e) {
+                      // record Failure with the cause's message (or its class's simple name)
+                  } catch (InterruptedException e) {
+                      // restore the interrupt flag
+                  }
+              }
+          }
+          return List.copyOf(outcomes);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 5 that runs the grading tests.

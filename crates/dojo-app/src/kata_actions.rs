@@ -80,7 +80,8 @@ impl App {
 
     /// Opens the kata folder with its statement and code, and says what happened.
     fn open_kata_folder(&self, dir: &Path) -> String {
-        let files = [dir.join(STATEMENT_FILE), dir.join("src").join("lib.rs")];
+        let mut files = vec![dir.join(STATEMENT_FILE), dir.join("src").join("lib.rs")];
+        files.extend(java_sources(&dir.join("src").join("main").join("java")));
         let existing: Vec<_> = files.into_iter().filter(|file| file.is_file()).collect();
         match self.editor.open_folder(dir, &existing) {
             Ok(()) => format!("Opened {} in `{}`.", dir.display(), self.editor.command()),
@@ -257,6 +258,27 @@ impl App {
             report.summary()
         )
     }
+}
+
+/// The learner's Java classes, the files a Java kata asks to edit (at most three).
+fn java_sources(dir: &Path) -> Vec<PathBuf> {
+    let mut found = Vec::new();
+    let mut pending = vec![dir.to_path_buf()];
+    while let Some(next) = pending.pop() {
+        let Ok(entries) = std::fs::read_dir(&next) else {
+            continue;
+        };
+        for path in entries.flatten().map(|entry| entry.path()) {
+            if path.is_dir() {
+                pending.push(path);
+            } else if path.extension().is_some_and(|ext| ext == "java") {
+                found.push(path);
+            }
+        }
+    }
+    found.sort();
+    found.truncate(3);
+    found
 }
 
 /// `<root>/<track>/<phase>/<slug>/...` → `(track, phase, slug)`.
