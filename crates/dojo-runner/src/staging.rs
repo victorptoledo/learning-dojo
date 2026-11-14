@@ -92,6 +92,7 @@ mod tests {
                 image: "dojo-rust".into(),
                 timeout_secs: 60,
             },
+            hints: vec![],
         };
 
         let staged = stage_check(&kata, &solution).unwrap();
@@ -133,6 +134,7 @@ mod tests {
                 image: "dojo-rust".into(),
                 timeout_secs: 60,
             },
+            hints: vec![],
         };
 
         let staged = stage_check(&kata, &solution).unwrap();
@@ -159,6 +161,7 @@ mod tests {
                 image: "dojo-rust".into(),
                 timeout_secs: 60,
             },
+            hints: vec![],
         };
 
         let staged = stage_reference(&kata).unwrap();

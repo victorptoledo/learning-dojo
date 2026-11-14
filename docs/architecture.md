@@ -307,6 +307,12 @@ Common rules:
 - **Remediation:** when struggle is detected (a failed attempt, 2+ attempts, or a criterion at level ≤ 1), the mentor offers an authored remedial kata (`remedial` in `node.yaml`); if none exists, the AI generates a short challenge targeting the weak skill. It goes to a "Practice" queue and earns practice XP, not track XP.
 - Generated challenges are flagged `generated` and never count towards checkpoints, because their tests are not reviewed.
 
+**Implemented in M7a, without AI** (`dojo-core::review`, `Profile::request_hint`, `kata.hints` in `node.yaml`):
+- Up to three hints per kata, opened one at a time with `H` and shown in the kata panel. Each hint opened before the kata is completed costs 10% of its XP (checkpoints included); after completion they are free. The XP stored with a completion is the XP actually earned, and belts use it.
+- Spaced review instead of remedial katas: every question of a completed lesson or checkpoint becomes a card due 1, 3, 7, 21 and 60 days later. A right answer moves it one step, a miss sends it back to the first step (due the next day). `R` opens up to 8 due questions of the active track, lowest step first. Each right answer gives 5 practice XP, kept apart from track XP; a review counts as training for the streak.
+- Events `hint_revealed` and `review_answered` (store schema v5). `Esc` leaves a review without recording it.
+- Not yet: authored `remedial` katas and AI-generated challenges.
+
 ## 9. Careers and next steps
 
 - **Paths** in `content/careers/*.yaml`: stages with requirements such as "track X up to phase N" or "skill Y ≥ 0.8". Examples: *Backend → Microservices Architect*, *Backend → DevOps/Cloud*, *Developer → AI Engineer*.

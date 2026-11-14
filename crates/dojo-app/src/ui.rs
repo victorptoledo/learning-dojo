@@ -79,6 +79,7 @@ fn render_header(frame: &mut Frame, app: &App, area: Rect) {
         Line::from(vec![
             Span::raw(" Total XP: "),
             app.profile.total_xp.to_string().bold().green(),
+            format!(" · 🔁 {}", app.profile.practice_xp).dark_gray(),
         ]),
     ];
     frame.render_widget(
@@ -176,8 +177,17 @@ fn node_item<'a>(app: &App, track: &Track, node: &'a Node) -> ListItem<'a> {
         Span::styled(icon, style),
         Span::raw(" "),
         Span::styled(node.title.as_str(), style),
-        format!("  +{} XP", node.xp).dark_gray(),
+        format!("  +{} XP", node_xp(app, track, node)).dark_gray(),
     ]))
+}
+
+/// The XP shown for a node: what it gave, or what it gives now (hints lower it).
+fn node_xp(app: &App, track: &Track, node: &Node) -> u32 {
+    if app.profile.is_completed(&track.id, &node.id) {
+        app.profile.earned_xp(&track.id, &node.id)
+    } else {
+        app.profile.xp_for(&track.id, node)
+    }
 }
 
 fn node_status(app: &App, track: &Track, node: &Node) -> (&'static str, Style) {
@@ -269,6 +279,7 @@ fn render_kata(
     if let Some(report) = app.last_reports.get(&key) {
         lines.extend(report_lines(report));
     }
+    lines.extend(hint_lines(app, track, node, kata));
     lines.push(Line::from(""));
     lines.push(Line::from("📜 The challenge".bold().cyan()));
     lines.extend(
@@ -281,6 +292,31 @@ fn render_kata(
         .scroll((app.detail_scroll, 0))
         .block(titled(" 🥋 Kata · [PgUp/PgDn] scroll "));
     frame.render_widget(paragraph, area);
+}
+
+/// The hints opened so far and how to open the next one.
+fn hint_lines(app: &App, track: &Track, node: &Node, kata: &Kata) -> Vec<Line<'static>> {
+    if kata.hints.is_empty() {
+        return Vec::new();
+    }
+    let opened = app.profile.hints_revealed(&track.id, &node.id);
+    let done = app.profile.is_completed(&track.id, &node.id);
+    let total = kata.hints.len();
+    let next = crate::mentor_actions::hint_key_label(opened, total, done)
+        .map_or(String::new(), |label| format!(" · {label}"));
+    let mut lines = vec![
+        Line::from(""),
+        Line::from(
+            format!("💡 Hints: {opened} of {total} open{next}")
+                .bold()
+                .yellow(),
+        ),
+    ];
+    for (level, hint) in kata.hints.iter().take(usize::from(opened)).enumerate() {
+        lines.push(Line::from(format!("Hint {}", level + 1).bold()));
+        lines.extend(crate::lesson_view::markdown_lines(hint));
+    }
+    lines
 }
 
 /// What to do next, as numbered steps that depend on whether the kata was started.
@@ -377,7 +413,7 @@ fn render_summary(
                 phase.id.to_uppercase(),
                 phase.title,
                 node.kind,
-                node.xp,
+                node_xp(app, track, node),
                 node.estimated_minutes
             )
             .dark_gray(),
@@ -432,12 +468,31 @@ pub(crate) fn labelled<'a>(label: &str, text: &'a str, color: Color) -> Line<'a>
 
 fn render_footer(frame: &mut Frame, app: &App, area: Rect) {
     let text = app.status_message.clone().unwrap_or_else(|| {
-        let placement = if app.profile.can_take_placement(app.active_track()) {
+        let track = app.active_track();
+        let placement = if app.profile.can_take_placement(track) {
             " | [P] Placement test"
         } else {
             ""
         };
-        format!("[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Quiz | [C] Check kata | [B] Bridge{placement} | [Esc] Quit")
+        let hint = app
+            .tree
+            .selected(track)
+            .and_then(|(_, node)| {
+                let total = node.kata.as_ref()?.hints.len();
+                crate::mentor_actions::hint_key_label(
+                    app.profile.hints_revealed(&track.id, &node.id),
+                    total,
+                    app.profile.is_completed(&track.id, &node.id),
+                )
+            })
+            .map_or(String::new(), |label| format!(" | {label}"));
+        let due = app.profile.due_reviews(track, App::today()).len();
+        let review = if due > 0 {
+            format!(" | [R] Review ({due})")
+        } else {
+            String::new()
+        };
+        format!("[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Quiz | [C] Check kata{hint} | [B] Bridge{review}{placement} | [Esc] Quit")
     });
     let mode = match app.mode {
         Mode::Learner => "",

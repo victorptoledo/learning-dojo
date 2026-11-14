@@ -98,9 +98,10 @@ impl ProgressStore for SqliteStore {
     }
 
     fn load_events(&self) -> Result<Vec<ProgressEvent>, StoreError> {
-        let mut statement = self
-            .connection
-            .prepare("SELECT kind, track_id, node_id, xp, occurred_on FROM event ORDER BY id")?;
+        let mut statement = self.connection.prepare(
+            "SELECT kind, track_id, node_id, xp, occurred_on, hint_level, question_id, correct
+             FROM event ORDER BY id",
+        )?;
         let rows = statement.query_map([], |row| {
             Ok(EventRow {
                 kind: row.get(0)?,
@@ -108,6 +109,9 @@ impl ProgressStore for SqliteStore {
                 node_id: row.get(2)?,
                 xp: row.get(3)?,
                 occurred_on: row.get(4)?,
+                hint_level: row.get(5)?,
+                question_id: row.get(6)?,
+                correct: row.get(7)?,
             })
         })?;
         rows.map(|row| row?.into_event()).collect()
@@ -221,6 +225,9 @@ struct EventRow {
     node_id: String,
     xp: u32,
     occurred_on: String,
+    hint_level: Option<u8>,
+    question_id: Option<String>,
+    correct: Option<bool>,
 }
 
 impl EventRow {
@@ -260,51 +267,123 @@ impl EventRow {
                 node_id,
                 on,
             }),
+            "hint_revealed" => Ok(ProgressEvent::HintRevealed {
+                track_id,
+                node_id,
+                level: self.hint_level.ok_or("hint_revealed without hint_level")?,
+                on,
+            }),
+            "review_answered" => Ok(ProgressEvent::ReviewAnswered {
+                track_id,
+                node_id,
+                question_id: self
+                    .question_id
+                    .ok_or("review_answered without question_id")?,
+                correct: self.correct.ok_or("review_answered without correct")?,
+                on,
+            }),
             other => Err(format!("unknown event kind `{other}`").into()),
         }
     }
 }
 
+/// The columns of one event row besides the id and `recorded_at`.
+struct NewRow<'a> {
+    kind: &'static str,
+    track_id: &'a str,
+    node_id: &'a str,
+    xp: u32,
+    on: NaiveDate,
+    hint_level: Option<u8>,
+    question_id: Option<&'a str>,
+    correct: Option<bool>,
+}
+
+impl<'a> NewRow<'a> {
+    fn plain(
+        kind: &'static str,
+        track_id: &'a str,
+        node_id: &'a str,
+        xp: u32,
+        on: NaiveDate,
+    ) -> Self {
+        Self {
+            kind,
+            track_id,
+            node_id,
+            xp,
+            on,
+            hint_level: None,
+            question_id: None,
+            correct: None,
+        }
+    }
+}
+
 fn insert_event(connection: &Connection, event: &ProgressEvent) -> Result<(), StoreError> {
-    let (kind, track_id, node_id, xp, on) = match event {
+    let row = match event {
         ProgressEvent::NodeCompleted {
             track_id,
             node_id,
             xp,
             on,
-        } => ("node_completed", track_id, node_id, xp, on),
+        } => NewRow::plain("node_completed", track_id, node_id, *xp, *on),
         ProgressEvent::NodeReset {
             track_id,
             node_id,
             xp,
             on,
-        } => ("node_reset", track_id, node_id, xp, on),
+        } => NewRow::plain("node_reset", track_id, node_id, *xp, *on),
         ProgressEvent::NodePlacedOut {
             track_id,
             node_id,
             on,
-        } => ("node_placed_out", track_id, node_id, &0, on),
+        } => NewRow::plain("node_placed_out", track_id, node_id, 0, *on),
         ProgressEvent::BeltExamAssigned {
             track_id,
             node_id,
             on,
-        } => ("belt_exam_assigned", track_id, node_id, &0, on),
+        } => NewRow::plain("belt_exam_assigned", track_id, node_id, 0, *on),
         ProgressEvent::PlacementRevoked {
             track_id,
             node_id,
             on,
-        } => ("placement_revoked", track_id, node_id, &0, on),
-    };
-    connection.execute(
-        "INSERT INTO event (kind, track_id, node_id, xp, occurred_on, recorded_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-        params![
-            kind,
+        } => NewRow::plain("placement_revoked", track_id, node_id, 0, *on),
+        ProgressEvent::HintRevealed {
             track_id,
             node_id,
-            xp,
-            on.format(DATE_FORMAT).to_string(),
-            Utc::now().to_rfc3339()
+            level,
+            on,
+        } => NewRow {
+            hint_level: Some(*level),
+            ..NewRow::plain("hint_revealed", track_id, node_id, 0, *on)
+        },
+        ProgressEvent::ReviewAnswered {
+            track_id,
+            node_id,
+            question_id,
+            correct,
+            on,
+        } => NewRow {
+            question_id: Some(question_id),
+            correct: Some(*correct),
+            ..NewRow::plain("review_answered", track_id, node_id, 0, *on)
+        },
+    };
+    connection.execute(
+        "INSERT INTO event (kind, track_id, node_id, xp, occurred_on, recorded_at,
+                            hint_level, question_id, correct)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+        params![
+            row.kind,
+            row.track_id,
+            row.node_id,
+            row.xp,
+            row.on.format(DATE_FORMAT).to_string(),
+            Utc::now().to_rfc3339(),
+            row.hint_level,
+            row.question_id,
+            row.correct,
         ],
     )?;
     Ok(())

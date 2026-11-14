@@ -163,6 +163,8 @@ pub struct KataManifest {
     pub tests: String,
     pub reference: String,
     pub runner: RunnerManifest,
+    #[serde(default)]
+    pub hints: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]

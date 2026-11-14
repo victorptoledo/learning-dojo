@@ -20,6 +20,30 @@ kata:
   tests: kata/tests
   reference: kata/reference
   runner: { image: dojo-rust, timeout_secs: 120 }
+  hints:
+    - |-
+      Split the problem: one function that parses a single line into a `Student` or a `GradeError`, and a loop that skips blank and `#` lines and stops at the first error. What does `"abc"` give when parsed as a number, and what about `"120"`?
+    - |-
+      `line.split_once(':')` with `.ok_or(GradeError::MissingColon { line })?` handles the colon. Scores: `split(',')`, `trim()`, then `value.parse::<u32>()`, rejecting results above 100 with the same `BadScore`. `collect::<Result<Vec<_>, _>>()` stops at the first error. For the ranking, sort with `partial_cmp` on the averages, then by name.
+    - |-
+      ```rust
+      fn parse_line(line: usize, text: &str) -> Result<Student, GradeError> {
+          let (name, scores) = text.split_once(':').ok_or(GradeError::MissingColon { line })?;
+          let name = name.trim();
+          // MissingName and NoScores checks
+          let scores = scores
+              .split(',')
+              .map(|value| {
+                  let value = value.trim();
+                  match value.parse::<u32>() {
+                      Ok(score) if score <= 100 => Ok(score),
+                      _ => Err(GradeError::BadScore { line, value: value.to_string() }),
+                  }
+              })
+              .collect::<Result<Vec<u32>, GradeError>>()?;
+          Ok(Student { name: name.to_string(), scores })
+      }
+      ```
 requirements:
   - kind: docker-engine
     name: Docker Desktop running

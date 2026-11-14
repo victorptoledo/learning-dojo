@@ -201,7 +201,11 @@ pub fn render_quiz(frame: &mut Frame, app: &App, area: Rect) {
         Stage::Finished(score) => finished_lines(session, score.correct, score.total, score.passed),
         Stage::Asking | Stage::Feedback { .. } => question_lines(session),
     };
-    let title = format!(" 📝 Quiz: {} ", session.title);
+    let title = if session.is_review() {
+        format!(" 🔁 {} ", session.title)
+    } else {
+        format!(" 📝 Quiz: {} ", session.title)
+    };
     let block = Block::default()
         .borders(Borders::ALL)
         .title(title)
@@ -299,6 +303,15 @@ fn finished_lines(
     total: u32,
     passed: bool,
 ) -> Vec<Line<'static>> {
+    if session.is_review() {
+        return vec![
+            Line::from(format!("🔁 {correct}/{total} right.").bold().cyan()),
+            Line::from(""),
+            Line::from("Right answers come back later and later; missed ones come back tomorrow."),
+            Line::from(""),
+            Line::from("[Enter] record the review and go back to the track".dark_gray()),
+        ];
+    }
     let verdict = if passed {
         Line::from(
             format!("🎉 Passed: {correct}/{total} correct.")

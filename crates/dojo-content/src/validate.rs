@@ -22,6 +22,7 @@ pub fn check_catalog(catalog: &Catalog, report: &mut Report) {
         check_completeness(track, report);
         check_placement(track, catalog, report);
         check_checkpoint_question_skills(track, catalog, report);
+        check_kata_hints(track, report);
     }
 }
 
@@ -312,6 +313,18 @@ fn check_checkpoint_question_skills(track: &Track, catalog: &Catalog, report: &m
                     );
                 }
             }
+        }
+    }
+}
+
+/// Every kata should offer the hint ladder, so a stuck learner is never left alone.
+fn check_kata_hints(track: &Track, report: &mut Report) {
+    for node in track.nodes() {
+        if node.kata.as_ref().is_some_and(|kata| kata.hints.is_empty()) {
+            report.warning(
+                node_location(track, &node.id),
+                "kata has no hints: add up to three under `kata.hints`",
+            );
         }
     }
 }

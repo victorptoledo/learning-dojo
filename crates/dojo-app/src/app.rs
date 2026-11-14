@@ -198,7 +198,9 @@ impl App {
             ProgressEvent::NodeReset { xp, .. } => format!("Node reset (-{xp} XP)."),
             ProgressEvent::NodePlacedOut { .. }
             | ProgressEvent::BeltExamAssigned { .. }
-            | ProgressEvent::PlacementRevoked { .. } => return,
+            | ProgressEvent::PlacementRevoked { .. }
+            | ProgressEvent::HintRevealed { .. }
+            | ProgressEvent::ReviewAnswered { .. } => return,
         };
         self.status_message = Some(message);
     }

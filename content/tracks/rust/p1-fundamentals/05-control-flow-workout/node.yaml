@@ -17,6 +17,28 @@ kata:
   tests: kata/tests
   reference: kata/reference
   runner: { image: dojo-rust, timeout_secs: 120 }
+  hints:
+    - |-
+      In `fizzbuzz`, which test must come first: multiple of 3, of 5, or of both? In `collatz_steps`, what stops the loop? In `longest_word`, how do you keep the *first* word on a tie?
+    - |-
+      `(1..=n).map(...).collect()` builds the Vec, and a `match (n % 3, n % 5)` on a tuple covers the four cases. `while n != 1` with a counter fits Collatz. `match` accepts ranges such as `1..=9`. For the longest word, `split_whitespace()` and a strict `>` comparison keep the first one.
+    - |-
+      ```rust
+      pub fn classify(n: i32) -> &'static str {
+          match n {
+              i32::MIN..=-1 => "negative",
+              // zero, 1..=9, the rest
+          }
+      }
+
+      pub fn longest_word(text: &str) -> Option<&str> {
+          let mut best: Option<&str> = None;
+          for word in text.split_whitespace() {
+              // replace `best` only when `word` is strictly longer
+          }
+          best
+      }
+      ```
 requirements:
   - kind: docker-engine
     name: Docker Desktop running

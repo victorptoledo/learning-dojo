@@ -83,6 +83,9 @@ pub struct Kata {
     pub tests_dir: PathBuf,
     pub reference_dir: PathBuf,
     pub runner: RunnerSpec,
+    /// The hint ladder, opened one level at a time: a question that points the way,
+    /// then the concept and where it applies, then a partial skeleton.
+    pub hints: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

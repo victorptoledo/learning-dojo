@@ -16,6 +16,17 @@ kata:
   tests: kata/tests
   reference: kata/reference
   runner: { image: dojo-rust, timeout_secs: 120 }
+  hints:
+    - |-
+      Which two cases does the greeting have? What is left of `"   "` once you remove the spaces around it?
+    - |-
+      Trim first, then decide. `name.trim()` gives a `&str` without the spaces at both ends, and `.is_empty()` tells whether anything is left. Because `if` is an expression, it can pick the word to greet.
+    - |-
+      ```rust
+      let trimmed = name.trim();
+      let who = if trimmed.is_empty() { /* ? */ } else { /* ? */ };
+      format!(/* the welcome message with {who} */)
+      ```
 requirements:
   - kind: docker-engine
     name: Docker Desktop running

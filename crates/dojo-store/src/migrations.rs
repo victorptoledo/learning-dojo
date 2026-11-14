@@ -58,6 +58,26 @@ const MIGRATIONS: &[&str] = &[
      DROP TABLE event;
      ALTER TABLE event_v4 RENAME TO event;
      CREATE INDEX event_by_node ON event (track_id, node_id);",
+    // 5: hint and spaced review events, with the columns they need.
+    "CREATE TABLE event_v5 (
+         id          INTEGER PRIMARY KEY AUTOINCREMENT,
+         kind        TEXT    NOT NULL CHECK (kind IN ('node_completed', 'node_reset',
+                         'node_placed_out', 'belt_exam_assigned', 'placement_revoked',
+                         'hint_revealed', 'review_answered')),
+         track_id    TEXT    NOT NULL,
+         node_id     TEXT    NOT NULL,
+         xp          INTEGER NOT NULL CHECK (xp >= 0),
+         occurred_on TEXT    NOT NULL,
+         recorded_at TEXT    NOT NULL,
+         hint_level  INTEGER CHECK (hint_level >= 1),
+         question_id TEXT,
+         correct     INTEGER CHECK (correct IN (0, 1))
+     );
+     INSERT INTO event_v5 (id, kind, track_id, node_id, xp, occurred_on, recorded_at)
+         SELECT id, kind, track_id, node_id, xp, occurred_on, recorded_at FROM event;
+     DROP TABLE event;
+     ALTER TABLE event_v5 RENAME TO event;
+     CREATE INDEX event_by_node ON event (track_id, node_id);",
 ];
 
 pub fn apply(connection: &mut Connection) -> Result<()> {

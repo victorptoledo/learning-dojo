@@ -20,6 +20,35 @@ kata:
   tests: kata/tests
   reference: kata/reference
   runner: { image: dojo-rust, timeout_secs: 120 }
+  hints:
+    - |-
+      `remove` has three outcomes: which one do you check first? When the quantity reaches 0, what must happen to the entry?
+    - |-
+      `self.items.get(name)` answers `Unknown`. `get_mut` lets you subtract in place, and `self.items.remove(name)` drops an item at 0. For `report` and `low_stock`, collect into a Vec, then `sort()`. Returning `&str` works because the names live in `self.items`: `key.as_str()`.
+    - |-
+      ```rust
+      pub fn remove(&mut self, name: &str, quantity: u32) -> Removal {
+          let Some(stock) = self.items.get_mut(name) else {
+              return Removal::Unknown;
+          };
+          if *stock < quantity {
+              return Removal::NotEnough { available: *stock };
+          }
+          *stock -= quantity;
+          let left = *stock;
+          // remove the entry when left == 0
+          Removal::Done { left }
+      }
+
+      pub fn low_stock(&self, threshold: u32) -> Vec<&str> {
+          let mut names: Vec<&str> = self.items.iter()
+              .filter(|(_, quantity)| /* below the threshold */)
+              .map(|(name, _)| name.as_str())
+              .collect();
+          names.sort();
+          names
+      }
+      ```
 requirements:
   - kind: docker-engine
     name: Docker Desktop running

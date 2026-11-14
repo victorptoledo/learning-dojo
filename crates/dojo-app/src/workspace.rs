@@ -125,6 +125,7 @@ mod tests {
                 image: "dojo-rust".into(),
                 timeout_secs: 60,
             },
+            hints: vec![],
         }
     }
 

@@ -17,6 +17,29 @@ kata:
   tests: kata/tests
   reference: kata/reference
   runner: { image: dojo-rust, timeout_secs: 120 }
+  hints:
+    - |-
+      Which line number does the first line get, and do ignored lines count? How do you split `url = a=b` so that the value keeps its `=`?
+    - |-
+      `text.lines().enumerate()` gives each line with an index starting at 0, so add 1. `line.split_once('=')` splits at the first `=` and returns `None` when there is none: turn that `None` into `ConfigError::MissingEquals` with `.ok_or(...)?`. `map.contains_key(key)` finds duplicates. In `Display`, `match self` and `write!(f, ...)` for each variant.
+    - |-
+      ```rust
+      pub fn parse_config(text: &str) -> Result<BTreeMap<String, String>, ConfigError> {
+          let mut map = BTreeMap::new();
+          for (index, raw) in text.lines().enumerate() {
+              let line = index + 1;
+              let trimmed = raw.trim();
+              if trimmed.is_empty() || trimmed.starts_with('#') {
+                  continue;
+              }
+              let (key, value) = trimmed
+                  .split_once('=')
+                  .ok_or(ConfigError::MissingEquals { line })?;
+              // trim both, check the empty key and the duplicate, then insert
+          }
+          Ok(map)
+      }
+      ```
 requirements:
   - kind: docker-engine
     name: Docker Desktop running

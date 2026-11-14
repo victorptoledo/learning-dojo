@@ -309,6 +309,7 @@ impl ContentReader<'_> {
                 image: manifest.runner.image.clone(),
                 timeout_secs: manifest.runner.timeout_secs,
             },
+            hints: manifest.hints.clone(),
         })
     }
 

@@ -17,6 +17,27 @@ kata:
   tests: kata/tests
   reference: kata/reference
   runner: { image: dojo-rust, timeout_secs: 120 }
+  hints:
+    - |-
+      Write `words` first: the other two functions only use it. What should happen to `"--"` once its punctuation is removed?
+    - |-
+      `text.split_whitespace()` gives the pieces; `piece.trim_matches(|c: char| !c.is_alphanumeric())` removes the punctuation at both ends and keeps the apostrophe in `don't`. Count with `*counts.entry(word).or_insert(0) += 1`. Sort by count descending, then by word: `b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0))`.
+    - |-
+      ```rust
+      pub fn words(text: &str) -> Vec<String> {
+          text.split_whitespace()
+              .map(|piece| /* trim the punctuation, then lowercase */)
+              .filter(|word| /* drop the empty ones */)
+              .collect()
+      }
+
+      pub fn top_words(text: &str, n: usize) -> Vec<(String, usize)> {
+          let mut ranked: Vec<(String, usize)> = word_counts(text).into_iter().collect();
+          ranked.sort_by(|a, b| /* count descending, then word */);
+          ranked.truncate(n);
+          ranked
+      }
+      ```
 requirements:
   - kind: docker-engine
     name: Docker Desktop running

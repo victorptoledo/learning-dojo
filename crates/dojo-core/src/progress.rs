@@ -6,9 +6,13 @@
 
 use crate::check::CheckReport;
 use crate::quiz::QuizScore;
+use crate::review::{Card, REVIEW_XP, ReviewItem};
 use crate::track::{Belt, Node, NodeKind, Track};
 use chrono::NaiveDate;
 use std::collections::{HashMap, HashSet};
+
+/// Share of a kata's XP that each revealed hint costs, in percent.
+pub const HINT_COST_PERCENT: u32 = 10;
 
 pub const DEFAULT_SOURCE_LANGUAGE: &str = "java";
 pub const DEFAULT_LEARNER_NAME: &str = "Dev Sensei";
@@ -76,7 +80,40 @@ pub enum ProgressEvent {
         node_id: String,
         on: NaiveDate,
     },
+    /// The learner opened hint `level` (1-based) of a kata. Each open hint lowers the
+    /// XP the kata gives when it is completed.
+    HintRevealed {
+        track_id: String,
+        node_id: String,
+        level: u8,
+        on: NaiveDate,
+    },
+    /// One question answered in a spaced review session.
+    ReviewAnswered {
+        track_id: String,
+        node_id: String,
+        question_id: String,
+        correct: bool,
+        on: NaiveDate,
+    },
 }
+
+/// Why a hint cannot be opened.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HintRefusal {
+    NoHints,
+    AllRevealed,
+    Locked,
+}
+
+/// A finished node: the XP it gave and the day it was done.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Completion {
+    xp: u32,
+    on: NaiveDate,
+}
+
+type CardKey = (String, String, String);
 
 /// Who is asking to change progress. Dev mode bypasses the evidence rules.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -133,10 +170,16 @@ pub struct Profile {
     pub total_xp: u32,
     pub best_streak: u32,
     pub last_trained: Option<NaiveDate>,
+    /// XP from spaced reviews; it never counts towards belts.
+    pub practice_xp: u32,
     current_streak: u32,
-    completed: HashMap<String, HashSet<String>>,
+    completed: HashMap<String, HashMap<String, Completion>>,
     placed_out: HashMap<String, HashSet<String>>,
     belt_exams: HashMap<String, String>,
+    /// Hints opened per `(track, node)`.
+    hints: HashMap<(String, String), u8>,
+    /// Review cards per `(track, node, question)` that were answered at least once.
+    cards: HashMap<CardKey, Card>,
 }
 
 impl Profile {
@@ -147,10 +190,13 @@ impl Profile {
             total_xp: 0,
             best_streak: baseline.best,
             last_trained: baseline.last_trained,
+            practice_xp: 0,
             current_streak: baseline.current,
             completed: HashMap::new(),
             placed_out: HashMap::new(),
             belt_exams: HashMap::new(),
+            hints: HashMap::new(),
+            cards: HashMap::new(),
         }
     }
 
@@ -170,12 +216,9 @@ impl Profile {
                 xp,
                 on,
             } => {
-                let newly_completed = self
-                    .completed
-                    .entry(track_id.clone())
-                    .or_default()
-                    .insert(node_id.clone());
-                if newly_completed {
+                let nodes = self.completed.entry(track_id.clone()).or_default();
+                if !nodes.contains_key(node_id) {
+                    nodes.insert(node_id.clone(), Completion { xp: *xp, on: *on });
                     self.total_xp += xp;
                 }
                 if let Some(placed) = self.placed_out.get_mut(track_id) {
@@ -206,18 +249,50 @@ impl Profile {
                 }
             }
             ProgressEvent::NodeReset {
-                track_id,
-                node_id,
-                xp,
-                ..
+                track_id, node_id, ..
             } => {
                 let removed = self
                     .completed
                     .get_mut(track_id)
-                    .is_some_and(|nodes| nodes.remove(node_id));
-                if removed {
-                    self.total_xp = self.total_xp.saturating_sub(*xp);
+                    .and_then(|nodes| nodes.remove(node_id));
+                if let Some(completion) = removed {
+                    self.total_xp = self.total_xp.saturating_sub(completion.xp);
                 }
+                self.hints.remove(&(track_id.clone(), node_id.clone()));
+            }
+            ProgressEvent::HintRevealed {
+                track_id,
+                node_id,
+                level,
+                ..
+            } => {
+                let opened = self
+                    .hints
+                    .entry((track_id.clone(), node_id.clone()))
+                    .or_default();
+                *opened = (*opened).max(*level);
+            }
+            ProgressEvent::ReviewAnswered {
+                track_id,
+                node_id,
+                question_id,
+                correct,
+                on,
+            } => {
+                let Some(completed_on) = self.completed_on(track_id, node_id) else {
+                    return;
+                };
+                let key = (track_id.clone(), node_id.clone(), question_id.clone());
+                let card = self
+                    .cards
+                    .get(&key)
+                    .copied()
+                    .unwrap_or_else(|| Card::new(completed_on));
+                self.cards.insert(key, card.answered(*correct, *on));
+                if *correct {
+                    self.practice_xp += REVIEW_XP;
+                }
+                self.record_training(*on);
             }
         }
     }
@@ -263,7 +338,7 @@ impl Profile {
         Ok(ProgressEvent::NodeCompleted {
             track_id: track.id.clone(),
             node_id: node.id.clone(),
-            xp: node.xp,
+            xp: self.xp_for(&track.id, node),
             on: today,
         })
     }
@@ -288,7 +363,7 @@ impl Profile {
         Ok(ProgressEvent::NodeCompleted {
             track_id: track.id.clone(),
             node_id: node.id.clone(),
-            xp: node.xp,
+            xp: self.xp_for(&track.id, node),
             on: today,
         })
     }
@@ -310,7 +385,7 @@ impl Profile {
         Ok(ProgressEvent::NodeReset {
             track_id: track.id.clone(),
             node_id: node.id.clone(),
-            xp: node.xp,
+            xp: self.earned_xp(&track.id, &node.id),
             on: today,
         })
     }
@@ -318,9 +393,100 @@ impl Profile {
     // ---- queries ------------------------------------------------------------
 
     pub fn is_completed(&self, track_id: &str, node_id: &str) -> bool {
-        self.completed
-            .get(track_id)
-            .is_some_and(|nodes| nodes.contains(node_id))
+        self.completion(track_id, node_id).is_some()
+    }
+
+    fn completion(&self, track_id: &str, node_id: &str) -> Option<&Completion> {
+        self.completed.get(track_id)?.get(node_id)
+    }
+
+    fn completed_on(&self, track_id: &str, node_id: &str) -> Option<NaiveDate> {
+        self.completion(track_id, node_id).map(|done| done.on)
+    }
+
+    /// The XP a completed node gave (0 when it is not completed).
+    pub fn earned_xp(&self, track_id: &str, node_id: &str) -> u32 {
+        self.completion(track_id, node_id).map_or(0, |done| done.xp)
+    }
+
+    // ---- hints --------------------------------------------------------------
+
+    pub fn hints_revealed(&self, track_id: &str, node_id: &str) -> u8 {
+        self.hints
+            .get(&(track_id.to_string(), node_id.to_string()))
+            .copied()
+            .unwrap_or(0)
+    }
+
+    /// The XP `node` gives if completed now: each open hint takes `HINT_COST_PERCENT`.
+    pub fn xp_for(&self, track_id: &str, node: &Node) -> u32 {
+        let cost = HINT_COST_PERCENT * u32::from(self.hints_revealed(track_id, &node.id));
+        node.xp * 100u32.saturating_sub(cost) / 100
+    }
+
+    /// Opens the next hint of a kata. Once the kata is completed hints are free.
+    pub fn request_hint(
+        &self,
+        track: &Track,
+        node: &Node,
+        today: NaiveDate,
+    ) -> Result<ProgressEvent, HintRefusal> {
+        let available = node.kata.as_ref().map_or(0, |kata| kata.hints.len());
+        if available == 0 {
+            return Err(HintRefusal::NoHints);
+        }
+        if !self.is_unlocked(track, node) && !self.is_completed(&track.id, &node.id) {
+            return Err(HintRefusal::Locked);
+        }
+        let opened = self.hints_revealed(&track.id, &node.id);
+        if usize::from(opened) >= available {
+            return Err(HintRefusal::AllRevealed);
+        }
+        Ok(ProgressEvent::HintRevealed {
+            track_id: track.id.clone(),
+            node_id: node.id.clone(),
+            level: opened + 1,
+            on: today,
+        })
+    }
+
+    // ---- spaced review ------------------------------------------------------
+
+    /// Every review card of the track's completed nodes, answered or not, in track order.
+    fn review_cards<'a>(&'a self, track: &'a Track) -> impl Iterator<Item = ReviewItem> + 'a {
+        track.nodes().flat_map(move |node| {
+            let completed_on = self.completed_on(&track.id, &node.id);
+            let questions = node.quiz.iter().flat_map(|quiz| quiz.questions.iter());
+            questions.filter_map(move |question| {
+                let start = completed_on?;
+                let key = (track.id.clone(), node.id.clone(), question.id.clone());
+                Some(ReviewItem {
+                    node_id: node.id.clone(),
+                    question_id: question.id.clone(),
+                    card: self
+                        .cards
+                        .get(&key)
+                        .copied()
+                        .unwrap_or_else(|| Card::new(start)),
+                })
+            })
+        })
+    }
+
+    /// Questions due on `today`: the ones missed or newest in the schedule first,
+    /// then the oldest due date.
+    pub fn due_reviews(&self, track: &Track, today: NaiveDate) -> Vec<ReviewItem> {
+        let mut due: Vec<ReviewItem> = self
+            .review_cards(track)
+            .filter(|item| item.card.is_due(today))
+            .collect();
+        due.sort_by_key(|item| (item.card.step, item.card.due));
+        due
+    }
+
+    /// The next day something comes up for review, if anything does.
+    pub fn next_review(&self, track: &Track) -> Option<NaiveDate> {
+        self.review_cards(track).map(|item| item.card.due).min()
     }
 
     /// Skipped by the placement test and not yet confirmed by the Belt Exam.
@@ -403,7 +569,7 @@ impl Profile {
             .map(|skipped| ProgressEvent::NodeCompleted {
                 track_id: track.id.clone(),
                 node_id: skipped.id.clone(),
-                xp: skipped.xp,
+                xp: self.xp_for(&track.id, skipped),
                 on: today,
             })
             .collect()
@@ -480,8 +646,7 @@ impl Profile {
     pub fn track_xp(&self, track: &Track) -> u32 {
         track
             .nodes()
-            .filter(|node| self.is_completed(&track.id, &node.id))
-            .map(|node| node.xp)
+            .map(|node| self.earned_xp(&track.id, &node.id))
             .sum()
     }
 
@@ -717,6 +882,178 @@ mod tests {
             total: 5,
             passed: true,
         })
+    }
+
+    fn kata_with_hints(id: &str, xp: u32, hints: usize) -> Node {
+        let mut kata = node(id, &[], xp);
+        kata.kata = Some(crate::track::Kata {
+            statement: String::new(),
+            starter_dir: Default::default(),
+            tests_dir: Default::default(),
+            reference_dir: Default::default(),
+            runner: crate::track::RunnerSpec {
+                image: "dojo-rust".into(),
+                timeout_secs: 60,
+            },
+            hints: (1..=hints).map(|level| format!("hint {level}")).collect(),
+        });
+        kata
+    }
+
+    fn reveal(profile: &mut Profile, track: &Track, node_id: &str) -> Result<u8, HintRefusal> {
+        let event = profile.request_hint(track, track.node(node_id).unwrap(), day(14))?;
+        profile.apply(&event);
+        Ok(profile.hints_revealed(&track.id, node_id))
+    }
+
+    #[test]
+    fn each_open_hint_costs_ten_percent_of_the_kata_xp() {
+        let rust = track(vec![vec![kata_with_hints("rust.p0.kata", 200, 3)]]);
+        let mut profile = fresh_profile();
+
+        assert_eq!(reveal(&mut profile, &rust, "rust.p0.kata"), Ok(1));
+        assert_eq!(reveal(&mut profile, &rust, "rust.p0.kata"), Ok(2));
+        assert_eq!(
+            profile.xp_for("rust", rust.node("rust.p0.kata").unwrap()),
+            160
+        );
+
+        complete(&mut profile, &rust, "rust.p0.kata", day(14));
+        assert_eq!(profile.total_xp, 160);
+        assert_eq!(profile.track_xp(&rust), 160);
+        assert_eq!(profile.earned_xp("rust", "rust.p0.kata"), 160);
+
+        assert_eq!(
+            reveal(&mut profile, &rust, "rust.p0.kata"),
+            Ok(3),
+            "after the kata is done, hints are free"
+        );
+        assert_eq!(profile.total_xp, 160);
+        assert_eq!(
+            reveal(&mut profile, &rust, "rust.p0.kata"),
+            Err(HintRefusal::AllRevealed)
+        );
+    }
+
+    #[test]
+    fn hints_need_an_open_kata_that_has_them() {
+        let rust = track(vec![
+            vec![lesson("rust.p0.setup", &[], 50)],
+            vec![kata_with_hints("rust.p1.kata", 100, 2)],
+        ]);
+        let mut profile = fresh_profile();
+        assert_eq!(
+            reveal(&mut profile, &rust, "rust.p0.setup"),
+            Err(HintRefusal::NoHints)
+        );
+        assert_eq!(
+            reveal(&mut profile, &rust, "rust.p1.kata"),
+            Err(HintRefusal::Locked)
+        );
+    }
+
+    #[test]
+    fn a_reset_returns_the_xp_actually_earned_and_clears_the_hints() {
+        let rust = track(vec![vec![kata_with_hints("rust.p0.kata", 100, 3)]]);
+        let mut profile = fresh_profile();
+        reveal(&mut profile, &rust, "rust.p0.kata").unwrap();
+        complete(&mut profile, &rust, "rust.p0.kata", day(14));
+        assert_eq!(profile.total_xp, 90);
+
+        let kata = rust.node("rust.p0.kata").unwrap();
+        let reset = profile
+            .request_reset(&rust, kata, day(14), Mode::Dev)
+            .unwrap();
+        profile.apply(&reset);
+        assert_eq!(profile.total_xp, 0);
+        assert_eq!(profile.hints_revealed("rust", "rust.p0.kata"), 0);
+    }
+
+    fn quiz_lesson(id: &str, questions: &[&str]) -> Node {
+        use crate::quiz::{Question, QuestionKind, Quiz};
+        let mut node = lesson(id, &[], 100);
+        node.quiz = Some(Quiz {
+            pass_percent: 80,
+            questions: questions
+                .iter()
+                .map(|question| Question {
+                    id: question.to_string(),
+                    prompt: String::new(),
+                    code: None,
+                    kind: QuestionKind::Text {
+                        answers: vec!["x".into()],
+                    },
+                    explanation: String::new(),
+                    skills: vec![],
+                })
+                .collect(),
+        });
+        node
+    }
+
+    fn answer(
+        profile: &mut Profile,
+        node_id: &str,
+        question_id: &str,
+        correct: bool,
+        on: NaiveDate,
+    ) {
+        profile.apply(&ProgressEvent::ReviewAnswered {
+            track_id: "rust".into(),
+            node_id: node_id.into(),
+            question_id: question_id.into(),
+            correct,
+            on,
+        });
+    }
+
+    #[test]
+    fn finished_questions_come_back_for_review_and_misses_come_back_first() {
+        let rust = track(vec![vec![
+            quiz_lesson("rust.p0.a", &["a1", "a2"]),
+            quiz_lesson("rust.p0.b", &["b1"]),
+        ]]);
+        let mut profile = fresh_profile();
+        complete(&mut profile, &rust, "rust.p0.a", day(1));
+        assert!(
+            profile.due_reviews(&rust, day(1)).is_empty(),
+            "not on the same day"
+        );
+        assert_eq!(profile.due_reviews(&rust, day(2)).len(), 2, "b is not done");
+        assert_eq!(profile.next_review(&rust), Some(day(2)));
+
+        answer(&mut profile, "rust.p0.a", "a1", true, day(2));
+        answer(&mut profile, "rust.p0.a", "a2", false, day(2));
+        assert_eq!(profile.practice_xp, crate::review::REVIEW_XP);
+        assert_eq!(profile.total_xp, 100, "practice XP stays apart");
+
+        let due: Vec<_> = profile
+            .due_reviews(&rust, day(3))
+            .into_iter()
+            .map(|item| item.question_id)
+            .collect();
+        assert_eq!(due, vec!["a2"], "a1 waits three days");
+
+        complete(&mut profile, &rust, "rust.p0.b", day(4));
+        let due: Vec<_> = profile
+            .due_reviews(&rust, day(5))
+            .into_iter()
+            .map(|item| item.question_id)
+            .collect();
+        assert_eq!(
+            due,
+            vec!["a2", "b1", "a1"],
+            "lowest step first, then the oldest"
+        );
+    }
+
+    #[test]
+    fn a_review_answer_counts_as_training_for_the_streak() {
+        let rust = track(vec![vec![quiz_lesson("rust.p0.a", &["a1"])]]);
+        let mut profile = fresh_profile();
+        complete(&mut profile, &rust, "rust.p0.a", day(1));
+        answer(&mut profile, "rust.p0.a", "a1", true, day(2));
+        assert_eq!(profile.streak_on(day(2)), 2);
     }
 
     #[test]

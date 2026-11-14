@@ -775,3 +775,96 @@ fn esc_leaves_the_placement_test_without_recording_anything() {
     assert!(h.app.placement.is_none());
     assert!(h.app.profile.can_take_placement(h.app.active_track()));
 }
+
+#[test]
+fn hints_open_one_at_a_time_and_lower_the_kata_xp() {
+    let mut h = harness(
+        memory_store(),
+        Mode::Learner,
+        FakeRunner::returning(&[CheckOutcome::Passed]),
+    );
+    pass_lesson(&mut h.app, "rust.p0.setup");
+    select(&mut h.app, "rust.p0.hello-dojo");
+    h.app.status_message = None;
+    assert!(screen_text(&h.app).contains("[H] Hint 1/3"));
+
+    h.app.reveal_hint();
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("Hint 1 of 3 is open in the kata panel (the kata now gives 90 XP)")
+    );
+    h.app.reveal_hint();
+    let screen = screen_text(&h.app);
+    assert!(screen.contains("Hints: 2 of 3 open"), "{screen}");
+    assert!(screen.contains("Trim first, then decide"), "{screen}");
+
+    h.app.activate_selected();
+    run_check(&mut h.app);
+    assert!(h.app.profile.is_completed("rust", "rust.p0.hello-dojo"));
+    assert_eq!(h.app.profile.earned_xp("rust", "rust.p0.hello-dojo"), 80);
+    assert!(h.app.status_message.as_deref().unwrap().contains("+80 XP"));
+}
+
+#[test]
+fn due_questions_are_reviewed_with_r_and_their_answers_recorded() {
+    let mut store = memory_store();
+    let three_days_ago = App::today() - chrono::Days::new(3);
+    store
+        .append_event(&dojo_core::ProgressEvent::NodeCompleted {
+            track_id: "rust".into(),
+            node_id: "rust.p0.setup".into(),
+            xp: 100,
+            on: three_days_ago,
+        })
+        .unwrap();
+    let mut h = harness(store, Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p0.setup");
+    let track = h.app.active_track();
+    let due = h.app.profile.due_reviews(track, App::today()).len();
+    assert!(due > 0);
+    h.app.status_message = None;
+    assert!(screen_text(&h.app).contains(&format!("[R] Review ({due})")));
+
+    h.app.start_review();
+    assert_eq!(h.app.screen, Screen::Quiz);
+    assert!(screen_text(&h.app).contains("Review: Rust"));
+    take_quiz(&mut h.app, 1);
+
+    assert_eq!(h.app.screen, Screen::TrackView);
+    let message = h.app.status_message.clone().unwrap();
+    assert!(
+        message.contains(&format!("{}/{due} right", due - 1)),
+        "{message}"
+    );
+    assert_eq!(
+        h.app.profile.practice_xp,
+        (due as u32 - 1) * dojo_core::review::REVIEW_XP
+    );
+    assert_eq!(h.app.profile.total_xp, 100, "practice XP is kept apart");
+    let track = h.app.active_track();
+    assert!(
+        h.app.profile.due_reviews(track, App::today()).is_empty(),
+        "the missed one comes back tomorrow"
+    );
+    let reviews = h
+        .app
+        .store
+        .load_events()
+        .unwrap()
+        .into_iter()
+        .filter(|event| matches!(event, dojo_core::ProgressEvent::ReviewAnswered { .. }))
+        .count();
+    assert_eq!(reviews, due);
+
+    h.app.start_review();
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .starts_with("🔁 Nothing to review today. Next review:")
+    );
+}

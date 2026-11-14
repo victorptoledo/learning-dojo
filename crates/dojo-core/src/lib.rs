@@ -10,6 +10,7 @@ pub mod ports;
 pub mod progress;
 pub mod quiz;
 pub mod requirement;
+pub mod review;
 pub mod track;
 
 pub use catalog::{Catalog, Skill, SkillId};
@@ -19,13 +20,17 @@ pub use placement::{
     PlacementItem, PlacementPlan, PlacementSession,
 };
 pub use ports::{KataRunner, ProgressStore, RunnerError, StoreError};
-pub use progress::{Evidence, Mode, Profile, ProgressEvent, Refusal, Settings, StreakBaseline};
+pub use progress::{
+    Evidence, HINT_COST_PERCENT, HintRefusal, Mode, Profile, ProgressEvent, Refusal, Settings,
+    StreakBaseline,
+};
 pub use quiz::{
     Answer, DEFAULT_PASS_PERCENT, Question, QuestionKind, Quiz, QuizAttempt, QuizScore,
 };
 pub use requirement::{
     Requirement, RequirementKind, merge as merge_requirements, version_at_least,
 };
+pub use review::{Card, ReviewItem};
 pub use track::{
     Archetype, Belt, Bridge, ContentStatus, GENERIC_BRIDGE, Kata, Node, NodeId, NodeKind,
     Objective, Phase, PhaseId, RunnerSpec, Track, TrackId,

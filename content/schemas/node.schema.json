@@ -139,6 +139,15 @@
         "rubric": {
           "type": "string"
         },
+        "hints": {
+          "type": "array",
+          "maxItems": 3,
+          "description": "Hint ladder, opened one at a time; each costs 10% of the kata XP: (1) a question that points the way, (2) the concept and where it applies, (3) a partial skeleton without the solution.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
         "runner": {
           "type": "object",
           "additionalProperties": false,

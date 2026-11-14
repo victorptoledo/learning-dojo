@@ -208,6 +208,8 @@ fn handle_track_key(app: &mut App, code: KeyCode) -> Flow {
         KeyCode::Char('o' | 'O') => app.open_selected(),
         KeyCode::Char('b' | 'B') => app.cycle_bridge_language(),
         KeyCode::Char('p' | 'P') => app.start_placement(),
+        KeyCode::Char('h' | 'H') => app.reveal_hint(),
+        KeyCode::Char('r' | 'R') => app.start_review(),
         KeyCode::PageDown => app.scroll_detail_down(),
         KeyCode::PageUp => app.scroll_detail_up(),
         _ => {}

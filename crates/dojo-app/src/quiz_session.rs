@@ -25,6 +25,9 @@ pub struct QuizSession {
     pub stage: Stage,
     /// Indexes of the questions answered wrong.
     pub missed: Vec<usize>,
+    /// In a spaced review: the node each question comes from, by index. Empty for a
+    /// lesson or checkpoint quiz.
+    pub review_sources: Vec<String>,
 }
 
 impl QuizSession {
@@ -39,7 +42,20 @@ impl QuizSession {
             input: String::new(),
             stage: Stage::Asking,
             missed: Vec::new(),
+            review_sources: Vec::new(),
         }
+    }
+
+    /// A review of questions from several finished nodes of a track.
+    pub fn review(track_id: &str, track_name: &str, quiz: Quiz, sources: Vec<String>) -> Self {
+        Self {
+            review_sources: sources,
+            ..Self::new(track_id, "", &format!("Review: {track_name}"), quiz)
+        }
+    }
+
+    pub fn is_review(&self) -> bool {
+        !self.review_sources.is_empty()
     }
 
     pub fn question(&self) -> &Question {

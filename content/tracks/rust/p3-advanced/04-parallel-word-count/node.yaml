@@ -17,6 +17,39 @@ kata:
   tests: kata/tests
   reference: kata/reference
   runner: { image: dojo-rust, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with `chunk_ranges` on paper: with 10 items and 3 workers, how many go in each range, and which ranges get the extra item? What is the size of one range when there are more workers than items?
+    - |-
+      Size: `len / workers` each, and the first `len % workers` ranges get one more. Use `workers.max(1).min(len)` as the real number of ranges. In `parallel_count`, `thread::scope` lets each spawned closure borrow `&texts[range]` without `Arc`; collect the handles in a Vec, then `join()` each one and `merge` its map.
+    - |-
+      ```rust
+      pub fn chunk_ranges(len: usize, workers: usize) -> Vec<Range<usize>> {
+          let parts = workers.max(1).min(len);
+          let mut ranges = Vec::with_capacity(parts);
+          let mut start = 0;
+          for index in 0..parts {
+              let size = /* len / parts, plus one for the first len % parts ranges */;
+              ranges.push(start..start + size);
+              start += size;
+          }
+          ranges
+      }
+
+      pub fn parallel_count(texts: &[&str], workers: usize) -> HashMap<String, usize> {
+          std::thread::scope(|scope| {
+              let handles: Vec<_> = chunk_ranges(texts.len(), workers)
+                  .into_iter()
+                  .map(|range| scope.spawn(move || /* count the texts of this range */))
+                  .collect();
+              let mut total = HashMap::new();
+              for handle in handles {
+                  // join and merge
+              }
+              total
+          })
+      }
+      ```
 requirements:
   - kind: docker-engine
     name: Docker Desktop running

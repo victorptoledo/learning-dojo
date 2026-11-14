@@ -11,6 +11,7 @@ mod kata_actions;
 mod kata_commands;
 mod lesson_actions;
 mod lesson_view;
+mod mentor_actions;
 mod placement_flow;
 mod placement_view;
 mod quiz_session;

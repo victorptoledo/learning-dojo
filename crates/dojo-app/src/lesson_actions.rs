@@ -64,6 +64,10 @@ impl App {
         let Some(score) = session.score() else {
             return;
         };
+        if session.is_review() {
+            self.status_message = Some(self.close_review(&session));
+            return;
+        }
         let key: NodeKey = (session.track_id.clone(), session.node_id.clone());
         let attempt = QuizAttempt {
             track_id: session.track_id.clone(),

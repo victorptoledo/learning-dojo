@@ -74,7 +74,7 @@ fn new_store_has_no_settings_and_no_events() {
 
     assert!(store.load_settings().unwrap().is_none());
     assert!(store.load_events().unwrap().is_empty());
-    assert_eq!(store.schema_version().unwrap(), 4);
+    assert_eq!(store.schema_version().unwrap(), 5);
 }
 
 #[test]
@@ -283,6 +283,32 @@ fn placement_events_round_trip() {
         ProgressEvent::PlacementRevoked {
             track_id: "rust".into(),
             node_id: "rust.p0.setup".into(),
+            on,
+        },
+    ];
+    for event in &events {
+        store.append_event(event).unwrap();
+    }
+
+    assert_eq!(store.load_events().unwrap(), events);
+}
+
+#[test]
+fn hint_and_review_events_round_trip() {
+    let mut store = SqliteStore::open_in_memory().unwrap();
+    let on = chrono::NaiveDate::from_ymd_opt(2026, 11, 14).unwrap();
+    let events = vec![
+        ProgressEvent::HintRevealed {
+            track_id: "rust".into(),
+            node_id: "rust.p1.word-counter".into(),
+            level: 2,
+            on,
+        },
+        ProgressEvent::ReviewAnswered {
+            track_id: "rust".into(),
+            node_id: "rust.p1.collections".into(),
+            question_id: "hashmap-entry".into(),
+            correct: false,
             on,
         },
     ];
