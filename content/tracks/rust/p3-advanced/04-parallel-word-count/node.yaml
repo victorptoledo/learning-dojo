@@ -1,0 +1,33 @@
+id: rust.p3.parallel-word-count
+kind: kata
+status: draft
+title: "Parallel Word Count: Scoped Threads"
+summary: "Split the work into chunks, count each chunk on its own thread and merge the results."
+objectives:
+  - { id: o1, text: "Borrow local data from threads with std::thread::scope", skills: [rust.concurrency, rust.lifetimes] }
+  - { id: o2, text: "Split work into balanced chunks and merge partial results", skills: [rust.concurrency, rust.collections] }
+prerequisites: [rust.p3.concurrency]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 120 }
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-rust runner image
+    image: dojo-rust
+    why: The container with Rust, clippy and rustfmt that runs the grading tests.
+  - kind: vscode-extension
+    name: CodeLLDB
+    id: vadimcn.vscode-lldb
+    required: false
+    why: Breakpoints and step-by-step debugging of your tests.

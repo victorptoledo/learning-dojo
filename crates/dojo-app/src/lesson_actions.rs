@@ -1,6 +1,6 @@
 //! What the learner can do with a lesson: read it and take its quiz.
 
-use crate::app::{App, NodeKey, Screen};
+use crate::app::{App, NodeKey, Screen, checkpoint_missing_part};
 use crate::quiz_session::QuizSession;
 use chrono::Utc;
 use dojo_core::{Evidence, Node, ProgressEvent, QuizAttempt, QuizScore, Refusal, Track};
@@ -92,9 +92,18 @@ impl App {
             .track(&session.track_id)
             .and_then(|track| Some((track, track.node(&session.node_id)?)))
             .map(|(track, node)| {
-                self.profile
-                    .complete_by_evidence(track, node, Evidence::Quiz(score), Self::today())
+                let key = (track.id.clone(), node.id.clone());
+                let evidence = self.evidence_for(&key, node, Evidence::Quiz(score));
+                (
+                    evidence,
+                    self.profile
+                        .complete_by_evidence(track, node, evidence, Self::today()),
+                )
             });
+        let missing_part = decision
+            .as_ref()
+            .and_then(|(evidence, _)| checkpoint_missing_part(evidence));
+        let decision = decision.map(|(_, decision)| decision);
         match decision {
             Some(Ok(event)) => {
                 let xp = match &event {
@@ -106,6 +115,12 @@ impl App {
             }
             Some(Err(Refusal::AlreadyCompleted)) | None => {
                 format!("✅ Quiz passed again: {summary}.")
+            }
+            Some(Err(Refusal::NotPassed)) if missing_part.is_some() => {
+                format!(
+                    "✅ Quiz passed: {summary}. {}",
+                    missing_part.unwrap_or_default()
+                )
             }
             Some(Err(refusal)) => format!("{summary}. {}", crate::app::refusal_message(refusal)),
         }

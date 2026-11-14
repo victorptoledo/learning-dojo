@@ -139,7 +139,7 @@ The learner picks a source language at onboarding (`config.toml: bridge_from = "
 ### 5.2b Completion rules (implemented 2026-11-14)
 
 - A lesson is completed only by passing its quiz (`quiz.yaml` next to `node.yaml`: single-choice or typed answers, typed ones compared ignoring case and spaces; `pass_percent`, default 80, rounded up). Attempts are stored (`quiz_attempt`).
-- A node is *under construction* when it lacks what a learner needs: a lesson without `lesson.md` or quiz, a kata without its exercise; quiz, checkpoint and project nodes until their engines exist. It shows 🚧, cannot be completed, and so blocks what comes after it.
+- A node is *under construction* when it lacks what a learner needs: a lesson without `lesson.md` or quiz, a kata without its exercise, a checkpoint without its phase quiz and integration kata; standalone quiz and project nodes until their engines exist. A checkpoint opens only when every other node of its phase is done and is completed when both its quiz and its kata have passed, in any order. It shows 🚧, cannot be completed, and so blocks what comes after it.
 - A node unlocks when its prerequisites are done **and** every node of the earlier phases is done.
 - `--dev` can tick and undo anything (locks still apply).
 

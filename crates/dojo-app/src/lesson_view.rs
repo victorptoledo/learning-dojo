@@ -38,7 +38,7 @@ fn under_construction_lines() -> Vec<Line<'static>> {
     ]
 }
 
-fn quiz_status_line(app: &App, track: &Track, node: &Node) -> Line<'static> {
+pub(crate) fn quiz_status_line(app: &App, track: &Track, node: &Node) -> Line<'static> {
     let Some(quiz) = &node.quiz else {
         return Line::from("");
     };
@@ -316,7 +316,7 @@ fn finished_lines(
         )
     };
     let next = if passed {
-        "The lesson will be marked as completed."
+        "Well done! The result is recorded when you go back to the track."
     } else {
         "Read the lesson again (the explanations above help) and retake the quiz."
     };

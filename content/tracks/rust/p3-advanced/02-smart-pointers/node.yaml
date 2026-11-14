@@ -6,7 +6,7 @@ title: "Smart Pointers: Box, Rc, RefCell and Arc"
 summary: "When the stack isn't enough: heap allocation, reference counting and interior mutability."
 objectives:
   - { id: o1, text: "When the stack isn't enough: heap allocation, reference counting and interior mutability.", skills: [rust.smart-pointers] }
-prerequisites: [rust.p2.traits-generics]
+prerequisites: [rust.p3.lifetimes]
 difficulty: 4
 estimated_minutes: 30
 xp: 350

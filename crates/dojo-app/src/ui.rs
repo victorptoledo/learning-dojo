@@ -1,5 +1,5 @@
 use crate::app::{App, Screen};
-use crate::lesson_view::{render_lesson, render_quiz};
+use crate::lesson_view::{quiz_status_line, render_lesson, render_quiz};
 use crate::setup_view::render_setup;
 use crate::tree::TreeRow;
 use dojo_core::{CheckOutcome, CheckReport, Kata, Mode, Node, NodeKind, Phase, Track};
@@ -241,7 +241,17 @@ fn render_kata(
 ) {
     let dir = app.workspace.kata_dir(track, phase, node);
     let key = (track.id.clone(), node.id.clone());
-    let mut lines = kata_steps(&dir);
+    let mut lines = Vec::new();
+    if node.kind == NodeKind::Checkpoint {
+        lines.push(Line::from(
+            "📋 Checkpoint: pass the quiz [Q] and the integration kata below."
+                .bold()
+                .magenta(),
+        ));
+        lines.push(quiz_status_line(app, track, node));
+        lines.push(Line::from(""));
+    }
+    lines.extend(kata_steps(&dir));
     lines.push(Line::from(""));
     lines.push(check_status_line(app, &key));
     if let Some(report) = app.last_reports.get(&key) {

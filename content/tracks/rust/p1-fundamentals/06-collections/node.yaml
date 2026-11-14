@@ -1,0 +1,16 @@
+id: rust.p1.collections
+kind: lesson
+status: draft
+title: "Collections: Vec, String and HashMap"
+summary: "Lists, owned text and key-value maps, and how the borrow checker keeps them safe."
+objectives:
+  - { id: o1, text: "Create, read and loop over a Vec without consuming it", skills: [rust.collections] }
+  - { id: o2, text: "Choose between String and &str and process UTF-8 text", skills: [rust.collections] }
+  - { id: o3, text: "Count and group values with HashMap and its entry API", skills: [rust.collections] }
+prerequisites: [rust.p1.control-flow-workout]
+difficulty: 2
+estimated_minutes: 35
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

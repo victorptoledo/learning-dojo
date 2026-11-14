@@ -5,8 +5,13 @@ skills:
   - { id: rust.ownership-basics, title: "Ownership: Memory Without a Garbage Collector" }
   - { id: rust.borrowing-references, title: "Borrowing: References (`&` and `&mut`)" }
   - { id: rust.structs-enums, title: "Structs, Enums and Pattern Matching" }
+  - { id: rust.collections, title: "Collections: Vec, String and HashMap" }
   - { id: rust.option-result, title: "No Null, No Exceptions: Option and Result" }
   - { id: rust.traits-generics, title: "Traits: Interfaces with Superpowers" }
+  - { id: rust.iterators-closures, title: "Iterators and Closures" }
+  - { id: rust.modules-testing, title: "Modules, Crates and Tests" }
+  - { id: rust.lifetimes, title: "Lifetimes: How Long a Reference Lives" }
   - { id: rust.smart-pointers, title: "Smart Pointers: Box, Rc, RefCell and Arc" }
   - { id: rust.concurrency, title: "Threads, Channels (mpsc) and Mutex" }
   - { id: rust.async-tokio, title: "async/await and the Tokio Runtime" }
+  - { id: rust.production, title: "Production Rust: Errors, Logging and Configuration" }

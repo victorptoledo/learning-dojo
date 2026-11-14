@@ -1,0 +1,46 @@
+questions:
+  - id: dangling
+    prompt: Why does this not compile?
+    code: |
+      let r;
+      {
+          let x = 5;
+          r = &x;
+      }
+      println!("{r}");
+    options:
+      - "r is not mutable"
+      - "x is dropped at the end of the block while r still borrows it"
+      - "integers cannot be borrowed"
+    answer: 1
+    explanation: "The borrow would outlive the value: E0597, x does not live long enough."
+  - id: longest-meaning
+    prompt: "In fn longest<'a>(a: &'a str, b: &'a str) -> &'a str, how long may the result be used?"
+    options:
+      - "As long as the longer of a and b"
+      - "As long as the shorter of a and b"
+      - "Forever"
+    answer: 1
+    explanation: "'a must fit inside both borrows, so the result is limited by the shorter one."
+  - id: elision-self
+    prompt: "A method fn name(&self) -> &str has no annotations. Which lifetime does the output get?"
+    options: ["'static", "The lifetime of &self", "It does not compile"]
+    answer: 1
+    explanation: "Elision rule 3: with &self, outputs borrow from self."
+  - id: return-local
+    prompt: A function builds a String and tries to return &text. What is the right fix?
+    options:
+      - "Add 'static to the return type"
+      - "Return the String itself"
+      - "Use unsafe"
+    answer: 1
+    explanation: "The String dies when the function returns; give it to the caller instead of a reference to it."
+  - id: struct-lifetime
+    prompt: "Complete the declaration of a struct holding a &str: struct Excerpt<'a> { text: ____ }"
+    answers: ["&'a str"]
+    explanation: "The field borrows for 'a, so an Excerpt cannot outlive the text it points into."
+  - id: static-bound
+    prompt: "thread::spawn requires F: 'static. Which captured value satisfies it?"
+    options: ["A &str pointing into a local String", "An owned String moved into the closure", "A &mut Vec<i32>"]
+    answer: 1
+    explanation: "'static as a bound means no short-lived borrows inside; owned data qualifies."

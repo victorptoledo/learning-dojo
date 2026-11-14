@@ -9,8 +9,8 @@ use crate::workspace::Workspace;
 use anyhow::{Result, anyhow, bail};
 use chrono::NaiveDate;
 use dojo_core::{
-    Catalog, CheckRecord, CheckReport, KataRunner, Mode, NodeKind, Profile, ProgressEvent,
-    ProgressStore, QuizAttempt, Refusal, Settings, Track,
+    Catalog, CheckOutcome, CheckRecord, CheckReport, Evidence, KataRunner, Mode, Node, NodeKind,
+    Profile, ProgressEvent, ProgressStore, QuizAttempt, Refusal, Settings, Track,
 };
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::Arc;
@@ -284,6 +284,55 @@ fn kind_label(kind: NodeKind) -> &'static str {
         NodeKind::Quiz => "quiz",
         NodeKind::Checkpoint => "checkpoint",
         NodeKind::Project => "project",
+    }
+}
+
+impl App {
+    /// The evidence a node gets when one of its parts passes. A checkpoint needs its
+    /// quiz and its kata, so the part that did not just run comes from history.
+    pub(crate) fn evidence_for<'a>(
+        &self,
+        key: &NodeKey,
+        node: &Node,
+        passed_now: Evidence<'a>,
+    ) -> Evidence<'a> {
+        if node.kind != NodeKind::Checkpoint {
+            return passed_now;
+        }
+        let quiz_before = self
+            .quiz_history
+            .get(key)
+            .is_some_and(|attempt| attempt.score.passed);
+        let checks_before = self
+            .check_history
+            .get(key)
+            .is_some_and(|(record, _)| record.outcome == CheckOutcome::Passed);
+        match passed_now {
+            Evidence::Quiz(score) => Evidence::Checkpoint {
+                quiz_passed: score.passed,
+                checks_passed: checks_before,
+            },
+            Evidence::Checks(report) => Evidence::Checkpoint {
+                quiz_passed: quiz_before,
+                checks_passed: report.is_pass(),
+            },
+            other => other,
+        }
+    }
+}
+
+/// What a half-done checkpoint still needs, for the status line.
+pub(crate) fn checkpoint_missing_part(evidence: &Evidence) -> Option<&'static str> {
+    match evidence {
+        Evidence::Checkpoint {
+            quiz_passed: true,
+            checks_passed: false,
+        } => Some("The checkpoint also needs its integration kata: press [Enter]."),
+        Evidence::Checkpoint {
+            quiz_passed: false,
+            checks_passed: true,
+        } => Some("The checkpoint also needs its quiz: press [Q]."),
+        _ => None,
     }
 }
 

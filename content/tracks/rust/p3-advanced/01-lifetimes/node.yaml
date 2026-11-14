@@ -1,0 +1,16 @@
+id: rust.p3.lifetimes
+kind: lesson
+status: draft
+title: "Lifetimes: How Long a Reference Lives"
+summary: "Read and write lifetime annotations, know the elision rules, and choose between borrowing and owning."
+objectives:
+  - { id: o1, text: "Explain dangling references and how the borrow checker prevents them", skills: [rust.lifetimes] }
+  - { id: o2, text: "Annotate functions and structs with lifetimes and apply the elision rules", skills: [rust.lifetimes] }
+  - { id: o3, text: "Fix common lifetime errors by owning data or shortening borrows", skills: [rust.lifetimes, rust.borrowing-references] }
+prerequisites: [rust.p2.checkpoint]
+difficulty: 4
+estimated_minutes: 40
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

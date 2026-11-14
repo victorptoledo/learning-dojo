@@ -177,7 +177,8 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "description": "Skills the checkpoint reviews."
     },
     "sections": {
       "type": "array",
@@ -339,8 +340,8 @@
       "then": {
         "required": [
           "closes_phase",
-          "covers_skills",
-          "sections"
+          "quiz",
+          "kata"
         ]
       }
     },

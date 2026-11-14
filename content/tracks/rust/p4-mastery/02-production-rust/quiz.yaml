@@ -1,0 +1,41 @@
+questions:
+  - id: lib-vs-app
+    prompt: You are writing a library that other crates use. Which error approach fits best?
+    options:
+      - "anyhow::Error everywhere"
+      - "A public error enum, for example derived with thiserror"
+      - "panic! on every error"
+    answer: 1
+    explanation: "Library callers need to match on what went wrong; anyhow hides the type and suits applications."
+  - id: context
+    prompt: "What does .context(\"reading config.toml\")? add to an anyhow error?"
+    options:
+      - "It retries the operation"
+      - "A message that explains what was being done, kept in the error chain"
+      - "It converts the error into a panic"
+    answer: 1
+    explanation: "The final report shows the context and the underlying cause, like a readable stack of reasons."
+  - id: rust-log
+    prompt: Which environment variable usually sets the log level of a tracing or env_logger subscriber?
+    answers: ["RUST_LOG"]
+    explanation: "RUST_LOG=info or RUST_LOG=my_app=debug,warn filters events without recompiling."
+  - id: structured
+    prompt: "What does tracing::info!(user_id = 42, \"login\") record?"
+    options:
+      - "Only the text login"
+      - "An event with the message login and a structured field user_id = 42"
+      - "A compile error"
+    answer: 1
+    explanation: "Fields stay machine-readable, so logs can be filtered and aggregated by them."
+  - id: release
+    prompt: Which command builds the optimised binary you deploy?
+    answers: ["cargo build --release", "cargo build -r"]
+    explanation: "Debug builds are much slower; --release turns on optimisations and writes to target/release."
+  - id: secrets
+    prompt: Where should a database password come from in production?
+    options:
+      - "A constant in the source code"
+      - "The environment or a secret store, read at start-up"
+      - "A comment in Cargo.toml"
+    answer: 1
+    explanation: "Secrets must never be committed; read them at run time and fail fast if they are missing."

@@ -1,0 +1,36 @@
+id: rust.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata that models a small inventory."
+objectives:
+  - { id: o1, text: "Explain ownership, borrowing and mutability rules in your own words", skills: [rust.ownership-basics, rust.borrowing-references, rust.variables-mutability] }
+  - { id: o2, text: "Model a domain with structs, enums and match, stored in Vec and HashMap", skills: [rust.structs-enums, rust.collections] }
+prerequisites: [rust.p1.word-counter]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+closes_phase: p1
+covers_skills: [rust.variables-mutability, rust.ownership-basics, rust.borrowing-references, rust.structs-enums, rust.collections]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 120 }
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-rust runner image
+    image: dojo-rust
+    why: The container with Rust, clippy and rustfmt that runs the grading tests.
+  - kind: vscode-extension
+    name: CodeLLDB
+    id: vadimcn.vscode-lldb
+    required: false
+    why: Breakpoints and step-by-step debugging of your tests.

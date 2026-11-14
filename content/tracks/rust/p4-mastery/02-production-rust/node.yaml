@@ -1,0 +1,16 @@
+id: rust.p4.production-rust
+kind: lesson
+status: draft
+title: "Production Rust: Errors, Logging and Configuration"
+summary: "What a real service needs: application errors with context, structured logs, configuration and release builds."
+objectives:
+  - { id: o1, text: "Choose between thiserror for libraries and anyhow for applications", skills: [rust.production] }
+  - { id: o2, text: "Add structured logging with tracing and configure it from the environment", skills: [rust.production] }
+  - { id: o3, text: "Load configuration from arguments and environment, and ship an optimised release build", skills: [rust.production] }
+prerequisites: [rust.p4.async-tokio]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

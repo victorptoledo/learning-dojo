@@ -1,0 +1,16 @@
+id: rust.p2.iterators-closures
+kind: lesson
+status: draft
+title: "Iterators and Closures"
+summary: "Replace index loops with lazy iterator chains and small closures."
+objectives:
+  - { id: o1, text: "Write closures and pick between Fn, FnMut, FnOnce and move", skills: [rust.iterators-closures] }
+  - { id: o2, text: "Transform data with map, filter and friends, and collect the result", skills: [rust.iterators-closures] }
+  - { id: o3, text: "Implement the Iterator trait for your own type", skills: [rust.iterators-closures, rust.traits-generics] }
+prerequisites: [rust.p2.config-parser]
+difficulty: 3
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

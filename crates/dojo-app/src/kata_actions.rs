@@ -1,7 +1,7 @@
 //! What the learner can do with a kata: start it, check it, open it, and what
 //! happens when a check finishes (history, completion, auto-commit).
 
-use crate::app::{App, NodeKey, refusal_message};
+use crate::app::{App, NodeKey, checkpoint_missing_part, refusal_message};
 use crate::checks::{CheckTarget, FinishedCheck};
 use crate::workspace::{CommitOutcome, Prepared, STATEMENT_FILE};
 use chrono::Utc;
@@ -224,13 +224,18 @@ impl App {
             .track(&target.track_id)
             .and_then(|track| Some((track, track.node(&target.node_id)?)))
             .map(|(track, node)| {
-                self.profile.complete_by_evidence(
-                    track,
-                    node,
-                    Evidence::Checks(report),
-                    Self::today(),
+                let key = (track.id.clone(), node.id.clone());
+                let evidence = self.evidence_for(&key, node, Evidence::Checks(report));
+                (
+                    evidence,
+                    self.profile
+                        .complete_by_evidence(track, node, evidence, Self::today()),
                 )
             });
+        let missing_part = decision
+            .as_ref()
+            .and_then(|(evidence, _)| checkpoint_missing_part(evidence));
+        let decision = decision.map(|(_, decision)| decision);
         let progress = match decision {
             Some(Ok(event)) => {
                 let xp = match &event {
@@ -241,6 +246,9 @@ impl App {
                 format!(" +{xp} XP.")
             }
             Some(Err(Refusal::AlreadyCompleted)) | None => String::new(),
+            Some(Err(Refusal::NotPassed)) if missing_part.is_some() => {
+                format!(" {}", missing_part.unwrap_or_default())
+            }
             Some(Err(refusal)) => format!(" {}", refusal_message(refusal)),
         };
         let commit = match self.workspace.commit_pass(&target.kata_dir, report) {

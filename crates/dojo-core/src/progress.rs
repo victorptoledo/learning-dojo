@@ -88,6 +88,11 @@ pub enum Refusal {
 pub enum Evidence<'a> {
     Checks(&'a CheckReport),
     Quiz(QuizScore),
+    /// A checkpoint needs both its quiz and its integration kata passed.
+    Checkpoint {
+        quiz_passed: bool,
+        checks_passed: bool,
+    },
 }
 
 impl Evidence<'_> {
@@ -95,6 +100,10 @@ impl Evidence<'_> {
         match self {
             Self::Checks(report) => report.is_pass(),
             Self::Quiz(score) => score.passed,
+            Self::Checkpoint {
+                quiz_passed,
+                checks_passed,
+            } => *quiz_passed && *checks_passed,
         }
     }
 }
@@ -280,7 +289,23 @@ impl Profile {
             .prerequisites
             .iter()
             .all(|prerequisite| self.is_completed(&track.id, prerequisite));
-        prerequisites_done && self.earlier_phases_done(track, node)
+        prerequisites_done
+            && self.earlier_phases_done(track, node)
+            && self.checkpoint_ready(track, node)
+    }
+
+    /// A checkpoint closes its phase: it opens once every other node of the phase is done.
+    fn checkpoint_ready(&self, track: &Track, node: &Node) -> bool {
+        if node.kind != NodeKind::Checkpoint {
+            return true;
+        }
+        track.phase_of(&node.id).is_none_or(|phase| {
+            phase
+                .nodes
+                .iter()
+                .filter(|other| other.id != node.id)
+                .all(|other| self.is_completed(&track.id, &other.id))
+        })
     }
 
     fn earlier_phases_done(&self, track: &Track, node: &Node) -> bool {
@@ -346,6 +371,42 @@ mod tests {
             vec![lesson("rust.p0.setup", &[], 100)],
             vec![lesson("rust.p1.loops", &["rust.p0.setup"], 250)],
         ])
+    }
+
+    #[test]
+    fn a_checkpoint_opens_after_its_phase_and_needs_quiz_and_kata() {
+        let checkpoint = Node {
+            kind: NodeKind::Checkpoint,
+            ..node("rust.p1.checkpoint", &[], 200)
+        };
+        let rust = track(vec![vec![lesson("rust.p1.loops", &[], 100), checkpoint]]);
+        let checkpoint = rust.node("rust.p1.checkpoint").unwrap();
+        let mut profile = fresh_profile();
+        assert!(
+            !profile.is_unlocked(&rust, checkpoint),
+            "the phase is not finished"
+        );
+
+        complete(&mut profile, &rust, "rust.p1.loops", day(14));
+        assert!(profile.is_unlocked(&rust, checkpoint));
+
+        let half = Evidence::Checkpoint {
+            quiz_passed: true,
+            checks_passed: false,
+        };
+        assert_eq!(
+            profile.complete_by_evidence(&rust, checkpoint, half, day(14)),
+            Err(Refusal::NotPassed)
+        );
+        let both = Evidence::Checkpoint {
+            quiz_passed: true,
+            checks_passed: true,
+        };
+        assert!(
+            profile
+                .complete_by_evidence(&rust, checkpoint, both, day(14))
+                .is_ok()
+        );
     }
 
     #[test]

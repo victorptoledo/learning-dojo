@@ -1,0 +1,58 @@
+questions:
+  - id: shadowing
+    prompt: What does this print?
+    code: |
+      let x = 5;
+      let x = x * 2;
+      {
+          let x = x + 1;
+          println!("{x}");
+      }
+    answers: ["11"]
+    explanation: "Each let creates a new binding: 5, then 10, then 11 inside the block. (Variables and Mutability)"
+  - id: move-into-function
+    prompt: "After calling take(name) where fn take(s: String), can you still use name?"
+    options:
+      - "Yes, Rust copies the String"
+      - "No, ownership moved into take"
+      - "Only if name was declared with mut"
+    answer: 1
+    explanation: "String is not Copy: passing it by value moves it. Pass &name to only borrow it. (Ownership)"
+  - id: copy-types
+    prompt: Which of these types is Copy, so assigning it does not move the original?
+    options: ["String", "Vec<i32>", "i32", "Box<i32>"]
+    answer: 2
+    explanation: "Simple scalars like i32 live on the stack and are copied bit by bit. (Ownership)"
+  - id: two-mut
+    prompt: How many mutable references to the same value can be alive at the same time?
+    options: ["Any number", "Exactly one, and no shared references alongside it", "Two"]
+    answer: 1
+    explanation: "Either one &mut or any number of &, never both: that is what rules out data races. (Borrowing)"
+  - id: method-mutates
+    prompt: A method changes a field of its struct. What is its first parameter?
+    answers: ["&mut self"]
+    explanation: "Changing the struct needs a mutable borrow of it. (Structs and Enums)"
+  - id: enum-data
+    prompt: Which declaration lets each variant carry different data?
+    options:
+      - "enum Shape { Circle(f64), Rect { w: f64, h: f64 } }"
+      - "struct Shape { kind: String }"
+      - "enum Shape: f64 { Circle, Rect }"
+    answer: 0
+    explanation: "Rust enum variants can hold tuples or named fields; match then unpacks them. (Structs and Enums)"
+  - id: hashmap-get
+    prompt: "What is the type of map.get(\"apple\") for a HashMap<String, u32>?"
+    answers: ["Option<&u32>"]
+    explanation: "get borrows the value if the key exists and returns None otherwise. (Collections)"
+  - id: longest-borrow
+    prompt: Why can this function return a &str without copying?
+    code: |
+      fn first_word(text: &str) -> &str {
+          text.split_whitespace().next().unwrap_or("")
+      }
+    options:
+      - "The result is a slice of the input, so it borrows from text"
+      - "Rust clones strings automatically"
+      - "Returning references is only allowed for 'static data"
+    answer: 0
+    explanation: "The returned slice points into text, so it lives as long as the caller's text does. (Borrowing)"

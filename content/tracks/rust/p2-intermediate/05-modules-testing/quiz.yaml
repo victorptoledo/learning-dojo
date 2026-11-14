@@ -1,0 +1,32 @@
+questions:
+  - id: file-not-compiled
+    prompt: You create src/utils.rs but nothing declares it. What happens?
+    options:
+      - "Cargo compiles it automatically"
+      - "It is ignored until a parent declares mod utils;"
+      - "The build fails with a missing-module error"
+    answer: 1
+    explanation: "Modules come from mod declarations, not from the files that happen to exist."
+  - id: private-field
+    prompt: A struct field has no pub. Who can read it?
+    options: ["Nobody", "Code in the same module (and its children)", "Any code in the crate"]
+    answer: 1
+    explanation: "Private is per module. pub(crate) widens it to the whole crate."
+  - id: use-super
+    prompt: "Inside mod tests in src/lib.rs, which line imports everything from the parent module?"
+    answers: ["use super::*;", "use super::*"]
+    explanation: "super is the parent module; the glob brings its items, private ones included, into the tests."
+  - id: integration-tests
+    prompt: What can an integration test in tests/ use from your library?
+    options: ["Everything", "Only its pub API", "Only functions marked #[test]"]
+    answer: 1
+    explanation: "Each file in tests/ is a separate crate, so it sees your library from the outside."
+  - id: should-panic
+    prompt: Which attribute makes a test pass only if the code panics?
+    answers: ["#[should_panic]", "should_panic"]
+    explanation: "Add expected = \"...\" to also check the panic message."
+  - id: semver
+    prompt: "Cargo.toml says rand = \"0.9\". Which version may Cargo pick?"
+    options: ["Exactly 0.9.0", "Any 0.9.x", "Any version above 0.9"]
+    answer: 1
+    explanation: "A bare version is a caret requirement: compatible updates only. For 0.x that means the same minor."

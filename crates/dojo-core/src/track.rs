@@ -117,13 +117,15 @@ impl Node {
     }
 
     /// True while the node lacks what a learner needs to complete it: a lesson
-    /// needs its document and quiz, a kata its exercise. Quizzes, checkpoints and
-    /// projects have no engine yet.
+    /// needs its document and quiz, a kata its exercise, a checkpoint both a quiz
+    /// and a kata. Standalone quiz and project nodes have no engine yet.
     pub fn under_construction(&self) -> bool {
         match self.kind {
             NodeKind::Lesson => self.lesson.is_none() || self.quiz.is_none(),
             NodeKind::Kata => self.kata.is_none(),
-            NodeKind::Quiz | NodeKind::Checkpoint | NodeKind::Project => true,
+            // A checkpoint reviews the phase with a quiz and an integration kata.
+            NodeKind::Checkpoint => self.quiz.is_none() || self.kata.is_none(),
+            NodeKind::Quiz | NodeKind::Project => true,
         }
     }
 

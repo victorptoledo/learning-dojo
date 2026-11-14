@@ -1,0 +1,37 @@
+questions:
+  - id: get-vs-index
+    prompt: "v has 3 elements. What does v.get(10) return?"
+    options: ["It panics", "None", "Some(0)", "A compile error"]
+    answer: 1
+    explanation: "get returns Option<&T>, so an index out of range is None. Only v[10] panics."
+  - id: push-while-borrowed
+    prompt: Why does this not compile?
+    code: |
+      let mut names = vec![String::from("Ana")];
+      let first = &names[0];
+      names.push(String::from("Bia"));
+      println!("{first}");
+    options:
+      - "push needs a String, not a &str"
+      - "push may move the buffer, so it needs a mutable borrow while first still borrows names"
+      - "Vectors of String cannot grow"
+    answer: 1
+    explanation: "A mutable borrow (push) cannot overlap the immutable borrow held by first, because the buffer may move."
+  - id: chars-count
+    prompt: "What is \"olá\".chars().count()?"
+    answers: ["3"]
+    explanation: "chars() walks Unicode characters: o, l, á. len() would give 4 bytes."
+  - id: param-type
+    prompt: A function only reads some text. Which parameter type is the most flexible?
+    options: ["String", "&String", "&str", "&mut String"]
+    answer: 2
+    explanation: "&str accepts literals and, through deref, &String too, without taking ownership."
+  - id: entry-count
+    prompt: "Complete the counting line: *counts.entry(word).______(0) += 1;"
+    answers: ["or_insert", "or_insert(0)"]
+    explanation: "or_insert puts the default in an empty slot and returns a &mut to the value."
+  - id: map-order
+    prompt: In which order does a for loop visit the entries of a HashMap?
+    options: ["Insertion order", "Sorted by key", "No guaranteed order"]
+    answer: 2
+    explanation: "HashMap iteration order is unspecified. Sort into a Vec, or use BTreeMap, for a stable order."

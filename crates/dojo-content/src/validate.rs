@@ -244,7 +244,7 @@ fn check_completeness(track: &Track, report: &mut Report) {
         report.push(
             severity,
             node_location(track, &node.id),
-            "learners see this node as under construction (a lesson needs its document and quiz, a kata its exercise)",
+            "learners see this node as under construction (a lesson needs its document and quiz, a kata its exercise, a checkpoint both)",
         );
     }
     for node in track.nodes() {

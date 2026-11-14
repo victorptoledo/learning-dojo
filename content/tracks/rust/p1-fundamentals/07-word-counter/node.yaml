@@ -1,0 +1,33 @@
+id: rust.p1.word-counter
+kind: kata
+status: draft
+title: "Word Counter: Vec, String and HashMap"
+summary: "Clean up a text, count its words and rank the most frequent ones."
+objectives:
+  - { id: o1, text: "Normalise text with String and &str methods", skills: [rust.collections] }
+  - { id: o2, text: "Count with HashMap::entry and sort the result into a Vec", skills: [rust.collections] }
+prerequisites: [rust.p1.collections]
+difficulty: 2
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 120 }
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-rust runner image
+    image: dojo-rust
+    why: The container with Rust, clippy and rustfmt that runs the grading tests.
+  - kind: vscode-extension
+    name: CodeLLDB
+    id: vadimcn.vscode-lldb
+    required: false
+    why: Breakpoints and step-by-step debugging of your tests.

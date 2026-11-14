@@ -1,0 +1,16 @@
+id: rust.p2.modules-testing
+kind: lesson
+status: draft
+title: "Modules, Crates and Tests"
+summary: "Organise code with mod, pub and use, add crates with Cargo, and prove it works with tests."
+objectives:
+  - { id: o1, text: "Split a crate into modules and files and control visibility with pub", skills: [rust.modules-testing] }
+  - { id: o2, text: "Add dependencies with cargo add and understand semantic versions", skills: [rust.modules-testing] }
+  - { id: o3, text: "Write unit, integration and doc tests and run a subset of them", skills: [rust.modules-testing] }
+prerequisites: [rust.p2.iterators-closures]
+difficulty: 2
+estimated_minutes: 35
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml

@@ -590,3 +590,71 @@ fn a_missing_optional_tool_shows_the_setup_but_lets_the_learner_continue() {
 
     assert_eq!(h.app.screen, Screen::TrackView);
 }
+
+/// Records every node of the Rust track before `phase` (and of `phase` except its
+/// checkpoint) as completed, so a test can start at that checkpoint.
+fn complete_up_to_checkpoint(app: &mut App, phase: &str) {
+    let checkpoint = format!("rust.{phase}.checkpoint");
+    let rust = app.catalog.track("rust").unwrap().clone();
+    let last = rust
+        .phases
+        .iter()
+        .position(|p| p.nodes.iter().any(|node| node.id == checkpoint))
+        .unwrap();
+    let events: Vec<_> = rust.phases[..=last]
+        .iter()
+        .flat_map(|p| p.nodes.iter())
+        .filter(|node| node.id != checkpoint)
+        .map(|node| dojo_core::ProgressEvent::NodeCompleted {
+            track_id: "rust".into(),
+            node_id: node.id.clone(),
+            xp: node.xp,
+            on: App::today(),
+        })
+        .collect();
+    events.into_iter().for_each(|event| app.record(event));
+}
+
+#[test]
+fn a_checkpoint_needs_both_its_quiz_and_its_kata() {
+    let mut h = harness(
+        memory_store(),
+        Mode::Learner,
+        FakeRunner::returning(&[CheckOutcome::Passed]),
+    );
+    complete_up_to_checkpoint(&mut h.app, "p1");
+    select(&mut h.app, "rust.p1.checkpoint");
+    let screen = screen_text(&h.app);
+    assert!(
+        screen.contains("pass the quiz [Q] and the integration kata"),
+        "{screen}"
+    );
+
+    h.app.start_lesson_quiz();
+    take_quiz(&mut h.app, 0);
+    assert!(!h.app.profile.is_completed("rust", "rust.p1.checkpoint"));
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("integration kata"),
+        "{:?}",
+        h.app.status_message
+    );
+
+    h.app.activate_selected();
+    run_check(&mut h.app);
+    assert!(h.app.profile.is_completed("rust", "rust.p1.checkpoint"));
+    assert!(h.app.status_message.as_deref().unwrap().contains("+300 XP"));
+}
+
+#[test]
+fn a_checkpoint_stays_locked_until_its_phase_is_done() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p1.checkpoint");
+
+    h.app.start_lesson_quiz();
+
+    assert!(h.app.quiz.is_none());
+}
