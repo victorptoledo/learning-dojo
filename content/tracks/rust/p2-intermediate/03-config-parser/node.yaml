@@ -1,0 +1,19 @@
+id: rust.p2.config-parser
+kind: kata
+status: draft
+title: "Config Parser: Errors as Values"
+summary: "Parse a key=value file into a map and report every problem with a typed error."
+objectives:
+  - { id: o1, text: "Model failures with an error enum and return them through Result", skills: [rust.option-result] }
+  - { id: o2, text: "Implement Display and std::error::Error for your own error type", skills: [rust.option-result] }
+prerequisites: [rust.p2.option-result]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 120 }

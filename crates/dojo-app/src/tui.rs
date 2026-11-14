@@ -1,12 +1,17 @@
-use crate::app::{App, Screen};
+use crate::app::{App, Screen, Services};
 use crate::ui;
+use crate::watcher::WorkspaceWatcher;
+use crate::workspace::Workspace;
 use anyhow::{Result, anyhow};
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use dojo_content::Severity;
 use dojo_core::Mode;
+use dojo_runner::DockerRunner;
 use dojo_store::{ImportOutcome, SqliteStore, import_v1_profile};
 use ratatui::DefaultTerminal;
+use std::fs;
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::time::Duration;
 
 const POLL_INTERVAL: Duration = Duration::from_millis(100);
@@ -15,6 +20,8 @@ pub struct Options {
     pub content_dir: PathBuf,
     pub db_path: PathBuf,
     pub v1_profile: PathBuf,
+    pub workspace: PathBuf,
+    pub editor: String,
     pub dev: bool,
 }
 
@@ -32,11 +39,20 @@ pub fn run(options: &Options) -> Result<()> {
     } else {
         Mode::Learner
     };
-    let mut app = App::new(loaded.catalog, Box::new(store), mode)?;
+    fs::create_dir_all(&options.workspace)?;
+    let services = Services {
+        store: Box::new(store),
+        runner: Arc::new(DockerRunner::default()),
+        workspace: Workspace::new(&options.workspace),
+        editor: options.editor.clone(),
+    };
+    let mut app = App::new(loaded.catalog, services, mode)?;
     app.status_message = startup_message(loaded.report.count(Severity::Error), &import);
+    let mut watcher = WorkspaceWatcher::start(&options.workspace)
+        .map_err(|error| anyhow!("cannot watch {}: {error}", options.workspace.display()))?;
 
     let mut terminal = ratatui::init();
-    let result = event_loop(&mut terminal, &mut app);
+    let result = event_loop(&mut terminal, &mut app, &mut watcher);
     ratatui::restore();
     result?;
     println!("🥋 Good training at the Learning Dojo. See you on the mat!");
@@ -62,8 +78,16 @@ fn startup_message(content_errors: usize, import: &ImportOutcome) -> Option<Stri
     }
 }
 
-fn event_loop(terminal: &mut DefaultTerminal, app: &mut App) -> Result<()> {
+fn event_loop(
+    terminal: &mut DefaultTerminal,
+    app: &mut App,
+    watcher: &mut WorkspaceWatcher,
+) -> Result<()> {
     loop {
+        app.poll_checks();
+        if let Some(changed) = watcher.settled_change() {
+            app.on_workspace_change(&changed);
+        }
         terminal.draw(|frame| ui::render(frame, app))?;
         if !event::poll(POLL_INTERVAL)? {
             continue;
@@ -107,7 +131,10 @@ fn handle_track_key(app: &mut App, code: KeyCode) -> Flow {
         KeyCode::Char('m' | 'M' | 't' | 'T') => app.open_selector(),
         KeyCode::Down | KeyCode::Char('j') => app.move_down(),
         KeyCode::Up | KeyCode::Char('k') => app.move_up(),
-        KeyCode::Enter | KeyCode::Char(' ') => app.toggle_selected(),
+        KeyCode::Enter => app.activate_selected(),
+        KeyCode::Char(' ') => app.toggle_selected(),
+        KeyCode::Char('c' | 'C') => app.check_selected(),
+        KeyCode::Char('o' | 'O') => app.open_selected(),
         KeyCode::Char('b' | 'B') => app.cycle_bridge_language(),
         _ => {}
     }

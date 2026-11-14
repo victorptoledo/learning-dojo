@@ -1,6 +1,8 @@
 use crate::migrations;
-use chrono::{NaiveDate, Utc};
-use dojo_core::{ProgressEvent, ProgressStore, Settings, StoreError, StreakBaseline};
+use chrono::{DateTime, NaiveDate, Utc};
+use dojo_core::{
+    CheckOutcome, CheckRecord, ProgressEvent, ProgressStore, Settings, StoreError, StreakBaseline,
+};
 use rusqlite::{Connection, params};
 use std::collections::HashMap;
 use std::fs;
@@ -112,6 +114,59 @@ impl ProgressStore for SqliteStore {
 
     fn append_event(&mut self, event: &ProgressEvent) -> Result<(), StoreError> {
         insert_event(&self.connection, event)
+    }
+
+    fn append_check(&mut self, record: &CheckRecord) -> Result<(), StoreError> {
+        self.connection.execute(
+            "INSERT INTO check_run (track_id, node_id, outcome, passed_tests, total_tests, duration_ms, ran_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            params![
+                record.track_id,
+                record.node_id,
+                record.outcome.as_str(),
+                record.passed_tests,
+                record.total_tests,
+                record.duration_ms as i64,
+                record.ran_at.to_rfc3339(),
+            ],
+        )?;
+        Ok(())
+    }
+
+    fn latest_check(
+        &self,
+        track_id: &str,
+        node_id: &str,
+    ) -> Result<Option<CheckRecord>, StoreError> {
+        let mut statement = self.connection.prepare(
+            "SELECT outcome, passed_tests, total_tests, duration_ms, ran_at FROM check_run
+             WHERE track_id = ?1 AND node_id = ?2 ORDER BY id DESC LIMIT 1",
+        )?;
+        let mut rows = statement.query(params![track_id, node_id])?;
+        let Some(row) = rows.next()? else {
+            return Ok(None);
+        };
+        let outcome: String = row.get(0)?;
+        let duration_ms: i64 = row.get(3)?;
+        let ran_at: String = row.get(4)?;
+        Ok(Some(CheckRecord {
+            track_id: track_id.to_string(),
+            node_id: node_id.to_string(),
+            outcome: CheckOutcome::parse(&outcome)
+                .ok_or_else(|| format!("unknown check outcome `{outcome}`"))?,
+            passed_tests: row.get(1)?,
+            total_tests: row.get(2)?,
+            duration_ms: u64::try_from(duration_ms)?,
+            ran_at: DateTime::parse_from_rfc3339(&ran_at)?.with_timezone(&Utc),
+        }))
+    }
+
+    fn check_count(&self, track_id: &str, node_id: &str) -> Result<u32, StoreError> {
+        Ok(self.connection.query_row(
+            "SELECT COUNT(*) FROM check_run WHERE track_id = ?1 AND node_id = ?2",
+            params![track_id, node_id],
+            |row| row.get(0),
+        )?)
     }
 }
 

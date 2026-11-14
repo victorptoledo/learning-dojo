@@ -18,6 +18,19 @@ const MIGRATIONS: &[&str] = &[
          recorded_at TEXT    NOT NULL
      );
      CREATE INDEX event_by_node ON event (track_id, node_id);",
+    // 2: history of kata check runs (attempts).
+    "CREATE TABLE check_run (
+         id           INTEGER PRIMARY KEY AUTOINCREMENT,
+         track_id     TEXT    NOT NULL,
+         node_id      TEXT    NOT NULL,
+         outcome      TEXT    NOT NULL
+                      CHECK (outcome IN ('passed', 'tests_failed', 'compile_error', 'timed_out')),
+         passed_tests INTEGER NOT NULL CHECK (passed_tests >= 0),
+         total_tests  INTEGER NOT NULL CHECK (total_tests >= passed_tests),
+         duration_ms  INTEGER NOT NULL CHECK (duration_ms >= 0),
+         ran_at       TEXT    NOT NULL
+     );
+     CREATE INDEX check_run_by_node ON check_run (track_id, node_id, id);",
 ];
 
 pub fn apply(connection: &mut Connection) -> Result<()> {

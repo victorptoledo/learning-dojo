@@ -1,0 +1,19 @@
+id: rust.p1.control-flow-workout
+kind: kata
+status: draft
+title: "Control Flow Workout: if, loop, for and match"
+summary: "Practise expressions, loops, match and borrowing with four small functions."
+objectives:
+  - { id: o1, text: "Choose between if, loop, while, for and match for each problem", skills: [rust.structs-enums] }
+  - { id: o2, text: "Return borrowed data from a function without copying it", skills: [rust.borrowing-references] }
+prerequisites: [rust.p1.structs-enums]
+difficulty: 2
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 120 }

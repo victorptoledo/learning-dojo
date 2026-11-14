@@ -35,6 +35,7 @@ fn catalog() -> Catalog {
         xp: 150,
         lesson: None,
         bridges: BTreeMap::new(),
+        kata: None,
     };
     let phase = Phase {
         id: "p0".into(),
@@ -68,7 +69,7 @@ fn new_store_has_no_settings_and_no_events() {
 
     assert!(store.load_settings().unwrap().is_none());
     assert!(store.load_events().unwrap().is_empty());
-    assert_eq!(store.schema_version().unwrap(), 1);
+    assert_eq!(store.schema_version().unwrap(), 2);
 }
 
 #[test]
@@ -194,4 +195,38 @@ fn import_is_skipped_when_the_store_already_has_a_profile() {
 
     assert_eq!(outcome, ImportOutcome::NothingToImport);
     assert!(v1_path.exists(), "the v1 file is left untouched");
+}
+
+#[test]
+fn check_history_keeps_every_attempt_and_returns_the_latest() {
+    use chrono::{TimeZone, Utc};
+    use dojo_core::{CheckOutcome, CheckRecord};
+    let mut store = SqliteStore::open_in_memory().unwrap();
+    let attempt = |outcome, passed, minute| CheckRecord {
+        track_id: "rust".into(),
+        node_id: "rust.p0.hello-dojo".into(),
+        outcome,
+        passed_tests: passed,
+        total_tests: 5,
+        duration_ms: 1200,
+        ran_at: Utc.with_ymd_and_hms(2026, 11, 14, 12, minute, 0).unwrap(),
+    };
+    assert_eq!(
+        store.latest_check("rust", "rust.p0.hello-dojo").unwrap(),
+        None
+    );
+
+    store
+        .append_check(&attempt(CheckOutcome::CompileError, 0, 1))
+        .unwrap();
+    store
+        .append_check(&attempt(CheckOutcome::Passed, 5, 2))
+        .unwrap();
+
+    assert_eq!(store.check_count("rust", "rust.p0.hello-dojo").unwrap(), 2);
+    assert_eq!(
+        store.latest_check("rust", "rust.p0.hello-dojo").unwrap(),
+        Some(attempt(CheckOutcome::Passed, 5, 2))
+    );
+    assert_eq!(store.check_count("rust", "other").unwrap(), 0);
 }

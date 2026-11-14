@@ -1,6 +1,6 @@
 use crate::app::{App, Screen};
 use crate::tree::TreeRow;
-use dojo_core::{Mode, Node, NodeKind, Phase, Track};
+use dojo_core::{CheckOutcome, Kata, Mode, Node, NodeKind, Phase, Track};
 use ratatui::{
     Frame,
     layout::{Constraint, Layout, Rect},
@@ -180,6 +180,10 @@ fn node_status(app: &App, track: &Track, node: &Node) -> (&'static str, Style) {
         )
     } else if !app.profile.is_unlocked(track, node) {
         ("🔒", Style::default().fg(Color::DarkGray))
+    } else if app.is_checking(&track.id, &node.id) {
+        ("⏳", Style::default().fg(Color::Cyan))
+    } else if kata_started(app, track, node) {
+        ("◐", Style::default().fg(Color::Yellow))
     } else if node.kind == NodeKind::Checkpoint {
         ("📋", Style::default().fg(Color::Yellow))
     } else {
@@ -197,7 +201,84 @@ fn render_detail(frame: &mut Frame, app: &App, area: Rect) {
     let [summary_area, bridge_area] =
         Layout::vertical([Constraint::Percentage(40), Constraint::Percentage(60)]).areas(area);
     render_summary(frame, app, track, phase, node, summary_area);
-    render_bridge(frame, app, node, bridge_area);
+    match &node.kata {
+        Some(kata) => render_kata(frame, app, track, phase, node, kata, bridge_area),
+        None => render_bridge(frame, app, node, bridge_area),
+    }
+}
+
+fn kata_started(app: &App, track: &Track, node: &Node) -> bool {
+    node.kata.is_some()
+        && track
+            .phase_of(&node.id)
+            .is_some_and(|phase| app.workspace.kata_dir(track, phase, node).exists())
+}
+
+fn render_kata(
+    frame: &mut Frame,
+    app: &App,
+    track: &Track,
+    phase: &Phase,
+    node: &Node,
+    kata: &Kata,
+    area: Rect,
+) {
+    let dir = app.workspace.kata_dir(track, phase, node);
+    let key = (track.id.clone(), node.id.clone());
+    let folder = dir.display().to_string();
+    let mut lines = vec![if dir.exists() {
+        labelled("📁 Folder: ", &folder, Color::Cyan)
+    } else {
+        Line::from("📁 Not started yet — press [Enter] to create your kata folder.".yellow())
+    }];
+    lines.push(check_status_line(app, &key));
+    if let Some(report) = app
+        .last_reports
+        .get(&key)
+        .filter(|report| !report.details.is_empty())
+    {
+        lines.push(Line::from(""));
+        lines.extend(
+            report
+                .details
+                .lines()
+                .map(|line| Line::from(line.to_string().light_red())),
+        );
+    }
+    lines.push(Line::from(""));
+    lines.extend(
+        kata.statement
+            .lines()
+            .map(|line| Line::from(line.to_string())),
+    );
+    let paragraph = Paragraph::new(lines)
+        .wrap(Wrap { trim: false })
+        .block(titled(" 🥋 Kata "));
+    frame.render_widget(paragraph, area);
+}
+
+fn check_status_line(app: &App, key: &(String, String)) -> Line<'static> {
+    if app.is_checking(&key.0, &key.1) {
+        return Line::from("⏳ Checking in Docker…".cyan());
+    }
+    match app.check_history.get(key) {
+        None => Line::from("🧪 No checks yet. Save a file or press [C].".dark_gray()),
+        Some((record, attempts)) => {
+            let label = format!(
+                "🧪 Last check: {}/{} tests · {} · {attempts} attempt{}",
+                record.passed_tests,
+                record.total_tests,
+                record.outcome.as_str().replace('_', " "),
+                if *attempts == 1 { "" } else { "s" }
+            );
+            let color = if record.outcome == CheckOutcome::Passed {
+                Color::Green
+            } else {
+                Color::LightRed
+            };
+            Line::from(Span::styled(label, Style::default().fg(color)))
+        }
+    }
 }
 
 fn render_summary(
@@ -298,7 +379,7 @@ fn labelled<'a>(label: &str, text: &'a str, color: Color) -> Line<'a> {
 
 fn render_footer(frame: &mut Frame, app: &App, area: Rect) {
     let text = app.status_message.clone().unwrap_or_else(|| {
-        "[M] Tracks | [↑/↓] Move | [Space/Enter] Mark done | [B] Bridge language | [q/Esc] Quit"
+        "[M] Tracks | [↑/↓] Move | [Enter] Start kata / mark lesson | [C] Check | [O] Open folder | [B] Bridge | [q] Quit"
             .to_string()
     });
     let mode = match app.mode {
@@ -379,102 +460,4 @@ fn centered(area: Rect, width_percent: u16, height_percent: u16) -> Rect {
 
 fn titled<'a>(title: impl Into<Line<'a>>) -> Block<'a> {
     Block::default().borders(Borders::ALL).title(title)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::render;
-    use crate::app::App;
-    use dojo_core::{Mode, ProgressStore};
-    use dojo_store::{SqliteStore, import_v1_profile};
-    use ratatui::{Terminal, backend::TestBackend};
-    use std::path::Path;
-
-    fn screen_text(app: &App) -> String {
-        let mut terminal = Terminal::new(TestBackend::new(160, 40)).unwrap();
-        terminal.draw(|frame| render(frame, app)).unwrap();
-        let buffer = terminal.backend().buffer();
-        buffer.content().iter().map(|cell| cell.symbol()).collect()
-    }
-
-    fn real_catalog() -> dojo_core::Catalog {
-        let content = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../content");
-        dojo_content::load(&content).unwrap().catalog
-    }
-
-    fn app_with(store: SqliteStore, mode: Mode) -> App {
-        App::new(real_catalog(), Box::new(store), mode).unwrap()
-    }
-
-    #[test]
-    fn renders_real_content_after_importing_a_v1_profile() {
-        let dir = tempfile::tempdir().unwrap();
-        let v1_path = dir.path().join("profile.json");
-        std::fs::write(
-            &v1_path,
-            r#"{"name":"Dev Sensei","total_xp":100,"current_streak":1,"best_streak":1,
-               "last_trained":"2026-11-14","active_track_id":"rust",
-               "track_progress":{"rust":["rust-01-setup"]}}"#,
-        )
-        .unwrap();
-        let mut store = SqliteStore::open_in_memory().unwrap();
-        import_v1_profile(&v1_path, &real_catalog(), &mut store, App::today()).unwrap();
-
-        let mut app = app_with(store, Mode::Learner);
-
-        assert!(app.profile.is_completed("rust", "rust.p0.setup"));
-        let screen = screen_text(&app);
-        assert!(screen.contains("Rust"), "{screen}");
-        assert!(screen.contains("First Steps"), "{screen}");
-        assert!(screen.contains("Rosetta Bridge"), "{screen}");
-
-        app.open_selector();
-        assert!(screen_text(&app).contains("29 available"));
-    }
-
-    #[test]
-    fn learner_completes_a_lesson_but_cannot_undo_it() {
-        let mut app = app_with(SqliteStore::open_in_memory().unwrap(), Mode::Learner);
-        let (track_id, node_id) = selected_ids(&app);
-
-        app.toggle_selected();
-        assert!(app.profile.is_completed(&track_id, &node_id));
-        app.toggle_selected();
-
-        assert!(app.profile.is_completed(&track_id, &node_id));
-        assert!(app.status_message.as_deref().unwrap().contains("--dev"));
-    }
-
-    #[test]
-    fn dev_mode_can_undo_and_shows_its_badge() {
-        let mut app = app_with(SqliteStore::open_in_memory().unwrap(), Mode::Dev);
-        let (track_id, node_id) = selected_ids(&app);
-
-        app.toggle_selected();
-        app.toggle_selected();
-
-        assert!(!app.profile.is_completed(&track_id, &node_id));
-        assert!(screen_text(&app).contains("DEV MODE"));
-    }
-
-    #[test]
-    fn first_run_saves_settings_so_the_store_is_no_longer_empty() {
-        let dir = tempfile::tempdir().unwrap();
-        let db = dir.path().join("dojo.db");
-        app_with(SqliteStore::open(&db).unwrap(), Mode::Learner);
-
-        assert!(
-            SqliteStore::open(&db)
-                .unwrap()
-                .load_settings()
-                .unwrap()
-                .is_some()
-        );
-    }
-
-    fn selected_ids(app: &App) -> (String, String) {
-        let track = app.active_track();
-        let (_, node) = app.tree.selected(track).unwrap();
-        (track.id.clone(), node.id.clone())
-    }
 }

@@ -98,6 +98,7 @@ mod tests {
             xp: 100,
             lesson: None,
             bridges: BTreeMap::new(),
+            kata: None,
         }
     }
 

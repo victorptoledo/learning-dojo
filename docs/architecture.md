@@ -1,6 +1,6 @@
 # Learning Dojo v2 Architecture
 
-> Status: **M0 and M1 implemented** (2026-11-14): workspace, `dojo-core`, `dojo-content`, JSON Schemas, `dojo content validate`, the 29 tracks migrated as English drafts, and the SQLite progress store (`dojo-store`). Later milestones are still design.
+> Status: **M0, M1 and M2a implemented** (2026-11-14): workspace, `dojo-core`, `dojo-content`, JSON Schemas, `dojo content validate`, the 29 tracks migrated as English drafts, the SQLite progress store (`dojo-store`), and kata checks in Docker (`dojo-runner`) with three Rust katas. Later milestones are still design.
 > Full example content files live in [`docs/examples/`](examples/).
 
 ## 0. Decisions so far
@@ -91,11 +91,17 @@ On the learner's machine:
 ```
 ~/.dojo/
 ├── dojo.db                         progress, attempts, reviews (SQLite)
-├── config.toml                     source language, AI backend, consent (never keys)
-└── workspace/rust/p1-fundamentals/04-loops/   copy of the starter, where the learner codes
+└── config.toml                     source language, AI backend, workspace path (never keys)
+
+C:\dev\dojo-workspace\              the learner's solutions, a git repository of its own
+├── README.md
+├── .gitignore                      target/, node_modules/, editor folders
+└── rust/p1-fundamentals/04-loops/  copy of the starter, where the learner codes
 ```
 
-The learner codes in their own editor. The TUI watches the folder (`notify`) and re-runs the checks on save; `dojo submit` sends it for review.
+The workspace lives outside the dojo repository (default `C:\dev\dojo-workspace`, changed in `config.toml` or with `--workspace`) and is its own git repository, so the solutions keep their history. The learner codes in their own editor; the TUI watches the folder (`notify`) and re-runs the checks on save; `dojo submit` sends it for review. The dojo never overwrites a kata folder that already exists, and never pushes the workspace anywhere.
+
+**Auto-commit on pass:** when a kata's checks pass and its folder changed since the last commit, the dojo stages only that folder and commits it as `<track>/<phase>/<kata>: passed (6/6 tests)` with the learner's own git identity. Nothing outside the kata folder is touched. If the workspace is not a git repository or git is missing, the TUI shows a warning and carries on.
 
 ## 4. Track archetypes
 
@@ -220,6 +226,8 @@ dojo submit
 - The container writes a JSON result to stdout (test cases, linter findings, metrics); the runner parses it into `CheckReport`.
 - **Docker track katas** need a Docker engine to build images. They use a separate, explicit profile: the runner builds the learner's image on the host engine with a kata-specific tag, runs `hadolint` and the kata's asserts (image size, user not root, layers, healthcheck, exposed ports) in a container, and removes everything afterwards. No privileged containers, no mounting the Docker socket into learner code.
 - If Docker is not running, the TUI says so and offers quizzes/lessons only.
+- **Implemented in M2a:** the check runs on a staged copy (solution + grading tests) whose files all get a fresh modification time. Copies keep the original times and the build cache volume is shared between checks of a kata, so without this an older file could look up to date and reuse a stale binary (found by `verify-katas`: starters were "passing" with the reference's build). Limits: `--network none --cpus 2 --memory 1g --pids-limit 256 --cap-drop ALL --security-opt=no-new-privileges`, user `dojo` (uid 10001), kill on `timeout_secs`. The output of stable `cargo test` is parsed (no JSON test format on stable).
+- Known gap: when a solution breaks the build of a grading test, the compiler message names the hidden test file and shows the offending line. Starters therefore ship compilable stubs (`todo!()`) for everything the grading tests use.
 
 ### 8.2 Static tools per language (run inside the image)
 
@@ -300,7 +308,8 @@ score(candidate) = 0.35·target_career_gap + 0.25·weak_skill_reinforcement
 │ ▾ P1 Fundamentals            │                                                 │
 │     ✓ Primitive types        │  Loops: loop, while and for                      │
 │     ✓ Control flow           │  Objectives: ...                                 │
-│     ◐ Loops            ← ●   │  Workspace: ~/.dojo/workspace/rust/p1/04-loops   │
+│     ◐ Loops            ← ●   │  Workspace: dojo-workspace/rust/p1/04-loops      │
+ustp1│  Workspace: ~/.dojo/workspace/rust/p1/04-loops   │4-lo │
 │     ○ Functions              │  Tests: 4/6 ✓  (saved 3 s ago · docker)          │
 │     📋 Checkpoint 1          │                                                 │
 │ ▸ P2 Intermediate         ⏭  │  [s] submit  [h] hint  [o] open folder           │
@@ -326,7 +335,7 @@ score(candidate) = 0.35·target_career_gap + 0.25·weak_skill_reinforcement
 |---|---|---|
 | M0 | Cargo workspace, `dojo-core` and `dojo-content` with schema v2 | all 29 current tracks migrated to phases (each node placed in the phase it belongs to, as English drafts) and validating — **done 2026-11-14** |
 | M1 | `dojo-store` (SQLite) + `profile.json` migration + tree TUI | old progress preserved; manual toggle behind `--dev` — **done 2026-11-14** (tree TUI landed in M0; learners may still mark lessons as read) |
-| M2 | Docker runner + Rust pilot track (20 nodes) | `dojo check` runs tests in a container with file watching |
+| M2 | Docker runner + Rust pilot track (20 nodes) | `dojo check` runs tests in a container with file watching — **M2a done 2026-11-14** (runner, workspace, auto-commit, watch, 3 Rust katas); M2b: the rest of the Rust track |
 | M3 | Checkpoints and quiz engine | Rust checkpoints 1 and 2 working |
 | M4 | Placement | Rust placement produces a plan and a belt exam |
 | M5 | Layered review + `LocalReviewer` (Ollama) + `OfflineReviewer` + evals | local model chosen by Rust eval agreement and review time |

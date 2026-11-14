@@ -1,0 +1,11 @@
+[package]
+name = "dojo-runner"
+description = "Runs Learning Dojo kata checks in Docker containers."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+dojo-core.workspace = true
+regex.workspace = true
+tempfile.workspace = true

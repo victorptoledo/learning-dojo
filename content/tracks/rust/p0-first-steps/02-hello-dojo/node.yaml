@@ -1,0 +1,18 @@
+id: rust.p0.hello-dojo
+kind: kata
+status: draft
+title: "Hello, Dojo: Your First Kata"
+summary: "Write your first Rust function, run its tests and see how katas are checked."
+objectives:
+  - { id: o1, text: "Write a function that takes a string slice and returns an owned String", skills: [rust.setup] }
+prerequisites: [rust.p0.setup]
+difficulty: 1
+estimated_minutes: 15
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 120 }

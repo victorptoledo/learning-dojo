@@ -50,6 +50,23 @@ pub struct NodeManifest {
     pub lesson: Option<String>,
     #[serde(default)]
     pub bridges: Option<String>,
+    #[serde(default)]
+    pub kata: Option<KataManifest>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct KataManifest {
+    pub statement: String,
+    pub starter: String,
+    pub tests: String,
+    pub reference: String,
+    pub runner: RunnerManifest,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RunnerManifest {
+    pub image: String,
+    pub timeout_secs: u32,
 }
 
 #[derive(Debug, Deserialize)]

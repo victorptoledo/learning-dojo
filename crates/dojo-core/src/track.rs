@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use std::path::PathBuf;
 
 pub type TrackId = String;
 pub type PhaseId = String;
@@ -61,6 +62,25 @@ pub struct Bridge {
     pub body: String,
 }
 
+/// Docker image and limits used to check a kata.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RunnerSpec {
+    pub image: String,
+    pub timeout_secs: u32,
+}
+
+/// A hands-on exercise: the learner edits a copy of `starter_dir`; `tests_dir`
+/// holds the grading tests, copied into the check container only.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Kata {
+    /// Markdown statement shown in the TUI.
+    pub statement: String,
+    pub starter_dir: PathBuf,
+    pub tests_dir: PathBuf,
+    pub reference_dir: PathBuf,
+    pub runner: RunnerSpec,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Node {
     pub id: NodeId,
@@ -77,6 +97,7 @@ pub struct Node {
     pub lesson: Option<String>,
     /// Bridges keyed by source language (`java`, `python`, ..., `generic`).
     pub bridges: BTreeMap<String, Bridge>,
+    pub kata: Option<Kata>,
 }
 
 impl Node {
@@ -167,6 +188,7 @@ pub(crate) mod fixtures {
             xp,
             lesson: None,
             bridges: BTreeMap::new(),
+            kata: None,
         }
     }
 

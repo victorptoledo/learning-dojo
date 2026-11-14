@@ -17,6 +17,10 @@ crossterm.workspace = true
 dojo-content.workspace = true
 dojo-core.workspace = true
 dojo-store.workspace = true
+dojo-runner.workspace = true
+notify.workspace = true
+serde.workspace = true
+toml.workspace = true
 ratatui.workspace = true
 serde_json.workspace = true
 

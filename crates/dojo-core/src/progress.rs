@@ -4,6 +4,7 @@
 //! `Profile::apply` is the only way progress changes, so replaying the stored events
 //! always reproduces the same state.
 
+use crate::check::CheckReport;
 use crate::track::{Belt, Node, NodeKind, Track};
 use chrono::NaiveDate;
 use std::collections::{HashMap, HashSet};
@@ -72,6 +73,8 @@ pub enum Refusal {
     /// Katas, quizzes, checkpoints and projects are completed by evidence
     /// (tests, scores, reviews), not by ticking them.
     NeedsEvidence(NodeKind),
+    /// Evidence was offered but the checks did not pass.
+    ChecksFailed,
     DevOnly,
 }
 
@@ -178,6 +181,31 @@ impl Profile {
         }
         if mode == Mode::Learner && node.kind != NodeKind::Lesson {
             return Err(Refusal::NeedsEvidence(node.kind));
+        }
+        Ok(ProgressEvent::NodeCompleted {
+            track_id: track.id.clone(),
+            node_id: node.id.clone(),
+            xp: node.xp,
+            on: today,
+        })
+    }
+
+    /// Completes a kata (or any evidence-based node) whose checks passed.
+    pub fn complete_by_evidence(
+        &self,
+        track: &Track,
+        node: &Node,
+        report: &CheckReport,
+        today: NaiveDate,
+    ) -> Result<ProgressEvent, Refusal> {
+        if self.is_completed(&track.id, &node.id) {
+            return Err(Refusal::AlreadyCompleted);
+        }
+        if !self.is_unlocked(track, node) {
+            return Err(Refusal::Locked);
+        }
+        if !report.is_pass() {
+            return Err(Refusal::ChecksFailed);
         }
         Ok(ProgressEvent::NodeCompleted {
             track_id: track.id.clone(),
@@ -320,6 +348,39 @@ mod tests {
             profile
                 .request_completion(&rust, kata, day(14), Mode::Dev)
                 .is_ok()
+        );
+    }
+
+    #[test]
+    fn kata_is_completed_only_by_a_passing_check() {
+        use crate::check::{CheckOutcome, CheckReport};
+        let rust = track(vec![vec![node("rust.p0.kata", &[], 120)]]);
+        let kata = rust.node("rust.p0.kata").unwrap();
+        let mut profile = fresh_profile();
+        let failing = CheckReport {
+            outcome: CheckOutcome::TestsFailed,
+            tests: vec![],
+            details: String::new(),
+            duration_ms: 5,
+        };
+        let passing = CheckReport {
+            outcome: CheckOutcome::Passed,
+            ..failing.clone()
+        };
+
+        assert_eq!(
+            profile.complete_by_evidence(&rust, kata, &failing, day(14)),
+            Err(Refusal::ChecksFailed)
+        );
+        let event = profile
+            .complete_by_evidence(&rust, kata, &passing, day(14))
+            .unwrap();
+        profile.apply(&event);
+
+        assert_eq!(profile.total_xp, 120);
+        assert_eq!(
+            profile.complete_by_evidence(&rust, kata, &passing, day(14)),
+            Err(Refusal::AlreadyCompleted)
         );
     }
 

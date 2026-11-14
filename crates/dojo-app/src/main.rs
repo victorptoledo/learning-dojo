@@ -1,11 +1,20 @@
 mod app;
+#[cfg(test)]
+mod app_tests;
+mod checks;
+mod config;
+mod kata_actions;
+mod kata_commands;
 mod tree;
 mod tui;
 mod ui;
 mod validate_command;
+mod watcher;
+mod workspace;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
+use config::{Config, dojo_home};
 use std::path::PathBuf;
 use std::process::ExitCode;
 
@@ -20,6 +29,10 @@ struct Cli {
     /// Progress database. Defaults to `~/.dojo/dojo.db`.
     #[arg(long, global = true)]
     db: Option<PathBuf>,
+
+    /// Folder with your kata solutions (a git repository). Overrides `workspace` in ~/.dojo/config.toml.
+    #[arg(long, global = true)]
+    workspace: Option<PathBuf>,
 
     /// v1 progress file imported into the database on first run, then renamed to `profile.v1.json`.
     #[arg(long, global = true, default_value = "data/profile.json")]
@@ -40,6 +53,11 @@ enum Command {
         #[command(subcommand)]
         action: ContentAction,
     },
+    /// Manage the Docker images that check katas.
+    Runner {
+        #[command(subcommand)]
+        action: RunnerAction,
+    },
 }
 
 #[derive(Subcommand)]
@@ -50,16 +68,30 @@ enum ContentAction {
         #[arg(long)]
         strict: bool,
     },
+    /// Run every kata in Docker: the reference must pass and the starter must fail.
+    VerifyKatas,
+}
+
+#[derive(Subcommand)]
+enum RunnerAction {
+    /// Build the images in runner-images/ (dojo-rust, ...).
+    Build {
+        #[arg(long, default_value = "runner-images")]
+        images: PathBuf,
+    },
 }
 
 fn main() -> Result<ExitCode> {
     let cli = Cli::parse();
     match cli.command {
         None => {
+            let config = Config::load(&dojo_home().join("config.toml"))?;
             let options = tui::Options {
                 content_dir: cli.content,
-                db_path: cli.db.unwrap_or_else(default_db_path),
+                db_path: cli.db.unwrap_or_else(|| dojo_home().join("dojo.db")),
                 v1_profile: cli.import_v1,
+                workspace: cli.workspace.unwrap_or(config.workspace),
+                editor: config.editor,
                 dev: cli.dev,
             };
             tui::run(&options)?;
@@ -68,12 +100,11 @@ fn main() -> Result<ExitCode> {
         Some(Command::Content {
             action: ContentAction::Validate { strict },
         }) => validate_command::run(&cli.content, strict),
+        Some(Command::Content {
+            action: ContentAction::VerifyKatas,
+        }) => kata_commands::verify_katas(&cli.content),
+        Some(Command::Runner {
+            action: RunnerAction::Build { images },
+        }) => kata_commands::build_runner_images(&images),
     }
-}
-
-fn default_db_path() -> PathBuf {
-    std::env::home_dir()
-        .unwrap_or_default()
-        .join(".dojo")
-        .join("dojo.db")
 }

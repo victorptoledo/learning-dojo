@@ -1,12 +1,14 @@
 use crate::front_matter;
 use crate::manifest::{
-    BeltManifest, BridgeFrontMatter, NodeManifest, ObjectiveManifest, PhaseManifest,
+    BeltManifest, BridgeFrontMatter, KataManifest, NodeManifest, ObjectiveManifest, PhaseManifest,
     SkillsManifest, TrackManifest,
 };
 use crate::report::Report;
 use crate::schema::{self, Schemas};
 use anyhow::{Result, bail};
-use dojo_core::{Belt, Bridge, Catalog, Node, Objective, Phase, Skill, SkillId, Track};
+use dojo_core::{
+    Belt, Bridge, Catalog, Kata, Node, Objective, Phase, RunnerSpec, Skill, SkillId, Track,
+};
 use regex::Regex;
 use serde::de::DeserializeOwned;
 use serde_json::Value;
@@ -188,7 +190,43 @@ impl ContentReader<'_> {
             Some(dir) => self.load_bridges(&node_dir.join(dir)),
             None => BTreeMap::new(),
         };
-        Some(to_node(manifest, lesson, bridges))
+        let kata = manifest
+            .kata
+            .as_ref()
+            .and_then(|kata| self.load_kata(node_dir, kata));
+        Some(to_node(manifest, lesson, bridges, kata))
+    }
+
+    /// Resolves the kata folders and reads its statement; every missing piece is reported.
+    fn load_kata(&mut self, node_dir: &Path, manifest: &KataManifest) -> Option<Kata> {
+        let statement = self.read_text(&node_dir.join(&manifest.statement));
+        let starter_dir = self.existing_dir(node_dir, &manifest.starter, "starter");
+        let tests_dir = self.existing_dir(node_dir, &manifest.tests, "tests");
+        let reference_dir = self.existing_dir(node_dir, &manifest.reference, "reference");
+        Some(Kata {
+            statement: statement?,
+            starter_dir: starter_dir?,
+            tests_dir: tests_dir?,
+            reference_dir: reference_dir?,
+            runner: RunnerSpec {
+                image: manifest.runner.image.clone(),
+                timeout_secs: manifest.runner.timeout_secs,
+            },
+        })
+    }
+
+    fn existing_dir(&mut self, node_dir: &Path, relative: &str, role: &str) -> Option<PathBuf> {
+        let dir = node_dir.join(relative);
+        let has_files = fs::read_dir(&dir).is_ok_and(|mut entries| entries.next().is_some());
+        if has_files {
+            Some(dir)
+        } else {
+            self.report.error(
+                self.relative(&dir),
+                format!("kata {role} folder is missing or empty"),
+            );
+            None
+        }
     }
 
     fn load_bridges(&mut self, bridges_dir: &Path) -> BTreeMap<String, Bridge> {
@@ -329,6 +367,7 @@ fn to_node(
     manifest: NodeManifest,
     lesson: Option<String>,
     bridges: BTreeMap<String, Bridge>,
+    kata: Option<Kata>,
 ) -> Node {
     Node {
         id: manifest.id,
@@ -344,6 +383,7 @@ fn to_node(
         xp: manifest.xp,
         lesson,
         bridges,
+        kata,
     }
 }
 
