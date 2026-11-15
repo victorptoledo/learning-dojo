@@ -1,0 +1,34 @@
+questions:
+  - id: worktree-share
+    prompt: "You commit in a worktree created with git worktree add. Is the commit visible from the main working directory?"
+    options: ["No, worktrees are separate clones", "Yes: all worktrees share one repository, only HEAD, index and files are separate", "Only after a push", "Only after git worktree prune"]
+    answer: 1
+    explanation: "Worktrees share objects and refs; each has its own checkout."
+  - id: worktree-branch
+    prompt: "feature/search is checked out in one worktree. What happens if you try to check it out in a second worktree?"
+    options: ["Both follow it", "Git refuses: a branch can be checked out in one worktree at a time", "The first worktree is deleted", "Git creates a copy of the branch"]
+    answer: 1
+    explanation: "Two checkouts moving the same branch would trample each other, so Git prevents it."
+  - id: gitlink
+    prompt: "What does the superproject store for a submodule?"
+    options: ["A copy of the submodule's files", "A gitlink entry with one commit hash, plus its path and URL in .gitmodules", "The submodule's whole history", "A branch name to follow"]
+    answer: 1
+    explanation: "The tree entry has mode 160000 and points at a commit of the other repository."
+  - id: clone-recurse
+    prompt: "Which clone option also checks out every submodule?"
+    answers: ["--recurse-submodules", "git clone --recurse-submodules"]
+    explanation: "Without it, run git submodule update --init --recursive after cloning."
+  - id: bump-order
+    prompt: "You fixed a bug inside a submodule and want the superproject to use it. What must happen before you push the superproject?"
+    options:
+      - "Nothing"
+      - "Commit and push the fix in the submodule's own repository, then commit the new gitlink"
+      - "Delete .gitmodules"
+      - "Convert it to a subtree"
+    answer: 1
+    explanation: "Otherwise others' submodule update looks for a commit that exists only on your machine."
+  - id: subtree-clone
+    prompt: "What is the main advantage of a subtree over a submodule for people who clone the repository?"
+    options: ["Smaller clones", "The files are ordinary files in the history, so a plain clone has everything", "It updates itself", "It pins the exact upstream commit"]
+    answer: 1
+    explanation: "The cost moves to whoever updates or contributes back with subtree pull and push."

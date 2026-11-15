@@ -1,0 +1,23 @@
+id: git.p3.worktrees-submodules
+kind: lesson
+status: draft
+title: "Worktrees, Submodules and Subtrees"
+summary: "Several working trees on one repository with git worktree, and two ways to put one repository inside another: submodules (a pinned pointer) and subtrees (a copy merged into history)."
+objectives:
+  - { id: o1, text: "Work on several branches at once with git worktree add, list, remove and prune", skills: [git.worktrees-submodules] }
+  - { id: o2, text: "Add, clone, update and bump a submodule and explain the gitlink it records", skills: [git.worktrees-submodules] }
+  - { id: o3, text: "Compare submodules, subtrees and a package manager and pick one for a given situation", skills: [git.worktrees-submodules] }
+prerequisites: [git.p3.commit-msg-hook]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Three services share a `proto/` folder with API definitions that a fourth team owns in its own repository. Compare a submodule, a subtree and publishing the definitions as a versioned package. For the option you recommend, describe the commands a developer runs to clone, update and change the shared code. Then explain how git worktree would help a developer who must review a pull request while in the middle of their own change.'
+  criteria:
+    - 'Explains that a submodule records a commit (gitlink) plus .gitmodules, and needs --recurse-submodules or submodule update'
+    - 'Explains that a subtree copies the other project''s files into history, so clones need nothing special but updates go through subtree pull/push'
+    - 'Considers a package/artifact with versions as an alternative and gives a reasoned recommendation'
+    - 'Uses git worktree add ../review <branch> to review without stashing, and removes it afterwards'

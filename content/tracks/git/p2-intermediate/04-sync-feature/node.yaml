@@ -1,0 +1,48 @@
+id: git.p2.sync-feature
+kind: kata
+status: draft
+title: "Sync a Feature Branch: Fetch, Rebase and Push Safely"
+summary: "Bring a feature branch up to date with origin/main by rebasing it, push it with a lease, and refuse every situation that could lose work."
+objectives:
+  - { id: o1, text: "Fetch, rebase a branch onto origin/main and push it with --force-with-lease from a script", skills: [git.remotes, git.rebase-vs-merge] }
+  - { id: o2, text: "Detect and refuse unsafe states: uncommitted changes, conflicts, and commits on the remote branch you do not have", skills: [git.remotes, git.conflicts] }
+prerequisites: [git.p2.conflicts]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 90 }
+  hints:
+    - |-
+      Do the whole thing by hand first with two clones of a bare repository: what do `git fetch`, `git rebase origin/main feature` and `git push --force-with-lease` print and change? Then list the checks that must happen **before** anything is changed, and the one that must happen **after** the fetch but before the rebase.
+    - |-
+      `git status --porcelain --untracked-files=no` is empty when no tracked file has changes. After `git fetch -q origin`, `git rev-parse -q --verify "refs/remotes/origin/$branch"` tells you whether the server has the branch, and `git merge-base --is-ancestor "origin/$branch" "$branch"` whether your branch already contains it. If `git rebase` fails, `git rebase --abort` puts everything back. `git rev-list --count origin/main..BRANCH` counts the commits on top.
+    - |-
+      ```bash
+      git -C "$repo" fetch -q origin
+      if git -C "$repo" rev-parse -q --verify "refs/remotes/origin/$branch" > /dev/null \
+          && ! git -C "$repo" merge-base --is-ancestor "origin/$branch" "$branch"; then
+          echo "sync.sh: origin/$branch has commits that $branch does not have" >&2
+          exit 1
+      fi
+      if ! git -C "$repo" rebase -q origin/main "$branch" > /dev/null 2>&1; then
+          git -C "$repo" rebase --abort
+          # report the conflict and exit 1
+      fi
+      git -C "$repo" push -q --force-with-lease -u origin "$branch" > /dev/null
+      # print the summary line
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, Git, bats and shellcheck that runs the grading tests.

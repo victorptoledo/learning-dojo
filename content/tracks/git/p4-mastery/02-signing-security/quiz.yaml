@@ -1,0 +1,34 @@
+questions:
+  - id: forge
+    prompt: "Can someone make a commit that shows your name and email without your keys?"
+    options: ["No, Git checks the email", "Yes: name and email are plain text set in the configuration", "Only on GitHub", "Only for merge commits"]
+    answer: 1
+    explanation: "Only a signature ties a commit to a key you control."
+  - id: ssh-format
+    prompt: "Which setting tells Git to sign with an SSH key instead of GPG?"
+    answers: ["gpg.format ssh", "git config gpg.format ssh", "git config --global gpg.format ssh", "gpg.format=ssh"]
+    explanation: "With gpg.format ssh, user.signingkey points at your SSH public key."
+  - id: verify
+    prompt: "Which command shows whether the last commit's signature is valid?"
+    options: ["git show --stat", "git log --show-signature -1", "git status", "git fsck"]
+    answer: 1
+    explanation: "git verify-commit HEAD also works; both need the signer's key to be known (allowed signers or keyring)."
+  - id: first-step
+    prompt: "An API key was pushed to a public repository. What do you do first?"
+    options: ["Rewrite history with git filter-repo", "Revoke or rotate the key", "Delete the repository", "Make the repository private"]
+    answer: 1
+    explanation: "It must be treated as leaked the moment it was public; rewriting does not un-leak it."
+  - id: after-rewrite
+    prompt: "After you remove a secret with git filter-repo and force-push, what must your teammates do?"
+    options:
+      - "Nothing"
+      - "Re-clone, or reset their branches onto the rewritten history, without merging their old history back"
+      - "git pull as usual"
+      - "Run git gc"
+    answer: 1
+    explanation: "Every hash after the bad commit changed; merging an old clone would bring the secret back."
+  - id: push-protection
+    prompt: "Why is server-side push protection more reliable than a pre-commit secret scanner?"
+    options: ["It is faster", "It runs on the server for every push and cannot be skipped with --no-verify", "It scans more file types", "It also signs commits"]
+    answer: 1
+    explanation: "Client hooks are optional; the server sees every push."

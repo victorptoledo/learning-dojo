@@ -1,0 +1,38 @@
+questions:
+  - id: todo-order
+    prompt: "In the todo list of git rebase -i, in what order are commits listed?"
+    options: ["Newest first, like git log", "Oldest first, in the order they will be replayed", "Alphabetically", "By author"]
+    answer: 1
+    explanation: "The list is a script replayed top to bottom, so the oldest commit comes first."
+  - id: fixup-vs-squash
+    prompt: "What is the difference between fixup and squash in the todo list?"
+    options:
+      - "fixup deletes the commit, squash keeps it"
+      - "Both meld the commit into the previous one; squash lets you combine the messages, fixup keeps only the previous message"
+      - "squash only works on merge commits"
+      - "There is none"
+    answer: 1
+    explanation: "fixup discards the folded commit's message; squash opens the editor with both."
+  - id: fixup-flag
+    prompt: "Which command creates a commit named 'fixup! Add order export' aimed at commit 1a2b3c4?"
+    answers: ["git commit --fixup=1a2b3c4", "git commit --fixup 1a2b3c4"]
+    explanation: "--fixup writes the special subject that --autosquash recognises."
+  - id: autosquash
+    prompt: "What does --autosquash do during an interactive rebase?"
+    options:
+      - "Squashes every commit into one"
+      - "Moves each fixup!/squash! commit right under its target and marks it fixup or squash"
+      - "Skips commits that conflict"
+      - "Pushes the result"
+    answer: 1
+    explanation: "It pre-arranges the todo list from the commit subjects."
+  - id: no-editor
+    prompt: "How can a script run git rebase -i --autosquash without opening an editor for the todo list?"
+    options: ["git rebase -i --quiet", "Set GIT_SEQUENCE_EDITOR=true for that command", "Use git rebase --no-edit", "It is impossible"]
+    answer: 1
+    explanation: "The sequence editor receives the todo file; a command that changes nothing accepts the list as Git arranged it."
+  - id: cherry-x
+    prompt: "Why use git cherry-pick -x when backporting a fix to a release branch?"
+    options: ["It is faster", "It records the original commit hash in the new message, so you can trace the backport", "It avoids conflicts", "It signs the commit"]
+    answer: 1
+    explanation: "-x appends '(cherry picked from commit ...)', which links the two copies of the change."

@@ -1,0 +1,34 @@
+questions:
+  - id: blob-name
+    prompt: "Where does Git store a file's name?"
+    options: ["In the blob, next to the content", "In the tree that contains the file", "In the commit message", "In the index only"]
+    answer: 1
+    explanation: "A blob is only the bytes. The tree entry gives the blob a name and a mode."
+  - id: same-content
+    prompt: "Two files in different folders have exactly the same content. How many blobs does Git store for them?"
+    options: ["Two", "One", "None until you push", "One per commit"]
+    answer: 1
+    explanation: "The key is the hash of the content, so identical content is stored once and both tree entries point to it."
+  - id: snapshot
+    prompt: "What does a commit object point to?"
+    options:
+      - "A list of diffs against its parent"
+      - "One tree describing the whole project, plus its parent commits"
+      - "Only the files that changed"
+      - "The branch it was made on"
+    answer: 1
+    explanation: "Commits are snapshots: one root tree and the parents. Diffs are computed on demand."
+  - id: rewrite-hash
+    prompt: "You change the message of a commit that has three commits on top of it. What happens to the hashes?"
+    options: ["Only that commit gets a new hash", "That commit and its three descendants all get new hashes", "No hash changes: messages are not hashed", "Only the branch hash changes"]
+    answer: 1
+    explanation: "Each commit's hash covers its parent's hash, so a change ripples to every descendant."
+  - id: branch-file
+    prompt: "What is a branch, physically?"
+    options: ["A copy of the project's files", "A reference: a small file holding the hash of a commit", "A special commit type", "A folder in .git/objects"]
+    answer: 1
+    explanation: "refs/heads/NAME holds one hash. That is why creating a branch is nearly free."
+  - id: head-symbolic
+    prompt: "Which command prints the hash that a name such as main or HEAD~2 resolves to?"
+    answers: ["git rev-parse", "rev-parse", "git rev-parse main"]
+    explanation: "git rev-parse turns any revision expression into a hash; it is the plumbing behind most scripts."

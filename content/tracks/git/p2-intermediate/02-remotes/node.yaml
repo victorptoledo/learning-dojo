@@ -1,0 +1,23 @@
+id: git.p2.remotes
+kind: lesson
+status: draft
+title: "Remotes: clone, fetch, pull and push"
+summary: "Remote repositories and remote-tracking branches, upstreams, what fetch, pull and push really do, forks, and force-pushing safely."
+objectives:
+  - { id: o1, text: "Explain remotes, remote-tracking branches (origin/main) and upstreams, and read ahead/behind in git status", skills: [git.remotes] }
+  - { id: o2, text: "Use fetch, pull and push deliberately, and push a rewritten branch with --force-with-lease", skills: [git.remotes] }
+  - { id: o3, text: "Work with forks (origin and upstream) and prune branches deleted on the server", skills: [git.remotes] }
+prerequisites: [git.p2.rebase-vs-merge]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You forked an open-source project, cloned your fork, and opened a pull request from `fix/typo`. A week later the maintainers ask you to update the branch with the latest `main` of the original project. Describe the remotes you need, every command from start to finish, and why you push the way you do.'
+  criteria:
+    - 'Adds the original repository as a second remote (upstream) next to origin (the fork)'
+    - 'Fetches upstream and rebases (or merges) fix/typo onto upstream/main'
+    - 'Pushes to origin with --force-with-lease after a rebase and explains why plain --force is risky'
+    - 'Explains remote-tracking branches (upstream/main) as local, read-only copies updated by fetch'

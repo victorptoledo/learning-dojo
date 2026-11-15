@@ -1,0 +1,23 @@
+id: git.p4.workflows
+kind: lesson
+status: draft
+title: "Team Workflows: Trunk-based, GitHub Flow and Pull Request Review"
+summary: "How teams organise branches (trunk-based development, GitHub flow, Gitflow, release branches), protect main, and review pull requests well."
+objectives:
+  - { id: o1, text: "Compare trunk-based development, GitHub flow and Gitflow and pick one for a team's release model", skills: [git.workflows] }
+  - { id: o2, text: "Protect main with rulesets: required reviews, status checks, linear history, CODEOWNERS, merge queues", skills: [git.workflows] }
+  - { id: o3, text: "Write and review pull requests that are small, explained and easy to verify", skills: [git.workflows] }
+prerequisites: [git.p4.signing-security]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A team of eight deploys a web service several times a day, but their pull requests stay open for a week, are 2 000 lines long and often conflict. They currently use Gitflow with develop and release branches. Propose a workflow, the branch protection rules for main, and concrete guidelines for writing and reviewing pull requests, explaining how each change shortens the cycle.'
+  criteria:
+    - 'Recommends trunk-based development or GitHub flow (short-lived branches off main) for continuous deployment, and explains why Gitflow fits scheduled, versioned releases better'
+    - 'Uses feature flags (or similar) to merge unfinished work safely'
+    - 'Configures protection: required review(s), required status checks, no force-push, optionally linear history, CODEOWNERS and a merge queue'
+    - 'Gives PR guidelines: small scope, a description with why and how to test, self-review, fast review turnaround, comments on behaviour over style'

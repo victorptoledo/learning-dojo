@@ -1,0 +1,23 @@
+id: git.p3.hooks
+kind: lesson
+status: draft
+title: "Git Hooks: Client-side and Server-side Automation"
+summary: "What hooks are, the useful client-side hooks (pre-commit, commit-msg, pre-push), sharing them with core.hooksPath or a framework, server-side checks, and why the server is where rules are enforced."
+objectives:
+  - { id: o1, text: "Write a hook script, install it and explain how its exit code and arguments control Git", skills: [git.hooks] }
+  - { id: o2, text: "Share hooks with a team through core.hooksPath or a framework such as pre-commit, Husky or lefthook", skills: [git.hooks] }
+  - { id: o3, text: "Tell what belongs in client-side hooks and what must be enforced on the server or in CI", skills: [git.hooks] }
+prerequisites: [git.p3.tags-releases]
+difficulty: 3
+estimated_minutes: 40
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team wants every commit to have a Conventional Commits subject, no file larger than 5 MB, and no AWS keys. Propose where each rule should run (which hook, CI, or server-side protection), how the hooks get installed on every laptop without manual steps, and what happens when someone bypasses a hook with --no-verify.'
+  criteria:
+    - 'Uses commit-msg for the message format and pre-commit (or pre-push) for size and secret checks'
+    - 'Shares hooks through core.hooksPath in the repository or a framework (pre-commit, Husky, lefthook) set up by a bootstrap or install step'
+    - 'Explains that client-side hooks can be skipped (--no-verify) or not installed, so the same rules must also run in CI or server-side (push protection, required checks)'
+    - 'Keeps client hooks fast so people do not disable them'

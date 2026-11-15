@@ -4,9 +4,9 @@ name: "Git & GitHub"
 archetype: platform
 category: "Infrastructure & Tools"
 icon: "🐙"
-description: "Distributed version control: the DAG, commits, branches, interactive rebase, cherry-pick and reflog."
+description: "Distributed version control from the inside out: the object model and the DAG, staging and commits, branches, merge and rebase, remotes, conflicts, history rewriting and the reflog, bisect, tags, hooks, worktrees, large repositories, signing and team workflows."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Git Commit 'update'" }
   - { name: "Yellow Belt", required_xp: 300, title: "Branch Creator" }
@@ -16,8 +16,8 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "Reflog Rescuer" }
   - { name: "Sensei", required_xp: 6000, title: "Git Mastermind" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install it, run a first command and see why it exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core commands, objects and basic configuration" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Composition, configuration, troubleshooting and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, security and automation" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production operation, high availability and incident handling" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install and configure Git, see why version control exists and meet the dojo's git katas" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Objects and the DAG, the staging area and commits, branches and merging, and undoing local changes" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Merge or rebase, work with remotes, resolve conflicts and rewrite history safely" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Hunt bugs with bisect, cut releases with tags, automate with hooks and juggle worktrees and submodules" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Large repositories, signed and secret-free history, team workflows and recovering from any mistake" }

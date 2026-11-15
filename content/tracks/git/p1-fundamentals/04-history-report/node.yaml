@@ -1,0 +1,50 @@
+id: git.p1.history-report
+kind: kata
+status: draft
+title: "History Report: Reading a Repository from a Script"
+summary: "Summarise a repository's history with rev-list, log --format and a pipeline: commits, authors, first and last subjects and the most changed files."
+objectives:
+  - { id: o1, text: "Query history from a script with rev-list, log --format and --name-only instead of parsing human output", skills: [git.staging-commits] }
+  - { id: o2, text: "Handle the edge cases of a repository: no commits, merge commits, other branches", skills: [git.dag-objects, git.staging-commits] }
+prerequisites: [git.p1.branches-merging]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Build the report one line at a time and try each command by hand in a repository first. Which command counts the commits reachable from `HEAD` without printing them? Which `git log --format` placeholder gives the author's email, and which one the subject? How do you tell a repository with no commits from one that has some?
+    - |-
+      `git -C "$repo" rev-list --count HEAD` counts commits. `git log --format=%ae | sort -u | wc -l` counts authors; `git log -1 --format=%s` is the last subject and `git log --format=%s | tail -n 1` the first. For the files, `git log --no-merges --format= --name-only` prints only file names (with blank lines to remove), one per commit that touched them; then `sort | uniq -c | sort -k1,1nr -k2,2`. `git rev-parse --verify -q HEAD` fails when there is no commit yet.
+    - |-
+      ```bash
+      repo="$1"
+      if ! git -C "$repo" rev-parse --git-dir > /dev/null 2>&1; then
+          echo "gitstats.sh: not a git repository: $repo" >&2
+          exit 1
+      fi
+      if ! git -C "$repo" rev-parse --verify -q HEAD > /dev/null; then
+          printf '%s\n' "commits: 0" "authors: 0" "first: -" "last: -" "top files:"
+          exit 0
+      fi
+      echo "commits: $(git -C "$repo" rev-list --count HEAD)"
+      # authors, first, last
+      echo "top files:"
+      git -C "$repo" log --no-merges --format= --name-only \
+          | sed '/^$/d' # ... count, sort, keep three, trim the spaces uniq -c adds
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, Git, bats and shellcheck that runs the grading tests.

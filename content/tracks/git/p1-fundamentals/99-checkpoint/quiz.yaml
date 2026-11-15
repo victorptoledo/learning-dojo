@@ -1,0 +1,56 @@
+questions:
+  - id: tree-content
+    skills: [git.dag-objects]
+    prompt: "You rename README to README.md without changing its content and commit. Which new objects does the commit need?"
+    options:
+      - "A new blob, a new tree and a new commit"
+      - "A new tree and a new commit; the blob is reused because the content is the same"
+      - "Only a new commit"
+      - "Only a new blob"
+    answer: 1
+    explanation: "Names live in trees. Same content means the same blob hash, so only the tree and the commit are new."
+  - id: dag-parents
+    skills: [git.dag-objects]
+    prompt: "How many parents does a commit created by a three-way git merge have?"
+    options: ["None", "One", "Two (or more for an octopus merge)", "As many as the files changed"]
+    answer: 2
+    explanation: "A merge commit records both tips it combined as parents."
+  - id: index-role
+    skills: [git.staging-commits]
+    prompt: "You edit cart.py, run git add cart.py, then edit it again and commit without adding. What is committed?"
+    options: ["Both edits", "Only the first edit, the version that was staged", "Nothing", "Only the second edit"]
+    answer: 1
+    explanation: "git commit records the index. The second edit stays in the working tree (status shows MM before the commit)."
+  - id: log-range
+    skills: [git.staging-commits]
+    prompt: "Which command lists the commits that are on feature but not on main?"
+    answers: ["git log main..feature", "git log --oneline main..feature", "git log feature ^main"]
+    explanation: "A..B means reachable from B but not from A."
+  - id: ff-check
+    skills: [git.branches]
+    prompt: "main and feature both have new commits since they split. Which command refuses to merge instead of creating a merge commit?"
+    options: ["git merge --no-ff feature", "git merge --ff-only feature", "git merge --squash feature", "git merge --abort"]
+    answer: 1
+    explanation: "--ff-only only succeeds when main is an ancestor of feature; otherwise it stops."
+  - id: switch-dirty
+    skills: [git.branches]
+    prompt: "git switch main refuses because 'your local changes would be overwritten'. What is a safe next step?"
+    options: ["git reset --hard, then switch", "Commit or stash the changes, then switch", "Delete the .git/index file", "git switch --force main"]
+    answer: 1
+    explanation: "A WIP commit or git stash keeps the work; the other options throw it away."
+  - id: reset-mixed
+    skills: [git.undo]
+    prompt: "What does git reset HEAD~1 (no mode) do?"
+    options:
+      - "Deletes the last commit and its changes"
+      - "Moves the branch back one commit and unstages its changes, which stay in the working tree"
+      - "Creates a revert commit"
+      - "Only unstages files"
+    answer: 1
+    explanation: "--mixed is the default: branch and index move, the working tree keeps the changes."
+  - id: undo-shared
+    skills: [git.undo]
+    prompt: "Release v2.3 is tagged and deployed, and one commit in it must be undone. Which option keeps everyone's history valid?"
+    options: ["git reset --hard and force-push main", "git revert that commit, then release v2.3.1", "Amend the commit", "Move the tag v2.3 to an older commit"]
+    answer: 1
+    explanation: "A revert adds history instead of rewriting it, and a new version tag marks the fixed release."

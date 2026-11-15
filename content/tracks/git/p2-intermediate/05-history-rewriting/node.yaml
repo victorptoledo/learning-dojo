@@ -1,0 +1,23 @@
+id: git.p2.history-rewriting
+kind: lesson
+status: draft
+title: "Rewriting History: Interactive Rebase, Fixup and Autosquash"
+summary: "Polish a branch before review: reorder, squash, reword, split and drop commits with git rebase -i, land review fixes with fixup commits and --autosquash, and cherry-pick."
+objectives:
+  - { id: o1, text: "Use the interactive rebase todo list: pick, reword, edit, squash, fixup, drop and reorder", skills: [git.history-rewriting] }
+  - { id: o2, text: "Create fixup! commits with git commit --fixup and fold them with git rebase -i --autosquash", skills: [git.history-rewriting] }
+  - { id: o3, text: "Split a commit, cherry-pick a commit to another branch, and know when rewriting is not acceptable", skills: [git.history-rewriting] }
+prerequisites: [git.p2.sync-feature]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your branch has five commits: "Add order export", "WIP", "fix typo", "Add CSV header", "address review". The reviewer asked for a clean history with one commit per logical change. Describe how you would turn it into two good commits with interactive rebase, how you would handle further review comments next time without another big cleanup, and how you would recover if the rebase went wrong.'
+  criteria:
+    - 'Writes a plausible todo list using pick, squash/fixup and reword (and reordering where needed)'
+    - 'Uses git commit --fixup=<commit> for later review comments and git rebase -i --autosquash (or rebase.autoSquash)'
+    - 'Pushes the rewritten branch with --force-with-lease and only rewrites a branch nobody else builds on'
+    - 'Recovers with git reflog / ORIG_HEAD and git reset --hard, or git rebase --abort while still in progress'

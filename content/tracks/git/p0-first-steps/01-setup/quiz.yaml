@@ -1,0 +1,38 @@
+questions:
+  - id: distributed
+    prompt: "What does every clone of a Git repository contain?"
+    options: ["Only the latest version of the files", "The whole history of the project", "Only the commits of the current branch", "A link to the server's history"]
+    answer: 1
+    explanation: "Git is distributed: a clone copies every commit, so log, diff and commit work offline."
+  - id: git-vs-github
+    prompt: "Which statement about Git and GitHub is right?"
+    options:
+      - "GitHub is a newer version of Git"
+      - "Git is the version control tool; GitHub hosts Git repositories and adds pull requests, issues and CI"
+      - "You need a GitHub account to use Git"
+      - "Git only works with GitHub"
+    answer: 1
+    explanation: "Git runs on its own. GitHub, GitLab and Bitbucket are hosting services built around it."
+  - id: config-wins
+    prompt: "user.email is set in ~/.gitconfig and also in the repository's .git/config. Which one is used for commits in that repository?"
+    options: ["The global one", "The local one in .git/config", "The one set last", "Git refuses to commit"]
+    answer: 1
+    explanation: "The most specific level wins: local beats global, which beats system."
+  - id: show-origin
+    prompt: "Which flag of git config --list prints the file each value comes from?"
+    answers: ["--show-origin", "git config --list --show-origin"]
+    explanation: "--show-origin prefixes each value with its file; --show-scope prints system, global or local."
+  - id: identity
+    prompt: "What are user.name and user.email used for?"
+    options: ["Logging in to GitHub", "They are written into every commit as its author and committer", "Encrypting the repository", "Nothing unless you push"]
+    answer: 1
+    explanation: "They are metadata stored in each commit. Authentication to a host uses SSH keys or tokens."
+  - id: gitattributes
+    prompt: "Why prefer a .gitattributes file over asking everyone to set core.autocrlf?"
+    options:
+      - "It is faster"
+      - "It is committed with the code, so the line-ending rules apply to every clone"
+      - "core.autocrlf does not exist on Windows"
+      - "It also encrypts binary files"
+    answer: 1
+    explanation: "Settings in .gitattributes travel with the repository; config settings depend on each machine."

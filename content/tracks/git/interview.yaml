@@ -1,0 +1,205 @@
+# Technical interview questions for the git track, written for the dojo.
+# The topics follow what public interview guides and the Git documentation present as
+# essential (see sources); the wording, key points and follow-ups are our own.
+sources:
+  - "https://git-scm.com/book/en/v2"
+  - "https://www.atlassian.com/git/tutorials/merging-vs-rebasing"
+  - "https://www.geeksforgeeks.org/git/git-interview-questions-and-answers/"
+  - "https://www.simplilearn.com/tutorials/git-tutorial/git-interview-questions"
+  - "https://roadmap.sh/git-github"
+questions:
+  - id: git-vs-github
+    level: junior
+    skills: [git.setup]
+    question: "What is the difference between Git and GitHub, and what does 'distributed' mean in 'distributed version control'?"
+    key_points:
+      - "Git is the version control tool; GitHub (or GitLab, Bitbucket) hosts repositories and adds pull requests, issues, CI"
+      - "Every clone holds the full history, so most commands work offline and every clone is a backup"
+      - "Collaboration is exchanging commits between repositories with fetch and push"
+    follow_up: "What still needs the network in Git, and why?"
+  - id: snapshots
+    level: junior
+    skills: [git.dag-objects]
+    question: "Does Git store diffs or snapshots? Describe the objects behind a commit."
+    key_points:
+      - "Snapshots: a commit points to a tree describing the whole project"
+      - "Blobs hold file contents, trees hold names and modes, commits hold tree, parents, author, committer, message"
+      - "Objects are addressed by the hash of their content; unchanged files reuse blobs"
+      - "Delta compression in packfiles is a storage detail"
+    follow_up: "Why does changing an old commit change the hash of every later commit?"
+  - id: staging-area
+    level: junior
+    skills: [git.staging-commits]
+    question: "What is the staging area (index) for, and how do you commit only part of your changes?"
+    key_points:
+      - "The index is the draft of the next commit"
+      - "git add -p stages hunks; git diff --staged shows what will be committed"
+      - "Allows atomic commits: one logical change each"
+    follow_up: "What does git status --short 'MM' mean?"
+  - id: merge-ff
+    level: junior
+    skills: [git.branches]
+    question: "What is a fast-forward merge, and when does Git create a merge commit instead?"
+    key_points:
+      - "Fast-forward when the current branch is an ancestor of the merged one: the pointer just moves"
+      - "Three-way merge with a merge commit when both sides have new commits since the merge base"
+      - "--no-ff forces a merge commit, --ff-only refuses anything else"
+    follow_up: "Why would a team want --no-ff, and why might another forbid merge commits?"
+  - id: reset-revert
+    level: junior
+    skills: [git.undo]
+    question: "Explain git reset --soft, --mixed and --hard, and when you would use git revert instead."
+    key_points:
+      - "All three move the branch; --soft keeps index and tree, --mixed keeps the tree, --hard resets both"
+      - "--hard destroys uncommitted work"
+      - "revert adds an inverse commit, safe for shared history"
+      - "Never rewrite commits others have"
+    follow_up: "How do you revert a merge commit, and what happens when the branch is merged again later?"
+  - id: fetch-pull
+    level: junior
+    skills: [git.remotes]
+    question: "What is the difference between git fetch and git pull? What is origin/main?"
+    key_points:
+      - "fetch downloads and updates remote-tracking branches only"
+      - "pull is fetch plus merge (or rebase with pull.rebase)"
+      - "origin/main is a local, read-only snapshot of the server's main as of the last fetch"
+    follow_up: "Why do some teams set pull.rebase or pull.ff only?"
+  - id: gitignore-tracked
+    level: junior
+    skills: [git.staging-commits]
+    question: "A colleague added secrets.env to .gitignore but it still shows up as modified. Explain and fix it."
+    key_points:
+      - ".gitignore only affects untracked files"
+      - "git rm --cached secrets.env stops tracking it, then commit"
+      - "If it was pushed, the secret is in history: rotate it"
+    follow_up: "Where would you put ignore rules that are personal to you?"
+  - id: rebase-vs-merge
+    level: mid
+    skills: [git.rebase-vs-merge]
+    question: "Compare merge and rebase for integrating a feature branch. When would you avoid rebasing?"
+    key_points:
+      - "Rebase replays commits as new commits on a new base: linear history"
+      - "Merge keeps original commits and records a merge commit"
+      - "Never rebase commits others have based work on"
+      - "Rebased branches need --force-with-lease to push"
+    follow_up: "What are the trade-offs of squash merges compared with both?"
+  - id: conflict-resolution
+    level: mid
+    skills: [git.conflicts]
+    question: "Walk me through resolving a merge conflict. What do 'ours' and 'theirs' mean during a rebase?"
+    key_points:
+      - "Read markers, ideally with zdiff3 to see the base, and resolve by intent"
+      - "git add to mark resolved, then --continue; --abort to back out"
+      - "During a rebase ours is the branch being rebased onto, theirs is the replayed commit"
+      - "Build and test afterwards: textual success is not semantic success"
+    follow_up: "How do rerere and frequent integration reduce conflicts?"
+  - id: force-with-lease
+    level: mid
+    skills: [git.remotes]
+    question: "Why is git push --force dangerous and what does --force-with-lease protect against? Is it enough on its own?"
+    key_points:
+      - "--force overwrites the server branch, possibly discarding others' commits"
+      - "--force-with-lease only succeeds if the server still matches your origin/branch"
+      - "A fetch updates origin/branch, so after fetching you must check you contain it"
+      - "Protected branches forbid force-pushes entirely"
+    follow_up: "How would you recover commits someone force-pushed away?"
+  - id: interactive-rebase
+    level: mid
+    skills: [git.history-rewriting]
+    question: "How do you clean up a branch before review? Explain fixup commits and autosquash."
+    key_points:
+      - "git rebase -i with pick, reword, squash, fixup, drop, reorder"
+      - "git commit --fixup=<hash> creates 'fixup! subject'"
+      - "git rebase -i --autosquash places and folds them; rebase.autoSquash makes it the default"
+      - "--exec runs tests on each commit"
+    follow_up: "How do you split one commit into two?"
+  - id: reflog
+    level: mid
+    skills: [git.recovery, git.rebase-vs-merge]
+    question: "You ran git reset --hard to the wrong commit and lost two hours of commits. How do you get them back?"
+    key_points:
+      - "git reflog (or reflog show BRANCH) lists previous positions"
+      - "git reset --hard HEAD@{n} or ORIG_HEAD"
+      - "Reflog is local and expires (90/30 days)"
+      - "Uncommitted work cannot be recovered this way"
+    follow_up: "And if the branch itself was deleted?"
+  - id: cherry-pick
+    level: mid
+    skills: [git.history-rewriting, git.tags-releases]
+    question: "How would you get a bug fix from main into the release/2.4 branch, and what are the risks?"
+    key_points:
+      - "git cherry-pick -x <hash> on the release branch"
+      - "Fix lands on main first so it is never lost"
+      - "The same change in two commits can conflict later; prefer small, focused fixes"
+      - "Tag a new patch release"
+    follow_up: "When would you merge instead of cherry-picking?"
+  - id: bisect
+    level: mid
+    skills: [git.bisect]
+    question: "A regression appeared somewhere in the last 500 commits. How do you find the culprit efficiently?"
+    key_points:
+      - "git bisect start BAD GOOD, binary search in about 9 steps"
+      - "git bisect run with a script: 0 good, 125 skip, other codes bad"
+      - "Script kept outside the tracked files; git bisect reset at the end"
+      - "Small, building commits make bisect reliable; --first-parent for merge-heavy history"
+    follow_up: "What makes a commit history hard to bisect?"
+  - id: tags-semver
+    level: mid
+    skills: [git.tags-releases]
+    question: "How do you version and tag releases? What do you do if a tag was pushed on the wrong commit?"
+    key_points:
+      - "Annotated or signed tags, pushed explicitly"
+      - "Semantic versioning: major breaking, minor features, patch fixes"
+      - "Never move a pushed tag; release the next version"
+      - "git describe for non-release builds"
+    follow_up: "How would you generate release notes automatically?"
+  - id: hooks-enforcement
+    level: senior
+    skills: [git.hooks, git.workflows]
+    question: "How would you enforce commit message conventions and keep secrets out of a repository for a team of 50?"
+    key_points:
+      - "commit-msg and pre-commit hooks shared with core.hooksPath or a framework (pre-commit, Husky, lefthook)"
+      - "Client hooks are skippable, so CI checks and server-side push protection enforce the rules"
+      - "Keep hooks fast and scoped to staged files"
+      - "Secrets live in a secret manager; scanners as a safety net"
+    follow_up: "What is your response plan if a secret still gets pushed?"
+  - id: monorepo-scale
+    level: senior
+    skills: [git.large-repos]
+    question: "A monorepo has become slow to clone and to work in. What would you change, and what does each change cost?"
+    key_points:
+      - "Partial clone (blob:none) and sparse-checkout for developers; shallow or tree:0 for CI"
+      - "Git LFS for large binaries; cleaning history requires a coordinated rewrite"
+      - "git maintenance, commit-graph, fsmonitor, scalar"
+      - "Build tooling that only builds what changed"
+    follow_up: "When would you split the monorepo instead?"
+  - id: submodules-choice
+    level: senior
+    skills: [git.worktrees-submodules]
+    question: "Several repositories need the same shared code. Compare submodules, subtrees, a monorepo and packages."
+    key_points:
+      - "Submodule: a pinned commit (gitlink), needs recursive clone and update discipline"
+      - "Subtree: files copied into history, easy to clone, harder to sync back"
+      - "Package: versioned artefacts through a package manager, usually simplest"
+      - "Monorepo: atomic cross-cutting changes, needs scale tooling"
+    follow_up: "What goes wrong when someone pushes a submodule bump before pushing the submodule's commit?"
+  - id: signing
+    level: senior
+    skills: [git.signing-security]
+    question: "Why sign commits, how would you roll it out, and what does a signature not prove?"
+    key_points:
+      - "Author fields are unauthenticated; signatures bind commits to keys"
+      - "SSH signing (gpg.format ssh) is the simplest; register signing keys on the host"
+      - "Require signed commits on protected branches; allowed signers for local verification"
+      - "It proves identity, not code quality or absence of secrets"
+    follow_up: "How do CI bots and merge commits created by the host fit into a 'signed commits only' rule?"
+  - id: workflow-design
+    level: senior
+    skills: [git.workflows]
+    question: "Design the branching and review workflow for a team that wants to deploy to production several times a day."
+    key_points:
+      - "Trunk-based or GitHub flow with short-lived branches"
+      - "Feature flags for unfinished work"
+      - "Protected main: required reviews and checks, no force-push, CODEOWNERS, merge queue at scale"
+      - "Small, well-described PRs with fast review turnaround"
+    follow_up: "How would the design change for a product that ships versioned releases twice a year?"

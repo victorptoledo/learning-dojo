@@ -1,0 +1,38 @@
+questions:
+  - id: diff-staged
+    prompt: "Which command shows exactly what the next git commit will record?"
+    options: ["git diff", "git diff --staged", "git log -p", "git status --short"]
+    answer: 1
+    explanation: "git diff --staged compares the index with HEAD, which is the content of the next commit."
+  - id: status-mm
+    prompt: "git status --short prints MM README.md. What does it mean?"
+    options:
+      - "README.md was merged twice"
+      - "A change to README.md is staged, and the file was edited again after staging"
+      - "README.md is in conflict"
+      - "README.md was moved"
+    answer: 1
+    explanation: "The left column is the index, the right one the working tree: modified in both."
+  - id: ignore-tracked
+    prompt: "You add config.env to .gitignore, but git status still shows it as modified. Why?"
+    options:
+      - ".gitignore only applies after a push"
+      - "The file is already tracked; .gitignore only affects untracked files"
+      - "The pattern needs a leading slash"
+      - "You must run git add .gitignore first"
+    answer: 1
+    explanation: "Stop tracking it with git rm --cached config.env, then the ignore rule applies."
+  - id: add-p
+    prompt: "Which command lets you stage only some of the changes inside one file?"
+    answers: ["git add -p", "git add --patch", "git add -p FILE"]
+    explanation: "git add -p walks through the hunks and lets you choose, split or edit each one."
+  - id: pickaxe
+    prompt: "You need the commit that removed the function apply_discount. Which command finds it fastest?"
+    options: ["git blame", "git log -S apply_discount", "git log --grep=apply_discount", "git show apply_discount"]
+    answer: 1
+    explanation: "-S (the pickaxe) finds commits where the number of occurrences of the text changes. --grep only searches messages, and blame only shows lines that still exist."
+  - id: subject
+    prompt: "Which commit subject follows the usual conventions best?"
+    options: ["fixed stuff", "Fix rounding of VAT on discounted items", "I have changed the VAT code because it was wrong.", "WIP"]
+    answer: 1
+    explanation: "Short, imperative, specific, no full stop. The why goes in the body."

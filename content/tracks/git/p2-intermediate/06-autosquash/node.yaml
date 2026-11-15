@@ -1,0 +1,46 @@
+id: git.p2.autosquash
+kind: kata
+status: draft
+title: "Tidy a Branch: Folding Fixup Commits Automatically"
+summary: "Fold every fixup!, squash! and amend! commit of a branch into its target with a non-interactive autosquash rebase, without moving the branch or changing its final content."
+objectives:
+  - { id: o1, text: "Run an interactive rebase from a script with GIT_SEQUENCE_EDITOR and --autosquash", skills: [git.history-rewriting] }
+  - { id: o2, text: "Keep the branch on its base with --keep-base and prove the rewrite did not change the final tree", skills: [git.history-rewriting, git.rebase-vs-merge] }
+prerequisites: [git.p2.history-rewriting]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Try it by hand: make three commits, then `git commit --fixup=<first>`, then `git rebase -i --autosquash main`. What does the editor show? How could a script accept that list without an editor? And what happens to the branch if `main` moved in the meantime: does a plain `git rebase -i main` only fold, or also move the branch?
+    - |-
+      `GIT_SEQUENCE_EDITOR=true GIT_EDITOR=true git rebase -i --autosquash --keep-base BASE` folds the fixups, keeps the combined message of `squash!` commits, and replays the commits on their current merge base with `BASE` instead of on `BASE`'s tip. Count the commits to fold with `git log --format=%s BASE..HEAD | grep -c -E '^(fixup|squash|amend)! '` (grep exits 1 when the count is 0). `git rev-parse -q --verify "BASE^{commit}"` checks the base.
+    - |-
+      ```bash
+      count=$(git -C "$repo" log --format=%s "$base..HEAD" | grep -c -E '^(fixup|squash|amend)! ' || true)
+      if [ "$count" -eq 0 ]; then
+          echo "nothing to fold"
+          exit 0
+      fi
+      if ! GIT_SEQUENCE_EDITOR=true GIT_EDITOR=true \
+          git -C "$repo" rebase -q -i --autosquash --keep-base "$base" > /dev/null 2>&1; then
+          # abort, report and exit 1
+      fi
+      echo "folded $count commits"
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, Git, bats and shellcheck that runs the grading tests.

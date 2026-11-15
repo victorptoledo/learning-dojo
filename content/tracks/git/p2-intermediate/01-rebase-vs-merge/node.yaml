@@ -5,10 +5,20 @@ status: draft
 title: "Rebase vs Merge and the Reflog Safety Net"
 summary: "Keeping a clean, linear history and recovering lost commits with reflog."
 objectives:
-  - { id: o1, text: "Keeping a clean, linear history and recovering lost commits with reflog.", skills: [git.rebase-vs-merge] }
-prerequisites: [git.p1.dag-objects]
+  - { id: o1, text: "Explain what git rebase does to commits (replays them as new commits) and how the result differs from a merge", skills: [git.rebase-vs-merge] }
+  - { id: o2, text: "Choose between merge, rebase and squash for a team, and apply the rule about rebasing shared branches", skills: [git.rebase-vs-merge] }
+  - { id: o3, text: "Use the reflog and ORIG_HEAD to undo a rebase or a reset that went wrong", skills: [git.rebase-vs-merge] }
+prerequisites: [git.p1.checkpoint]
 difficulty: 3
-estimated_minutes: 30
+estimated_minutes: 45
 xp: 250
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team argues about whether feature branches should be merged with merge commits, rebased and fast-forwarded, or squash-merged. Write a short recommendation: what history each option produces, what each one costs (bisect, revert, review, conflicts), and the one rule everybody must follow whichever you choose. End with how to recover if someone''s rebase goes wrong.'
+  criteria:
+    - 'Describes each option correctly: merge commit keeps the branch shape, rebase + fast-forward gives a linear history of the branch commits, squash gives one commit per branch'
+    - 'Discusses trade-offs such as bisectability, reverting a whole feature, readable history and repeated conflict resolution'
+    - 'States the rule: never rebase (or rewrite) commits others have based work on'
+    - 'Explains recovery with git reflog (or ORIG_HEAD) and git reset --hard to the old position'

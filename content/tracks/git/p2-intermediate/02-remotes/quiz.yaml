@@ -1,0 +1,38 @@
+questions:
+  - id: tracking-moves
+    prompt: "Which command moves origin/main?"
+    options: ["git commit on main", "git fetch (or the fetch inside git pull)", "git merge origin/main", "git switch origin/main"]
+    answer: 1
+    explanation: "Remote-tracking branches are only updated when you talk to the server: fetch, or pull which fetches first."
+  - id: fetch-safe
+    prompt: "Why is git fetch always safe to run?"
+    options: ["It makes a backup first", "It only downloads objects and moves remote-tracking refs; your branches and files stay as they are", "It asks before changing anything", "It does nothing offline"]
+    answer: 1
+    explanation: "fetch never touches your local branches, index or working tree."
+  - id: push-rejected
+    prompt: "git push is rejected with 'fetch first'. What happened?"
+    options:
+      - "The server is down"
+      - "Someone pushed commits you do not have, so your push is not a fast-forward"
+      - "You have uncommitted changes"
+      - "Your branch has no upstream"
+    answer: 1
+    explanation: "Fetch, integrate their commits (rebase or merge), then push again."
+  - id: lease
+    prompt: "What does git push --force-with-lease protect you from?"
+    options:
+      - "Pushing secrets"
+      - "Overwriting commits someone else pushed since your last fetch"
+      - "Pushing to the wrong remote"
+      - "Large files"
+    answer: 1
+    explanation: "It only forces if the server's branch still matches your origin/<branch>."
+  - id: prune
+    prompt: "Which fetch option removes origin/* refs for branches deleted on the server?"
+    answers: ["--prune", "-p", "git fetch --prune", "git fetch -p"]
+    explanation: "fetch --prune (or fetch.prune=true) deletes stale remote-tracking branches."
+  - id: fork-remotes
+    prompt: "In a fork workflow, what are origin and upstream usually?"
+    options: ["Two names for the same repository", "origin is your fork, upstream is the original project", "origin is the original, upstream is your fork", "upstream is the CI server"]
+    answer: 1
+    explanation: "You push to your fork (origin) and fetch the project's latest work from upstream."

@@ -1,0 +1,33 @@
+questions:
+  - id: steps
+    prompt: "About how many tests does git bisect need to find the culprit among 1 000 commits?"
+    options: ["About 10", "About 100", "About 500", "1 000"]
+    answer: 0
+    explanation: "Each answer halves the range: log2(1000) is just under 10."
+  - id: skip-code
+    prompt: "Which exit code tells git bisect run to skip the current commit?"
+    answers: ["125"]
+    explanation: "125 means 'cannot test'. 0 is good, other codes from 1 to 127 are bad, 128 and above abort."
+  - id: build-fails
+    prompt: "In a bisect run script, what should happen when the commit does not even build?"
+    options: ["exit 1, it is bad", "exit 125, so the commit is skipped", "exit 0", "Stop the bisect"]
+    answer: 1
+    explanation: "A build failure says nothing about the bug you are hunting, so skip it."
+  - id: reset
+    prompt: "You found the culprit. Which command ends the session and returns to your branch?"
+    answers: ["git bisect reset"]
+    explanation: "bisect reset checks out the commit you were on when you started."
+  - id: script-location
+    prompt: "Why keep the bisect test script outside the tracked files?"
+    options:
+      - "Git refuses to run tracked scripts"
+      - "Checking out old commits would change or remove a tracked script during the search"
+      - "It runs faster"
+      - "Bisect only accepts absolute paths"
+    answer: 1
+    explanation: "The script must stay the same while bisect moves through history."
+  - id: first-parent
+    prompt: "Your history has many merged pull requests. Which option makes bisect walk only the main line to find the guilty merge first?"
+    options: ["--no-merges", "--first-parent", "--linear", "--merges-only"]
+    answer: 1
+    explanation: "git bisect start --first-parent follows only first parents, so each step is a merged feature."

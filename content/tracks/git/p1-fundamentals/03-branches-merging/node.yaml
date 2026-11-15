@@ -1,0 +1,23 @@
+id: git.p1.branches-merging
+kind: lesson
+status: draft
+title: "Branches, HEAD and Merging"
+summary: "Branches as moving pointers, switching safely, detached HEAD, stash, and the two kinds of merge: fast-forward and three-way."
+objectives:
+  - { id: o1, text: "Create, switch, rename and delete branches and explain what moves when you commit", skills: [git.branches] }
+  - { id: o2, text: "Tell a fast-forward from a three-way merge and predict which one git merge will do", skills: [git.branches] }
+  - { id: o3, text: "Recognise detached HEAD, keep work made there, and set work aside with git stash", skills: [git.branches] }
+prerequisites: [git.p1.staging-commits]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You are halfway through a feature on `feature/search` with uncommitted changes when an urgent bug on `main` must be fixed. Describe step by step how you would fix the bug on its own branch, merge it into `main`, and get back to your feature. For each merge, say whether it will be a fast-forward or a three-way merge and why.'
+  criteria:
+    - 'Sets the unfinished work aside safely (a WIP commit or git stash, with git stash pop/apply later)'
+    - 'Creates the fix branch from main (git switch -c fix/... main) rather than from the feature branch'
+    - 'Correctly predicts fast-forward when main has not moved, and a three-way merge (merge commit) when both sides have new commits'
+    - 'Deletes the merged branch with git branch -d and explains why -d refuses unmerged branches'

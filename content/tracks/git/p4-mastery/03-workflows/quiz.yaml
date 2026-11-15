@@ -1,0 +1,42 @@
+questions:
+  - id: trunk
+    prompt: "What is the core rule of trunk-based development?"
+    options:
+      - "Each developer keeps a personal long-lived branch"
+      - "Everyone integrates small changes into one branch at least daily, keeping it releasable"
+      - "Only release managers may commit"
+      - "Every feature waits on its own branch until it is finished"
+    answer: 1
+    explanation: "Short integration cycles keep branches from diverging; flags hide unfinished work."
+  - id: flags
+    prompt: "In trunk-based development, how is a feature that takes two weeks merged safely?"
+    options: ["It waits on a branch for two weeks", "In small pieces behind a feature flag that keeps it off in production", "In one big pull request at the end", "Through the develop branch"]
+    answer: 1
+    explanation: "Feature flags separate deploying code from releasing a feature."
+  - id: gitflow-fit
+    prompt: "Which product is the best fit for Gitflow-style release branches?"
+    options: ["A web service deployed ten times a day", "A desktop application with versions 3.x and 4.x both supported", "A personal blog", "A data pipeline with one user"]
+    answer: 1
+    explanation: "Scheduled, versioned releases with several supported versions benefit from release branches."
+  - id: codeowners
+    prompt: "Which file lets you require that the payments team reviews every change under /payments/?"
+    answers: ["CODEOWNERS", ".github/CODEOWNERS"]
+    explanation: "CODEOWNERS maps paths to required reviewers when combined with branch protection."
+  - id: merge-queue
+    prompt: "What problem does a merge queue solve?"
+    options:
+      - "Slow code reviews"
+      - "Pull requests that pass alone but break main together, and the constant need to update branches before merging"
+      - "Large binary files"
+      - "Unsigned commits"
+    answer: 1
+    explanation: "The queue tests each PR on top of the ones ahead of it before merging."
+  - id: small-pr
+    prompt: "Which pull request is most likely to get a fast, careful review?"
+    options:
+      - "2 000 lines mixing a refactor and a feature, no description"
+      - "200 lines, one purpose, a description of why and how to test, CI green"
+      - "A draft with failing tests"
+      - "50 commits named 'wip'"
+    answer: 1
+    explanation: "Small, explained and green: the reviewer can understand and verify it quickly."

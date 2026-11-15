@@ -1,0 +1,38 @@
+questions:
+  - id: why-conflict
+    prompt: "When does a three-way merge produce a content conflict?"
+    options:
+      - "Whenever both branches changed the same file"
+      - "When both sides changed the same region of a file differently compared with the merge base"
+      - "When the branches have different authors"
+      - "When a file is larger than 1 MB"
+    answer: 1
+    explanation: "Changes to different regions of the same file merge cleanly. Only overlapping different changes conflict."
+  - id: zdiff3
+    prompt: "Which merge.conflictStyle also shows the merge base's version between the markers?"
+    answers: ["zdiff3", "diff3"]
+    explanation: "diff3 and zdiff3 add a ||||||| base section; zdiff3 also trims lines common to both sides."
+  - id: rebase-ours
+    prompt: "During git rebase main on your feature branch, what does git checkout --theirs pricing.py take?"
+    options: ["main's version", "The version from the feature commit being replayed (your change)", "The merge base", "The working tree version"]
+    answer: 1
+    explanation: "A rebase checks out main and replays your commits onto it, so your commit is theirs."
+  - id: mark-resolved
+    prompt: "You fixed the file and removed the markers. How do you tell Git the conflict is resolved?"
+    options: ["git commit -a right away", "git add the file", "git resolve", "Delete .git/MERGE_HEAD"]
+    answer: 1
+    explanation: "Staging the file marks it resolved; then continue the merge or rebase."
+  - id: lockfile
+    prompt: "A rebase conflicts in package-lock.json. What is the sound way to resolve it?"
+    options:
+      - "Edit the JSON by hand between the markers"
+      - "Take one side, regenerate the lock file with the package manager, then git add it"
+      - "Delete the lock file"
+      - "Skip the commit"
+    answer: 1
+    explanation: "Generated files are regenerated, not merged by hand."
+  - id: rerere
+    prompt: "What does enabling rerere give you?"
+    options: ["Automatic conflict-free merges", "Git records how you resolved a conflict and reapplies it when the same conflict comes back", "Faster fetches", "A merge tool"]
+    answer: 1
+    explanation: "Reuse recorded resolution: useful when rebasing the same branch repeatedly."

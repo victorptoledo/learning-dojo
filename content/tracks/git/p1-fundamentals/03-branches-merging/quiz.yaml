@@ -1,0 +1,34 @@
+questions:
+  - id: what-moves
+    prompt: "You are on main and run git commit. What moves?"
+    options: ["HEAD only", "main, and HEAD follows because it points to main", "Every branch", "Nothing until you push"]
+    answer: 1
+    explanation: "The current branch moves to the new commit. HEAD is a symbolic ref to main, so it follows."
+  - id: fast-forward
+    prompt: "main has not moved since feature was created from it. What does git merge feature do on main?"
+    options: ["Creates a merge commit", "A fast-forward: main simply moves to feature's tip", "A rebase", "Refuses"]
+    answer: 1
+    explanation: "main is an ancestor of feature, so there is nothing to combine."
+  - id: merge-base
+    prompt: "In a three-way merge, which three snapshots does Git compare?"
+    options:
+      - "The two tips and the root commit"
+      - "The merge base (common ancestor), the current tip (ours) and the other tip (theirs)"
+      - "The index, the working tree and HEAD"
+      - "The last three commits of the branch"
+    answer: 1
+    explanation: "Each side is compared with the merge base; changes on one side are taken, changes on both may conflict."
+  - id: detached
+    prompt: "You checked out a tag, made two commits in detached HEAD and switched back to main. Where are those commits?"
+    options: ["On main", "On the tag", "Reachable from no branch; recover them through the reflog before they are garbage-collected", "Deleted at once"]
+    answer: 2
+    explanation: "No branch moved while HEAD was detached. Create a branch before leaving, or find the hash with git reflog."
+  - id: branch-d
+    prompt: "Which command deletes a branch only if its commits are already merged?"
+    answers: ["git branch -d", "git branch -d NAME", "git branch --delete"]
+    explanation: "-d refuses unmerged branches; -D forces it."
+  - id: stash
+    prompt: "What does git stash pop do?"
+    options: ["Deletes every stash", "Reapplies the newest stash and removes it from the list", "Pushes the stash to the remote", "Shows the stash without applying it"]
+    answer: 1
+    explanation: "pop is apply plus drop. If the apply conflicts, the stash is kept."

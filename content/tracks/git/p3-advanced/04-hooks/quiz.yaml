@@ -1,0 +1,34 @@
+questions:
+  - id: cloned
+    prompt: "You clone a repository whose authors use a commit-msg hook in .git/hooks. Do you get it?"
+    options: ["Yes, hooks are cloned", "No: .git/hooks is not part of the repository's history", "Only on GitHub", "Only if it is executable"]
+    answer: 1
+    explanation: "Hooks are local. Teams version them elsewhere and use core.hooksPath or a framework."
+  - id: commit-msg-arg
+    prompt: "What does Git pass to a commit-msg hook?"
+    options: ["The message as stdin", "The path of the file that holds the proposed message", "The commit hash", "Nothing"]
+    answer: 1
+    explanation: "$1 is the message file; the hook can read it, and even rewrite it."
+  - id: abort
+    prompt: "How does a pre-commit hook stop a commit?"
+    options: ["By deleting the index", "By exiting with a non-zero status", "By printing ERROR", "It cannot"]
+    answer: 1
+    explanation: "A non-zero exit aborts the commit; whatever the hook prints on stderr is shown."
+  - id: hookspath
+    prompt: "Which configuration makes Git read hooks from a versioned folder such as .githooks?"
+    answers: ["core.hooksPath", "git config core.hooksPath .githooks"]
+    explanation: "core.hooksPath replaces .git/hooks as the hook directory."
+  - id: no-verify
+    prompt: "Why must a rule such as 'no secrets in commits' also be enforced on the server or in CI?"
+    options:
+      - "Client-side hooks are slow"
+      - "Client-side hooks can be skipped with --no-verify or simply not installed"
+      - "Hooks cannot read files"
+      - "Servers run hooks faster"
+    answer: 1
+    explanation: "Only server-side checks (push protection, required checks) cannot be bypassed by the person pushing."
+  - id: pre-push
+    prompt: "Which hook is the right place to run a quick test suite before code leaves your machine?"
+    options: ["post-commit", "pre-push", "post-checkout", "prepare-commit-msg"]
+    answer: 1
+    explanation: "pre-push runs before anything is sent and can abort the push."
