@@ -102,6 +102,8 @@ pub enum KataLanguage {
     Sql,
     /// Python modules checked with pytest and ruff in `dojo-python`.
     Python,
+    /// TypeScript modules type-checked by tsc and tested with node:test in `dojo-node`.
+    TypeScript,
 }
 
 impl Kata {
@@ -112,6 +114,7 @@ impl Kata {
             "dojo-docker" => KataLanguage::Docker,
             "dojo-sql" => KataLanguage::Sql,
             "dojo-python" => KataLanguage::Python,
+            "dojo-node" => KataLanguage::TypeScript,
             _ => KataLanguage::Rust,
         }
     }

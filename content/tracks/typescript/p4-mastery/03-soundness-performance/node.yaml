@@ -1,0 +1,24 @@
+id: typescript.p4.soundness-performance
+kind: lesson
+status: draft
+title: "Soundness, Variance and Type-Checking Performance"
+summary: "Where TypeScript is unsound and how to close the holes (noUncheckedIndexedAccess, exactOptionalPropertyTypes, property callbacks, readonly), variance and in/out annotations, measuring and fixing slow type checks, and designing types that age well."
+objectives:
+  - { id: o1, text: "Name the places where TypeScript is unsound and the options and patterns that close them", skills: [typescript.soundness-performance] }
+  - { id: o2, text: "Explain covariance, contravariance, invariance and method bivariance, and use in and out annotations", skills: [typescript.soundness-performance, typescript.generics] }
+  - { id: o3, text: "Measure type-checking performance and fix expensive types", skills: [typescript.soundness-performance, typescript.monorepos] }
+prerequisites: [typescript.p4.monorepos]
+difficulty: 5
+estimated_minutes: 55
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A design-system package exports `type Props = BaseProps & A11yProps & ThemeProps & ... (40 intersections)` and a `type Token = `${Color}-${Shade}-${State}`` built from three unions of 20, 10 and 8 members; editor completions in apps take seconds, and CI type-checking doubled. A reviewer also found a runtime crash where `handlers.onSelect(item)` received the wrong item type although the code type-checked: the interface declares `onSelect(item: Item): void`. Explain how you would measure the problem, what makes each of these types expensive or unsound, and the changes you would make.'
+  criteria:
+    - "Measures with tsc --extendedDiagnostics and/or --generateTrace before changing code"
+    - "Explains that large intersections are recomputed, and replaces them with interfaces that extend each other (or named types)"
+    - "Explains that the template literal type multiplies the unions (1,600 members) and proposes narrowing it or using string with validation"
+    - "Explains that method syntax is checked bivariantly and switches onSelect to a property with a function type"
+    - "Mentions explicit return types or named exported types (or isolatedDeclarations) to keep declaration output cheap"

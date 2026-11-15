@@ -1,0 +1,43 @@
+questions:
+  - id: erased
+    prompt: "What happens to TypeScript's type annotations when the program runs?"
+    options:
+      - "They become runtime checks that throw on a wrong type"
+      - "They are erased: what runs is plain JavaScript"
+      - "They are kept as metadata that the JavaScript engine uses"
+    answer: 1
+    explanation: "Types exist only for the checker. Data from outside must be validated by code, because no type survives at runtime."
+  - id: node-checks
+    prompt: "`node app.ts` on Node.js 26 runs a file that contains a type error. What happens?"
+    options:
+      - "Node refuses to run it and prints the type error"
+      - "Node strips the types and runs it; the type error is not reported"
+      - "Node runs tsc first, then the program"
+    answer: 1
+    explanation: "Type stripping only removes annotations. Type checking is tsc's job (and the editor's)."
+  - id: not-erasable
+    prompt: "Which of these is NOT erasable syntax, so Node.js type stripping rejects it?"
+    options: ["`let n: number = 1`", "`import type { User } from \"./user.ts\"`", "`enum Color { Red, Green }`", "`function f<T>(x: T): T`"]
+    answer: 2
+    explanation: "An enum generates a JavaScript object, so it cannot be removed by deleting text. erasableSyntaxOnly reports it."
+  - id: tsc-command
+    prompt: "Which command type-checks a project without writing any output files, using its tsconfig.json?"
+    answers: ["tsc --noEmit", "npx tsc --noEmit", "tsc", "npx tsc"]
+    explanation: "tsc reads tsconfig.json; with noEmit (in the file or as a flag) it only reports errors."
+  - id: types-default
+    prompt: "In TypeScript 7, `process.env` is an error in a new project with @types/node installed. Why?"
+    options:
+      - "TypeScript 7 removed support for Node.js"
+      - "The `types` option now defaults to [], so @types/node must be listed in `types`"
+      - "process is only available in CommonJS modules"
+    answer: 1
+    explanation: "TypeScript 7 no longer includes every @types package automatically; add \"types\": [\"node\"]."
+  - id: ts7
+    prompt: "What is TypeScript 7.0's main change?"
+    options:
+      - "A new syntax for types"
+      - "The compiler and language service are a native Go port, much faster, installed as the same typescript package"
+      - "It only runs in the browser"
+      - "It replaces tsconfig.json with package.json"
+    answer: 1
+    explanation: "The language is the same; the implementation is native. The package is still typescript and the command still tsc."

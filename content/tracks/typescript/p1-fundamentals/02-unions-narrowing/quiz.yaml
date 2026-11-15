@@ -1,0 +1,43 @@
+questions:
+  - id: union-members
+    prompt: "With `value: string | number`, which call compiles without narrowing?"
+    options: ["value.toUpperCase()", "value.toFixed(2)", "value.toString()", "value.length"]
+    answer: 2
+    explanation: "On a union only members shared by every type are available; both string and number have toString."
+  - id: discriminant
+    prompt: "What makes a union of object types a discriminated union?"
+    options:
+      - "Every member is a class"
+      - "Every member has a common property with a different literal type"
+      - "The members have no properties in common"
+    answer: 1
+    explanation: "Checking that common literal property (the tag) narrows the value to one member."
+  - id: never-exhaustive
+    prompt: "In `default: return assertNever(shape)`, what type must shape have for the code to compile?"
+    answers: ["never"]
+    explanation: "After every member has been handled nothing is left; a new, unhandled member makes the call a compile error."
+  - id: unknown-use
+    prompt: "Which line compiles when `data: unknown`?"
+    options:
+      - "data.length"
+      - "const s: string = data"
+      - "if (typeof data === \"string\") data.length"
+      - "data()"
+    answer: 2
+    explanation: "unknown accepts any value but allows nothing until you narrow it."
+  - id: truthy-zero
+    prompt: "Why is `const port = config.port || 8080` a bug when 0 is a valid port in your system?"
+    options:
+      - "|| is not allowed on numbers"
+      - "0 is falsy, so it is replaced by 8080; ?? only falls back on null and undefined"
+      - "config.port is always a string"
+    answer: 1
+    explanation: "Use ?? when only missing values (null or undefined) should fall back."
+  - id: predicate
+    prompt: "What does the return type `value is Cat` on `function isCat(value: Animal)` do?"
+    options:
+      - "It checks at runtime that value is a Cat"
+      - "It tells the compiler to narrow value to Cat in the caller when the function returns true"
+      - "It converts value to a Cat"
+    answer: 1
+    explanation: "A type predicate is trusted, not verified: the body must really check what it promises."

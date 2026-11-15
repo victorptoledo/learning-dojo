@@ -1,0 +1,45 @@
+questions:
+  - id: enum-erasable
+    prompt: "Why does Node.js type stripping reject `enum Level { Debug, Info }`?"
+    options:
+      - "Enums are deprecated in TypeScript 7"
+      - "An enum generates a JavaScript object, so it cannot be removed by erasing types"
+      - "Enums only work in browsers"
+    answer: 1
+    explanation: "Type stripping only deletes type syntax. Unions and as const objects give the same safety and are erasable."
+  - id: derive-union
+    prompt: "With `const SIZES = [\"s\", \"m\", \"l\"] as const`, which type is `\"s\" | \"m\" | \"l\"`?"
+    options: ["typeof SIZES", "(typeof SIZES)[number]", "keyof typeof SIZES", "SIZES[number]"]
+    answer: 1
+    explanation: "typeof gives the readonly tuple type, and indexing it with number gives the union of its elements."
+  - id: satisfies
+    prompt: "What is the difference between `const c: Config = {...}` and `const c = {...} satisfies Config`?"
+    options:
+      - "None"
+      - "Both check the value; satisfies keeps the value's own, more precise inferred type"
+      - "satisfies skips the check"
+      - "The annotation keeps literal types, satisfies widens them"
+    answer: 1
+    explanation: "An annotation makes c a Config; satisfies checks against Config but c keeps its inferred type."
+  - id: import-type
+    prompt: "With verbatimModuleSyntax on, how must `User` (a type only) be imported?"
+    answers: ["import type { User } from \"./user.ts\"", "import type", "import { type User } from \"./user.ts\""]
+    explanation: "Type-only imports must be marked, so tools that erase types know the line can be dropped."
+  - id: esm-cjs
+    prompt: "When is a `.ts` file an ES module for Node.js?"
+    options:
+      - "Always"
+      - "When the nearest package.json has \"type\": \"module\" (or the file is .mts)"
+      - "When it contains an export"
+      - "When tsconfig has module: esnext"
+    answer: 1
+    explanation: ".ts follows the same rule as .js; .mts is always ESM and .cts always CommonJS."
+  - id: bundler
+    prompt: "Which module settings fit an app bundled by Vite or esbuild, where imports may omit extensions?"
+    options:
+      - "module: nodenext"
+      - "module: preserve with moduleResolution: bundler"
+      - "module: commonjs"
+      - "module: amd"
+    answer: 1
+    explanation: "bundler resolution models what bundlers allow; nodenext models Node's own rules (and amd is gone in TypeScript 7)."

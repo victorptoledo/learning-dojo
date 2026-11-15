@@ -1,0 +1,347 @@
+# Placement test of the TypeScript track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with TypeScript?
+  options:
+    - { label: "Never used it (or only JavaScript)", start_phase: p0, test: false }
+    - { label: "I write TypeScript: interfaces, unions, simple generics", start_phase: p1, test: true }
+    - { label: "I use it at work: utility types, async code, strict mode, tests", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-structural-class
+    phase: p1
+    skills: [typescript.structural-typing]
+    difficulty: 2
+    prompt: "Does this compile?"
+    code: |
+      class Meters { value = 0; }
+      class Seconds { value = 0; }
+      const time: Seconds = new Meters();
+    options:
+      - "No: Meters and Seconds are different classes"
+      - "Yes: both have the same public shape, { value: number }"
+      - "No: classes cannot be assigned to each other"
+    answer: 1
+    explanation: "Classes are compared structurally too; only private or # members make them distinct."
+  - id: p1-excess-literal
+    phase: p1
+    skills: [typescript.structural-typing]
+    difficulty: 2
+    prompt: "Which line is an error with `type Opts = { verbose?: boolean }`?"
+    code: |
+      const a = { verbose: true, color: "red" };
+      const x: Opts = a;                              // line 2
+      const y: Opts = { verbose: true, color: "red" }; // line 3
+    options: ["Line 2", "Line 3", "Both", "Neither"]
+    answer: 1
+    explanation: "Excess property checks apply only to a fresh object literal assigned where a type is expected."
+  - id: p1-let-widening
+    phase: p1
+    skills: [typescript.structural-typing]
+    difficulty: 1
+    prompt: "What type is inferred for `size` in `let size = \"large\"`?"
+    answers: ["string"]
+    explanation: "let can be reassigned, so the literal widens to string; const would keep \"large\"."
+  - id: p1-in-narrowing
+    phase: p1
+    skills: [typescript.unions-narrowing]
+    difficulty: 2
+    prompt: "With `type Fish = { swim(): void }` and `type Bird = { fly(): void }`, which check narrows `pet: Fish | Bird` to Fish?"
+    options: ["if (pet instanceof Fish)", "if (\"swim\" in pet)", "if (typeof pet === \"Fish\")", "if (pet.swim)"]
+    answer: 1
+    explanation: "Fish is a type, not a class, so instanceof is impossible; the in operator narrows by property."
+  - id: p1-never-left
+    phase: p1
+    skills: [typescript.unions-narrowing]
+    difficulty: 2
+    prompt: "What is the type of `x` in the last line?"
+    code: |
+      function f(x: string | number) {
+        if (typeof x === "string") return 1;
+        if (typeof x === "number") return 2;
+        x;
+      }
+    answers: ["never"]
+    explanation: "Both members were handled, so nothing is left: never."
+  - id: p1-unknown-vs-any
+    phase: p1
+    skills: [typescript.unions-narrowing]
+    difficulty: 2
+    prompt: "Why is `unknown` safer than `any` for the result of JSON.parse?"
+    options:
+      - "unknown is checked at runtime"
+      - "unknown forces a check before the value is used; any allows everything unchecked"
+      - "unknown makes parsing faster"
+    answer: 1
+    explanation: "unknown is the type-safe top type: you must narrow it first."
+  - id: p1-intersection-conflict
+    phase: p1
+    skills: [typescript.interfaces-classes]
+    difficulty: 3
+    prompt: "What is the type of `id` in `type T = { id: number } & { id: string }`?"
+    options: ["number | string", "number", "never", "A compile error at the declaration"]
+    answer: 2
+    explanation: "An intersection requires both, and no value is both a number and a string; interface extends would report the conflict instead."
+  - id: p1-optional-param
+    phase: p1
+    skills: [typescript.interfaces-classes]
+    difficulty: 1
+    prompt: "What is the type of `name` inside `function hi(name?: string)`?"
+    options: ["string", "string | undefined", "string | null", "any"]
+    answer: 1
+    explanation: "An optional parameter may be omitted, so it can be undefined."
+  - id: p1-generic-keyof
+    phase: p1
+    skills: [typescript.generics]
+    difficulty: 3
+    prompt: "Which signature makes `prop(user, \"age\")` return the type of user.age and reject unknown keys?"
+    options:
+      - "function prop(o: object, k: string): unknown"
+      - "function prop<T>(o: T, k: string): T"
+      - "function prop<T, K extends keyof T>(o: T, k: K): T[K]"
+      - "function prop<T>(o: T, k: keyof any): any"
+    answer: 2
+    explanation: "K extends keyof T limits the key; T[K] is the type of that property."
+  - id: p1-generic-inference
+    phase: p1
+    skills: [typescript.generics]
+    difficulty: 2
+    prompt: "What is T in `wrap([1, 2])` with `function wrap<T>(items: T[]): { items: T[] }`?"
+    answers: ["number"]
+    explanation: "T is inferred from the argument's element type."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-record
+    phase: p2
+    skills: [typescript.utility-conditional]
+    difficulty: 2
+    prompt: "Which type requires a number for each of the keys \"small\", \"medium\" and \"large\"?"
+    options:
+      - "Partial<Record<\"small\" | \"medium\" | \"large\", number>>"
+      - "Record<\"small\" | \"medium\" | \"large\", number>"
+      - "Record<string, number>"
+      - "Pick<number, \"small\">"
+    answer: 1
+    explanation: "Record over a union of literal keys requires every key."
+  - id: p2-returntype
+    phase: p2
+    skills: [typescript.utility-conditional]
+    difficulty: 3
+    prompt: "`async function load() { return { id: 1 } }`. Which type is `{ id: number }`?"
+    options: ["ReturnType<typeof load>", "Awaited<ReturnType<typeof load>>", "typeof load", "Parameters<typeof load>"]
+    answer: 1
+    explanation: "ReturnType gives Promise<{ id: number }>; Awaited unwraps it."
+  - id: p2-distributive
+    phase: p2
+    skills: [typescript.utility-conditional]
+    difficulty: 4
+    prompt: "What is `Box<string | number>` with `type Box<T> = [T] extends [string] ? \"s\" : \"other\"`?"
+    options: ["\"s\" | \"other\"", "\"other\"", "\"s\"", "never"]
+    answer: 1
+    explanation: "Wrapping T in a tuple stops distribution: the whole union is tested, and it is not a string."
+  - id: p2-key-remap
+    phase: p2
+    skills: [typescript.utility-conditional]
+    difficulty: 3
+    prompt: "What does `{ [K in keyof T as Exclude<K, \"password\">]: T[K] }` do?"
+    options:
+      - "Makes password optional"
+      - "Builds T without the password key"
+      - "Renames password"
+      - "Nothing"
+    answer: 1
+    explanation: "Excluded keys map to never, and never keys are removed: this is Omit written by hand."
+  - id: p2-as-const
+    phase: p2
+    skills: [typescript.enums-modules]
+    difficulty: 2
+    prompt: "What is the type of `ROLES` in `const ROLES = [\"admin\", \"user\"] as const`?"
+    options: ["string[]", "readonly [\"admin\", \"user\"]", "(\"admin\" | \"user\")[]", "readonly string[]"]
+    answer: 1
+    explanation: "as const gives a readonly tuple of literal types."
+  - id: p2-satisfies-missing
+    phase: p2
+    skills: [typescript.enums-modules]
+    difficulty: 3
+    prompt: "With `type Lang = \"en\" | \"pt\"`, what happens here?"
+    code: |
+      const labels = { en: "Hello" } satisfies Record<Lang, string>;
+    options:
+      - "It compiles; labels.pt is undefined"
+      - "A compile error: property pt is missing"
+      - "labels is widened to Record<Lang, string>"
+    answer: 1
+    explanation: "satisfies checks the value against the type, including that every key of the union is present."
+  - id: p2-module-ext
+    phase: p2
+    skills: [typescript.enums-modules]
+    difficulty: 2
+    prompt: "Node.js 26 runs `main.ts`, which contains `import { sum } from \"./math\"`. What happens?"
+    options:
+      - "It works: Node adds .ts"
+      - "It fails: ES modules on Node need the file extension, ./math.ts"
+      - "It works only with CommonJS"
+    answer: 1
+    explanation: "ESM resolution never guesses extensions; with nodenext, tsc reports it as well."
+  - id: p2-promise-all-fail
+    phase: p2
+    skills: [typescript.async-errors]
+    difficulty: 2
+    prompt: "`await Promise.all([a(), b(), c()])`. b() rejects first. What happens to c()?"
+    options:
+      - "It is cancelled"
+      - "It keeps running; Promise.all just stops waiting and rejects with b's error"
+      - "It is retried"
+    answer: 1
+    explanation: "Promises cannot be cancelled by the combinator; use an AbortSignal to stop the others."
+  - id: p2-catch-narrow
+    phase: p2
+    skills: [typescript.async-errors]
+    difficulty: 2
+    prompt: "Which line compiles under strict inside `catch (error) { ... }`?"
+    options:
+      - "console.log(error.message)"
+      - "if (error instanceof Error) console.log(error.message)"
+      - "const e: Error = error"
+    answer: 1
+    explanation: "error is unknown, so you must narrow it first."
+  - id: p2-foreach-async
+    phase: p2
+    skills: [typescript.async-errors]
+    difficulty: 3
+    prompt: "Why does `items.forEach(async (item) => { await save(item) })` not wait for the saves?"
+    options:
+      - "async callbacks are not allowed in forEach"
+      - "forEach ignores the returned promises, so nothing awaits them"
+      - "save runs synchronously"
+    answer: 1
+    explanation: "Use for...of with await, or Promise.all(items.map(...)), so the promises are awaited."
+  # ---- P3 Advanced ---------------------------------------------------------------
+  - id: p3-boundary
+    phase: p3
+    skills: [typescript.runtime-validation]
+    difficulty: 2
+    prompt: "Where should an API validate the shape of a request body?"
+    options:
+      - "Everywhere the body is used"
+      - "Once, at the boundary (the handler), turning unknown into a typed value"
+      - "Nowhere: the TypeScript types already guarantee it"
+    answer: 1
+    explanation: "Parse at the boundary; the code behind it can then trust the types."
+  - id: p3-zod-infer
+    phase: p3
+    skills: [typescript.runtime-validation]
+    difficulty: 2
+    prompt: "With zod, how do you get the TypeScript type of `const Order = z.object({ id: z.string() })` without writing it again?"
+    answers: ["z.infer<typeof Order>", "type Order = z.infer<typeof Order>", "z.output<typeof Order>"]
+    explanation: "The type is inferred from the schema, so the two can never drift apart."
+  - id: p3-coerce
+    phase: p3
+    skills: [typescript.runtime-validation]
+    difficulty: 3
+    prompt: "Why can `z.coerce.number()` be dangerous for an environment variable that is set but empty?"
+    options:
+      - "It throws a TypeError"
+      - "Number(\"\") is 0, so an empty value silently becomes 0"
+      - "It returns NaN, which zod accepts"
+    answer: 1
+    explanation: "Coercion runs Number() first; check for empty strings explicitly when 0 is not a sensible value."
+  - id: p3-declare-module
+    phase: p3
+    skills: [typescript.declaration-files]
+    difficulty: 3
+    prompt: "An internal JavaScript package has no types. What is the quickest declaration that makes `import x from \"@acme/old\"` compile?"
+    answers: ["declare module \"@acme/old\";", "declare module \"@acme/old\"", "declare module '@acme/old';"]
+    explanation: "A shorthand ambient module types every import from it as any; describe the exports later."
+  - id: p3-augment
+    phase: p3
+    skills: [typescript.declaration-files]
+    difficulty: 3
+    prompt: "Which construct adds a property to a library's interface from your project?"
+    options:
+      - "A type alias with the same name"
+      - "declare module \"lib\" { interface Options { extra: string } }"
+      - "An intersection type exported from your project"
+      - "class Options extends lib.Options"
+    answer: 1
+    explanation: "Module augmentation relies on interface declaration merging."
+  - id: p3-ts-expect-error
+    phase: p3
+    skills: [typescript.testing-linting]
+    difficulty: 2
+    prompt: "What is the difference between `// @ts-expect-error` and `// @ts-ignore`?"
+    options:
+      - "None"
+      - "@ts-expect-error is itself an error when the next line compiles, so it works as a test; @ts-ignore never complains"
+      - "@ts-ignore only works in tests"
+    answer: 1
+    explanation: "Prefer @ts-expect-error: it tells you when the suppression is no longer needed."
+  - id: p3-typed-lint
+    phase: p3
+    skills: [typescript.testing-linting]
+    difficulty: 3
+    prompt: "Why do rules like no-floating-promises need `projectService` (type information) in typescript-eslint?"
+    options:
+      - "To read tsconfig paths"
+      - "Only the compiler knows whether an expression is a promise"
+      - "To run faster"
+    answer: 1
+    explanation: "Type-aware rules ask the TypeScript compiler for the type of each expression."
+  # ---- P4 Mastery ----------------------------------------------------------------
+  - id: p4-strip-check
+    phase: p4
+    skills: [typescript.production-builds]
+    difficulty: 3
+    prompt: "A service runs its .ts sources on Node.js 26 and is bundled for a serverless function with esbuild. Which step catches type errors?"
+    options: ["Node type stripping", "esbuild", "A separate tsc --noEmit step", "All of them"]
+    answer: 2
+    explanation: "Runtimes and bundlers strip types without checking them."
+  - id: p4-ts7-tools
+    phase: p4
+    skills: [typescript.production-builds]
+    difficulty: 4
+    prompt: "After upgrading to TypeScript 7.0, typescript-eslint fails because it cannot load the compiler API. What is the recommended fix?"
+    options:
+      - "Downgrade the whole project to TypeScript 5"
+      - "Install @typescript/typescript6 (for example as an npm alias of typescript) for tools, and keep tsc on 7.0"
+      - "Remove ESLint"
+    answer: 1
+    explanation: "7.0 ships no programmatic API; the 6.0 compatibility package serves tools until the 7.1 API."
+  - id: p4-references
+    phase: p4
+    skills: [typescript.monorepos]
+    difficulty: 4
+    prompt: "In a monorepo with project references, what does a dependent project type-check against?"
+    options:
+      - "The sources of its references"
+      - "The declaration files its references emit"
+      - "Nothing; references only order the build"
+    answer: 1
+    explanation: "composite projects emit .d.ts, and dependents read those, which is faster and enforces public boundaries."
+  - id: p4-method-bivariance
+    phase: p4
+    skills: [typescript.soundness-performance]
+    difficulty: 5
+    prompt: "Why can `interface H { handle(x: Dog): void }` be assigned to `{ handle(x: Animal): void }` without an error?"
+    options:
+      - "Dog extends Animal, so it is safe"
+      - "Method parameters are checked bivariantly, a deliberate unsoundness; a property-style function type would be checked strictly"
+      - "strictFunctionTypes is off by default"
+    answer: 1
+    explanation: "strictFunctionTypes applies to function-typed properties, not to method declarations."
+  - id: p4-slow-types
+    phase: p4
+    skills: [typescript.soundness-performance]
+    difficulty: 4
+    prompt: "Which compiler flag shows the number of type instantiations and the check time, to find a slow type?"
+    answers: ["--extendedDiagnostics", "extendedDiagnostics", "tsc --extendedDiagnostics"]
+    explanation: "--generateTrace gives a detailed trace once you know where to look."

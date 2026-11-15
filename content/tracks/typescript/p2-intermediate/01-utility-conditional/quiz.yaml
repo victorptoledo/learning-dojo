@@ -1,0 +1,34 @@
+questions:
+  - id: omit-pick
+    prompt: "Which type is { id: number; name: string } when `User = { id: number; name: string; email: string }`?"
+    options: ["Omit<User, \"email\">", "Partial<User>", "Record<\"id\" | \"name\", User>", "Exclude<User, \"email\">"]
+    answer: 0
+    explanation: "Omit removes keys from an object type; Exclude removes members from a union."
+  - id: distribute
+    prompt: "With `type ToArray<T> = T extends unknown ? T[] : never`, what is `ToArray<string | number>`?"
+    options: ["(string | number)[]", "string[] | number[]", "never", "unknown[]"]
+    answer: 1
+    explanation: "A conditional type over a naked type parameter distributes: it is applied to each member of the union."
+  - id: infer
+    prompt: "What does `type R<T> = T extends Promise<infer V> ? V : T` give for `R<Promise<boolean>>`?"
+    answers: ["boolean"]
+    explanation: "infer V captures the type argument of Promise when T matches."
+  - id: remove-modifier
+    prompt: "Which mapped type removes `readonly` from every property?"
+    options:
+      - "{ readonly [K in keyof T]: T[K] }"
+      - "{ -readonly [K in keyof T]: T[K] }"
+      - "{ [K in keyof T]-?: T[K] }"
+      - "Omit<T, \"readonly\">"
+    answer: 1
+    explanation: "A minus sign removes a modifier: -readonly removes readonly, -? removes optionality."
+  - id: remap-never
+    prompt: "In a mapped type with `as`, what happens to a key remapped to `never`?"
+    options: ["It becomes a property of type never", "It is removed from the result", "It is a compile error"]
+    answer: 1
+    explanation: "Mapping a key to never filters it out, which is how PickByValue-style types work."
+  - id: template
+    prompt: "What is `` `on${Capitalize<\"open\" | \"close\">}` ``?"
+    options: ["\"onOpen\" | \"onClose\"", "\"onopen\" | \"onclose\"", "string", "\"onOpen | Close\""]
+    answer: 0
+    explanation: "Template literal types distribute over unions, and Capitalize upper-cases the first letter."

@@ -1,0 +1,24 @@
+id: typescript.p1.generics
+kind: lesson
+status: draft
+title: "Generics, Constraints, keyof and Indexed Access"
+summary: "Type parameters that keep information, constraints with extends, keyof and T[K], typeof in types, how inference picks type arguments, const type parameters, NoInfer and generic classes."
+objectives:
+  - { id: o1, text: "Write generic functions and types whose type parameters relate inputs to outputs", skills: [typescript.generics] }
+  - { id: o2, text: "Constrain type parameters with extends and keyof, and read property types with T[K] and typeof", skills: [typescript.generics] }
+  - { id: o3, text: "Predict how inference picks type arguments, and steer it with const type parameters and NoInfer", skills: [typescript.generics] }
+prerequisites: [typescript.p1.interfaces-classes]
+difficulty: 3
+estimated_minutes: 50
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A utility module has `function sortBy(items: any[], key: string): any[]` and callers keep sorting by misspelled keys and casting the result. Write a generic signature (and a body) that only accepts keys of the item type, keeps the item type in the result, and only allows keys whose values are numbers or strings. Explain each type parameter and constraint, and show one call that compiles and one that does not.'
+  criteria:
+    - "Introduces a type parameter T for the item type and returns T[] (or readonly T[])"
+    - "Constrains the key with K extends keyof T, so misspelled keys are compile errors"
+    - "Restricts the property type to string | number, for example with T extends Record<K, string | number> or a mapped type"
+    - "Explains that inference fills T and K from the arguments, so callers write no type arguments"
+    - "Shows a failing call with a wrong key or a key whose value is not sortable"

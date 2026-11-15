@@ -1,0 +1,24 @@
+id: typescript.p1.unions-narrowing
+kind: lesson
+status: draft
+title: "Unions, Literal Types and Narrowing"
+summary: "Union and literal types, narrowing with typeof, in, instanceof and discriminants, discriminated unions, never and exhaustive switches, unknown vs any, and type predicates."
+objectives:
+  - { id: o1, text: "Model values that take several forms with unions and literal types, and narrow them with the right check", skills: [typescript.unions-narrowing] }
+  - { id: o2, text: "Model states as discriminated unions and make switches exhaustive with never", skills: [typescript.unions-narrowing] }
+  - { id: o3, text: "Explain unknown vs any and write type predicates and assertion functions for untrusted data", skills: [typescript.unions-narrowing] }
+prerequisites: [typescript.p1.structural-typing]
+difficulty: 2
+estimated_minutes: 50
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A React-free UI module stores a download as `{ loading: boolean; progress?: number; file?: Blob; error?: string }`, and bugs keep appearing where `file` and `error` are both set, or `loading` is true after an error. Redesign the type as a discriminated union, write a `label(download)` function over it that the compiler checks for exhaustiveness, and explain what happens when someone later adds a "paused" state. Then explain why the function that reads the saved state from localStorage should take `unknown`, not `any`.'
+  criteria:
+    - "Defines one member per state with a literal discriminant (for example status: \"idle\" | \"loading\" | \"done\" | \"failed\") and only the fields that state has"
+    - "Explains that the union makes impossible combinations unrepresentable"
+    - "Writes a switch on the discriminant with a default branch that passes the value to a function taking never"
+    - "Explains that adding a member makes every non-exhaustive switch a compile error"
+    - "Explains that unknown forces a check (type predicate or validation) before use, while any silently disables checking"

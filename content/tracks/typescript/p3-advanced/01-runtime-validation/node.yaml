@@ -1,0 +1,24 @@
+id: typescript.p3.runtime-validation
+kind: lesson
+status: draft
+title: "Runtime Validation at the Boundaries"
+summary: "Why types protect nothing at runtime, parse don't validate, hand-written type predicates, zod 4 schemas with inferred types, safeParse and error paths, defaults, transforms, brands, and where to validate."
+objectives:
+  - { id: o1, text: "Explain why data entering a program must be validated at runtime, and where the boundaries are", skills: [typescript.runtime-validation] }
+  - { id: o2, text: "Write zod schemas, infer input and output types from them, and report errors with paths", skills: [typescript.runtime-validation] }
+  - { id: o3, text: "Use defaults, transforms, refinements and branded types to carry validation into the type system", skills: [typescript.runtime-validation, typescript.structural-typing] }
+prerequisites: [typescript.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A webhook handler does `const event = (await req.json()) as PaymentEvent` and then `if (event.amount > 1000) flagForReview(event.customerId)`. One day a provider sends `amount` as the string "1500.00", and a large payment is never flagged. Explain why TypeScript did not prevent it, then write a zod schema for the event (type, amount in cents as a positive integer, ISO timestamp, customerId branded), the handler code that uses it, and what the handler returns to the provider when validation fails.'
+  criteria:
+    - "Explains that the as cast is not checked at runtime, and that \"1500.00\" > 1000 compares a string (coerced) so the logic silently misbehaves or the shape is simply wrong"
+    - "Writes a z.object schema with the right rules (positive integer amount, a datetime string, a branded customer id, a literal or enum type)"
+    - "Derives the TypeScript type with z.infer instead of writing the interface again"
+    - "Uses safeParse (or parse with a catch) at the boundary and only passes the parsed data on"
+    - "Returns a 400-style error with the issue paths, and logs the rejected payload safely"

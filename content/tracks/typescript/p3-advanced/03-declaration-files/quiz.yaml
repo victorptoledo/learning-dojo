@@ -1,0 +1,39 @@
+questions:
+  - id: dts
+    prompt: "What does a `.d.ts` file contain?"
+    options:
+      - "Compiled JavaScript with types"
+      - "Only type declarations: no implementations, no emitted code"
+      - "Tests for types"
+    answer: 1
+    explanation: "Declaration files describe code that exists elsewhere at runtime; declare says it exists."
+  - id: types-option
+    prompt: "In TypeScript 7, a project with @types/node installed cannot use `process`. What is the usual fix?"
+    answers: ["\"types\": [\"node\"]", "types: [\"node\"]", "add node to types", "types node"]
+    explanation: "The types option defaults to [], so global type packages must be listed."
+  - id: shorthand
+    prompt: "What type do imports from `declare module \"legacy-lib\";` (no body) have?"
+    options: ["unknown", "any", "never", "A compile error"]
+    answer: 1
+    explanation: "A shorthand ambient module makes every import from it any: fast to write, but unchecked."
+  - id: augment
+    prompt: "Which TypeScript feature makes it possible to add a property to Express's Request interface from your own file?"
+    options: ["Intersection types", "Declaration merging of interfaces", "Generics", "Type assertions"]
+    answer: 1
+    explanation: "An interface declared again in the same module (via declare module) merges with the original."
+  - id: global
+    prompt: "A file starts with `export {}` and then `declare global { var BUILD_ID: string }`. Why the `export {}`?"
+    options:
+      - "It exports BUILD_ID"
+      - "It makes the file a module, which declare global requires"
+      - "It is required in every .d.ts file"
+    answer: 1
+    explanation: "declare global is only allowed in a module; a file without imports or exports is already global."
+  - id: skiplibcheck
+    prompt: "What does `skipLibCheck: true` skip?"
+    options:
+      - "Type-checking your own code"
+      - "Type-checking the declaration files (.d.ts), such as those in node_modules"
+      - "Loading @types packages"
+    answer: 1
+    explanation: "Your code is still checked against those declarations; only the declarations themselves are not re-checked."

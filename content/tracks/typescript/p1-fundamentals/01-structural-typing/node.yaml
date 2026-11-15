@@ -2,13 +2,24 @@ id: typescript.p1.structural-typing
 legacy_id: ts-01-structural-typing
 kind: lesson
 status: draft
-title: "Structural vs Nominal Typing"
-summary: "Why two interfaces with the same properties are interchangeable in TypeScript."
+title: "Types, Inference and Structural Typing"
+summary: "Primitive types, arrays, tuples and object types, inference, and why two types with the same shape are interchangeable: structural typing, excess property checks, brands, any and assertions."
 objectives:
-  - { id: o1, text: "Why two interfaces with the same properties are interchangeable in TypeScript.", skills: [typescript.structural-typing] }
-prerequisites: []
+  - { id: o1, text: "Use primitive, array, tuple, readonly and optional types, and let inference type local values", skills: [typescript.structural-typing] }
+  - { id: o2, text: "Explain structural typing, predict when a value is assignable to a type, and explain excess property checks", skills: [typescript.structural-typing] }
+  - { id: o3, text: "Make same-shaped types distinct with a brand, and explain the risks of any, as and !", skills: [typescript.structural-typing] }
+prerequisites: [typescript.p0.hello-dojo]
 difficulty: 2
-estimated_minutes: 30
+estimated_minutes: 45
 xp: 100
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A payments service has `type AccountId = string` and `type InvoiceId = string`, and a bug passed an AccountId to `refund(invoice: InvoiceId)` without any compile error. A colleague suggests turning both into classes with `implements`. Explain why the compiler accepted the bug, why the classes alone would not fully solve it in TypeScript, and propose a fix that costs nothing at runtime. Show where values of the new types are created.'
+  criteria:
+    - "Explains that a type alias is only a name for the same structure, and that TypeScript compares types structurally"
+    - "Explains that two classes with the same public shape are still interchangeable in TypeScript (private or # fields aside)"
+    - "Proposes a branded type such as string & { readonly __brand: \"InvoiceId\" }"
+    - "Creates branded values only in one validating function (with an `as` there), so the rest of the code cannot forge them"
+    - "Mentions that the brand exists only at compile time and costs nothing at runtime"

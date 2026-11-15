@@ -1,0 +1,65 @@
+pass_percent: 85
+questions:
+  - id: partial-omit
+    skills: [typescript.utility-conditional]
+    prompt: "Which type describes a patch where any field of User except id may be sent?"
+    options: ["Partial<User>", "Partial<Omit<User, \"id\">>", "Omit<Partial<User>, \"name\">", "Pick<User, \"id\">"]
+    answer: 1
+    explanation: "Omit removes id, then Partial makes every remaining field optional."
+  - id: conditional-filter
+    skills: [typescript.utility-conditional]
+    prompt: "What is `Extract<\"a\" | \"b\" | 1 | 2, string>`?"
+    options: ["\"a\" | \"b\"", "1 | 2", "string", "never"]
+    answer: 0
+    explanation: "Extract keeps the members assignable to string; it is a distributive conditional type returning never for the others."
+  - id: mapped-getters
+    skills: [typescript.utility-conditional]
+    prompt: "In `{ [K in keyof T as `get${Capitalize<K & string>}`]: () => T[K] }`, what does `as` do?"
+    options:
+      - "It casts each value"
+      - "It renames each key; a key renamed to never is dropped"
+      - "It makes the properties readonly"
+    answer: 1
+    explanation: "Key remapping rewrites the key of each property in a mapped type."
+  - id: union-not-enum
+    skills: [typescript.enums-modules]
+    prompt: "Which is NOT a reason to prefer `type Level = \"debug\" | \"info\"` over `enum Level`?"
+    options:
+      - "The union is erasable, so Node.js type stripping accepts it"
+      - "The union accepts plain string literals and JSON values"
+      - "The union has a runtime object you can iterate"
+    answer: 2
+    explanation: "A union has no runtime value; when you need the list too, add an as const array and derive the union from it."
+  - id: satisfies-keeps
+    skills: [typescript.enums-modules]
+    prompt: "`const limits = { free: 10, pro: 100 } satisfies Record<string, number>`. What is the type of `limits.pro`?"
+    options: ["number", "100", "number | undefined", "a compile error"]
+    answer: 0
+    explanation: "satisfies keeps the inferred type: { free: number; pro: number }. Add as const to keep the literal 100."
+  - id: verbatim
+    skills: [typescript.enums-modules]
+    prompt: "Why must type-only imports be written `import type` when Node.js runs .ts files?"
+    options:
+      - "Node keeps import lines as written and would try to load a value that does not exist"
+      - "Types are loaded faster that way"
+      - "It is only a style rule"
+    answer: 0
+    explanation: "Type stripping removes `import type` lines; a plain import of a type would fail at runtime. verbatimModuleSyntax enforces it."
+  - id: settled
+    skills: [typescript.async-errors]
+    prompt: "A batch job must try all 200 uploads and report every failure. Which is right?"
+    options:
+      - "await Promise.all(uploads) inside try/catch"
+      - "await Promise.allSettled(uploads), then read each status"
+      - "await Promise.race(uploads)"
+    answer: 1
+    explanation: "Promise.all rejects on the first failure and hides the others; allSettled reports each outcome."
+  - id: result-or-throw
+    skills: [typescript.async-errors]
+    prompt: "Which failure is the best fit for a Result union rather than a thrown exception?"
+    options:
+      - "The database connection pool is exhausted"
+      - "A user typed a coupon code that does not exist"
+      - "A bug: an index out of range"
+    answer: 1
+    explanation: "Expected, recoverable outcomes belong in the return type; infrastructure failures and bugs are exceptions."

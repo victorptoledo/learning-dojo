@@ -1,0 +1,39 @@
+questions:
+  - id: async-return
+    prompt: "What is the return type of `async function count(): Promise<number> { return 3 }` when called?"
+    options: ["number", "Promise<number>", "Promise<Promise<number>>", "void"]
+    answer: 1
+    explanation: "An async function always returns a promise; return 3 resolves it with 3."
+  - id: catch-unknown
+    prompt: "Under strict, what is the type of `error` in `catch (error) { ... }`?"
+    answers: ["unknown"]
+    explanation: "JavaScript can throw any value, so the catch variable is unknown until you narrow it."
+  - id: all-vs-allsettled
+    prompt: "You need every result, successes and failures, from 20 requests. Which combinator?"
+    options: ["Promise.all", "Promise.allSettled", "Promise.race", "Promise.any"]
+    answer: 1
+    explanation: "allSettled never rejects; it reports each outcome as fulfilled or rejected."
+  - id: sequential
+    prompt: "Why is `const a = await f(); const b = await g();` slower than needed when f and g are independent?"
+    options:
+      - "await blocks the whole Node.js process"
+      - "g only starts after f finished; Promise.all([f(), g()]) runs them at the same time"
+      - "Two awaits in a row are a syntax error"
+    answer: 1
+    explanation: "await pauses this function, not the process, but the second call does not start until the first finishes."
+  - id: cause
+    prompt: "Which line adds context to an error without losing the original one?"
+    options:
+      - "throw new Error(\"saving failed: \" + error)"
+      - "throw new Error(\"saving failed\", { cause: error })"
+      - "console.error(error); throw new Error(\"saving failed\")"
+    answer: 1
+    explanation: "cause keeps the original error (and its stack) attached to the new one."
+  - id: promise-error-type
+    prompt: "How do you declare the rejection type of a Promise in TypeScript?"
+    options:
+      - "Promise<T, E>"
+      - "You cannot: Promise<T> only types the value; use a Result union for expected failures"
+      - "async function f(): Promise<T> throws E"
+    answer: 1
+    explanation: "Promises can reject with anything, so TypeScript does not type rejections."

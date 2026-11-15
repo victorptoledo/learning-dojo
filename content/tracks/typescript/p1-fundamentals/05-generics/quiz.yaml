@@ -1,0 +1,36 @@
+questions:
+  - id: why-generic
+    prompt: "What does `function first<T>(items: T[]): T | undefined` give callers that `function first(items: unknown[]): unknown` does not?"
+    options:
+      - "Faster code at runtime"
+      - "The element type of the array they passed, so they do not need casts"
+      - "A runtime check of the element type"
+    answer: 1
+    explanation: "The type parameter links the input to the output; generics are erased at runtime."
+  - id: keyof
+    prompt: "What is `keyof { id: number; name: string }`?"
+    answers: ["\"id\" | \"name\"", "'id' | 'name'", "\"name\" | \"id\"", "id | name"]
+    explanation: "keyof gives the union of the property names as literal types."
+  - id: indexed
+    prompt: "With `type User = { id: number; tags: string[] }`, what is `User[\"tags\"][number]`?"
+    options: ["string[]", "string", "number", "never"]
+    answer: 1
+    explanation: "User[\"tags\"] is string[]; indexing an array type with number gives its element type."
+  - id: constraint-return
+    prompt: "`function longest<T extends { length: number }>(a: T, b: T): T`. What is the type of `longest(\"ab\", \"c\")`?"
+    options: ["{ length: number }", "string", "\"ab\" | \"c\"", "unknown"]
+    answer: 1
+    explanation: "The constraint says what T must have, but the function returns T itself; here T is string."
+  - id: const-param
+    prompt: "Which feature makes `routes([\"/a\", \"/b\"])` infer `readonly [\"/a\", \"/b\"]` instead of `string[]`?"
+    options: ["A const type parameter: <const T extends readonly string[]>", "NoInfer<T>", "A default type argument", "keyof"]
+    answer: 0
+    explanation: "const type parameters infer as if the argument were written with as const."
+  - id: useless-param
+    prompt: "Why is `function log<T>(value: T): void` a questionable generic?"
+    options:
+      - "Generics cannot be used with void"
+      - "T is used only once, so it relates nothing; (value: unknown) says the same"
+      - "It needs a constraint"
+    answer: 1
+    explanation: "A type parameter is useful when it connects two places: parameters to each other or to the result."

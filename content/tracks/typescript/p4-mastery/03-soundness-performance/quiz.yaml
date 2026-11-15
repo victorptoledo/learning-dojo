@@ -1,0 +1,43 @@
+questions:
+  - id: sound
+    prompt: "What does it mean that TypeScript is not sound?"
+    options:
+      - "It has bugs in the compiler"
+      - "A program can type-check and still hold a value of the wrong type at runtime"
+      - "It cannot type-check JavaScript"
+    answer: 1
+    explanation: "Assertions, any, unchecked indexing and bivariant methods are deliberate trade-offs for describing real JavaScript."
+  - id: unchecked
+    prompt: "Which option makes `list[i]` have type `T | undefined`?"
+    answers: ["noUncheckedIndexedAccess"]
+    explanation: "Without it, indexing pretends the element always exists."
+  - id: exact-optional
+    prompt: "With exactOptionalPropertyTypes, is `const s: { theme?: string } = { theme: undefined }` allowed?"
+    options: ["Yes", "No: an optional property may be absent, but not explicitly undefined"]
+    answer: 1
+    explanation: "The option separates 'missing' from 'present with undefined'; add | undefined to allow both."
+  - id: bivariance
+    prompt: "Which declaration makes the compiler check the callback's parameter contravariantly (strictly)?"
+    options:
+      - "interface H { onSelect(item: Item): void }"
+      - "interface H { onSelect: (item: Item) => void }"
+      - "They are checked the same way"
+    answer: 1
+    explanation: "strictFunctionTypes applies to function-typed properties; methods keep bivariant parameter checks."
+  - id: variance-annotation
+    prompt: "What does `interface Producer<out T> { get(): T }` declare?"
+    options:
+      - "That T is contravariant"
+      - "That T is covariant: Producer<Dog> is assignable to Producer<Animal>, and the compiler checks it"
+      - "That T is a return-only type erased at runtime"
+    answer: 1
+    explanation: "out marks covariance, in contravariance, in out invariance; the compiler verifies the annotation."
+  - id: perf
+    prompt: "Which change usually speeds up type-checking of large object types?"
+    options:
+      - "Replacing interface extends with intersections"
+      - "Replacing long intersections with interfaces that extend each other"
+      - "Turning off skipLibCheck"
+      - "Using any instead of generics"
+    answer: 1
+    explanation: "Interfaces are named and cached; large intersections are recomputed. Measure with --extendedDiagnostics."

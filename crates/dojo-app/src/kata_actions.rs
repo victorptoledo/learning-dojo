@@ -86,6 +86,7 @@ impl App {
         files.extend(["Dockerfile", "compose.yaml"].map(|name| dir.join(name)));
         files.extend(sql_files(dir));
         files.extend(python_modules(dir));
+        files.extend(typescript_modules(dir));
         let existing: Vec<_> = files.into_iter().filter(|file| file.is_file()).collect();
         match self.editor.open_folder(dir, &existing) {
             Ok(()) => format!("Opened {} in `{}`.", dir.display(), self.editor.command()),
@@ -302,6 +303,20 @@ fn python_modules(dir: &Path) -> Vec<PathBuf> {
         .flatten()
         .map(|entry| entry.path())
         .filter(|path| path.is_file() && path.extension().is_some_and(|ext| ext == "py"))
+        .collect();
+    modules.sort();
+    modules
+}
+
+/// The modules of a TypeScript kata: the `.ts` files at the top of its folder.
+fn typescript_modules(dir: &Path) -> Vec<PathBuf> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut modules: Vec<PathBuf> = entries
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file() && path.extension().is_some_and(|ext| ext == "ts"))
         .collect();
     modules.sort();
     modules

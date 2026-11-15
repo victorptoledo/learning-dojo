@@ -48,8 +48,8 @@ of your choice.
 
 | Status | Tracks |
 | :--- | :--- |
-| ✅ Complete | **Rust**, **Modern Java** (Java 25), **Spring Boot** (Boot 4.1), **Backend Developer**, **Linux** (Debian 13), **Git & GitHub**, **System Design**, **Docker & Containers**, **SQL & Relational Databases** (PostgreSQL 17), **Modern Python** (Python 3.15) |
-| 📝 Draft | Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Go, TypeScript, Modern C++, Node.js, Software Architecture, API Design, Design Patterns, Prompt Engineering, PostgreSQL, Kubernetes, AWS, Computer Science, Data Structures & Algorithms |
+| ✅ Complete | **Rust**, **Modern Java** (Java 25), **Spring Boot** (Boot 4.1), **Backend Developer**, **Linux** (Debian 13), **Git & GitHub**, **System Design**, **Docker & Containers**, **SQL & Relational Databases** (PostgreSQL 17), **Modern Python** (Python 3.15), **TypeScript** (TypeScript 7 on Node.js 26) |
+| 📝 Draft | Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Go, Modern C++, Node.js, Software Architecture, API Design, Design Patterns, Prompt Engineering, PostgreSQL, Kubernetes, AWS, Computer Science, Data Structures & Algorithms |
 
 A complete track has 22 or more nodes, 7 to 10 katas, two checkpoints, a placement test and an
 interview bank. Draft tracks show their nodes as "under construction" 🚧 until they are written.
@@ -63,8 +63,8 @@ interview bank. Draft tracks show their nodes as "under construction" 🚧 until
 | [Docker Desktop](https://www.docker.com/products/docker-desktop/) (running) | every kata is checked in a container |
 | [VS Code](https://code.visualstudio.com/) (optional) | the dojo opens lessons and katas in it; any editor works |
 
-You do **not** need a JDK, Maven, Python, PostgreSQL or bash on your machine: the Java, Spring,
-Linux, Git, SQL and Python katas run in the dojo's own images. Docker katas build your Dockerfile
+You do **not** need a JDK, Maven, Python, Node.js, PostgreSQL or bash on your machine: the Java,
+Spring, Linux, Git, SQL, Python and TypeScript katas run in the dojo's own images. Docker katas build your Dockerfile
 on your own Docker engine. The dojo is developed on Windows 11. It also builds on macOS and
 Linux, but those platforms get less testing.
 
@@ -232,7 +232,8 @@ content/
                   with node.yaml, lesson.md, quiz.yaml, bridges/<language>.md
                   and kata/ (README.md, starter/, tests/, reference/)
 runner-images/    one image per kata runtime: rust/, java/ (JUnit 6, Spring Boot), linux/ (bats, ShellCheck, git),
-                  docker/ (hadolint, bats), sql/ (PostgreSQL 17), python/ (pytest, ruff)
+                  docker/ (hadolint, bats), sql/ (PostgreSQL 17), python/ (pytest, ruff),
+                  node/ (TypeScript 7, node:test)
 docs/
   architecture.md the full design and its decisions; examples/ shows every file format
 ```

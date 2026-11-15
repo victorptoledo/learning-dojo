@@ -1,0 +1,24 @@
+id: typescript.p3.testing-linting
+kind: lesson
+status: draft
+title: "Testing, Type-Level Tests and Linting"
+summary: "Unit tests with node:test and Vitest, mocks and fake timers, testing boundaries, dependency injection for testability, type-level tests with Expect, expectTypeOf and @ts-expect-error, typescript-eslint's type-checked rules and a CI check script."
+objectives:
+  - { id: o1, text: "Write and run tests with node:test (or Vitest), with mocks and fake timers, and keep test files type-checked", skills: [typescript.testing-linting] }
+  - { id: o2, text: "Write type-level tests with Expect<Equal<...>>, expectTypeOf and @ts-expect-error", skills: [typescript.testing-linting, typescript.utility-conditional] }
+  - { id: o3, text: "Configure typescript-eslint with type-checked rules and combine type check, lint and tests in CI", skills: [typescript.testing-linting] }
+prerequisites: [typescript.p3.declaration-files]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A team says: "We use TypeScript in strict mode, so we only need a few end-to-end tests." In the same week, three bugs reach production: a discount applied twice, an unawaited `audit.write()` that lost entries when the process restarted, and a generic `pick()` helper whose return type became `any` after a refactor. For each bug, say which safety net (tests, a type-level test, a lint rule) would have caught it and write the test, type test or rule configuration. Then propose the CI steps.'
+  criteria:
+    - "Explains that the type checker does not test behaviour, so the discount bug needs a unit test, and writes one"
+    - "Names no-floating-promises (type-checked typescript-eslint) for the unawaited write"
+    - "Writes a type-level test (Expect<Equal<...>> or expectTypeOf) that fails when pick returns any"
+    - "Mentions that tests run with type stripping must also be type-checked by tsc"
+    - "Proposes CI steps: tsc, eslint and the tests, each failing the build"

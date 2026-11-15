@@ -21,7 +21,7 @@ const HIDDEN_COURSE_FILES: [&str; 6] = [
 ];
 
 /// Extensions VS Code offers to install when the workspace opens.
-const RECOMMENDED_EXTENSIONS: [&str; 10] = [
+const RECOMMENDED_EXTENSIONS: [&str; 11] = [
     "rust-lang.rust-analyzer",
     "vscjava.vscode-java-pack",
     "vadimcn.vscode-lldb",
@@ -32,6 +32,7 @@ const RECOMMENDED_EXTENSIONS: [&str; 10] = [
     "timonwong.shellcheck",
     "ms-python.python",
     "charliermarsh.ruff",
+    "typescriptteam.native-preview",
 ];
 
 #[derive(Debug, Clone)]

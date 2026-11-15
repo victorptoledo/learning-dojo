@@ -1,0 +1,46 @@
+id: typescript.p0.hello-dojo
+kind: kata
+status: draft
+title: "Hello, Dojo: Your First TypeScript Kata"
+summary: "Write a typed greeting with an optional parameter and an options object, parse command-line words, and meet tsc and node:test."
+objectives:
+  - { id: o1, text: "Write typed functions with an optional parameter, a default value and an options object", skills: [typescript.toolchain] }
+  - { id: o2, text: "Run tsc and the node:test tests with npm test, and read a failing assertion", skills: [typescript.toolchain] }
+prerequisites: [typescript.p0.toolchain]
+difficulty: 1
+estimated_minutes: 25
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with the visible test: what does `greet("Ada")` return? Then think about "missing or blank": `name` is `string | undefined`. Which string method removes the spaces around a name, and how do you call it when the value may be undefined?
+    - |-
+      Optional chaining `name?.trim()` gives `undefined` when there is no name, and `||` falls back on both `undefined` and the empty string: `name?.trim() || "stranger"`. A template literal builds the message. In `parseArgs`, `argv.includes("--shout")` and `argv.filter(...).join(" ")` do all the work.
+    - |-
+      ```ts
+      export function greet(name?: string, options: GreetOptions = {}): string {
+        const who = name?.trim() || "stranger";
+        const message = `Welcome to the dojo, ${who}!`;
+        // upper case when options.shout is true
+      }
+
+      export function main(argv: readonly string[], log: (line: string) => void = console.log): number {
+        const { name, shout } = parseArgs(argv);
+        // log the greeting, then return 0
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

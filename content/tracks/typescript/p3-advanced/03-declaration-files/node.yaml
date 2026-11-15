@@ -1,0 +1,24 @@
+id: typescript.p3.declaration-files
+kind: lesson
+status: draft
+title: "Declaration Files, Ambient Types and Augmentation"
+summary: "What .d.ts files are, where types come from (lib, bundled types, DefinitelyTyped), reading library typings, declaring untyped modules and globals, module augmentation, and emitting declarations for a library."
+objectives:
+  - { id: o1, text: "Explain where the types of the standard library, Node.js and npm packages come from, and how the types and skipLibCheck options affect them", skills: [typescript.declaration-files] }
+  - { id: o2, text: "Write ambient module and global declarations, and augment a library's interfaces", skills: [typescript.declaration-files, typescript.interfaces-classes] }
+  - { id: o3, text: "Publish declaration files for a package with declaration, declarationMap, isolatedDeclarations and package exports", skills: [typescript.declaration-files] }
+prerequisites: [typescript.p3.validate-boundary]
+difficulty: 3
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your Express app sets `req.tenant` in a middleware, and every handler writes `(req as any).tenant`. The app also imports an internal untyped package `@acme/legacy-auth` (one function, `verify(token: string): Promise<{ sub: string } | null>`), and a teammate added `declare module "*";` to silence errors. Write the declarations that replace both hacks, say which file(s) they go in and why they are picked up, and explain what the wildcard declaration was hiding.'
+  criteria:
+    - "Augments Express's Request interface with declare module (express-serve-static-core or express) and an optional or required tenant property"
+    - "Explains that the augmentation works through interface declaration merging and that the file must be a module included by tsconfig"
+    - "Writes declare module \"@acme/legacy-auth\" with a typed export of verify"
+    - "Explains that declare module \"*\" types every unresolved import as any, hiding typos in import paths and missing packages"
+    - "Mentions removing the as any casts so handlers get the typed property"

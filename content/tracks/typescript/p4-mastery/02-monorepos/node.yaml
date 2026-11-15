@@ -1,0 +1,24 @@
+id: typescript.p4.monorepos
+kind: lesson
+status: draft
+title: "Monorepos, Workspaces and Project References"
+summary: "Workspaces that link local packages, package exports as boundaries, internal packages with and without a build, project references with composite and tsc -b, shared tsconfig bases, task runners and when not to use a monorepo."
+objectives:
+  - { id: o1, text: "Lay out a monorepo with workspaces and package exports, and choose between built and source-only internal packages", skills: [typescript.monorepos] }
+  - { id: o2, text: "Configure project references with composite and a solution tsconfig, and explain what tsc -b does", skills: [typescript.monorepos, typescript.production-builds] }
+  - { id: o3, text: "Decide when a monorepo helps and when folders with boundaries are enough", skills: [typescript.monorepos] }
+prerequisites: [typescript.p4.production-builds]
+difficulty: 4
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Three Node.js services (an API, a billing worker and an admin CLI) live in separate repositories and copy the same `Order` types and zod schemas between them, which drift. CI type-checks each service in about two minutes with one big tsconfig. Propose a monorepo layout: the packages and their dependencies, the package.json and tsconfig settings that matter, how the services consume the shared packages when Node.js runs .ts sources, and what CI runs on a pull request that only touches the billing worker.'
+  criteria:
+    - "Extracts shared domain types and schemas into internal packages with explicit exports"
+    - "Uses workspaces to link the packages and declares dependencies between them"
+    - "Configures project references (composite, references, a solution tsconfig) and tsc -b"
+    - "Handles the Node.js limitation that type stripping refuses .ts files under node_modules (builds the shared packages, or another sound approach)"
+    - "Runs only affected projects in CI (tsc -b incremental, or a task runner such as Turborepo or Nx)"

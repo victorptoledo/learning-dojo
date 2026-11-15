@@ -1,0 +1,58 @@
+id: typescript.p3.typed-events
+kind: kata
+status: draft
+title: "Typed Events: A Type-Safe Event Emitter"
+summary: "A TypedEmitter<Events> with on, once, off, emit, onAll and waitFor: generic methods over keyof Events, a mapped Handlers type with key remapping, AggregateError for failing listeners and AbortSignal for waiting."
+objectives:
+  - { id: o1, text: "Type an API with generic methods over keyof and indexed access so wrong names and payloads do not compile", skills: [typescript.generics, typescript.utility-conditional] }
+  - { id: o2, text: "Derive an object type of handlers with a mapped type and key remapping", skills: [typescript.utility-conditional] }
+  - { id: o3, text: "Keep the one unavoidable cast inside a private helper and prove the public API with type-level tests", skills: [typescript.testing-linting] }
+prerequisites: [typescript.p3.testing-linting]
+difficulty: 4
+estimated_minutes: 75
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Make the runtime tests pass first with the loose signatures: a `Map` from event name to an array of listeners is enough. Then tighten one method at a time. For `on`, which type parameter lets the name be only a key of `Events`, and what is the payload type of that event?
+    - |-
+      Every public method gets `<K extends keyof Events>`, with `name: K` and `Listener<Events[K]>` (or `payload: Events[K]`). Store listeners as `Map<keyof Events, Listener<never>[]>` and read them through one private helper `#list<K>(name: K): Listener<Events[K]>[]` that does the cast. `emit` copies the array before calling (`[...list]`), so listeners added during the emit wait for the next one; collect errors and throw `new AggregateError(errors, ...)` at the end. `once` can be built from `on`: the wrapper calls `stop()` and then the listener.
+    - |-
+      ```ts
+      export type Handlers<Events> = {
+        [K in keyof Events & string as `on${Capitalize<K>}`]?: Listener<Events[K]>;
+      };
+
+      waitFor<K extends keyof Events>(name: K, options: { signal?: AbortSignal } = {}): Promise<Events[K]> {
+        const { signal } = options;
+        return new Promise((resolve, reject) => {
+          if (signal?.aborted) {
+            reject(signal.reason);
+            return;
+          }
+          const onAbort = () => {
+            stop();
+            reject(signal?.reason);
+          };
+          const stop = this.once(name, (payload) => {
+            // remove the abort listener, then resolve
+          });
+          signal?.addEventListener("abort", onAbort, { once: true });
+        });
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

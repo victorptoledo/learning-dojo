@@ -1,0 +1,223 @@
+# Technical interview questions for the typescript track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/typescript"
+  - "https://www.geeksforgeeks.org/typescript/typescript-interview-questions/"
+  - "https://www.turing.com/interview-questions/typescript"
+  - "https://www.typescriptlang.org/docs/handbook/intro.html"
+  - "https://github.com/microsoft/TypeScript/wiki/FAQ"
+  - "https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/"
+questions:
+  - id: what-is-typescript
+    level: junior
+    skills: [typescript.toolchain]
+    question: "What does TypeScript add to JavaScript, and what happens to the types when the program runs?"
+    key_points:
+      - "A static type system checked before running; the output is plain JavaScript"
+      - "Types are erased: no runtime checks, no runtime type information"
+      - "Data from outside (JSON, input, env) still has to be validated by code"
+      - "Tooling benefits: completions, refactorings, errors in the editor"
+    follow_up: "Node.js 26 can run a .ts file directly. Does that mean the file was type-checked?"
+  - id: any-unknown-never
+    level: junior
+    skills: [typescript.unions-narrowing]
+    question: "Explain any, unknown and never. When would you use each?"
+    key_points:
+      - "any turns checking off and spreads through everything it touches"
+      - "unknown accepts any value but must be narrowed before use: for untrusted input and catch variables"
+      - "never has no values: unreachable code, exhaustive checks, filtering in conditional types"
+      - "Prefer unknown over any; treat any as a debt"
+    follow_up: "How would you write an exhaustiveness check for a switch over a union?"
+  - id: interface-vs-type
+    level: junior
+    skills: [typescript.interfaces-classes]
+    question: "What is the difference between an interface and a type alias? Which do you use, and when?"
+    key_points:
+      - "Both describe object shapes; only type can name unions, tuples, primitives and computed types"
+      - "Interfaces support declaration merging (and so module augmentation)"
+      - "interface extends reports conflicting members; intersections can silently produce never"
+      - "Interfaces are cached by name, which helps performance with large types"
+      - "A consistent team rule matters more than the choice"
+    follow_up: "How would you add a property to Express's Request type?"
+  - id: structural-typing
+    level: junior
+    skills: [typescript.structural-typing]
+    question: "TypeScript is structurally typed. What does that mean, and when can it cause bugs?"
+    key_points:
+      - "Assignability depends on shape (the required properties), not on declared names or implements"
+      - "Extra properties are fine, except for fresh object literals (excess property checks)"
+      - "Same-shaped types (UserId and OrderId as string) are interchangeable"
+      - "Brands (string & { __brand: ... }) or # private fields make types distinct"
+    follow_up: "Why does an object literal with an extra property fail while a variable with the same object passes?"
+  - id: narrowing
+    level: junior
+    skills: [typescript.unions-narrowing]
+    question: "How does TypeScript narrow a union type? Give the main ways."
+    key_points:
+      - "Control flow analysis follows if, switch, return, throw, &&, || and ??"
+      - "typeof for primitives, instanceof for classes, in for properties, Array.isArray"
+      - "Equality and truthiness (with the 0 and empty string trap)"
+      - "Discriminated unions with a literal tag"
+      - "User-defined type predicates (value is T) and assertion functions"
+    follow_up: "Why is a wrong type predicate dangerous, and how do you protect against it?"
+  - id: generics-constraints
+    level: mid
+    skills: [typescript.generics]
+    question: "Write the signature of a function `get(obj, key)` that only accepts real keys and returns the right property type. Explain each part."
+    key_points:
+      - "function get<T, K extends keyof T>(obj: T, key: K): T[K]"
+      - "T is inferred from the object, K from the key literal"
+      - "keyof T is the union of keys; T[K] is an indexed access type"
+      - "A type parameter should relate two places; otherwise unknown is simpler"
+    follow_up: "How would you make it accept only keys whose values are strings?"
+  - id: utility-types
+    level: mid
+    skills: [typescript.utility-conditional]
+    question: "Which built-in utility types do you use most, and how would you implement Partial and Pick yourself?"
+    key_points:
+      - "Partial, Required, Readonly, Pick, Omit, Record, ReturnType, Parameters, Awaited, NonNullable"
+      - "Partial<T> = { [K in keyof T]?: T[K] }"
+      - "Pick<T, K extends keyof T> = { [P in K]: T[P] }"
+      - "Deriving types from one source avoids drift (DTOs, patches, public views)"
+      - "Omit does not check that the key exists"
+    follow_up: "How would you write a DeepPartial, and what are its limits?"
+  - id: conditional-infer
+    level: mid
+    skills: [typescript.utility-conditional]
+    question: "What are conditional types and infer? Explain distribution over unions with an example."
+    key_points:
+      - "T extends U ? X : Y chooses a type by assignability"
+      - "infer captures part of a matched type (ReturnType, element types, promise values)"
+      - "A naked type parameter distributes over each union member; never drops members"
+      - "[T] extends [U] stops distribution"
+    follow_up: "Why is Exclude<'a' | 'b', 'a'> equal to 'b'?"
+  - id: enums-vs-unions
+    level: mid
+    skills: [typescript.enums-modules]
+    question: "Would you use an enum in a new TypeScript codebase? What are the alternatives?"
+    key_points:
+      - "Enums generate code: not erasable, rejected by Node type stripping and erasableSyntaxOnly"
+      - "Numeric enums are loosely checked; string enums are nominal and awkward with JSON"
+      - "const enum breaks with isolated, per-file compilation"
+      - "Alternatives: string literal unions, as const arrays or objects with a derived union"
+    follow_up: "How do you keep a list of values at runtime and the union type in sync?"
+  - id: satisfies
+    level: mid
+    skills: [typescript.enums-modules]
+    question: "What does the satisfies operator do, and how is it different from a type annotation and from as?"
+    key_points:
+      - "satisfies checks the value against a type but keeps the value's inferred type"
+      - "An annotation makes the variable that type (widening it)"
+      - "as is an unchecked assertion (only checks rough compatibility)"
+      - "as const satisfies Record<K, V> gives literal types plus a completeness check"
+    follow_up: "Show a configuration table where satisfies catches a missing key that an annotation would also catch, and one benefit only satisfies gives."
+  - id: async-errors
+    level: mid
+    skills: [typescript.async-errors]
+    question: "How do you handle errors in async TypeScript code? What does the type system know about errors?"
+    key_points:
+      - "Promise<T> types only the value; rejections and thrown values are untyped"
+      - "catch variables are unknown under strict: narrow with instanceof"
+      - "Throw Error subclasses, add context with cause, rethrow what you cannot handle"
+      - "Expected failures as Result unions in the return type"
+      - "Floating promises: await or handle every promise (lint rule)"
+    follow_up: "Promise.all vs Promise.allSettled: when do you use each, and what happens to the other promises when one rejects?"
+  - id: modules-esm
+    level: mid
+    skills: [typescript.enums-modules, typescript.toolchain]
+    question: "Explain how TypeScript resolves modules for a Node.js project today. What do nodenext, bundler and verbatimModuleSyntax change?"
+    key_points:
+      - "ESM vs CommonJS is decided by package.json type and .mts/.cts, like for .js"
+      - "nodenext applies Node's rules: explicit extensions, exports maps, no directory imports"
+      - "bundler models bundlers' looser rules for code that a bundler processes"
+      - "verbatimModuleSyntax keeps imports as written and forces import type for types"
+      - "CommonJS interop: default import of module.exports; require(esm) in recent Node"
+    follow_up: "Why must type-only imports be marked when Node.js strips types?"
+  - id: runtime-validation
+    level: mid
+    skills: [typescript.runtime-validation]
+    question: "Your API receives JSON. How do you make sure the data matches your TypeScript types?"
+    key_points:
+      - "Types are erased; a cast (as) checks nothing"
+      - "Validate at the boundary once: schema libraries such as zod, valibot or ArkType"
+      - "Infer the type from the schema (z.infer) to avoid drift"
+      - "Return errors with paths; reject unknown or extra data as the API requires"
+      - "Brands to mark validated values"
+    follow_up: "Where else in a service do you need runtime validation besides request bodies?"
+  - id: declaration-files
+    level: mid
+    skills: [typescript.declaration-files]
+    question: "What are .d.ts files, where do the types of npm packages come from, and how do you type a package that has none?"
+    key_points:
+      - "Declaration files describe JavaScript with types only"
+      - "Packages ship their own types or DefinitelyTyped provides @types/*"
+      - "declare module 'x' (shorthand is any; better to describe the exports)"
+      - "declare global and module augmentation for globals and library interfaces"
+      - "types and skipLibCheck options; TypeScript 7 includes global @types only when listed"
+    follow_up: "How do you publish types for your own library?"
+  - id: testing-types
+    level: senior
+    skills: [typescript.testing-linting]
+    question: "How do you test TypeScript code, including the types of a generic library?"
+    key_points:
+      - "Behaviour with node:test or Vitest; type-check the test files too (runners only strip types)"
+      - "Type-level tests: Expect<Equal<A, B>>, expectTypeOf, @ts-expect-error for rejections"
+      - "Avoid @ts-ignore"
+      - "Type-aware linting (typescript-eslint: no-floating-promises, no-unsafe-*)"
+      - "Inject time, randomness and I/O for testability"
+    follow_up: "Why is the Equal helper written with generic functions instead of a simple A extends B check?"
+  - id: strictness
+    level: senior
+    skills: [typescript.soundness-performance, typescript.toolchain]
+    question: "Which compiler options do you enable beyond strict, and why? How would you migrate a large JavaScript or loose TypeScript codebase?"
+    key_points:
+      - "noUncheckedIndexedAccess, exactOptionalPropertyTypes, noImplicitOverride, noFallthroughCasesInSwitch"
+      - "verbatimModuleSyntax, erasableSyntaxOnly, isolatedDeclarations for tooling"
+      - "Migrate gradually: allowJs and checkJs, then strict per folder or per option"
+      - "Track and reduce any and assertions; lint for unsafe any"
+    follow_up: "How do you stop new any from entering while you clean up the old ones?"
+  - id: soundness
+    level: senior
+    skills: [typescript.soundness-performance]
+    question: "TypeScript is not sound. Where are the holes, and how do you design code that stays safe anyway?"
+    key_points:
+      - "any, assertions and non-null assertions"
+      - "Unchecked index access and optional vs undefined (without the extra options)"
+      - "Method parameter bivariance and covariant mutable arrays"
+      - "Wrong or outdated declaration files"
+      - "Mitigations: options, property-style callbacks, readonly, validation at boundaries, brands, lint"
+    follow_up: "Explain covariance and contravariance with an example, and what in and out annotations do."
+  - id: performance
+    level: senior
+    skills: [typescript.soundness-performance, typescript.monorepos]
+    question: "Type-checking a large codebase takes too long and the editor is slow. How do you investigate and fix it?"
+    key_points:
+      - "Measure: tsc --extendedDiagnostics and --generateTrace"
+      - "Expensive patterns: huge unions, big intersections, deep recursive conditional types, exploding template literals"
+      - "Prefer interfaces, named types, explicit return types on exports"
+      - "Project references and tsc -b to check against declaration files incrementally"
+      - "TypeScript 7's native, parallel compiler (--checkers, --builders) helps but does not fix pathological types"
+    follow_up: "What do isolatedDeclarations make possible in a large build?"
+  - id: production-toolchain
+    level: senior
+    skills: [typescript.production-builds]
+    question: "How do you build and ship a TypeScript service and a TypeScript library today?"
+    key_points:
+      - "Only tsc checks types; Node, esbuild, SWC and Vite only strip them, so CI runs tsc separately"
+      - "A service can run its sources on Node 26 (erasable syntax only) or ship compiled output with source maps"
+      - "A library ships .js plus .d.ts with package.json exports (types condition first)"
+      - "Pin the TypeScript version; npm ci; lint and tests in CI"
+      - "TypeScript 7 has no compiler API yet: tools use @typescript/typescript6"
+    follow_up: "What would you check before upgrading a project from TypeScript 5.x to 7.0?"
+  - id: monorepo
+    level: senior
+    skills: [typescript.monorepos]
+    question: "How would you structure a TypeScript monorepo with several services and shared packages?"
+    key_points:
+      - "Workspaces (npm, pnpm) link packages; exports defines each public surface"
+      - "Project references with composite and a solution tsconfig; tsc -b builds in order and incrementally"
+      - "Shared base tsconfig with extends"
+      - "Decide how internal packages are consumed (built output vs source for bundlers; Node will not strip types in node_modules)"
+      - "Task runners (Turborepo, Nx) for affected-only CI"
+    follow_up: "How do project references help enforce architecture rules such as 'domain must not import from api'?"

@@ -1,0 +1,43 @@
+questions:
+  - id: cast-runtime
+    prompt: "What does `const user = JSON.parse(text) as User` guarantee at runtime?"
+    options: ["That user has every property of User", "Nothing: the cast is erased", "That user is not null"]
+    answer: 1
+    explanation: "Assertions only change the compile-time type. Validate with code at the boundary."
+  - id: infer
+    prompt: "Which expression gives the TypeScript type of the data a zod schema `Order` produces?"
+    answers: ["z.infer<typeof Order>", "z.output<typeof Order>"]
+    explanation: "z.infer (an alias of z.output) reads the type from the schema, so the type and the check never drift apart."
+  - id: safeparse
+    prompt: "What does `Order.safeParse(data)` return?"
+    options:
+      - "The parsed value or null"
+      - "{ success: true, data } or { success: false, error }, never throwing"
+      - "A promise"
+      - "It throws a ZodError on invalid data"
+    answer: 1
+    explanation: "safeParse returns a discriminated union; parse is the variant that throws."
+  - id: input-output
+    prompt: "A field is `z.number().default(10)`. In `z.input<typeof S>` and `z.infer<typeof S>`, is it optional?"
+    options:
+      - "Optional in both"
+      - "Optional in the input, required in the output"
+      - "Required in both"
+    answer: 1
+    explanation: "Callers may omit it; after parsing the default is always filled in."
+  - id: where
+    prompt: "Where should configuration from environment variables be validated?"
+    options:
+      - "Every time a value is read"
+      - "Once, at start-up, failing with every problem listed"
+      - "Only in production"
+    answer: 1
+    explanation: "Fail fast: a service with a wrong configuration should not start and fail later on the first request."
+  - id: brand
+    prompt: "Why brand a validated id with `.brand<\"UserId\">()`?"
+    options:
+      - "It encrypts the id"
+      - "A plain string no longer type-checks as a UserId, so only a successful parse can produce one"
+      - "It makes parsing faster"
+    answer: 1
+    explanation: "The brand records in the type system that the value went through validation."

@@ -1,0 +1,24 @@
+id: typescript.p0.toolchain
+kind: lesson
+status: draft
+title: "The Toolchain: TypeScript 7, Node.js and tsconfig"
+summary: "What TypeScript adds to JavaScript, the native TypeScript 7 compiler, running .ts files on Node.js 26 with type stripping, and a strict tsconfig.json."
+objectives:
+  - { id: o1, text: "Explain that types are checked before the program runs and erased afterwards, and what that means for data from outside", skills: [typescript.toolchain] }
+  - { id: o2, text: "Type-check with tsc and run .ts files with Node.js type stripping, knowing which syntax Node cannot strip", skills: [typescript.toolchain] }
+  - { id: o3, text: "Read and write a strict tsconfig.json for a Node.js project", skills: [typescript.toolchain] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 40
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A teammate runs `node server.ts` on Node.js 26, sees it start, and concludes the code "has no type errors". Another adds `constructor(private db: Database) {}` to a class and the program now fails to start. Explain both situations: what Node.js does with a .ts file, what it does not do, and which two tsconfig options (and which command in CI) would have caught each problem before running.'
+  criteria:
+    - "Explains that Node.js strips the type annotations and runs the JavaScript without checking types"
+    - "States that type checking is a separate step done by tsc (for example tsc with noEmit in CI) and the editor"
+    - "Explains that parameter properties generate code, so they are not erasable and Node rejects them"
+    - "Names erasableSyntaxOnly to report non-erasable syntax, and strict (or a specific strict check) for type safety"
+    - "Shows the fix: an explicit field assigned in the constructor"
