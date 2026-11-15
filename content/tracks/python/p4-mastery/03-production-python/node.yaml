@@ -1,0 +1,24 @@
+id: python.p4.production-python
+kind: lesson
+status: draft
+title: "Python in Production: Logging, Configuration, Security and Deployment"
+summary: "Logging configured once and structured, configuration from the environment, quality gates in CI, dependency and code security, container images built with uv, process models and graceful shutdown, observability and upgrading Python."
+objectives:
+  - { id: o1, text: "Set up logging with module loggers, levels and structured output, and configure an application from the environment with validated settings", skills: [python.production] }
+  - { id: o2, text: "Build a small, reproducible, non-root container image with uv, run the right number of workers and shut down gracefully", skills: [python.production, python.tooling-uv] }
+  - { id: o3, text: "Run quality and security gates in CI (ruff, mypy, pytest, dependency audits), avoid the classic code-level risks, and plan Python upgrades", skills: [python.production, python.testing] }
+prerequisites: [python.p4.typed-services]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You inherit a Python API that is deployed by copying files to a server and running `python app.py` in a screen session, prints debug output with print(), reads its database password from a constants.py committed to git, and has never had a dependency upgrade. Write a plan, in priority order, to make it production-ready: what you change, the tools and configuration you use, and why each step comes where it does.'
+  criteria:
+    - 'Removes the secret from the code (rotates it), loads configuration from the environment or a secret store with validated settings'
+    - 'Replaces print with logging (module loggers, levels, structured JSON or key-value output to stdout) and logs exceptions with tracebacks'
+    - 'Packages the app reproducibly: pyproject.toml and uv.lock, a container image built with uv sync --locked --no-dev, non-root, run by an ASGI or WSGI server with a set number of workers'
+    - 'Adds CI gates: ruff, mypy, pytest with coverage, and a dependency vulnerability audit (pip-audit or similar) with automated update PRs'
+    - 'Adds health checks, metrics or tracing (OpenTelemetry) and error reporting, graceful shutdown on SIGTERM, and a plan for regular Python and dependency upgrades'

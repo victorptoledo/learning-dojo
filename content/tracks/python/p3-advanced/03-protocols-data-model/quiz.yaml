@@ -1,0 +1,42 @@
+questions:
+  - id: protocol-match
+    prompt: "SupportsClose is a Protocol with `def close(self) -> None`. Does a class with a close() method but no base class match it?"
+    options:
+      - "No, it must inherit from SupportsClose"
+      - "Yes: protocols match by structure"
+      - "Only if it is registered with SupportsClose.register"
+    answer: 1
+    explanation: "Protocols are structural: having the right methods is enough for the type checker."
+  - id: not-implemented
+    prompt: "What should __add__ return for an operand type it does not support?"
+    answers: ["NotImplemented"]
+    explanation: "Returning NotImplemented lets Python try the other operand's __radd__, and raise TypeError if that fails too."
+  - id: radd-sum
+    prompt: "Why does sum() over a list of Money objects need Money.__radd__?"
+    options:
+      - "Because sum() starts from 0 and computes 0 + first_money, which calls Money.__radd__"
+      - "Because sum() always calls __radd__"
+      - "It does not: __add__ is enough"
+    answer: 0
+    explanation: "int.__add__(Money) returns NotImplemented, so Python falls back to Money.__radd__(0)."
+  - id: eq-hash
+    prompt: "A class defines __eq__ but not __hash__. What happens when you put an instance in a set?"
+    options:
+      - "It hashes by identity"
+      - "TypeError: unhashable type, because defining __eq__ sets __hash__ to None"
+      - "It hashes by its fields"
+    answer: 1
+    explanation: "Equal objects must hash equally, so Python removes the identity hash once __eq__ changes equality."
+  - id: descriptor
+    prompt: "Which of these is implemented with the descriptor protocol?"
+    options: ["@property", "__init__", "__repr__", "list comprehensions"]
+    answer: 0
+    explanation: "property is a descriptor class with __get__, __set__ and __delete__; methods and classmethod are descriptors too."
+  - id: init-subclass
+    prompt: "What is __init_subclass__ commonly used for?"
+    options:
+      - "Initialising each instance"
+      - "Running code on the base class every time it is subclassed, for example to register plugins"
+      - "Making a class abstract"
+    answer: 1
+    explanation: "It is a lightweight hook into class creation that replaces many metaclass uses."

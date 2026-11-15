@@ -1,0 +1,51 @@
+id: python.p1.word-stats
+kind: kata
+status: draft
+title: "Word Stats: Counting with Dicts and Comprehensions"
+summary: "Split text into words, count them, rank the most frequent with a tie rule and group them by length, with Counter, dicts, sets and comprehensions."
+objectives:
+  - { id: o1, text: "Count and group with Counter, dict and set comprehensions", skills: [python.collections] }
+  - { id: o2, text: "Sort with a tuple key to rank by count and break ties alphabetically", skills: [python.collections] }
+  - { id: o3, text: "Normalise text with casefold and a regular expression", skills: [python.data-model] }
+prerequisites: [python.p1.collections-comprehensions]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Write `words` first: every other function starts from it. Which regular expression matches a run of letters or digits in any alphabet? `\w` almost does, but it also matches `_`. How do you allow an apostrophe only between two letters?
+    - |-
+      `re.findall(r"[^\W_]+(?:'[^\W_]+)*", text.casefold())` finds the words. `Counter(words(text))` counts them, and `sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:n]` ranks them. `dict.fromkeys(words(text))` keeps the first occurrences in order. For the lengths, collect a set per length, then sort.
+    - |-
+      ```python
+      def top_words(text: str, n: int = 3) -> list[tuple[str, int]]:
+          if n <= 0:
+              return []
+          counts = Counter(words(text))
+          ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+          return ranked[:n]
+
+
+      def words_by_length(text: str) -> dict[int, list[str]]:
+          groups: dict[int, set[str]] = defaultdict(set)
+          for word in words(text):
+              groups[len(word)].add(word)
+          # build the result with the lengths in increasing order and each list sorted
+          ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

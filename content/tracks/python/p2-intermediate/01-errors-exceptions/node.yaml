@@ -1,0 +1,24 @@
+id: python.p2.errors-exceptions
+kind: lesson
+status: draft
+title: "Exceptions, Exception Groups and Error Design"
+summary: "The exception hierarchy, try, except, else and finally, EAFP, raising and chaining with from, custom exception hierarchies, notes, exception groups with except*, and where to catch."
+objectives:
+  - { id: o1, text: "Handle errors with try, except, else and finally, catching narrowly and in the EAFP style", skills: [python.errors] }
+  - { id: o2, text: "Raise and chain exceptions with from, and design a custom exception hierarchy for a module", skills: [python.errors] }
+  - { id: o3, text: "Use add_note, ExceptionGroup and except*, and decide where errors are caught, logged and turned into responses", skills: [python.errors] }
+prerequisites: [python.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You are writing a `payments` module that calls a card processor over HTTP. Design its exceptions: the hierarchy, what each one carries, which low-level errors (timeouts, HTTP 4xx and 5xx, invalid JSON) map to which of yours and how you chain them. Then show the code at the HTTP endpoint that calls `charge()`: what it catches, what it logs and what the client receives.'
+  criteria:
+    - 'Defines a base PaymentError(Exception) with specific subclasses (for example CardDeclined, ProcessorUnavailable) and useful attributes'
+    - 'Wraps low-level errors with raise ... from error so the cause stays in the traceback'
+    - 'Distinguishes errors the caller can act on (declined, invalid card) from transient ones (timeouts, 5xx) that may be retried'
+    - 'Catches specific exceptions at the boundary, logs with logger.exception for unexpected ones and returns a clean response without leaking internals'
+    - 'Does not use a bare except or swallow exceptions silently'

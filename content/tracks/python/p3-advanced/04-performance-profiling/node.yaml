@@ -1,0 +1,24 @@
+id: python.p3.performance-profiling
+kind: lesson
+status: draft
+title: "Performance and Profiling"
+summary: "Measure before optimising with timeit and perf_counter, find hot spots with cProfile and sampling profilers, find memory with tracemalloc, the usual algorithmic wins, the faster interpreter and JIT, and when to go native with NumPy, Cython or Rust."
+objectives:
+  - { id: o1, text: "Benchmark correctly with timeit and profile with cProfile, py-spy and tracemalloc", skills: [python.performance] }
+  - { id: o2, text: "Apply the usual wins: better data structures and algorithms, built-ins, caching, fewer allocations and batched I/O", skills: [python.performance, python.collections] }
+  - { id: o3, text: "Explain what the specialising interpreter and the experimental JIT do, and when to move hot code to NumPy, Cython or Rust", skills: [python.performance] }
+prerequisites: [python.p3.protocols-data-model]
+difficulty: 4
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A report endpoint takes 40 seconds. Its core loop is `for order in orders: if order.customer_id in [c.id for c in vip_customers]: total += order.amount`, followed by `report += line` string concatenation for 200,000 lines, and it also calls the database once per order to load the product name. Describe how you would confirm where the time goes (tools and commands), fix each problem with code, and how you would prove the fix and keep it from regressing.'
+  criteria:
+    - 'Profiles first (cProfile with sorting by cumulative time, or py-spy on the running process) instead of guessing'
+    - 'Builds the VIP id set once outside the loop (O(1) membership instead of rebuilding and scanning a list)'
+    - 'Replaces repeated string concatenation with a list and "".join (or writing to a stream)'
+    - 'Fixes the N+1 queries with one query or a batch (IN clause or join) and a dict lookup'
+    - 'Measures before and after with timeit or a benchmark, and adds a test or benchmark in CI to catch regressions'

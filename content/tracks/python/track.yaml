@@ -4,20 +4,34 @@ name: "Modern Python"
 archetype: language
 category: "Programming Languages"
 icon: "🐍"
-description: "Professional, typed Python: Pydantic, asyncio, FastAPI, generators, decorators and the modern toolchain."
+description: "Python 3.15 as it is written today: uv, the data model, type hints and protocols, dataclasses, generators, decorators, pytest, asyncio and the GIL, performance and Python in production."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Script Novice" }
   - { name: "Yellow Belt", required_xp: 300, title: "List Comprehension Wizard" }
   - { name: "Green Belt", required_xp: 800, title: "Type-Hinted Craftsman" }
-  - { name: "Purple Belt", required_xp: 1500, title: "Asyncio Tamer" }
-  - { name: "Brown Belt", required_xp: 2500, title: "Metaclass Alchemist" }
-  - { name: "Black Belt", required_xp: 4000, title: "CPython Internals Master" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Generator Whisperer" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Asyncio Tamer" }
+  - { name: "Black Belt", required_xp: 4000, title: "CPython Internals Explorer" }
   - { name: "Sensei", required_xp: 6000, title: "Pythonic Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install Python 3.15 with uv, run a first program and meet the dojo's pytest katas" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The data model, collections, functions, classes, dataclasses and type hints" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Errors, packaging, generators, decorators, context managers and testing with pytest" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "asyncio and the GIL, protocols and the deeper data model, performance and profiling" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "CPython internals, typed web services and Python in production" }
+requirements:
+  - kind: tool
+    name: uv
+    command: uv
+    version_args: ["--version"]
+    min_version: "0.9"
+    required: false
+    why: Installs Python 3.15 and pytest to run the visible tests locally. The grading checks run in Docker and do not need it.
+    install_hint: "install uv: winget install astral-sh.uv, then reopen the terminal"
+  - kind: vscode-extension
+    name: Python extension for VS Code
+    id: ms-python.python
+    required: false
+    why: Shows errors as you type and runs and debugs the pytest tests from the Testing panel.

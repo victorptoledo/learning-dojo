@@ -83,6 +83,7 @@ impl App {
         let mut files = vec![dir.join(STATEMENT_FILE), dir.join("src").join("lib.rs")];
         files.extend(java_sources(&dir.join("src").join("main").join("java")));
         files.extend(shell_scripts(dir));
+        files.extend(python_modules(dir));
         let existing: Vec<_> = files.into_iter().filter(|file| file.is_file()).collect();
         match self.editor.open_folder(dir, &existing) {
             Ok(()) => format!("Opened {} in `{}`.", dir.display(), self.editor.command()),
@@ -274,6 +275,20 @@ fn shell_scripts(dir: &Path) -> Vec<PathBuf> {
         .collect();
     scripts.sort();
     scripts
+}
+
+/// The modules of a Python kata: the `.py` files at the top of its folder.
+fn python_modules(dir: &Path) -> Vec<PathBuf> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut modules: Vec<PathBuf> = entries
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file() && path.extension().is_some_and(|ext| ext == "py"))
+        .collect();
+    modules.sort();
+    modules
 }
 
 fn java_sources(dir: &Path) -> Vec<PathBuf> {

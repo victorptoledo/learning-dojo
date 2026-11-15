@@ -1,0 +1,46 @@
+questions:
+  - id: exhausted
+    prompt: "What does the second print show?"
+    code: |
+      numbers = (n * 2 for n in range(3))
+      print(sum(numbers))
+      print(sum(numbers))
+    options: ["6", "0", "It raises StopIteration"]
+    answer: 1
+    explanation: "A generator is an iterator: the first sum consumed it, so the second sees no items and returns 0."
+  - id: lazy-start
+    prompt: "When does the body of a generator function start running?"
+    options:
+      - "When the function is called"
+      - "At the first next() on the generator it returned"
+      - "When the generator is garbage-collected"
+    answer: 1
+    explanation: "Calling a generator function only creates the generator; the body runs up to the first yield on the first next()."
+  - id: stop
+    prompt: "Which exception does next() raise when an iterator has no more items?"
+    answers: ["StopIteration"]
+    explanation: "for loops, list() and sum() catch StopIteration for you; call next(it, default) to get a default instead."
+  - id: groupby
+    prompt: "What does `[(k, len(list(g))) for k, g in groupby(\"aabaa\")]` return?"
+    options:
+      - "[('a', 4), ('b', 1)]"
+      - "[('a', 2), ('b', 1), ('a', 2)]"
+      - "[('a', 2), ('b', 1)]"
+    answer: 1
+    explanation: "groupby groups consecutive equal keys only; sort first if you want one group per key."
+  - id: memory
+    prompt: "Why does `sum(len(line) for line in open(path))` work on a 20 GB file with little memory?"
+    options:
+      - "Python compresses the file in memory"
+      - "The generator expression and the file object yield one line at a time, so only one line is held at once"
+      - "sum reads the file in parallel"
+    answer: 1
+    explanation: "File objects iterate lazily by line and the generator expression never builds a list."
+  - id: deferred-error
+    prompt: "A generator function checks `if size < 1: raise ValueError` at its top. When is the error raised for size=0?"
+    options:
+      - "When the function is called"
+      - "When the first item is requested"
+      - "Never"
+    answer: 1
+    explanation: "Nothing in a generator body runs before the first next(); validate in a normal function that returns the generator to fail early."

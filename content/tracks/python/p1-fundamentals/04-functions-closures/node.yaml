@@ -1,0 +1,23 @@
+id: python.p1.functions-closures
+kind: lesson
+status: draft
+title: "Functions, Arguments, Scopes and Closures"
+summary: "Positional, keyword, default, variadic, keyword-only and positional-only parameters, the mutable default trap, LEGB scopes, functions as values, lambdas, partial and closures."
+objectives:
+  - { id: o1, text: "Design function signatures with defaults, *args, **kwargs, keyword-only and positional-only parameters", skills: [python.functions] }
+  - { id: o2, text: "Avoid the mutable default argument trap and explain the LEGB scope rule, global and nonlocal", skills: [python.functions] }
+  - { id: o3, text: "Pass functions as values, write closures and fix late binding in loops", skills: [python.functions] }
+prerequisites: [python.p1.word-stats]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Explain the two bugs in this code and fix both: `def add_tag(tag, tags=[]):` / `    tags.append(tag)` / `    return tags` and `handlers = [lambda: print(i) for i in range(3)]` / `for h in handlers: h()`. Then design the signature of a function `send_email` that takes a recipient and a subject positionally, any number of attachments, and optional `cc`, `bcc` and `priority` that must be passed by name, and explain each part of it.'
+  criteria:
+    - 'Explains that a default is evaluated once when def runs, so the same list is shared by every call, and fixes it with None and a new list inside'
+    - 'Explains late binding: the lambdas look up i when called, after the loop ended, so all print 2; fixes it with a default (i=i) or functools.partial'
+    - 'Writes a signature like send_email(to, subject, /, *attachments, cc=None, bcc=None, priority="normal") or with * for keyword-only'
+    - 'Explains *args collecting extra positional arguments into a tuple and keyword-only parameters after it'

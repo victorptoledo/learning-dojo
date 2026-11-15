@@ -1,0 +1,43 @@
+questions:
+  - id: cpython
+    prompt: "What is CPython?"
+    options:
+      - "A Python dialect that compiles to C"
+      - "The reference implementation of Python, written in C, that almost everyone runs"
+      - "A faster fork of Python for data science"
+    answer: 1
+    explanation: "python.org and uv both ship CPython; PyPy and MicroPython are other implementations of the same language."
+  - id: lock-file
+    prompt: "pyproject.toml says `dependencies = [\"httpx>=0.28\"]`. What does uv.lock add?"
+    options:
+      - "Nothing; it is a cache uv can delete"
+      - "The exact versions and hashes of httpx and of every package it depends on"
+      - "The source code of the dependencies"
+      - "The list of dev tools"
+    answer: 1
+    explanation: "The range says what is acceptable; the lock records the exact resolved set, transitive packages included, so every install is the same."
+  - id: commit
+    prompt: "Which of these do you commit to git?"
+    options:
+      - "pyproject.toml and uv.lock"
+      - "pyproject.toml and .venv"
+      - "Only requirements.txt"
+      - "All three: pyproject.toml, uv.lock and .venv"
+    answer: 0
+    explanation: ".venv is a local build of the lock for your machine; anyone can recreate it with uv sync."
+  - id: dev-dependency
+    prompt: "Which command adds pytest for development only, so it is not a runtime dependency of the project?"
+    answers: ["uv add --dev pytest", "uv add pytest --dev", "uv add --group dev pytest"]
+    explanation: "--dev puts it in the dev dependency group of pyproject.toml; it is installed locally but never published."
+  - id: dunder-main
+    prompt: "What is `__name__` inside greet.py when you run `python greet.py`?"
+    answers: ["__main__", "\"__main__\"", "'__main__'"]
+    explanation: "The module run as a program is named __main__; imported, it is named greet, so the guarded block does not run on import."
+  - id: support
+    prompt: "How long is a Python feature version such as 3.15 supported?"
+    options:
+      - "One year, until the next version"
+      - "About five years: bug fixes for about two, then security fixes"
+      - "Forever: Python never drops old versions"
+    answer: 1
+    explanation: "PEP 602 set a yearly release with five years of support; 3.15 is supported until October 2031."

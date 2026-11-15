@@ -1,0 +1,24 @@
+id: python.p1.modern-typing-pydantic
+legacy_id: py-02-modern-typing-pydantic
+kind: lesson
+status: draft
+title: "Type Hints, Generics, mypy and Pydantic v2"
+summary: "Annotations and what checks them, union and optional types, abstract parameter types, TypedDict and Literal, the new generic syntax, narrowing, a first look at Protocol, and Pydantic v2 for data that crosses a boundary."
+objectives:
+  - { id: o1, text: "Annotate functions and data with built-in generics, unions, Literal, TypedDict and collections.abc types", skills: [python.modern-typing-pydantic] }
+  - { id: o2, text: "Write generic functions and classes with the 3.12+ syntax, narrow types and run mypy or pyright in strict mode", skills: [python.modern-typing-pydantic] }
+  - { id: o3, text: "Validate external data with Pydantic v2 models and explain when to use a dataclass instead", skills: [python.modern-typing-pydantic] }
+prerequisites: [python.p1.cart]
+difficulty: 3
+estimated_minutes: 55
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A service receives this JSON from a partner: `{"order_id": "A-17", "items": [{"sku": "TEA-01", "qty": 2}], "currency": "EUR", "note": null}`. Write the Pydantic v2 models for it (currency may only be EUR or USD, qty must be at least 1, note is optional), show how you parse a request body and what happens with invalid data, and explain why type hints alone would not have caught a bad request. Then type a helper `def total_quantity(orders)` that accepts any iterable of these orders.'
+  criteria:
+    - 'Defines BaseModel classes with typed fields, Literal["EUR", "USD"] (or an enum), Field(ge=1) for qty and note: str | None = None'
+    - 'Parses with Model.model_validate_json(body) or model_validate(data) and catches ValidationError, describing its errors'
+    - 'Explains that annotations are not enforced at run time; only a checker (mypy, pyright) or a validator (Pydantic) uses them'
+    - 'Types the helper with Iterable[Order] from collections.abc and returns int'

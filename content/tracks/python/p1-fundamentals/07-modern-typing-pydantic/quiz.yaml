@@ -1,0 +1,39 @@
+questions:
+  - id: runtime
+    prompt: "What happens when you call `def double(x: int) -> int: return x * 2` as double(\"ab\")?"
+    options:
+      - "TypeError before the function runs"
+      - "It returns \"abab\": annotations are not enforced at run time"
+      - "It returns None"
+    answer: 1
+    explanation: "The interpreter ignores annotations; a type checker such as mypy would flag the call, and Pydantic would validate data at a boundary."
+  - id: optional
+    prompt: "What is the modern spelling of Optional[str]?"
+    answers: ["str | None", "str|None", "None | str"]
+    explanation: "PEP 604 union syntax works in annotations since 3.10."
+  - id: abstract-param
+    prompt: "Which parameter type lets callers pass a list, a tuple or a generator of floats?"
+    options: ["list[float]", "Iterable[float]", "tuple[float, ...]", "Any"]
+    answer: 1
+    explanation: "collections.abc.Iterable asks only for iteration, so every iterable fits; accept abstract types and return concrete ones."
+  - id: generic-syntax
+    prompt: "Which line declares a generic function in Python 3.12+ syntax?"
+    options:
+      - "def first<T>(items: list<T>) -> T:"
+      - "def first[T](items: Sequence[T]) -> T:"
+      - "def first(items: Sequence[T]) -> T:  # with no T declared"
+    answer: 1
+    explanation: "PEP 695 puts the type parameters in square brackets after the name; older code uses T = TypeVar(\"T\")."
+  - id: pydantic-coerce
+    prompt: "A Pydantic v2 model has `qty: int`. What does validating {\"qty\": \"3\"} give in the default (lax) mode?"
+    options: ["qty == \"3\"", "qty == 3", "A ValidationError"]
+    answer: 1
+    explanation: "Lax mode converts a numeric string to int; strict=True would reject it."
+  - id: where-pydantic
+    prompt: "Where does Pydantic fit best?"
+    options:
+      - "Every class in the program, instead of dataclasses"
+      - "At the boundaries: request bodies, configuration, messages and files"
+      - "Only in tests"
+    answer: 1
+    explanation: "Validate untrusted data once where it enters; inside, plain dataclasses and type hints checked by mypy are enough."

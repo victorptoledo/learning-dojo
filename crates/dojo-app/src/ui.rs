@@ -354,6 +354,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::Bash => {
                 "2. Edit the .sh scripts in the kata folder. Each one that still prints \"todo: ...\" and exits is yours to write:"
             }
+            KataLanguage::Python => {
+                "2. Edit the .py modules in the kata folder. Each function that still raises NotImplementedError(\"todo ...\") is yours to write:"
+            }
         }),
         Line::from(match language {
             KataLanguage::Rust => {
@@ -364,6 +367,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             }
             KataLanguage::Bash => {
                 "   the tests run your scripts with bats, and shellcheck must find no warnings."
+            }
+            KataLanguage::Python => {
+                "   that raise is a placeholder; pytest runs the tests and ruff must find no mistakes."
             }
         }),
         Line::from("3. Save the file. The tests run by themselves and the result appears below."),
@@ -379,6 +385,7 @@ fn is_placeholder(message: &str) -> bool {
     message.starts_with("not yet implemented")
         || message.starts_with("todo")
         || message.contains("UnsupportedOperationException: todo")
+        || message.contains("NotImplementedError: todo")
 }
 
 /// One line per failing test, or the compiler output when the code does not build.

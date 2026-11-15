@@ -1,0 +1,24 @@
+id: python.p2.testing-pytest
+kind: lesson
+status: draft
+title: "Testing with pytest: Fixtures, Parametrize and Mocks"
+summary: "Test discovery and plain asserts, running a subset, fixtures with scopes and teardown, built-in fixtures, parametrize, raises and approx, mocks and fakes, coverage and property-based testing."
+objectives:
+  - { id: o1, text: "Write and run pytest tests with plain assert, pytest.raises, approx and parametrize, and select tests from the command line", skills: [python.testing] }
+  - { id: o2, text: "Share setup with fixtures, scopes, yield teardown and conftest.py, and use tmp_path, monkeypatch, capsys and caplog", skills: [python.testing] }
+  - { id: o3, text: "Isolate code from slow or external dependencies with fakes and unittest.mock, and measure coverage", skills: [python.testing] }
+prerequisites: [python.p2.decorators-context]
+difficulty: 3
+estimated_minutes: 55
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You must test `def convert(amount: Decimal, to: str, rates: RateClient) -> Decimal`, which calls `rates.get(to)` over HTTP and raises `UnknownCurrency` for codes it does not know. Write the pytest tests you would add (code), covering normal conversions for several currencies, rounding, the error case and a failing rate service, and explain your choices: fixtures, parametrize, fakes or mocks, and what you deliberately do not test.'
+  criteria:
+    - 'Uses plain assert and parametrize for several (amount, currency, expected) cases with Decimal values'
+    - 'Replaces the HTTP client with a fake (or a Mock with return_value / side_effect) passed in, instead of calling the network'
+    - 'Uses pytest.raises (with match) for UnknownCurrency and for the failing service'
+    - 'Puts shared setup in a fixture and explains its scope'
+    - 'Explains what is not tested here (the real HTTP client, covered elsewhere by an integration test) and why'

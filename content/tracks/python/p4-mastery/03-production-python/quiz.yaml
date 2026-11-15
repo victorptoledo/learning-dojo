@@ -1,0 +1,38 @@
+questions:
+  - id: logger
+    prompt: "Which line creates a module's logger the idiomatic way?"
+    answers: ["logging.getLogger(__name__)", "log = logging.getLogger(__name__)", "logger = logging.getLogger(__name__)"]
+    explanation: "Naming loggers after modules gives a hierarchy you can configure per package, in one place at the entry point."
+  - id: log-exception
+    prompt: "Inside an except block, which call logs the error with its traceback?"
+    options: ["log.info(error)", "log.exception(\"charge failed\")", "print(traceback)", "log.debug(\"charge failed\")"]
+    answer: 1
+    explanation: "log.exception logs at ERROR level and attaches the current exception's traceback."
+  - id: config
+    prompt: "Where should a production service read its database URL and API keys from?"
+    options:
+      - "A constants.py file committed to the repository"
+      - "The environment or a secret store, validated once at start-up"
+      - "Command-line arguments typed by an operator"
+    answer: 1
+    explanation: "Configuration from the environment keeps secrets out of code and lets the same image run in every environment."
+  - id: sql
+    prompt: "Which is safe against SQL injection?"
+    options:
+      - "cursor.execute(f\"SELECT * FROM users WHERE name = '{name}'\")"
+      - "cursor.execute(\"SELECT * FROM users WHERE name = %s\", (name,))"
+      - "cursor.execute(\"SELECT * FROM users WHERE name = '\" + name + \"'\")"
+    answer: 1
+    explanation: "Parameters are sent separately from the SQL text, so input is never parsed as SQL."
+  - id: pickle
+    prompt: "Why must you never call pickle.loads on data from a client?"
+    options:
+      - "It is slow"
+      - "Unpickling can execute arbitrary code chosen by whoever crafted the data"
+      - "It only works on Linux"
+    answer: 1
+    explanation: "Pickle can reconstruct any object by calling functions; use JSON or validated models for untrusted input."
+  - id: docker-uv
+    prompt: "In a Dockerfile, which command installs exactly the locked dependencies without dev tools?"
+    answers: ["uv sync --locked --no-dev", "uv sync --frozen --no-dev", "uv sync --no-dev --locked"]
+    explanation: "--locked (or --frozen) installs from uv.lock without re-resolving, and --no-dev leaves out the dev group."

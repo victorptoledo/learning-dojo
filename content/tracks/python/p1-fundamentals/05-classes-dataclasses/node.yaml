@@ -1,0 +1,23 @@
+id: python.p1.classes-dataclasses
+kind: lesson
+status: draft
+title: "Classes, Dataclasses and Enums"
+summary: "Classes with __init__, methods, class methods and properties, inheritance and composition, dataclasses with defaults, validation, frozen and slots, and enums."
+objectives:
+  - { id: o1, text: "Write classes with instance and class attributes, properties, class methods and a useful __repr__", skills: [python.classes] }
+  - { id: o2, text: "Model data with dataclasses: default_factory, __post_init__ validation, frozen, order, slots and replace", skills: [python.classes] }
+  - { id: o3, text: "Use Enum and StrEnum for fixed sets of values, and prefer composition to deep inheritance", skills: [python.classes] }
+prerequisites: [python.p1.functions-closures]
+difficulty: 2
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Model a bank `Account` for a small app: it has an owner, an IBAN that never changes, a balance in exact money and a status that is one of open, frozen or closed. Show your code (a dataclass or a class, and an enum), explain how you prevent an invalid account from ever existing, how a deposit or withdrawal changes it, and why you chose (or did not choose) `frozen=True`.'
+  criteria:
+    - 'Uses a dataclass (or class) with typed fields, Decimal or integer cents for the balance, and an Enum or StrEnum for the status'
+    - 'Validates in __post_init__ (or __init__ / a property) and raises ValueError for invalid data'
+    - 'Encapsulates changes in methods (deposit, withdraw) that check the status and the balance'
+    - 'Discusses frozen=True: immutable values with replace() versus an entity that changes, and that mutable fields need default_factory'

@@ -1,0 +1,46 @@
+questions:
+  - id: mutable-default
+    prompt: "What does the second call return?"
+    code: |
+      def collect(item, bag=[]):
+          bag.append(item)
+          return bag
+
+      collect(1)
+      collect(2)
+    options: ["[2]", "[1, 2]", "It raises TypeError"]
+    answer: 1
+    explanation: "The default list is created once, when def runs, and every call that uses the default shares it."
+  - id: keyword-only
+    prompt: "Given `def connect(host, *, ssl=True)`, which call fails?"
+    options: ["connect(\"db\")", "connect(\"db\", ssl=False)", "connect(\"db\", False)", "connect(host=\"db\")"]
+    answer: 2
+    explanation: "Parameters after a bare * are keyword-only, so False cannot be passed positionally."
+  - id: args-type
+    prompt: "Inside `def f(*args)`, called as f(1, 2), what is the type of args?"
+    answers: ["tuple"]
+    explanation: "*args collects extra positional arguments into a tuple; **kwargs collects keyword arguments into a dict."
+  - id: unbound-local
+    prompt: "Why does calling bump() raise UnboundLocalError?"
+    code: |
+      total = 0
+      def bump():
+          total += 1
+    options:
+      - "Because total is a constant"
+      - "Because assigning total anywhere in bump makes it local to bump, and it has no value yet"
+      - "Because integers are immutable"
+    answer: 1
+    explanation: "The compiler decides scope per function: any assignment makes the name local, so the read in total += 1 finds an unassigned local."
+  - id: late-binding
+    prompt: "What does this print?"
+    code: |
+      fs = [lambda: n * 10 for n in range(3)]
+      print([f() for f in fs])
+    options: ["[0, 10, 20]", "[20, 20, 20]", "[0, 0, 0]"]
+    answer: 1
+    explanation: "Closures capture the variable n, not its value; when the lambdas run, n is 2."
+  - id: partial
+    prompt: "What is `partial(int, base=2)(\"101\")`?"
+    answers: ["5"]
+    explanation: "partial fixes base=2, so the call is int(\"101\", base=2), which is 5."

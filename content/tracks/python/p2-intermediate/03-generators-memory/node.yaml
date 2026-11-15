@@ -1,0 +1,25 @@
+id: python.p2.generators-memory
+legacy_id: py-03-generators-memory
+kind: lesson
+status: draft
+title: "Iterators, Generators and Lazy Pipelines"
+summary: "The iteration protocol, generator functions and expressions, yield from, lazy pipelines that process gigabytes in constant memory, itertools, and the traps of exhausted iterators and deferred errors."
+objectives:
+  - { id: o1, text: "Explain iterables, iterators, iter, next and StopIteration, and what a for loop does", skills: [python.generators-memory] }
+  - { id: o2, text: "Write generator functions and expressions, delegate with yield from, and build lazy pipelines over large inputs", skills: [python.generators-memory] }
+  - { id: o3, text: "Use itertools (islice, chain, groupby, batched, pairwise) and avoid exhausted iterators and deferred errors", skills: [python.generators-memory] }
+prerequisites: [python.p2.modules-packaging]
+difficulty: 3
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A nightly job loads a 20 GB CSV of events with `rows = list(csv.reader(open(path)))`, filters the rows of one country, converts amounts and writes totals per day, and it is killed by the out-of-memory killer. Rewrite it as a pipeline of generators, explain how much memory each stage holds and why, and point out one trap of the new version (for example an exhausted iterator or an error that appears later than before).'
+  criteria:
+    - 'Opens the file with a with block and iterates it lazily (csv.reader over the file object) instead of building a list'
+    - 'Builds stages as generator functions or expressions (read, filter, convert) chained together, consumed by one aggregation'
+    - 'Explains that each stage holds one row at a time, so memory is constant, while the totals dict grows only with the number of days'
+    - 'Uses groupby only on data sorted or grouped by day, or a dict/Counter otherwise'
+    - 'Names a real trap: an iterator can be consumed only once, errors surface when the item is pulled, or the file closes when the with block ends'

@@ -2,13 +2,24 @@ id: python.p3.asyncio-gil
 legacy_id: py-05-asyncio-gil
 kind: lesson
 status: draft
-title: "asyncio, the Event Loop and the GIL"
-summary: "How cooperative, coroutine-based concurrency scales network operations."
+title: "asyncio, Threads, Processes, the GIL and Free-Threading"
+summary: "I/O-bound versus CPU-bound work, what the GIL is and what free-threaded Python changes, threads and processes with concurrent.futures, and asyncio: coroutines, tasks, TaskGroup, timeouts, semaphores, queues and cancellation."
 objectives:
-  - { id: o1, text: "How cooperative, coroutine-based concurrency scales network operations.", skills: [python.asyncio-gil] }
-prerequisites: [python.p2.decorators-context]
+  - { id: o1, text: "Explain the GIL, why threads still help I/O-bound code, and the status of the free-threaded build from 3.13 to 3.15", skills: [python.asyncio-gil] }
+  - { id: o2, text: "Choose between asyncio, threads and processes, and use ThreadPoolExecutor, ProcessPoolExecutor and asyncio.to_thread", skills: [python.asyncio-gil] }
+  - { id: o3, text: "Write asyncio code with TaskGroup, asyncio.timeout, Semaphore and Queue, and handle cancellation correctly", skills: [python.asyncio-gil] }
+prerequisites: [python.p2.checkpoint]
 difficulty: 4
-estimated_minutes: 30
-xp: 350
+estimated_minutes: 60
+xp: 250
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A service must (1) call 2,000 partner URLs every minute, at most 50 at a time and each with a 3-second timeout, and (2) resize the 2,000 images it gets back. A colleague proposes one thread per URL for both jobs. Explain why that is not ideal on standard CPython, what you would use for each job and why, sketch the code for the first job, and say what changes, if anything, with the free-threaded build.'
+  criteria:
+    - 'Explains the GIL: one thread runs Python bytecode at a time, released during I/O, so threads help I/O but not pure-Python CPU work'
+    - 'Uses asyncio for the URLs with an async client, a Semaphore(50) (or a bounded worker pool) and asyncio.timeout(3) per call, gathered in a TaskGroup or gather'
+    - 'Uses a ProcessPoolExecutor (or a native library that releases the GIL) for the CPU-bound resizing, mentioning pickling and the main guard'
+    - 'Handles failures per URL so one error does not lose the others, and does not swallow CancelledError'
+    - 'States that the free-threaded build (experimental in 3.13, supported since 3.14, still not the default in 3.15) lets threads run in parallel, if the libraries support it'

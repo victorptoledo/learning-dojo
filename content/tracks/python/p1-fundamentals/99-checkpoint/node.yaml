@@ -1,0 +1,61 @@
+id: python.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata, a gradebook built from dataclasses, collections, functions and type hints."
+objectives:
+  - { id: o1, text: "Explain names and objects, collections, function signatures, dataclasses and type hints in your own words", skills: [python.data-model, python.collections, python.functions, python.classes, python.modern-typing-pydantic] }
+  - { id: o2, text: "Build a small typed module that parses, validates, groups and ranks records", skills: [python.collections, python.functions, python.classes] }
+prerequisites: [python.p1.modern-typing-pydantic]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+closes_phase: p1
+covers_skills: [python.data-model, python.collections, python.functions, python.classes, python.modern-typing-pydantic]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Build it bottom up: `Grade` and its validation, then `parse_line`, then the `Gradebook` storage, and only then the reports. How should the book store grades so that a second grade for the same student and course replaces the first one?
+    - |-
+      A dict keyed by the tuple `(student, course)` gives replacement for free and keeps insertion order. `parse_line` splits on `,`, strips each part, and converts the score with `int(...)` inside `try`, re-raising `ValueError` with the line. Averages: group the scores per student with `defaultdict(list)`. Rankings sort by `(-average, name)`. `letter` is a chain of comparisons from the top.
+    - |-
+      ```python
+      class Gradebook:
+          def __init__(self, grades: Iterable[Grade] = ()) -> None:
+              self._grades: dict[tuple[str, str], Grade] = {}
+              self.rejected: list[int] = []
+              for grade in grades:
+                  self.add(grade)
+
+          def add(self, grade: Grade) -> None:
+              self._grades[(grade.student, grade.course)] = grade
+
+          @classmethod
+          def from_lines(cls, lines: Iterable[str]) -> "Gradebook":
+              book = cls()
+              for number, line in enumerate(lines, start=1):
+                  text = line.strip()
+                  if not text or text.startswith("#"):
+                      continue
+                  # parse_line, add, or record the number in book.rejected
+              return book
+
+          def _scores_by_student(self) -> dict[str, list[int]]:
+              ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

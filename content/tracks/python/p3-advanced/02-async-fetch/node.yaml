@@ -1,0 +1,53 @@
+id: python.p3.async-fetch
+kind: kata
+status: draft
+title: "Async Fetch: Limits, Timeouts and Task Groups"
+summary: "Fetch many URLs with asyncio: a Semaphore-bounded fan-out with timeouts, an all-or-nothing TaskGroup that cancels on failure, and a race for the first success."
+objectives:
+  - { id: o1, text: "Bound concurrency with a Semaphore and give each call a timeout", skills: [python.asyncio-gil] }
+  - { id: o2, text: "Use TaskGroup for all-or-nothing work and handle the ExceptionGroup it raises", skills: [python.asyncio-gil, python.errors] }
+  - { id: o3, text: "Race tasks with asyncio.wait and cancel the losers cleanly", skills: [python.asyncio-gil] }
+prerequisites: [python.p3.asyncio-gil]
+difficulty: 4
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with `fetch_all` and an inner coroutine that handles **one** URL and always returns an `Outcome`, never raises. Where does the `Semaphore` go so that waiting for a slot does not count against the timeout? For `fetch_strict`, what does `asyncio.TaskGroup` already do when one task fails?
+    - |-
+      In the inner coroutine: `async with semaphore:`, then `try: async with asyncio.timeout(timeout): return Outcome(url, body=await fetch(url))`, with `except TimeoutError` and `except Exception as error` returning error outcomes. Run them in a `TaskGroup` and read `task.result()` after the block. `fetch_strict` is a `TaskGroup` with one task per URL and nothing else. `first_response`: create the tasks, then loop on `asyncio.wait(pending, return_when=FIRST_COMPLETED)` inside `asyncio.timeout`, and cancel everything in a `finally`.
+    - |-
+      ```python
+      async def first_response(urls, fetch, *, timeout=1.0):
+          tasks = {asyncio.create_task(fetch(url)): url for url in dict.fromkeys(urls)}
+          if not tasks:
+              raise LookupError("no URLs")
+          try:
+              async with asyncio.timeout(timeout):
+                  pending = set(tasks)
+                  while pending:
+                      done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+                      for task in done:
+                          ...  # return (url, body) for the first task without an exception
+          finally:
+              for task in tasks:
+                  task.cancel()
+              await asyncio.gather(*tasks, return_exceptions=True)
+          raise LookupError("every fetch failed")
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

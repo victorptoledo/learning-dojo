@@ -1,0 +1,24 @@
+id: python.p1.collections-comprehensions
+kind: lesson
+status: draft
+title: "Lists, Tuples, Dicts, Sets and Comprehensions"
+summary: "The four built-in collections and what each operation costs, unpacking, sorting with keys, the collections module, and list, dict and set comprehensions."
+objectives:
+  - { id: o1, text: "Pick list, tuple, dict or set for a job, knowing the cost of indexing, membership and insertion", skills: [python.collections] }
+  - { id: o2, text: "Unpack, slice and sort with key functions, and use Counter, defaultdict and deque", skills: [python.collections] }
+  - { id: o3, text: "Write list, dict and set comprehensions and generator expressions, and know when a loop is clearer", skills: [python.collections] }
+prerequisites: [python.p1.syntax-data-model]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You receive a list of a million order records as `(customer_id, country, amount)` tuples. Explain, with code, how you would (1) check quickly whether a given customer ordered at all, (2) total the amount per country, (3) list the five countries with the highest totals, ties in alphabetical order, and (4) keep only the most recent 100 orders seen in a stream. Name the data structure for each and its cost.'
+  criteria:
+    - 'Builds a set of customer ids once for O(1) membership instead of scanning the list'
+    - 'Totals per country with a dict (defaultdict(float), Counter or a dict comprehension over groups)'
+    - 'Sorts with a key such as (-total, country), or uses heapq.nsmallest/most_common with a tie rule'
+    - 'Uses collections.deque(maxlen=100) for the recent orders'
+    - 'States the costs: list membership O(n), set and dict lookups O(1) on average, sorting O(n log n)'

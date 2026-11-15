@@ -2,13 +2,24 @@ id: python.p0.tooling-uv
 legacy_id: py-01-tooling-uv
 kind: lesson
 status: draft
-title: "Project Management with uv, Poetry and pyproject.toml"
-summary: "Replacing messy `requirements.txt` files with fast, deterministic tools."
+title: "Python 3.15, uv and pyproject.toml"
+summary: "What Python is and how it is versioned, installing it with uv, projects described by pyproject.toml, virtual environments and lock files, and how the dojo checks Python katas."
 objectives:
-  - { id: o1, text: "Replacing messy `requirements.txt` files with fast, deterministic tools.", skills: [python.tooling-uv] }
+  - { id: o1, text: "Explain what CPython is, how Python versions are released and supported, and why the dojo uses 3.15", skills: [python.tooling-uv] }
+  - { id: o2, text: "Create a project with uv, add dependencies and dev dependencies, and run code and tests with uv run", skills: [python.tooling-uv] }
+  - { id: o3, text: "Read a pyproject.toml and explain virtual environments, uv.lock and why requirements.txt alone is not enough", skills: [python.tooling-uv] }
 prerequisites: []
 difficulty: 1
-estimated_minutes: 30
+estimated_minutes: 35
 xp: 100
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A teammate''s Python service is set up with `pip install -r requirements.txt` into the system Python, and "it works on my machine" happens every week. Explain what goes wrong with that setup, and describe step by step how you would move the project to uv: the commands, what goes in `pyproject.toml`, what `uv.lock` and `.venv` are and which of them you commit.'
+  criteria:
+    - 'Explains that a global install mixes projects, depends on whatever Python is installed and is not reproducible (unpinned transitive dependencies)'
+    - 'Uses uv init (or writes pyproject.toml), uv add for runtime and uv add --dev for tools such as pytest, and uv run to run code'
+    - 'Explains requires-python, dependencies and dependency groups in pyproject.toml'
+    - 'Explains that uv.lock pins every transitive version and is committed, while .venv is a local build of it and is not committed'
+    - 'Mentions uv python install or .python-version to pin the interpreter'
