@@ -1,0 +1,51 @@
+id: python.p2.log-pipeline
+kind: kata
+status: draft
+title: "Log Pipeline: Lazy Generators over a Stream"
+summary: "Parse log lines into entries, filter by level, count per minute with groupby and batch with itertools, all lazily, with argument errors raised at the call."
+objectives:
+  - { id: o1, text: "Write generator functions and expressions that read their input only as needed", skills: [python.generators-memory] }
+  - { id: o2, text: "Group consecutive items with groupby and chunk them with batched", skills: [python.generators-memory] }
+  - { id: o3, text: "Raise argument errors when a function is called, not when its iterator is first used", skills: [python.generators-memory, python.errors] }
+prerequisites: [python.p2.generators-memory]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with `parse`: a `for` loop over `lines` that `yield`s an `Entry` and `continue`s past anything it cannot use. Why must `parse` never call `list(lines)` or `len(lines)`? For `at_least` and `batches`, think about **when** the body of a generator function runs: is a `raise` inside one raised at the call?
+    - |-
+      `text.split(maxsplit=3)` gives at most four parts, so the message keeps its spaces. Wrap `datetime.fromisoformat` in `try`/`except ValueError`. For the call-time errors, validate in a normal function and **return** a generator expression (or an inner generator) instead of using `yield` in the function itself. `groupby(entries, key=lambda e: e.time.strftime("%Y-%m-%dT%H:%M"))` gives consecutive runs; count a group with `sum(1 for _ in group)`.
+    - |-
+      ```python
+      def parse(lines: Iterable[str]) -> Iterator[Entry]:
+          for line in lines:
+              text = line.strip()
+              if not text or text.startswith("#"):
+                  continue
+              parts = text.split(maxsplit=3)
+              # check the number of parts and the level, parse the time, then:
+              # yield Entry(time, parts[1], parts[2], message)
+
+
+      def batches(entries: Iterable[Entry], size: int) -> Iterator[list[Entry]]:
+          if size < 1:
+              raise ValueError("size must be at least 1")
+          return (list(batch) for batch in batched(entries, size))
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

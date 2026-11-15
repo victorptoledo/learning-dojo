@@ -1,0 +1,38 @@
+questions:
+  - id: asgi
+    prompt: "Which server interface do FastAPI applications implement?"
+    options: ["WSGI", "ASGI", "CGI", "FastCGI"]
+    answer: 1
+    explanation: "FastAPI is built on Starlette, an ASGI toolkit, and usually runs under Uvicorn."
+  - id: validation-status
+    prompt: "A client posts a body that does not match the Pydantic model of an endpoint. Which status does FastAPI return by default?"
+    answers: ["422", "422 Unprocessable Entity", "422 Unprocessable Content"]
+    explanation: "FastAPI validates before calling your function and answers 422 with a list of the errors."
+  - id: response-model
+    prompt: "What does the return annotation `-> OrderOut` (or response_model=OrderOut) do?"
+    options:
+      - "Nothing at run time; it is only for mypy"
+      - "Validates and filters the output to OrderOut's fields and documents it in OpenAPI"
+      - "Converts the response to XML"
+    answer: 1
+    explanation: "FastAPI serialises through the response model, so fields that are not in it are never sent."
+  - id: blocking-async
+    prompt: "An `async def` endpoint calls requests.get(), which blocks for 2 seconds. What is the effect?"
+    options:
+      - "Only that request waits"
+      - "Every request handled by that worker's event loop waits"
+      - "FastAPI runs it in a thread automatically"
+    answer: 1
+    explanation: "Blocking calls inside async def stall the loop; use an async client, a def endpoint (run in a thread pool) or asyncio.to_thread."
+  - id: yield-dependency
+    prompt: "In a dependency written as `async def get_session(): async with Session() as s: yield s`, when is the session closed?"
+    options:
+      - "Immediately after yield"
+      - "After the response has been produced"
+      - "When the application stops"
+    answer: 1
+    explanation: "FastAPI resumes a yield dependency after the endpoint finishes, which runs the cleanup."
+  - id: override
+    prompt: "How does a test replace the current_user dependency with a fake?"
+    answers: ["app.dependency_overrides[current_user] = fake_user", "dependency_overrides", "app.dependency_overrides"]
+    explanation: "dependency_overrides maps a dependency function to its replacement for every endpoint that uses it."

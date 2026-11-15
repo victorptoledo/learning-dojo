@@ -1,0 +1,42 @@
+questions:
+  - id: dis
+    prompt: "Which standard module shows the bytecode of a function?"
+    answers: ["dis"]
+    explanation: "dis.dis(func) disassembles its code object; ast shows the syntax tree before compilation."
+  - id: pyc
+    prompt: "What is stored in __pycache__/model.cpython-315.pyc?"
+    options:
+      - "A copy of the source for debugging"
+      - "The compiled bytecode of model.py for CPython 3.15, so later imports skip compilation"
+      - "Machine code produced by the JIT"
+    answer: 1
+    explanation: "Bytecode changes between versions, so the file name carries the interpreter tag."
+  - id: refcount
+    prompt: "When is an object without reference cycles freed in CPython?"
+    options:
+      - "At the next garbage collection pass"
+      - "As soon as its reference count drops to zero"
+      - "When the process exits"
+    answer: 1
+    explanation: "Reference counting frees it immediately; the cycle collector is only needed for objects that reference each other."
+  - id: small-int
+    prompt: "Why can `a = 1000; b = 1000; a is b` be False while the same with 100 is True?"
+    options:
+      - "Large ints are mutable"
+      - "CPython caches ints from -5 to 256 as shared objects; larger ones may be separate objects"
+      - "is compares values only for small numbers"
+    answer: 1
+    explanation: "The cache is an implementation detail: always compare values with ==."
+  - id: memory-not-returned
+    prompt: "You delete a large dict and the process's memory does not shrink. What is the most likely reason?"
+    options:
+      - "A memory leak in CPython"
+      - "The freed memory is kept by CPython's allocator for reuse rather than returned to the OS"
+      - "del does nothing"
+    answer: 1
+    explanation: "pymalloc keeps arenas for future allocations; compare tracemalloc snapshots to tell reuse from a real leak."
+  - id: free-threaded-refcount
+    prompt: "Which technique does the free-threaded build use so that reference counting does not need an atomic operation on every change?"
+    options: ["Biased reference counting", "Turning off reference counting", "A larger GIL"]
+    answer: 0
+    explanation: "The owning thread updates a cheap local count and other threads a shared atomic one; deferred counting and immortal objects reduce the updates further."

@@ -97,6 +97,7 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
                 .collect();
         }
         KataLanguage::Sql => (kata_dir.to_path_buf(), "sql"),
+        KataLanguage::Python => (kata_dir.to_path_buf(), "py"),
     };
     let mut found = Vec::new();
     collect(&root, extension, &mut found);
@@ -104,9 +105,18 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         .into_iter()
         .filter_map(|path| path.strip_prefix(kata_dir).ok().map(Path::to_path_buf))
         .filter(|path| !path.starts_with("tests") && !path.starts_with("fixture"))
+        .filter(|path| !in_tool_folder(path))
         .collect();
     files.sort();
     files
+}
+
+/// Virtual environments and caches (`.venv`, `__pycache__`) are not the learner's code.
+fn in_tool_folder(path: &Path) -> bool {
+    path.components().any(|part| {
+        let part = part.as_os_str().to_string_lossy();
+        part.starts_with('.') || part == "__pycache__"
+    })
 }
 
 fn collect(dir: &Path, extension: &str, found: &mut Vec<PathBuf>) {
@@ -141,6 +151,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Bash => "Bash and Linux",
         KataLanguage::Docker => "Dockerfile and Docker Compose",
         KataLanguage::Sql => "SQL (PostgreSQL 17)",
+        KataLanguage::Python => "Python",
     };
     let files = kata
         .files
@@ -296,5 +307,20 @@ mod tests {
         std::fs::write(dir.path().join("tests/visible.sql"), "SELECT 1").unwrap();
         let files = kata_files(dir.path(), KataLanguage::Sql);
         assert_eq!(files, vec![PathBuf::from("top_customers.sql")]);
+    }
+
+    #[test]
+    fn kata_files_lists_python_modules_but_not_tests_or_the_virtual_environment() {
+        let dir = tempfile::TempDir::new().unwrap();
+        for folder in ["tests", ".venv/lib", "__pycache__"] {
+            std::fs::create_dir_all(dir.path().join(folder)).unwrap();
+        }
+        std::fs::write(dir.path().join("cart.py"), "x = 1").unwrap();
+        std::fs::write(dir.path().join("pyproject.toml"), "x").unwrap();
+        std::fs::write(dir.path().join("tests/test_visible.py"), "x").unwrap();
+        std::fs::write(dir.path().join(".venv/lib/site.py"), "x").unwrap();
+        std::fs::write(dir.path().join("__pycache__/cart.py"), "x").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::Python);
+        assert_eq!(files, vec![PathBuf::from("cart.py")]);
     }
 }

@@ -1,0 +1,43 @@
+questions:
+  - id: default-factory
+    prompt: "How do you give a dataclass field an empty list as its default?"
+    options:
+      - "tags: list[str] = []"
+      - "tags: list[str] = field(default_factory=list)"
+      - "tags: list[str] = list"
+      - "tags: list[str] = None, then fill it in __init__"
+    answer: 1
+    explanation: "default_factory calls list() for each new instance; = [] would share one list, and dataclasses reject it."
+  - id: frozen
+    prompt: "What happens on `p.x = 5` when p is an instance of `@dataclass(frozen=True) class Point`?"
+    options:
+      - "The field changes"
+      - "dataclasses.FrozenInstanceError is raised"
+      - "A new Point is returned"
+    answer: 1
+    explanation: "Frozen dataclasses refuse assignment; make a modified copy with dataclasses.replace(p, x=5)."
+  - id: post-init
+    prompt: "Where do you validate the fields of a dataclass without writing __init__ yourself?"
+    answers: ["__post_init__", "in __post_init__", "__post_init__()"]
+    explanation: "The generated __init__ calls __post_init__ after assigning the fields."
+  - id: hash
+    prompt: "A regular (not frozen) dataclass with the default eq=True: can its instances be put in a set?"
+    options:
+      - "Yes, they hash by their fields"
+      - "No: __hash__ is set to None, because mutable objects that compare by value must not be hashed"
+      - "Yes, they hash by identity"
+    answer: 1
+    explanation: "Use frozen=True for value objects you want in sets or as dict keys."
+  - id: classmethod
+    prompt: "What is the main use of @classmethod?"
+    options:
+      - "Making a method private"
+      - "Alternative constructors such as from_csv, which receive the class as cls"
+      - "Methods that do not need any argument"
+    answer: 1
+    explanation: "A class method gets the class it was called on, so cls(...) builds the right type, also for subclasses."
+  - id: strenum
+    prompt: "With `class Status(StrEnum): OPEN = auto()`, what is `Status.OPEN == \"open\"`?"
+    options: ["True", "False", "It raises TypeError"]
+    answer: 0
+    explanation: "auto() in a StrEnum gives the lower-case member name as the value, and StrEnum members are str instances."

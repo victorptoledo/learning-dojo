@@ -1,0 +1,23 @@
+id: python.p1.syntax-data-model
+kind: lesson
+status: draft
+title: "Syntax, Built-in Types and the Object Model"
+summary: "Names bound to objects, mutability and identity, numbers, strings and f-strings, truthiness, control flow with for, while and match, and how operators map to special methods."
+objectives:
+  - { id: o1, text: "Explain that variables are names bound to objects, and tell identity (is) from equality (==) and mutable from immutable types", skills: [python.data-model] }
+  - { id: o2, text: "Use int, float, Decimal, str, bytes, bool and None correctly, format text with f-strings and predict truthiness", skills: [python.data-model] }
+  - { id: o3, text: "Write control flow with if, for, while, enumerate, zip and structural pattern matching (match)", skills: [python.data-model] }
+prerequisites: [python.p0.hello-dojo]
+difficulty: 1
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A colleague is surprised by this code: `defaults = {"tags": []}` / `a = defaults` / `b = dict(defaults)` / `a["tags"].append("x")` / `b["tags"].append("y")` / `print(defaults)`. Explain what it prints and why, using the words name, object, identity and mutability, and show how to make `b` truly independent. Then explain when you would use `is` instead of `==`.'
+  criteria:
+    - 'States that it prints {"tags": ["x", "y"]} and explains that assignment binds a second name to the same object'
+    - 'Explains that dict(defaults) is a shallow copy: a new dict whose values are the same list object'
+    - 'Fixes it with copy.deepcopy, or by building a new list ({"tags": list(...)})'
+    - 'Explains that is compares identity (same object) and == compares value, and that is is for None and sentinels'

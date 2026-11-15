@@ -85,6 +85,7 @@ impl App {
         files.extend(shell_scripts(dir));
         files.extend(["Dockerfile", "compose.yaml"].map(|name| dir.join(name)));
         files.extend(sql_files(dir));
+        files.extend(python_modules(dir));
         let existing: Vec<_> = files.into_iter().filter(|file| file.is_file()).collect();
         match self.editor.open_folder(dir, &existing) {
             Ok(()) => format!("Opened {} in `{}`.", dir.display(), self.editor.command()),
@@ -290,6 +291,20 @@ fn sql_files(dir: &Path) -> Vec<PathBuf> {
         .collect();
     files.sort();
     files
+}
+
+/// The modules of a Python kata: the `.py` files at the top of its folder.
+fn python_modules(dir: &Path) -> Vec<PathBuf> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut modules: Vec<PathBuf> = entries
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file() && path.extension().is_some_and(|ext| ext == "py"))
+        .collect();
+    modules.sort();
+    modules
 }
 
 fn java_sources(dir: &Path) -> Vec<PathBuf> {

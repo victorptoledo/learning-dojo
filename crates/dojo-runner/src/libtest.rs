@@ -198,6 +198,66 @@ greet.sh: line 1: syntax error near unexpected token `then'
         assert!(syntax.details.contains("greet.sh: line 1"));
     }
 
+    /// What the dojo-python image prints (`runner-images/python/junit2cargo.py`).
+    const PYTHON_FAILING: &str = "
+running 3 tests
+test test_grading::test_main_returns_zero ... FAILED
+test test_visible::test_greets_by_name ... FAILED
+test ruff::greet_py ... FAILED
+
+failures:
+
+---- test_grading::test_main_returns_zero stdout ----
+thread 'test_grading::test_main_returns_zero' panicked at test_grading::test_main_returns_zero:
+todo: write main()
+
+---- test_visible::test_greets_by_name stdout ----
+thread 'test_visible::test_greets_by_name' panicked at test_visible::test_greets_by_name:
+assert 'Hi Ada' == 'Welcome to the dojo, Ada!'
+- Welcome to the dojo, Ada!
++ Hi Ada
+
+---- ruff::greet_py stdout ----
+thread 'ruff::greet_py' panicked at ruff::greet_py:
+greet.py:8:12: F401 [*] `os` imported but unused
+
+failures:
+
+test result: FAILED. 0 passed; 3 failed
+";
+
+    #[test]
+    fn reads_the_python_image_output_like_cargo_test() {
+        let report = parse_cargo_test(PYTHON_FAILING, false, 7);
+        assert_eq!(report.outcome, CheckOutcome::TestsFailed);
+        assert_eq!(report.tests.len(), 3);
+        assert_eq!(
+            report.tests[0].message.as_deref(),
+            Some("todo: write main()")
+        );
+        assert!(
+            report.tests[1]
+                .message
+                .as_deref()
+                .unwrap()
+                .contains("+ Hi Ada")
+        );
+        assert_eq!(report.tests[2].name, "ruff::greet_py");
+
+        let syntax = parse_cargo_test(
+            "error: the code does not compile
+  File \"greet.py\", line 1
+    def f(:
+          ^
+SyntaxError: invalid syntax
+",
+            false,
+            7,
+        );
+        assert_eq!(syntax.outcome, CheckOutcome::CompileError);
+        assert!(syntax.details.contains("SyntaxError: invalid syntax"));
+    }
+
     #[test]
     fn reads_the_java_image_output_like_cargo_test() {
         let report = parse_cargo_test(JAVA_FAILING, false, 7);

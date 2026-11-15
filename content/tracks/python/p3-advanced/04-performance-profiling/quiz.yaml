@@ -1,0 +1,38 @@
+questions:
+  - id: first-step
+    prompt: "An endpoint is slow. What is the first step?"
+    options:
+      - "Rewrite the hottest-looking function in Rust"
+      - "Profile it to find where the time actually goes"
+      - "Add functools.cache to every function"
+    answer: 1
+    explanation: "Intuition about hot spots is often wrong; a profile tells you which change pays off."
+  - id: cumtime
+    prompt: "In cProfile output, which column includes the time spent in the functions a function calls?"
+    answers: ["cumtime", "cumulative", "cumulative time"]
+    explanation: "tottime is the function's own time; cumtime adds everything below it in the call tree."
+  - id: sampling
+    prompt: "Which tool can profile a running production process with low overhead, without restarting it?"
+    options: ["cProfile", "timeit", "py-spy", "doctest"]
+    answer: 2
+    explanation: "py-spy is a sampling profiler that reads the process's stack from outside."
+  - id: membership-fix
+    prompt: "Which change makes `[o for o in orders if o.sku in skus]` fastest when skus is a list of 10,000 items and orders is large?"
+    options:
+      - "Sort skus first"
+      - "Convert skus to a set once, before the comprehension"
+      - "Use a for loop instead of a comprehension"
+    answer: 1
+    explanation: "Set membership is O(1) on average; a list is scanned for every order."
+  - id: join
+    prompt: "What is the idiomatic fast way to build one string from 100,000 pieces?"
+    answers: ["\"\".join(parts)", "''.join(parts)", "str.join"]
+    explanation: "join computes the total size once and copies each piece once; repeated += may copy the growing string many times."
+  - id: specializing
+    prompt: "What did Python 3.11's specialising adaptive interpreter do?"
+    options:
+      - "Compile Python to machine code ahead of time"
+      - "Rewrite frequently run bytecode into versions specialised for the types it sees"
+      - "Remove the GIL"
+    answer: 1
+    explanation: "PEP 659 specialises hot bytecode at run time, which made typical code 10–60% faster; the 3.13 JIT builds on it."

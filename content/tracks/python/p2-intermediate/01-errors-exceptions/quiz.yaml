@@ -1,0 +1,44 @@
+questions:
+  - id: bare-except
+    prompt: "Why is `except:` (with no exception type) a problem?"
+    options:
+      - "It is a SyntaxError since Python 3"
+      - "It also catches KeyboardInterrupt and SystemExit, so Ctrl+C and sys.exit stop working"
+      - "It only catches ValueError"
+    answer: 1
+    explanation: "A bare except catches BaseException; except Exception leaves the non-error exits alone, and a narrower type is better still."
+  - id: else-clause
+    prompt: "When does the else block of a try statement run?"
+    options:
+      - "Always, after the try block"
+      - "Only when the try block raised no exception"
+      - "Only when an exception was caught"
+    answer: 1
+    explanation: "else holds the success path, so the try block can stay small; finally is the one that always runs."
+  - id: from
+    prompt: "What does `raise ConfigError(\"bad config\") from error` add compared with a plain raise inside except?"
+    options:
+      - "It suppresses the original exception"
+      - "It sets __cause__, so the traceback shows the original as the direct cause"
+      - "It retries the operation"
+    answer: 1
+    explanation: "Explicit chaining documents that one error caused the other; from None would hide the original instead."
+  - id: eafp
+    prompt: "Which style does idiomatic Python prefer for reading a file that may not exist?"
+    options:
+      - "Check os.path.exists first, then open it"
+      - "Open it in a try block and handle FileNotFoundError"
+    answer: 1
+    explanation: "EAFP does one operation and has no race between the check and the use."
+  - id: hierarchy
+    prompt: "Which except clause catches both KeyError and IndexError?"
+    answers: ["except LookupError", "LookupError", "except LookupError:"]
+    explanation: "Both inherit from LookupError, so catching the parent class handles both."
+  - id: except-star
+    prompt: "What is except* for?"
+    options:
+      - "Catching every exception, like a bare except"
+      - "Handling the exceptions of a given type inside an ExceptionGroup"
+      - "Re-raising an exception with a note"
+    answer: 1
+    explanation: "except* splits an ExceptionGroup by type; each clause receives a group with only the matching exceptions."

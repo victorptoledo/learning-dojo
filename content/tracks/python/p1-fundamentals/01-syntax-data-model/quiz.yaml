@@ -1,0 +1,38 @@
+questions:
+  - id: alias
+    prompt: "What does the last line print?"
+    code: |
+      a = [1, 2]
+      b = a
+      b += [3]
+      print(a)
+    options: ["[1, 2]", "[1, 2, 3]", "It raises TypeError"]
+    answer: 1
+    explanation: "b is a second name for the same list, and += on a list extends it in place."
+  - id: is-none
+    prompt: "Which is the idiomatic way to test that x is None?"
+    options: ["x == None", "x is None", "not x", "type(x) == None"]
+    answer: 1
+    explanation: "None is a singleton, so compare identity; not x would also be true for 0, \"\" and []."
+  - id: floor
+    prompt: "What is -7 // 2?"
+    answers: ["-4"]
+    explanation: "// is floor division: it rounds towards minus infinity, so -3.5 becomes -4."
+  - id: or-value
+    prompt: "What is the value of `\"\" or \"stranger\"`?"
+    options: ["True", "False", "\"stranger\"", "\"\""]
+    answer: 2
+    explanation: "or returns the first truthy operand (or the last one), not a bool."
+  - id: money
+    prompt: "Which value represents 19.99 euros exactly?"
+    options: ["19.99", "float(\"19.99\")", "Decimal(\"19.99\")", "Decimal(19.99)"]
+    answer: 2
+    explanation: "Binary floats cannot represent 19.99; Decimal built from a string is exact, while Decimal(19.99) copies the float's error."
+  - id: match-capture
+    prompt: "With `match command:` and `case quit:` as the first case, what happens for command = \"help\"?"
+    options:
+      - "The case does not match, because \"help\" is not equal to quit"
+      - "The case matches anything and binds the name quit to \"help\""
+      - "It is a SyntaxError"
+    answer: 1
+    explanation: "A bare name is a capture pattern; compare with a constant through a dotted name (Commands.QUIT) or a literal (\"quit\")."

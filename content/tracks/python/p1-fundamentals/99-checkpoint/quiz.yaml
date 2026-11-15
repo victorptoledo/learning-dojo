@@ -1,0 +1,70 @@
+questions:
+  - id: shallow-copy
+    skills: [python.data-model]
+    prompt: "What does this print?"
+    code: |
+      rows = [[0, 0], [0, 0]]
+      copy = list(rows)
+      copy[0][0] = 9
+      print(rows[0][0])
+    options: ["0", "9", "It raises TypeError"]
+    answer: 1
+    explanation: "list(rows) is a shallow copy: a new outer list holding the same inner lists. copy.deepcopy would copy the inner lists too."
+  - id: truthiness
+    skills: [python.data-model]
+    prompt: "Which of these values is truthy?"
+    options: ["0.0", "\"\"", "[0]", "set()"]
+    answer: 2
+    explanation: "A list with one element is not empty, even if that element is falsy."
+  - id: group-by
+    skills: [python.collections]
+    prompt: "Which tool groups orders by customer with `groups[order.customer].append(order)` and no key checks?"
+    answers: ["defaultdict(list)", "collections.defaultdict(list)", "defaultdict"]
+    explanation: "A defaultdict calls its factory for a missing key, so the first append finds an empty list."
+  - id: comprehension
+    skills: [python.collections]
+    prompt: "What is the value of this expression?"
+    code: |
+      {n % 3 for n in range(10) if n > 4}
+    options: ["{0, 1, 2}", "{5, 6, 7, 8, 9}", "[2, 0, 1, 2, 0]", "{0, 1}"]
+    answer: 0
+    explanation: "The set comprehension keeps n from 5 to 9 and collects their remainders 2, 0, 1, 2, 0 as a set: {0, 1, 2}."
+  - id: signature
+    skills: [python.functions]
+    prompt: "Given `def save(path, /, data, *, overwrite=False)`, which call is valid?"
+    options:
+      - "save(path=\"a.txt\", data=b\"\")"
+      - "save(\"a.txt\", b\"\", True)"
+      - "save(\"a.txt\", data=b\"\", overwrite=True)"
+    answer: 2
+    explanation: "path is positional-only (before /), and overwrite is keyword-only (after *)."
+  - id: closure
+    skills: [python.functions]
+    prompt: "What does counter() return the third time it is called?"
+    code: |
+      def make():
+          n = 0
+          def counter():
+              nonlocal n
+              n += 1
+              return n
+          return counter
+
+      counter = make()
+    answers: ["3"]
+    explanation: "The closure keeps the variable n alive between calls, and nonlocal lets it rebind it."
+  - id: frozen-replace
+    skills: [python.classes]
+    prompt: "p is a frozen dataclass Point(x=1, y=2). How do you get a Point with x=5 and the same y?"
+    options: ["p.x = 5", "replace(p, x=5)", "Point(p, x=5)", "p.copy(x=5)"]
+    answer: 1
+    explanation: "dataclasses.replace (or copy.replace since 3.13) builds a new instance with some fields changed."
+  - id: hints-runtime
+    skills: [python.modern-typing-pydantic]
+    prompt: "A function is annotated `def pay(amount: Decimal) -> None` and called with a float. Who reports the problem?"
+    options:
+      - "The interpreter, with TypeError at the call"
+      - "A type checker such as mypy, before the program runs"
+      - "Nobody can ever detect it"
+    answer: 1
+    explanation: "Annotations are not enforced at run time; mypy or pyright check them statically, and Pydantic can validate at run time at the boundaries."

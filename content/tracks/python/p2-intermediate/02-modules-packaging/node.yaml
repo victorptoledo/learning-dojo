@@ -1,0 +1,24 @@
+id: python.p2.modules-packaging
+kind: lesson
+status: draft
+title: "Modules, Packages, Imports and Packaging"
+summary: "How import finds and caches modules, packages and __init__.py, absolute and relative imports, circular imports, the src layout, build backends, wheels, entry points, versions and publishing with uv."
+objectives:
+  - { id: o1, text: "Explain how import searches sys.path, runs a module once and caches it in sys.modules, and fix a circular import", skills: [python.packaging] }
+  - { id: o2, text: "Lay out a package with the src layout, __init__.py, __main__.py and absolute imports", skills: [python.packaging] }
+  - { id: o3, text: "Build a wheel with a [build-system], expose a command with [project.scripts], version it and publish it", skills: [python.packaging, python.tooling-uv] }
+prerequisites: [python.p2.errors-exceptions]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team has a folder of scripts that import each other with `sys.path.append("..")` hacks, and you want to turn it into an installable package `invoicer` with a command `invoicer` that the support team installs with one command. Describe the target layout, the `pyproject.toml` (with every table you need), how the command is wired, how you build and publish it, and how a colleague installs and runs it.'
+  criteria:
+    - 'Uses a src/invoicer/ package with __init__.py and absolute imports (from invoicer.x import y), removing the sys.path hacks'
+    - 'Writes [project] with name, version, requires-python and dependencies, and a [build-system] table (uv_build, hatchling or setuptools)'
+    - 'Declares [project.scripts] invoicer = "invoicer.cli:main" and explains the generated executable'
+    - 'Builds with uv build (wheel and sdist) and publishes with uv publish to an index (PyPI or a private one), with a version that follows PEP 440 / semver'
+    - 'The colleague installs with uv tool install invoicer (or pipx) and runs invoicer'

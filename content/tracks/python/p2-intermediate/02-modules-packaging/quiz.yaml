@@ -1,0 +1,41 @@
+questions:
+  - id: import-once
+    prompt: "Two modules both run `import settings`. How many times does the code at the top of settings.py run in one process?"
+    options: ["Once", "Twice", "Once per function that uses it"]
+    answer: 0
+    explanation: "The first import executes the module and caches it in sys.modules; later imports reuse the cached module."
+  - id: dunder-init
+    prompt: "What does __init__.py make a folder?"
+    answers: ["a package", "package", "a regular package"]
+    explanation: "A folder with __init__.py is a regular package; its code runs when the package is first imported."
+  - id: main-module
+    prompt: "Which file runs when you type `python -m invoicer` and invoicer is a package?"
+    options: ["invoicer/__init__.py only", "invoicer/__main__.py (after __init__.py)", "invoicer/main.py"]
+    answer: 1
+    explanation: "-m with a package imports it, which runs __init__.py, then runs its __main__ module."
+  - id: scripts
+    prompt: "Which pyproject.toml table creates a command-line program when the package is installed?"
+    options: ["[tool.scripts]", "[project.scripts]", "[build-system]", "[dependency-groups]"]
+    answer: 1
+    explanation: "[project.scripts] maps a command name to a function, such as invoicer = \"invoicer.cli:main\"."
+  - id: src-layout
+    prompt: "What is the main benefit of the src layout?"
+    options:
+      - "Faster imports"
+      - "Tests import the package as installed, so packaging mistakes show up in the tests"
+      - "It hides the source code from users"
+    answer: 1
+    explanation: "Without src/, the current directory is on sys.path and tests can pass with files that would be missing from the wheel."
+  - id: compatible
+    prompt: "What does the specifier `~=2.3` allow?"
+    options: ["Exactly 2.3", "2.3 or newer, but below 3.0", "Any version"]
+    answer: 1
+    explanation: "~= is the compatible-release operator: ~=2.3 means >=2.3 and ==2.*."
+  - id: lazy-import
+    prompt: "With `lazy import reportlab` at the top of a module (Python 3.15), when is reportlab actually loaded?"
+    options:
+      - "When the module is imported, as usual"
+      - "The first time the name reportlab is used"
+      - "Never: lazy imports must be loaded by hand"
+    answer: 1
+    explanation: "PEP 810 lazy imports bind a proxy and load the module on first use, which saves start-up time for modules a run never needs."

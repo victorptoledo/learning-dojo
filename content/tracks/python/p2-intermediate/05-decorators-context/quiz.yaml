@@ -1,0 +1,36 @@
+questions:
+  - id: desugar
+    prompt: "What is `@timed` above `def load(): ...` equivalent to?"
+    options: ["load = timed()", "load = timed(load)", "timed = load(timed)", "load.timed = True"]
+    answer: 1
+    explanation: "The decorator is called with the function, and the name is rebound to whatever it returns."
+  - id: wraps
+    prompt: "Without functools.wraps, what is `fetch.__name__` after decorating fetch with a decorator whose inner function is called wrapper?"
+    answers: ["wrapper", "\"wrapper\"", "'wrapper'"]
+    explanation: "The name now points at the wrapper; functools.wraps copies the original __name__, __doc__ and more onto it."
+  - id: factory
+    prompt: "Why does `@retry(times=3)` need one more level of nested functions than `@retry`?"
+    options:
+      - "Because retry(times=3) is called first and must return the actual decorator"
+      - "Because keyword arguments need a class"
+      - "It does not: both forms are the same"
+    answer: 0
+    explanation: "The expression after @ is evaluated first; with arguments, that call returns the decorator that receives the function."
+  - id: order
+    prompt: "With `@a` on the first line and `@b` on the second, above `def f`, what is f?"
+    options: ["a(b(f))", "b(a(f))", "a(f) and b(f) separately"]
+    answer: 0
+    explanation: "Decorators apply bottom up: b wraps f first, then a wraps the result."
+  - id: exit-true
+    prompt: "What happens to an exception raised in a with block when __exit__ returns True?"
+    options: ["It propagates normally", "It is suppressed", "It is turned into a RuntimeError"]
+    answer: 1
+    explanation: "A true return value from __exit__ swallows the exception; return False or None unless suppressing is the whole point."
+  - id: contextmanager-finally
+    prompt: "In a @contextmanager generator, where must the cleanup code go so it also runs when the with block raises?"
+    options:
+      - "Before the yield"
+      - "After the yield, inside a finally (or except) around the yield"
+      - "In a separate __exit__ method"
+    answer: 1
+    explanation: "The block's exception is thrown into the generator at the yield; without try/finally the code after the yield is skipped."

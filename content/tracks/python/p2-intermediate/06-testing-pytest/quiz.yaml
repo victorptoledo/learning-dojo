@@ -1,0 +1,39 @@
+questions:
+  - id: discovery
+    prompt: "Which function does pytest collect as a test by default?"
+    options: ["def check_total():", "def test_total():", "def total_test():", "def Test_total():"]
+    answer: 1
+    explanation: "Test functions are named test_*, in files named test_*.py or *_test.py."
+  - id: raises
+    prompt: "Which construct checks that parse(\"x\") raises ValueError?"
+    options:
+      - "assert parse(\"x\") == ValueError"
+      - "with pytest.raises(ValueError): parse(\"x\")"
+      - "assert raises(parse(\"x\"))"
+    answer: 1
+    explanation: "pytest.raises is a context manager that fails the test unless the block raises that exception; match= also checks the message."
+  - id: yield-fixture
+    prompt: "In a fixture, when does the code after `yield` run?"
+    options:
+      - "Before the test"
+      - "After the test, even if it failed"
+      - "Only if the test passed"
+    answer: 1
+    explanation: "The code after yield is the fixture's teardown and runs whatever the test's outcome."
+  - id: tmp-path
+    prompt: "Which built-in fixture gives each test a fresh temporary directory as a pathlib.Path?"
+    answers: ["tmp_path"]
+    explanation: "tmp_path is unique per test and cleaned up by pytest; tmp_path_factory creates directories for broader scopes."
+  - id: where-patch
+    prompt: "shop/checkout.py does `from shop.mail import send_email`. Which target do you patch to replace it in checkout()?"
+    options: ["shop.mail.send_email", "shop.checkout.send_email", "send_email"]
+    answer: 1
+    explanation: "checkout looks the name up in its own module, so patch it where it is used, not where it is defined."
+  - id: approx
+    prompt: "Why write `assert total == pytest.approx(0.3)` instead of `assert total == 0.3`?"
+    options:
+      - "approx is faster"
+      - "Binary floats such as 0.1 + 0.2 are not exactly 0.3, so equality needs a tolerance"
+      - "== does not work in pytest"
+    answer: 1
+    explanation: "pytest.approx compares with a relative tolerance; for money, use Decimal and exact equality instead."

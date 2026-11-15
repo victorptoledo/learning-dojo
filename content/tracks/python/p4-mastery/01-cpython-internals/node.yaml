@@ -1,0 +1,24 @@
+id: python.p4.cpython-internals
+kind: lesson
+status: draft
+title: "CPython Internals: Bytecode, Memory and the Interpreter"
+summary: "From source to AST to bytecode, the evaluation loop and dis, objects in C, reference counting and the cycle collector, small-int caching and interning, immortal objects, how the GIL and the free-threaded build work, subinterpreters and the C API."
+objectives:
+  - { id: o1, text: "Trace source code through the AST and bytecode with ast and dis, and explain .pyc files and the evaluation loop", skills: [python.internals] }
+  - { id: o2, text: "Explain reference counting, the cyclic garbage collector, small-int caching, interning and immortal objects, and their visible effects", skills: [python.internals, python.data-model] }
+  - { id: o3, text: "Describe how the GIL is switched, what the free-threaded build changes inside the interpreter, and what subinterpreters and the stable ABI are", skills: [python.internals, python.asyncio-gil] }
+prerequisites: [python.p3.performance-profiling]
+difficulty: 5
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A long-running worker''s memory grows steadily, and `del` of a big cache does not make the process smaller. A colleague also noticed that `a = 256; b = 256; a is b` is True but the same with 257 can be False. Explain both observations from how CPython manages memory, describe how you would find what keeps objects alive (tools and steps), and explain what changes about memory management in the free-threaded build.'
+  criteria:
+    - 'Explains reference counting (an object is freed when its count drops to zero) and that del removes a name, not necessarily the last reference'
+    - 'Explains reference cycles and the generational cycle collector, and that pymalloc may keep freed memory for reuse instead of returning it to the OS'
+    - 'Explains the small-int cache (-5 to 256) and interning as implementation details, so is must not be used to compare values'
+    - 'Uses tracemalloc snapshots (compare two), gc.get_referrers or objgraph, or memray to find what holds references'
+    - 'Mentions that the free-threaded build uses biased and deferred reference counting, immortal objects and mimalloc so that threads do not need the GIL'

@@ -360,6 +360,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::Sql => {
                 "2. Edit the .sql files in the kata folder. Each one that holds only a \"-- todo: ...\" comment is yours to write:"
             }
+            KataLanguage::Python => {
+                "2. Edit the .py modules in the kata folder. Each function that still raises NotImplementedError(\"todo ...\") is yours to write:"
+            }
         }),
         Line::from(match language {
             KataLanguage::Rust => {
@@ -377,6 +380,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::Sql => {
                 "   the tests run them on PostgreSQL 17 over fixture/; try them first with the play command in README.md."
             }
+            KataLanguage::Python => {
+                "   that raise is a placeholder; pytest runs the tests and ruff must find no mistakes."
+            }
         }),
         Line::from("3. Save the file. The tests run by themselves and the result appears below."),
         Line::from(
@@ -391,6 +397,7 @@ fn is_placeholder(message: &str) -> bool {
     message.starts_with("not yet implemented")
         || message.starts_with("todo")
         || message.contains("UnsupportedOperationException: todo")
+        || message.contains("NotImplementedError: todo")
 }
 
 /// One line per failing test, or the compiler output when the code does not build.

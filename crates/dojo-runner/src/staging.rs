@@ -7,8 +7,17 @@ use std::path::Path;
 use std::time::SystemTime;
 use tempfile::TempDir;
 
-/// Folders never copied: build output, dependencies and version control.
-const SKIPPED: [&str; 4] = ["target", ".git", "node_modules", ".idea"];
+/// Folders never copied: build output, dependencies, caches and version control.
+const SKIPPED: [&str; 8] = [
+    "target",
+    ".git",
+    "node_modules",
+    ".idea",
+    ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+];
 
 /// Copies `from` into `to` recursively, skipping build and VCS folders.
 pub fn copy_dir(from: &Path, to: &Path) -> io::Result<()> {

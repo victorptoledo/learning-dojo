@@ -1,0 +1,24 @@
+id: python.p3.protocols-data-model
+kind: lesson
+status: draft
+title: "Protocols, ABCs, Special Methods and Descriptors"
+summary: "Structural typing with Protocol versus nominal ABCs, collections.abc mixins, the special methods behind operators and containers, NotImplemented, descriptors, __slots__, and __init_subclass__ instead of metaclasses."
+objectives:
+  - { id: o1, text: "Choose between a Protocol and an abstract base class, and build containers from collections.abc mixins", skills: [python.protocols] }
+  - { id: o2, text: "Implement operators, comparisons, hashing and container behaviour with special methods, returning NotImplemented correctly", skills: [python.protocols] }
+  - { id: o3, text: "Explain descriptors (and how property and methods use them), __slots__, and registries with __init_subclass__", skills: [python.protocols, python.classes] }
+prerequisites: [python.p3.async-fetch]
+difficulty: 4
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design a `Money` type that supports `a + b`, `sum([...])`, `a * 3`, `3 * a`, comparisons, use as a dict key, and `f"{price:.2f}"`, and refuses to add different currencies. Show the special methods you implement and explain the role of NotImplemented, why __eq__ and __hash__ must agree, and how sum() works with it. Then explain when you would describe a dependency with a Protocol rather than an ABC.'
+  criteria:
+    - 'Implements __add__ and __radd__ (handling sum''s 0 start), __mul__ and __rmul__, __eq__ and ordering (total_ordering or a frozen dataclass with order) and __hash__ consistent with __eq__'
+    - 'Returns NotImplemented for unsupported operand types so Python can try the reflected method or raise TypeError'
+    - 'Raises a clear error (ValueError or a custom one) for different currencies'
+    - 'Implements __format__ (or __str__) for formatting'
+    - 'Explains Protocols as structural (no inheritance, checked statically) and ABCs as nominal with shared implementation and isinstance checks'

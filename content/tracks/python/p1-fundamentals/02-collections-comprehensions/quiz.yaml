@@ -1,0 +1,43 @@
+questions:
+  - id: membership
+    prompt: "You check `if user_id in ids` for each of 100,000 users. Which type should ids be?"
+    options: ["list", "tuple", "set", "str"]
+    answer: 2
+    explanation: "Membership in a set is a hash lookup, O(1) on average; a list or tuple is scanned, O(n) each time."
+  - id: hashable
+    prompt: "Which of these can be a dict key?"
+    options: ["[1, 2]", "{1, 2}", "(1, 2)", "{\"a\": 1}"]
+    answer: 2
+    explanation: "Keys must be hashable; a tuple of hashable items is, while lists, sets and dicts are mutable and unhashable."
+  - id: sort-returns
+    prompt: "What is in result?"
+    code: |
+      numbers = [3, 1, 2]
+      result = numbers.sort()
+    options: ["[1, 2, 3]", "[3, 1, 2]", "None"]
+    answer: 2
+    explanation: "list.sort sorts in place and returns None; sorted(numbers) returns a new list."
+  - id: tie-key
+    prompt: "Which key sorts (word, count) pairs by count descending, then word ascending?"
+    options:
+      - "key=lambda p: (p[1], p[0]), reverse=True"
+      - "key=lambda p: (-p[1], p[0])"
+      - "key=lambda p: p[1]"
+    answer: 1
+    explanation: "Negating the count makes larger counts sort first while the word still sorts ascending; reverse=True would reverse the words too."
+  - id: dedupe-order
+    prompt: "Which expression removes duplicates from names and keeps the first occurrences in order?"
+    options: ["set(names)", "list(dict.fromkeys(names))", "sorted(set(names))"]
+    answer: 1
+    explanation: "Dicts keep insertion order, so fromkeys keeps each name where it first appeared; a set has no order."
+  - id: comprehension-result
+    prompt: "What does this evaluate to?"
+    code: |
+      {w[0]: w for w in ["apple", "avocado", "banana"]}
+    answers: ["{'a': 'avocado', 'b': 'banana'}", "{\"a\": \"avocado\", \"b\": \"banana\"}"]
+    explanation: "Both a-words use the key 'a', and a later assignment to the same key wins."
+  - id: unpack-comprehension
+    prompt: "In Python 3.15, what does `[*pair for pair in [(1, 2), (3, 4)]]` evaluate to?"
+    options: ["[(1, 2), (3, 4)]", "[1, 2, 3, 4]", "A SyntaxError"]
+    answer: 1
+    explanation: "Since 3.15 (PEP 798) * unpacks each item into the result, so the comprehension flattens; earlier versions reject it."

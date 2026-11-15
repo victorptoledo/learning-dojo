@@ -1,0 +1,66 @@
+questions:
+  - id: chaining
+    skills: [python.errors]
+    prompt: "Inside `except KeyError as error:`, which line raises a ConfigError and keeps the KeyError as its direct cause?"
+    answers: ["raise ConfigError(\"missing key\") from error", "raise ConfigError from error", "raise ConfigError() from error"]
+    explanation: "from sets __cause__, and the traceback shows the KeyError as the direct cause."
+  - id: finally-return
+    skills: [python.errors]
+    prompt: "Which block of a try statement runs whether or not an exception was raised, even when the try block returns?"
+    options: ["except", "else", "finally"]
+    answer: 2
+    explanation: "finally always runs; else runs only when no exception was raised."
+  - id: circular
+    skills: [python.packaging]
+    prompt: "a.py does `from b import helper` and b.py does `from a import Config`, both at the top. What usually happens?"
+    options:
+      - "It works: Python resolves cycles"
+      - "ImportError: one module sees the other half-initialised"
+      - "A SyntaxError"
+    answer: 1
+    explanation: "Modules run top to bottom on first import, so one of them is not finished when the other asks for a name; move the shared code to a third module."
+  - id: generator-twice
+    skills: [python.generators-memory]
+    prompt: "What does this print?"
+    code: |
+      def evens():
+          yield from (n for n in range(6) if n % 2 == 0)
+
+      gen = evens()
+      print(list(gen), list(gen))
+    options: ["[0, 2, 4] [0, 2, 4]", "[0, 2, 4] []", "[] []"]
+    answer: 1
+    explanation: "A generator can be consumed once; call evens() again for a new one."
+  - id: decorator-levels
+    skills: [python.decorators-context]
+    prompt: "In `@cache_for(seconds=60)`, what must cache_for(seconds=60) return?"
+    options:
+      - "The cached result"
+      - "A decorator: a function that takes the function and returns the wrapper"
+      - "None"
+    answer: 1
+    explanation: "The expression after @ is evaluated first, then its result is applied to the function."
+  - id: contextmanager
+    skills: [python.decorators-context]
+    prompt: "In a @contextmanager generator, what becomes the value bound by `with ... as x`?"
+    options: ["The generator object", "The value of the yield", "The return value of the generator"]
+    answer: 1
+    explanation: "The generator runs up to its yield on __enter__, and the yielded value is what as binds."
+  - id: fixture-teardown
+    skills: [python.testing]
+    prompt: "Where does a pytest fixture put its cleanup code?"
+    options:
+      - "In a tearDown method"
+      - "After its yield"
+      - "In a finally block inside the test"
+    answer: 1
+    explanation: "Code after yield runs after the test, whatever its outcome."
+  - id: inject-time
+    skills: [python.testing, python.decorators-context]
+    prompt: "A retry decorator sleeps between attempts. What makes its tests fast and deterministic?"
+    options:
+      - "Patching time.time to return 0"
+      - "Passing the sleep function in as an argument, and giving tests a fake that records the pauses"
+      - "Marking the tests as slow"
+    answer: 1
+    explanation: "Injecting the dependency lets tests replace it without patching, and lets them assert on the pauses."

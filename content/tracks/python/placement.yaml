@@ -1,0 +1,378 @@
+# Placement test of the Modern Python track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with Python?
+  options:
+    - { label: "Never used it", start_phase: p0, test: false }
+    - { label: "I write scripts: lists, dicts, functions, a few classes", start_phase: p1, test: true }
+    - { label: "I use Python at work: dataclasses, type hints, pytest, packaging", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-tuple-mutation
+    phase: p1
+    skills: [python.data-model]
+    difficulty: 2
+    prompt: "What happens?"
+    code: |
+      t = ([1], [2])
+      t[0].append(9)
+      print(t)
+    options:
+      - "TypeError: tuples are immutable"
+      - "([1, 9], [2])"
+      - "([1], [2])"
+    answer: 1
+    explanation: "The tuple cannot change which objects it holds, but the list inside it is mutable."
+  - id: p1-int-division
+    phase: p1
+    skills: [python.data-model]
+    difficulty: 1
+    prompt: "What is the value of 7 / 2 in Python 3?"
+    answers: ["3.5"]
+    explanation: "/ is true division and returns a float; // is floor division."
+  - id: p1-fstring-spec
+    phase: p1
+    skills: [python.data-model]
+    difficulty: 2
+    prompt: "What does f\"{1234567.891:,.1f}\" produce?"
+    answers: ["1,234,567.9", "'1,234,567.9'", "\"1,234,567.9\""]
+    explanation: "The comma adds thousands separators and .1f rounds to one decimal place."
+  - id: p1-dict-order
+    phase: p1
+    skills: [python.collections]
+    difficulty: 2
+    prompt: "In which order does `list({\"b\": 1, \"a\": 2, \"c\": 3})` return the keys?"
+    options: ["['a', 'b', 'c']", "['b', 'a', 'c']", "An arbitrary order"]
+    answer: 1
+    explanation: "Dicts keep insertion order, a language guarantee since Python 3.7."
+  - id: p1-set-cost
+    phase: p1
+    skills: [python.collections]
+    difficulty: 2
+    prompt: "Which is the average cost of `x in s` when s is a set of n items?"
+    options: ["O(1)", "O(log n)", "O(n)"]
+    answer: 0
+    explanation: "Sets are hash tables: membership hashes x and looks at one bucket."
+  - id: p1-counter
+    phase: p1
+    skills: [python.collections]
+    difficulty: 2
+    prompt: "What does Counter(\"banana\").most_common(1) return?"
+    answers: ["[('a', 3)]", "[(\"a\", 3)]"]
+    explanation: "Counter counts each character; a appears three times."
+  - id: p1-kwargs
+    phase: p1
+    skills: [python.functions]
+    difficulty: 2
+    prompt: "What does f(1, 2, c=3) print?"
+    code: |
+      def f(a, *args, **kwargs):
+          print(a, args, kwargs)
+    options: ["1 (2,) {'c': 3}", "1 [2] {'c': 3}", "1 2 3"]
+    answer: 0
+    explanation: "Extra positional arguments go into the args tuple, extra keyword arguments into the kwargs dict."
+  - id: p1-default-once
+    phase: p1
+    skills: [python.functions]
+    difficulty: 3
+    prompt: "What does the last line print?"
+    code: |
+      import time
+      def stamp(at=time.time()):
+          return at
+      a = stamp(); time.sleep(1); b = stamp()
+      print(a == b)
+    options: ["True", "False"]
+    answer: 0
+    explanation: "The default is evaluated once, when def runs, so both calls return the same timestamp."
+  - id: p1-dataclass-eq
+    phase: p1
+    skills: [python.classes]
+    difficulty: 2
+    prompt: "With `@dataclass class P: x: int`, what is P(1) == P(1)?"
+    options: ["True", "False", "TypeError"]
+    answer: 0
+    explanation: "dataclass generates __eq__ comparing the fields; a plain class would compare identity and return False."
+  - id: p1-property
+    phase: p1
+    skills: [python.classes]
+    difficulty: 2
+    prompt: "A class defines `@property def total(self)`. How do you read it?"
+    options: ["obj.total()", "obj.total", "obj.get_total()"]
+    answer: 1
+    explanation: "A property is read like an attribute; Python calls the method for you."
+  - id: p1-hint-runtime
+    phase: p1
+    skills: [python.modern-typing-pydantic]
+    difficulty: 2
+    prompt: "Which tool reports that `count: int = \"three\"` is wrong, before the program runs?"
+    options: ["The Python interpreter", "mypy or pyright", "pytest"]
+    answer: 1
+    explanation: "Annotations are not checked at run time; a static type checker reads them."
+  - id: p1-sequence-type
+    phase: p1
+    skills: [python.modern-typing-pydantic]
+    difficulty: 3
+    prompt: "A function only loops once over its argument. Which annotation is the most flexible correct choice?"
+    options: ["list[str]", "Iterable[str]", "tuple[str, ...]"]
+    answer: 1
+    explanation: "Iterable asks only for iteration, so lists, tuples, sets and generators all fit."
+  - id: p1-frozendict
+    phase: p1
+    skills: [python.collections]
+    difficulty: 3
+    prompt: "Which Python 3.15 built-in is an immutable, hashable mapping that can be used as a dict key?"
+    answers: ["frozendict"]
+    explanation: "frozendict (PEP 814) keeps insertion order, refuses changes and hashes when its keys and values are hashable."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-finally-return
+    phase: p2
+    skills: [python.errors]
+    difficulty: 3
+    prompt: "What does f() return?"
+    code: |
+      def f():
+          try:
+              return "try"
+          finally:
+              print("cleanup")
+    options: ["\"try\", after printing cleanup", "None", "\"cleanup\""]
+    answer: 0
+    explanation: "finally runs on the way out of the return, then the return value is delivered."
+  - id: p2-custom-error
+    phase: p2
+    skills: [python.errors]
+    difficulty: 2
+    prompt: "Which base class should a module's own error class usually inherit from?"
+    options: ["BaseException", "Exception", "object", "RuntimeError only"]
+    answer: 1
+    explanation: "Exception is the root of normal errors; BaseException also covers KeyboardInterrupt and SystemExit."
+  - id: p2-context-cause
+    phase: p2
+    skills: [python.errors]
+    difficulty: 3
+    prompt: "Which attribute holds the original exception after `raise New() from original`?"
+    answers: ["__cause__", "error.__cause__", ".__cause__"]
+    explanation: "from sets __cause__; an implicit chain is stored in __context__."
+  - id: p2-import-path
+    phase: p2
+    skills: [python.packaging]
+    difficulty: 2
+    prompt: "Where does Python look first for a module named in an import statement, before searching sys.path?"
+    answers: ["sys.modules", "the sys.modules cache", "the module cache"]
+    explanation: "Already imported modules are taken from the sys.modules cache; only new ones are searched for."
+  - id: p2-wheel
+    phase: p2
+    skills: [python.packaging]
+    difficulty: 2
+    prompt: "What does `uv build` produce for a pure-Python project?"
+    options:
+      - "An executable"
+      - "An sdist (.tar.gz) and a wheel (.whl) in dist/"
+      - "A Docker image"
+    answer: 1
+    explanation: "The wheel is the installable archive; the sdist holds the source for rebuilding."
+  - id: p2-generator-type
+    phase: p2
+    skills: [python.generators-memory]
+    difficulty: 2
+    prompt: "What is `type((x for x in range(3))).__name__`?"
+    answers: ["generator"]
+    explanation: "Parentheses around a comprehension make a generator expression, not a tuple."
+  - id: p2-islice
+    phase: p2
+    skills: [python.generators-memory]
+    difficulty: 3
+    prompt: "Which expression takes the first 3 items of an iterator `events` without consuming the rest?"
+    options: ["events[:3]", "list(islice(events, 3))", "list(events)[:3]"]
+    answer: 1
+    explanation: "Iterators cannot be sliced with []; list(events) would consume everything."
+  - id: p2-wraps
+    phase: p2
+    skills: [python.decorators-context]
+    difficulty: 3
+    prompt: "A decorator returns its inner wrapper without functools.wraps. What breaks?"
+    options:
+      - "The function can no longer be called"
+      - "The function's __name__ and __doc__ become the wrapper's, which confuses logs, help() and tests"
+      - "Nothing"
+    answer: 1
+    explanation: "wraps copies the original metadata and sets __wrapped__."
+  - id: p2-exitstack
+    phase: p2
+    skills: [python.decorators-context]
+    difficulty: 3
+    prompt: "Which contextlib tool opens a list of files of unknown length and closes all of them reliably?"
+    answers: ["ExitStack", "contextlib.ExitStack"]
+    explanation: "stack.enter_context registers each one, and they are closed in reverse order when the block exits."
+  - id: p2-parametrize
+    phase: p2
+    skills: [python.testing]
+    difficulty: 2
+    prompt: "How do you run one pytest test function with several sets of inputs, each reported separately?"
+    answers: ["@pytest.mark.parametrize", "pytest.mark.parametrize", "parametrize"]
+    explanation: "Each parameter set becomes its own test case with its own id."
+  - id: p2-monkeypatch
+    phase: p2
+    skills: [python.testing]
+    difficulty: 2
+    prompt: "Which built-in fixture sets an environment variable for one test and restores it afterwards?"
+    options: ["tmp_path", "capsys", "monkeypatch", "caplog"]
+    answer: 2
+    explanation: "monkeypatch.setenv (and setattr, setitem) undo themselves after the test."
+  - id: p2-lazy-scope
+    phase: p2
+    skills: [python.packaging]
+    difficulty: 4
+    prompt: "Where may the 3.15 `lazy import` statement appear?"
+    options:
+      - "Anywhere an import is allowed"
+      - "Only at module level, not inside functions, classes or try blocks"
+      - "Only inside functions"
+    answer: 1
+    explanation: "PEP 810 restricts lazy imports to module scope; elsewhere it is a SyntaxError."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-gather-exceptions
+    phase: p3
+    skills: [python.asyncio-gil]
+    difficulty: 3
+    prompt: "What does `asyncio.gather(*coros, return_exceptions=True)` do when one coroutine raises?"
+    options:
+      - "Cancels the others and raises"
+      - "Returns the exception object in that coroutine's position of the results list"
+      - "Ignores the coroutine"
+    answer: 1
+    explanation: "With return_exceptions=True every coroutine runs to the end and failures come back as values."
+  - id: p3-cancelled
+    phase: p3
+    skills: [python.asyncio-gil]
+    difficulty: 4
+    prompt: "Why should a coroutine not catch asyncio.CancelledError and carry on?"
+    options:
+      - "It is a SyntaxError"
+      - "Timeouts and task groups rely on cancellation; swallowing it makes them hang or misbehave"
+      - "It slows the loop down"
+    answer: 1
+    explanation: "Clean up in finally and let CancelledError propagate, so the canceller sees the task end."
+  - id: p3-threads-cpu
+    phase: p3
+    skills: [python.asyncio-gil]
+    difficulty: 3
+    prompt: "On standard CPython, 4 threads run a pure-Python CPU-bound function. Roughly how does the total time compare with one thread doing all the work?"
+    options: ["About 4 times faster", "About the same, or slower", "It depends on the number of cores only"]
+    answer: 1
+    explanation: "The GIL lets one thread run bytecode at a time; use processes (or the free-threaded build)."
+  - id: p3-protocol-vs-abc
+    phase: p3
+    skills: [python.protocols]
+    difficulty: 3
+    prompt: "Which needs the implementing class to inherit from it?"
+    options: ["typing.Protocol", "abc.ABC", "Both", "Neither"]
+    answer: 1
+    explanation: "ABCs are nominal (inherit or register); Protocols are structural and match by shape."
+  - id: p3-hash-eq
+    phase: p3
+    skills: [python.protocols]
+    difficulty: 4
+    prompt: "Two objects compare equal with ==. What must be true of their hashes for dicts to work?"
+    answers: ["they are equal", "equal", "the same", "hash(a) == hash(b)"]
+    explanation: "Equal objects must have equal hashes; the reverse is not required."
+  - id: p3-len-protocol
+    phase: p3
+    skills: [python.protocols]
+    difficulty: 2
+    prompt: "Which special method does `len(obj)` call?"
+    answers: ["__len__", "__len__()"]
+    explanation: "Built-ins dispatch to special methods; len also checks that the result is a non-negative int."
+  - id: p3-profile
+    phase: p3
+    skills: [python.performance]
+    difficulty: 3
+    prompt: "Which standard command profiles a script and sorts the functions by cumulative time?"
+    answers: ["python -m cProfile -s cumtime script.py", "python -m cProfile -s cumulative script.py", "python -m cProfile -s cumtime"]
+    explanation: "cProfile records every call; sorting by cumtime shows which call trees take the time."
+  - id: p3-quadratic
+    phase: p3
+    skills: [python.performance, python.collections]
+    difficulty: 3
+    prompt: "What is the complexity of `[x for x in a if x in b]` when a and b are lists of n items, and how do you fix it?"
+    options:
+      - "O(n); it is already optimal"
+      - "O(n²); convert b to a set first for O(n)"
+      - "O(log n); sort b first"
+    answer: 1
+    explanation: "Each in on a list scans it; a set makes each check O(1) on average."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-refcount-cycle
+    phase: p4
+    skills: [python.internals]
+    difficulty: 4
+    prompt: "Which objects can CPython's reference counting not free on its own?"
+    options:
+      - "Large objects"
+      - "Objects that are part of a reference cycle"
+      - "Objects created in another thread"
+    answer: 1
+    explanation: "A cycle keeps every count above zero; the cyclic garbage collector finds and frees such groups."
+  - id: p4-switch-interval
+    phase: p4
+    skills: [python.internals, python.asyncio-gil]
+    difficulty: 5
+    prompt: "On the standard build, how often is a thread running Python code asked to release the GIL by default?"
+    options: ["Every bytecode instruction", "Every 5 milliseconds (sys.getswitchinterval())", "Only when it finishes"]
+    answer: 1
+    explanation: "The switch interval defaults to 0.005 s; I/O releases the GIL earlier."
+  - id: p4-fastapi-def
+    phase: p4
+    skills: [python.services]
+    difficulty: 4
+    prompt: "A FastAPI endpoint must call a blocking SDK. Which declaration keeps the event loop free?"
+    options:
+      - "async def, calling the SDK directly"
+      - "def, which FastAPI runs in a thread pool"
+      - "Either; FastAPI makes blocking calls async"
+    answer: 1
+    explanation: "Plain def endpoints run in a worker thread; a blocking call inside async def stalls the loop."
+  - id: p4-depends
+    phase: p4
+    skills: [python.services]
+    difficulty: 3
+    prompt: "What is FastAPI's Depends used for?"
+    options:
+      - "Declaring package dependencies"
+      - "Injecting per-request dependencies such as a database session or the current user"
+      - "Ordering middleware"
+    answer: 1
+    explanation: "Depends builds a dependency for each request (with cleanup for yield dependencies) and can be overridden in tests."
+  - id: p4-log-format
+    phase: p4
+    skills: [python.production]
+    difficulty: 3
+    prompt: "Why prefer `log.info(\"user %s\", user_id)` over `log.info(f\"user {user_id}\")`?"
+    options:
+      - "f-strings are not allowed in log calls"
+      - "Formatting is deferred until the record is emitted, and handlers can keep the argument as data"
+      - "It is shorter"
+    answer: 1
+    explanation: "Lazy arguments cost nothing when the level is disabled and give structured handlers the raw values."
+  - id: p4-workers
+    phase: p4
+    skills: [python.production]
+    difficulty: 4
+    prompt: "Why does a standard-build Python web service usually run several worker processes per machine?"
+    options:
+      - "To isolate users from each other"
+      - "Because one process runs Python code on one core at a time because of the GIL"
+      - "Because Uvicorn requires it"
+    answer: 1
+    explanation: "Several processes (or replicas) use several cores; size them by measuring CPU and memory."

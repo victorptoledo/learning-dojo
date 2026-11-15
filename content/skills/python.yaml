@@ -1,7 +1,19 @@
 namespace: python
 skills:
-  - { id: python.tooling-uv, title: "Project Management with uv, Poetry and pyproject.toml" }
-  - { id: python.modern-typing-pydantic, title: "Type Hints, Pydantic v2 and Protocols" }
-  - { id: python.generators-memory, title: "Generators, Iterators and Data Streams" }
-  - { id: python.decorators-context, title: "Advanced Decorators and Context Managers" }
-  - { id: python.asyncio-gil, title: "asyncio, the Event Loop and the GIL" }
+  - { id: python.tooling-uv, title: "Python 3.15, uv, Virtual Environments and pyproject.toml" }
+  - { id: python.data-model, title: "Syntax, Built-in Types and the Object Model" }
+  - { id: python.collections, title: "Lists, Tuples, Dicts, Sets and Comprehensions" }
+  - { id: python.functions, title: "Functions, Arguments, Scopes and Closures" }
+  - { id: python.classes, title: "Classes, Dataclasses and Enums" }
+  - { id: python.modern-typing-pydantic, title: "Type Hints, Generics, mypy and Pydantic v2" }
+  - { id: python.errors, title: "Exceptions, Exception Groups and Error Design" }
+  - { id: python.packaging, title: "Modules, Packages, Imports and Packaging" }
+  - { id: python.generators-memory, title: "Iterators, Generators and Lazy Pipelines" }
+  - { id: python.decorators-context, title: "Decorators and Context Managers" }
+  - { id: python.testing, title: "Testing with pytest: Fixtures, Parametrize and Mocks" }
+  - { id: python.asyncio-gil, title: "asyncio, Threads, Processes, the GIL and Free-Threading" }
+  - { id: python.protocols, title: "Protocols, ABCs, Special Methods and Descriptors" }
+  - { id: python.performance, title: "Performance and Profiling" }
+  - { id: python.internals, title: "CPython Internals: Bytecode, Memory and the Interpreter" }
+  - { id: python.services, title: "Typed Web Services with FastAPI and Pydantic" }
+  - { id: python.production, title: "Python in Production: Logging, Configuration, Security and Deployment" }

@@ -1,0 +1,48 @@
+id: python.p0.hello-dojo
+kind: kata
+status: draft
+title: "Hello, Dojo: Your First Python Kata"
+summary: "Write a greeting function and a tiny command line, and see how Python katas are tested with pytest and ruff."
+objectives:
+  - { id: o1, text: "Write a typed function with a default and a keyword-only argument", skills: [python.tooling-uv] }
+  - { id: o2, text: "Run the visible tests with uv run pytest and read a failing assertion", skills: [python.tooling-uv] }
+prerequisites: [python.p0.tooling-uv]
+difficulty: 1
+estimated_minutes: 20
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with the visible test: what does `greet("Ada")` return? Then ask what "blank" means: is `"   "` a name? Which string method removes the spaces around a name?
+    - |-
+      `name.strip()` removes surrounding whitespace, and an empty string is falsy, so `name.strip() or "stranger"` picks the fallback. An f-string builds the message: `f"Welcome to the dojo, {who}!"`. With `shout`, return `message.upper()`. In `main`, `argv` is a list of words: `" ".join(argv)` turns `["Ada", "Lovelace"]` into one name.
+    - |-
+      ```python
+      def greet(name: str = "", *, shout: bool = False) -> str:
+          who = name.strip() or "stranger"
+          message = f"Welcome to the dojo, {who}!"
+          # upper case when shout is true
+          return message
+
+
+      def main(argv: list[str]) -> int:
+          shout = "--shout" in argv
+          words = [word for word in argv if word != "--shout"]
+          # print the greeting, then return 0
+          ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

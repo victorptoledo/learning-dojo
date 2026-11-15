@@ -1,0 +1,55 @@
+id: python.p1.cart
+kind: kata
+status: draft
+title: "Shopping Cart: Dataclasses and Exact Money"
+summary: "A frozen Product value with validation in __post_init__, Decimal prices, a StrEnum category and a Cart with add, remove, totals, a receipt, len and in."
+objectives:
+  - { id: o1, text: "Model an immutable, validated value with a frozen dataclass and __post_init__", skills: [python.classes] }
+  - { id: o2, text: "Keep mutable state in a dataclass with default_factory, properties and special methods", skills: [python.classes, python.collections] }
+  - { id: o3, text: "Compute with Decimal and format a receipt with f-strings", skills: [python.data-model] }
+prerequisites: [python.p1.classes-dataclasses]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with `Product.__post_init__`: every other test builds products. A frozen dataclass refuses `self.sku = ...`, even in `__post_init__`; which function sets an attribute while bypassing that check? And how do you tell a `float` from a `Decimal` before converting?
+    - |-
+      `isinstance(self.price, float)` catches floats first. `Decimal(text)` raises `decimal.InvalidOperation` for text that is not a number: catch it and `raise ValueError(...) from error`. `price.quantize(Decimal("0.01"))` rounds to cents, so a price is valid when it equals its quantized value and is not negative. Store with `object.__setattr__(self, "price", ...)`. In the cart, a helper that finds the line for a sku (or `None`) serves `add`, `remove` and `__contains__`.
+    - |-
+      ```python
+      def add(self, product: Product, quantity: int = 1) -> None:
+          if quantity < 1:
+              raise ValueError("quantity must be at least 1")
+          line = self._line(product.sku)
+          if line is None:
+              self.lines.append(LineItem(product, quantity))
+          elif line.product != product:
+              raise ValueError(f"another product already uses sku {product.sku}")
+          else:
+              line.quantity += quantity
+
+      def _line(self, sku: str) -> LineItem | None:
+          return next((line for line in self.lines if line.product.sku == sku), None)
+
+      @property
+      def total(self) -> Decimal:
+          # sum() starts from 0; give it Decimal("0.00") as the start value
+          ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

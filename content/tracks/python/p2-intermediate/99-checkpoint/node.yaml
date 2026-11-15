@@ -1,0 +1,58 @@
+id: python.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz on errors, packaging, generators, decorators, context managers and pytest, and a resilience kit with retry, a circuit breaker and a timer."
+objectives:
+  - { id: o1, text: "Explain exception chaining, imports, generators, decorators, context managers and fixtures in your own words", skills: [python.errors, python.packaging, python.generators-memory, python.decorators-context, python.testing] }
+  - { id: o2, text: "Build a decorator with arguments, a class-based and a generator-based context manager, and an exception hierarchy, testable through injected time", skills: [python.decorators-context, python.errors, python.testing] }
+prerequisites: [python.p2.testing-pytest]
+difficulty: 4
+estimated_minutes: 80
+xp: 350
+closes_phase: p2
+covers_skills: [python.errors, python.packaging, python.generators-memory, python.decorators-context, python.testing]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Do the three tools one at a time, starting with `timer` (the smallest), then `retry`, then the breaker. For `retry`, count the levels: what does `retry(times=3)` return, and what does that return? For the breaker, what must `__enter__` decide, and what does `__exit__` learn from its arguments?
+    - |-
+      `retry` checks `times`, then returns `decorator(func)`, which returns a `functools.wraps(func)` wrapper looping over `range(1, times + 1)` with `try`/`except on as error`; on the last attempt, `raise RetryExhausted(func.__name__, times) from error`, otherwise `sleep(...)`. The breaker only needs `failures` and the time it opened (`None` when closed); `state` is computed from them and `clock()`. `__exit__` gets `exc_type is None` on success; return `False` so nothing is suppressed. `__call__` wraps the function in `with self:`.
+    - |-
+      ```python
+      @contextmanager
+      def timer(clock: Callable[[], float] = time.perf_counter) -> Iterator[Timing]:
+          timing = Timing()
+          start = clock()
+          try:
+              yield timing
+          finally:
+              timing.elapsed = clock() - start
+
+
+      def __exit__(self, exc_type, exc, traceback) -> bool:
+          if exc_type is None:
+              # success: reset the count and close the circuit
+              ...
+          elif issubclass(exc_type, Exception):
+              self.failures += 1
+              # open (or reopen) the circuit: in half-open, or at the threshold
+              ...
+          return False
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

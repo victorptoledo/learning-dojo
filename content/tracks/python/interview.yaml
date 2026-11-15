@@ -1,0 +1,223 @@
+# Technical interview questions for the python track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/questions/python"
+  - "https://www.geeksforgeeks.org/python/python-interview-questions/"
+  - "https://www.datacamp.com/blog/top-python-interview-questions-and-answers"
+  - "https://www.turing.com/interview-questions/python"
+  - "https://docs.python.org/3/faq/programming.html"
+  - "https://docs.python.org/3/faq/design.html"
+questions:
+  - id: mutable-immutable
+    level: junior
+    skills: [python.data-model]
+    question: "What is the difference between mutable and immutable types in Python? Give examples and a bug that comes from confusing them."
+    key_points:
+      - "Immutable: int, float, str, bytes, tuple, frozenset; mutable: list, dict, set and most classes"
+      - "Variables are names bound to objects; assignment shares the object, it never copies"
+      - "Changing a shared mutable object is visible through every name (aliasing)"
+      - "Only hashable (in practice immutable) objects can be dict keys or set items"
+    follow_up: "What is the difference between a shallow and a deep copy, and when does it matter?"
+  - id: is-vs-equals
+    level: junior
+    skills: [python.data-model]
+    question: "When do you use `is` and when `==`? Why can `a is b` be true for small integers and false for large ones?"
+    key_points:
+      - "== compares values via __eq__; is compares identity (the same object)"
+      - "is is for singletons: None, True and False in tests, your own sentinels"
+      - "CPython caches small ints (-5 to 256) and interns some strings, an implementation detail"
+      - "Never rely on is for value comparison"
+    follow_up: "How would you create a sentinel default value that is different from None?"
+  - id: list-tuple-set-dict
+    level: junior
+    skills: [python.collections]
+    question: "How do you choose between a list, a tuple, a set and a dict? What do membership tests cost for each?"
+    key_points:
+      - "list: ordered, mutable sequence; tuple: fixed record, hashable if its items are"
+      - "set: unique items and fast membership; dict: lookup by key, insertion ordered"
+      - "in is O(n) on lists and tuples, O(1) on average for sets and dicts"
+      - "Builds a set once when membership is tested in a loop"
+    follow_up: "Which tool from the collections module would you use to count occurrences, and how does it break ties?"
+  - id: comprehensions-generators
+    level: junior
+    skills: [python.collections, python.generators-memory]
+    question: "What is the difference between a list comprehension and a generator expression? When would you choose each?"
+    key_points:
+      - "A list comprehension builds the whole list in memory at once"
+      - "A generator expression produces items lazily, one at a time, and can be consumed only once"
+      - "Generators suit large or infinite data and single passes (sum, any, a for loop)"
+      - "Lists suit data you index, reuse or need the length of"
+    follow_up: "What happens if you iterate a generator twice?"
+  - id: mutable-default
+    level: junior
+    skills: [python.functions]
+    question: "What is wrong with `def add(item, items=[])`, and how do you fix it?"
+    key_points:
+      - "Default values are evaluated once, when def runs"
+      - "The same list is shared by every call that uses the default"
+      - "Fix: default to None and create a new list inside the function"
+      - "Linters flag it (bugbear B006)"
+    follow_up: "Where else does 'evaluated once' surprise people, for example with datetime.now() as a default?"
+  - id: args-kwargs
+    level: junior
+    skills: [python.functions]
+    question: "Explain *args, **kwargs, keyword-only and positional-only parameters, with an example of when each is useful."
+    key_points:
+      - "*args collects extra positional arguments into a tuple, **kwargs extra keyword arguments into a dict"
+      - "Parameters after * (or *args) are keyword-only: good for flags and options"
+      - "Parameters before / are positional-only: the name can change without breaking callers"
+      - "The same stars unpack sequences and mappings at the call site"
+    follow_up: "How does a decorator use *args and **kwargs to wrap any function?"
+  - id: closures-late-binding
+    level: mid
+    skills: [python.functions]
+    question: "What is a closure in Python? Why does `[lambda: i for i in range(3)]` produce functions that all return 2?"
+    key_points:
+      - "A closure is a nested function that keeps references to variables of its enclosing scope"
+      - "Closures capture variables, not values; the value is looked up when the function runs"
+      - "After the loop, i is 2 for every lambda"
+      - "Fix with a default argument (i=i) or functools.partial; nonlocal rebinds an enclosing variable"
+    follow_up: "How would you build a counter with a closure, and when would a class be clearer?"
+  - id: dataclass-vs-pydantic
+    level: mid
+    skills: [python.classes, python.modern-typing-pydantic]
+    question: "When would you use a dataclass, a NamedTuple, a Pydantic model or a plain class?"
+    key_points:
+      - "Dataclass: your own data types, generated __init__, __repr__ and __eq__; frozen for values"
+      - "NamedTuple: small immutable positional records that are also tuples"
+      - "Pydantic: validating and parsing untrusted data at boundaries (HTTP, config, messages)"
+      - "Plain class: objects with behaviour and hidden state"
+      - "Mentions default_factory for mutable defaults and __post_init__ validation"
+    follow_up: "What does frozen=True change for hashing, and how do you 'modify' a frozen instance?"
+  - id: type-hints
+    level: mid
+    skills: [python.modern-typing-pydantic]
+    question: "Are type hints checked at run time? How do you get value from them in a team?"
+    key_points:
+      - "No: the interpreter stores and ignores them"
+      - "A static checker (mypy, pyright) in the editor and CI finds errors before running"
+      - "Libraries such as Pydantic and FastAPI use them at run time for validation"
+      - "Accept abstract types (Iterable, Mapping), return concrete ones; use X | None and generics"
+      - "Adopt gradually on old code, strictly on new code"
+    follow_up: "What is the difference between Any and object, and why prefer object?"
+  - id: exceptions-design
+    level: mid
+    skills: [python.errors]
+    question: "How do you design and handle exceptions in a Python service? What do `raise ... from` and exception groups add?"
+    key_points:
+      - "A base exception per module with specific subclasses carrying useful attributes"
+      - "Catch narrowly, around small blocks; catch broadly only at boundaries, and log with the traceback"
+      - "raise New() from error keeps the cause (__cause__) in the traceback"
+      - "ExceptionGroup and except* handle several failures, as from asyncio.TaskGroup"
+      - "Never a bare except or silent except Exception: pass"
+    follow_up: "What is EAFP, and why is it preferred over checking first for files?"
+  - id: generators-memory
+    level: mid
+    skills: [python.generators-memory]
+    question: "How would you process a 50 GB log file in Python with little memory? Walk through the code."
+    key_points:
+      - "Iterate the file object line by line inside a with block"
+      - "Chain generator functions or expressions: parse, filter, transform"
+      - "Aggregate into small structures (Counter, dict per key) instead of lists of lines"
+      - "itertools: islice, groupby on sorted or grouped data, batched for bulk writes"
+      - "Mentions deferred errors or exhausted iterators as traps"
+    follow_up: "When would you move this to multiple processes, and how would you split the work?"
+  - id: decorators
+    level: mid
+    skills: [python.decorators-context]
+    question: "Write a decorator that retries a function on a given exception, with arguments for the number of attempts. Explain each layer."
+    key_points:
+      - "The outer function takes the arguments and returns the decorator"
+      - "The decorator takes the function and returns a wrapper"
+      - "The wrapper takes *args and **kwargs, loops, re-raises after the last attempt"
+      - "Uses functools.wraps to keep __name__ and __doc__"
+      - "Mentions backoff, an injected sleep for tests, and chaining the final error"
+    follow_up: "How do you type a decorator so that callers keep the original signature?"
+  - id: context-managers
+    level: mid
+    skills: [python.decorators-context]
+    question: "What is a context manager? Implement one as a class and as a generator, and explain what happens when the block raises."
+    key_points:
+      - "with calls __enter__ and __exit__; __exit__ runs even on exceptions and returns"
+      - "__exit__ receives the exception; returning true suppresses it, which is rarely wanted"
+      - "@contextmanager: code before yield is enter, after yield is exit, inside try/finally"
+      - "ExitStack for a variable number of resources, suppress for deliberate ignores"
+    follow_up: "How would you write a transaction context manager that commits or rolls back?"
+  - id: pytest
+    level: mid
+    skills: [python.testing]
+    question: "How do you structure tests with pytest? Explain fixtures, parametrize and how you isolate external dependencies."
+    key_points:
+      - "Plain test functions with assert, discovered by name"
+      - "Fixtures inject setup by parameter name, with scopes and yield teardown, shared via conftest.py"
+      - "parametrize runs one test over many cases"
+      - "Fakes passed in (dependency injection) or unittest.mock; patch where the name is looked up"
+      - "Built-ins such as tmp_path, monkeypatch, capsys; coverage with pytest-cov"
+    follow_up: "When does mocking make a test worse than useless?"
+  - id: packaging
+    level: mid
+    skills: [python.packaging, python.tooling-uv]
+    question: "How do you manage dependencies and package a Python project today? What goes in pyproject.toml and what is a lock file for?"
+    key_points:
+      - "pyproject.toml: [project] metadata and dependency ranges, dependency groups for dev tools, [build-system] for packages"
+      - "A lock file (uv.lock) pins every transitive version and hash for reproducible installs"
+      - "Virtual environments per project; never install into the system Python"
+      - "uv (or Poetry, pip-tools) to resolve, lock, sync and build; wheels for distribution"
+      - "Libraries declare broad ranges; applications deploy from the lock"
+    follow_up: "How do you expose a command-line program from a package?"
+  - id: gil
+    level: senior
+    skills: [python.asyncio-gil, python.internals]
+    question: "Explain the GIL. How does it affect threads, and what is the state of free-threaded Python?"
+    key_points:
+      - "One thread executes Python bytecode at a time per interpreter; it protects reference counts and internals"
+      - "Released during blocking I/O and by many C extensions, so threads help I/O-bound code"
+      - "Pure-Python CPU work needs processes, native code or the free-threaded build"
+      - "Free-threaded build: experimental in 3.13 (PEP 703), officially supported since 3.14 (PEP 779), still a separate build in 3.15"
+      - "The GIL does not make code thread-safe: shared state still needs locks"
+    follow_up: "What had to change inside CPython to remove the GIL (reference counting, allocator, containers)?"
+  - id: asyncio
+    level: senior
+    skills: [python.asyncio-gil]
+    question: "How does asyncio work? Design a client that calls 10,000 URLs with at most 100 in flight and a timeout per call."
+    key_points:
+      - "One thread, an event loop switching between coroutines at await points (cooperative)"
+      - "Semaphore(100) or a pool of worker tasks on a Queue to bound concurrency"
+      - "asyncio.timeout per call, TaskGroup or gather to run them, per-URL error handling"
+      - "Never block the loop: async clients, or asyncio.to_thread for blocking calls"
+      - "Let CancelledError propagate; clean up in finally"
+    follow_up: "What is the difference between TaskGroup and gather(return_exceptions=True)?"
+  - id: memory-management
+    level: senior
+    skills: [python.internals]
+    question: "How does CPython manage memory? A long-running worker's memory keeps growing: how do you investigate?"
+    key_points:
+      - "Reference counting frees most objects immediately; a generational cycle collector frees cycles"
+      - "pymalloc keeps freed memory for reuse, so a process may not shrink after deleting data"
+      - "Common leaks: growing caches and globals, unbounded lru_cache, references kept by closures or handlers"
+      - "Tools: tracemalloc snapshot comparison, memray, gc.get_referrers, objgraph"
+      - "Mitigations: bounded caches, weak references, recycling workers"
+    follow_up: "What are immortal objects and why were they added?"
+  - id: performance
+    level: senior
+    skills: [python.performance]
+    question: "A Python endpoint is too slow. Describe your process, the tools, and the kinds of fixes you expect to apply."
+    key_points:
+      - "Measure first: reproduce, then profile (cProfile sorted by cumtime, py-spy on the live process)"
+      - "Look for algorithmic problems: list membership in loops, N+1 queries, repeated work"
+      - "Fix with sets and dicts, batching, caching pure results, join for strings, streaming"
+      - "For hot numeric loops: NumPy, Cython or Rust (PyO3); concurrency for I/O"
+      - "Verify with benchmarks and keep a regression check"
+    follow_up: "What did the 3.11 specialising interpreter and the JIT (3.13, upgraded in 3.15) change, and should you rely on them?"
+  - id: production-service
+    level: senior
+    skills: [python.production, python.services]
+    question: "What does it take to run a Python web service well in production?"
+    key_points:
+      - "Reproducible builds: locked dependencies, slim non-root image, pinned Python version"
+      - "Configuration and secrets from the environment, validated at start-up"
+      - "Structured logging to stdout with request ids, metrics and traces (OpenTelemetry), error reporting"
+      - "Several worker processes or replicas, graceful SIGTERM handling, health checks"
+      - "CI gates (ruff, mypy, pytest, dependency audits) and regular Python and dependency upgrades"
+    follow_up: "async def or def for a FastAPI endpoint that uses a blocking database driver, and why?"

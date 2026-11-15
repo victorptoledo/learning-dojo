@@ -100,6 +100,8 @@ pub enum KataLanguage {
     Docker,
     /// SQL files checked against PostgreSQL 17 in `dojo-sql`.
     Sql,
+    /// Python modules checked with pytest and ruff in `dojo-python`.
+    Python,
 }
 
 impl Kata {
@@ -109,6 +111,7 @@ impl Kata {
             "dojo-linux" => KataLanguage::Bash,
             "dojo-docker" => KataLanguage::Docker,
             "dojo-sql" => KataLanguage::Sql,
+            "dojo-python" => KataLanguage::Python,
             _ => KataLanguage::Rust,
         }
     }

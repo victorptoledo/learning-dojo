@@ -1,0 +1,42 @@
+questions:
+  - id: gil-io
+    prompt: "On standard CPython, why do threads still speed up code that downloads many files?"
+    options:
+      - "Because the GIL is disabled for network code"
+      - "Because a thread releases the GIL while it waits for I/O, so other threads can run"
+      - "They do not: threads never help in Python"
+    answer: 1
+    explanation: "The GIL serialises bytecode execution, not waiting; blocking I/O releases it."
+  - id: cpu-bound
+    prompt: "Which tool speeds up a pure-Python CPU-bound job on a standard (GIL) build?"
+    options: ["ThreadPoolExecutor", "asyncio.gather", "ProcessPoolExecutor", "asyncio.to_thread"]
+    answer: 2
+    explanation: "Separate processes each have their own interpreter and GIL, so they run on separate cores."
+  - id: blocking
+    prompt: "An async handler calls time.sleep(2). What happens to the other coroutines on the loop?"
+    options:
+      - "They keep running"
+      - "They all wait 2 seconds, because the loop is blocked"
+      - "asyncio converts it to asyncio.sleep"
+    answer: 1
+    explanation: "asyncio is cooperative: a blocking call never yields control. Use await asyncio.sleep, or asyncio.to_thread for blocking work."
+  - id: taskgroup
+    prompt: "In an asyncio.TaskGroup, one of five tasks raises ValueError. What happens?"
+    options:
+      - "The other four keep running and the error is ignored"
+      - "The remaining tasks are cancelled and the error is raised in an ExceptionGroup when the block exits"
+      - "The program stops immediately"
+    answer: 1
+    explanation: "Task groups are structured: one failure cancels the siblings, and all errors surface together."
+  - id: limit
+    prompt: "Which asyncio primitive limits how many requests run at the same time?"
+    answers: ["Semaphore", "asyncio.Semaphore", "asyncio.Semaphore(n)"]
+    explanation: "async with semaphore lets at most n coroutines inside at once; a fixed pool of queue workers is the other common way."
+  - id: free-threading
+    prompt: "What is the status of free-threaded (no-GIL) CPython?"
+    options:
+      - "It replaced the GIL in 3.13"
+      - "An experimental separate build in 3.13, officially supported since 3.14, and still not the default build in 3.15"
+      - "It was rejected"
+    answer: 1
+    explanation: "PEP 703 made the GIL optional through a separate build; PEP 779 gave it supported status in 3.14."
