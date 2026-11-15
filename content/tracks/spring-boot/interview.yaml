@@ -205,3 +205,41 @@ questions:
       - "If-Match/ETag at the API level"
       - "Pessimistic locks for short, contended updates"
     follow_up: "How would you merge the changes instead of rejecting one?"
+  - id: circular-dependency
+    level: mid
+    skills: [spring.dependency-injection]
+    question: "Spring refuses to start because OrderService and PaymentService need each other through their constructors. What is wrong, and how do you fix it properly?"
+    key_points:
+      - "Neither bean can be built first with constructor injection"
+      - "@Lazy or setter injection only hides the symptom"
+      - "Fix the design: extract the shared logic, invert one dependency, or move the workflow to a third service"
+    follow_up: "Why did Spring Boot stop allowing circular references by default?"
+  - id: requires-new-pool
+    level: senior
+    skills: [spring.data-jpa]
+    question: "A method with REQUIRES_NEW is called from inside another transaction, and under load the service hangs. Explain why."
+    key_points:
+      - "REQUIRES_NEW suspends the outer transaction and opens a second physical one"
+      - "Each request then holds two connections at the same time"
+      - "A small pool runs out and threads wait for each other"
+      - "Use it rarely, size the pool, or restructure"
+    follow_up: "When is REQUIRES_NEW the right choice anyway?"
+  - id: remote-call-in-transaction
+    level: mid
+    skills: [spring.data-jpa, spring.async-caching]
+    question: "Inside a @Transactional method you save an order and call the payment provider. What can go wrong?"
+    key_points:
+      - "The database can roll back but the remote call cannot"
+      - "Holding a transaction (and locks) while waiting on the network hurts throughput"
+      - "Keep transactions short; use an outbox, idempotency keys or compensations for side effects"
+    follow_up: "How would you guarantee the payment call happens exactly once from the user's point of view?"
+  - id: cors-vs-auth
+    level: junior
+    skills: [spring.security]
+    question: "What is the difference between CORS and authentication, and does enabling CORS make an API more or less secure?"
+    key_points:
+      - "CORS controls which browser origins may read responses"
+      - "It is enforced by browsers, not a security boundary for other clients"
+      - "Authentication identifies the caller; authorization decides what it may do"
+      - "Over-broad CORS with credentials can expose user data"
+    follow_up: "How do CORS and CSRF relate?"

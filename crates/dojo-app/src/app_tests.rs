@@ -1154,3 +1154,52 @@ fn a_mock_interview_asks_reveals_rates_and_suggests_what_to_study() {
     h.app.interview_enter();
     assert_eq!(h.app.screen, Screen::TrackView);
 }
+
+#[test]
+fn written_interview_answers_become_an_evaluation_prompt() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p0.setup");
+    h.app.open_interview();
+    h.app.interview_enter(); // Mid-level
+
+    let file = h
+        .app
+        .interview
+        .as_ref()
+        .unwrap()
+        .answers_file
+        .clone()
+        .expect("answers file");
+    let template = std::fs::read_to_string(&file).unwrap();
+    assert!(template.contains("## Question 1"));
+
+    h.app.interview_evaluation_prompt();
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("Write your answers first")
+    );
+
+    let answered = template.replacen(
+        "<!-- Answer 1 below this line -->",
+        "<!-- Answer 1 below this line -->\nA trait object uses a vtable for dynamic dispatch.",
+        1,
+    );
+    std::fs::write(&file, answered).unwrap();
+    h.app.interview_enter();
+    h.app.interview_rate(crate::interview_sim::Rating::Partly);
+    h.app.interview_evaluation_prompt();
+
+    let prompt = std::fs::read_to_string(
+        h.workspace
+            .path()
+            .join(".dojo/prompts/interview-evaluation-rust.md"),
+    )
+    .unwrap();
+    assert!(prompt.contains("A trait object uses a vtable for dynamic dispatch."));
+    assert!(prompt.contains("I think I covered it partly"));
+    assert!(prompt.contains("(no written answer)"));
+    assert!(prompt.contains("Key points of a strong answer"));
+}

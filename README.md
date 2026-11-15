@@ -101,7 +101,7 @@ when nothing required is missing. To see the whole track at once:
 | `PgUp` / `PgDn` | Scroll the detail panel |
 | `B` | Pick the bridge source language from a list (Java, Python, JavaScript / TypeScript, C#, Go) |
 | `/` | Study a topic: search every track for a subject (from work or an interview), open its lessons and katas, take a practice quiz on it (`Q`) or a mock interview (`I`) |
-| `I` | Mock technical interview for the active track: pick a level, answer, reveal what a strong answer covers, rate yourself, see what to study; `P` copies it as a prompt for an AI interviewer |
+| `I` | Mock technical interview for the active track: pick a level, answer, reveal what a strong answer covers, rate yourself, see what to study. Write your answers in the answers file (`W` opens it) and `E` copies a prompt that asks an AI to evaluate them; `P` copies the interview for an AI interviewer instead |
 | `Esc` | Close the selector or quit (progress is saved) |
 
 ## Layout

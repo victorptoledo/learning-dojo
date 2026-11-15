@@ -176,6 +176,8 @@ fn handle_interview_key(app: &mut App, code: KeyCode) {
         KeyCode::Char('2') => app.interview_rate(Rating::Partly),
         KeyCode::Char('3') => app.interview_rate(Rating::Missed),
         KeyCode::Char('p' | 'P') => app.interview_prompt(),
+        KeyCode::Char('e' | 'E') => app.interview_evaluation_prompt(),
+        KeyCode::Char('w' | 'W') => app.open_interview_answers(),
         _ => {}
     }
 }

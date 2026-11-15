@@ -202,3 +202,43 @@ questions:
       - "Switch reads, then stop writing the old column"
       - "Contract: drop it later; keep rollback possible"
     follow_up: "How do feature flags help here?"
+  - id: timeout-ambiguity
+    level: senior
+    skills: [backend.reliability]
+    question: "Your service calls a payment API and the call times out. Did the payment happen? How do you design for this?"
+    key_points:
+      - "A timeout does not tell you whether the remote side committed"
+      - "Retry only with an idempotency key so a duplicate is harmless"
+      - "Query the status or reconcile later"
+      - "Bound the timeout by the caller's latency budget"
+    follow_up: "How do you tell the user what happened while the result is unknown?"
+  - id: cache-down
+    level: mid
+    skills: [backend.caching-queues]
+    question: "Your Redis cache goes down at peak traffic. What happens to the database, and how do you prepare for it?"
+    key_points:
+      - "Every request falls through to the database, which may collapse"
+      - "Limit concurrency to the origin and shed or degrade load"
+      - "Timeouts and circuit breakers on the cache client"
+      - "Warm the cache gradually when it returns"
+    follow_up: "Should the application fail when the cache is unavailable?"
+  - id: hot-partition
+    level: senior
+    skills: [backend.scalability]
+    question: "In a partitioned database one partition receives most of the traffic. Why, and what can you do?"
+    key_points:
+      - "The partition key does not spread the access pattern (a celebrity, a tenant, today's date)"
+      - "Choose a key with high cardinality for the access pattern"
+      - "Add salt or split hot keys, cache them, or route them specially"
+      - "Monitor per-partition load"
+    follow_up: "How do you change a partition key on a live system?"
+  - id: golden-signals-debug
+    level: mid
+    skills: [backend.sre]
+    question: "Error rates rose ten minutes after a deploy. Walk me through your investigation."
+    key_points:
+      - "Confirm the symptom: which endpoints, users, regions, since when"
+      - "Check latency, traffic, errors and saturation"
+      - "Correlate with the deploy and other changes; roll back if it is the likely cause"
+      - "Compare healthy and failing requests with traces and logs, then add a test or alert"
+    follow_up: "When would you roll back before you know the root cause?"
