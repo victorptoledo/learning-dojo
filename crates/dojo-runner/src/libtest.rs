@@ -331,7 +331,13 @@ test result: FAILED. 1 passed; 2 failed
         let report = parse_cargo_test(NODE_FAILING, false, 7);
         assert_eq!(report.outcome, CheckOutcome::TestsFailed);
         assert_eq!(report.tests.len(), 3);
-        assert!(report.tests[0].message.as_deref().unwrap().contains("TS2344"));
+        assert!(
+            report.tests[0]
+                .message
+                .as_deref()
+                .unwrap()
+                .contains("TS2344")
+        );
         assert!(report.tests[1].passed);
         assert_eq!(
             report.tests[2].message.as_deref(),

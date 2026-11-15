@@ -2,3 +2,4 @@
 *.sh text eol=lf
 runner-images/** text eol=lf
 *.bats text eol=lf
+*.go text eol=lf
