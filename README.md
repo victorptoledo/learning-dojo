@@ -46,13 +46,30 @@ of your choice.
 
 ### Tracks
 
-| Status | Tracks |
-| :--- | :--- |
-| ✅ Complete | **Rust**, **Modern Java** (Java 25), **Spring Boot** (Boot 4.1), **Backend Developer**, **Linux** (Debian 13), **Git & GitHub**, **System Design**, **Docker & Containers**, **SQL & Relational Databases** (PostgreSQL 17), **Modern Python** (Python 3.15), **Go** (Go 1.27), **TypeScript** (TypeScript 7 on Node.js 26), **Kubernetes** (1.36), **Data Structures & Algorithms**, **Design Patterns** (modern Java) |
-| 📝 Draft | Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++, Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS, Computer Science |
+15 tracks are complete, with 353 lessons and checkpoints and 124 katas between them:
 
-A complete track has 22 or more nodes, 7 to 10 katas, two checkpoints, a placement test and an
-interview bank. Draft tracks show their nodes as "under construction" 🚧 until they are written.
+| Track | Teaches | Nodes | Katas | Katas run in |
+| :--- | :--- | ---: | ---: | :--- |
+| Rust | Rust 2024 edition | 22 | 7 | `dojo-rust` (cargo test) |
+| Modern Java | Java 25 | 22 | 7 | `dojo-java` (JUnit 6) |
+| Spring Boot | Boot 4.1 on Java 25 | 22 | 7 | `dojo-java` (MockMvc, JPA on H2, Spring Security) |
+| Backend Developer | HTTP, auth, data, reliability | 22 | 8 | `dojo-java` |
+| Linux | Debian 13, bash 5.2 | 23 | 8 | `dojo-linux` (bats, ShellCheck) |
+| Git & GitHub | Git from the object model to rescues | 25 | 9 | `dojo-linux` (bash scripts that drive `git`) |
+| System Design | building blocks of large systems | 23 | 10 | `dojo-java` |
+| Docker & Containers | images, Compose, production | 25 | 9 | your Docker engine + `dojo-docker` (hadolint, bats) |
+| SQL & Relational Databases | standard SQL on PostgreSQL 17 | 25 | 8 | `dojo-sql` (a throwaway PostgreSQL 17) |
+| Modern Python | Python 3.15 | 24 | 7 | `dojo-python` (pytest, ruff) |
+| Go | Go 1.27 | 23 | 8 | `dojo-go` (go test -race, go vet, gofmt) |
+| TypeScript | TypeScript 7 on Node.js 26 | 23 | 9 | `dojo-node` (tsc, node:test) |
+| Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |
+| Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
+| Design Patterns | principles and patterns in modern Java | 24 | 10 | `dojo-java` (refactoring katas) |
+
+Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
+languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
+Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
+Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 
 ## Requirements
 
@@ -64,9 +81,9 @@ interview bank. Draft tracks show their nodes as "under construction" 🚧 until
 | [VS Code](https://code.visualstudio.com/) (optional) | the dojo opens lessons and katas in it; any editor works |
 
 You do **not** need a JDK, Maven, Python, Go, Node.js, PostgreSQL, kubectl or bash on your machine:
-the Java, Spring, Linux, Git, SQL, Python, Go, TypeScript and Kubernetes katas run in the dojo's own
-images. Docker katas build your Dockerfile on your own Docker engine. The dojo is developed on Windows 11. It also builds on macOS and
-Linux, but those platforms get less testing.
+every kata runs in the dojo's own images, and Docker katas build your Dockerfile on your own Docker
+engine. The dojo is developed on Windows 11. It also builds on macOS and Linux, but those platforms
+get less testing.
 
 ## Quick start
 
@@ -121,6 +138,13 @@ To update later, run `git pull` and start the dojo again; it rebuilds itself.
 
 Nothing is ticked by hand: a lesson is completed by its quiz and a kata by its tests.
 
+### How katas are checked
+
+Each kata runs in a container with no network, no capabilities and a time limit, using the image
+of its language (see the table of tracks). A function or file you still have to write is marked
+`todo` (`todo!()` in Rust, `raise NotImplementedError("todo ...")` in Python, `panic("todo ...")`
+in Go, and so on), and the panel shows it as "not written yet" instead of a failure.
+
 **Docker katas** are different: you write a `Dockerfile` (and sometimes a `compose.yaml`). The dojo
 builds it on your Docker engine with no network and a throwaway tag, runs it once with no network,
 no capabilities and small limits, and the `dojo-docker` image checks what it saw with hadolint and
@@ -138,6 +162,9 @@ this from the kata folder:
 ```bash
 docker run -it --rm --network none -v "${PWD}:/work" dojo-sql play
 ```
+
+**Data Structures & Algorithms katas** also time some hidden tests on large inputs, so a correct
+but quadratic answer can still fail.
 
 **Where your things live.** All of these stay on your machine and are never pushed:
 
@@ -218,6 +245,7 @@ recommended extensions are suggested, and a **Dojo** task starts the dojo in VS 
 | A `dojo-…` image is missing | Press `I` on the Prepare screen, or run `.\dojo runner build`. |
 | A bash kata fails with `$'\r': command not found` | The script was saved with Windows line ends. The dojo copes, but real servers will not: save `.sh` files with LF (the VS Code workspace does this for you). |
 | `cargo` is not found | Install Rust with `rustup` and open a new terminal. |
+| The first check of a Docker kata is slow | It pulls the kata's base images once (for example `golang`, `alpine`, `distroless`); later checks reuse them. |
 | The first start is slow | The first build compiles the whole app and the first check of each language builds its image. Later starts are fast. |
 | The dojo says another one is running | Close the other window, or let the dojo close it for you. |
 
@@ -251,11 +279,11 @@ docs/
 cargo test
 cargo clippy --all-targets -- -D warnings
 cargo run --bin dojo -- content validate
-cargo run --bin dojo -- content verify-katas    # needs Docker and the images
+cargo run --bin dojo -- content verify-katas    # needs Docker and the images; --track <id> for one track
 ```
 
-To write content, copy the structure of a complete track (`content/tracks/linux` is the most
-recent), then run `content validate` until it shows no errors or warnings for your track and
+To write content, copy the structure of a complete track (pick one whose katas use the same
+image as yours), then run `content validate` until it shows no errors or warnings for your track and
 `content verify-katas` until every kata's reference passes and its starter fails. The design,
 the content rules and the roadmap are in [`docs/architecture.md`](docs/architecture.md).
 
