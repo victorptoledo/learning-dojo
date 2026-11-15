@@ -354,6 +354,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::Bash => {
                 "2. Edit the .sh scripts in the kata folder. Each one that still prints \"todo: ...\" and exits is yours to write:"
             }
+            KataLanguage::Docker => {
+                "2. Edit the Dockerfile (and compose.yaml when the kata has one). Lines marked \"todo\" are yours to write:"
+            }
         }),
         Line::from(match language {
             KataLanguage::Rust => {
@@ -364,6 +367,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             }
             KataLanguage::Bash => {
                 "   the tests run your scripts with bats, and shellcheck must find no warnings."
+            }
+            KataLanguage::Docker => {
+                "   the dojo builds your image on Docker Desktop, runs it with no network, then checks it with bats and hadolint."
             }
         }),
         Line::from("3. Save the file. The tests run by themselves and the result appears below."),

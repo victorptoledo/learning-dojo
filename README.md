@@ -4,7 +4,7 @@ A gamified learning platform for the terminal (TUI), written in **Rust** with [`
 
 30 tracks inspired by the [roadmap.sh](https://roadmap.sh/) catalogue, each organised in five phases (First Steps → Fundamentals → Intermediate → Advanced → Mastery) with checkpoints, XP belts, a global daily streak and a **Rosetta bridge** that explains every concept from the programming language you already know.
 
-> **Status: v2 milestone M7.** Content model and validator (M0), SQLite progress (M1), katas checked in Docker (M2a), the complete Rust track (M2b: 22 nodes, 7 katas, Checkpoints 1 and 2), the complete Modern Java track (Java 25: 22 nodes, 7 katas, Checkpoints 1 and 2, placement bank), the complete Spring Boot track (Boot 4.1 on Java 25: 22 nodes, 7 katas tested with MockMvc, JPA on H2 and Spring Security), the complete Backend Developer track (22 nodes, 8 katas in Java and Spring: HTTP and ETags, a URL shortener, JWT from scratch, an issue tracker with optimistic concurrency, a rate limiter, idempotent payments, an outbox, a resilient client), the complete Linux track (Debian 13: 23 nodes, 8 bash katas checked with bats and ShellCheck in the `dojo-linux` image, Checkpoints 1 and 2, placement bank, lessons with further reading from man pages, the GNU manuals, the Wooledge BashGuide, the Arch Wiki and the systemd documentation), the placement test with Belt Exam (M3+M4: press `P` on a track you have not started) and mentoring without AI (M7: kata hints with `H`, spaced review with `R`, career paths and next steps with `G`). Every kata and every lesson exercise also has a review prompt for the AI chat of your choice: press `A` to save it and copy it to the clipboard (lesson answers go in `ANSWER.md`; for katas you attach your source files). It is feedback only and never changes progress. The other tracks are English drafts. Content review and more tracks come next; built-in AI review (M5) is postponed — see [`docs/architecture.md`](docs/architecture.md).
+> **Status: v2 milestone M7.** Content model and validator (M0), SQLite progress (M1), katas checked in Docker (M2a), the complete Rust track (M2b: 22 nodes, 7 katas, Checkpoints 1 and 2), the complete Modern Java track (Java 25: 22 nodes, 7 katas, Checkpoints 1 and 2, placement bank), the complete Spring Boot track (Boot 4.1 on Java 25: 22 nodes, 7 katas tested with MockMvc, JPA on H2 and Spring Security), the complete Backend Developer track (22 nodes, 8 katas in Java and Spring: HTTP and ETags, a URL shortener, JWT from scratch, an issue tracker with optimistic concurrency, a rate limiter, idempotent payments, an outbox, a resilient client), the complete Linux track (Debian 13: 23 nodes, 8 bash katas checked with bats and ShellCheck in the `dojo-linux` image, Checkpoints 1 and 2, placement bank, lessons with further reading from man pages, the GNU manuals, the Wooledge BashGuide, the Arch Wiki and the systemd documentation), the complete Docker & Containers track (M6: 25 nodes from namespaces to production, 9 katas where you write Dockerfiles and Compose files, built on your engine and checked by the new `dojo-docker` profile with hadolint and bats, Checkpoints 1 and 2, placement bank), the placement test with Belt Exam (M3+M4: press `P` on a track you have not started) and mentoring without AI (M7: kata hints with `H`, spaced review with `R`, career paths and next steps with `G`). Every kata and every lesson exercise also has a review prompt for the AI chat of your choice: press `A` to save it and copy it to the clipboard (lesson answers go in `ANSWER.md`; for katas you attach your source files). It is feedback only and never changes progress. The other tracks are English drafts. Content review and more tracks come next; built-in AI review (M5) is postponed — see [`docs/architecture.md`](docs/architecture.md).
 
 ## Getting started (for friends trying the dojo)
 
@@ -32,7 +32,7 @@ The repository is private: accept the GitHub invitation first, then follow these
 5. **Updates**: `git pull`, then start the dojo again; it rebuilds itself.
 
 Good to know:
-- The complete tracks are Rust, Modern Java, Spring Boot, Backend Developer and Linux. The other tracks are drafts and show nodes "under construction".
+- The complete tracks are Rust, Modern Java, Spring Boot, Backend Developer, Linux and Docker & Containers. The other tracks are drafts and show nodes "under construction".
 - The kata reference solutions are in `content/` (`kata/reference`). Try not to peek; the hints (`H`) are there for that.
 - The footer of each screen lists its keys; the key table below explains them.
 
@@ -69,6 +69,10 @@ Check that every kata's reference solution passes and its starter fails:
 ```bash
 cargo run --bin dojo -- content verify-katas
 ```
+
+Add `--track docker` (or any track id) to check only that track's katas.
+
+**Docker katas** are different: you write a `Dockerfile` (and sometimes a `compose.yaml`). The dojo builds it on your own Docker engine with `docker build --network none` and a throwaway tag, starts the image once with no network, no capabilities and small limits, and the `dojo-docker` image runs hadolint and the bats tests over what it saw (image config, file list, output, HTTP answers, `docker compose config`). The image and container are removed afterwards; nothing is privileged and the Docker socket is never mounted. The first check of a kata pulls its base images (`golang:1.27-alpine`, `alpine:3.24`, `gcr.io/distroless/static-debian13`).
 
 Optional `~/.dojo/config.toml`:
 
@@ -149,7 +153,7 @@ content/
   tracks/<id>/    track.yaml + p0-first-steps/ ... p4-mastery/<NN-slug>/
                   node.yaml, lesson.md, quiz.yaml, bridges/<language>.md,
                   kata/ (README.md, starter/, tests/, reference/)
-runner-images/   one Dockerfile per runtime (rust/, java/)
+runner-images/   one Dockerfile per runtime (rust/, java/, linux/, docker/)
 docs/
   architecture.md full v2 design; examples/ shows every planned file format
 ```

@@ -1,0 +1,24 @@
+id: docker.p2.multi-stage-builds
+kind: lesson
+status: draft
+title: "Multi-stage Builds and Minimal Runtime Images"
+summary: "Build with a full toolchain, ship only the result: stages, COPY --from, targets, and choosing a runtime base from slim to scratch."
+objectives:
+  - { id: o1, text: "Write a multi-stage Dockerfile that compiles in one stage and copies only the artifact into another", skills: [docker.multi-stage] }
+  - { id: o2, text: "Use named stages, --target and COPY --from for builds, tests and debugging", skills: [docker.multi-stage] }
+  - { id: o3, text: "Choose a runtime base (slim, alpine, distroless, scratch) and know what each one leaves out", skills: [docker.multi-stage] }
+prerequisites: [docker.p2.dockerfile-best-practices]
+difficulty: 3
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write (in words or as a Dockerfile) a multi-stage build for a Java or Node.js service of your choice: a stage that installs dependencies and builds, a stage that runs the tests, and a small runtime stage. Explain what ends up in the final image and what does not, how CI would run only the tests, and why you picked your runtime base over the alternatives.'
+  criteria:
+    - 'Names the stages and copies only the built artifact into the runtime stage with COPY --from'
+    - 'Keeps compilers, dev dependencies, sources and caches out of the final image'
+    - 'Uses --target to build the test stage in CI'
+    - 'Compares runtime bases (slim, alpine with musl, distroless without a shell, scratch) with a justified choice'
+    - 'Mentions running as a non-root user in the final stage'

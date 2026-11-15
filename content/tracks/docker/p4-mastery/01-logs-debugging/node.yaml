@@ -1,0 +1,24 @@
+id: docker.p4.logs-debugging
+kind: lesson
+status: draft
+title: "Logs and Debugging Containers"
+summary: "Logging the container way, log drivers and rotation, and a method for debugging containers that crash, hang, misbehave or have no shell."
+objectives:
+  - { id: o1, text: "Log to stdout and stderr, choose a log driver and configure rotation", skills: [docker.logs-debugging] }
+  - { id: o2, text: "Diagnose crashes and restart loops with ps, logs, inspect, events and exit codes", skills: [docker.logs-debugging] }
+  - { id: o3, text: "Debug shell-less and running containers with docker debug, tool containers that share namespaces, and docker cp", skills: [docker.logs-debugging] }
+prerequisites: [docker.p3.hardened-compose]
+difficulty: 4
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'At 3 a.m. the `payments` container on a single Docker host is in a restart loop, and the host''s disk is 97% full. Write the step-by-step investigation you would run, the commands you would type, what each one tells you, and the changes you would make afterwards so neither problem returns.'
+  criteria:
+    - 'Starts with docker ps -a, docker logs (with --tail or --since) and docker inspect State (ExitCode, OOMKilled, Health.Log)'
+    - 'Interprets exit codes (137 OOM or kill, 1 app error, 127 missing command)'
+    - 'Finds the disk use with docker system df and identifies unrotated json-file logs, images or volumes'
+    - 'Uses docker debug, a tool container in the same namespaces, or docker run --entrypoint sh on the image to inspect it'
+    - 'Proposes log rotation (max-size, max-file) or a central log driver, alerts, and fixing the root cause'

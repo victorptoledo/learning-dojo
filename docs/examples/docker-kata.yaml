@@ -1,39 +1,45 @@
-# content/tracks/docker/p2-intermediate/03-multi-stage-build/node.yaml
+# content/tracks/docker/p2-intermediate/03-slim-service/node.yaml (shortened)
 # A platform-archetype kata: the learner writes a Dockerfile, the runner builds and inspects it.
-id: docker.p2.multi-stage-build
+# `image: dojo-docker` selects the Docker profile (crates/dojo-runner/src/image_check.rs):
+# build on the host engine with --network none and a throwaway tag, collect facts about the
+# image into /facts, start it once with no network, then run hadolint and the bats tests in
+# the dojo-docker image. Everything is removed afterwards.
+id: docker.p2.slim-service
 kind: kata
 status: draft
-title: Multi-stage builds that ship only the binary
-summary: Split build and runtime stages so the final image has no compiler and no source.
+title: "Slim Service: a Multi-stage Build"
+summary: "Shrink a 300 MB single-stage image to a small one that ships only the binary and runs as a non-root user."
 objectives:
-  - id: o1
-    text: Use a build stage and a minimal runtime stage
-    skills: [docker.build.multi-stage]
-  - id: o2
-    text: Run the container as a non-root user
-    skills: [docker.security.non-root]
-prerequisites: [docker.p2.layer-cache]
+  - { id: o1, text: "Split a Dockerfile into a build stage and a minimal runtime stage", skills: [docker.multi-stage] }
+  - { id: o2, text: "Run the final image as a non-root user", skills: [docker.dockerfile-security] }
+prerequisites: [docker.p2.multi-stage-builds]
 difficulty: 3
 estimated_minutes: 40
-xp: 150
+xp: 250
 lesson: lesson.md
-bridges: bridges/
 kata:
   statement: kata/README.md
-  starter: kata/starter          # a small Go HTTP app + an empty Dockerfile
-  reference: kata/reference
-  samples: kata/samples
-  rubric: kata/rubric.yaml
-  runner:
-    profile: docker-build        # builds on the host engine with a throwaway tag, then cleans up
-    lint_image: dojo-docker-lint # hadolint + asserts run in a container, no network
-    timeout_s: 300
-    asserts:
-      - { check: build_succeeds }
-      - { check: image_size_mb, max: 30 }
-      - { check: user_not_root }
-      - { check: no_paths, paths: [/usr/local/go, /src] }
-      - { check: http_get, port: 8080, path: /health, expect_status: 200 }
-mastery:
-  pass:     { asserts: all, review_score: 70 }
-  mastered: { review_score: 85 }
+  starter: kata/starter        # main.go, go.mod, a working single-stage Dockerfile, tests/visible.bats
+  tests: kata/tests            # grading.bats and, when the image is run with arguments, commands.txt
+  reference: kata/reference    # the multi-stage Dockerfile
+  runner: { image: dojo-docker, timeout_secs: 300 }
+  hints: ["...", "...", "..."]
+
+# kata/tests/grading.bats (two of the eight hidden tests):
+#
+#   load /opt/dojo/facts
+#
+#   @test "ships no Go toolchain" {
+#       ! image_has_path /usr/local/go || fail "/usr/local/go is in the final image"
+#   }
+#
+#   @test "answers on /health" {
+#       run http_get 8080 /health      # the grader shares the running container's network
+#       assert_success
+#       assert_output "ok"
+#   }
+#
+# kata/tests/commands.txt (another kata): each line runs `docker run --rm IMAGE args`
+# and keeps the output for cmd_out, cmd_err and cmd_status:
+#
+#   version: -version

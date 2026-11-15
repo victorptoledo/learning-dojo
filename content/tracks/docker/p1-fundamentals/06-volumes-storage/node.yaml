@@ -1,0 +1,24 @@
+id: docker.p1.volumes-storage
+kind: lesson
+status: draft
+title: "Volumes, Bind Mounts and tmpfs"
+summary: "Where container data lives: the writable layer, named volumes, bind mounts and tmpfs, and how to choose between them."
+objectives:
+  - { id: o1, text: "Explain why data in the writable layer is lost and slow, and where persistent data belongs", skills: [docker.volumes] }
+  - { id: o2, text: "Use named volumes, bind mounts and tmpfs mounts with --mount and -v", skills: [docker.volumes] }
+  - { id: o3, text: "Handle ownership, read-only mounts, backups and Windows paths", skills: [docker.volumes] }
+prerequisites: [docker.p1.greeter-image]
+difficulty: 2
+estimated_minutes: 35
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You run Postgres in a container for local development and as part of a small production server. A colleague mounts `C:\data\pg` from Windows into the container, and another runs it with no mount at all. Compare those choices with a named volume, say what you would use in each environment, and describe how you would back up and restore the data.'
+  criteria:
+    - 'Explains that without a mount the data lives in the container layer and is lost with docker rm'
+    - 'Explains bind mounts from Windows: slow file I/O across the VM boundary and permission problems'
+    - 'Recommends a named volume for the database, with a reason'
+    - 'Describes a backup with a temporary container mounting the volume (or pg_dump) and a restore'
+    - 'Mentions tmpfs or read-only mounts where they fit'

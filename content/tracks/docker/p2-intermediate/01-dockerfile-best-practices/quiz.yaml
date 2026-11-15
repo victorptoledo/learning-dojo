@@ -1,0 +1,46 @@
+questions:
+  - id: cache-miss
+    prompt: "Step 3 of a 10-step Dockerfile misses the cache. Which steps are rebuilt?"
+    options: ["Only step 3", "Steps 3 to 10", "All 10 steps", "Only the RUN steps after 3"]
+    answer: 1
+    explanation: "Each layer depends on its parent; once one step is rebuilt, every later step is too."
+  - id: order
+    prompt: "Which order rebuilds fastest after a change to src/main.ts?"
+    options:
+      - "COPY . . then RUN npm ci"
+      - "COPY package.json package-lock.json ./, RUN npm ci, then COPY . ."
+      - "RUN npm ci then COPY package.json ./"
+      - "The order does not matter with BuildKit"
+    answer: 1
+    explanation: "The install layer is keyed on the manifests only, so a code change reuses it."
+  - id: apt-together
+    prompt: "Why should apt-get update and apt-get install be in the same RUN?"
+    options:
+      - "It is required by apt"
+      - "A cached update layer could make a later install use stale package lists"
+      - "It makes the image signed"
+      - "To run them in parallel"
+    answer: 1
+    explanation: "The cache key of RUN is its text; a separate update step can stay cached for months."
+  - id: run-cache-key
+    prompt: "What does the builder compare to decide whether a RUN step is cached?"
+    options:
+      - "The files the command will download"
+      - "The instruction text and its parent layer (plus the build arguments it uses)"
+      - "The current date"
+      - "The size of the result"
+    answer: 1
+    explanation: "RUN is cached by its text; COPY and ADD also by a checksum of the copied files."
+  - id: pipefail
+    prompt: "RUN curl -fsSL URL | tar xz succeeds even when curl fails. What fixes it?"
+    options:
+      - "Adding && true"
+      - "SHELL [\"/bin/bash\", \"-o\", \"pipefail\", \"-c\"] before the RUN"
+      - "Using ADD"
+      - "Using the exec form for RUN"
+    answer: 1
+    explanation: "Without pipefail, a pipeline's status is the status of its last command."
+  - id: hadolint-latest
+    prompt: "Which hadolint rule warns about FROM node:latest? Give its code."
+    answers: ["DL3007"]
+    explanation: "DL3007: using latest is prone to errors; pin a version."

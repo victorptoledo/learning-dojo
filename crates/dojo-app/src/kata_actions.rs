@@ -83,6 +83,7 @@ impl App {
         let mut files = vec![dir.join(STATEMENT_FILE), dir.join("src").join("lib.rs")];
         files.extend(java_sources(&dir.join("src").join("main").join("java")));
         files.extend(shell_scripts(dir));
+        files.extend(["Dockerfile", "compose.yaml"].map(|name| dir.join(name)));
         let existing: Vec<_> = files.into_iter().filter(|file| file.is_file()).collect();
         match self.editor.open_folder(dir, &existing) {
             Ok(()) => format!("Opened {} in `{}`.", dir.display(), self.editor.command()),

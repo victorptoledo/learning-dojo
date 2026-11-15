@@ -1,0 +1,46 @@
+questions:
+  - id: cpu-limit
+    prompt: "A container started with --cpus 0.5 tries to use two full cores. What happens?"
+    options: ["It is killed", "It is throttled to half a core of CPU time", "It is restarted", "Nothing; --cpus is advisory"]
+    answer: 1
+    explanation: "CPU limits throttle; memory limits kill."
+  - id: cap-drop
+    prompt: "What does --cap-drop ALL --cap-add NET_BIND_SERVICE leave the container?"
+    options:
+      - "Full root powers"
+      - "Only the ability to bind ports below 1024, among root's capabilities"
+      - "No network"
+      - "Only the ability to change file owners"
+    answer: 1
+    explanation: "Drop everything, then add back only what the service needs."
+  - id: no-new-privs
+    prompt: "What does --security-opt no-new-privileges prevent?"
+    options:
+      - "Running as root"
+      - "Gaining privileges through setuid binaries or file capabilities"
+      - "Network access"
+      - "Writing files"
+    answer: 1
+    explanation: "It sets the kernel's no_new_privs flag for every process in the container."
+  - id: docker-sock
+    prompt: "Why is mounting /var/run/docker.sock into a container equivalent to root on the host?"
+    options:
+      - "The socket file is owned by root"
+      - "The container can ask the engine to start a privileged container that mounts the host's file system"
+      - "It disables seccomp"
+      - "It is not; the socket is read-only"
+    answer: 1
+    explanation: "Control of the engine is control of the host."
+  - id: seccomp
+    prompt: "What does Docker's default seccomp profile do?"
+    options:
+      - "Encrypts system calls"
+      - "Blocks dozens of rarely needed, dangerous system calls"
+      - "Limits CPU"
+      - "Nothing unless you enable it"
+    answer: 1
+    explanation: "It is on by default; seccomp=unconfined switches it off."
+  - id: read-only
+    prompt: "Which docker run flag makes the container's root file system read-only?"
+    answers: ["--read-only", "read-only", "read_only"]
+    explanation: "Combine it with --tmpfs /tmp and volumes for the paths that must be writable."

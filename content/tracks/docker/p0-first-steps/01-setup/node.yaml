@@ -1,0 +1,29 @@
+id: docker.p0.setup
+kind: lesson
+status: draft
+title: "Containers, Docker Desktop and Your First Container"
+summary: "Why containers exist, what Docker is made of, how to run it on Windows and how the dojo checks Docker katas."
+objectives:
+  - { id: o1, text: "Explain the problem containers solve and how they differ from virtual machines", skills: [docker.setup] }
+  - { id: o2, text: "Name the parts of Docker: CLI, engine, images, containers and registries", skills: [docker.setup] }
+  - { id: o3, text: "Install Docker Desktop with WSL 2 and run, list and remove a first container", skills: [docker.setup] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A teammate says: "Docker is just a lighter virtual machine, so I will install it on the server and run everything as root inside it, like on my old VM." Explain what Docker really is and what happens when they type `docker run -it --rm alpine:3.24 sh`, from the CLI to the shell prompt. Correct the misunderstanding without lecturing.'
+  criteria:
+    - 'Separates the image (a read-only template) from the container (a running process with its own writable layer)'
+    - 'Describes the path: CLI → engine API → pull from a registry if missing → create → start'
+    - 'Explains that containers share the host kernel, unlike virtual machines, and what that means for start-up time and isolation'
+    - 'Explains what -it and --rm do'
+    - 'Notes that root inside a container is still a risk and points to running as a non-root user'
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: The examples run containers on your machine.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"

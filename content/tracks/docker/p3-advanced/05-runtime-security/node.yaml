@@ -1,0 +1,24 @@
+id: docker.p3.runtime-security
+kind: lesson
+status: draft
+title: "Runtime Security: Resource Limits, Capabilities, seccomp and Rootless"
+summary: "Limit what a running container can use and do: memory, CPU and process limits, Linux capabilities, no-new-privileges, read-only file systems, seccomp and AppArmor, user namespaces and rootless Docker."
+objectives:
+  - { id: o1, text: "Set memory, CPU and process limits and explain what happens when each is exceeded", skills: [docker.runtime-security] }
+  - { id: o2, text: "Drop capabilities, block privilege escalation and run with a read-only root file system", skills: [docker.runtime-security] }
+  - { id: o3, text: "Explain seccomp, AppArmor, user namespaces and rootless mode, and the flags that undo isolation", skills: [docker.runtime-security] }
+prerequisites: [docker.p3.secrets-hygiene]
+difficulty: 4
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A vendor''s monitoring agent asks to be run with `--privileged`, `-v /var/run/docker.sock:/var/run/docker.sock` and `--pid host`. Explain what each of those grants and why together they amount to root on the host. Then describe the `docker run` flags you would use for your own web API instead, and what each one protects against.'
+  criteria:
+    - 'Explains that --privileged gives all capabilities and device access and disables seccomp and AppArmor confinement'
+    - 'Explains that the Docker socket lets the container start new privileged containers, so it is root on the host'
+    - 'Explains that --pid host exposes and lets it signal host processes'
+    - 'Lists flags for the API such as --read-only with tmpfs, --cap-drop ALL, --security-opt no-new-privileges, a non-root --user, --memory, --cpus and --pids-limit'
+    - 'Mentions seccomp and AppArmor defaults, or user namespaces and rootless Docker as extra layers'

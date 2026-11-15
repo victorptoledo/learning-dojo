@@ -1,0 +1,41 @@
+id: docker.p0.hello-image
+kind: kata
+status: draft
+title: "Hello, Image: Your First Dockerfile"
+summary: "Write a Dockerfile that packages a text file and prints it, and see how the dojo checks Docker katas."
+objectives:
+  - { id: o1, text: "Write a Dockerfile with FROM, WORKDIR, COPY, LABEL and an exec-form CMD", skills: [docker.setup] }
+  - { id: o2, text: "Read the facts the dojo collects about an image: config, files and output", skills: [docker.setup] }
+prerequisites: [docker.p0.setup]
+difficulty: 1
+estimated_minutes: 20
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 180 }
+  hints:
+    - |-
+      An image is built from top to bottom: where does the file come from (the build context, your kata folder) and where should it land in the image? Which instruction sets the folder that later instructions and the container start in?
+    - |-
+      `WORKDIR /srv` creates the folder and moves into it. `COPY hello.txt .` copies from the kata folder into the current folder of the image. `CMD ["cat", "/srv/hello.txt"]` is the exec form: a JSON array, no shell in between. A label is `LABEL key="value"`.
+    - |-
+      ```dockerfile
+      FROM alpine:3.24
+      LABEL org.opencontainers.image.title="..."
+      WORKDIR /srv
+      COPY ...
+      CMD ["cat", "..."]
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your image is built on your Docker engine and checked in a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with hadolint, bats and jq that checks what your image contains.

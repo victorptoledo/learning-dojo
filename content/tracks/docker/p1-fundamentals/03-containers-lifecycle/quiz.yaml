@@ -1,0 +1,42 @@
+questions:
+  - id: main-process
+    prompt: "When does a container stop?"
+    options:
+      - "After a fixed timeout"
+      - "When its main process exits"
+      - "When the last docker exec session closes"
+      - "Only when you run docker stop"
+    answer: 1
+    explanation: "A container lives as long as its main process (PID 1)."
+  - id: stop-sequence
+    prompt: "What does docker stop do by default?"
+    options:
+      - "Sends SIGKILL immediately"
+      - "Sends SIGTERM, waits 10 seconds, then sends SIGKILL"
+      - "Pauses the container"
+      - "Removes the container"
+    answer: 1
+    explanation: "SIGTERM (or STOPSIGNAL) first, then SIGKILL after the grace period set with -t."
+  - id: shell-form
+    prompt: "The image ends with CMD node server.js. Why does docker stop always take 10 seconds?"
+    options:
+      - "Node.js needs 10 seconds to stop"
+      - "PID 1 is /bin/sh -c, which does not forward SIGTERM, so the server is killed when the grace period ends"
+      - "The restart policy restarts it"
+      - "The health check delays the stop"
+    answer: 1
+    explanation: "The shell form wraps the command in sh; the exec form CMD [\"node\", \"server.js\"] makes node PID 1."
+  - id: exit-143
+    prompt: "A container exited with code 143. What ended it?"
+    options: ["An OOM kill", "SIGTERM that the program did not handle", "A missing command", "A docker run error"]
+    answer: 1
+    explanation: "143 = 128 + 15, the number of SIGTERM."
+  - id: restart-policy
+    prompt: "Which restart policy restarts a crashed service, survives a reboot, but stays down after you stop it yourself?"
+    options: ["no", "on-failure", "always", "unless-stopped"]
+    answer: 3
+    explanation: "unless-stopped restarts on exit and after daemon restarts, except when you stopped the container."
+  - id: exec-shell
+    prompt: "Which command opens an interactive shell inside the running container named api?"
+    answers: ["docker exec -it api sh", "docker exec -it api /bin/sh", "docker exec -it api bash", "docker container exec -it api sh"]
+    explanation: "exec starts a second process in the container's namespaces; -it attaches your terminal."

@@ -1,0 +1,23 @@
+id: docker.p1.containers-lifecycle
+kind: lesson
+status: draft
+title: "The Container Lifecycle: run, exec, stop, PID 1 and Restart Policies"
+summary: "Create, start, stop and remove containers, work inside them, and understand why PID 1 and signals decide how a container shuts down."
+objectives:
+  - { id: o1, text: "Move a container through its states with run, create, start, stop, kill and rm", skills: [docker.containers] }
+  - { id: o2, text: "Explain why the main process is PID 1 and how docker stop uses SIGTERM, a grace period and SIGKILL", skills: [docker.containers] }
+  - { id: o3, text: "Use exec, logs, inspect, environment variables, published ports and restart policies", skills: [docker.containers] }
+prerequisites: [docker.p1.images-layers]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: '`docker stop api` always takes exactly 10 seconds and the service never logs "shutting down", although its code handles SIGTERM. The Dockerfile ends with `CMD node server.js`. Explain what is happening and fix it two different ways. Then say which restart policy you would choose for this API on a single host and why.'
+  criteria:
+    - 'Explains that the shell form runs /bin/sh -c as PID 1, which does not forward SIGTERM to the child'
+    - 'Explains the grace period: SIGTERM, then SIGKILL after 10 seconds by default'
+    - 'Fixes it with the exec form (CMD ["node", "server.js"]) and with an init such as docker run --init or tini, or exec in a wrapper script'
+    - 'Chooses a restart policy (unless-stopped or on-failure) and justifies it'

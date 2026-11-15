@@ -14,11 +14,16 @@ pub fn build_runner_images(images_dir: &Path) -> Result<ExitCode> {
 }
 
 /// Every kata must fail with its starter and pass with its reference solution.
-pub fn verify_katas(content_dir: &Path) -> Result<ExitCode> {
+/// `only_track` limits the run to one track.
+pub fn verify_katas(content_dir: &Path, only_track: Option<&str>) -> Result<ExitCode> {
     let catalog = dojo_content::load(content_dir)?.catalog;
     let runner = DockerRunner::default();
     let mut problems = 0;
-    let katas = catalog.tracks.iter().flat_map(|track| {
+    let tracks = catalog
+        .tracks
+        .iter()
+        .filter(|track| only_track.is_none_or(|id| track.id == id));
+    let katas = tracks.flat_map(|track| {
         track
             .nodes()
             .filter(|node| node.kata.is_some())

@@ -1,0 +1,25 @@
+id: docker.p2.dockerfile-security
+legacy_id: dk-02-dockerfile-security
+kind: lesson
+status: draft
+title: "Image Hardening: Non-root Users and Distroless Images"
+summary: "Removing vulnerabilities and attack vectors from production images: non-root users, file ownership, minimal bases and health checks that need no shell."
+objectives:
+  - { id: o1, text: "Run an image as a non-root user with the right ownership of the files it writes", skills: [docker.dockerfile-security] }
+  - { id: o2, text: "Reduce the attack surface with minimal bases, no build tools and no secrets in the image", skills: [docker.dockerfile-security] }
+  - { id: o3, text: "Add a HEALTHCHECK that works in a shell-less image, and label the image", skills: [docker.dockerfile-security] }
+prerequisites: [docker.p2.slim-service]
+difficulty: 3
+estimated_minutes: 40
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team''s Node.js image runs as root, is based on `node:24` (1.1 GB), installs `curl` only for its health check and writes uploads to `/app/uploads`. A penetration test reported a path traversal bug in the app. Explain how the current image turns that bug into a bigger incident, and describe the hardened image you would build instead, step by step.'
+  criteria:
+    - 'Explains that as root the attacker can modify the app, install tools and attack the kernel with more privileges'
+    - 'Creates or uses a non-root user and chowns only the directories the app writes (uploads), keeping code read-only'
+    - 'Moves to a smaller base (slim, alpine or distroless) and removes curl and build tools from the final stage'
+    - 'Replaces the curl health check with one that does not need extra tools'
+    - 'Mentions scanning the image and not baking secrets into it'

@@ -1,0 +1,50 @@
+questions:
+  - id: stdout
+    prompt: "Where should a containerised service write its logs?"
+    options:
+      - "To /var/log/app.log inside the container"
+      - "To stdout and stderr, one event per line"
+      - "To a mounted Windows folder"
+      - "Only to a database"
+    answer: 1
+    explanation: "The engine captures the main process's streams and hands them to the log driver."
+  - id: rotation
+    prompt: "A host's disk fills with /var/lib/docker/containers/*/*-json.log files. What fixes it?"
+    options:
+      - "docker system prune"
+      - "Setting max-size and max-file for the json-file driver (or using the local driver)"
+      - "Restarting Docker"
+      - "Using --rm"
+    answer: 1
+    explanation: "json-file does not rotate unless configured."
+  - id: exit-127
+    prompt: "A container exits at once with code 127. What is the most likely cause?"
+    options:
+      - "It ran out of memory"
+      - "The command in CMD or ENTRYPOINT was not found in the image"
+      - "It received SIGTERM"
+      - "The health check failed"
+    answer: 1
+    explanation: "127 means command not found: a wrong path, a missing shell for the shell form, or a missing dynamic loader."
+  - id: health-log
+    prompt: "A container is unhealthy but its logs look fine. Where do you see what the probe printed?"
+    options:
+      - "docker logs"
+      - "docker inspect, under State.Health.Log"
+      - "docker events only"
+      - "Nowhere"
+    answer: 1
+    explanation: "The output and exit code of the last health probes are stored in the container state."
+  - id: crash-start
+    prompt: "The image crashes as soon as it starts, so docker exec is impossible. How do you look inside it as the same user?"
+    options:
+      - "docker attach"
+      - "docker run --rm -it --entrypoint sh IMAGE"
+      - "docker start -i CONTAINER"
+      - "docker logs -f"
+    answer: 1
+    explanation: "Replacing the entrypoint starts the same image with a shell instead of the failing program."
+  - id: namespaces-tool
+    prompt: "Which docker run option lets a tool container use the network namespace of the container api?"
+    answers: ["--network container:api", "--net container:api", "--network=container:api", "--net=container:api"]
+    explanation: "The tool then sees api's localhost, ports and interfaces."

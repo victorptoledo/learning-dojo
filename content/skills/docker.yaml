@@ -1,4 +1,18 @@
 namespace: docker
 skills:
+  - { id: docker.setup, title: "Containers, Docker Desktop and a First Image" }
   - { id: docker.namespaces-cgroups, title: "What a Container Is: Namespaces, cgroups and chroot" }
+  - { id: docker.images-layers, title: "Images, Layers, Tags and Digests" }
+  - { id: docker.containers, title: "The Container Lifecycle: run, exec, stop, PID 1 and Restart Policies" }
+  - { id: docker.dockerfile-basics, title: "Dockerfile Instructions, the Build Context and .dockerignore" }
+  - { id: docker.volumes, title: "Volumes, Bind Mounts and tmpfs" }
+  - { id: docker.networking, title: "Networks, DNS and Published Ports" }
+  - { id: docker.dockerfile-best-practices, title: "Dockerfile Best Practices: Cache Order, Small Layers and Linting" }
+  - { id: docker.multi-stage, title: "Multi-stage Builds and Minimal Runtime Images" }
   - { id: docker.dockerfile-security, title: "Image Hardening: Non-root Users and Distroless Images" }
+  - { id: docker.compose, title: "Docker Compose: Services, Configuration, Secrets and Health Checks" }
+  - { id: docker.buildkit, title: "BuildKit: Cache Mounts, Secret Mounts, Build Arguments and Multi-platform Builds" }
+  - { id: docker.supply-chain, title: "The Image Supply Chain: Size, Scanning, SBOMs, Registries, Tags and Signing" }
+  - { id: docker.runtime-security, title: "Runtime Security: Resource Limits, Capabilities, seccomp and Rootless" }
+  - { id: docker.logs-debugging, title: "Logs and Debugging Containers" }
+  - { id: docker.production, title: "Docker in Production: Signals, Orchestration, Updates and the Runtime Underneath" }

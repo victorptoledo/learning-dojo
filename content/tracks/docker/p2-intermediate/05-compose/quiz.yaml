@@ -1,0 +1,42 @@
+questions:
+  - id: discovery
+    prompt: "In a compose.yaml with services api and db, which host name does api use for the database?"
+    options: ["localhost", "db", "the db container's IP, read from docker inspect", "compose-db"]
+    answer: 1
+    explanation: "Compose puts the services on a project network where service names resolve."
+  - id: depends-healthy
+    prompt: "api has depends_on: [db]. Why can api still fail to connect at start-up?"
+    options:
+      - "depends_on does nothing"
+      - "The default condition only waits for db to be started, not ready; use condition: service_healthy with a health check"
+      - "Compose starts services in random order"
+      - "api must be listed first"
+    answer: 1
+    explanation: "service_started is the default; readiness needs a health check and service_healthy."
+  - id: dotenv
+    prompt: "What does a .env file next to compose.yaml do by default?"
+    options:
+      - "Sets the environment of every container"
+      - "Provides values for ${VAR} interpolation in the Compose file"
+      - "Stores secrets encrypted"
+      - "Nothing unless listed in env_file"
+    answer: 1
+    explanation: ".env feeds interpolation; env_file and environment configure containers."
+  - id: secrets
+    prompt: "How does a Compose secret named db_password reach the container?"
+    options:
+      - "As the environment variable DB_PASSWORD"
+      - "As a file at /run/secrets/db_password"
+      - "Baked into the image"
+      - "As a build argument"
+    answer: 1
+    explanation: "Secrets are mounted as files, which keeps them out of the environment and docker inspect."
+  - id: down-volumes
+    prompt: "Which command removes the containers and the network but keeps the named volumes?"
+    options: ["docker compose down", "docker compose down -v", "docker compose rm -v", "docker compose stop"]
+    answer: 0
+    explanation: "down keeps named volumes; -v removes them too. stop keeps everything."
+  - id: config
+    prompt: "Which docker compose subcommand prints the fully merged and interpolated file?"
+    answers: ["config", "docker compose config"]
+    explanation: "docker compose config shows exactly what Compose will apply."

@@ -4,9 +4,9 @@ name: "Docker & Containers"
 archetype: platform
 category: "Infrastructure & Tools"
 icon: "📦"
-description: "Process isolation, immutable images, Docker Compose, virtual networks and container security."
+description: "Containers from the kernel up: images and layers, Dockerfiles, multi-stage builds and caching, volumes and networks, Compose, secrets, hardening, BuildKit, the image supply chain, runtime security, debugging and production operation."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Image Puller" }
   - { name: "Yellow Belt", required_xp: 300, title: "Dockerfile Crafter" }
@@ -16,8 +16,8 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "Runtime Virtuoso" }
   - { name: "Sensei", required_xp: 6000, title: "Docker Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install it, run a first command and see why it exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core commands, objects and basic configuration" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Composition, configuration, troubleshooting and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, security and automation" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production operation, high availability and incident handling" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install Docker Desktop, run a first container and build a first image" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "What a container is, images and layers, the container lifecycle, Dockerfiles, storage and networking" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Cache-friendly Dockerfiles, multi-stage builds, hardened images and Compose stacks" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "BuildKit, the image supply chain, secrets and runtime security" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Logs and debugging, production operation and the runtime underneath" }

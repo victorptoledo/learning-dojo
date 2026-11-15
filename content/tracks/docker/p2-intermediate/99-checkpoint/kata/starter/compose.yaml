@@ -1,0 +1,4 @@
+# todo: run the web service next to a Redis cache (see README.md)
+services:
+  web:
+    build: .

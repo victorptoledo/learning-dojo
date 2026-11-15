@@ -1,0 +1,46 @@
+questions:
+  - id: writable-layer
+    prompt: "A container writes uploads to /app/uploads with no mount. What happens after docker rm and docker run again?"
+    options:
+      - "The uploads are still there"
+      - "They are gone: they lived in the removed container's writable layer"
+      - "They move to the image"
+      - "Docker keeps them in a hidden volume"
+    answer: 1
+    explanation: "The writable layer belongs to one container and is deleted with it."
+  - id: volume-for-db
+    prompt: "Which storage fits a production database container best?"
+    options: ["The writable layer", "A named volume", "A tmpfs mount", "A bind mount of C:\\data on Windows"]
+    answer: 1
+    explanation: "Named volumes persist independently of containers and are managed and fast inside the engine."
+  - id: volume-seed
+    prompt: "An empty named volume is mounted on /data, which in the image holds files owned by user app. What does the volume contain?"
+    options:
+      - "Nothing; the image files are hidden"
+      - "A copy of the image's /data files, with their owner and mode"
+      - "The host's files"
+      - "Only the files the container writes later"
+    answer: 1
+    explanation: "Docker seeds an empty volume from the image directory, ownership included."
+  - id: tmpfs
+    prompt: "What is a tmpfs mount best for?"
+    options:
+      - "Database files"
+      - "Scratch data in memory that should never touch disk, such as /tmp on a read-only container"
+      - "Sharing source code with the host"
+      - "Backups"
+    answer: 1
+    explanation: "tmpfs lives in memory and disappears when the container stops."
+  - id: windows-bind
+    prompt: "Why is a bind mount of C:\\code slow with Docker Desktop on Windows?"
+    options:
+      - "Bind mounts are always slow"
+      - "Every file access crosses from the Linux VM to the Windows file system"
+      - "Windows encrypts the files"
+      - "Docker copies the folder on every start"
+    answer: 1
+    explanation: "The engine runs in a WSL 2 VM; files on the Windows side are reached through a file-sharing layer."
+  - id: remove-volume
+    prompt: "Which command deletes the named volume pgdata?"
+    answers: ["docker volume rm pgdata", "docker volume remove pgdata"]
+    explanation: "Removing a container keeps its named volumes; docker volume rm deletes one."

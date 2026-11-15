@@ -1,0 +1,24 @@
+id: docker.p1.dockerfile-basics
+kind: lesson
+status: draft
+title: "Dockerfile Instructions, the Build Context and .dockerignore"
+summary: "The instructions of a Dockerfile, what the build context is, the shell and exec forms, and how ENTRYPOINT and CMD work together."
+objectives:
+  - { id: o1, text: "Write a Dockerfile with FROM, RUN, COPY, WORKDIR, ENV, ARG, EXPOSE, USER, LABEL, ENTRYPOINT and CMD", skills: [docker.dockerfile-basics] }
+  - { id: o2, text: "Explain the build context and keep it small and safe with .dockerignore", skills: [docker.dockerfile-basics] }
+  - { id: o3, text: "Combine ENTRYPOINT and CMD, and choose between the shell and exec forms", skills: [docker.dockerfile-basics] }
+prerequisites: [docker.p1.containers-lifecycle]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this Dockerfile for a CLI tool and explain each problem you find, then write the corrected version: `FROM ubuntu` / `ADD . /` / `RUN cd /app` / `RUN chmod +x tool.sh` / `ENV API_KEY=abc123` / `CMD /app/tool.sh --help`. The tool should run as `docker run tool convert in.csv`, with `--help` shown when no arguments are given.'
+  criteria:
+    - 'Pins the base image to a tag instead of the implicit latest'
+    - 'Replaces ADD . / with WORKDIR and COPY, and adds a .dockerignore for the build context'
+    - 'Explains that RUN cd does not persist and WORKDIR does'
+    - 'Removes the secret from ENV and explains that ENV values are stored in the image'
+    - 'Uses ENTRYPOINT ["/app/tool.sh"] with CMD ["--help"] so arguments replace only the default'

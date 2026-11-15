@@ -1,0 +1,81 @@
+pass_percent: 80
+questions:
+  - id: kernel-shared
+    skills: [docker.namespaces-cgroups]
+    prompt: "Why is a container not a lightweight virtual machine?"
+    options:
+      - "It has no file system"
+      - "It is a host process isolated by namespaces and limited by cgroups, sharing the host kernel"
+      - "It runs only one thread"
+      - "It cannot use the network"
+    answer: 1
+    explanation: "No hardware is emulated and no second kernel boots; only the process's view and resources are restricted."
+  - id: pid-namespace
+    skills: [docker.namespaces-cgroups]
+    prompt: "Which namespace makes the container's first process see itself as PID 1?"
+    answers: ["pid", "the pid namespace", "pid namespace"]
+    explanation: "The PID namespace gives the container its own process numbering."
+  - id: layer-delete
+    skills: [docker.images-layers]
+    prompt: "Which rewrite keeps a downloaded 300 MB archive out of the image?"
+    options:
+      - "Delete it in a later RUN"
+      - "Download, unpack and delete it in the same RUN"
+      - "Add it to .dockerignore"
+      - "Use ENV to point at it"
+    answer: 1
+    explanation: "A layer stores what exists at the end of its step; a later deletion only adds a whiteout."
+  - id: digest
+    skills: [docker.images-layers]
+    prompt: "Which reference always pulls exactly the same image bytes?"
+    options: ["myapp:latest", "myapp:1.4", "myapp@sha256:3f1c...", "myapp:stable"]
+    answer: 2
+    explanation: "A digest is the hash of the content; tags can be moved by the publisher."
+  - id: stop-pid1
+    skills: [docker.containers]
+    prompt: "A service handles SIGTERM, but docker stop always waits 10 s and the service never cleans up. What is the most likely cause?"
+    options:
+      - "The restart policy"
+      - "A shell-form CMD: /bin/sh is PID 1 and does not forward SIGTERM"
+      - "Too little memory"
+      - "The health check"
+    answer: 1
+    explanation: "Use the exec form so the program is PID 1, or add an init with --init."
+  - id: oom-code
+    skills: [docker.containers, docker.namespaces-cgroups]
+    prompt: "A container exits with code 137 and docker inspect shows OOMKilled true. What do you change?"
+    options:
+      - "The restart policy"
+      - "The memory limit, or the program's memory use"
+      - "The published port"
+      - "The image tag"
+    answer: 1
+    explanation: "The cgroup memory limit was exceeded and the kernel killed the process with SIGKILL (128 + 9)."
+  - id: entrypoint-cmd
+    skills: [docker.dockerfile-basics]
+    prompt: "ENTRYPOINT [\"/app/server\"] and CMD [\"-port\", \"8080\"]. What runs with docker run IMAGE -port 9090?"
+    options: ["/app/server -port 8080 -port 9090", "/app/server -port 9090", "-port 9090", "/app/server"]
+    answer: 1
+    explanation: "Run arguments replace CMD and keep the ENTRYPOINT."
+  - id: dockerignore
+    skills: [docker.dockerfile-basics]
+    prompt: "COPY . . copied .env with real credentials into an image. What prevents it from reaching the builder at all?"
+    options: ["A LABEL", "A .dockerignore entry for .env", "USER 10001", "A multi-stage build"]
+    answer: 1
+    explanation: ".dockerignore removes paths from the build context before any instruction runs."
+  - id: volume-survives
+    skills: [docker.volumes]
+    prompt: "Which data survives docker rm of a database container?"
+    options:
+      - "Data in the container's writable layer"
+      - "Data in a named volume mounted into it"
+      - "Data in a tmpfs mount"
+      - "None"
+    answer: 1
+    explanation: "Named volumes exist independently of containers; the writable layer and tmpfs go away."
+  - id: dns-by-name
+    skills: [docker.networking]
+    prompt: "api and db run on the same user-defined network. Which host name should api use to reach db?"
+    options: ["localhost", "db", "host.docker.internal", "172.17.0.1"]
+    answer: 1
+    explanation: "Docker's embedded DNS resolves container names on user-defined networks; localhost is the api container."

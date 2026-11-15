@@ -99,7 +99,11 @@ enum ContentAction {
         strict: bool,
     },
     /// Run every kata in Docker: the reference must pass and the starter must fail.
-    VerifyKatas,
+    VerifyKatas {
+        /// Only the katas of this track (e.g. `docker`).
+        #[arg(long)]
+        track: Option<String>,
+    },
 }
 
 #[derive(Subcommand)]
@@ -136,8 +140,8 @@ fn main() -> Result<ExitCode> {
             action: ContentAction::Validate { strict },
         }) => validate_command::run(&cli.content, strict),
         Some(Command::Content {
-            action: ContentAction::VerifyKatas,
-        }) => kata_commands::verify_katas(&cli.content),
+            action: ContentAction::VerifyKatas { track },
+        }) => kata_commands::verify_katas(&cli.content, track.as_deref()),
         Some(Command::Runner {
             action: RunnerAction::Build { images },
         }) => kata_commands::build_runner_images(&images),

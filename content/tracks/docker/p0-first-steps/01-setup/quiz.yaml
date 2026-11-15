@@ -1,0 +1,42 @@
+questions:
+  - id: shared-kernel
+    prompt: "What is the main technical difference between a container and a virtual machine?"
+    options:
+      - "Containers are always faster at computing"
+      - "Containers share the host kernel; a virtual machine boots its own"
+      - "Virtual machines cannot run Linux"
+      - "Containers need a hypervisor"
+    answer: 1
+    explanation: "A container is an isolated process on the host kernel; a VM emulates hardware and runs a separate kernel."
+  - id: image-vs-container
+    prompt: "How are an image and a container related?"
+    options:
+      - "They are two names for the same thing"
+      - "A container is a running or stopped instance of an image, with its own writable layer"
+      - "An image is a container that was stopped"
+      - "An image runs inside a container"
+    answer: 1
+    explanation: "The image is a read-only template; each container adds a thin writable layer on top of it."
+  - id: rm-flag
+    prompt: "What does --rm do in docker run --rm alpine:3.24 echo hi?"
+    options:
+      - "Removes the image after the run"
+      - "Deletes the container when its process exits"
+      - "Runs the command as root"
+      - "Removes old containers before starting"
+    answer: 1
+    explanation: "--rm deletes the container (and its writable layer) when it stops; the image stays."
+  - id: publish
+    prompt: "With docker run -d -p 8080:80 nginx:1.29-alpine, where do you open the site?"
+    options: ["http://localhost:80", "http://localhost:8080", "http://nginx:8080", "Nowhere, -p only documents the port"]
+    answer: 1
+    explanation: "-p HOST:CONTAINER publishes container port 80 on host port 8080."
+  - id: windows-engine
+    prompt: "On Windows, where does the Docker engine of Docker Desktop run Linux containers?"
+    options: ["Directly on the Windows kernel", "In a lightweight Linux VM on WSL 2", "In the cloud", "Inside the docker CLI"]
+    answer: 1
+    explanation: "Linux containers need a Linux kernel; Docker Desktop provides one in a WSL 2 virtual machine."
+  - id: list-running
+    prompt: "Which command lists the containers that are running now?"
+    answers: ["docker ps", "docker container ls", "docker container list"]
+    explanation: "docker ps (docker container ls) lists running containers; add -a to include stopped ones."

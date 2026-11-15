@@ -3,12 +3,22 @@ legacy_id: dk-01-namespaces-cgroups
 kind: lesson
 status: draft
 title: "What a Container Is: Namespaces, cgroups and chroot"
-summary: "Debunking the myth that containers are lightweight virtual machines."
+summary: "Debunking the myth that containers are lightweight virtual machines: the kernel features a container is made of."
 objectives:
-  - { id: o1, text: "Debunking the myth that containers are lightweight virtual machines.", skills: [docker.namespaces-cgroups] }
-prerequisites: []
+  - { id: o1, text: "Name the Linux namespaces and what each one isolates", skills: [docker.namespaces-cgroups] }
+  - { id: o2, text: "Explain how cgroups limit and account for CPU, memory and processes", skills: [docker.namespaces-cgroups] }
+  - { id: o3, text: "Explain how a container gets its own root file system, and why it is still a process on the host", skills: [docker.namespaces-cgroups] }
+prerequisites: [docker.p0.hello-image]
 difficulty: 2
-estimated_minutes: 30
+estimated_minutes: 35
 xp: 150
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your security team asks whether running two customers'' services as containers on the same host is "as safe as two virtual machines". Explain what isolates the containers from each other and from the host, what they still share, and what you would add to make the setup safer.'
+  criteria:
+    - 'Names the namespaces involved (PID, network, mount, UTS, IPC, user) and what each hides'
+    - 'Explains cgroups as limits and accounting, and what happens without them (noisy neighbours, OOM on the host)'
+    - 'States clearly that every container shares the host kernel, so a kernel exploit crosses the boundary'
+    - 'Suggests concrete hardening: non-root users, user namespaces or rootless mode, dropped capabilities, seccomp, or VM-based isolation for hostile tenants'

@@ -1,0 +1,50 @@
+questions:
+  - id: build-once
+    prompt: "Why build an image once and promote the same digest to staging and production?"
+    options:
+      - "Builds are expensive"
+      - "So production runs exactly the bytes that were tested"
+      - "Registries limit pushes"
+      - "Tags cannot be reused"
+    answer: 1
+    explanation: "Rebuilding per environment can pick up different dependencies or base images."
+  - id: readiness
+    prompt: "What is a readiness check for, compared with a liveness check?"
+    options:
+      - "They are the same"
+      - "Readiness decides whether to send traffic; liveness decides whether to restart"
+      - "Readiness only runs once at start-up"
+      - "Liveness checks the database"
+    answer: 1
+    explanation: "A replica that is starting or draining should get no traffic but must not be restarted."
+  - id: migrations
+    prompt: "During a rolling update, why must database migrations be backward compatible?"
+    options:
+      - "Databases cannot roll back"
+      - "Old and new versions of the service run at the same time"
+      - "Migrations run twice"
+      - "Orchestrators require it"
+    answer: 1
+    explanation: "Use expand, migrate, contract so both versions work against the schema."
+  - id: grace-period
+    prompt: "The app's shutdown timeout is 30 s, but containers are killed after 10 s. What do you change?"
+    options:
+      - "Nothing"
+      - "Make the platform's grace period (docker stop -t, stop_grace_period, terminationGracePeriodSeconds) longer than the app's timeout"
+      - "Use SIGKILL as STOPSIGNAL"
+      - "Remove the restart policy"
+    answer: 1
+    explanation: "Otherwise SIGKILL ends the drain halfway."
+  - id: runc-role
+    prompt: "What does runc do?"
+    options:
+      - "Builds images"
+      - "Creates the container's namespaces, cgroups and mounts from an OCI bundle, starts the process and exits"
+      - "Stores images in the registry"
+      - "Schedules containers across hosts"
+    answer: 1
+    explanation: "runc is the low-level OCI runtime; containerd and its shim manage the lifecycle."
+  - id: shim-name
+    prompt: "Which daemon does dockerd use to manage images and container lifecycles, and Kubernetes can use directly through the CRI?"
+    answers: ["containerd"]
+    explanation: "containerd sits between dockerd (or the kubelet) and the OCI runtime."

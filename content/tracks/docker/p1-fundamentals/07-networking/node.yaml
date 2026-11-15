@@ -1,0 +1,24 @@
+id: docker.p1.networking
+kind: lesson
+status: draft
+title: "Networks, DNS and Published Ports"
+summary: "How containers talk to each other and to the outside: bridge networks, the embedded DNS, published ports, host and none."
+objectives:
+  - { id: o1, text: "Connect containers on a user-defined bridge network and reach them by name", skills: [docker.networking] }
+  - { id: o2, text: "Publish ports safely and explain the difference between EXPOSE, -p and listening on 0.0.0.0", skills: [docker.networking] }
+  - { id: o3, text: "Choose between the bridge, host and none drivers, and debug connectivity", skills: [docker.networking] }
+prerequisites: [docker.p1.volumes-storage]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An API container cannot reach its Postgres container: the API is configured with `DATABASE_URL=postgres://localhost:5432/app`, both were started with plain `docker run`, and Postgres was started with `-p 5432:5432`. Explain why it fails, fix it, and explain what the `-p 5432:5432` changes for security. Finally, explain why the API answers inside its container but not from the browser when it listens on 127.0.0.1.'
+  criteria:
+    - 'Explains that localhost inside a container is the container itself (its own network namespace)'
+    - 'Creates a user-defined network and uses the service name as host name, through Docker''s embedded DNS'
+    - 'Notes that the default bridge network has no name resolution'
+    - 'Explains that -p publishes the database on every host interface and is not needed for container-to-container traffic, or binds it to 127.0.0.1'
+    - 'Explains that a server must listen on 0.0.0.0 inside the container to be reachable through a published port'

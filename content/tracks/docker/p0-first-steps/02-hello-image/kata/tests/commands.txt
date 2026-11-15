@@ -1,0 +1,2 @@
+# name: arguments given to `docker run --rm IMAGE` (none: the image's own CMD)
+default:

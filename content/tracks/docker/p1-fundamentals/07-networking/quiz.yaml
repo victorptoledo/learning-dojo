@@ -1,0 +1,50 @@
+questions:
+  - id: localhost
+    prompt: "An API container connects to localhost:5432 to reach a Postgres container. Why does it fail?"
+    options:
+      - "Postgres does not listen on 5432"
+      - "Inside the API container, localhost is the API container itself"
+      - "Containers cannot use TCP"
+      - "localhost is blocked by Docker"
+    answer: 1
+    explanation: "Each container has its own network namespace and loopback; use the database container's name on a shared network."
+  - id: dns
+    prompt: "On which networks can containers reach each other by container name?"
+    options:
+      - "Only the default bridge"
+      - "User-defined networks, through Docker's embedded DNS"
+      - "Only the host network"
+      - "Any network, always"
+    answer: 1
+    explanation: "The default bridge has no name resolution; user-defined networks resolve container names and aliases."
+  - id: publish-all
+    prompt: "What does -p 5432:5432 do on a Linux server?"
+    options:
+      - "Lets other containers on the network reach the database"
+      - "Publishes the database on port 5432 of every host interface"
+      - "Documents the port"
+      - "Publishes the port only to localhost"
+    answer: 1
+    explanation: "Without an address, published ports listen on 0.0.0.0. Containers on the same network need no -p at all."
+  - id: listen-addr
+    prompt: "A server listens on 127.0.0.1:8080 inside its container, started with -p 8080:8080. What happens from the host?"
+    options:
+      - "It works"
+      - "Connections fail, because published traffic arrives on the container's eth0, not its loopback"
+      - "Docker rewrites the address"
+      - "It works only with --network host"
+    answer: 1
+    explanation: "Listen on 0.0.0.0 inside the container so traffic from the published port reaches the server."
+  - id: internal
+    prompt: "What does docker network create --internal backend give you?"
+    options:
+      - "A network that only the host can use"
+      - "A network with no route to the outside world"
+      - "A faster network"
+      - "A network shared across hosts"
+    answer: 1
+    explanation: "Containers on an internal network talk to each other but have no outbound access."
+  - id: host-name
+    prompt: "From a container on Docker Desktop, which host name reaches a service running on your Windows host?"
+    answers: ["host.docker.internal"]
+    explanation: "Docker Desktop resolves host.docker.internal to the host machine."

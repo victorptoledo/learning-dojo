@@ -1,0 +1,24 @@
+id: docker.p4.production
+kind: lesson
+status: draft
+title: "Docker in Production: Signals, Orchestration, Updates and the Runtime Underneath"
+summary: "What changes when containers carry real traffic: twelve-factor services, graceful shutdown, CI/CD for images, zero-downtime updates, orchestration, and the containerd and runc stack the engine sits on."
+objectives:
+  - { id: o1, text: "Design a service that behaves well under an orchestrator: configuration, statelessness, health, graceful shutdown", skills: [docker.production] }
+  - { id: o2, text: "Describe a CI/CD pipeline for images and a zero-downtime update with rollback", skills: [docker.production] }
+  - { id: o3, text: "Explain the runtime stack (Docker Engine, containerd, shim, runc, OCI) and when to move from a single host to an orchestrator", skills: [docker.production] }
+prerequisites: [docker.p4.logs-debugging]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your company runs ten services with Docker Compose on two hand-managed VMs. Deployments mean SSH, `docker compose pull && docker compose up -d`, and a few seconds of errors each time; one VM failing takes half the services down. Write a proposal: what you would change in the services and images first, what the pipeline should look like, how deployments become zero-downtime with rollback, and whether (and why) you would move to an orchestrator.'
+  criteria:
+    - 'Lists service changes: configuration from the environment, no local state, health and readiness endpoints, graceful SIGTERM handling, logs to stdout'
+    - 'Describes a pipeline: build, test, scan, sign, push immutable tags, deploy by digest'
+    - 'Explains how a rolling or blue-green update with readiness checks and connection draining avoids errors, and how rollback works'
+    - 'Weighs an orchestrator (Kubernetes, Swarm, ECS, Nomad) against the team''s size and needs, with concrete reasons'
+    - 'Mentions observability (metrics, central logs, alerts) and resource limits'
