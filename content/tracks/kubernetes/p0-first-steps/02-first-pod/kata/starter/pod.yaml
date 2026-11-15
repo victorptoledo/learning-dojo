@@ -1,0 +1,9 @@
+# todo: complete this Pod as README.md describes.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello
+spec:
+  containers:
+    - name: hello
+      image: busybox

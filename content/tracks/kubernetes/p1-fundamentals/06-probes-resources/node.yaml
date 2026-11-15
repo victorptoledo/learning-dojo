@@ -1,0 +1,24 @@
+id: kubernetes.p1.probes-resources
+kind: lesson
+status: draft
+title: "Probes, Requests and Limits, and QoS Classes"
+summary: "Telling Kubernetes when a container is started, ready and alive, and how much CPU and memory it needs: requests, limits, OOM kills, throttling and QoS classes."
+objectives:
+  - { id: o1, text: "Choose startup, readiness and liveness probes and their timings for a service", skills: [kubernetes.probes-resources] }
+  - { id: o2, text: "Set CPU and memory requests and limits and explain scheduling, throttling and OOM kills", skills: [kubernetes.probes-resources] }
+  - { id: o3, text: "Derive a Pod's QoS class and explain LimitRange and ResourceQuota", skills: [kubernetes.probes-resources] }
+prerequisites: [kubernetes.p1.config-secrets]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A Java service takes 60 s to start, uses 700 MiB of memory at steady state with peaks of 900 MiB, and depends on a database. In production its Pods restart every few minutes with exit code 137, and during deploys users get errors. Propose the probes (type, endpoint, timings) and the resources (requests and limits for CPU and memory) for it, and explain each choice, including what must not go into the liveness probe.'
+  criteria:
+    - 'Uses a startupProbe (or a long enough failure threshold) so liveness does not kill the slow-starting JVM'
+    - 'Uses a readinessProbe that can include the database, and a liveness probe that checks only the process itself'
+    - 'Reads exit code 137 / OOMKilled as hitting the memory limit and sets the memory limit above the peak (with the request near steady state, or equal for Guaranteed)'
+    - 'Explains CPU limits cause throttling, not kills, and sets a CPU request (a limit only with a reason)'
+    - 'Connects readiness to rollouts: new Pods get traffic only when ready, so deploys stop failing'

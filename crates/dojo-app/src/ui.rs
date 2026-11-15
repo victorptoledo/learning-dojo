@@ -363,6 +363,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::Python => {
                 "2. Edit the .py modules in the kata folder. Each function that still raises NotImplementedError(\"todo ...\") is yours to write:"
             }
+            KataLanguage::Kubernetes => {
+                "2. Edit the .yaml manifests in the kata folder. Lines marked \"todo\" are yours to write:"
+            }
         }),
         Line::from(match language {
             KataLanguage::Rust => {
@@ -382,6 +385,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             }
             KataLanguage::Python => {
                 "   that raise is a placeholder; pytest runs the tests and ruff must find no mistakes."
+            }
+            KataLanguage::Kubernetes => {
+                "   no cluster needed: the dojo renders them, validates them against the Kubernetes 1.36 schemas and checks them with bats."
             }
         }),
         Line::from("3. Save the file. The tests run by themselves and the result appears below."),

@@ -1,0 +1,50 @@
+questions:
+  - id: base64
+    prompt: "What protection does the base64 encoding of a Secret's data give?"
+    options:
+      - "It encrypts the value with the cluster key"
+      - "None: it is an encoding that anyone can reverse"
+      - "It hides the value from kubectl get"
+      - "It prevents the value from being logged"
+    answer: 1
+    explanation: "RBAC, encryption at rest and keeping values out of Git are what protect Secrets."
+  - id: env-update
+    prompt: "A ConfigMap used through envFrom is changed. When do running containers see the new values?"
+    options:
+      - "Within a minute"
+      - "Never: environment variables are set when a container starts, so the Pods must be restarted"
+      - "At the next liveness probe"
+      - "Immediately"
+    answer: 1
+    explanation: "Only mounted files (without subPath) are updated in place."
+  - id: missing-key
+    prompt: "A Pod references configMapKeyRef key DB_URL, which does not exist in the ConfigMap. What happens?"
+    options:
+      - "The variable is empty"
+      - "The container does not start (CreateContainerConfigError) unless the reference is optional"
+      - "The Pod is deleted"
+      - "Kubernetes adds the key"
+    answer: 1
+    explanation: "Required references must resolve; optional: true makes a missing key or object acceptable."
+  - id: create-pod-power
+    prompt: "Why does the permission to create Pods in a namespace matter for Secrets?"
+    options:
+      - "It does not"
+      - "A Pod can mount or reference any Secret in its namespace, so creating Pods lets you read them"
+      - "Pods encrypt Secrets"
+      - "Creating Pods deletes Secrets"
+    answer: 1
+    explanation: "Least privilege must cover both get on secrets and create on pods (and on Deployments, Jobs and other workloads)."
+  - id: hash-suffix
+    prompt: "Kustomize's configMapGenerator names the ConfigMap orders-config-7g2h9k. Why the suffix?"
+    options:
+      - "To avoid name clashes between namespaces"
+      - "It is a hash of the content: a change gives a new name, so the Pod template changes and a rollout starts"
+      - "It is a random number for security"
+      - "It marks the ConfigMap as immutable"
+    answer: 1
+    explanation: "Kustomize rewrites the references too, so config changes become ordinary, reversible rollouts."
+  - id: tls-type
+    prompt: "Which Secret type holds a certificate and private key for an Ingress?"
+    answers: ["kubernetes.io/tls", "tls"]
+    explanation: "It has the keys tls.crt and tls.key; kubectl create secret tls builds one."

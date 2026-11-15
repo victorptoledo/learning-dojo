@@ -1,0 +1,24 @@
+id: kubernetes.p2.ingress-gateway
+kind: lesson
+status: draft
+title: "Ingress and the Gateway API"
+summary: "HTTP traffic from outside the cluster: Ingress, IngressClasses and controllers, TLS, and the Gateway API with GatewayClasses, Gateways and HTTPRoutes."
+objectives:
+  - { id: o1, text: "Route hosts and paths to Services with an Ingress and terminate TLS", skills: [kubernetes.ingress-gateway] }
+  - { id: o2, text: "Explain why an Ingress needs a controller and what an IngressClass selects", skills: [kubernetes.ingress-gateway] }
+  - { id: o3, text: "Model the same routing with the Gateway API and explain its split of roles and traffic splitting", skills: [kubernetes.ingress-gateway] }
+prerequisites: [kubernetes.p2.stateful-db]
+difficulty: 3
+estimated_minutes: 40
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A company exposes `shop.example.com` (paths `/` to the `web` Service and `/api` to the `api` Service) with TLS, and wants to send 10 % of `/api` traffic to a new `api-v2` Service. The platform team runs the load balancer; application teams own their own routes in their namespaces. Explain how you would do it with an Ingress and with the Gateway API, which objects each team owns, and why the Gateway API fits this better.'
+  criteria:
+    - 'Ingress: one object with host rules, a Prefix path for /api and for /, a tls section with a kubernetes.io/tls Secret, and an ingressClassName'
+    - 'Notes that weighted splitting is not part of the Ingress API and needs controller-specific annotations'
+    - 'Gateway API: the platform owns GatewayClass and Gateway (listeners, TLS, allowedRoutes); app teams own HTTPRoutes in their namespaces that attach with parentRefs'
+    - 'Uses backendRefs with weights 90 and 10 for the canary'
+    - 'Explains the advantages: role-oriented, portable features in the spec, cross-namespace attachment controlled by the Gateway'

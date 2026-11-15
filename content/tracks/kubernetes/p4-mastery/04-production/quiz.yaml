@@ -1,0 +1,50 @@
+questions:
+  - id: skew-order
+    prompt: "In which order do you upgrade a cluster's components to a new minor version?"
+    options:
+      - "Nodes first, then the control plane"
+      - "The control plane (API server first), then the kubelets on the nodes"
+      - "All at once"
+      - "Add-ons first"
+    answer: 1
+    explanation: "Kubelets may be older than the API server, never newer."
+  - id: one-minor
+    prompt: "A cluster is on 1.33 and the target is 1.36. How do you get there?"
+    options:
+      - "Straight to 1.36"
+      - "One minor version at a time: 1.34, then 1.35, then 1.36"
+      - "Reinstall from scratch"
+      - "Upgrade only the nodes"
+    answer: 1
+    explanation: "The control plane supports single minor-version steps; check removed APIs before each one."
+  - id: removed-api
+    prompt: "What breaks most often when upgrading Kubernetes?"
+    options:
+      - "Container images"
+      - "Manifests or charts still using API versions removed in the new release"
+      - "DNS names"
+      - "Node hardware"
+    answer: 1
+    explanation: "Find deprecated apiVersions before the upgrade with tools such as Pluto or kubent."
+  - id: gitops
+    prompt: "What is GitOps?"
+    options:
+      - "Storing kubeconfig files in Git"
+      - "Keeping the desired cluster state in Git, with an in-cluster agent that applies it continuously and reports drift"
+      - "Running kubectl from CI"
+      - "Using Git tags as image tags"
+    answer: 1
+    explanation: "Argo CD and Flux pull from Git; changes are pull requests and rollbacks are reverts."
+  - id: etcd-backup
+    prompt: "Which command takes a snapshot of etcd on a self-managed cluster?"
+    answers: ["etcdctl snapshot save", "etcdctl snapshot save snapshot.db"]
+    explanation: "Store it off the cluster and test the restore regularly."
+  - id: cost
+    prompt: "What mostly decides the compute bill of a Kubernetes cluster?"
+    options:
+      - "The number of namespaces"
+      - "The resource requests, because nodes are added to fit what is requested"
+      - "The number of Services"
+      - "The image sizes"
+    answer: 1
+    explanation: "Over-requested Pods reserve capacity nobody uses; right-size from measurements."

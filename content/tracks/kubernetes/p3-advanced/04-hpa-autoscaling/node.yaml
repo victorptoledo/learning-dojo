@@ -1,0 +1,25 @@
+id: kubernetes.p3.hpa-autoscaling
+legacy_id: k8s-02-hpa-autoscaling
+kind: lesson
+status: draft
+title: "Horizontal Pod Autoscaler (HPA) and KEDA"
+summary: "Scaling replicas on CPU, memory or business metrics such as queue length: the HPA algorithm and behaviour, KEDA, the Vertical Pod Autoscaler and node autoscaling."
+objectives:
+  - { id: o1, text: "Write an autoscaling/v2 HPA and compute the replicas it will ask for", skills: [kubernetes.hpa-autoscaling] }
+  - { id: o2, text: "Tune scaling behaviour and explain why requests and the Deployment's replicas field matter", skills: [kubernetes.hpa-autoscaling] }
+  - { id: o3, text: "Choose between HPA, KEDA, VPA and node autoscalers (Cluster Autoscaler, Karpenter)", skills: [kubernetes.hpa-autoscaling] }
+prerequisites: [kubernetes.p3.locked-down]
+difficulty: 4
+estimated_minutes: 45
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An order-processing service consumes a Kafka topic. At night the lag is zero; at 9 a.m. it reaches 200 000 messages in minutes, and CPU only rises once many Pods are already busy. Today an HPA on 80 % CPU reacts too late and then flaps. Propose an autoscaling setup: what to scale on, minimum and maximum replicas, behaviour settings, what happens at night, and what else in the cluster must scale for the Pods to actually run.'
+  criteria:
+    - 'Scales on the business metric (consumer lag per replica) with KEDA or an HPA on an external metric, instead of CPU'
+    - 'Caps replicas at the number of partitions (more consumers than partitions sit idle)'
+    - 'Uses behavior: fast scale-up policies and a scale-down stabilization window to stop flapping'
+    - 'Discusses scale to zero at night with KEDA (and the cold-start cost), or a minimum of 1-2'
+    - 'Mentions node autoscaling (Cluster Autoscaler or Karpenter) and correct CPU/memory requests so new Pods can be scheduled'

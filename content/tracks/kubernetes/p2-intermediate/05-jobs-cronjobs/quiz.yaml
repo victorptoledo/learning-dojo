@@ -1,0 +1,41 @@
+questions:
+  - id: job-restart
+    prompt: "Which restartPolicy values are allowed in a Job's Pod template?"
+    options: ["Always only", "OnFailure or Never", "Never only", "Any"]
+    answer: 1
+    explanation: "A Job's Pods must be able to finish; Always would restart them forever."
+  - id: backoff
+    prompt: "What does backoffLimit: 3 do?"
+    options:
+      - "Waits 3 seconds between retries"
+      - "Marks the Job failed after 3 failed retries"
+      - "Runs 3 Pods in parallel"
+      - "Keeps 3 old Jobs"
+    answer: 1
+    explanation: "Retries back off exponentially; activeDeadlineSeconds caps the total time as well."
+  - id: forbid
+    prompt: "A CronJob with concurrencyPolicy: Forbid is due while the previous run is still active. What happens?"
+    options:
+      - "Both run"
+      - "The new run is skipped"
+      - "The old run is stopped and replaced"
+      - "The CronJob is suspended"
+    answer: 1
+    explanation: "Replace would stop the old one; Allow, the default, would run both."
+  - id: timezone
+    prompt: "Which CronJob field makes '0 2 * * *' mean 02:00 in São Paulo rather than UTC?"
+    answers: ["timeZone", "spec.timeZone"]
+    explanation: "It takes an IANA zone name such as America/Sao_Paulo."
+  - id: idempotent
+    prompt: "Why must Job and CronJob tasks be idempotent?"
+    options:
+      - "Kubernetes runs every Job twice"
+      - "Retries, node failures, evictions and rare duplicate schedules can run the same work more than once"
+      - "Idempotent containers start faster"
+      - "It is required by the API"
+    answer: 1
+    explanation: "A task that charges a card or sends an e-mail must detect work already done."
+  - id: daemonset
+    prompt: "Which workload runs exactly one Pod on every node, including nodes added later?"
+    answers: ["DaemonSet", "daemonset", "a DaemonSet"]
+    explanation: "Log shippers, metrics agents and CNI plugins are typical DaemonSets."

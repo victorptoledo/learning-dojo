@@ -1,0 +1,80 @@
+pass_percent: 80
+questions:
+  - id: pending-taint
+    skills: [kubernetes.scheduling]
+    prompt: "A Pod is Pending with 'node(s) had untolerated taint {dedicated: batch}'. Which change lets it run on those nodes?"
+    options:
+      - "A nodeSelector dedicated: batch"
+      - "A toleration for dedicated=batch with the taint's effect"
+      - "A higher CPU request"
+      - "A PodDisruptionBudget"
+    answer: 1
+    explanation: "Only a matching toleration lets a Pod past a taint; a selector alone does not."
+  - id: zone-spread
+    skills: [kubernetes.scheduling]
+    prompt: "Which field spreads replicas evenly over zones with a precise maximum difference?"
+    answers: ["topologySpreadConstraints", "spec.topologySpreadConstraints"]
+    explanation: "Use topologyKey topology.kubernetes.io/zone and maxSkew 1."
+  - id: rwx
+    skills: [kubernetes.storage]
+    prompt: "Ten web Pods on different nodes must write to the same uploads folder. What do they need?"
+    options:
+      - "One ReadWriteOnce PVC"
+      - "A ReadWriteMany volume from a shared file system class, or better, object storage"
+      - "An emptyDir"
+      - "A StatefulSet"
+    answer: 1
+    explanation: "ReadWriteOnce allows one node; block disks cannot be shared across nodes."
+  - id: sts-identity
+    skills: [kubernetes.storage]
+    prompt: "What does a StatefulSet give each replica that a Deployment does not?"
+    options:
+      - "More CPU"
+      - "A stable ordinal name, a stable DNS name through a headless Service and its own PVC"
+      - "Automatic database replication"
+      - "A public IP"
+    answer: 1
+    explanation: "Replication and failover are the database's (or an operator's) job."
+  - id: reclaim
+    skills: [kubernetes.storage]
+    prompt: "A PVC is deleted. Its StorageClass has reclaimPolicy: Retain. What happens to the disk?"
+    options: ["It is deleted", "It is kept, with its PV in the Released state, for manual recovery", "It is wiped and reused", "It moves to another claim"]
+    answer: 1
+    explanation: "Delete (the default for dynamic provisioning) removes the disk; Retain keeps it."
+  - id: gateway-owner
+    skills: [kubernetes.ingress-gateway]
+    prompt: "In the Gateway API, which object defines listeners, TLS certificates and which namespaces may attach routes?"
+    options: ["GatewayClass", "Gateway", "HTTPRoute", "ReferenceGrant"]
+    answer: 1
+    explanation: "The platform team owns the Gateway; app teams attach HTTPRoutes to it."
+  - id: ingress-class
+    skills: [kubernetes.ingress-gateway]
+    prompt: "A cluster runs two Ingress controllers. How does an Ingress pick one?"
+    options: ["By namespace", "With spec.ingressClassName", "By the host name", "Randomly"]
+    answer: 1
+    explanation: "The IngressClass names the controller; one class can be marked as the default."
+  - id: cron-overlap
+    skills: [kubernetes.jobs]
+    prompt: "An hourly CronJob sometimes runs longer than an hour, and two runs must never overlap. Which setting?"
+    answers: ["concurrencyPolicy: Forbid", "Forbid", "concurrencyPolicy Forbid"]
+    explanation: "Forbid skips a run while the previous one is still active; Replace would stop the old one."
+  - id: kustomize-images
+    skills: [kubernetes.kustomize-helm]
+    prompt: "In a Kustomize overlay, what is the simplest way to deploy image tag 2.3.1 for prod only?"
+    options:
+      - "Copy deployment.yaml into the overlay and edit it"
+      - "images: [{ name: <image>, newTag: 2.3.1 }] in the overlay's kustomization.yaml"
+      - "A Helm values file"
+      - "kubectl set image after applying"
+    answer: 1
+    explanation: "The images transformer rewrites every matching reference and keeps the base untouched."
+  - id: helm-rollback
+    skills: [kubernetes.kustomize-helm]
+    prompt: "What lets helm rollback return a release to a previous version?"
+    options:
+      - "Git history"
+      - "Helm stores each release revision (its rendered manifests and values) in the cluster"
+      - "The registry keeps old charts"
+      - "Kubernetes keeps old ReplicaSets"
+    answer: 1
+    explanation: "Revisions are stored as Secrets in the release's namespace; helm history lists them."

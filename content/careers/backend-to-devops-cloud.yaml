@@ -24,4 +24,5 @@ stages:
     requires:
       - { track: devops, phase: p4 }
       - { track: system-design, phase: p3 }
+      - { track: kubernetes, phase: p4 }
 next_paths: [backend-to-microservices]

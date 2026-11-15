@@ -1,0 +1,3 @@
+# name: command that prints the YAML to check
+default: helm template ledger chart
+prod: helm template ledger chart -f chart/values-prod.yaml

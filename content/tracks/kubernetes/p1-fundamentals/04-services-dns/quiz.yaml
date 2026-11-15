@@ -1,0 +1,46 @@
+questions:
+  - id: port-vs-target
+    prompt: "A Service has port: 80 and targetPort: 8080. Which statement is right?"
+    options:
+      - "Clients connect to 8080, the container listens on 80"
+      - "Clients connect to the Service on 80, and traffic is forwarded to 8080 in the Pods"
+      - "Both ports are opened on every node"
+      - "The Service listens on both"
+    answer: 1
+    explanation: "port is the Service's own port; targetPort is where the process in the container listens."
+  - id: no-endpoints
+    prompt: "kubectl describe svc web shows Endpoints: <none>. What is the most likely cause?"
+    options:
+      - "CoreDNS is down"
+      - "The selector matches no ready Pod: a label typo or failing readiness probes"
+      - "The Service type is ClusterIP"
+      - "kube-proxy is not installed"
+    answer: 1
+    explanation: "Endpoints come from Pods that match the selector and are ready."
+  - id: cross-namespace
+    prompt: "A Pod in namespace shop must call the Service payments in namespace billing. Which name works?"
+    options: ["payments", "payments.billing", "billing/payments", "payments:billing"]
+    answer: 1
+    explanation: "A short name is searched in the caller's own namespace; name.namespace (or the full .svc.cluster.local name) reaches another one."
+  - id: headless
+    prompt: "What does a headless Service (clusterIP: None) return for its DNS name?"
+    options:
+      - "Nothing"
+      - "The IP addresses of the ready Pods themselves"
+      - "The node IPs"
+      - "A random virtual IP"
+    answer: 1
+    explanation: "With no virtual IP, DNS answers with the Pod IPs, and StatefulSet Pods get individual names."
+  - id: kube-proxy
+    prompt: "How does a connection to a ClusterIP reach a Pod?"
+    options:
+      - "Through a proxy process running inside the Service"
+      - "kube-proxy on each node programs kernel rules that rewrite the virtual IP to a Pod IP"
+      - "CoreDNS forwards the packets"
+      - "The API server relays the traffic"
+    answer: 1
+    explanation: "iptables, IPVS or nftables rules do the work; the virtual IP is not bound to any interface."
+  - id: lb-type
+    prompt: "Which Service type asks the cloud provider for an external load balancer?"
+    answers: ["LoadBalancer", "type: LoadBalancer", "loadbalancer"]
+    explanation: "The cloud controller manager creates it and writes its address into status.loadBalancer."

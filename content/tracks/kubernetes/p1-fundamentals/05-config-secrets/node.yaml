@@ -1,0 +1,23 @@
+id: kubernetes.p1.config-secrets
+kind: lesson
+status: draft
+title: "ConfigMaps and Secrets"
+summary: "Configuration outside the image: ConfigMaps and Secrets as environment variables or files, how updates reach Pods, and what a Secret does and does not protect."
+objectives:
+  - { id: o1, text: "Inject ConfigMap and Secret data as environment variables and as mounted files", skills: [kubernetes.config-secrets] }
+  - { id: o2, text: "Explain how and when changes reach running Pods, and how to trigger a rollout on change", skills: [kubernetes.config-secrets] }
+  - { id: o3, text: "Explain what protects a Secret (RBAC, encryption at rest, external managers) and what does not (base64)", skills: [kubernetes.config-secrets] }
+prerequisites: [kubernetes.p1.services-dns]
+difficulty: 2
+estimated_minutes: 35
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A teammate commits a Secret manifest with `data: { DB_PASSWORD: c3VwZXJzZWNyZXQ= }` to Git and says "it is encrypted, it is a Secret". Explain what is actually protected and what is not, then propose how the team should store and deliver the database password, and how the application should pick up a rotated password without a manual restart.'
+  criteria:
+    - 'Explains that base64 is an encoding, not encryption: anyone with the file or get access to the Secret can read it'
+    - 'Names what protects Secrets in the cluster: RBAC on secrets, encryption at rest for etcd, not mounting them where they are not needed'
+    - 'Proposes keeping the value out of Git: an external secret manager (External Secrets Operator, Secrets Store CSI driver, Sealed Secrets or SOPS)'
+    - 'Explains rotation: mounted files update in place (not with subPath), env vars do not; the app reloads the file, or a rollout restart / checksum annotation restarts Pods'

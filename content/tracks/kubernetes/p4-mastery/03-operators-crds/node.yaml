@@ -1,0 +1,24 @@
+id: kubernetes.p4.operators-crds
+kind: lesson
+status: draft
+title: "Extending Kubernetes: CRDs, Controllers and Operators"
+summary: "Teaching the API new kinds: CustomResourceDefinitions with schemas and versions, custom controllers and the operator pattern, owner references, finalizers and admission webhooks."
+objectives:
+  - { id: o1, text: "Define a CustomResourceDefinition with a schema, status subresource and printer columns", skills: [kubernetes.operators] }
+  - { id: o2, text: "Explain how a controller reconciles a custom resource, with owner references, status conditions and finalizers", skills: [kubernetes.operators] }
+  - { id: o3, text: "Decide when an operator is worth it, and the risks of installing third-party ones", skills: [kubernetes.operators] }
+prerequisites: [kubernetes.p4.broken-release]
+difficulty: 5
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your platform team wants developers to request a PostgreSQL database by applying one small object, for example `kind: Database` with a name, a size and a version, and to get back a ready connection Secret. Design it: the CRD (group, versions, the spec and status fields, scope), what the controller does on create, update and delete, how it reports progress, and how deleting the Database cleans up. Then argue whether to build this or install an existing operator.'
+  criteria:
+    - 'A namespaced CRD in an own group (for example platform.acme.io/v1alpha1) with an OpenAPI schema for spec (size, version) and a status subresource'
+    - 'Reconcile: create or update the StatefulSet, Service and Secret (or a cloud database), idempotently, with owner references so children are garbage-collected'
+    - 'Reports progress with status.conditions (Ready, Progressing) and observedGeneration'
+    - 'Uses a finalizer to clean up external resources (backups, a cloud database) before the object is removed'
+    - 'Weighs build versus buy: CloudNativePG or a managed service versus owning an operator forever; notes RBAC and upgrade risks of third-party operators'

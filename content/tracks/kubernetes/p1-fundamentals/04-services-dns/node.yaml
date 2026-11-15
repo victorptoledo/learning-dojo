@@ -1,0 +1,24 @@
+id: kubernetes.p1.services-dns
+kind: lesson
+status: draft
+title: "Services, EndpointSlices and Cluster DNS"
+summary: "A stable name and virtual IP in front of changing Pods: Service types, ports and targetPorts, EndpointSlices, kube-proxy, headless Services and DNS names."
+objectives:
+  - { id: o1, text: "Write a Service whose selector and targetPort reach the right containers", skills: [kubernetes.services-dns] }
+  - { id: o2, text: "Choose between ClusterIP, NodePort, LoadBalancer, ExternalName and headless Services", skills: [kubernetes.services-dns] }
+  - { id: o3, text: "Explain how EndpointSlices, kube-proxy and CoreDNS turn a Service name into a Pod", skills: [kubernetes.services-dns] }
+prerequisites: [kubernetes.p1.deployments]
+difficulty: 2
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'The `checkout` service in namespace `shop` calls `http://payments:80/charge`, and it fails with "connection refused". The `payments` Deployment in namespace `billing` runs containers listening on 8080 with the label `app: payments-api`. List every reason the call can fail, in the order you would check them, with the kubectl command for each check, and write the Service (and the URL) that makes it work.'
+  criteria:
+    - 'Notices the namespace: from shop, the name must be payments.billing (or payments.billing.svc.cluster.local)'
+    - 'Checks that the Service selector matches the Pod labels (app: payments-api) with kubectl get endpointslices or describe svc'
+    - 'Checks port mapping: port 80 must forward to targetPort 8080 (or a named port)'
+    - 'Checks readiness: only ready Pods are endpoints'
+    - 'Writes a correct ClusterIP Service with selector, port and targetPort'

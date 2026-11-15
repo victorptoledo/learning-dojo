@@ -1,0 +1,50 @@
+questions:
+  - id: previous
+    prompt: "A Pod is in CrashLoopBackOff and kubectl logs shows nothing. What do you run next?"
+    answers: ["kubectl logs --previous", "kubectl logs -p", "kubectl logs <pod> --previous"]
+    explanation: "It shows the output of the container run before the last restart, where the crash happened."
+  - id: config-error
+    prompt: "A Pod shows CreateContainerConfigError. What is the most likely cause?"
+    options:
+      - "The image tag does not exist"
+      - "A ConfigMap, Secret or key the container references does not exist"
+      - "The node is out of memory"
+      - "The readiness probe fails"
+    answer: 1
+    explanation: "describe names the missing object or key; create it or fix the reference."
+  - id: ready-zero
+    prompt: "Pods are Running with 0 restarts but READY shows 0/1, and the Service has no endpoints. Where do you look?"
+    options:
+      - "The image registry"
+      - "The readiness probe: its port, path and the failures in describe"
+      - "The node's disk"
+      - "The HPA"
+    answer: 1
+    explanation: "Not-ready Pods are left out of EndpointSlices; a probe on the wrong port is a classic."
+  - id: debug-shell
+    prompt: "The container image is distroless and has no shell. How do you inspect the running process?"
+    options:
+      - "kubectl exec -- sh"
+      - "kubectl debug with --target to add an ephemeral container that shares its process namespace"
+      - "Rebuild the image with a shell and redeploy"
+      - "SSH into the Pod"
+    answer: 1
+    explanation: "Ephemeral containers join a running Pod for debugging and are removed with it."
+  - id: pod-ip
+    prompt: "wget to a Pod IP works, but wget to the Service name times out. What is most likely wrong?"
+    options:
+      - "The application"
+      - "The Service wiring: selector, targetPort or readiness, or a NetworkPolicy"
+      - "The container image"
+      - "The node kernel"
+    answer: 1
+    explanation: "The app answers; the path through the Service does not reach it."
+  - id: mitigate
+    prompt: "Errors started right after a deploy. What is usually the fastest way to restore service?"
+    options:
+      - "Debug the new Pods until the cause is found"
+      - "kubectl rollout undo (or revert in Git), then investigate"
+      - "Delete the namespace"
+      - "Restart the control plane"
+    answer: 1
+    explanation: "The previous ReplicaSet is still there; scaling it back up takes seconds."

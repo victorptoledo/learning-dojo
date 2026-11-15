@@ -1,0 +1,46 @@
+questions:
+  - id: readiness-fail
+    prompt: "A container's readiness probe starts failing. What does Kubernetes do?"
+    options:
+      - "Restarts the container"
+      - "Removes the Pod from the Service endpoints until the probe passes again"
+      - "Deletes the Pod"
+      - "Nothing"
+    answer: 1
+    explanation: "Readiness controls traffic only; liveness is the probe that restarts."
+  - id: liveness-db
+    prompt: "Why should a liveness probe not check the database?"
+    options:
+      - "Probes cannot open network connections"
+      - "A database outage would restart every replica at once, without fixing anything"
+      - "It is too slow"
+      - "Liveness probes only support tcpSocket"
+    answer: 1
+    explanation: "Restarting the app does not repair the database; keep liveness about the process itself."
+  - id: exit-137
+    prompt: "A container is restarted with exit code 137 and reason OOMKilled. What happened?"
+    options:
+      - "It exceeded its CPU limit"
+      - "It exceeded its memory limit and the kernel killed it"
+      - "Its liveness probe failed"
+      - "The node was drained"
+    answer: 1
+    explanation: "137 is 128 + 9 (SIGKILL). CPU over the limit is throttled, never killed."
+  - id: requests-scheduling
+    prompt: "What does the scheduler use to decide whether a Pod fits on a node?"
+    options: ["The limits", "The requests", "The actual usage", "The image size"]
+    answer: 1
+    explanation: "The scheduler sums the requests of the Pods on a node against its allocatable capacity."
+  - id: qos
+    prompt: "Every container of a Pod has requests equal to limits for both CPU and memory. Which QoS class does it get?"
+    answers: ["Guaranteed", "guaranteed"]
+    explanation: "Guaranteed Pods are the last to be evicted under memory pressure."
+  - id: startup
+    prompt: "A JVM service needs 90 s to start and is killed by its liveness probe during start-up. What is the best fix?"
+    options:
+      - "Remove all probes"
+      - "Add a startupProbe with enough failureThreshold × periodSeconds; liveness starts after it succeeds"
+      - "Raise the memory limit"
+      - "Set restartPolicy: Never"
+    answer: 1
+    explanation: "A startup probe protects slow starts without delaying failure detection afterwards."

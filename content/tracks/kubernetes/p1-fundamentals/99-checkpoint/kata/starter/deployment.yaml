@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeter
+  labels:
+    app.kubernetes.io/name: greeter
+spec:
+  replicas: 1 # todo: see README.md
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: greeter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: greeter
+    spec:
+      containers:
+        - name: greeter
+          image: ghcr.io/acme/greeter:1.2.0
+          # todo: the port, the configuration, the probes and the resources

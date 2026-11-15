@@ -1,0 +1,59 @@
+id: kubernetes.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz on scheduling, storage, traffic, batch work and packaging, and a Kustomize production overlay with spreading, a disruption budget and a Gateway API route."
+objectives:
+  - { id: o1, text: "Explain scheduling, storage, Ingress and the Gateway API, Jobs and CronJobs, Kustomize and Helm in your own words", skills: [kubernetes.scheduling, kubernetes.storage, kubernetes.ingress-gateway, kubernetes.jobs, kubernetes.kustomize-helm] }
+  - { id: o2, text: "Write a Kustomize overlay that turns a shared base into a production deployment exposed through an HTTPRoute", skills: [kubernetes.kustomize-helm, kubernetes.scheduling, kubernetes.ingress-gateway] }
+prerequisites: [kubernetes.p2.kustomize-helm]
+difficulty: 4
+estimated_minutes: 75
+xp: 400
+closes_phase: p2
+covers_skills: [kubernetes.scheduling, kubernetes.storage, kubernetes.ingress-gateway, kubernetes.jobs, kubernetes.kustomize-helm]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-k8s, timeout_secs: 90 }
+  hints:
+    - |-
+      Read `overlays/staging/kustomization.yaml` first: it already uses `namespace`, `replicas` and a `configMapGenerator` with `behavior: merge`. Prod needs the same plus `images`, a patch, and two new resources. Run `kubectl kustomize overlays/prod` (or `kustomize build`) to see what you produce.
+    - |-
+      `images: [{ name: ghcr.io/acme/catalog, newTag: ... }]` changes the tag. Put the resources and the topology spread in one strategic merge patch file that names the Deployment `catalog` and the container `catalog`, and list it under `patches: [{ path: ... }]`. The PDB and the HTTPRoute are new files listed under `resources` next to `../../base`; the HTTPRoute's `parentRefs` names the Gateway `public` in namespace `infra`, and its `backendRefs` the Service `catalog` on port 80.
+    - |-
+      ```yaml
+      # overlays/prod/kustomization.yaml
+      namespace: catalog-prod
+      resources: [../../base, pdb.yaml, httproute.yaml]
+      replicas: [{ name: catalog, count: ... }]
+      images: [{ name: ghcr.io/acme/catalog, newTag: ... }]
+      patches: [{ path: deployment-patch.yaml }]
+      configMapGenerator:
+        - { name: catalog-config, behavior: merge, literals: [LOG_LEVEL=...] }
+      ```
+      ```yaml
+      # overlays/prod/httproute.yaml
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      metadata: { name: catalog }
+      spec:
+        parentRefs: [{ name: public, namespace: infra }]
+        hostnames: [...]
+        rules:
+          - matches: [{ path: { type: PathPrefix, value: / } }]
+            backendRefs: [{ name: catalog, port: 80 }]
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your manifests are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-k8s runner image
+    image: dojo-k8s
+    why: The container with kubeconform, kustomize, helm, yq and bats that checks your manifests offline.

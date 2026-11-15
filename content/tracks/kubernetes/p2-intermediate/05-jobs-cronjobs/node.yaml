@@ -1,0 +1,24 @@
+id: kubernetes.p2.jobs-cronjobs
+kind: lesson
+status: draft
+title: "Jobs, CronJobs and DaemonSets"
+summary: "Workloads that are not long-running replicas: run-to-completion Jobs with retries, parallelism and deadlines, scheduled CronJobs, and DaemonSets that run one Pod per node."
+objectives:
+  - { id: o1, text: "Write a Job with completions, parallelism, backoffLimit, deadlines and cleanup", skills: [kubernetes.jobs] }
+  - { id: o2, text: "Schedule a CronJob and choose its concurrency policy, time zone and history limits", skills: [kubernetes.jobs] }
+  - { id: o3, text: "Explain when a DaemonSet is the right workload and how it is updated", skills: [kubernetes.jobs] }
+prerequisites: [kubernetes.p2.ingress-gateway]
+difficulty: 3
+estimated_minutes: 35
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A nightly report must run at 02:00 Brazil time, take at most one hour, never run twice at the same time, and be retried at most twice if it fails. Old runs should not pile up. Write the CronJob (in YAML or as a list of fields with values) and explain each field. Then explain what happens if the cluster is down at 02:00 and comes back at 02:30, and why the job must be safe to run twice anyway.'
+  criteria:
+    - 'schedule "0 2 * * *" with timeZone America/Sao_Paulo'
+    - 'concurrencyPolicy: Forbid, activeDeadlineSeconds: 3600 and backoffLimit: 2 in the Job template'
+    - 'restartPolicy OnFailure or Never in the Pod, and successful/failed history limits or ttlSecondsAfterFinished'
+    - 'Explains startingDeadlineSeconds: a missed run starts late if within the deadline, otherwise it is skipped'
+    - 'Explains idempotency: retries and rare double starts mean the job must tolerate running more than once'

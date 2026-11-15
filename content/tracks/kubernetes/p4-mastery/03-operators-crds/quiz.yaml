@@ -1,0 +1,50 @@
+questions:
+  - id: crd-alone
+    prompt: "You apply a CRD and then a custom resource of that kind. What happens?"
+    options:
+      - "Kubernetes creates the Pods it describes"
+      - "The object is validated and stored; nothing else happens until a controller acts on it"
+      - "It is rejected without an operator"
+      - "kubectl cannot list it"
+    answer: 1
+    explanation: "A CRD extends the API; behaviour comes from a controller watching the kind."
+  - id: operator
+    prompt: "What makes a controller an operator?"
+    options:
+      - "It runs in kube-system"
+      - "It encodes the operational knowledge of a specific application: install, upgrade, backup, failover"
+      - "It is written in Go"
+      - "It has cluster-admin rights"
+    answer: 1
+    explanation: "It is the operator pattern: a custom resource plus a controller that does an operator's job."
+  - id: owner-refs
+    prompt: "Why does a controller set ownerReferences on the objects it creates?"
+    options:
+      - "For RBAC"
+      - "So the garbage collector deletes them with their owner, and the controller can watch them"
+      - "To make them immutable"
+      - "To schedule them on the same node"
+    answer: 1
+    explanation: "Deleting the parent cascades to the children through the owner references."
+  - id: finalizer
+    prompt: "What does a finalizer on a custom resource do?"
+    answers: ["blocks deletion until the controller removes it", "it blocks deletion until cleanup is done", "delays deletion until cleanup"]
+    explanation: "The object stays with a deletionTimestamp until every finalizer is removed, giving the controller time to clean up external resources."
+  - id: status-subresource
+    prompt: "Why enable the status subresource on a CRD?"
+    options:
+      - "To hide the status"
+      - "So spec and status are updated through separate endpoints: users change spec, the controller writes status, and RBAC can tell them apart"
+      - "It is required for kubectl get"
+      - "To store more data"
+    answer: 1
+    explanation: "It also makes metadata.generation change only on spec changes, which observedGeneration relies on."
+  - id: webhook-risk
+    prompt: "What is the main operational risk of a validating admission webhook?"
+    options:
+      - "It uses too much storage"
+      - "If it is slow or down and fails closed, matching API requests are rejected, which can block deploys or the cluster itself"
+      - "It cannot be removed"
+      - "It disables RBAC"
+    answer: 1
+    explanation: "Scope it narrowly, set timeouts and a failurePolicy, and run it highly available."

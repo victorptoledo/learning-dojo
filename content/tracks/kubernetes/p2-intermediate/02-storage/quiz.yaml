@@ -1,0 +1,42 @@
+questions:
+  - id: emptydir
+    prompt: "How long does the data in an emptyDir volume live?"
+    options: ["Forever", "As long as the Pod (it survives container restarts)", "Until the container restarts", "Until the node reboots, then it is restored"]
+    answer: 1
+    explanation: "It is deleted with the Pod, but a crashing container finds its files again after the restart."
+  - id: claim-volume
+    prompt: "What does a Pod mount to use persistent storage?"
+    options: ["A PersistentVolume", "A PersistentVolumeClaim", "A StorageClass", "A CSI driver"]
+    answer: 1
+    explanation: "The claim is the namespaced request; the control plane binds it to a volume."
+  - id: rwo
+    prompt: "What does the access mode ReadWriteOnce limit?"
+    options:
+      - "One Pod at a time"
+      - "Mounting read-write on one node at a time"
+      - "One write per second"
+      - "One container"
+    answer: 1
+    explanation: "Several Pods on the same node may share it; ReadWriteOncePod limits it to one Pod."
+  - id: wait-first
+    prompt: "Why use volumeBindingMode: WaitForFirstConsumer with zonal cloud disks?"
+    options:
+      - "It is faster"
+      - "The disk is created after the Pod is scheduled, in the Pod's zone, instead of in a zone where the Pod cannot run"
+      - "It encrypts the disk"
+      - "It allows ReadWriteMany"
+    answer: 1
+    explanation: "Immediate binding can create the disk in one zone while the scheduler needs another."
+  - id: sts-names
+    prompt: "A StatefulSet db with serviceName db in namespace data has 3 replicas. What is the DNS name of the second Pod?"
+    answers: ["db-1.db.data.svc.cluster.local", "db-1.db.data", "db-1.db"]
+    explanation: "Ordinals start at 0, and the headless Service gives each Pod its own record."
+  - id: scale-down
+    prompt: "You scale a StatefulSet from 3 to 2 replicas. What happens to the PVC data-db-2?"
+    options:
+      - "It is deleted with the Pod"
+      - "It is kept by default, and db-2 reuses it if you scale back up"
+      - "It is moved to db-1"
+      - "It is converted to an emptyDir"
+    answer: 1
+    explanation: "persistentVolumeClaimRetentionPolicy can delete it on scale-down or deletion if you choose."

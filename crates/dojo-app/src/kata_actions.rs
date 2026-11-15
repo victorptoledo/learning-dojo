@@ -86,6 +86,7 @@ impl App {
         files.extend(["Dockerfile", "compose.yaml"].map(|name| dir.join(name)));
         files.extend(sql_files(dir));
         files.extend(python_modules(dir));
+        files.extend(yaml_manifests(dir));
         let existing: Vec<_> = files.into_iter().filter(|file| file.is_file()).collect();
         match self.editor.open_folder(dir, &existing) {
             Ok(()) => format!("Opened {} in `{}`.", dir.display(), self.editor.command()),
@@ -305,6 +306,22 @@ fn python_modules(dir: &Path) -> Vec<PathBuf> {
         .collect();
     modules.sort();
     modules
+}
+
+/// The manifests of a Kubernetes kata: the `.yaml` files at the top of its folder
+/// (`compose.yaml` is already opened for Docker katas).
+fn yaml_manifests(dir: &Path) -> Vec<PathBuf> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut manifests: Vec<PathBuf> = entries
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file() && path.extension().is_some_and(|ext| ext == "yaml"))
+        .filter(|path| path.file_name().is_some_and(|name| name != "compose.yaml"))
+        .collect();
+    manifests.sort();
+    manifests
 }
 
 fn java_sources(dir: &Path) -> Vec<PathBuf> {

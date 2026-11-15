@@ -1,0 +1,211 @@
+# Technical interview questions for the kubernetes track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://www.simplilearn.com/tutorials/kubernetes-tutorial/kubernetes-interview-questions"
+  - "https://www.geeksforgeeks.org/devops/kubernetes-interview-questions/"
+  - "https://github.com/bregman-arie/devops-exercises"
+  - "https://roadmap.sh/kubernetes"
+  - "https://kubernetes.io/docs/concepts/"
+  - "https://www.cisa.gov/news-events/alerts/2022/03/15/updated-kubernetes-hardening-guide"
+questions:
+  - id: why-kubernetes
+    level: junior
+    skills: [kubernetes.setup, kubernetes.control-plane]
+    question: "What problem does Kubernetes solve, and what does 'declarative' mean in how you use it?"
+    key_points:
+      - "Runs containers across many machines: scheduling, restarts, rescheduling, scaling, rolling updates, service discovery"
+      - "You declare the desired state (spec) in the API; controllers converge the actual state continuously"
+      - "Failures are corrected by the loop, not by scripts run once"
+      - "Costs: complexity and a platform to operate"
+    follow_up: "When would you not use Kubernetes?"
+  - id: pod-vs-container
+    level: junior
+    skills: [kubernetes.pods]
+    question: "What is a Pod, and why does Kubernetes not schedule containers directly?"
+    key_points:
+      - "The smallest deployable unit: one or more containers on one node"
+      - "They share the network namespace (IP, ports, localhost), volumes and lifecycle"
+      - "Helpers that must be co-located (sidecars, init containers) live in the same Pod"
+      - "Pods are disposable and replaced, never moved"
+    follow_up: "When would you put two containers in one Pod, and when not?"
+  - id: deployment-replicaset
+    level: junior
+    skills: [kubernetes.deployments]
+    question: "What is the relationship between a Deployment, a ReplicaSet and Pods?"
+    key_points:
+      - "A Deployment manages ReplicaSets, one per Pod template version"
+      - "A ReplicaSet keeps the desired number of Pods matching its selector"
+      - "Template changes create a new ReplicaSet and roll Pods over; old ones are kept for rollback"
+      - "The selector must match the template labels and is immutable"
+    follow_up: "How do you roll back a bad release, and what must also happen in Git?"
+  - id: service-types
+    level: junior
+    skills: [kubernetes.services-dns]
+    question: "What is a Service, and what are the differences between ClusterIP, NodePort and LoadBalancer?"
+    key_points:
+      - "A stable virtual IP and DNS name in front of Pods chosen by a label selector"
+      - "ClusterIP: inside the cluster; NodePort: a port on every node; LoadBalancer: a cloud load balancer"
+      - "EndpointSlices list the ready Pods; kube-proxy programs the forwarding"
+      - "port versus targetPort; headless Services for direct Pod addresses"
+    follow_up: "A Service has no endpoints. What do you check?"
+  - id: configmap-secret
+    level: junior
+    skills: [kubernetes.config-secrets]
+    question: "How do you give configuration and secrets to an application in Kubernetes, and how safe are Secrets?"
+    key_points:
+      - "ConfigMaps and Secrets as environment variables or mounted files"
+      - "base64 is not encryption; RBAC, encryption at rest and external secret managers protect them"
+      - "Mounted files update in place; env vars need a restart"
+      - "Keep real secret values out of Git"
+    follow_up: "How would you make a configuration change roll out automatically?"
+  - id: probes
+    level: junior
+    skills: [kubernetes.probes-resources]
+    question: "Explain liveness, readiness and startup probes. What goes wrong if they are set up badly?"
+    key_points:
+      - "Readiness removes a Pod from endpoints; liveness restarts the container; startup protects slow starts"
+      - "Liveness must not check dependencies or every replica restarts at once"
+      - "No readiness probe means broken versions receive traffic during rollouts"
+      - "Probe ports and paths must match what the app serves"
+    follow_up: "How would you set probes for a JVM service that takes 90 seconds to start?"
+  - id: control-plane-flow
+    level: mid
+    skills: [kubernetes.control-plane]
+    question: "Walk me through what happens, component by component, after kubectl apply of a Deployment."
+    key_points:
+      - "API server: authentication, authorisation, admission, validation, stored in etcd"
+      - "Deployment controller creates a ReplicaSet; ReplicaSet controller creates Pods"
+      - "Scheduler binds Pods to nodes; kubelet starts them via the CRI runtime"
+      - "EndpointSlice controller and kube-proxy wire them into Services once ready"
+    follow_up: "Why do the components watch the API instead of calling each other?"
+  - id: requests-limits
+    level: mid
+    skills: [kubernetes.probes-resources]
+    question: "What are requests and limits, how do they relate to QoS classes, and how do you choose values?"
+    key_points:
+      - "Requests drive scheduling; limits are enforced by cgroups"
+      - "Memory over the limit is OOM killed (137); CPU over the limit is throttled"
+      - "Guaranteed, Burstable and BestEffort decide eviction order"
+      - "Set from measured usage; be careful with CPU limits; align runtime heap settings"
+    follow_up: "Pods are OOMKilled while the node has free memory. Explain."
+  - id: scheduling-controls
+    level: mid
+    skills: [kubernetes.scheduling]
+    question: "How do you control where Pods run? Compare node affinity, taints and tolerations, and topology spread."
+    key_points:
+      - "nodeSelector and node affinity attract Pods to labelled nodes; required versus preferred"
+      - "Taints repel Pods; tolerations permit but do not attract"
+      - "Pod anti-affinity and topology spread distribute replicas over nodes and zones"
+      - "PodDisruptionBudgets protect availability during drains"
+    follow_up: "How would you dedicate a node pool to one team's workloads?"
+  - id: stateful
+    level: mid
+    skills: [kubernetes.storage]
+    question: "How do you run a stateful application such as a database on Kubernetes?"
+    key_points:
+      - "PVCs bound to PVs provisioned by a StorageClass through a CSI driver"
+      - "StatefulSet: stable ordinal names, a headless Service for DNS, a PVC per replica"
+      - "Ordered start and updates; PVCs kept on scale-down"
+      - "Replication, backups and failover need the database or an operator; consider managed services"
+    follow_up: "What does volumeBindingMode WaitForFirstConsumer solve?"
+  - id: ingress-gateway
+    level: mid
+    skills: [kubernetes.ingress-gateway]
+    question: "How does external HTTP traffic reach your Pods? Compare Ingress with the Gateway API."
+    key_points:
+      - "A controller (proxy) implements Ingress or Gateway objects, behind a LoadBalancer Service"
+      - "Ingress: host and path rules, TLS Secret, IngressClass; extras in annotations"
+      - "Gateway API: GatewayClass, Gateway, HTTPRoute split by role; weights, header matches, filters in the spec"
+      - "Backends are ClusterIP Services; cert-manager handles certificates"
+    follow_up: "How would you run a 5 % canary with the Gateway API?"
+  - id: jobs-cron
+    level: mid
+    skills: [kubernetes.jobs]
+    question: "How do Jobs and CronJobs work, and what must you watch out for?"
+    key_points:
+      - "Jobs run Pods to completion with completions, parallelism, backoffLimit and deadlines"
+      - "CronJobs create Jobs on a schedule, with timeZone and concurrencyPolicy"
+      - "Tasks must be idempotent: retries and duplicate or missed runs happen"
+      - "Clean up with history limits or ttlSecondsAfterFinished"
+    follow_up: "Why is @Scheduled inside a 3-replica Deployment a problem?"
+  - id: kustomize-helm
+    level: mid
+    skills: [kubernetes.kustomize-helm]
+    question: "Kustomize or Helm: how do they differ and when do you use each?"
+    key_points:
+      - "Kustomize patches plain YAML with bases and overlays; built into kubectl"
+      - "Helm renders templates with values and manages releases with history and rollback"
+      - "Kustomize for your own multi-environment manifests; Helm for packages and third-party software"
+      - "Render and validate in CI either way"
+    follow_up: "How do you make sure a config change restarts the Pods with each tool?"
+  - id: rbac-design
+    level: mid
+    skills: [kubernetes.rbac]
+    question: "How does RBAC work, and how would you give a CI pipeline the right to deploy to two namespaces?"
+    key_points:
+      - "Roles and ClusterRoles list verbs on resources; bindings give them to users, groups or ServiceAccounts"
+      - "RoleBindings scope even a ClusterRole to one namespace; RBAC is allow-only"
+      - "A dedicated ServiceAccount with only the verbs on the resources it touches"
+      - "Verify with kubectl auth can-i --as; watch escalation paths (create pods, secrets, bind, escalate)"
+    follow_up: "Why is create on pods nearly as powerful as reading Secrets?"
+  - id: hardening
+    level: senior
+    skills: [kubernetes.workload-security, kubernetes.network-policy]
+    question: "How would you harden workloads in a cluster that runs many teams' services?"
+    key_points:
+      - "Security contexts: non-root, no privilege escalation, drop ALL capabilities, seccomp RuntimeDefault, read-only root"
+      - "Pod Security Admission at restricted (baseline at least), rolled out with warn and audit first"
+      - "Default-deny NetworkPolicies with explicit allows, DNS included; a CNI that enforces them"
+      - "Least-privilege RBAC, no automounted tokens, policy engines for registries and signatures"
+    follow_up: "What do these controls not protect against?"
+  - id: autoscaling
+    level: senior
+    skills: [kubernetes.hpa-autoscaling]
+    question: "Design autoscaling for a service with spiky traffic. What scales, on which signal, and what can go wrong?"
+    key_points:
+      - "HPA on CPU relative to requests, or on custom and external metrics; KEDA for event sources and scale to zero"
+      - "Behaviour: fast scale-up, stabilised scale-down to avoid flapping"
+      - "The Deployment must not set replicas; requests must be right"
+      - "Nodes must follow: Cluster Autoscaler or Karpenter; warm-up and headroom"
+    follow_up: "Why is memory usually a poor HPA metric?"
+  - id: debugging-flow
+    level: senior
+    skills: [kubernetes.debugging]
+    question: "Users get 503s after a deploy. Walk me through how you investigate and restore service."
+    key_points:
+      - "Mitigate first: rollout undo or revert"
+      - "Follow the chain: route or Ingress, Service, EndpointSlices, Pod readiness, containers"
+      - "describe and events, logs --previous, exit codes and reasons (OOMKilled, config errors)"
+      - "kubectl debug or a debug Pod to test DNS, the Service and Pod IPs from inside"
+    follow_up: "How would you find out whether a NetworkPolicy is dropping the traffic?"
+  - id: operators
+    level: senior
+    skills: [kubernetes.operators]
+    question: "What is an operator, and how would you decide between writing one and using something else?"
+    key_points:
+      - "A CRD plus a controller that encodes operational knowledge of one application"
+      - "Idempotent, level-triggered reconcile, owner references, finalizers, status conditions"
+      - "Prefer managed services, mature operators or charts; your own operator is long-term code"
+      - "Third-party operators need wide RBAC and webhooks: review them like any privileged software"
+    follow_up: "Why can deleting a CRD be dangerous?"
+  - id: upgrades
+    level: senior
+    skills: [kubernetes.production]
+    question: "How do you upgrade a production cluster safely, and how do you keep it from falling behind again?"
+    key_points:
+      - "One minor version at a time, control plane before kubelets, within the version skew policy"
+      - "Find removed APIs first; upgrade add-ons; rehearse in staging"
+      - "Replace or drain nodes respecting PodDisruptionBudgets; workloads tolerant of node loss"
+      - "A regular cadence (three releases a year, about 14 months support) and automation"
+    follow_up: "What makes workloads safe to drain?"
+  - id: platform-design
+    level: senior
+    skills: [kubernetes.production, kubernetes.workload-security]
+    question: "You are building an internal platform on Kubernetes for 20 teams. What are the main design decisions?"
+    key_points:
+      - "Cluster topology: shared clusters with namespaces per team versus several clusters; managed control plane"
+      - "Tenancy controls: RBAC from identity-provider groups, quotas, LimitRanges, NetworkPolicies, Pod Security"
+      - "Delivery: GitOps, templates or charts, policy checks in CI and at admission, progressive delivery"
+      - "Operations: observability with SLOs, backups and restore tests, upgrade cadence, cost visibility"
+    follow_up: "When would you give a team its own cluster?"

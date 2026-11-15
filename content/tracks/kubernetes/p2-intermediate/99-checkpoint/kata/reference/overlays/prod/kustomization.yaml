@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: catalog-prod
+resources:
+  - ../../base
+  - pdb.yaml
+  - httproute.yaml
+replicas:
+  - name: catalog
+    count: 4
+images:
+  - name: ghcr.io/acme/catalog
+    newTag: 2.3.1
+patches:
+  - path: deployment-patch.yaml
+configMapGenerator:
+  - name: catalog-config
+    behavior: merge
+    literals:
+      - LOG_LEVEL=warn

@@ -1,0 +1,5 @@
+# CRD schemas the image bakes in, as <group>/<kind>_<version> in the CRDs catalog.
+gateway.networking.k8s.io/gatewayclass_v1
+gateway.networking.k8s.io/gateway_v1
+gateway.networking.k8s.io/httproute_v1
+gateway.networking.k8s.io/referencegrant_v1

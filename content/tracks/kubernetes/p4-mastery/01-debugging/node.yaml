@@ -1,0 +1,24 @@
+id: kubernetes.p4.debugging
+kind: lesson
+status: draft
+title: "Debugging Workloads: describe, Events, Logs and Ephemeral Containers"
+summary: "A method for broken workloads: read status, describe and events, logs of the current and previous container, exec and ephemeral debug containers, and the usual causes of Pending, CrashLoopBackOff, ImagePullBackOff and Services without endpoints."
+objectives:
+  - { id: o1, text: "Follow a top-down method from the symptom to the failing object with get, describe and events", skills: [kubernetes.debugging] }
+  - { id: o2, text: "Diagnose Pending, ImagePullBackOff, CreateContainerConfigError, CrashLoopBackOff, OOMKilled and not-ready Pods", skills: [kubernetes.debugging] }
+  - { id: o3, text: "Debug inside a running Pod with logs, exec, port-forward and kubectl debug", skills: [kubernetes.debugging] }
+prerequisites: [kubernetes.p3.helm-release]
+difficulty: 4
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'After a deploy, users get HTTP 503 from `https://shop.example.com/api`. You have kubectl access to the `shop` namespace. Write your investigation as a numbered list of commands with what you expect to learn from each, from the edge to the container, branching on what you find (no endpoints, Pods not ready, Pods crashing, Pods Pending). For each branch name the two most likely causes.'
+  criteria:
+    - 'Starts from the route or Ingress and the Service: kubectl get/describe, then EndpointSlices to see whether there are ready backends'
+    - 'No endpoints: selector and label mismatch, or Pods not ready (readiness probe failing, wrong probe port or path)'
+    - 'Crashing: kubectl logs --previous, describe for exit code and reason (OOMKilled, config error), recent changes with rollout history'
+    - 'Pending: describe events for scheduling reasons (insufficient resources, taints, unbound PVC)'
+    - 'Mentions a fast mitigation (kubectl rollout undo) before the deep fix, and kubectl debug or port-forward to test from inside'

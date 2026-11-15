@@ -1,0 +1,29 @@
+id: kubernetes.p0.setup
+kind: lesson
+status: draft
+title: "Why Kubernetes, Local Clusters and kubectl"
+summary: "The problem an orchestrator solves, the idea of declared state, a local cluster on Docker Desktop and the kubectl commands you will use every day."
+objectives:
+  - { id: o1, text: "Explain what an orchestrator does that docker run on one host cannot", skills: [kubernetes.setup] }
+  - { id: o2, text: "Describe the declarative model: you write the desired state and controllers make it true", skills: [kubernetes.setup] }
+  - { id: o3, text: "Start a local cluster, pick a kubectl context and get, describe, apply and delete objects", skills: [kubernetes.setup] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 35
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team runs four services with `docker compose` on one virtual machine. A manager asks: "Why would we move to Kubernetes, and what would we give up?" Answer in a short note: what Kubernetes adds (name at least four concrete capabilities), what "declarative" means in practice compared with the scripts you have today, and when staying on Compose is the better choice.'
+  criteria:
+    - 'Names concrete capabilities: scheduling across nodes, self-healing restarts and rescheduling, rolling updates and rollbacks, service discovery and load balancing, scaling'
+    - 'Explains declarative: you store the desired state in the API and controllers keep converging the actual state to it'
+    - 'Contrasts this with imperative scripts that run once and do not react to later failures'
+    - 'Admits the costs: operational complexity, learning curve, more YAML, a control plane to run or pay for'
+    - 'Gives a fair case for staying on Compose (a few services, one host, small team)'
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: The examples use the Kubernetes cluster built into Docker Desktop (or kind).
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"

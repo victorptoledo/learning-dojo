@@ -1,0 +1,24 @@
+id: kubernetes.p2.kustomize-helm
+kind: lesson
+status: draft
+title: "Packaging Manifests: Kustomize and Helm"
+summary: "One application, several environments: Kustomize bases, overlays, patches and generators, Helm charts, values and releases, and how to choose."
+objectives:
+  - { id: o1, text: "Build a Kustomize base with overlays, patches, images and generators", skills: [kubernetes.kustomize-helm] }
+  - { id: o2, text: "Explain Helm charts, templates, values, releases, upgrades and rollbacks", skills: [kubernetes.kustomize-helm] }
+  - { id: o3, text: "Choose between plain manifests, Kustomize and Helm for a given situation", skills: [kubernetes.kustomize-helm] }
+prerequisites: [kubernetes.p2.jobs-cronjobs]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team deploys one service to dev, staging and prod. Today there are three copies of every manifest that drift apart. Propose a layout with Kustomize (folders and what each kustomization.yaml contains), showing how prod gets 5 replicas, larger resources and its own image tag. Then explain when you would package the same service as a Helm chart instead, and how you would install a third-party chart (for example a database) while keeping your own manifests in Kustomize.'
+  criteria:
+    - 'A base/ with the shared manifests and overlays/dev, overlays/staging, overlays/prod referencing ../../base'
+    - 'Prod uses patches (strategic merge or JSON 6902) for replicas and resources, and images: to set the tag'
+    - 'Mentions generators (configMapGenerator) with hash suffixes so config changes roll out'
+    - 'Helm when the package is shared and configured by others (values, templating, versioned releases, rollback)'
+    - 'Installs third-party software from its chart with a values file per environment (helm upgrade --install or Kustomize helmCharts), pinned to a chart version'

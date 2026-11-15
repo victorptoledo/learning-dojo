@@ -1,0 +1,47 @@
+questions:
+  - id: single-door
+    prompt: "Which component do the scheduler, the controllers and the kubelets talk to?"
+    options: ["etcd directly", "Only the kube-apiserver", "Each other, over gRPC", "kube-proxy"]
+    answer: 1
+    explanation: "Only the API server reads and writes etcd; every other component watches and updates objects through it."
+  - id: etcd-quorum
+    prompt: "A three-member etcd cluster loses two members. What happens?"
+    options:
+      - "It keeps working with one member"
+      - "It cannot accept writes: Raft needs a majority (2 of 3)"
+      - "It switches to read-write on the survivor after a timeout"
+      - "Nothing, etcd replicates to the nodes"
+    answer: 1
+    explanation: "Raft needs a quorum of floor(n/2)+1; that is why etcd runs as 3 or 5 members, never 2 or 4."
+  - id: who-creates-pods
+    prompt: "You apply a Deployment. Which controller creates the Pod objects?"
+    options: ["The Deployment controller", "The ReplicaSet controller", "The scheduler", "The kubelet"]
+    answer: 1
+    explanation: "The Deployment controller manages ReplicaSets; the ReplicaSet controller creates and deletes Pods to match its replica count."
+  - id: scheduler-job
+    prompt: "What does the scheduler write when it has chosen a node for a Pod?"
+    options:
+      - "It starts the containers on the node"
+      - "A binding that sets the Pod's nodeName"
+      - "A new ReplicaSet"
+      - "An entry in the node's iptables"
+    answer: 1
+    explanation: "The scheduler only decides; the kubelet on that node then sees the Pod and starts it."
+  - id: level-triggered
+    prompt: "A controller was down for ten minutes and missed many events. What happens when it restarts?"
+    options:
+      - "The events are lost and the cluster stays inconsistent"
+      - "It replays the events from etcd's log in order"
+      - "It reads the current desired and actual state and acts on the difference"
+      - "An administrator must run a resync command"
+    answer: 2
+    explanation: "Controllers are level-triggered: they converge from the current state, so missed events do not matter."
+  - id: bare-pod
+    prompt: "A node dies. Which Pods are recreated elsewhere?"
+    options:
+      - "All Pods that were on it"
+      - "Only Pods owned by a controller such as a ReplicaSet, StatefulSet or Job"
+      - "Only Pods with restartPolicy Always"
+      - "None: you must apply them again"
+    answer: 1
+    explanation: "A bare Pod has nobody to recreate it; controllers notice the missing replicas and create new Pods."

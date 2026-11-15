@@ -1,0 +1,53 @@
+id: kubernetes.p3.locked-down
+kind: kata
+status: draft
+title: "Lock Down a Namespace"
+summary: "Harden a running service: a restricted namespace, a least-privilege ServiceAccount, a restricted security context and default-deny network policies with exact allowances."
+objectives:
+  - { id: o1, text: "Meet the restricted Pod Security Standard and enforce it on a namespace", skills: [kubernetes.workload-security] }
+  - { id: o2, text: "Grant a workload only the API access it needs", skills: [kubernetes.rbac] }
+  - { id: o3, text: "Write default-deny NetworkPolicies with ingress, egress and DNS allowances", skills: [kubernetes.network-policy] }
+prerequisites: [kubernetes.p3.workload-security]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-k8s, timeout_secs: 60 }
+  hints:
+    - |-
+      Go file by file. Which namespace labels make Pod Security Admission enforce a profile? In `rbac.yaml`, what exactly does the service need from the API, and what do the wildcards give it instead? In `deployment.yaml`, which five fields does the restricted profile require?
+    - |-
+      The Role needs `apiGroups: [""]`, `resources: [configmaps]`, `resourceNames: [inventory-flags]` and `verbs: [get, watch]`. Pod level: `runAsNonRoot`, `runAsUser`, `seccompProfile`. Container level: `allowPrivilegeEscalation: false`, `capabilities: { drop: [ALL] }`, `readOnlyRootFilesystem: true`, plus an `emptyDir` at `/tmp`. In `netpol.yaml`, one default deny with `podSelector: {}` and both policy types, then one policy for the inventory Pods.
+    - |-
+      ```yaml
+      # netpol.yaml, the allow policy
+      spec:
+        podSelector: { matchLabels: { app.kubernetes.io/name: inventory } }
+        policyTypes: [Ingress, Egress]
+        ingress:
+          - from:
+              - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: ... } }
+                podSelector: { matchLabels: { app.kubernetes.io/name: ... } }
+            ports: [{ port: 8080, protocol: TCP }]
+        egress:
+          - to: [{ podSelector: { matchLabels: { app.kubernetes.io/name: postgres } } }]
+            ports: [{ port: 5432, protocol: TCP }]
+          - to:
+              - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: kube-system } }
+                podSelector: { matchLabels: { k8s-app: kube-dns } }
+            ports: [{ port: 53, protocol: UDP }, { port: 53, protocol: TCP }]
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your manifests are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-k8s runner image
+    image: dojo-k8s
+    why: The container with kubeconform, kustomize, helm, yq and bats that checks your manifests offline.

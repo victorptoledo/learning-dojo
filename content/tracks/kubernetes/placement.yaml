@@ -1,0 +1,335 @@
+# Placement test of the Kubernetes track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with Kubernetes?
+  options:
+    - { label: "Never used it, or only ran kubectl commands someone gave me", start_phase: p0, test: false }
+    - { label: "I deploy apps with Deployments, Services and ConfigMaps", start_phase: p1, test: true }
+    - { label: "I write Helm charts or Kustomize overlays and debug workloads in real clusters", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-etcd-role
+    phase: p1
+    skills: [kubernetes.control-plane]
+    difficulty: 2
+    prompt: "Where is the desired state of every object in a cluster stored?"
+    options: ["On each node's disk", "In etcd, written only through the API server", "In the scheduler's memory", "In the container registry"]
+    answer: 1
+    explanation: "etcd is the cluster's database; every other component reads and writes through the API server."
+  - id: p1-kubelet-role
+    phase: p1
+    skills: [kubernetes.control-plane]
+    difficulty: 3
+    prompt: "A Pod has been bound to node-2. Which component starts its containers?"
+    options: ["kube-scheduler", "The kubelet on node-2, through the container runtime", "kube-proxy", "The ReplicaSet controller"]
+    answer: 1
+    explanation: "The kubelet watches for Pods bound to its node and asks containerd or CRI-O to run them."
+  - id: p1-pod-localhost
+    phase: p1
+    skills: [kubernetes.pods]
+    difficulty: 2
+    prompt: "An app container must call a proxy sidecar in the same Pod. Which address does it use?"
+    options: ["The sidecar's Pod IP from DNS", "localhost and the sidecar's port", "The node IP", "A Service in front of the sidecar"]
+    answer: 1
+    explanation: "Containers in a Pod share one network namespace."
+  - id: p1-pod-replaced
+    phase: p1
+    skills: [kubernetes.pods]
+    difficulty: 2
+    prompt: "A Deployment's Pod is replaced after a node failure. What stays the same?"
+    options: ["Its name and IP", "Nothing of the Pod itself: it is a new Pod with a new name and IP, from the same template", "Its IP only", "Its local files"]
+    answer: 1
+    explanation: "Pods are never moved; that is why clients use Services, not Pod IPs."
+  - id: p1-rollout-pace
+    phase: p1
+    skills: [kubernetes.deployments]
+    difficulty: 3
+    prompt: "A rolling update with maxUnavailable: 0 stays at 1 of 4 new Pods for an hour. What is the most likely reason?"
+    options:
+      - "maxSurge is too high"
+      - "The new Pod never becomes ready, so the rollout waits and the old Pods keep serving"
+      - "The scheduler is down"
+      - "The image is too large"
+    answer: 1
+    explanation: "Rollouts are paced by readiness; check the new Pod's probe and logs."
+  - id: p1-selector-immutable
+    phase: p1
+    skills: [kubernetes.deployments]
+    difficulty: 3
+    prompt: "You try to change a Deployment's spec.selector after creation. What happens?"
+    options: ["It is applied at the next rollout", "The API rejects it: the selector is immutable", "Old Pods are relabelled", "The ReplicaSets are deleted"]
+    answer: 1
+    explanation: "Choose stable selector labels up front; changing them means a new Deployment."
+  - id: p1-named-targetport
+    phase: p1
+    skills: [kubernetes.services-dns]
+    difficulty: 2
+    prompt: "Why prefer targetPort: http over targetPort: 8080 in a Service?"
+    options:
+      - "Named ports are faster"
+      - "The Service follows the container's port named http, so changing the number only touches the Pod spec"
+      - "Numbers are not allowed"
+      - "It enables TLS"
+    answer: 1
+    explanation: "The name is resolved per Pod against its declared container ports."
+  - id: p1-svc-short-name
+    phase: p1
+    skills: [kubernetes.services-dns]
+    difficulty: 3
+    prompt: "A Pod in namespace web looks up the short name redis. Which Service does it reach first?"
+    options: ["redis in kube-system", "redis in its own namespace web", "Any redis in the cluster", "None: short names do not resolve"]
+    answer: 1
+    explanation: "The resolver search list starts with the Pod's own namespace (web.svc.cluster.local)."
+  - id: p1-secret-encoding
+    phase: p1
+    skills: [kubernetes.config-secrets]
+    difficulty: 2
+    prompt: "Which statement about Secrets is true by default?"
+    options:
+      - "Values are encrypted in etcd"
+      - "Values are only base64-encoded; protection comes from RBAC and enabling encryption at rest"
+      - "Nobody can read them with kubectl"
+      - "They cannot be mounted as files"
+    answer: 1
+    explanation: "Enable an EncryptionConfiguration (or the provider's KMS option) and restrict get/list on secrets."
+  - id: p1-cpu-limit
+    phase: p1
+    skills: [kubernetes.probes-resources]
+    difficulty: 3
+    prompt: "A container hits its CPU limit for long periods. What does the kernel do?"
+    options: ["Kills it with exit code 137", "Throttles it: it runs slower, with latency spikes", "Moves it to another node", "Nothing"]
+    answer: 1
+    explanation: "Only the memory limit kills; the CPU limit throttles."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-spread-zones
+    phase: p2
+    skills: [kubernetes.scheduling]
+    difficulty: 3
+    prompt: "Which setting keeps a 6-replica service at 2 Pods per zone across 3 zones?"
+    options:
+      - "nodeSelector on a zone"
+      - "topologySpreadConstraints on topology.kubernetes.io/zone with maxSkew 1"
+      - "A PodDisruptionBudget"
+      - "A PriorityClass"
+    answer: 1
+    explanation: "maxSkew bounds the difference in replica counts between zones."
+  - id: p2-dedicated-pool
+    phase: p2
+    skills: [kubernetes.scheduling]
+    difficulty: 4
+    prompt: "GPU nodes must run only GPU jobs, and GPU jobs only on GPU nodes. What do you need?"
+    options:
+      - "A taint on the GPU nodes only"
+      - "A taint on the GPU nodes plus, on the jobs, a matching toleration and node affinity for the GPU label"
+      - "Node affinity on every other workload"
+      - "A separate namespace"
+    answer: 1
+    explanation: "The taint keeps others away; the toleration permits and the affinity attracts the jobs."
+  - id: p2-pvc-zone
+    phase: p2
+    skills: [kubernetes.storage]
+    difficulty: 4
+    prompt: "A Pod with a new PVC stays Pending: 'volume node affinity conflict'. The class uses Immediate binding. What is the fix?"
+    options:
+      - "Use a bigger disk"
+      - "Use volumeBindingMode: WaitForFirstConsumer so the disk is created in the zone where the Pod is scheduled"
+      - "Delete the node"
+      - "Use an emptyDir"
+    answer: 1
+    explanation: "Immediate binding created the zonal disk before the scheduler chose a node."
+  - id: p2-sts-order
+    phase: p2
+    skills: [kubernetes.storage]
+    difficulty: 3
+    prompt: "With the default podManagementPolicy, how does a 3-replica StatefulSet start?"
+    options: ["All at once", "db-0, then db-1 once db-0 is ready, then db-2", "In random order", "db-2 first"]
+    answer: 1
+    explanation: "OrderedReady is the default; Parallel starts them together."
+  - id: p2-gateway-split
+    phase: p2
+    skills: [kubernetes.ingress-gateway]
+    difficulty: 3
+    prompt: "A platform team owns the load balancer; app teams own their routing. Which API models that split?"
+    options: ["Ingress", "The Gateway API: Gateway for the platform, HTTPRoutes for the apps", "Service type LoadBalancer", "NetworkPolicy"]
+    answer: 1
+    explanation: "Gateways decide which namespaces may attach routes; routes live with the apps."
+  - id: p2-tls-secret
+    phase: p2
+    skills: [kubernetes.ingress-gateway]
+    difficulty: 2
+    prompt: "Where does an Ingress get its TLS certificate from?"
+    options: ["The container image", "A kubernetes.io/tls Secret named in spec.tls", "A ConfigMap", "The node"]
+    answer: 1
+    explanation: "cert-manager usually creates and renews that Secret."
+  - id: p2-job-never
+    phase: p2
+    skills: [kubernetes.jobs]
+    difficulty: 3
+    prompt: "Why choose restartPolicy: Never instead of OnFailure in a Job?"
+    options:
+      - "It is faster"
+      - "Each attempt gets a new Pod, so failed Pods and their logs stay for inspection"
+      - "It disables retries"
+      - "It is the only allowed value"
+    answer: 1
+    explanation: "OnFailure restarts the container in place; Never keeps each failed attempt."
+  - id: p2-kustomize-patch
+    phase: p2
+    skills: [kubernetes.kustomize-helm]
+    difficulty: 3
+    prompt: "In a Kustomize overlay, how do you raise only prod's replicas without copying the Deployment?"
+    options:
+      - "Edit the base"
+      - "A patch (or the replicas field) in overlays/prod/kustomization.yaml"
+      - "kubectl scale after applying"
+      - "A Helm hook"
+    answer: 1
+    explanation: "Overlays transform the base's output; the base stays shared."
+  - id: p2-helm-values
+    phase: p2
+    skills: [kubernetes.kustomize-helm]
+    difficulty: 2
+    prompt: "How do you install a chart with production settings?"
+    options: ["Edit its templates", "Pass a values file: helm upgrade --install -f values-prod.yaml", "Use kubectl apply on the chart folder", "Set environment variables"]
+    answer: 1
+    explanation: "Values configure the chart; templates stay untouched."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-clusterrole-scope
+    phase: p3
+    skills: [kubernetes.rbac]
+    difficulty: 3
+    prompt: "You bind the ClusterRole view to a group with a ClusterRoleBinding. What can the group read?"
+    options: ["Only the default namespace", "Most objects (not Secrets) in every namespace", "Nothing until a Role exists", "Only cluster-scoped objects"]
+    answer: 1
+    explanation: "A ClusterRoleBinding grants in all namespaces; a RoleBinding would limit it to one."
+  - id: p3-sa-default
+    phase: p3
+    skills: [kubernetes.rbac]
+    difficulty: 3
+    prompt: "Which practice limits the damage of a compromised application container?"
+    options:
+      - "Granting rights to the default ServiceAccount"
+      - "A dedicated ServiceAccount with only the needed rules, and no token mounted when the app does not call the API"
+      - "Mounting the kubeconfig of an admin"
+      - "Using hostNetwork"
+    answer: 1
+    explanation: "A mounted token is a credential the attacker can use."
+  - id: p3-restricted-fields
+    phase: p3
+    skills: [kubernetes.workload-security]
+    difficulty: 3
+    prompt: "A Pod is rejected in a namespace that enforces restricted. Which missing setting is a typical cause?"
+    options: ["A memory limit", "capabilities drop: [ALL] (or allowPrivilegeEscalation: false, runAsNonRoot, seccomp RuntimeDefault)", "A readiness probe", "An image digest"]
+    answer: 1
+    explanation: "These four are required by the restricted Pod Security Standard."
+  - id: p3-readonly-tmp
+    phase: p3
+    skills: [kubernetes.workload-security]
+    difficulty: 3
+    prompt: "After setting readOnlyRootFilesystem: true, the app fails writing to /tmp. What is the right fix?"
+    options: ["Turn the setting off", "Mount an emptyDir at /tmp", "Run as root", "Add the capability SYS_ADMIN"]
+    answer: 1
+    explanation: "Writes go to explicit volumes; the image's own files stay read-only."
+  - id: p3-netpol-dns
+    phase: p3
+    skills: [kubernetes.network-policy]
+    difficulty: 4
+    prompt: "A namespace gets a default-deny egress policy plus an allow to the database Pods. The app still cannot connect to db:5432. Why?"
+    options:
+      - "Policies need a restart"
+      - "DNS lookups of db are denied: allow egress to kube-dns on port 53 UDP and TCP"
+      - "The database needs an ingress policy to itself"
+      - "Egress policies do not support ports"
+    answer: 1
+    explanation: "Name resolution is egress traffic too."
+  - id: p3-hpa-request
+    phase: p3
+    skills: [kubernetes.hpa-autoscaling]
+    difficulty: 3
+    prompt: "An HPA targets 60 % CPU. A Pod requests 500m and uses 450m. What utilisation does the HPA see for it?"
+    options: ["45 %", "60 %", "90 %", "Unknown"]
+    answer: 2
+    explanation: "Utilisation is usage divided by the request: 450m / 500m."
+  - id: p3-hpa-queue
+    phase: p3
+    skills: [kubernetes.hpa-autoscaling]
+    difficulty: 4
+    prompt: "A queue consumer's CPU rises only after its backlog is already huge. What scales it better?"
+    options: ["A lower CPU target", "Scaling on the queue length per replica, for example with KEDA", "A higher memory limit", "More CPU per Pod"]
+    answer: 1
+    explanation: "Backlog is a leading signal; CPU lags behind."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-endpoints-empty
+    phase: p4
+    skills: [kubernetes.debugging]
+    difficulty: 3
+    prompt: "Pods are Running and Ready, yet the Service has no endpoints. What do you compare?"
+    options:
+      - "The image tags"
+      - "The Service selector with the Pods' labels (a typo or an extra version label)"
+      - "The node versions"
+      - "The HPA targets"
+    answer: 1
+    explanation: "Ready Pods that do not match the selector are not endpoints."
+  - id: p4-ephemeral
+    phase: p4
+    skills: [kubernetes.debugging]
+    difficulty: 4
+    prompt: "How do you get a shell next to a crashing distroless container without changing the Deployment?"
+    options:
+      - "kubectl exec"
+      - "kubectl debug --copy-to with a changed command, or an ephemeral container with --target while it runs"
+      - "SSH to the node and docker exec"
+      - "Rebuild the image"
+    answer: 1
+    explanation: "Ephemeral containers and Pod copies are made for shell-less images."
+  - id: p4-finalizer-stuck
+    phase: p4
+    skills: [kubernetes.operators]
+    difficulty: 4
+    prompt: "A custom resource stays in Terminating forever after kubectl delete. What is the likely cause?"
+    options:
+      - "etcd is full"
+      - "A finalizer remains because its controller is gone or failing to clean up"
+      - "The CRD schema is invalid"
+      - "RBAC denies the delete"
+    answer: 1
+    explanation: "Fix or restore the controller; removing the finalizer by hand skips its cleanup."
+  - id: p4-crd-delete
+    phase: p4
+    skills: [kubernetes.operators]
+    difficulty: 5
+    prompt: "What happens to existing custom resources when their CRD is deleted?"
+    options: ["They stay as plain JSON", "They are deleted with it", "They become ConfigMaps", "Nothing, the CRD is recreated"]
+    answer: 1
+    explanation: "Removing a CRD removes every object of its kind, which is why operator upgrades handle CRDs carefully."
+  - id: p4-skew
+    phase: p4
+    skills: [kubernetes.production]
+    difficulty: 4
+    prompt: "Which kubelet version may join a cluster whose API server runs 1.36?"
+    options: ["1.37", "1.33 to 1.36", "Only 1.36", "Any"]
+    answer: 1
+    explanation: "Kubelets may be up to three minor versions older than the API server, never newer."
+  - id: p4-gitops-drift
+    phase: p4
+    skills: [kubernetes.production]
+    difficulty: 4
+    prompt: "With Argo CD in auto-sync, someone runs kubectl edit on a production Deployment. What happens?"
+    options:
+      - "The change stays forever"
+      - "Argo CD reports drift and reverts the object to what Git declares"
+      - "Git is updated automatically"
+      - "The Deployment is deleted"
+    answer: 1
+    explanation: "Git is the source of truth; manual changes must go through a pull request."

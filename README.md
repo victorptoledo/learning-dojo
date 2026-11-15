@@ -48,8 +48,8 @@ of your choice.
 
 | Status | Tracks |
 | :--- | :--- |
-| ✅ Complete | **Rust**, **Modern Java** (Java 25), **Spring Boot** (Boot 4.1), **Backend Developer**, **Linux** (Debian 13), **Git & GitHub**, **System Design**, **Docker & Containers**, **SQL & Relational Databases** (PostgreSQL 17), **Modern Python** (Python 3.15) |
-| 📝 Draft | Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Go, TypeScript, Modern C++, Node.js, Software Architecture, API Design, Design Patterns, Prompt Engineering, PostgreSQL, Kubernetes, AWS, Computer Science, Data Structures & Algorithms |
+| ✅ Complete | **Rust**, **Modern Java** (Java 25), **Spring Boot** (Boot 4.1), **Backend Developer**, **Linux** (Debian 13), **Git & GitHub**, **System Design**, **Docker & Containers**, **SQL & Relational Databases** (PostgreSQL 17), **Modern Python** (Python 3.15), **Kubernetes** (1.36) |
+| 📝 Draft | Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Go, TypeScript, Modern C++, Node.js, Software Architecture, API Design, Design Patterns, Prompt Engineering, PostgreSQL, AWS, Computer Science, Data Structures & Algorithms |
 
 A complete track has 22 or more nodes, 7 to 10 katas, two checkpoints, a placement test and an
 interview bank. Draft tracks show their nodes as "under construction" 🚧 until they are written.
@@ -125,6 +125,12 @@ Nothing is ticked by hand: a lesson is completed by its quiz and a kata by its t
 builds it on your Docker engine with no network and a throwaway tag, runs it once with no network,
 no capabilities and small limits, and the `dojo-docker` image checks what it saw with hadolint and
 bats. The image and container are removed afterwards, and the Docker socket is never mounted.
+
+**Kubernetes katas** need no cluster: you write manifests, Kustomize overlays or a Helm chart, and
+the `dojo-k8s` image renders them (`kustomize build`, `helm template`), validates every object with
+kubeconform against the Kubernetes 1.36 schemas and checks them with bats policies (selectors match
+labels, Services reach a declared port, probes and resources, restricted Pod security, least-privilege
+RBAC), all offline.
 
 **SQL katas** run against a throwaway PostgreSQL 17. To try your queries on a kata's tables, run
 this from the kata folder:
@@ -232,7 +238,8 @@ content/
                   with node.yaml, lesson.md, quiz.yaml, bridges/<language>.md
                   and kata/ (README.md, starter/, tests/, reference/)
 runner-images/    one image per kata runtime: rust/, java/ (JUnit 6, Spring Boot), linux/ (bats, ShellCheck, git),
-                  docker/ (hadolint, bats), sql/ (PostgreSQL 17), python/ (pytest, ruff)
+                  docker/ (hadolint, bats), sql/ (PostgreSQL 17), python/ (pytest, ruff),
+                  k8s/ (kubeconform, kustomize, helm, bats)
 docs/
   architecture.md the full design and its decisions; examples/ shows every file format
 ```
