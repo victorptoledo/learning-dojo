@@ -1,0 +1,6 @@
+secrets.env
+notes/
+tests/
+Dockerfile
+.dockerignore
+README.md

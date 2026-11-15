@@ -1,0 +1,24 @@
+id: docker.p2.compose
+kind: lesson
+status: draft
+title: "Docker Compose: Services, Configuration, Secrets and Health Checks"
+summary: "Describe a multi-container application in compose.yaml: services, networks, volumes, environment and .env files, secrets, health-gated start-up and profiles."
+objectives:
+  - { id: o1, text: "Write a compose.yaml with services, builds, ports, volumes and networks, and run it with docker compose", skills: [docker.compose] }
+  - { id: o2, text: "Configure services with environment variables, interpolation, .env files and secrets, and tell configuration from secrets", skills: [docker.compose] }
+  - { id: o3, text: "Order start-up with health checks and depends_on, and layer files and profiles for different environments", skills: [docker.compose] }
+prerequisites: [docker.p2.dockerfile-security]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Describe the compose.yaml you would write for a web API, its Postgres database and a background worker, for local development. Cover how the API finds the database, how the database password is provided, how you make sure the API starts only when the database accepts connections, where the data lives, and how the same file is adjusted for a CI run that needs no worker and must not publish ports.'
+  criteria:
+    - 'Uses service names on the default project network for discovery'
+    - 'Provides the password as a Compose secret (or at least from an untracked .env file) rather than literally in the file, and explains the difference between configuration and secrets'
+    - 'Uses a database health check with depends_on condition service_healthy'
+    - 'Puts database data on a named volume'
+    - 'Uses profiles or an override file (compose.override.yaml, -f) for the CI variant'

@@ -1,0 +1,24 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      GREETING_NAME: ${GREETING_NAME:-compose}
+    depends_on:
+      cache:
+        condition: service_healthy
+    restart: unless-stopped
+  cache:
+    image: redis:8.2-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+    volumes:
+      - cache-data:/data
+    restart: unless-stopped
+
+volumes:
+  cache-data:

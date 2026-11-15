@@ -74,12 +74,28 @@ Reply in the language the answer is written in, in under 300 words.
     )
 }
 
+/// What the learner writes in a Docker kata, in the order a reviewer reads it.
+const DOCKER_FILES: [&str; 5] = [
+    "Dockerfile",
+    ".dockerignore",
+    "compose.yaml",
+    "compose.yml",
+    "docker-compose.yml",
+];
+
 /// The learner's source files in a kata folder, relative to it: the files to attach.
 pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
     let (root, extension) = match language {
         KataLanguage::Rust => (kata_dir.join("src"), "rs"),
         KataLanguage::Java => (kata_dir.join("src").join("main"), "java"),
         KataLanguage::Bash => (kata_dir.to_path_buf(), "sh"),
+        KataLanguage::Docker => {
+            return DOCKER_FILES
+                .iter()
+                .map(PathBuf::from)
+                .filter(|file| kata_dir.join(file).is_file())
+                .collect();
+        }
     };
     let mut found = Vec::new();
     collect(&root, extension, &mut found);
@@ -122,6 +138,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Rust => "Rust",
         KataLanguage::Java => "Java",
         KataLanguage::Bash => "Bash and Linux",
+        KataLanguage::Docker => "Dockerfile and Docker Compose",
     };
     let files = kata
         .files
@@ -249,5 +266,21 @@ mod tests {
         std::fs::write(dir.path().join("tests/visible.bats"), "x").unwrap();
         let files = kata_files(dir.path(), KataLanguage::Bash);
         assert_eq!(files, vec![PathBuf::from("worker.sh")]);
+    }
+
+    #[test]
+    fn kata_files_lists_the_dockerfile_and_compose_file() {
+        let dir = tempfile::TempDir::new().unwrap();
+        std::fs::create_dir_all(dir.path().join("tests")).unwrap();
+        std::fs::write(dir.path().join("Dockerfile"), "FROM alpine").unwrap();
+        std::fs::write(dir.path().join(".dockerignore"), ".git").unwrap();
+        std::fs::write(dir.path().join("compose.yaml"), "services: {}").unwrap();
+        std::fs::write(dir.path().join("main.go"), "package main").unwrap();
+        std::fs::write(dir.path().join("tests/visible.bats"), "x").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::Docker);
+        assert_eq!(
+            files,
+            ["Dockerfile", ".dockerignore", "compose.yaml"].map(PathBuf::from)
+        );
     }
 }

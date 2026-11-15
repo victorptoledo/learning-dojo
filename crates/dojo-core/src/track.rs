@@ -95,6 +95,9 @@ pub enum KataLanguage {
     Java,
     /// Bash scripts checked with bats and shellcheck in `dojo-linux`.
     Bash,
+    /// A Dockerfile (and maybe a compose file) built on the host engine and checked
+    /// by `dojo-docker` with hadolint and bats.
+    Docker,
 }
 
 impl Kata {
@@ -102,6 +105,7 @@ impl Kata {
         match self.runner.image.as_str() {
             "dojo-java" => KataLanguage::Java,
             "dojo-linux" => KataLanguage::Bash,
+            "dojo-docker" => KataLanguage::Docker,
             _ => KataLanguage::Rust,
         }
     }
@@ -322,6 +326,25 @@ pub(crate) mod fixtures {
 mod tests {
     use super::fixtures::{bridge, node, track};
     use super::*;
+
+    #[test]
+    fn kata_language_follows_the_runner_image() {
+        let kata = |image: &str| Kata {
+            statement: String::new(),
+            starter_dir: PathBuf::new(),
+            tests_dir: PathBuf::new(),
+            reference_dir: PathBuf::new(),
+            runner: RunnerSpec {
+                image: image.into(),
+                timeout_secs: 60,
+            },
+            hints: vec![],
+        };
+
+        assert_eq!(kata("dojo-docker").language(), KataLanguage::Docker);
+        assert_eq!(kata("dojo-linux").language(), KataLanguage::Bash);
+        assert_eq!(kata("dojo-rust").language(), KataLanguage::Rust);
+    }
 
     #[test]
     fn bridge_prefers_the_learner_language() {

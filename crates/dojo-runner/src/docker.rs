@@ -1,6 +1,6 @@
 use crate::libtest::parse_cargo_test;
 use crate::staging::stage_check;
-use dojo_core::{CheckOutcome, CheckReport, Kata, KataRunner, RunnerError};
+use dojo_core::{CheckOutcome, CheckReport, Kata, KataLanguage, KataRunner, RunnerError};
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::io::Read;
@@ -9,10 +9,10 @@ use std::process::{Child, Command, Stdio};
 use std::thread;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-const POLL_INTERVAL: Duration = Duration::from_millis(100);
+pub(crate) const POLL_INTERVAL: Duration = Duration::from_millis(100);
 
 /// Limits applied to every check container.
-const SANDBOX_FLAGS: [&str; 11] = [
+pub(crate) const SANDBOX_FLAGS: [&str; 11] = [
     "--network",
     "none",
     "--cpus",
@@ -41,6 +41,9 @@ impl Default for DockerRunner {
 
 impl KataRunner for DockerRunner {
     fn check(&self, kata: &Kata, solution_dir: &Path) -> Result<CheckReport, RunnerError> {
+        if kata.language() == KataLanguage::Docker {
+            return self.check_image_kata(kata, solution_dir);
+        }
         self.ensure_image(&kata.runner.image)?;
         let staging = stage_check(kata, solution_dir)?;
         let container = unique_container_name();
@@ -85,12 +88,12 @@ impl KataRunner for DockerRunner {
 }
 
 impl DockerRunner {
-    fn docker_command(&self) -> Command {
+    pub(crate) fn docker_command(&self) -> Command {
         Command::new(&self.docker)
     }
 
     /// Fails with an actionable message when Docker or the kata image is missing.
-    fn ensure_image(&self, image: &str) -> Result<(), RunnerError> {
+    pub(crate) fn ensure_image(&self, image: &str) -> Result<(), RunnerError> {
         let output = self
             .docker_command()
             .args(["image", "inspect", "--format", "{{.Id}}", image])
@@ -141,7 +144,7 @@ fn collect_output(child: &mut Child) -> String {
     text
 }
 
-fn spawn_reader(mut pipe: impl Read + Send + 'static) -> thread::JoinHandle<String> {
+pub(crate) fn spawn_reader(mut pipe: impl Read + Send + 'static) -> thread::JoinHandle<String> {
     thread::spawn(move || {
         let mut bytes = Vec::new();
         let _ = pipe.read_to_end(&mut bytes);
@@ -149,7 +152,7 @@ fn spawn_reader(mut pipe: impl Read + Send + 'static) -> thread::JoinHandle<Stri
     })
 }
 
-fn unique_container_name() -> String {
+pub(crate) fn unique_container_name() -> String {
     let nanos = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|elapsed| elapsed.as_nanos())

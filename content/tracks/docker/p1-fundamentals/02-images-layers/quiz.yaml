@@ -1,0 +1,42 @@
+questions:
+  - id: oci-parts
+    prompt: "Which three kinds of objects make up an OCI image?"
+    options:
+      - "Dockerfile, context and cache"
+      - "Layers, a config and a manifest"
+      - "A kernel, an init system and packages"
+      - "Containers, volumes and networks"
+    answer: 1
+    explanation: "The manifest lists the config and the layers by digest; the config holds the start command, environment and history."
+  - id: whiteout
+    prompt: "RUN rm big.tar.gz in a later layer deletes a 400 MB file added earlier. How much smaller is the image?"
+    options: ["400 MB smaller", "Not smaller: the earlier layer still holds the bytes", "Half the size", "It depends on the compression"]
+    answer: 1
+    explanation: "The deletion adds a whiteout that hides the file; the earlier layer is unchanged and still shipped."
+  - id: config-only
+    prompt: "Which instruction changes only the image config and adds no file system layer?"
+    options: ["RUN", "COPY", "ENV", "ADD"]
+    answer: 2
+    explanation: "ENV, LABEL, EXPOSE, CMD, USER and similar instructions only change the config."
+  - id: latest
+    prompt: "What does the tag latest guarantee?"
+    options:
+      - "The newest release of the image"
+      - "Nothing: it is only the default tag name, and the publisher can point it anywhere"
+      - "The most tested version"
+      - "A signed image"
+    answer: 1
+    explanation: "latest is the tag used when none is given; it carries no promise about age or quality."
+  - id: copy-on-write
+    prompt: "A container edits /etc/app.conf, which comes from the image. Where does the change go?"
+    options:
+      - "Into the image layer that holds the file"
+      - "Into the container's writable layer, after a copy-up of the file"
+      - "Into a new image automatically"
+      - "Nowhere: image files are read-only and the write fails"
+    answer: 1
+    explanation: "OverlayFS copies the file up into the container's writable layer and changes it there; the image is untouched."
+  - id: history
+    prompt: "Which command shows each build step of an image and how many bytes it added?"
+    answers: ["docker history", "docker image history", "docker history --no-trunc"]
+    explanation: "docker history lists the steps from newest to oldest with their size."

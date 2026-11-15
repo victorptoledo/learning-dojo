@@ -1,0 +1,48 @@
+id: docker.p2.slim-service
+kind: kata
+status: draft
+title: "Slim Service: a Multi-stage Build"
+summary: "Shrink a 300 MB single-stage image to a small one that ships only the binary and runs as a non-root user."
+objectives:
+  - { id: o1, text: "Split a Dockerfile into a build stage and a minimal runtime stage", skills: [docker.multi-stage] }
+  - { id: o2, text: "Build a static Go binary and copy only it into the final image", skills: [docker.multi-stage] }
+  - { id: o3, text: "Run the final image as a non-root user", skills: [docker.dockerfile-security] }
+prerequisites: [docker.p2.multi-stage-builds]
+difficulty: 3
+estimated_minutes: 40
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 300 }
+  hints:
+    - |-
+      What does the running service need from the build image: the Go compiler, the source, or only the binary? How can a second `FROM` reach a file built by the first one?
+    - |-
+      Name the first stage (`FROM golang:1.27-alpine AS build`), build there with `CGO_ENABLED=0` so the binary needs no C library, then start a new stage from a tiny base and `COPY --from=build` the binary. `gcr.io/distroless/static-debian13:nonroot` has no shell and already runs as user 65532; on `alpine:3.24` you add a user and switch with `USER`.
+    - |-
+      ```dockerfile
+      FROM golang:1.27-alpine AS build
+      WORKDIR /src
+      COPY go.mod ./
+      COPY *.go ./
+      RUN CGO_ENABLED=0 go build -o /out/server .
+
+      FROM gcr.io/distroless/static-debian13:nonroot
+      COPY --from=build ...
+      ENV ...
+      EXPOSE 8080
+      ENTRYPOINT [...]
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your image is built on your Docker engine and checked in a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with hadolint, bats and jq that checks what your image contains.

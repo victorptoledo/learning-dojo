@@ -1,0 +1,211 @@
+# Technical interview questions for the docker track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://www.simplilearn.com/tutorials/docker-tutorial/docker-interview-questions"
+  - "https://www.geeksforgeeks.org/devops/docker-interview-questions/"
+  - "https://github.com/bregman-arie/devops-exercises"
+  - "https://roadmap.sh/docker"
+  - "https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html"
+questions:
+  - id: container-vs-vm
+    level: junior
+    skills: [docker.setup, docker.namespaces-cgroups]
+    question: "What is the difference between a container and a virtual machine, and when would you still choose a VM?"
+    key_points:
+      - "A container is an isolated process sharing the host kernel; a VM runs its own kernel on virtual hardware"
+      - "Containers start in milliseconds and weigh megabytes; VMs take seconds to minutes and gigabytes"
+      - "Isolation is weaker with a shared kernel"
+      - "VMs for another OS or kernel, hostile multi-tenancy, or strict isolation requirements"
+    follow_up: "Which Linux features make the isolation of a container possible?"
+  - id: image-vs-container
+    level: junior
+    skills: [docker.images-layers, docker.containers]
+    question: "Explain the difference between an image and a container. What happens to the files a container writes?"
+    key_points:
+      - "An image is a read-only template of layers plus configuration"
+      - "A container is an instance with its own writable layer"
+      - "Writes go to the writable layer (copy-on-write) and are lost with docker rm"
+      - "Persistent data belongs in volumes"
+    follow_up: "How many containers can run from one image, and what do they share on disk?"
+  - id: cmd-entrypoint
+    level: junior
+    skills: [docker.dockerfile-basics]
+    question: "What is the difference between CMD and ENTRYPOINT, and between their shell and exec forms?"
+    key_points:
+      - "The container runs ENTRYPOINT followed by CMD; run arguments replace CMD"
+      - "ENTRYPOINT for the program, CMD for default arguments"
+      - "Shell form runs /bin/sh -c, so the shell is PID 1 and signals are not forwarded"
+      - "Exec form runs the program directly and works without a shell"
+    follow_up: "How do you override the ENTRYPOINT to debug an image?"
+  - id: copy-vs-add
+    level: junior
+    skills: [docker.dockerfile-basics]
+    question: "COPY or ADD: what is the difference and which do you use by default?"
+    key_points:
+      - "Both copy from the build context"
+      - "ADD also fetches URLs and unpacks local tar archives"
+      - "COPY by default, because it is explicit and predictable"
+      - "ADD for archives or checksummed downloads only"
+    follow_up: "What is the build context and why does .dockerignore matter?"
+  - id: volumes-binds
+    level: junior
+    skills: [docker.volumes]
+    question: "What are volumes and bind mounts, and when would you use each?"
+    key_points:
+      - "Named volumes are managed by Docker and persist independently of containers"
+      - "Bind mounts map a host path, live in both directions"
+      - "Volumes for databases and state, bind mounts for development code and config files"
+      - "tmpfs for in-memory scratch data"
+    follow_up: "What happens when you mount an empty volume over a directory that has files in the image?"
+  - id: port-publish
+    level: junior
+    skills: [docker.networking]
+    question: "What does -p 8080:80 do, and what is the difference with EXPOSE?"
+    key_points:
+      - "-p publishes container port 80 on host port 8080, on all interfaces by default"
+      - "EXPOSE only documents the port in the image"
+      - "Bind to 127.0.0.1 for local-only access"
+      - "The app must listen on 0.0.0.0 inside the container"
+    follow_up: "How do two containers talk to each other without publishing ports?"
+  - id: layer-cache
+    level: mid
+    skills: [docker.dockerfile-best-practices, docker.images-layers]
+    question: "How does the Docker build cache work, and how do you order a Dockerfile to make rebuilds fast?"
+    key_points:
+      - "Each instruction is a cached step keyed on its parent, its text and, for COPY/ADD, the file checksums"
+      - "A miss rebuilds every later step"
+      - "Copy dependency manifests and install before copying the code"
+      - "Keep the context small with .dockerignore"
+    follow_up: "Why is RUN apt-get update on its own line a problem?"
+  - id: image-size
+    level: mid
+    skills: [docker.multi-stage, docker.dockerfile-best-practices]
+    question: "An image is 1.5 GB. How do you find out why and make it smaller?"
+    key_points:
+      - "docker history (or dive) to see bytes per step"
+      - "Smaller base: slim, alpine, distroless"
+      - "Multi-stage builds to drop compilers and sources"
+      - "Clean package caches in the same RUN; deleting in a later layer does not help"
+    follow_up: "What trade-offs come with Alpine's musl libc?"
+  - id: multi-stage
+    level: mid
+    skills: [docker.multi-stage]
+    question: "Explain multi-stage builds. Show how you would use one for a compiled service and its tests."
+    key_points:
+      - "Each FROM is a stage; only the last (or --target) becomes the image"
+      - "COPY --from brings only the artifact into the runtime stage"
+      - "A test stage built with --target test in CI"
+      - "Stages build in parallel with BuildKit"
+    follow_up: "What does the runtime stage still need that is easy to forget, such as certificates or a user?"
+  - id: pid1-signals
+    level: mid
+    skills: [docker.containers, docker.production]
+    question: "Why does a container sometimes take exactly 10 seconds to stop? How do you fix it?"
+    key_points:
+      - "docker stop sends SIGTERM and SIGKILL after the grace period"
+      - "PID 1 gets no default signal handling; a shell-form CMD does not forward SIGTERM"
+      - "Use the exec form, handle SIGTERM in the app, or add --init / tini"
+      - "Align the app's shutdown timeout with the grace period"
+    follow_up: "What is a zombie process and why does PID 1 have to reap it?"
+  - id: non-root
+    level: mid
+    skills: [docker.dockerfile-security]
+    question: "Why should containers not run as root, and how do you run a service as non-root when it writes to a volume?"
+    key_points:
+      - "Root inside is root on the host without user namespaces, limited only by capabilities and profiles"
+      - "Create a numeric user and set USER"
+      - "chown only the data directories, before VOLUME, so a new volume inherits the owner"
+      - "Listen on a port above 1024"
+    follow_up: "Why do orchestrators prefer a numeric USER over a name?"
+  - id: compose-depends
+    level: mid
+    skills: [docker.compose]
+    question: "In Docker Compose, how do you make an API start only when its database is ready? Is that enough?"
+    key_points:
+      - "depends_on alone waits only for the container to start"
+      - "A healthcheck on the database and condition: service_healthy"
+      - "service_completed_successfully for migration jobs"
+      - "The app must still retry connections, because dependencies restart"
+    follow_up: "How would you run the same stack in CI without publishing ports?"
+  - id: secrets
+    level: mid
+    skills: [docker.compose, docker.buildkit, docker.dockerfile-security]
+    question: "How do you handle secrets with Docker at build time and at run time?"
+    key_points:
+      - "Never in ENV, ARG, COPY or the image: they end up in metadata or layers"
+      - "Build: RUN --mount=type=secret or type=ssh"
+      - "Run: Compose or orchestrator secrets mounted as files, or a secret manager"
+      - "Keep .env and key files out of the context with .dockerignore"
+    follow_up: "Why are environment variables a weaker place for a secret than a file?"
+  - id: networking-dns
+    level: mid
+    skills: [docker.networking]
+    question: "How do containers discover each other, and what network drivers do you know?"
+    key_points:
+      - "User-defined networks provide DNS by container and service name"
+      - "The default bridge has no name resolution"
+      - "bridge, host, none, overlay, macvlan"
+      - "Internal networks for back-end isolation"
+    follow_up: "How would you debug a connection refused between two containers?"
+  - id: buildkit-ci
+    level: senior
+    skills: [docker.buildkit, docker.supply-chain]
+    question: "Design a fast and trustworthy CI pipeline for container images."
+    key_points:
+      - "BuildKit with cache export and import (registry or CI cache), cache mounts for package managers"
+      - "Tests in a target stage; scan with a severity threshold"
+      - "SBOM and provenance attestations; sign images"
+      - "Immutable version and commit tags; deploy by digest; build once and promote"
+    follow_up: "How do base image security updates reach production in your design?"
+  - id: runtime-hardening
+    level: senior
+    skills: [docker.runtime-security]
+    question: "How do you harden a container at run time, and which options would you refuse in a review?"
+    key_points:
+      - "Non-root user, read-only root with tmpfs and volumes, cap-drop ALL, no-new-privileges"
+      - "Memory, CPU and PID limits"
+      - "Keep default seccomp and AppArmor profiles"
+      - "Refuse --privileged, the Docker socket, host namespaces and sensitive host mounts"
+      - "User namespaces or rootless mode, sandboxed runtimes for untrusted code"
+    follow_up: "A monitoring vendor insists on the Docker socket. What do you propose?"
+  - id: supply-chain
+    level: senior
+    skills: [docker.supply-chain]
+    question: "Log4Shell-style news breaks. How do you find out within an hour which of your running images are affected, and how do you fix them?"
+    key_points:
+      - "SBOMs stored for every image, queried for the component and version"
+      - "Scanners over registries and running workloads"
+      - "Knowing which digest runs where"
+      - "Rebuild, rescan, redeploy through the normal pipeline; mitigations meanwhile"
+    follow_up: "How do you make sure only images from your pipeline can run in the cluster?"
+  - id: oom-debug
+    level: senior
+    skills: [docker.logs-debugging, docker.runtime-security]
+    question: "A Java (or Node.js) container is restarted several times a day with exit code 137. Walk through your investigation and fix."
+    key_points:
+      - "docker inspect State: ExitCode 137, OOMKilled, RestartCount; docker events for oom"
+      - "Compare memory use (docker stats, metrics) with the limit"
+      - "Runtime heap sized from the limit with headroom for non-heap memory"
+      - "Find leaks or raise the limit based on data; alert on memory"
+    follow_up: "How would the investigation change if OOMKilled were false?"
+  - id: zero-downtime
+    level: senior
+    skills: [docker.production]
+    question: "How do you deploy a new version of a containerised API with zero downtime?"
+    key_points:
+      - "Several replicas behind a load balancer or orchestrator"
+      - "Rolling, blue-green or canary with readiness checks"
+      - "Graceful shutdown: fail readiness, drain, then exit within the grace period"
+      - "Backward-compatible database migrations; rollback by previous digest"
+    follow_up: "When does a single host with Compose stop being enough, and what would you move to?"
+  - id: runtime-stack
+    level: senior
+    skills: [docker.production, docker.namespaces-cgroups]
+    question: "What happens between docker run and your process starting? Name the components and the standards involved."
+    key_points:
+      - "The CLI calls the dockerd API, which pulls the image if needed"
+      - "containerd manages images, snapshots and the lifecycle through a shim per container"
+      - "runc creates namespaces, cgroups, mounts and the seccomp filter from an OCI bundle, then execs the process"
+      - "OCI image, runtime and distribution specs; Kubernetes uses containerd or CRI-O via the CRI"
+    follow_up: "Why can dockerd be restarted without stopping the containers (live-restore)?"

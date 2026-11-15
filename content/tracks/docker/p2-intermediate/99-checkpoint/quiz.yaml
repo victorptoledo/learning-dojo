@@ -1,0 +1,89 @@
+pass_percent: 80
+questions:
+  - id: cache-order
+    skills: [docker.dockerfile-best-practices]
+    prompt: "Every code change reinstalls all dependencies. Which change fixes it?"
+    options:
+      - "Use a bigger base image"
+      - "Copy only the dependency manifests and install them before copying the rest of the code"
+      - "Add --no-cache to docker build"
+      - "Split the install into several RUN lines"
+    answer: 1
+    explanation: "The install layer then depends only on the manifests, so code edits reuse it."
+  - id: cleanup-same-run
+    skills: [docker.dockerfile-best-practices]
+    prompt: "Why must rm -rf /var/lib/apt/lists/* be in the same RUN as apt-get install?"
+    options:
+      - "apt requires it"
+      - "Files deleted in a later layer still take space in the earlier one"
+      - "It speeds up the install"
+      - "hadolint fails otherwise"
+    answer: 1
+    explanation: "Only files absent at the end of a step stay out of its layer."
+  - id: final-stage
+    skills: [docker.multi-stage]
+    prompt: "In a two-stage Go build, which of these ends up in the final image?"
+    options:
+      - "The Go toolchain"
+      - "Only what the final stage's FROM provides and what COPY --from brings"
+      - "The source code"
+      - "The module cache"
+    answer: 1
+    explanation: "Stages are separate; only explicit copies cross into the final one."
+  - id: glibc-alpine
+    skills: [docker.multi-stage]
+    prompt: "A binary copied from a Debian build stage into alpine fails with 'not found'. What are two valid fixes?"
+    options:
+      - "Use the shell form of ENTRYPOINT, or add bash"
+      - "Build a static binary, or use a glibc-based runtime image"
+      - "chmod 777 the binary, or run as root"
+      - "Add EXPOSE, or add a HEALTHCHECK"
+    answer: 1
+    explanation: "Alpine uses musl; a glibc binary needs glibc's loader, or no dynamic linking at all."
+  - id: nonroot-volume
+    skills: [docker.dockerfile-security]
+    prompt: "The image runs as USER 10001 and its /data volume is owned by root. What is the fix that keeps the container non-root?"
+    options:
+      - "USER root"
+      - "RUN mkdir /data && chown 10001:10001 /data before VOLUME /data"
+      - "chmod 777 /data at run time with docker exec"
+      - "Mount /data as tmpfs"
+    answer: 1
+    explanation: "A new volume copies the image directory's ownership."
+  - id: healthcheck-shellless
+    skills: [docker.dockerfile-security]
+    prompt: "Which HEALTHCHECK can run in a distroless image?"
+    options:
+      - "CMD curl -f http://localhost:8080/health"
+      - "CMD [\"/app/server\", \"-healthcheck\"]"
+      - "CMD-SHELL wget -q -O- localhost:8080/health"
+      - "CMD sh -c 'nc -z localhost 8080'"
+    answer: 1
+    explanation: "Without a shell or tools, the program must probe itself in exec form."
+  - id: user-numeric
+    skills: [docker.dockerfile-security]
+    prompt: "Kubernetes refuses a pod with runAsNonRoot because it cannot verify the user. What is in the image?"
+    options: ["USER 10001", "USER app", "no HEALTHCHECK", "EXPOSE 80"]
+    answer: 1
+    explanation: "A user name could map to UID 0; use a numeric USER."
+  - id: compose-healthy
+    skills: [docker.compose]
+    prompt: "Which depends_on condition makes web wait until cache's health check passes?"
+    answers: ["service_healthy", "condition: service_healthy"]
+    explanation: "service_started (the default) only waits for the container to start."
+  - id: compose-secret
+    skills: [docker.compose]
+    prompt: "Why give a database password to a service as a Compose secret rather than an environment variable?"
+    options:
+      - "Secrets are encrypted inside the container"
+      - "Environment variables show up in docker inspect, child processes and crash reports; a secret is a file only that service mounts"
+      - "Environment variables are limited to 255 bytes"
+      - "Compose cannot set environment variables"
+    answer: 1
+    explanation: "Secrets are mounted under /run/secrets and kept out of the container's environment."
+  - id: compose-interpolation
+    skills: [docker.compose]
+    prompt: "What does GREETING_NAME: ${GREETING_NAME:-compose} give the container when the variable is unset in your shell and .env?"
+    options: ["An empty value", "compose", "An error", "The literal text ${GREETING_NAME:-compose}"]
+    answer: 1
+    explanation: ":- supplies a default when the variable is unset or empty."

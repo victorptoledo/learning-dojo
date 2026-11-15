@@ -1,0 +1,42 @@
+questions:
+  - id: pid-one
+    prompt: "Inside a container, ps shows your server as PID 1. What does the host see?"
+    options:
+      - "Nothing: the process runs in a separate kernel"
+      - "The same process with an ordinary host PID"
+      - "A virtual machine process only"
+      - "PID 1, the host's init, replaced by your server"
+    answer: 1
+    explanation: "The PID namespace gives the container its own numbering; on the host it is a normal process."
+  - id: which-namespace
+    prompt: "Which namespace gives each container its own localhost and port numbers?"
+    options: ["PID", "Mount", "Network", "UTS"]
+    answer: 2
+    explanation: "The network namespace has its own interfaces, addresses, routes and ports."
+  - id: cgroup-role
+    prompt: "What do cgroups do for a container?"
+    options:
+      - "Hide the host's files"
+      - "Limit and account for CPU, memory, processes and I/O"
+      - "Give it its own host name"
+      - "Encrypt its network traffic"
+    answer: 1
+    explanation: "Namespaces decide what a process sees; cgroups decide how much it may use."
+  - id: exit-137
+    prompt: "A container started with --memory 128m exits with code 137 and OOMKilled true. What happened?"
+    options:
+      - "It was stopped with docker stop"
+      - "The kernel killed it for exceeding its memory limit"
+      - "It ran out of disk"
+      - "Its health check failed"
+    answer: 1
+    explanation: "137 is 128 + 9 (SIGKILL): the OOM killer ended a process that went over the cgroup memory limit."
+  - id: uname
+    prompt: "In an Alpine container on a Debian host, what does uname -r print?"
+    options: ["Alpine's kernel version", "The host's kernel version", "Nothing, uname is not allowed", "The Docker version"]
+    answer: 1
+    explanation: "Only the user space comes from the image; there is one kernel, the host's."
+  - id: shared-risk
+    prompt: "Name the one thing every container on a host shares, which makes a vulnerability in it the main way out of a container."
+    answers: ["the kernel", "kernel", "the host kernel", "linux kernel", "the linux kernel"]
+    explanation: "All containers share the host kernel; VMs and sandboxed runtimes add a separate kernel or a user-space one."

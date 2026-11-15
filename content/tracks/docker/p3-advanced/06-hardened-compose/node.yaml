@@ -1,0 +1,59 @@
+id: docker.p3.hardened-compose
+kind: kata
+status: draft
+title: "Hardened Compose: a Security Review"
+summary: "Fix a Compose file that a security review rejected: tags, privileges, capabilities, limits, networks, secrets, health and logs."
+objectives:
+  - { id: o1, text: "Drop privileges at run time: non-root user, read-only file system, no capabilities, no new privileges", skills: [docker.runtime-security] }
+  - { id: o2, text: "Limit memory, CPU and processes, and rotate logs", skills: [docker.runtime-security, docker.logs-debugging] }
+  - { id: o3, text: "Isolate services with networks and pass passwords as secret files", skills: [docker.networking, docker.compose] }
+prerequisites: [docker.p3.runtime-security]
+difficulty: 4
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 120 }
+  hints:
+    - |-
+      Go down the review table one row at a time and ask, for each one, what an attacker who gets code execution inside `api` could do with it today. Which settings belong to `api`, which to `db`, and which are top-level (`networks`, `volumes`, `secrets`)?
+    - |-
+      Mounting `/var/run/docker.sock` hands over the Docker engine, which is root on the host, and `privileged: true` disables most isolation; just delete both. Limits live under `deploy.resources.limits` (`memory`, `cpus`, `pids`). A network with `internal: true` has no route out, and a service is only reachable from the networks it joins. A Compose secret is mounted as a file under `/run/secrets/<name>`; the Postgres image reads `POSTGRES_PASSWORD_FILE`.
+    - |-
+      ```yaml
+      services:
+        api:
+          image: ghcr.io/dojo-example/orders-api:1.4.0
+          user: "10001:10001"
+          read_only: true
+          tmpfs: [/tmp]
+          cap_drop: [ALL]
+          security_opt: [no-new-privileges:true]
+          ports: ["127.0.0.1:8080:8080"]
+          secrets: [db_password]
+          networks: [frontend, backend]
+          deploy:
+            resources:
+              limits: { cpus: "0.50", memory: 256M, pids: 200 }
+          # depends_on, healthcheck, restart, logging ...
+      networks:
+        frontend: {}
+        backend:
+          internal: true
+      secrets:
+        db_password:
+          file: ./secrets/db_password.txt
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your compose file is checked in a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with docker compose, bats and jq that reads your compose file.

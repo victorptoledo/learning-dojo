@@ -1,0 +1,50 @@
+questions:
+  - id: cache-mount
+    prompt: "What does RUN --mount=type=cache,target=/root/.m2 mvn package keep between builds?"
+    options:
+      - "The final JAR inside the image"
+      - "The Maven repository on the builder, outside every image layer"
+      - "Nothing; it only speeds up one build"
+      - "The source code"
+    answer: 1
+    explanation: "Cache mounts persist on the builder across builds and never become part of a layer."
+  - id: secret-vs-arg
+    prompt: "Why use --mount=type=secret instead of ARG NPM_TOKEN for a registry token?"
+    options:
+      - "ARG cannot hold long strings"
+      - "ARG values are recorded in the image history; a secret mount exists only during that RUN step"
+      - "Secret mounts are faster"
+      - "ARG only works in FROM lines"
+    answer: 1
+    explanation: "docker history shows build arguments; secret mounts leave nothing in layers or metadata."
+  - id: arg-scope
+    prompt: "ARG VERSION=1.4.0 is declared before the first FROM. A RUN in a later stage uses ${VERSION} and gets an empty value. Why?"
+    options:
+      - "ARG values are only available with --build-arg"
+      - "A global ARG is visible only in FROM lines; the stage must declare ARG VERSION again"
+      - "Variables do not work in RUN"
+      - "BuildKit ignores ARG"
+    answer: 1
+    explanation: "Redeclare ARG VERSION inside each stage that uses it."
+  - id: ci-cache
+    prompt: "Why do CI builds often ignore the layer cache, and what fixes it?"
+    options:
+      - "CI uses a different Dockerfile syntax"
+      - "Runners start with an empty builder; export and import the cache with --cache-to and --cache-from"
+      - "CI always passes --no-cache"
+      - "Layers cannot be cached across machines"
+    answer: 1
+    explanation: "Registry, local or CI-specific cache backends carry the cache between runs."
+  - id: multi-platform
+    prompt: "What does docker buildx build --platform linux/amd64,linux/arm64 --push produce?"
+    options:
+      - "Two unrelated tags"
+      - "One image index pointing at one manifest per platform"
+      - "An image that only runs under emulation"
+      - "A single fat binary"
+    answer: 1
+    explanation: "The index lets docker pull choose the manifest for the machine's platform."
+  - id: buildplatform
+    prompt: "Which predefined build argument names the platform the builder itself runs on, used in FROM --platform=$... to cross-compile instead of emulating?"
+    answers: ["BUILDPLATFORM", "$BUILDPLATFORM"]
+    explanation: "Run the compiler natively on BUILDPLATFORM and target TARGETOS/TARGETARCH."

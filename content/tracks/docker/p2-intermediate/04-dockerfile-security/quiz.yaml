@@ -1,0 +1,43 @@
+questions:
+  - id: default-user
+    prompt: "Which user does a container run as when the image sets no USER?"
+    options: ["nobody", "root (UID 0)", "the user who ran docker run", "a random UID"]
+    answer: 1
+    explanation: "Without USER, containers run as root; set a non-root user in the image."
+  - id: numeric-user
+    prompt: "Why prefer USER 10001:10001 over USER app?"
+    options:
+      - "Names are not allowed"
+      - "Orchestrators such as Kubernetes can verify a numeric user is not root, and it works without /etc/passwd"
+      - "Numbers are faster"
+      - "It makes the image smaller"
+    answer: 1
+    explanation: "runAsNonRoot checks the numeric UID; a name could map to 0."
+  - id: chown-volume
+    prompt: "The app runs as user app and writes to the volume at /data, but gets permission denied. What is the right fix?"
+    options:
+      - "Run the container as root"
+      - "Create /data and chown it to app in the image before VOLUME"
+      - "chmod 777 everything"
+      - "Remove the volume"
+    answer: 1
+    explanation: "An empty volume is seeded from the image directory, ownership included."
+  - id: distroless-why
+    prompt: "What does a distroless runtime image take away from an attacker who gets code execution?"
+    options: ["The network", "A shell, a package manager and tools like curl", "The kernel", "The application binary"]
+    answer: 1
+    explanation: "With no shell or tools, post-exploitation is much harder."
+  - id: healthcheck-states
+    prompt: "A container's health check has failed three times in a row with --retries=3. What is its status?"
+    options: ["starting", "healthy", "unhealthy", "exited"]
+    answer: 2
+    explanation: "After retries consecutive failures the status becomes unhealthy; the container keeps running unless something acts on it."
+  - id: healthcheck-distroless
+    prompt: "Which health check works in a distroless image?"
+    options:
+      - "CMD curl -f http://localhost:8080/health || exit 1"
+      - "CMD [\"/app/server\", \"-healthcheck\"]"
+      - "CMD wget -q http://localhost:8080/health"
+      - "CMD sh -c 'test -f /tmp/ok'"
+    answer: 1
+    explanation: "Distroless has no shell, curl or wget; the program can probe itself in exec form."

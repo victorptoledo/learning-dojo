@@ -1,0 +1,57 @@
+id: docker.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate skills: a quiz over the phase and an integration kata that ships a production-ready image and a Compose stack."
+objectives:
+  - { id: o1, text: "Explain layer caching, multi-stage builds, image hardening, health checks and Compose in your own words", skills: [docker.dockerfile-best-practices, docker.multi-stage, docker.dockerfile-security, docker.compose] }
+  - { id: o2, text: "Ship a small, non-root image with labels and a working health check", skills: [docker.multi-stage, docker.dockerfile-security, docker.dockerfile-best-practices] }
+  - { id: o3, text: "Describe a two-service stack in compose.yaml with health-gated start-up, configuration and a named volume", skills: [docker.compose] }
+prerequisites: [docker.p2.compose]
+difficulty: 4
+estimated_minutes: 75
+xp: 400
+closes_phase: p2
+covers_skills: [docker.dockerfile-best-practices, docker.multi-stage, docker.dockerfile-security, docker.compose]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 300 }
+  hints:
+    - |-
+      Two files, two jobs: the Dockerfile says what the image *is* (stages, user, labels, health check), `compose.yaml` says how it *runs* next to Redis. A distroless image has no shell, no `curl` and no `wget`: what can its health check run instead?
+    - |-
+      The service has its own probe: `/app/server -healthcheck` exits 0 when `/health` answers. Use the exec form, `HEALTHCHECK --interval=5s ... CMD ["/app/server", "-healthcheck"]`. In Compose, `depends_on` with `condition: service_healthy` waits for the other service's health check, `${GREETING_NAME:-compose}` reads a variable with a default, and a named volume is declared under the top-level `volumes:`.
+    - |-
+      ```yaml
+      services:
+        web:
+          build: .
+          ports: ["8080:8080"]
+          environment:
+            GREETING_NAME: ${GREETING_NAME:-compose}
+          depends_on:
+            cache:
+              condition: service_healthy
+          restart: unless-stopped
+        cache:
+          image: redis:8.2-alpine
+          healthcheck:
+            test: [...]
+          volumes: [...]
+      volumes:
+        cache-data:
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your image is built on your Docker engine and checked in a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with hadolint, bats and jq that checks what your image contains.

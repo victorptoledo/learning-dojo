@@ -1,0 +1,24 @@
+id: docker.p3.supply-chain
+kind: lesson
+status: draft
+title: "The Image Supply Chain: Size, Scanning, SBOMs, Registries, Tags and Signing"
+summary: "Where images come from and how you trust them: trimming size, scanning for CVEs, SBOMs and provenance, registries, a tagging strategy, digests and signatures."
+objectives:
+  - { id: o1, text: "Find what makes an image large and what makes it vulnerable, and scan it with Docker Scout, Trivy or Grype", skills: [docker.supply-chain] }
+  - { id: o2, text: "Tag, push and pull images with a strategy that keeps deployments reproducible", skills: [docker.supply-chain] }
+  - { id: o3, text: "Explain SBOMs, provenance attestations and image signing, and where they fit in a pipeline", skills: [docker.supply-chain] }
+prerequisites: [docker.p3.fast-builds]
+difficulty: 4
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the image pipeline for a team that pushes to GitHub Container Registry and deploys to Kubernetes. Cover: which tags each build pushes, how production refers to an image, what scanning runs and when a finding blocks the release, how base-image updates reach production, and how the cluster can tell an image really came from your CI.'
+  criteria:
+    - 'Pushes an immutable version tag and the git SHA, and treats moving tags (latest, main) as convenience only'
+    - 'Deploys by digest, or records the digest of what was deployed'
+    - 'Scans in CI with a severity threshold and rescans images already in production as new CVEs appear'
+    - 'Automates base image updates (Renovate, Dependabot or rebuilds) with tests'
+    - 'Signs images (cosign or Notation) and verifies signatures or provenance at admission, and mentions SBOMs'

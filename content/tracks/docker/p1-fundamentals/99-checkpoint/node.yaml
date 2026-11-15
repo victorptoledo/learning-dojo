@@ -1,0 +1,49 @@
+id: docker.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata that containerises a web service."
+objectives:
+  - { id: o1, text: "Explain containers, images, layers, the container lifecycle, storage and networking in your own words", skills: [docker.namespaces-cgroups, docker.images-layers, docker.containers, docker.volumes, docker.networking] }
+  - { id: o2, text: "Write a Dockerfile that builds and runs a web service with good layer order, configuration and an exec-form start command", skills: [docker.dockerfile-basics, docker.images-layers] }
+prerequisites: [docker.p1.networking]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+closes_phase: p1
+covers_skills: [docker.namespaces-cgroups, docker.images-layers, docker.containers, docker.dockerfile-basics, docker.volumes, docker.networking]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 300 }
+  hints:
+    - |-
+      Start from the README table, one row at a time. Which instruction runs a command at build time, and which one only records what to run when the container starts? What would make Docker rebuild the module layer every time you edit `main.go`?
+    - |-
+      Layers are cached in order: copy what changes rarely (`go.mod`) before what changes often (`*.go`), then build. `ENV` sets defaults that `docker run -e` can override. `EXPOSE` only documents the port; publishing is `-p` at run time. An exec-form `CMD ["server"]` makes the server PID 1, so it gets `SIGTERM` on `docker stop`.
+    - |-
+      ```dockerfile
+      FROM golang:1.27-alpine
+      WORKDIR /src
+      COPY go.mod ./
+      COPY ...
+      RUN go build -o /usr/local/bin/server .
+      ENV PORT=8080 \
+          GREETING_NAME=...
+      EXPOSE ...
+      CMD [...]
+      ```
+      plus a `.dockerignore` for `README.md` and `tests/`.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your image is built on your Docker engine and checked in a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with hadolint, bats and jq that checks what your image contains.

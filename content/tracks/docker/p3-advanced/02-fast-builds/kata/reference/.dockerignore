@@ -1,0 +1,7 @@
+# Only go.mod and the .go files matter to the build.
+.git
+docs/
+tests/
+*.md
+Dockerfile
+.dockerignore

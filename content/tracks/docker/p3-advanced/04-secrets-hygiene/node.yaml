@@ -1,0 +1,47 @@
+id: docker.p3.secrets-hygiene
+kind: kata
+status: draft
+title: "Secrets Hygiene: Keep Tokens out of Images"
+summary: "Find the three ways a token leaked into an image, remove them, and hand the token to the container at run time as a Compose secret."
+objectives:
+  - { id: o1, text: "Find secrets in an image's files, environment and history", skills: [docker.supply-chain, docker.dockerfile-security] }
+  - { id: o2, text: "Keep secret files out of the build context and the final stage", skills: [docker.dockerfile-security] }
+  - { id: o3, text: "Provide a secret at run time with Compose secrets instead of environment variables", skills: [docker.compose] }
+prerequisites: [docker.p3.supply-chain]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 300 }
+  hints:
+    - |-
+      Look at the starter image the way an attacker who pulled it would: `docker history --no-trunc`, `docker image inspect` (the `Env` list) and the files (`docker run --rm --entrypoint sh IMAGE -c 'ls -R /src /run'`). Where does the token show up, and which line of the Dockerfile put it there?
+    - |-
+      `ARG` and `ENV` values are recorded in the image config and history, so they are never secret. `COPY . .` copies `.env` and `secrets/` unless `.dockerignore` excludes them, and copying the whole `/src` into the final stage ships them again. The service reads its token from `/run/secrets/api_token`, which is exactly where Compose mounts a secret called `api_token`.
+    - |-
+      ```yaml
+      services:
+        api:
+          build: .
+          ports: ["8080:8080"]
+          secrets:
+            - api_token
+      secrets:
+        api_token:
+          file: ./secrets/api_token.txt
+      ```
+      In the Dockerfile, copy only `go.mod` and `*.go` into the build stage and only the binary into the final one.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your image is built on your Docker engine and checked in a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with hadolint, bats and jq that checks what your image contains.

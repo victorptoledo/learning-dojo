@@ -1,0 +1,42 @@
+questions:
+  - id: last-stage
+    prompt: "A Dockerfile has three FROM lines. Which stage becomes the image of docker build -t app .?"
+    options: ["The first", "The last", "All three merged", "The largest"]
+    answer: 1
+    explanation: "Only the last stage is exported unless --target selects another."
+  - id: copy-from
+    prompt: "What reaches the final image from a build stage?"
+    options:
+      - "Everything the build stage contains"
+      - "Only what a COPY --from in the final stage copies"
+      - "The build stage's environment variables"
+      - "The build cache"
+    answer: 1
+    explanation: "Stages are separate file systems; only explicit COPY --from crosses between them."
+  - id: target
+    prompt: "How does CI run only the test stage named test?"
+    answers: ["docker build --target test .", "docker build --target test", "--target test", "docker buildx build --target test ."]
+    explanation: "--target builds the named stage and the stages it depends on."
+  - id: musl
+    prompt: "A binary built on Debian (glibc) fails in alpine with 'not found', although the file exists. Why?"
+    options:
+      - "Alpine has no execute permissions"
+      - "Alpine uses musl libc, so the glibc dynamic loader the binary names is missing"
+      - "The binary is too big"
+      - "Alpine needs ENTRYPOINT in shell form"
+    answer: 1
+    explanation: "Dynamically linked binaries need their C library; build statically or use a glibc base."
+  - id: distroless
+    prompt: "What does a distroless image leave out compared with a slim one?"
+    options:
+      - "The language runtime"
+      - "The shell and the package manager"
+      - "CA certificates"
+      - "The /etc/passwd file"
+    answer: 1
+    explanation: "Distroless keeps what the program needs (runtime, certificates, users) and drops shells and package managers."
+  - id: scratch-needs
+    prompt: "A static Go binary in FROM scratch fails to call an HTTPS API with a certificate error. What is missing?"
+    options: ["A shell", "CA certificates", "The Go toolchain", "A health check"]
+    answer: 1
+    explanation: "scratch contains nothing; copy /etc/ssl/certs/ca-certificates.crt from the build stage or use distroless/static."

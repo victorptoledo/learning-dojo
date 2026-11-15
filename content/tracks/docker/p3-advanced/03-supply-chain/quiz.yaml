@@ -1,0 +1,42 @@
+questions:
+  - id: cve-source
+    prompt: "A scanner reports 140 vulnerabilities in your image. Where do most of them usually come from?"
+    options: ["Your own code", "The base image's OS packages", "The Dockerfile syntax", "The registry"]
+    answer: 1
+    explanation: "Most findings are in base image packages; a newer or smaller base removes most of them."
+  - id: rescan
+    prompt: "Why rescan an image that passed its scan last month and has not changed?"
+    options:
+      - "Scanners are random"
+      - "New vulnerabilities are published against packages that are already in the image"
+      - "Images change in the registry"
+      - "Signatures expire"
+    answer: 1
+    explanation: "The image is the same, but the vulnerability databases are not."
+  - id: sbom
+    prompt: "What is an SBOM?"
+    options:
+      - "A signature of the image"
+      - "A list of the components in the image with versions and licences, in a standard format"
+      - "The Dockerfile"
+      - "A vulnerability report"
+    answer: 1
+    explanation: "SPDX or CycloneDX documents that let you answer 'are we affected?' quickly."
+  - id: deploy-ref
+    prompt: "Which reference should a production deployment use?"
+    options: ["shop:latest", "shop:main", "shop:1.4", "ghcr.io/acme/shop@sha256:4c1e..."]
+    answer: 3
+    explanation: "A digest pins the exact bytes that were tested; tags can move."
+  - id: sign-value
+    prompt: "Image signing only protects you if something does what?"
+    options:
+      - "Encrypts the image"
+      - "Verifies the signature before running the image, for example an admission controller"
+      - "Scans it"
+      - "Compresses it"
+    answer: 1
+    explanation: "Unverified signatures change nothing; verification at deploy time enforces them."
+  - id: scan-tool
+    prompt: "Name one open-source tool that scans container images for known vulnerabilities."
+    answers: ["trivy", "grype", "docker scout", "scout", "clair", "snyk"]
+    explanation: "Trivy, Grype, Docker Scout and Clair are common choices."

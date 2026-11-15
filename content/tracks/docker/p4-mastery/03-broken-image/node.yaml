@@ -1,0 +1,49 @@
+id: docker.p4.broken-image
+kind: kata
+status: draft
+title: "Incident: the Image that Will Not Stay Up"
+summary: "Debug an image that crashes, hides its logs and fails its health check, and fix it without giving up the non-root user."
+objectives:
+  - { id: o1, text: "Diagnose a failing container with docker logs, docker inspect and a shell in the image", skills: [docker.logs-debugging] }
+  - { id: o2, text: "Fix file ownership for a non-root user and a volume", skills: [docker.dockerfile-security, docker.volumes] }
+  - { id: o3, text: "Make PID 1, logging and the health check behave the way an orchestrator expects", skills: [docker.production] }
+prerequisites: [docker.p4.production]
+difficulty: 4
+estimated_minutes: 50
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 300 }
+  hints:
+    - |-
+      Read `docker logs` first: the first error is the first cause. Then ask, for each line of the final stage, *which user* runs it and *who owns* the paths it touches. Finally read `docker inspect --format '{{json .State.Health}}' broken`: what does the probe call, and where does the server listen?
+    - |-
+      `USER app` makes the server run as `app`, but `/var/log` and a directory created by `VOLUME` belong to root, so it cannot write there. Containers should log to stdout and stderr, so drop `LOG_FILE`; create `/data` and `chown` it to `app` *before* `VOLUME` (a volume starts as a copy of the image's directory, owner included). A shell-form `CMD server` runs `/bin/sh -c server`, so the shell is PID 1 and `SIGTERM` never reaches the server.
+    - |-
+      ```dockerfile
+      FROM alpine:3.24
+      RUN adduser -D -u 10001 app \
+          && mkdir /data \
+          && chown app:app /data
+      COPY --from=build /out/server /usr/local/bin/server
+      ENV PORT=8080 \
+          DATA_DIR=/data
+      USER app
+      VOLUME /data
+      EXPOSE 8080
+      HEALTHCHECK ... CMD ["server", "-healthcheck"]
+      CMD [...]
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your image is built on your Docker engine and checked in a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with hadolint, bats and jq that checks what your image contains.

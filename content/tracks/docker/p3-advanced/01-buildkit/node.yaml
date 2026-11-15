@@ -1,0 +1,24 @@
+id: docker.p3.buildkit
+kind: lesson
+status: draft
+title: "BuildKit: Cache Mounts, Secret Mounts, Build Arguments and Multi-platform Builds"
+summary: "What the modern builder adds: parallel stages, cache and secret mounts, build arguments and their scope, remote caches in CI, and images for several CPU architectures."
+objectives:
+  - { id: o1, text: "Use RUN --mount=type=cache and --mount=type=secret, and explain why secret mounts leave nothing in the image", skills: [docker.buildkit] }
+  - { id: o2, text: "Use ARG correctly across stages and pass build metadata into binaries and labels", skills: [docker.buildkit] }
+  - { id: o3, text: "Speed up CI builds with exported caches and build multi-platform images with buildx", skills: [docker.buildkit] }
+prerequisites: [docker.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your Java service''s CI build takes 9 minutes because Maven downloads every dependency on each run, it needs a private repository token to download them, and the team now deploys to both x86 servers and ARM (Graviton) instances. Describe the Dockerfile and CI changes you would make with BuildKit, and explain why the token is safe with your approach and not with ARG.'
+  criteria:
+    - 'Uses RUN --mount=type=cache for the Maven repository (~/.m2) so downloads are reused'
+    - 'Uses RUN --mount=type=secret (docker build --secret) for the token, and explains that ARG values are recorded in the image metadata'
+    - 'Exports and imports the build cache in CI (registry or the CI cache backend), since CI runners start empty'
+    - 'Builds for linux/amd64 and linux/arm64 with docker buildx build --platform and pushes a multi-platform index'
+    - 'Mentions that a JVM image is architecture-neutral above the base, or emulation versus native builders'

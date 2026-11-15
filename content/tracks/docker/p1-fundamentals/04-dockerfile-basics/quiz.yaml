@@ -1,0 +1,42 @@
+questions:
+  - id: context
+    prompt: "In docker build -t app ., what is the final dot?"
+    options:
+      - "The image name"
+      - "The build context: the folder whose files are sent to the builder"
+      - "The output folder"
+      - "The Dockerfile"
+    answer: 1
+    explanation: "COPY and ADD can only read files from the build context."
+  - id: run-cd
+    prompt: "A Dockerfile has RUN cd /app and then RUN make. Where does make run?"
+    options: ["In /app", "In the previous WORKDIR (or /), because each RUN starts a new shell", "In the build context", "It fails"]
+    answer: 1
+    explanation: "Each RUN is a new shell; use WORKDIR /app to change the directory for later steps."
+  - id: entry-cmd
+    prompt: "An image has ENTRYPOINT [\"/app/tool\"] and CMD [\"--help\"]. What runs with docker run IMAGE convert a.csv?"
+    options: ["/app/tool --help convert a.csv", "/app/tool convert a.csv", "convert a.csv", "/app/tool --help"]
+    answer: 1
+    explanation: "Arguments after the image name replace CMD; the ENTRYPOINT stays."
+  - id: expose
+    prompt: "What does EXPOSE 8080 do?"
+    options:
+      - "Publishes port 8080 on the host"
+      - "Documents that the container listens on 8080; publishing needs -p"
+      - "Opens the firewall"
+      - "Makes the app listen on 8080"
+    answer: 1
+    explanation: "EXPOSE is metadata; -p (or -P) publishes ports."
+  - id: env-secret
+    prompt: "Why must an API key never be set with ENV in a Dockerfile?"
+    options:
+      - "ENV only works at build time"
+      - "ENV values are stored in the image config, readable by anyone who has the image"
+      - "ENV values are limited to 64 characters"
+      - "ENV cannot be overridden"
+    answer: 1
+    explanation: "docker image inspect and docker history show ENV and ARG values."
+  - id: exec-form
+    prompt: "Which form of CMD makes your program PID 1 and works in an image without a shell: shell or exec?"
+    answers: ["exec", "exec form", "the exec form", "json", "json array"]
+    explanation: "The exec form (a JSON array) runs the program directly, without /bin/sh -c."

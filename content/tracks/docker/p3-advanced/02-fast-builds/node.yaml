@@ -1,0 +1,52 @@
+id: docker.p3.fast-builds
+kind: kata
+status: draft
+title: "Fast Builds: Cache Order, Cache Mounts and Build Arguments"
+summary: "Make a slow, cache-unfriendly Dockerfile rebuild in seconds and stamp the version into both the binary and the image."
+objectives:
+  - { id: o1, text: "Order build steps so a code change reuses the dependency layers", skills: [docker.buildkit, docker.dockerfile-best-practices] }
+  - { id: o2, text: "Keep the compiler cache between builds with a BuildKit cache mount", skills: [docker.buildkit] }
+  - { id: o3, text: "Pass a build argument to the compiler and to a label across stages", skills: [docker.buildkit] }
+  - { id: o4, text: "Shrink the build context with .dockerignore", skills: [docker.dockerfile-best-practices] }
+prerequisites: [docker.p3.buildkit]
+difficulty: 3
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 300 }
+  hints:
+    - |-
+      Edit one line of `main.go` and build again: which steps run again and why? Which files does the builder receive before the first instruction, and do any of them matter to the image? Where does `ARG VERSION` stop being visible?
+    - |-
+      A `COPY . .` before the build invalidates everything after it whenever any file changes, so copy `go.mod` first and the `.go` files next. `RUN --mount=type=cache,target=/root/.cache/go-build go build ...` keeps Go's compiler cache on the builder, outside the image. An `ARG` declared before the first `FROM` (or in one stage) is not visible in the next stage until you declare it there again with `ARG VERSION`.
+    - |-
+      ```dockerfile
+      ARG VERSION=1.4.0
+
+      FROM golang:1.27-alpine AS build
+      ARG VERSION
+      WORKDIR /src
+      COPY go.mod ./
+      COPY *.go ./
+      RUN --mount=type=cache,target=/root/.cache/go-build \
+          CGO_ENABLED=0 go build -ldflags="-X main.version=${VERSION}" -o /out/server .
+
+      FROM gcr.io/distroless/static-debian13:nonroot
+      ARG VERSION
+      LABEL org.opencontainers.image.version=...
+      ```
+      and a `.dockerignore` for `.git`, `docs/`, `tests/`, `*.md`.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your image is built on your Docker engine and checked in a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with hadolint, bats and jq that checks what your image contains.

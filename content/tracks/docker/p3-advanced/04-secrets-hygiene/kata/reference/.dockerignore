@@ -1,0 +1,7 @@
+.env
+secrets/
+tests/
+*.md
+compose.yaml
+Dockerfile
+.dockerignore

@@ -1,0 +1,44 @@
+id: docker.p1.greeter-image
+kind: kata
+status: draft
+title: "Greeter Image: ENTRYPOINT, CMD and the Build Context"
+summary: "Package a shell tool so arguments work like a normal command, and keep secrets and notes out of the build context."
+objectives:
+  - { id: o1, text: "Combine an exec-form ENTRYPOINT with a default CMD so docker run arguments replace only the defaults", skills: [docker.dockerfile-basics] }
+  - { id: o2, text: "Use WORKDIR, ENV and file modes in a Dockerfile", skills: [docker.dockerfile-basics] }
+  - { id: o3, text: "Keep files out of the build context with .dockerignore", skills: [docker.dockerfile-basics] }
+prerequisites: [docker.p1.dockerfile-basics]
+difficulty: 2
+estimated_minutes: 35
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 180 }
+  hints:
+    - |-
+      `docker run IMAGE Ada Grace`: which part of the image's start command do `Ada Grace` replace, the ENTRYPOINT or the CMD? Which files does `COPY . .` send, and what decides that before the Dockerfile even runs?
+    - |-
+      With `ENTRYPOINT ["/app/greet.sh"]` and `CMD ["world"]` the container runs `/app/greet.sh world`; arguments after the image name replace only the CMD. `.dockerignore` lists paths (one per line, like `.gitignore`) that never reach the builder. Files copied from Windows may lose their executable bit, so give the script mode 755 when you copy it.
+    - |-
+      ```dockerfile
+      FROM alpine:3.24
+      ENV GREETING=...
+      WORKDIR /app
+      COPY --chmod=755 . .
+      ENTRYPOINT ["..."]
+      CMD ["..."]
+      ```
+      and a `.dockerignore` with `secrets.env`, `notes/`, ...
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your image is built on your Docker engine and checked in a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with hadolint, bats and jq that checks what your image contains.

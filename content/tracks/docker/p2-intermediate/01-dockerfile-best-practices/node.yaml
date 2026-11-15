@@ -1,0 +1,24 @@
+id: docker.p2.dockerfile-best-practices
+kind: lesson
+status: draft
+title: "Dockerfile Best Practices: Cache Order, Small Layers and Linting"
+summary: "How the build cache decides what reruns, how to order instructions for fast rebuilds, and the habits that keep images small, reproducible and lint-clean."
+objectives:
+  - { id: o1, text: "Explain how the build cache matches instructions and why one change invalidates every later step", skills: [docker.dockerfile-best-practices] }
+  - { id: o2, text: "Order a Dockerfile so dependency layers are reused across code changes", skills: [docker.dockerfile-best-practices] }
+  - { id: o3, text: "Install packages in one cleaned-up step, pin versions and base images, and fix hadolint findings", skills: [docker.dockerfile-best-practices] }
+prerequisites: [docker.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A Python service''s Dockerfile is `FROM python:3.13` / `COPY . /app` / `WORKDIR /app` / `RUN apt-get update` / `RUN apt-get install -y libpq-dev` / `RUN pip install -r requirements.txt` / `CMD python main.py`. CI rebuilds take six minutes for a one-line change and the image is 1.2 GB. Rewrite it and explain each change in terms of the build cache, layers and reproducibility.'
+  criteria:
+    - 'Moves the dependency steps before COPY of the application code, copying requirements.txt alone first'
+    - 'Combines apt-get update and install in one RUN with --no-install-recommends and removes /var/lib/apt/lists'
+    - 'Uses a slim base with a pinned tag and pip --no-cache-dir'
+    - 'Adds a .dockerignore and an exec-form CMD'
+    - 'Explains why apt-get update in its own RUN line can install stale packages from the cache'

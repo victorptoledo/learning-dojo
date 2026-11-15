@@ -1,0 +1,3 @@
+# Findings at warning level or above fail the kata; info and style findings are shown only
+# when something else fails.
+failure-threshold: warning

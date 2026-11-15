@@ -1,0 +1,23 @@
+id: docker.p1.images-layers
+kind: lesson
+status: draft
+title: "Images, Layers, Tags and Digests"
+summary: "How an image is stored: content-addressed layers, the config, the manifest, and the difference between a tag and a digest."
+objectives:
+  - { id: o1, text: "Describe an OCI image: layers, config and manifest, all addressed by digest", skills: [docker.images-layers] }
+  - { id: o2, text: "Explain copy-on-write and why deleting a file in a later layer does not shrink an image", skills: [docker.images-layers] }
+  - { id: o3, text: "Tell tags from digests and inspect an image with docker history and docker image inspect", skills: [docker.images-layers] }
+prerequisites: [docker.p1.namespaces-cgroups]
+difficulty: 2
+estimated_minutes: 35
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A Dockerfile downloads a 400 MB archive, unpacks it and then deletes the archive with three separate RUN lines. The image is still 900 MB. Explain why, using layers and copy-on-write, and show how you would rewrite it. Then explain why the release pipeline should deploy `myapp@sha256:...` rather than `myapp:latest`.'
+  criteria:
+    - 'Explains that each RUN creates a layer and a later deletion only adds a whiteout, so the bytes remain in the earlier layer'
+    - 'Rewrites the steps as one RUN (or a multi-stage build) so the archive never lands in a layer'
+    - 'Explains that a tag is a movable pointer and a digest identifies exact content'
+    - 'Connects digests to reproducible deployments and rollbacks'

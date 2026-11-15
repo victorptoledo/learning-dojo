@@ -1,0 +1,339 @@
+# Placement test of the Docker track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with Docker?
+  options:
+    - { label: "Never used it, or only copied a docker run command", start_phase: p0, test: false }
+    - { label: "I run containers and write simple Dockerfiles", start_phase: p1, test: true }
+    - { label: "I write multi-stage Dockerfiles and Compose files for real projects", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-host-ps
+    phase: p1
+    skills: [docker.namespaces-cgroups]
+    difficulty: 2
+    prompt: "On a Linux host you run ps aux while three containers are running. What do you see?"
+    options:
+      - "Only three docker processes"
+      - "The containers' processes, with ordinary host PIDs"
+      - "Nothing from the containers: they run in separate kernels"
+      - "Three virtual machine processes"
+    answer: 1
+    explanation: "Container processes are host processes; only their own view is namespaced."
+  - id: p1-cgroup-cpu
+    phase: p1
+    skills: [docker.namespaces-cgroups]
+    difficulty: 3
+    prompt: "Which kernel feature lets two containers on one host each be capped at one CPU?"
+    options: ["Namespaces", "cgroups", "OverlayFS", "seccomp"]
+    answer: 1
+    explanation: "cgroups account for and limit CPU, memory, processes and I/O."
+  - id: p1-shared-layers
+    phase: p1
+    skills: [docker.images-layers]
+    difficulty: 2
+    prompt: "Two images are built FROM the same python:3.13-slim. How is the base stored on a host that has both?"
+    options: ["Twice", "Once: layers are content-addressed and shared", "Compressed into each image", "It depends on the tag"]
+    answer: 1
+    explanation: "Layers are identified by digest, so identical layers are stored and pulled once."
+  - id: p1-tag-moves
+    phase: p1
+    skills: [docker.images-layers]
+    difficulty: 3
+    prompt: "A deployment uses redis:8.2-alpine. A month later a fresh node pulls a different image for the same name. Why?"
+    options:
+      - "Registries corrupt images"
+      - "The tag was moved to a patched build; only a digest pins exact bytes"
+      - "Alpine changed its name"
+      - "Pull caches expire"
+    answer: 1
+    explanation: "Tags are pointers the publisher can move."
+  - id: p1-stopped-files
+    phase: p1
+    skills: [docker.containers]
+    difficulty: 2
+    prompt: "You stop a container (without --rm) and start it again. Are the files it created still there?"
+    options: ["No, never", "Yes: its writable layer is kept until the container is removed", "Only in /tmp", "Only if a volume is mounted"]
+    answer: 1
+    explanation: "docker stop keeps the container and its writable layer; docker rm deletes them."
+  - id: p1-sigterm-wait
+    phase: p1
+    skills: [docker.containers]
+    difficulty: 3
+    prompt: "docker stop -t 30 api: what happens if api ignores SIGTERM?"
+    options:
+      - "It keeps running forever"
+      - "After 30 seconds it gets SIGKILL"
+      - "It is paused"
+      - "Docker restarts it"
+    answer: 1
+    explanation: "-t sets the grace period before SIGKILL."
+  - id: p1-args-replace
+    phase: p1
+    skills: [docker.dockerfile-basics]
+    difficulty: 2
+    prompt: "An image has only CMD [\"python\", \"app.py\"]. What runs with docker run IMAGE python -V?"
+    options: ["python app.py python -V", "python -V", "python app.py", "An error"]
+    answer: 1
+    explanation: "Without an ENTRYPOINT, run arguments replace the whole CMD."
+  - id: p1-copy-outside
+    phase: p1
+    skills: [docker.dockerfile-basics]
+    difficulty: 3
+    prompt: "COPY ../shared/lib ./lib fails during the build. Why?"
+    options:
+      - "COPY does not support folders"
+      - "COPY can only read files inside the build context"
+      - "Relative paths need ADD"
+      - "lib is a reserved name"
+    answer: 1
+    explanation: "Move the build context up a level (and point -f at the Dockerfile), or copy from another stage or context."
+  - id: p1-volume-vs-bind
+    phase: p1
+    skills: [docker.volumes]
+    difficulty: 2
+    prompt: "You want your editor's changes to appear immediately inside a development container. Which mount?"
+    options: ["A named volume", "A bind mount of the source folder", "tmpfs", "No mount: rebuild"]
+    answer: 1
+    explanation: "A bind mount shows a host directory live inside the container."
+  - id: p1-default-bridge
+    phase: p1
+    skills: [docker.networking]
+    difficulty: 3
+    prompt: "Two containers started with plain docker run (no --network) cannot reach each other by name. Why?"
+    options:
+      - "They are on different hosts"
+      - "The default bridge network has no DNS for container names"
+      - "Ports are not published"
+      - "Containers can never talk to each other"
+    answer: 1
+    explanation: "Create a user-defined network; it resolves container names."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-copy-order
+    phase: p2
+    skills: [docker.dockerfile-best-practices]
+    difficulty: 2
+    prompt: "Which line, placed before RUN mvn dependency:go-offline, makes dependency downloads cacheable across code changes?"
+    options: ["COPY . .", "COPY pom.xml .", "COPY src ./src", "WORKDIR /src"]
+    answer: 1
+    explanation: "Copy only the dependency manifest before resolving dependencies."
+  - id: p2-run-cached
+    phase: p2
+    skills: [docker.dockerfile-best-practices]
+    difficulty: 3
+    prompt: "RUN curl -o /app/rates.json https://example.com/rates is still cached after the remote file changed. Why?"
+    options:
+      - "curl caches responses"
+      - "The cache key of RUN is the instruction text, not what it downloads"
+      - "BuildKit never reruns RUN"
+      - "The file is in .dockerignore"
+    answer: 1
+    explanation: "Use ADD with a checksum, a build argument that changes, or --no-cache to force it."
+  - id: p2-dockerignore-cache
+    phase: p2
+    skills: [docker.dockerfile-best-practices]
+    difficulty: 3
+    prompt: "Editing README.md triggers a full rebuild of a Dockerfile that uses COPY . . before the build step. Cheapest fix?"
+    options: ["Delete the README", "Add README.md (and other non-build files) to .dockerignore", "Use ADD", "Use --squash"]
+    answer: 1
+    explanation: "Files excluded from the context are not part of the COPY checksum."
+  - id: p2-stage-artifacts
+    phase: p2
+    skills: [docker.multi-stage]
+    difficulty: 2
+    prompt: "In a multi-stage build, how does the runtime stage get the JAR built in the stage named build?"
+    answers: ["COPY --from=build", "copy --from=build", "COPY --from build"]
+    explanation: "COPY --from=<stage> copies files from an earlier stage (or an image)."
+  - id: p2-scratch
+    phase: p2
+    skills: [docker.multi-stage]
+    difficulty: 4
+    prompt: "Which binary can run in FROM scratch with nothing else copied in?"
+    options:
+      - "A Python script"
+      - "A statically linked binary that needs no certificates, users or time zones"
+      - "A JAR"
+      - "A dynamically linked C program"
+    answer: 1
+    explanation: "scratch is empty: no loader, no libc, no CA bundle."
+  - id: p2-nonroot-port
+    phase: p2
+    skills: [docker.dockerfile-security]
+    difficulty: 2
+    prompt: "A non-root service needs to accept HTTP traffic. What is the simplest choice?"
+    options:
+      - "Run as root to bind port 80"
+      - "Listen on a port above 1024, such as 8080, and publish it as needed"
+      - "Disable the firewall"
+      - "Use --network host"
+    answer: 1
+    explanation: "Ports above 1024 need no privilege; the platform maps external ports."
+  - id: p2-app-writable
+    phase: p2
+    skills: [docker.dockerfile-security]
+    difficulty: 3
+    prompt: "Which ownership layout limits what an attacker can change after compromising the app user?"
+    options:
+      - "Everything owned by the app user"
+      - "Code owned by root and read-only for the app; only data directories owned by the app user"
+      - "Everything world-writable"
+      - "Everything owned by root, app runs as root"
+    answer: 1
+    explanation: "The app cannot rewrite its own code or binaries."
+  - id: p2-compose-name
+    phase: p2
+    skills: [docker.compose]
+    difficulty: 2
+    prompt: "In Compose, the worker service must connect to the redis service. Which host does it use?"
+    options: ["localhost", "redis", "127.0.0.1", "host.docker.internal"]
+    answer: 1
+    explanation: "Services resolve each other by service name on the project network."
+  - id: p2-compose-completed
+    phase: p2
+    skills: [docker.compose]
+    difficulty: 4
+    prompt: "A migrate service must finish successfully before api starts. Which depends_on condition?"
+    answers: ["service_completed_successfully", "condition: service_completed_successfully"]
+    explanation: "It waits for the one-off service to exit with code 0."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-secret-mount
+    phase: p3
+    skills: [docker.buildkit]
+    difficulty: 3
+    prompt: "Which docker build flag provides a secret that a RUN --mount=type=secret,id=token step can read?"
+    options: ["--build-arg token=...", "--secret id=token,src=token.txt", "-e token=...", "--label token=..."]
+    answer: 1
+    explanation: "--secret passes a file or environment value to secret mounts, never to layers."
+  - id: p3-cache-mount-size
+    phase: p3
+    skills: [docker.buildkit]
+    difficulty: 3
+    prompt: "Does RUN --mount=type=cache,target=/root/.npm npm ci make the image larger?"
+    options: ["Yes, by the size of the cache", "No: the cache lives on the builder, outside the layers", "Only on the first build", "Only with --push"]
+    answer: 1
+    explanation: "Cache mounts are never part of a layer."
+  - id: p3-cross-compile
+    phase: p3
+    skills: [docker.buildkit]
+    difficulty: 4
+    prompt: "An arm64 Go image builds slowly on amd64 CI under QEMU. What makes it fast?"
+    options:
+      - "Use a bigger runner"
+      - "FROM --platform=$BUILDPLATFORM for the build stage and GOOS=$TARGETOS GOARCH=$TARGETARCH"
+      - "Build without BuildKit"
+      - "Use Alpine"
+    answer: 1
+    explanation: "The compiler runs natively and cross-compiles; only the runtime stage is per platform."
+  - id: p3-digest-rollback
+    phase: p3
+    skills: [docker.supply-chain]
+    difficulty: 2
+    prompt: "What makes a rollback exact?"
+    options: ["Redeploying latest", "Redeploying the previous image digest", "Rebuilding the old commit", "Restarting the containers"]
+    answer: 1
+    explanation: "The digest identifies the exact image that ran before."
+  - id: p3-base-cves
+    phase: p3
+    skills: [docker.supply-chain]
+    difficulty: 3
+    prompt: "Your code has not changed for weeks, but the scanner now reports new critical CVEs in the image. What usually fixes it?"
+    options:
+      - "Ignore them"
+      - "Rebuild on an updated (or smaller) base image and redeploy"
+      - "Change the tag"
+      - "Delete the old layers"
+    answer: 1
+    explanation: "Most vulnerabilities come from base packages; rebuilding picks up their fixes."
+  - id: p3-history-secret
+    phase: p3
+    skills: [docker.supply-chain, docker.dockerfile-security]
+    difficulty: 3
+    prompt: "Where can anyone who pulls an image read a value passed with --build-arg or set with ENV?"
+    options: ["Nowhere", "In docker history and docker image inspect", "Only in the registry's UI", "Only inside a running container"]
+    answer: 1
+    explanation: "Build arguments and environment values are recorded in the image metadata."
+  - id: p3-privileged
+    phase: p3
+    skills: [docker.runtime-security]
+    difficulty: 2
+    prompt: "Which flag disables almost every isolation feature of a container?"
+    answers: ["--privileged", "privileged"]
+    explanation: "It grants all capabilities and devices and removes seccomp and AppArmor confinement."
+  - id: p3-oom-runtime
+    phase: p3
+    skills: [docker.runtime-security]
+    difficulty: 4
+    prompt: "A JVM container with --memory 512m and -Xmx512m is OOM-killed under load without an OutOfMemoryError. Why?"
+    options:
+      - "The JVM ignores -Xmx"
+      - "The heap is only part of the process; metaspace, threads and buffers push it over the cgroup limit"
+      - "Swap is disabled"
+      - "The CPU limit is too low"
+    answer: 1
+    explanation: "Size the heap as a percentage of the limit (MaxRAMPercentage) to leave headroom."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-empty-logs
+    phase: p4
+    skills: [docker.logs-debugging]
+    difficulty: 2
+    prompt: "docker logs is empty for a running web service that handles requests. Name the most likely cause."
+    options:
+      - "Docker has no log driver"
+      - "The service writes its logs to a file inside the container (or buffers stdout)"
+      - "The container is paused"
+      - "Logs need --privileged"
+    answer: 1
+    explanation: "The engine only captures the main process's stdout and stderr."
+  - id: p4-distroless-debug
+    phase: p4
+    skills: [docker.logs-debugging]
+    difficulty: 3
+    prompt: "How do you check which ports a distroless container (no shell) is listening on?"
+    options:
+      - "docker exec api ss -ltn"
+      - "Run a tool container with --network container:api and run ss -ltn there"
+      - "Rebuild the image with a shell"
+      - "Read docker logs"
+    answer: 1
+    explanation: "A tool container sharing the network namespace sees the same sockets."
+  - id: p4-oom-signal
+    phase: p4
+    skills: [docker.logs-debugging]
+    difficulty: 3
+    prompt: "A container restarts every few minutes with exit code 137. Which field of docker inspect tells you whether memory was the cause?"
+    answers: ["OOMKilled", "State.OOMKilled", ".State.OOMKilled"]
+    explanation: "137 means SIGKILL; OOMKilled true means the kernel's OOM killer sent it."
+  - id: p4-drain
+    phase: p4
+    skills: [docker.production]
+    difficulty: 3
+    prompt: "A rolling update still produces a few 502 errors. What should a replica do first when it receives SIGTERM?"
+    options:
+      - "Exit immediately"
+      - "Report not ready, keep serving in-flight requests, then shut down"
+      - "Restart itself"
+      - "Ignore it"
+    answer: 1
+    explanation: "Failing readiness first lets the router stop sending traffic before the drain."
+  - id: p4-runtime-stack
+    phase: p4
+    skills: [docker.production]
+    difficulty: 4
+    prompt: "Why can Kubernetes run images built with docker build even when Docker is not installed on its nodes?"
+    options:
+      - "Kubernetes converts them"
+      - "Images follow the OCI image spec, and containerd or CRI-O with runc run them"
+      - "Kubernetes bundles Docker"
+      - "It cannot"
+    answer: 1
+    explanation: "The image format and the runtime are open standards; Docker is one client of them."
