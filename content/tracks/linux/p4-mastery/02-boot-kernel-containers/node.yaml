@@ -1,0 +1,24 @@
+id: linux.p4.boot-kernel-containers
+kind: lesson
+status: draft
+title: "Boot, the Kernel, cgroups and Namespaces"
+summary: "What happens from power-on to the login prompt, kernel modules and parameters, and the two kernel features that containers are made of."
+objectives:
+  - { id: o1, text: "Describe the boot sequence: firmware, boot loader, kernel, initramfs, systemd and targets", skills: [linux.boot-kernel] }
+  - { id: o2, text: "Inspect and change the kernel with uname, modules, sysctl and the boot command line", skills: [linux.boot-kernel] }
+  - { id: o3, text: "Explain how namespaces and cgroups make a container, and what that means for limits and security", skills: [linux.boot-kernel] }
+prerequisites: [linux.p4.performance-troubleshooting]
+difficulty: 4
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Explain to a teammate who thinks containers are lightweight virtual machines what a container really is on Linux. Use `docker run --memory 512m --cpus 1 nginx` as the example: which kernel features does it use, what does the process inside see, what does the host see, and what are the security consequences?'
+  criteria:
+    - 'Explains that a container is a normal host process, sharing the host kernel, unlike a VM'
+    - 'Names the namespaces (pid, net, mnt, uts, ipc, user) and what each one isolates'
+    - 'Explains cgroups v2 limiting memory and CPU, and that exceeding the memory limit means an OOM kill'
+    - 'Mentions that the host sees the process with ps, and that a kernel bug or a privileged container affects the host'
+    - 'Mentions an image as the root filesystem layers (overlayfs) mounted in the mount namespace'

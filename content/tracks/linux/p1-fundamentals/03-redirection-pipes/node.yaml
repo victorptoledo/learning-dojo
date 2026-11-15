@@ -1,0 +1,23 @@
+id: linux.p1.redirection-pipes
+kind: lesson
+status: draft
+title: "Streams, Redirection, Pipes and Exit Codes"
+summary: "stdin, stdout and stderr; redirecting them to files; composing small tools with pipes; and reading exit codes."
+objectives:
+  - { id: o1, text: "Redirect stdout and stderr to files, to each other and to /dev/null", skills: [linux.redirection] }
+  - { id: o2, text: "Build pipelines with grep, cut, sort, uniq, wc, head, tr and tee", skills: [linux.redirection] }
+  - { id: o3, text: "Use exit codes with &&, || and $?, and capture output with $(...)", skills: [linux.redirection] }
+prerequisites: [linux.p1.files-links]
+difficulty: 2
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write one pipeline that prints the five IP addresses with the most failed SSH logins in a file `auth.log` (lines contain `Failed password for ... from <ip> port ...`), most frequent first, and explain each stage. Then explain what `cmd > out.log 2>&1` and `cmd 2>&1 > out.log` do differently.'
+  criteria:
+    - 'The pipeline filters with grep, extracts the IP, then sort | uniq -c | sort -rn | head -5'
+    - 'Explains that uniq only merges adjacent lines, so sort must come first'
+    - 'Explains that redirections are applied left to right'
+    - 'Correctly states that the second form sends stderr to the terminal and only stdout to the file'

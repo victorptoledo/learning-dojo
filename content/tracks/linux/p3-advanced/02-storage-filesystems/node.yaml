@@ -1,0 +1,24 @@
+id: linux.p3.storage-filesystems
+kind: lesson
+status: draft
+title: "Disks, Filesystems, Mounts and LVM"
+summary: "Block devices and partitions, creating and mounting filesystems, fstab, finding what fills a disk, inodes, swap and LVM."
+objectives:
+  - { id: o1, text: "List disks and partitions, create a filesystem and mount it permanently with fstab", skills: [linux.storage] }
+  - { id: o2, text: "Find what fills a disk with df and du, and recognise inode exhaustion and deleted open files", skills: [linux.storage] }
+  - { id: o3, text: "Explain LVM physical volumes, volume groups and logical volumes, and grow a filesystem", skills: [linux.storage] }
+prerequisites: [linux.p3.networking]
+difficulty: 3
+estimated_minutes: 55
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An alert says `/var` on a production server is 97% full. Describe what you check and in which order, the commands you use, and how you free space safely, covering the cases where `du` and `df` disagree and where `df -i` shows 100%.'
+  criteria:
+    - 'Confirms with df -h and finds the biggest directories with du (staying on one filesystem with -x) or ncdu'
+    - 'Knows the usual suspects: logs, the journal (journalctl --vacuum), apt caches, old releases or backups'
+    - 'Explains df and du disagreeing because of deleted files still open, found with lsof +L1 or /proc/*/fd, fixed by restarting or truncating'
+    - 'Explains inode exhaustion (many small files) and that only deleting files helps'
+    - 'Mentions a lasting fix: rotation, monitoring, a bigger or separate volume'

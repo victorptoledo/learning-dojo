@@ -132,6 +132,7 @@ fn handle_key(app: &mut App, key: KeyEvent) -> Flow {
         Screen::Setup => handle_setup_key(app, key.code),
         Screen::Placement => handle_placement_key(app, key.code),
         Screen::Career => handle_career_key(app, key.code),
+        Screen::BridgePicker => handle_bridge_key(app, key.code),
         Screen::TrackView => return handle_track_key(app, key.code),
     }
     Flow::Continue
@@ -158,6 +159,16 @@ fn handle_career_key(app: &mut App, code: KeyCode) {
         KeyCode::Down | KeyCode::Char('j') => app.career_down(),
         KeyCode::Up | KeyCode::Char('k') => app.career_up(),
         KeyCode::Enter | KeyCode::Char(' ') => app.toggle_target_career(),
+        _ => {}
+    }
+}
+
+fn handle_bridge_key(app: &mut App, code: KeyCode) {
+    match code {
+        KeyCode::Esc | KeyCode::Char('b' | 'B' | 'q') => app.close_bridge_picker(),
+        KeyCode::Down | KeyCode::Char('j') => app.bridge_picker_down(),
+        KeyCode::Up | KeyCode::Char('k') => app.bridge_picker_up(),
+        KeyCode::Enter | KeyCode::Char(' ') => app.choose_bridge_language(),
         _ => {}
     }
 }
@@ -218,7 +229,7 @@ fn handle_track_key(app: &mut App, code: KeyCode) -> Flow {
         KeyCode::Char('c' | 'C') => app.check_selected(),
         KeyCode::Char('q' | 'Q') => app.start_lesson_quiz(),
         KeyCode::Char('o' | 'O') => app.open_selected(),
-        KeyCode::Char('b' | 'B') => app.cycle_bridge_language(),
+        KeyCode::Char('b' | 'B') => app.open_bridge_picker(),
         KeyCode::Char('p' | 'P') => app.start_placement(),
         KeyCode::Char('h' | 'H') => app.reveal_hint(),
         KeyCode::Char('r' | 'R') => app.start_review(),

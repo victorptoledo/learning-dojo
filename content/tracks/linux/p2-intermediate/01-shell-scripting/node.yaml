@@ -1,0 +1,23 @@
+id: linux.p2.shell-scripting
+kind: lesson
+status: draft
+title: "Bash Scripting: Variables, Quoting, Control Flow and Functions"
+summary: "Write scripts that survive real input: quoting, conditionals, loops, functions, arrays, options with getopts and strict mode."
+objectives:
+  - { id: o1, text: "Quote expansions correctly and use parameter expansion for defaults and string edits", skills: [linux.scripting] }
+  - { id: o2, text: "Write conditionals, loops and functions, and read files line by line safely", skills: [linux.scripting] }
+  - { id: o3, text: "Parse options with getopts and fail fast with set -euo pipefail, knowing its limits", skills: [linux.scripting] }
+prerequisites: [linux.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 60
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this script and list every bug you find, explaining how each one fails on real input, then rewrite it: `#!/bin/bash` / `for f in $(ls $1); do` / `  if [ $f == *.log ]; then` / `    cat $1/$f | grep ERROR > $1/errors.txt` / `  fi` / `done`.'
+  criteria:
+    - 'Spots word splitting of $(ls) and unquoted variables (names with spaces, globbing)'
+    - 'Spots that [ ] does not do pattern matching, and uses [[ ]] or a glob in the for loop instead'
+    - 'Spots that errors.txt is overwritten on every iteration (> instead of >> or one redirect after the loop)'
+    - 'The rewrite quotes everything, loops over "$1"/*.log, checks the argument and handles no matches'

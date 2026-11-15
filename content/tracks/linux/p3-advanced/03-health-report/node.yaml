@@ -1,0 +1,47 @@
+id: linux.p3.health-report
+kind: kata
+status: draft
+title: "Health Report: Reading /proc and df"
+summary: "A server health check that reads memory, load and disk usage from /proc and df, flags what crosses a threshold and exits like a monitoring probe."
+objectives:
+  - { id: o1, text: "Read memory, load and CPU count from /proc files", skills: [linux.storage, linux.processes] }
+  - { id: o2, text: "Parse df -P output and compute percentages with awk", skills: [linux.storage, linux.text-processing] }
+  - { id: o3, text: "Report a status with exit codes that a monitoring system understands", skills: [linux.scripting] }
+prerequisites: [linux.p3.storage-filesystems]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Look at the real files first, in a shell: `cat /proc/meminfo`, `cat /proc/loadavg`, `grep -c '^processor' /proc/cpuinfo` and `df -P`. Which fields do you need from each? Make the paths configurable (`proc=/proc`, then `-p` changes it) before writing any check.
+    - |-
+      Memory: `awk '/^MemTotal:/ { t = $2 } /^MemAvailable:/ { a = $2 } END { ... }' "$proc/meminfo"`; integer percent with `int((t - a) * 100 / t)`. Load: `read -r load _ < "$proc/loadavg"`, then awk for the division and the comparison. Disks: `awk 'NR > 1 && $1 !~ /^(tmpfs|devtmpfs|udev)$/ { sub(/%/, "", $5); ... }'`. Count the warnings in a variable and decide the exit status at the end.
+    - |-
+      ```bash
+      warnings=0
+      mark() {   # prints " WARN" and counts it when the first number is >= the second
+          if awk -v v="$1" -v t="$2" 'BEGIN { exit !(v >= t) }'; then
+              warnings=$(( warnings + 1 ))
+              printf ' WARN'
+          fi
+      }
+      read -r used total_mib avail_mib < <(awk '...' "$proc/meminfo")
+      echo "memory: ${used}% used (...)$(mark "$used" 90)"
+      ```
+      Careful: `$(mark ...)` runs in a subshell, so its counter is lost. Count in the main shell instead (call `mark` without `$()` and print the line in two parts with `printf`).
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, bats and shellcheck that runs the grading tests.

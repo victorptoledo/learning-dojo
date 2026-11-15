@@ -12,7 +12,7 @@ use dojo_core::{
     Catalog, CheckOutcome, CheckRecord, CheckReport, Evidence, KataRunner, Mode, Node, NodeKind,
     Profile, ProgressEvent, ProgressStore, QuizAttempt, Refusal, Settings, Track,
 };
-use std::collections::{BTreeSet, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 const DETAIL_SCROLL_STEP: u16 = 5;
@@ -45,6 +45,7 @@ pub enum Screen {
     Setup,
     Placement,
     Career,
+    BridgePicker,
 }
 
 /// Everything the TUI shows and the actions it can take. Rendering lives in `ui`.
@@ -57,6 +58,8 @@ pub struct App {
     pub selector_cursor: usize,
     /// Highlighted career on the career screen.
     pub career_cursor: usize,
+    /// Highlighted language in the bridge picker.
+    pub bridge_cursor: usize,
     pub status_message: Option<String>,
     /// Lines scrolled in the detail panel (PageUp/PageDown).
     pub detail_scroll: u16,
@@ -121,6 +124,7 @@ impl App {
             screen: Screen::TrackView,
             selector_cursor: active_track,
             career_cursor: 0,
+            bridge_cursor: 0,
             status_message: None,
             detail_scroll: 0,
             quiet_kata: None,
@@ -215,32 +219,6 @@ impl App {
             | ProgressEvent::ReviewAnswered { .. } => return,
         };
         self.status_message = Some(message);
-    }
-
-    /// Cycles the Rosetta bridge source language among those available in the catalog.
-    pub fn cycle_bridge_language(&mut self) {
-        let languages: Vec<String> = self.bridge_languages().into_iter().collect();
-        if languages.is_empty() {
-            self.status_message = Some("No bridges available yet.".to_string());
-            return;
-        }
-        let settings = &mut self.profile.settings;
-        let current = languages
-            .iter()
-            .position(|lang| *lang == settings.bridge_from);
-        let next = current.map_or(0, |index| (index + 1) % languages.len());
-        settings.bridge_from = languages[next].clone();
-        self.status_message = Some(format!("Bridges now explained from {}.", languages[next]));
-        self.save_settings();
-    }
-
-    fn bridge_languages(&self) -> BTreeSet<String> {
-        self.catalog
-            .tracks
-            .iter()
-            .flat_map(|track| track.nodes())
-            .flat_map(|node| node.bridges.keys().cloned())
-            .collect()
     }
 
     // ---- track selector -----------------------------------------------------

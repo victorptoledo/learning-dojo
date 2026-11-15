@@ -6,7 +6,7 @@ category: "Frameworks"
 icon: "🌱"
 description: "Spring Boot 4 on Java 25: dependency injection, REST APIs, validation, JPA, testing, security and production. Take the Modern Java track first."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Bean Counter" }
   - { name: "Yellow Belt", required_xp: 300, title: "Controller Crafter" }

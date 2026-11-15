@@ -1,0 +1,30 @@
+questions:
+  - id: redirect-order
+    prompt: "Which command sends BOTH stdout and stderr of make to build.log?"
+    options: ["make 2>&1 > build.log", "make > build.log 2>&1", "make | build.log", "make 2> build.log"]
+    answer: 1
+    explanation: "Redirections apply left to right: first stdout goes to the file, then stderr becomes a copy of stdout. The other order leaves stderr on the terminal."
+  - id: truncate
+    prompt: "app.log has 1000 lines. What does echo done > app.log leave in it?"
+    options: ["1001 lines", "Only the line done", "Nothing: it fails because the file exists", "1000 lines"]
+    answer: 1
+    explanation: "> truncates the file first. Use >> to append."
+  - id: uniq-sort
+    prompt: "Why does cut -f1 | uniq -c usually need a sort in between?"
+    options: ["uniq only counts lines that are next to each other", "uniq cannot read pipes", "sort removes blank lines", "It does not need it"]
+    answer: 0
+    explanation: "uniq merges adjacent equal lines only; sorting first puts equal lines together."
+  - id: grep-status
+    prompt: "What exit status does grep return when it finds no matching line?"
+    answers: ["1"]
+    explanation: "grep returns 0 when it found a match, 1 when it found none and 2 for an error such as a missing file."
+  - id: and-or
+    prompt: "What does mkdir build && cd build do when mkdir fails?"
+    options: ["Runs cd anyway", "Skips cd", "Retries mkdir", "Exits the shell"]
+    answer: 1
+    explanation: "&& runs the right side only if the left side succeeded."
+  - id: stderr-message
+    prompt: "In a script, how do you print an error message to stderr?"
+    options: ["echo \"error\" > 2", "echo \"error\" >&2", "echo \"error\" 2>&1", "stderr \"error\""]
+    answer: 1
+    explanation: ">&2 redirects the echo's stdout to fd 2. > 2 would create a file called 2."

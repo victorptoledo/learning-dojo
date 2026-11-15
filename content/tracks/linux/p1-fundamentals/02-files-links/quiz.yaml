@@ -1,0 +1,34 @@
+questions:
+  - id: hard-link-count
+    prompt: "A file has a link count of 2. You delete one of its names with rm. What happens to the data?"
+    options: ["It is deleted", "It stays, reachable through the other name", "It moves to the trash", "The other name becomes dangling"]
+    answer: 1
+    explanation: "rm removes one name and decrements the link count. The data is freed only when the count reaches 0 and nobody has it open."
+  - id: symlink-dangling
+    prompt: "current is a symbolic link to releases/v42, and releases/v42 is deleted. What is current now?"
+    options: ["A copy of v42", "A dangling link that points to a missing path", "Deleted too", "A hard link"]
+    answer: 1
+    explanation: "A symbolic link only stores a path. When the target goes away, the link stays and points nowhere."
+  - id: hard-dir
+    prompt: "Which of these can a hard link NOT do?"
+    options: ["Point to a regular file", "Point to a directory", "Share an inode with another name", "Keep data alive after the original name is removed"]
+    answer: 1
+    explanation: "Hard links to directories are not allowed (they could create loops); they also cannot cross filesystems."
+  - id: find-quote
+    prompt: "Why write find . -name '*.log' with quotes?"
+    options:
+      - "find requires quotes around every argument"
+      - "Without them the shell may expand *.log to names in the current directory before find sees the pattern"
+      - "Quotes make the search case-insensitive"
+      - "They are only needed on Windows"
+    answer: 1
+    explanation: "Quoting passes the pattern itself to find, which matches it at every level of the tree."
+  - id: mtime
+    prompt: "Which find test selects files modified MORE than 30 days ago?"
+    answers: ["-mtime +30", "-mtime +30 -type f"]
+    explanation: "+30 means more than 30 whole days; -30 means less than 30."
+  - id: vim-quit
+    prompt: "In vim, how do you quit without saving your changes?"
+    options: [":wq", ":q!", "Ctrl+X", ":w"]
+    answer: 1
+    explanation: ":q! quits and discards changes; :wq saves and quits."

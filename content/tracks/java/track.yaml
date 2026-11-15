@@ -6,7 +6,7 @@ category: "Programming Languages"
 icon: "☕"
 description: "Java 25 as it is written today: records, sealed types, pattern matching, streams, virtual threads and the JVM in production."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Java 8 Legacy" }
   - { name: "Yellow Belt", required_xp: 300, title: "Record Keeper" }

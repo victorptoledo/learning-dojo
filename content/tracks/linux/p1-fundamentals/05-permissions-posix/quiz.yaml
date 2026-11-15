@@ -1,0 +1,43 @@
+questions:
+  - id: octal-640
+    prompt: "What does chmod 640 secret.conf allow?"
+    options:
+      - "Owner read and write, group read, others nothing"
+      - "Owner read, group read and write, others nothing"
+      - "Everyone read, owner write"
+      - "Owner read, write and execute, group read"
+    answer: 0
+    explanation: "6 = r+w for the owner, 4 = r for the group, 0 for others."
+  - id: delete-dir
+    prompt: "notes.txt is mode 444 (read-only for everyone) inside a directory where you have write and execute. Can you delete notes.txt?"
+    options: ["No: the file is read-only", "Yes: deleting needs write on the directory", "Only with sudo", "Only if you own the file's group"]
+    answer: 1
+    explanation: "Deleting removes an entry from the directory, so it is the directory's w (and x) that counts. rm only asks for confirmation."
+  - id: dir-x
+    prompt: "What does the x permission mean on a directory?"
+    options: ["You can run the directory", "You can enter it and reach the files inside by name", "You can list its names", "You can delete it"]
+    answer: 1
+    explanation: "x on a directory is search permission: cd into it and open entries. Listing names needs r."
+  - id: umask
+    prompt: "With umask 027, what mode does a newly created regular file get?"
+    options: ["750", "640", "644", "027"]
+    answer: 1
+    explanation: "Files start at 666; removing 027 leaves 640 (rw-r-----)."
+  - id: sticky
+    prompt: "Why is /tmp mode 1777?"
+    options:
+      - "So that only root can write there"
+      - "Everyone can create files, but only an entry's owner can delete or rename it"
+      - "Files there are deleted at reboot"
+      - "Files there inherit the root group"
+    answer: 1
+    explanation: "777 lets everyone create entries, and the sticky bit (1000) stops users from deleting each other's files."
+  - id: usermod-a
+    prompt: "Which option must you add to usermod -G devs bruno so that bruno keeps his other groups?"
+    answers: ["-a", "-aG", "--append"]
+    explanation: "usermod -aG devs bruno appends; without -a the user's supplementary groups are replaced by the list."
+  - id: visudo
+    prompt: "Why edit sudoers rules with visudo instead of a normal editor?"
+    options: ["It is faster", "It checks the syntax before saving, so a mistake cannot break sudo for everyone", "Only visudo can open /etc", "It encrypts the file"]
+    answer: 1
+    explanation: "visudo locks the file and validates it; a syntax error in sudoers disables sudo."

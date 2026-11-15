@@ -79,12 +79,14 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
     let (root, extension) = match language {
         KataLanguage::Rust => (kata_dir.join("src"), "rs"),
         KataLanguage::Java => (kata_dir.join("src").join("main"), "java"),
+        KataLanguage::Bash => (kata_dir.to_path_buf(), "sh"),
     };
     let mut found = Vec::new();
     collect(&root, extension, &mut found);
     let mut files: Vec<PathBuf> = found
         .into_iter()
         .filter_map(|path| path.strip_prefix(kata_dir).ok().map(Path::to_path_buf))
+        .filter(|path| !path.starts_with("tests"))
         .collect();
     files.sort();
     files
@@ -119,6 +121,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
     let language = match kata.language {
         KataLanguage::Rust => "Rust",
         KataLanguage::Java => "Java",
+        KataLanguage::Bash => "Bash and Linux",
     };
     let files = kata
         .files
@@ -234,5 +237,17 @@ mod tests {
             files,
             vec![PathBuf::from("src/main/java/dojo/Greeter.java")]
         );
+    }
+
+    #[test]
+    fn kata_files_lists_bash_scripts_but_not_their_tests() {
+        let dir = tempfile::TempDir::new().unwrap();
+        std::fs::create_dir_all(dir.path().join("tests")).unwrap();
+        std::fs::write(dir.path().join("worker.sh"), "#!/usr/bin/env bash").unwrap();
+        std::fs::write(dir.path().join("sample.log"), "x").unwrap();
+        std::fs::write(dir.path().join("tests/helper.sh"), "x").unwrap();
+        std::fs::write(dir.path().join("tests/visible.bats"), "x").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::Bash);
+        assert_eq!(files, vec![PathBuf::from("worker.sh")]);
     }
 }

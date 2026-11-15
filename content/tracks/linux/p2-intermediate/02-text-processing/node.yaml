@@ -1,0 +1,23 @@
+id: linux.p2.text-processing
+kind: lesson
+status: draft
+title: "Text Processing: grep, sed, awk and Friends"
+summary: "Regular expressions with grep, editing streams with sed, and field-based reports with awk."
+objectives:
+  - { id: o1, text: "Write basic and extended regular expressions and search with grep", skills: [linux.text-processing] }
+  - { id: o2, text: "Substitute, delete and print lines with sed, also in place", skills: [linux.text-processing] }
+  - { id: o3, text: "Compute totals and group by a field with awk", skills: [linux.text-processing] }
+prerequisites: [linux.p2.shell-scripting]
+difficulty: 3
+estimated_minutes: 60
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Given `orders.csv` with the header `id,customer,country,amount`, write (and explain) one awk program that prints the total amount per country sorted by country, then the grand total, ignoring the header and blank lines. Then show the sed command that changes every `http://` to `https://` in all `.conf` files of a directory, keeping a backup.'
+  criteria:
+    - 'Uses -F, and skips the header (NR > 1 or NR == 1 { next }) and blank lines (NF == 0)'
+    - 'Accumulates in an associative array keyed by country and prints in END'
+    - 'Sorts the output (sort, or asorti/PROCINFO in gawk) and formats numbers with printf'
+    - 'Uses sed -i.bak with s|http://|https://|g (or escaped slashes) on the .conf files'

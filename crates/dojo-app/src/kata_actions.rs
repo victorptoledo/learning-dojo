@@ -82,6 +82,7 @@ impl App {
     fn open_kata_folder(&self, dir: &Path) -> String {
         let mut files = vec![dir.join(STATEMENT_FILE), dir.join("src").join("lib.rs")];
         files.extend(java_sources(&dir.join("src").join("main").join("java")));
+        files.extend(shell_scripts(dir));
         let existing: Vec<_> = files.into_iter().filter(|file| file.is_file()).collect();
         match self.editor.open_folder(dir, &existing) {
             Ok(()) => format!("Opened {} in `{}`.", dir.display(), self.editor.command()),
@@ -261,6 +262,20 @@ impl App {
 }
 
 /// The learner's Java classes, the files a Java kata asks to edit (at most three).
+/// The scripts of a Linux kata: the `.sh` files at the top of its folder.
+fn shell_scripts(dir: &Path) -> Vec<PathBuf> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut scripts: Vec<PathBuf> = entries
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file() && path.extension().is_some_and(|ext| ext == "sh"))
+        .collect();
+    scripts.sort();
+    scripts
+}
+
 fn java_sources(dir: &Path) -> Vec<PathBuf> {
     let mut found = Vec::new();
     let mut pending = vec![dir.to_path_buf()];

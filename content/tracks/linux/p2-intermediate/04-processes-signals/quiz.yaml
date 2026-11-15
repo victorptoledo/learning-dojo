@@ -1,0 +1,34 @@
+questions:
+  - id: fork-exec
+    prompt: "How does a shell run the ls command?"
+    options:
+      - "It loads ls into its own memory and continues as ls"
+      - "It forks a copy of itself, and the copy execs ls"
+      - "The kernel starts ls from PID 1"
+      - "It sends a signal to ls"
+    answer: 1
+    explanation: "fork creates a child process; exec replaces the child's program with ls. The shell waits for it."
+  - id: zombie
+    prompt: "What is a zombie process?"
+    options: ["A process using 100% CPU", "A finished process whose exit status its parent has not collected yet", "A process stuck on disk I/O", "A process without a terminal"]
+    answer: 1
+    explanation: "A zombie has exited; only its process table entry remains until the parent calls wait()."
+  - id: sigkill
+    prompt: "Which signal cannot be caught, so the process gets no chance to clean up?"
+    answers: ["SIGKILL", "KILL", "9", "sigkill"]
+    explanation: "SIGKILL (9) and SIGSTOP cannot be caught or ignored."
+  - id: exit-143
+    prompt: "A container exits with status 143. What happened?"
+    options: ["It ran out of memory", "It was stopped by SIGTERM (128 + 15)", "It had a segmentation fault", "It exited normally"]
+    answer: 1
+    explanation: "Death by signal N gives status 128 + N; 143 is SIGTERM, 137 SIGKILL (often the OOM killer)."
+  - id: kill-0
+    prompt: "What does kill -0 1234 do?"
+    options: ["Kills process 1234 immediately", "Sends no signal: succeeds if the process exists and you may signal it", "Restarts the process", "Pauses the process"]
+    answer: 1
+    explanation: "Signal 0 is only an existence and permission check, useful for pid files."
+  - id: trap-sleep
+    prompt: "A script traps TERM but runs sleep 60 in the foreground. When does the trap run after a kill?"
+    options: ["Immediately", "After sleep 60 finishes", "Never", "Only if the script uses set -e"]
+    answer: 1
+    explanation: "Bash runs traps between commands. Use sleep 60 & wait $! so wait is interrupted at once."

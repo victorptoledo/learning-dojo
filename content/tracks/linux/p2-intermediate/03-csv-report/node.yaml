@@ -1,0 +1,51 @@
+id: linux.p2.csv-report
+kind: kata
+status: draft
+title: "Sales Report: getopts and awk"
+summary: "Total a CSV export per region with awk, with filters given as getopts options and bad records reported on stderr."
+objectives:
+  - { id: o1, text: "Parse options and operands with getopts and validate them", skills: [linux.scripting] }
+  - { id: o2, text: "Group, total and format CSV fields with awk, reporting invalid records", skills: [linux.text-processing] }
+prerequisites: [linux.p2.text-processing]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Split the work: the bash part parses `-m` and `-r` with `getopts`, checks the operands and the month, then hands everything to **one** awk program with `-v month="$month" -v region="$region"`. Which awk rules skip the header, blank lines and records outside the filters?
+    - |-
+      Rules run in order, and `next` ends the work on a line: `NR == 1 { next }`, `{ sub(/\r$/, "") }`, `/^[[:space:]]*$/ { next }`, then a validation rule that prints to `"/dev/stderr"` and calls `next`, then the filters, then the totals in arrays keyed by `$2`. In `END`, print each region with `print ... | "LC_ALL=C sort"`, call `close("LC_ALL=C sort")` so the sorted rows come out, then print the `TOTAL` row.
+    - |-
+      ```awk
+      NR == 1 { next }
+      { sub(/\r$/, "") }
+      /^[[:space:]]*$/ { next }
+      NF != 5 || $4 !~ /^[1-9][0-9]*$/ || $5 !~ /^[0-9]+(\.[0-9][0-9]?)?$/ {
+          printf "sales.sh: line %d: invalid record\n", NR > "/dev/stderr"
+          next
+      }
+      month != "" && substr($1, 1, 7) != month { next }
+      # region filter, then: orders[$2]++; units[$2] += $4; revenue[$2] += $4 * $5
+      END {
+          sorter = "LC_ALL=C sort"
+          for (r in orders) printf "%s,%d,%d,%.2f\n", r, orders[r], units[r], revenue[r] | sorter
+          close(sorter)
+          # the TOTAL row
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, bats and shellcheck that runs the grading tests.

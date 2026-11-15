@@ -1,0 +1,30 @@
+questions:
+  - id: load
+    prompt: "A server with 8 CPUs has a load average of 4.0, 4.1, 3.9. What does that suggest?"
+    options: ["It is badly overloaded", "About half of its CPU capacity is in use, and it is stable", "It is swapping", "The disk is full"]
+    answer: 1
+    explanation: "Load counts runnable (and disk-waiting) tasks. 4 on 8 CPUs leaves room, and equal numbers mean it is steady."
+  - id: wa
+    prompt: "Load is high, but CPUs are 80% idle with a high wa value in vmstat. Where is the bottleneck most likely?"
+    options: ["CPU", "Disk or network storage I/O", "DNS", "The scheduler"]
+    answer: 1
+    explanation: "wa is CPU time spent waiting for I/O; tasks waiting for disk count in the load. Check iostat -x."
+  - id: available
+    prompt: "free shows 300 MiB free and 6 GiB available. Is the server short of memory?"
+    options: ["Yes: only 300 MiB is free", "No: most memory is page cache the kernel can reclaim", "Yes: swap is needed", "It depends on the load average"]
+    answer: 1
+    explanation: "Linux fills idle memory with cache. available estimates what applications can still get."
+  - id: oom
+    prompt: "Where do you confirm that the kernel's OOM killer ended a process?"
+    options: ["In /var/log/apt", "In the kernel log (dmesg or journalctl -k)", "In ~/.bash_history", "In /etc/security/limits.conf"]
+    answer: 1
+    explanation: "The OOM killer logs Out of memory: Killed process ... to the kernel ring buffer."
+  - id: nofile
+    prompt: "A Java service logs Too many open files. Where do you raise its limit when it runs under systemd?"
+    answers: ["LimitNOFILE", "LimitNOFILE=", "LimitNOFILE=65536"]
+    explanation: "systemd sets the limits of the processes it starts; LimitNOFILE= in the unit raises the open files limit."
+  - id: strace
+    prompt: "What does strace -p PID show?"
+    options: ["The CPU usage per thread", "The system calls the process makes, as they happen", "The memory map", "The network packets"]
+    answer: 1
+    explanation: "strace attaches to the process and prints each system call with its arguments and result."

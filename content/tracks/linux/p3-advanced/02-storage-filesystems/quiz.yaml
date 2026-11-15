@@ -1,0 +1,30 @@
+questions:
+  - id: uuid
+    prompt: "Why use UUID=... instead of /dev/sdb1 in /etc/fstab?"
+    options: ["UUIDs are faster", "Device names can change between boots; UUIDs stay with the filesystem", "fstab does not accept device names", "UUIDs encrypt the disk"]
+    answer: 1
+    explanation: "Adding or reordering disks can rename sdb to sdc; the filesystem UUID does not change."
+  - id: mount-a
+    prompt: "You added a line to /etc/fstab. Which command tests it before the next reboot?"
+    answers: ["mount -a", "sudo mount -a"]
+    explanation: "mount -a mounts everything in fstab that is not mounted yet and reports errors now."
+  - id: deleted-open
+    prompt: "df shows / at 99% but du finds only half of that. What is the most likely cause?"
+    options: ["du is broken", "A process holds a deleted file open", "Swap is full", "The filesystem needs fsck"]
+    answer: 1
+    explanation: "Deleted but open files still use space; lsof +L1 lists them."
+  - id: inodes
+    prompt: "Writes fail with No space left on device, but df -h shows 40% free. What do you check next?"
+    options: ["free -h", "df -i", "lsblk", "swapon --show"]
+    answer: 1
+    explanation: "The filesystem may have run out of inodes, which df -i shows."
+  - id: lvm-grow
+    prompt: "Which command grows a logical volume by 20 GiB and its filesystem in one step?"
+    options: ["lvcreate -L 20G", "lvextend -r -L +20G /dev/vg/lv", "vgextend vg 20G", "resize2fs +20G"]
+    answer: 1
+    explanation: "lvextend grows the volume and -r runs the filesystem's resize tool too."
+  - id: noexec
+    prompt: "What does the mount option noexec do?"
+    options: ["Makes the filesystem read-only", "Programs on that filesystem cannot be executed", "Disables access times", "Hides the files"]
+    answer: 1
+    explanation: "noexec blocks running binaries from that mount, a useful defence for /tmp or upload directories."

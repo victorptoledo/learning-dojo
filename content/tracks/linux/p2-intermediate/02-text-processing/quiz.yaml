@@ -1,0 +1,30 @@
+questions:
+  - id: ere
+    prompt: "Which command matches lines with one or more digits followed by ms, using extended regular expressions?"
+    options: ["grep '[0-9]+ms'", "grep -E '[0-9]+ms'", "grep -F '[0-9]+ms'", "grep -v '[0-9]+ms'"]
+    answer: 1
+    explanation: "+ is extended syntax; without -E, grep reads it as a literal plus sign. -F would search the text literally."
+  - id: sed-g
+    prompt: "What does the g in sed 's/a/b/g' do?"
+    options: ["Ignores case", "Replaces every match on each line, not only the first", "Edits the file in place", "Uses extended regexes"]
+    answer: 1
+    explanation: "Without g, s replaces only the first match of each line."
+  - id: sed-n
+    prompt: "Which command prints only line 42 of a file?"
+    answers: ["sed -n '42p'", "sed -n 42p", "sed -n '42p' file", "sed -n 42p file"]
+    explanation: "-n turns off the automatic printing, and 42p prints line 42."
+  - id: awk-nr
+    prompt: "In awk -F, 'NR > 1 { ... }' data.csv, what does NR > 1 achieve?"
+    options: ["Skips lines with one field", "Skips the first line, usually the header", "Processes only the second column", "Stops after one line"]
+    answer: 1
+    explanation: "NR is the number of the current line; NR > 1 skips line 1."
+  - id: awk-order
+    prompt: "Why pipe the output of awk 'END { for (k in sum) print k, sum[k] }' into sort?"
+    options: ["awk cannot print numbers", "for (k in array) visits keys in no defined order", "sort removes duplicates", "END runs once per line"]
+    answer: 1
+    explanation: "Associative arrays are hashed; the iteration order is unspecified."
+  - id: awk-v
+    prompt: "How do you safely pass the shell variable $limit into an awk program?"
+    options: ["awk '$3 > $limit'", "awk -v limit=\"$limit\" '$3 > limit'", "awk \"$3 > $limit\"", "export limit, awk reads it automatically"]
+    answer: 1
+    explanation: "-v assigns an awk variable. Pasting shell text into the program breaks on special characters and is an injection risk."

@@ -1,0 +1,43 @@
+questions:
+  - id: enable-start
+    prompt: "What is the difference between systemctl enable app and systemctl start app?"
+    options:
+      - "None: they are aliases"
+      - "enable makes it start at boot; start runs it now"
+      - "enable runs it now; start makes it start at boot"
+      - "enable is for timers, start for services"
+    answer: 1
+    explanation: "enable creates the links that start it at boot; start starts it now. enable --now does both."
+  - id: daemon-reload
+    prompt: "You edited /etc/systemd/system/orders.service. What must you run before restarting it?"
+    answers: ["systemctl daemon-reload", "sudo systemctl daemon-reload", "daemon-reload"]
+    explanation: "systemd caches unit files; daemon-reload makes it read the changed files."
+  - id: foreground
+    prompt: "How should a program behave when it runs as a systemd service?"
+    options:
+      - "Fork into the background and write a log file"
+      - "Stay in the foreground and log to stdout and stderr"
+      - "Run as root and write to /var/log"
+      - "Start itself again when it crashes"
+    answer: 1
+    explanation: "systemd supervises the main process and collects its output in the journal; restarts are its job too."
+  - id: timeout-stop
+    prompt: "What does TimeoutStopSec=30 control?"
+    options: ["How long the service may run", "How long systemd waits after SIGTERM before sending SIGKILL", "How long it waits before a restart", "The journal retention"]
+    answer: 1
+    explanation: "On stop, systemd sends SIGTERM and, after TimeoutStopSec, SIGKILL."
+  - id: journal-follow
+    prompt: "Which command follows the logs of orders.service live?"
+    options: ["journalctl -f orders", "journalctl -u orders -f", "systemctl logs orders", "tail -f /var/log/orders"]
+    answer: 1
+    explanation: "-u selects the unit and -f follows new entries."
+  - id: timer-persistent
+    prompt: "What does Persistent=true add to a timer?"
+    options: ["The timer survives a daemon-reload", "A run missed while the machine was off happens at the next boot", "The job never stops", "The output is kept forever"]
+    answer: 1
+    explanation: "Persistent timers remember the last run and catch up when the system comes back."
+  - id: override
+    prompt: "How do you change one setting of a unit that came from a Debian package?"
+    options: ["Edit the file in /usr/lib/systemd/system", "Use systemctl edit to create a drop-in override", "Copy the package and rebuild it", "Set it in /etc/environment"]
+    answer: 1
+    explanation: "Package files are replaced on upgrades; a drop-in in /etc/systemd/system/NAME.service.d/ keeps your change."

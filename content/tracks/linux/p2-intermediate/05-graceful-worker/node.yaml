@@ -1,0 +1,55 @@
+id: linux.p2.graceful-worker
+kind: kata
+status: draft
+title: "Graceful Worker: pid Files, Traps and Signals"
+summary: "A queue worker that writes its pid file, refuses to run twice, processes jobs atomically and stops cleanly on SIGTERM."
+objectives:
+  - { id: o1, text: "Use a pid file with kill -0 to refuse a second instance and recover from a stale one", skills: [linux.processes] }
+  - { id: o2, text: "Stop cleanly on SIGTERM and SIGINT with trap, and clean up with an EXIT trap", skills: [linux.processes, linux.scripting] }
+  - { id: o3, text: "Write results atomically with a temporary file and mv", skills: [linux.files, linux.scripting] }
+prerequisites: [linux.p2.processes-signals]
+difficulty: 4
+estimated_minutes: 70
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 90 }
+  hints:
+    - |-
+      Write it in this order: arguments, the pid file check, the traps, then the loop. The loop takes the **first** job (in name order), processes it, and checks a `stop` flag before the next one. How can a trap stop a loop that is sleeping between jobs?
+    - |-
+      The pid file: if it exists and `kill -0 "$(cat "$pidfile")"` succeeds, another worker is alive. Otherwise write `$$` into it. `trap 'stop=true' TERM INT` sets the flag and `trap 'rm -f "$pidfile"' EXIT` cleans up. Sleep with `sleep "$delay" & wait $!` so a signal interrupts the wait. Process a job with `tr '[:lower:]' '[:upper:]' < "$job" > "$done/.$name.tmp" && mv "$done/.$name.tmp" "$done/$name" && rm "$job"`.
+    - |-
+      ```bash
+      stop=false
+      trap 'stop=true' TERM INT
+      trap 'rm -f "$pidfile"' EXIT
+      while true; do
+          job=$(find "$queue" -maxdepth 1 -type f ! -name '.*' | LC_ALL=C sort | head -n 1)
+          if [ -z "$job" ]; then
+              # with --once: stop here; otherwise sleep and look again
+              :
+          else
+              # process "$job", then echo "done NAME"
+              :
+          fi
+          if "$stop"; then
+              break
+          fi
+          sleep "$delay" & wait $!
+      done
+      echo "stopping"
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, bats and shellcheck that runs the grading tests.

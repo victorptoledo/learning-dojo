@@ -1,0 +1,25 @@
+id: linux.p2.systemd-services
+legacy_id: lnx-02-systemd-services
+kind: lesson
+status: draft
+title: "systemd: Daemons, Unit Files and journalctl"
+summary: "Run a program as a resilient service: units, systemctl, restart policies, the journal, timers and sandboxing."
+objectives:
+  - { id: o1, text: "Start, stop, enable and inspect services with systemctl", skills: [linux.systemd-services] }
+  - { id: o2, text: "Write a service unit with a dedicated user, restart policy and environment, and read its logs with journalctl", skills: [linux.systemd-services] }
+  - { id: o3, text: "Replace cron jobs with timers and restrict a service with systemd's sandboxing options", skills: [linux.systemd-services] }
+prerequisites: [linux.p2.graceful-worker]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write the systemd unit file for a Java API packaged as `/opt/orders/orders.jar` that must run as its own user, read its settings from `/etc/orders/orders.env`, restart after a crash but not loop forever, get 30 seconds to stop gracefully, and have no write access outside `/var/lib/orders`. Explain every directive and the commands to install, start and debug it.'
+  criteria:
+    - 'A [Unit] with Description and After/Wants network-online.target, a [Service] and an [Install] with WantedBy=multi-user.target'
+    - 'User= (or DynamicUser=), EnvironmentFile=, ExecStart with the full path to java, Restart=on-failure with a start limit'
+    - 'TimeoutStopSec=30 and an explanation of SIGTERM then SIGKILL'
+    - 'Sandboxing such as ProtectSystem=strict, ReadWritePaths=/var/lib/orders (or StateDirectory=), NoNewPrivileges, PrivateTmp'
+    - 'daemon-reload, enable --now, status and journalctl -u orders -f'

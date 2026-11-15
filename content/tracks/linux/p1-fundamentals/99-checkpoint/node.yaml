@@ -1,0 +1,49 @@
+id: linux.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata that inventories a directory tree."
+objectives:
+  - { id: o1, text: "Explain paths, links, streams, exit codes and permissions in your own words", skills: [linux.shell-navigation, linux.files, linux.redirection, linux.permissions-posix] }
+  - { id: o2, text: "Build a report over a directory tree with find, pipelines and arithmetic", skills: [linux.files, linux.redirection, linux.permissions-posix] }
+prerequisites: [linux.p1.perm-audit]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+closes_phase: p1
+covers_skills: [linux.shell-navigation, linux.files, linux.redirection, linux.permissions-posix]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Build the report one line at a time, each from a `find` command. `find "$dir" -type f | wc -l` counts files; which option keeps `DIR` itself out of the directory count? For the extensions, start from the file names only: `-printf '%f\n'`.
+    - |-
+      Bytes: `-printf '%s+'` prints `12+34+`; keep it in a variable and add a `0`: `$(( ${sizes}0 ))` adds them up. Extensions: in `sed -E`, first remove one leading dot (`s/^\.//`), then turn names without a dot into `(none)` (`s/^[^.]*$/(none)/`), then names ending with a dot (`s/\.$/.(none)/`), then keep what follows the last dot (`s/.*\.//`). Lower case with `tr`, then count with `sort | uniq -c | sort -k1,1nr -k2,2`.
+    - |-
+      ```bash
+      echo "files: $(find "$dir" -type f | wc -l)"
+      echo "directories: $(find "$dir" -mindepth 1 -type d | wc -l)"
+      sizes=$(find "$dir" -type f -printf '%s+')
+      echo "bytes: $(( ${sizes}0 ))"
+      echo "extensions:"
+      find "$dir" -type f -printf '%f\n' \
+          | sed -E -e 's/^\.//' -e 's/^[^.]*$/(none)/' # ... two more expressions
+      echo "largest:"
+      find "$dir" -type f -printf '%s %P\n' | sort -k1,1nr -k2,2 | head -n 3
+      # world-writable
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, bats and shellcheck that runs the grading tests.

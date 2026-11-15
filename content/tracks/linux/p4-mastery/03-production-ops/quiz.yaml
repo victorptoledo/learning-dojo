@@ -1,0 +1,34 @@
+questions:
+  - id: hold
+    prompt: "How do you stop apt from upgrading postgresql-17 during routine upgrades?"
+    answers: ["apt-mark hold postgresql-17", "sudo apt-mark hold postgresql-17", "apt-mark hold"]
+    explanation: "A held package is kept at its version until you unhold it."
+  - id: signed-by
+    prompt: "Why reference a third-party repository key with Signed-By: in its sources file?"
+    options:
+      - "It makes downloads faster"
+      - "The key is then trusted only for that repository, not for every package source"
+      - "apt requires it for HTTPS"
+      - "It disables signature checks"
+    answer: 1
+    explanation: "A global key could sign packages that replace Debian's own; Signed-By limits it to one repository."
+  - id: postrotate
+    prompt: "Why does a logrotate rule often send a signal to the program in postrotate?"
+    options: ["To restart the server", "So the program reopens its log file instead of writing to the renamed one", "To compress the file", "To notify the administrator"]
+    answer: 1
+    explanation: "The program keeps the old file open; a signal such as HUP makes it open a new file at the original path."
+  - id: cron-path
+    prompt: "A script works in your shell but fails from cron with command not found. What is the usual cause?"
+    options: ["cron runs as root", "cron runs with a minimal PATH, so commands need full paths", "cron cannot run bash", "The crontab syntax is wrong"]
+    answer: 1
+    explanation: "cron provides a small environment; use full paths or set PATH in the crontab."
+  - id: backup-test
+    prompt: "What turns a backup into a reliable one?"
+    options: ["Compressing it", "Restoring it regularly and checking the result", "Keeping it on the same server", "Running it every minute"]
+    answer: 1
+    explanation: "Only a tested restore proves the backup is complete and tells you how long recovery takes."
+  - id: incident-first
+    prompt: "During an incident, what comes first?"
+    options: ["Finding the root cause", "Restoring the service for users", "Writing the postmortem", "Upgrading every package"]
+    answer: 1
+    explanation: "Stabilise first (roll back, fail over); the root cause analysis follows."

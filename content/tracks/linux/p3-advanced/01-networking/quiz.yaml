@@ -1,0 +1,30 @@
+questions:
+  - id: prefix
+    prompt: "A server has the address 10.0.1.25/24. Which destination does it reach directly, without the gateway?"
+    options: ["10.0.2.7", "10.0.1.200", "10.1.1.25", "192.168.1.25"]
+    answer: 1
+    explanation: "/24 means the first three numbers are the network: 10.0.1.0 to 10.0.1.255 are on the same link."
+  - id: listen-local
+    prompt: "ss shows PostgreSQL listening on 127.0.0.1:5432. What does that mean?"
+    options: ["Anyone can connect", "Only programs on the same machine can connect", "It listens on every interface", "It is not running"]
+    answer: 1
+    explanation: "127.0.0.1 is the loopback interface; remote clients need it bound to 0.0.0.0 or a real address."
+  - id: refused
+    prompt: "curl reports Connection refused. What is the most likely cause?"
+    options: ["DNS failed", "The host is reachable but nothing listens on that port", "A firewall silently drops the packets", "The certificate expired"]
+    answer: 1
+    explanation: "A refusal is an answer from the host. Silent drops show up as timeouts instead."
+  - id: getent
+    prompt: "Which command resolves a name exactly the way applications do, including /etc/hosts?"
+    answers: ["getent hosts", "getent"]
+    explanation: "getent follows nsswitch.conf; dig only asks DNS servers."
+  - id: ssh-perms
+    prompt: "ssh ignores your key and asks for a password. What is a common cause?"
+    options: ["The key is too new", "~/.ssh or the key file has too open permissions", "The server uses DHCP", "ssh-agent is running"]
+    answer: 1
+    explanation: "ssh refuses private keys readable by others, and sshd ignores authorized_keys in a writable directory."
+  - id: ping-blocked
+    prompt: "ping to a cloud server fails, but HTTPS to it works. Why?"
+    options: ["ping uses UDP", "ICMP is blocked by a firewall or security group", "The server has no IP address", "ping needs DNS"]
+    answer: 1
+    explanation: "Many networks drop ICMP. A failed ping alone does not mean the host is down."

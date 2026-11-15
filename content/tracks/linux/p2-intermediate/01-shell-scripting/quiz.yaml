@@ -1,0 +1,39 @@
+questions:
+  - id: quote
+    prompt: "file='my report.txt'. What does rm $file (unquoted) try to delete?"
+    options: ["The file my report.txt", "Two files: my and report.txt", "Nothing: it is a syntax error", "Every file in the directory"]
+    answer: 1
+    explanation: "Unquoted expansions are split on spaces (and globbed). Quote them: rm \"$file\"."
+  - id: at
+    prompt: "Inside a wrapper script, which form passes the script's arguments to another command unchanged, even with spaces?"
+    options: ["$*", "$@", "\"$@\"", "\"$*\""]
+    answer: 2
+    explanation: "\"$@\" expands to each argument as its own word. \"$*\" joins them into one word."
+  - id: strip-ext
+    prompt: "file=report.tar.gz. What is ${file%.gz}?"
+    answers: ["report.tar"]
+    explanation: "% removes the shortest match of the pattern from the end of the value."
+  - id: while-pipe
+    prompt: "count=0; cat list | while read -r x; do count=$((count+1)); done; echo $count prints 0. Why?"
+    options:
+      - "read -r skips every line"
+      - "The loop runs in a subshell because of the pipe, so its count is lost"
+      - "count must be declared with local"
+      - "$(( )) does not work in loops"
+    answer: 1
+    explanation: "Each part of a pipeline runs in a subshell. Use done < list or done < <(command) instead."
+  - id: set-e
+    prompt: "With set -e, which of these does NOT stop the script when grep finds nothing?"
+    options: ["grep -q x file", "if grep -q x file; then ...; fi", "count=$(grep -c x file)", "grep x file | sort (with pipefail)"]
+    answer: 1
+    explanation: "Commands tested by if, while, && and || are exempt from set -e."
+  - id: getopts-colon
+    prompt: "In getopts ':vk:' opt, what does the colon after k mean?"
+    options: ["-k is optional", "-k takes a value, available in $OPTARG", "-k may be repeated", "-k ends the options"]
+    answer: 1
+    explanation: "A letter followed by a colon expects an argument; the leading colon turns on silent error reporting."
+  - id: trap-exit
+    prompt: "What is the reliable way to delete a temporary directory however the script ends?"
+    options: ["rm -rf \"$tmp\" as the last line", "trap 'rm -rf \"$tmp\"' EXIT right after creating it", "Create it in /tmp so it is never needed", "set -e"]
+    answer: 1
+    explanation: "An EXIT trap runs on a normal end, on exit and after set -e stops the script."

@@ -6,7 +6,7 @@ category: "Careers & Roles"
 icon: "⚙️"
 description: "The backend role from the ground up: HTTP, API design, SQL, authentication, caching, messaging, reliability, security, scale and architecture, practised in Java and Spring Boot. Take the Modern Java and Spring Boot tracks first."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "CRUD Developer" }
   - { name: "Yellow Belt", required_xp: 300, title: "API Craftsman" }

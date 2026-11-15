@@ -1,3 +1,4 @@
 *.cmd text eol=crlf
 *.sh text eol=lf
 runner-images/** text eol=lf
+*.bats text eol=lf

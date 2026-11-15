@@ -1,0 +1,23 @@
+id: linux.p1.files-links
+kind: lesson
+status: draft
+title: "Files, Directories, Links and Inodes"
+summary: "Create, copy, move, find and read files; understand inodes, hard links and symbolic links; edit with nano and vim."
+objectives:
+  - { id: o1, text: "Create, copy, move and delete files and directories safely", skills: [linux.files] }
+  - { id: o2, text: "Explain inodes and the difference between hard and symbolic links", skills: [linux.files] }
+  - { id: o3, text: "Find files by name, type, size and age with find, and read them with less, head and tail", skills: [linux.files] }
+prerequisites: [linux.p1.shell-navigation]
+difficulty: 2
+estimated_minutes: 40
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A deploy tool keeps releases in `/srv/app/releases/<version>` and the web server reads `/srv/app/current`. Explain how you would switch to a new release with a symbolic link so that the switch is atomic, how you would roll back, and why a hard link or a copy would be worse. Then write the `find` command that deletes releases older than 30 days.'
+  criteria:
+    - 'Explains symbolic links as names that point to a path, and hard links as extra names for the same inode'
+    - 'Switches atomically (create a new link, then rename it over current, such as ln -sfn or mv -T)'
+    - 'Explains why hard links cannot point to directories and why a copy is slow and not atomic'
+    - 'The find command uses -mindepth/-maxdepth, -type d, -mtime +30 and a safe delete, and is tested first without deleting'

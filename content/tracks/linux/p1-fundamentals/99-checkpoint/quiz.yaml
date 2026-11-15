@@ -1,0 +1,56 @@
+questions:
+  - id: relative-path
+    skills: [linux.shell-navigation]
+    prompt: "You are in /var/log. Which path does cd ../lib/apt take you to?"
+    options: ["/var/log/lib/apt", "/var/lib/apt", "/lib/apt", "/log/lib/apt"]
+    answer: 1
+    explanation: ".. is the parent of /var/log, which is /var; then lib/apt."
+  - id: type-builtin
+    skills: [linux.shell-navigation]
+    prompt: "Which command tells you whether ll is an alias, a function, a builtin or a program?"
+    answers: ["type ll", "type"]
+    explanation: "type reports how the shell would resolve the name, in lookup order."
+  - id: inode-delete
+    skills: [linux.files]
+    prompt: "A service keeps writing to /var/log/big.log. You rm the file but df shows no free space. Why?"
+    options:
+      - "rm moves files to a trash folder"
+      - "The service still has the file open, so its inode and data are kept until it closes it"
+      - "df caches its results for a day"
+      - "Log files cannot be deleted while the service runs"
+    answer: 1
+    explanation: "Removing the name drops the link count to 0, but the data is freed only when no process has the file open."
+  - id: atomic-link
+    skills: [linux.files]
+    prompt: "What makes ln -s v43 current.tmp && mv -T current.tmp current an atomic switch?"
+    options: ["ln -s is atomic", "rename on the same filesystem is atomic, so readers see the old or the new link", "-T locks the directory", "Nothing: it is not atomic"]
+    answer: 1
+    explanation: "mv within one filesystem is a rename, which replaces the entry in a single step."
+  - id: pipe-top
+    skills: [linux.redirection]
+    prompt: "Which pipeline prints the most frequent line of names.txt first, with its count?"
+    options:
+      - "uniq -c names.txt | sort -rn"
+      - "sort names.txt | uniq -c | sort -rn | head -n 1"
+      - "sort -rn names.txt | uniq -c"
+      - "cat names.txt | head -n 1 | uniq -c"
+    answer: 1
+    explanation: "Sort to group equal lines, count them with uniq -c, sort the counts in reverse numeric order, keep the first."
+  - id: stderr-null
+    skills: [linux.redirection]
+    prompt: "find / -name '*.conf' prints many Permission denied messages. How do you hide only those?"
+    options: ["find / -name '*.conf' > /dev/null", "find / -name '*.conf' 2> /dev/null", "find / -name '*.conf' | grep -v denied 2>&1", "find / -name '*.conf' &> /dev/null"]
+    answer: 1
+    explanation: "The messages go to stderr; 2> /dev/null discards them and keeps the results on stdout."
+  - id: mode-755
+    skills: [linux.permissions-posix]
+    prompt: "What does mode 750 on a directory allow members of its group to do?"
+    options: ["Nothing", "List it and enter it, but not create or delete entries", "Create and delete entries", "Only enter it"]
+    answer: 1
+    explanation: "The group digit is 5 = r + x: list (r) and enter (x), without w."
+  - id: setgid-dir
+    skills: [linux.permissions-posix]
+    prompt: "What does the setgid bit do on a directory?"
+    options: ["Programs inside run as the group", "New files and directories created inside get the directory's group", "Only the group may delete files", "It has no effect on directories"]
+    answer: 1
+    explanation: "setgid on a directory makes new entries inherit its group, which is what shared team directories need."

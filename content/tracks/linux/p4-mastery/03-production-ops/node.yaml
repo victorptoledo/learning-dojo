@@ -1,0 +1,24 @@
+id: linux.p4.production-ops
+kind: lesson
+status: draft
+title: "Running Linux in Production: Packages, Logs, Scheduling and Backups"
+summary: "Day-two operations: managing packages and repositories, log rotation, scheduled jobs, backups you have restored, configuration as code, and handling an incident."
+objectives:
+  - { id: o1, text: "Manage packages, repositories and upgrades safely, including holds and pinned versions", skills: [linux.operations] }
+  - { id: o2, text: "Rotate logs, schedule jobs, and design backups that are tested by restoring them", skills: [linux.operations] }
+  - { id: o3, text: "Describe configuration as code and the steps of handling an incident on a server", skills: [linux.operations] }
+prerequisites: [linux.p4.boot-kernel-containers]
+difficulty: 4
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You inherit three hand-configured Debian servers that run a PostgreSQL database and two application nodes. Nobody knows exactly how they were set up and there are no tested backups. Write a plan for your first month that makes them safe to operate, in priority order, and explain why each step comes where it does.'
+  criteria:
+    - 'Starts with backups of the database and configuration, and a restore test, before changing anything'
+    - 'Documents the current state (packages, services, cron jobs, users, firewall, disk usage) to rebuild from'
+    - 'Introduces configuration as code (Ansible, cloud-init or similar) and rebuilds one node from it to prove it'
+    - 'Sets up monitoring and log collection, log rotation and automatic security updates'
+    - 'Describes how upgrades and incidents will be handled (staging first, runbooks, postmortems)'

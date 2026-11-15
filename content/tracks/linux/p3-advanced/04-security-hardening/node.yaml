@@ -1,0 +1,24 @@
+id: linux.p3.security-hardening
+kind: lesson
+status: draft
+title: "Hardening a Linux Server"
+summary: "Reduce the attack surface of a new server: SSH, a default-deny firewall, automatic security updates, least privilege, mandatory access control and reading the logs."
+objectives:
+  - { id: o1, text: "Harden SSH with keys only, no root login and a validated configuration", skills: [linux.security] }
+  - { id: o2, text: "Write a default-deny firewall and keep the system patched automatically", skills: [linux.security] }
+  - { id: o3, text: "Apply least privilege to services and spot attacks in the logs", skills: [linux.security, linux.systemd-services] }
+prerequisites: [linux.p3.health-report]
+difficulty: 4
+estimated_minutes: 55
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You receive a fresh Debian 13 VM with a public IP that will run an HTTPS API. Write the checklist you apply in the first hour, in order, with the commands or configuration for each item and the reason. Say how you avoid locking yourself out while doing it.'
+  criteria:
+    - 'Creates a personal user with sudo and SSH keys, then disables password and root login, validating with sshd -t and keeping a second session open'
+    - 'Default-deny inbound firewall that allows only SSH and HTTPS (nftables, ufw or a cloud security group), applied after the SSH rule exists'
+    - 'Enables automatic security updates (unattended-upgrades) and plans reboots for kernel updates'
+    - 'Runs the API as an unprivileged user with systemd sandboxing, and removes or disables unneeded services'
+    - 'Plans log review and protection against brute force (journalctl, fail2ban or similar) and backups'

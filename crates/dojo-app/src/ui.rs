@@ -33,6 +33,9 @@ pub fn render(frame: &mut Frame, app: &App) {
         }
         Screen::Placement => crate::placement_view::render_placement(frame, app, frame.area()),
         Screen::Career => crate::career_view::render_careers(frame, app, frame.area()),
+        Screen::BridgePicker => {
+            crate::bridge_picker::render_bridge_picker(frame, app, frame.area())
+        }
         Screen::TrackView => {}
     }
 }
@@ -346,6 +349,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::Java => {
                 "2. Edit the classes in src/main/java. Each method that still throws UnsupportedOperationException(\"todo ...\") is yours to write:"
             }
+            KataLanguage::Bash => {
+                "2. Edit the .sh scripts in the kata folder. Each one that still prints \"todo: ...\" and exits is yours to write:"
+            }
         }),
         Line::from(match language {
             KataLanguage::Rust => {
@@ -353,6 +359,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             }
             KataLanguage::Java => {
                 "   that throw is a placeholder, so its tests fail until you replace it."
+            }
+            KataLanguage::Bash => {
+                "   the tests run your scripts with bats, and shellcheck must find no warnings."
             }
         }),
         Line::from("3. Save the file. The tests run by themselves and the result appears below."),
@@ -522,7 +531,10 @@ fn render_footer(frame: &mut Frame, app: &App, area: Rect) {
         Mode::Learner => "",
         Mode::Dev => " · DEV MODE",
     };
-    let title = format!(" Bridge: {}{mode} ", app.profile.settings.bridge_from);
+    let title = format!(
+        " Bridge: {}{mode} ",
+        crate::bridge_picker::language_name(&app.profile.settings.bridge_from)
+    );
     let footer = Paragraph::new(text).block(titled(title));
     frame.render_widget(footer, area);
 }

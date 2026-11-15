@@ -1,0 +1,56 @@
+questions:
+  - id: quote-glob
+    skills: [linux.scripting]
+    prompt: "pattern='*.log'; echo $pattern prints app.log web.log. Why?"
+    options: ["echo expands globs", "The unquoted expansion is split and glob-expanded by the shell", "pattern was declared as an array", "*.log is a regex"]
+    answer: 1
+    explanation: "Unquoted variables go through word splitting and pathname expansion. echo \"$pattern\" prints *.log."
+  - id: pipefail
+    skills: [linux.scripting]
+    prompt: "With set -e but without pipefail, what happens when grep fails in grep x missing.txt | sort?"
+    options: ["The script stops", "The script continues: only the last command's status counts", "sort fails too", "bash prints a warning and stops"]
+    answer: 1
+    explanation: "A pipeline's status is the last command's; pipefail makes it fail when any stage fails."
+  - id: parameter
+    skills: [linux.scripting]
+    prompt: "path=/srv/app/releases/v42.tar.gz. Which expansion gives v42.tar.gz?"
+    answers: ["${path##*/}"]
+    explanation: "## removes the longest prefix matching */, leaving the file name."
+  - id: awk-sum
+    skills: [linux.text-processing]
+    prompt: "Which command prints the sum of the third comma-separated field, skipping the header?"
+    options:
+      - "awk -F, '{ sum += $3 } END { print sum }'"
+      - "awk -F, 'NR > 1 { sum += $3 } END { print sum }'"
+      - "cut -d, -f3 | sum"
+      - "awk 'NR > 1 { print $3 }' | wc -l"
+    answer: 1
+    explanation: "-F, splits on commas, NR > 1 skips line 1, and END prints the total once."
+  - id: sed-inplace
+    skills: [linux.text-processing]
+    prompt: "What does sed -i.bak 's/8080/9090/g' app.conf do?"
+    options:
+      - "Prints app.conf with the change"
+      - "Changes app.conf in place and keeps the original as app.conf.bak"
+      - "Writes the change to app.conf.bak"
+      - "Fails: -i needs a file list"
+    answer: 1
+    explanation: "-i edits in place; the suffix after -i names the backup copy."
+  - id: sigterm-grace
+    skills: [linux.processes]
+    prompt: "What do systemd, Docker and Kubernetes send to stop a service, and what follows if it does not exit?"
+    options: ["SIGKILL, then nothing", "SIGTERM, then SIGKILL after a grace period", "SIGHUP, then SIGTERM", "SIGINT, then SIGSTOP"]
+    answer: 1
+    explanation: "They ask with SIGTERM and force with SIGKILL when the timeout ends."
+  - id: background-trap
+    skills: [linux.processes]
+    prompt: "A worker script traps TERM and sleeps between jobs. How should it sleep so that the trap runs at once?"
+    options: ["sleep 5", "sleep 5 & wait $!", "read -t 5", "while sleep 5; do :; done"]
+    answer: 1
+    explanation: "wait is interrupted by a trapped signal; a foreground sleep is not."
+  - id: unit-dir
+    skills: [linux.systemd-services]
+    prompt: "Where do you put a unit file you wrote for your own service?"
+    options: ["/usr/lib/systemd/system", "/etc/systemd/system", "/var/lib/systemd", "/etc/init.d"]
+    answer: 1
+    explanation: "/etc/systemd/system is for the administrator's units and overrides; packages own /usr/lib/systemd/system."

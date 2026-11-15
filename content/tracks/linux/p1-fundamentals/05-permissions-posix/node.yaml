@@ -1,0 +1,24 @@
+id: linux.p1.permissions-posix
+legacy_id: lnx-01-permissions-posix
+kind: lesson
+status: draft
+title: "POSIX Permissions, sudo and User Management"
+summary: "Users and groups, read/write/execute for owner, group and others, chmod and chown, umask, the special bits and sudo."
+objectives:
+  - { id: o1, text: "Read and set permissions in symbolic and octal form with chmod, chown and umask", skills: [linux.permissions-posix] }
+  - { id: o2, text: "Explain what r, w and x mean for files and for directories, and the setuid, setgid and sticky bits", skills: [linux.permissions-posix] }
+  - { id: o3, text: "Manage users and groups and give limited root access with sudo", skills: [linux.permissions-posix] }
+prerequisites: [linux.p1.log-report]
+difficulty: 2
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Three developers (ana, bruno, carla) must all be able to create and edit files in `/srv/shared`, files created there must belong to the group `devs` whoever creates them, nobody else may read them, and nobody may delete a file they do not own. Write the commands to set this up and explain each permission and bit you use.'
+  criteria:
+    - 'Creates the group and adds the users (groupadd, usermod -aG) and notes that they must log in again'
+    - 'Sets group ownership with chgrp or chown and mode 2770 or 3770 on the directory, and explains each digit'
+    - 'Explains setgid on a directory (new files inherit the group) and the sticky bit (only owners delete)'
+    - 'Mentions umask (for example 007) so new files are group-writable, or ACLs as an alternative'

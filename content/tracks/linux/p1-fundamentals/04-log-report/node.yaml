@@ -1,0 +1,47 @@
+id: linux.p1.log-report
+kind: kata
+status: draft
+title: "Log Report: Pipelines over an Access Log"
+summary: "Summarise a web server access log with grep, cut, sort, uniq and wc."
+objectives:
+  - { id: o1, text: "Combine cut, sort, uniq, wc and grep into pipelines that summarise a log", skills: [linux.redirection] }
+  - { id: o2, text: "Validate arguments and report errors on stderr with the right exit status", skills: [linux.redirection] }
+prerequisites: [linux.p1.redirection-pipes]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Do one line of the report at a time and try each pipeline in a shell on `sample.log` first. Which field (counting spaces) holds the IP, and which one the status code? What does `cut -d' ' -f9` print?
+    - |-
+      Requests: `wc -l < "$log"`. Visitors: `cut -d' ' -f1 "$log" | sort -u | wc -l`. Errors: `cut -d' ' -f9 "$log" | grep -c '^[45]'` returns status 1 when the count is 0, so add `|| true`. Top paths: field 7, then `sort | uniq -c | sort -k1,1nr -k2,2 | head -n 3 | sed 's/^ *//'`.
+    - |-
+      ```bash
+      if [ "$#" -ne 1 ]; then
+          echo "usage: logstats.sh FILE" >&2
+          exit 2
+      fi
+      log="$1"
+      if [ ! -r "$log" ]; then
+          echo "logstats.sh: cannot read $log" >&2
+          exit 1
+      fi
+      echo "requests: $(wc -l < "$log")"
+      # visitors, errors, then the top paths
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, bats and shellcheck that runs the grading tests.

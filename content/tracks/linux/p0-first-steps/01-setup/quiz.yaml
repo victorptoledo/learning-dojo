@@ -1,0 +1,30 @@
+questions:
+  - id: kernel
+    prompt: "Strictly speaking, what is Linux?"
+    options: ["A complete operating system with a desktop", "The kernel", "The bash shell", "A Unix certification"]
+    answer: 1
+    explanation: "Linux is the kernel. Shells, core utilities and init systems are userland, and a distribution packages them together."
+  - id: distro-adds
+    prompt: "Which of these is decided by the distribution, not by the kernel?"
+    options: ["How processes are scheduled", "The package manager and release policy", "How system calls work", "How memory pages are mapped"]
+    answer: 1
+    explanation: "Package format, tooling, init system and release policy are distribution choices; scheduling, memory and system calls are the kernel's job."
+  - id: apt-update
+    prompt: "What does sudo apt update do?"
+    options: ["Upgrades every installed package", "Refreshes the list of available packages from the repositories", "Updates the kernel", "Removes unused packages"]
+    answer: 1
+    explanation: "apt update only downloads fresh package lists; apt upgrade installs newer versions."
+  - id: prompt-root
+    prompt: "A prompt ends with # instead of $. What does that usually mean?"
+    options: ["The shell is zsh", "You are root", "The previous command failed", "You are inside a container"]
+    answer: 1
+    explanation: "By convention # marks the root user and $ a normal user."
+  - id: docker-rm
+    prompt: "In docker run -it --rm debian:trixie bash, what does --rm do?"
+    options: ["Removes the image after the run", "Deletes the container when you leave the shell", "Runs bash as root", "Removes the network"]
+    answer: 1
+    explanation: "--rm deletes the container (and what you changed inside it) when its main process exits; the image stays."
+  - id: dpkg-files
+    prompt: "Which command lists the files that an installed package put on the system?"
+    answers: ["dpkg -L", "dpkg -L ripgrep", "dpkg --listfiles"]
+    explanation: "dpkg -L <package> lists the files of an installed package; apt works one level above dpkg."

@@ -997,3 +997,32 @@ fn a_on_a_kata_lists_the_files_to_attach() {
     .unwrap();
     assert!(prompt.contains("src/lib.rs"));
 }
+
+#[test]
+fn b_opens_a_language_list_and_enter_switches_the_bridge() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p1.ownership-basics");
+
+    h.app.open_bridge_picker();
+    assert_eq!(h.app.screen, Screen::BridgePicker);
+    let screen = screen_text(&h.app);
+    for name in ["Java", "Python", "JavaScript / TypeScript", "C#", "Go"] {
+        assert!(screen.contains(name), "{name} is listed");
+    }
+
+    let languages = h.app.bridge_languages();
+    h.app.bridge_cursor = languages.iter().position(|key| key == "python").unwrap();
+    h.app.choose_bridge_language();
+
+    assert_eq!(h.app.screen, Screen::TrackView);
+    assert_eq!(h.app.profile.settings.bridge_from, "python");
+    assert!(screen_text(&h.app).contains("Bridge: Python"));
+
+    h.app.open_bridge_picker();
+    h.app.bridge_picker_down();
+    h.app.close_bridge_picker();
+    assert_eq!(
+        h.app.profile.settings.bridge_from, "python",
+        "Esc changes nothing"
+    );
+}

@@ -1,0 +1,48 @@
+id: linux.p1.perm-audit
+kind: kata
+status: draft
+title: "Permission Audit: Find and Fix Risky Modes"
+summary: "Report world-writable, setuid and setgid files with find, and reset a tree to safe modes with chmod."
+objectives:
+  - { id: o1, text: "Find files and directories by permission bits with find -perm and -printf", skills: [linux.permissions-posix, linux.files] }
+  - { id: o2, text: "Reset a directory tree to safe modes with find and chmod", skills: [linux.permissions-posix] }
+prerequisites: [linux.p1.permissions-posix]
+difficulty: 2
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      `find` can test permission bits: `-perm -o+w` matches when **at least** the others-write bit is set (the `-` means "all these bits"), and `-perm -4000` when setuid is set. Which option prints the path relative to the starting directory?
+    - |-
+      `find "$dir" -mindepth 1 -perm -o+w ! \( -type d -perm -1000 \) -printf '%P: world-writable\n'` skips sticky directories. Do the same with `-type f -perm -4000` and `-perm -2000`, put the three commands in `{ ...; }` and pipe them into `LC_ALL=C sort`. For fix.sh, `chmod -c` prints one line per change, so `wc -l` counts them.
+    - |-
+      ```bash
+      findings=$(
+          {
+              find "$dir" -mindepth 1 -perm -o+w ! \( -type d -perm -1000 \) -printf '%P: world-writable\n'
+              # setuid and setgid files
+          } | LC_ALL=C sort
+      )
+      if [ -z "$findings" ]; then
+          echo "no findings"
+          exit 0
+      fi
+      echo "$findings"
+      exit 1
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, bats and shellcheck that runs the grading tests.

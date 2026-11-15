@@ -1,0 +1,24 @@
+id: linux.p4.performance-troubleshooting
+kind: lesson
+status: draft
+title: "Performance and Troubleshooting"
+summary: "A method for slow servers: load and the USE method, the first 60 seconds of commands, memory and the OOM killer, I/O, strace, lsof and resource limits."
+objectives:
+  - { id: o1, text: "Interpret load average and apply the USE method to CPU, memory, disk and network", skills: [linux.performance] }
+  - { id: o2, text: "Run a first-minute triage with uptime, dmesg, vmstat, iostat, free and top", skills: [linux.performance] }
+  - { id: o3, text: "Trace a misbehaving process with strace and lsof, and recognise OOM kills and ulimit problems", skills: [linux.performance, linux.processes] }
+prerequisites: [linux.p3.security-hardening]
+difficulty: 4
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Users report that an API on a 4-CPU Debian server became slow ten minutes ago. Write the triage you run in the first five minutes, the commands in order, what you look for in each output, and how you would tell apart CPU saturation, memory pressure, a disk bottleneck and a problem outside the machine.'
+  criteria:
+    - 'Starts with uptime and compares the load with the CPU count, and checks dmesg or the journal for OOM kills and errors'
+    - 'Uses vmstat (r, si/so, wa), mpstat or top to separate CPU saturation from waiting on I/O'
+    - 'Uses free (available memory, swap activity) and iostat -x (util, await) for memory and disks'
+    - 'Checks the network side (ss, retransmits, a slow dependency) and the application logs or latency metrics'
+    - 'Follows a method (USE or similar) instead of guessing, and records what changed ten minutes ago'

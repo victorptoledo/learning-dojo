@@ -1,0 +1,23 @@
+id: linux.p1.shell-navigation
+kind: lesson
+status: draft
+title: "The Shell, the Filesystem Hierarchy and Getting Help"
+summary: "How the shell finds and runs commands, where things live in the filesystem and how to get answers from man pages."
+objectives:
+  - { id: o1, text: "Move around with absolute and relative paths, globs and tab completion", skills: [linux.shell-navigation] }
+  - { id: o2, text: "Know what lives in /etc, /var, /usr, /home, /tmp, /proc and /dev", skills: [linux.shell-navigation] }
+  - { id: o3, text: "Find out what a command is and how to use it with type, man and --help", skills: [linux.shell-navigation] }
+prerequisites: [linux.p0.hello-shell]
+difficulty: 1
+estimated_minutes: 35
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You log in to an unknown Debian server for the first time. Describe, command by command, how you would find out which distribution and kernel it runs, where the nginx configuration and logs are, which `python3` would run and how to learn the options of a command you have never seen.'
+  criteria:
+    - 'Uses /etc/os-release and uname correctly'
+    - 'Knows that configuration lives in /etc and logs in /var/log (or the journal)'
+    - 'Uses type or command -v (or which) and explains PATH lookup'
+    - 'Uses man, --help or apropos, and mentions man sections'

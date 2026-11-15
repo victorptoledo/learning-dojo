@@ -1,0 +1,38 @@
+questions:
+  - id: sshd-t
+    prompt: "Which command validates the SSH server configuration before you reload it?"
+    answers: ["sshd -t", "sudo sshd -t"]
+    explanation: "sshd -t parses the configuration and reports errors without touching the running server."
+  - id: lockout
+    prompt: "What is the safest way to apply a change that disables SSH password logins?"
+    options:
+      - "Reload ssh, log out and try again"
+      - "Keep the current session open and test the new login from a second terminal"
+      - "Reboot the server"
+      - "Disable the firewall first"
+    answer: 1
+    explanation: "An existing session survives a reload; if the new login fails you can still fix the configuration."
+  - id: default-deny
+    prompt: "What does policy drop in an nftables input chain mean?"
+    options: ["Every incoming packet is accepted unless a rule drops it", "Incoming packets are dropped unless a rule accepts them", "Outgoing packets are dropped", "The table is disabled"]
+    answer: 1
+    explanation: "Default deny: only traffic matching an accept rule (SSH, HTTPS, replies) gets in."
+  - id: established
+    prompt: "Why does a default-deny ruleset start with ct state established,related accept?"
+    options:
+      - "To allow every connection"
+      - "So replies to connections the server itself opened (DNS, apt, APIs) get back in"
+      - "To speed up SSH"
+      - "It is required by the kernel"
+    answer: 1
+    explanation: "Connection tracking recognises replies; without that rule the server's own outgoing requests would break."
+  - id: auth-log
+    prompt: "On Debian 13 there is no /var/log/auth.log. Where are SSH login attempts recorded?"
+    options: ["Nowhere", "In the systemd journal (journalctl -u ssh)", "In /etc/ssh", "In ~/.ssh/known_hosts"]
+    answer: 1
+    explanation: "Recent Debian releases do not install rsyslog by default; the journal has the authentication logs."
+  - id: mac
+    prompt: "Permissions look right but a service is still denied access to a file on Ubuntu. What should you check?"
+    options: ["The umask", "AppArmor denials in the kernel log", "The swap usage", "The DNS configuration"]
+    answer: 1
+    explanation: "Mandatory access control (AppArmor or SELinux) can deny what discretionary permissions allow."

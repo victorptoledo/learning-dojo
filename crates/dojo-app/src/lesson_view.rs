@@ -180,15 +180,18 @@ fn bridge_lines(app: &App, node: &Node) -> Vec<Line<'static>> {
         Line::from(""),
         Line::from(
             format!(
-                "🥋 Rosetta Bridge (from {}) · [B] changes the language",
-                bridge.from
+                "🥋 Rosetta Bridge (from {}) · [B] picks another language",
+                crate::bridge_picker::language_name(&bridge.from)
             )
             .bold()
             .magenta(),
         ),
         owned("🎯 Key concept: ", &bridge.concept, Color::Cyan),
         owned(
-            &format!("↩ The {} way: ", bridge.from),
+            &format!(
+                "↩ The {} way: ",
+                crate::bridge_picker::language_name(&bridge.from)
+            ),
             &bridge.from_way,
             Color::LightRed,
         ),

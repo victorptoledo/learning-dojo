@@ -1,0 +1,350 @@
+# Placement test of the Linux track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with Linux?
+  options:
+    - { label: "Never used it, or only through a GUI", start_phase: p0, test: false }
+    - { label: "I use the terminal: files, pipes, permissions, a bit of bash", start_phase: p1, test: true }
+    - { label: "I write bash scripts and run services on Linux servers", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-glob-quote
+    phase: p1
+    skills: [linux.shell-navigation]
+    difficulty: 2
+    prompt: "The current directory contains a.txt and b.txt. What does echo '*.txt' print?"
+    options: ["a.txt b.txt", "*.txt", "Nothing", "An error"]
+    answer: 1
+    explanation: "Single quotes stop the shell from expanding the glob, so echo receives the literal text."
+  - id: p1-var-log
+    phase: p1
+    skills: [linux.shell-navigation]
+    difficulty: 1
+    prompt: "Where are the logs of most services kept, by the Filesystem Hierarchy Standard?"
+    options: ["/etc/log", "/var/log", "/usr/log", "/tmp/log"]
+    answer: 1
+    explanation: "/var holds variable data, and /var/log the log files (the journal lives in /var/log/journal)."
+  - id: p1-which
+    phase: p1
+    skills: [linux.shell-navigation]
+    difficulty: 2
+    prompt: "type -a python3 prints /usr/local/bin/python3 and then /usr/bin/python3. Which one runs?"
+    options: ["/usr/bin/python3", "/usr/local/bin/python3", "Both", "The newest one"]
+    answer: 1
+    explanation: "type -a lists the matches in lookup order; the first one wins."
+  - id: p1-symlink-move
+    phase: p1
+    skills: [linux.files]
+    difficulty: 3
+    prompt: "link is a symbolic link created with ln -s data.txt link. You move both into another directory. Does link still work?"
+    options:
+      - "No: symbolic links always store absolute paths"
+      - "Yes: the relative target data.txt is resolved from the link's new directory, where data.txt also is"
+      - "No: moving breaks every link"
+      - "Only if they are on the same filesystem"
+    answer: 1
+    explanation: "A relative symbolic link is resolved from the directory that contains the link."
+  - id: p1-find-size
+    phase: p1
+    skills: [linux.files]
+    difficulty: 2
+    prompt: "Which command lists regular files larger than 1 GiB under /srv?"
+    answers: ["find /srv -type f -size +1G", "find /srv -size +1G -type f"]
+    explanation: "-type f limits to regular files and -size +1G means more than 1 GiB."
+  - id: p1-pipe-count
+    phase: p1
+    skills: [linux.redirection]
+    difficulty: 2
+    prompt: "What does cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn | head -n 1 print?"
+    options:
+      - "The first user in the file"
+      - "The most used login shell and how many accounts use it"
+      - "The number of users"
+      - "The longest shell path"
+    answer: 1
+    explanation: "Field 7 is the shell; sort, count and keep the most frequent."
+  - id: p1-redirect
+    phase: p1
+    skills: [linux.redirection]
+    difficulty: 3
+    prompt: "Which line saves both normal output and errors of ./build.sh to build.log?"
+    options: ["./build.sh 2>&1 > build.log", "./build.sh > build.log 2>&1", "./build.sh 2> build.log", "./build.sh | build.log"]
+    answer: 1
+    explanation: "Redirections are applied left to right: stdout to the file, then stderr to the same place."
+  - id: p1-exit
+    phase: p1
+    skills: [linux.redirection]
+    difficulty: 2
+    prompt: "What does test -d /backup || mkdir /backup do?"
+    options: ["Always creates /backup", "Creates /backup only if it does not exist as a directory", "Deletes /backup", "Fails if /backup exists"]
+    answer: 1
+    explanation: "|| runs the right side only when the left side fails."
+  - id: p1-chmod
+    phase: p1
+    skills: [linux.permissions-posix]
+    difficulty: 2
+    prompt: "Which octal mode is rwxr-x---?"
+    answers: ["750", "0750"]
+    explanation: "rwx = 7, r-x = 5, --- = 0."
+  - id: p1-dir-w
+    phase: p1
+    skills: [linux.permissions-posix]
+    difficulty: 3
+    prompt: "A directory is mode 755 and owned by root. Which user can delete a file inside it that they own?"
+    options: ["Any owner of the file", "Only root (or a user with write on the directory)", "Nobody", "Every user in the root group"]
+    answer: 1
+    explanation: "Deleting changes the directory, so it needs write permission on the directory, which only root has here."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-at
+    phase: p2
+    skills: [linux.scripting]
+    difficulty: 3
+    prompt: "A wrapper script runs exec java -jar app.jar $@ (unquoted). What breaks?"
+    options:
+      - "Nothing"
+      - "Arguments containing spaces are split into several arguments"
+      - "The script cannot be run with sudo"
+      - "java ignores the arguments"
+    answer: 1
+    explanation: "Unquoted $@ is word-split; \"$@\" keeps each argument intact."
+  - id: p2-param
+    phase: p2
+    skills: [linux.scripting]
+    difficulty: 2
+    prompt: "What does echo \"${PORT:-8080}\" print when PORT is not set?"
+    answers: ["8080"]
+    explanation: ":- substitutes the default when the variable is unset or empty."
+  - id: p2-while-read
+    phase: p2
+    skills: [linux.scripting]
+    difficulty: 3
+    prompt: "Which loop reads hosts.txt line by line, keeping spaces and backslashes exactly?"
+    options:
+      - "for line in $(cat hosts.txt); do ...; done"
+      - "while IFS= read -r line; do ...; done < hosts.txt"
+      - "while read line < hosts.txt; do ...; done"
+      - "cat hosts.txt | for line; do ...; done"
+    answer: 1
+    explanation: "IFS= keeps leading and trailing spaces, -r keeps backslashes, and the redirect feeds the whole loop."
+  - id: p2-set-e
+    phase: p2
+    skills: [linux.scripting]
+    difficulty: 4
+    prompt: "In a script with set -euo pipefail, count=$(grep -c ERROR app.log) stops the script. Why?"
+    options:
+      - "grep -c is not allowed in $()"
+      - "When nothing matches, grep exits 1 and set -e stops the script"
+      - "count is not declared"
+      - "pipefail forbids command substitution"
+    answer: 1
+    explanation: "grep returns 1 for no match; write grep -c ERROR app.log || true."
+  - id: p2-awk-field
+    phase: p2
+    skills: [linux.text-processing]
+    difficulty: 2
+    prompt: "Which command prints the usernames whose UID (field 3) is at least 1000?"
+    options:
+      - "awk -F: '$3 >= 1000 { print $1 }' /etc/passwd"
+      - "awk '$3 >= 1000' /etc/passwd"
+      - "cut -d: -f1,3 /etc/passwd | sort -n"
+      - "grep 1000 /etc/passwd"
+    answer: 0
+    explanation: "-F: splits on colons; the pattern selects lines and the action prints field 1."
+  - id: p2-sed-group
+    phase: p2
+    skills: [linux.text-processing]
+    difficulty: 3
+    prompt: "What does echo 'took 250ms' | sed -E 's/([0-9]+)ms/\\1 ms/' print?"
+    answers: ["took 250 ms"]
+    explanation: "The group captures the digits and \\1 puts them back before the inserted space."
+  - id: p2-grep-v
+    phase: p2
+    skills: [linux.text-processing]
+    difficulty: 2
+    prompt: "Which command shows a config file without comment lines and blank lines?"
+    options:
+      - "grep '^#' app.conf"
+      - "grep -Ev '^(#|$)' app.conf"
+      - "sed 's/#//' app.conf"
+      - "grep -c '#' app.conf"
+    answer: 1
+    explanation: "-v inverts the match and the pattern matches lines that start with # or are empty."
+  - id: p2-signal
+    phase: p2
+    skills: [linux.processes]
+    difficulty: 3
+    prompt: "A process ignores kill 4321. What does kill -9 4321 do differently?"
+    options:
+      - "It sends SIGTERM twice"
+      - "It sends SIGKILL, which the process cannot catch, so it ends without cleaning up"
+      - "It restarts the process"
+      - "It asks the process to reload"
+    answer: 1
+    explanation: "kill sends SIGTERM by default, which can be caught or ignored; SIGKILL cannot."
+  - id: p2-zombie
+    phase: p2
+    skills: [linux.processes]
+    difficulty: 4
+    prompt: "ps shows hundreds of processes in state Z with the same parent. How do you get rid of them?"
+    options:
+      - "kill -9 each zombie"
+      - "Fix or restart the parent, which is not calling wait(); orphaned zombies are reaped by PID 1"
+      - "Reboot is the only way"
+      - "Free some memory"
+    answer: 1
+    explanation: "Zombies are already dead; only their parent can collect them, or PID 1 after the parent exits."
+  - id: p2-unit-restart
+    phase: p2
+    skills: [linux.systemd-services]
+    difficulty: 3
+    prompt: "Which [Service] setting makes systemd restart a service after it crashes, but not after a clean exit?"
+    answers: ["Restart=on-failure", "on-failure"]
+    explanation: "on-failure covers non-zero exits, signals and timeouts; always would also restart after a clean exit."
+  - id: p2-journal
+    phase: p2
+    skills: [linux.systemd-services]
+    difficulty: 2
+    prompt: "Which command shows the errors of the api service since this morning?"
+    options:
+      - "journalctl -u api --since today -p err"
+      - "systemctl status api --errors"
+      - "cat /var/log/api.err"
+      - "journalctl -k api"
+    answer: 0
+    explanation: "-u selects the unit, --since the start time, -p err the priority."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-route
+    phase: p3
+    skills: [linux.networking]
+    difficulty: 3
+    prompt: "ip route shows no default route. What happens when the server connects to 8.8.8.8?"
+    options:
+      - "It works through the DNS server"
+      - "It fails with Network is unreachable: there is no route outside the local networks"
+      - "It times out after a minute"
+      - "It is refused by Google"
+    answer: 1
+    explanation: "Without a default gateway, only destinations in directly connected networks have a route."
+  - id: p3-ss
+    phase: p3
+    skills: [linux.networking]
+    difficulty: 2
+    prompt: "Which command shows the TCP ports this machine listens on, with the owning processes?"
+    answers: ["ss -tlnp", "sudo ss -tlnp", "ss -tlpn", "ss -lntp"]
+    explanation: "-t TCP, -l listening, -n numeric, -p processes (needs root to see other users' processes)."
+  - id: p3-timeout
+    phase: p3
+    skills: [linux.networking]
+    difficulty: 3
+    prompt: "nc -zv db 5432 hangs and then times out. What does that point to?"
+    options:
+      - "PostgreSQL is not running"
+      - "Packets are dropped on the way: a firewall or security group"
+      - "DNS failed"
+      - "The password is wrong"
+    answer: 1
+    explanation: "A stopped service on a reachable host answers with a refusal; silence means the packets are dropped."
+  - id: p3-df-du
+    phase: p3
+    skills: [linux.storage]
+    difficulty: 4
+    prompt: "After deleting a 20 GiB log, df still shows the disk full. Which command finds the cause?"
+    options: ["du -sh /", "lsof +L1", "fsck /", "free -h"]
+    answer: 1
+    explanation: "lsof +L1 lists open files with no links left: deleted, but still held by a process."
+  - id: p3-fstab
+    phase: p3
+    skills: [linux.storage]
+    difficulty: 3
+    prompt: "Which fstab option lets the server finish booting even if an extra data disk is missing?"
+    answers: ["nofail"]
+    explanation: "With nofail, a missing device does not stop the boot."
+  - id: p3-ssh
+    phase: p3
+    skills: [linux.security]
+    difficulty: 3
+    prompt: "Which sshd settings stop password guessing and direct root logins?"
+    options:
+      - "PermitRootLogin no and PasswordAuthentication no"
+      - "Port 2222"
+      - "X11Forwarding no"
+      - "UseDNS no"
+    answer: 0
+    explanation: "Keys only and no root login remove the two most attacked doors; changing the port only reduces noise."
+  - id: p3-updates
+    phase: p3
+    skills: [linux.security]
+    difficulty: 2
+    prompt: "Which Debian package installs security updates automatically?"
+    answers: ["unattended-upgrades"]
+    explanation: "unattended-upgrades runs from a systemd timer and installs updates from the security repository."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-load
+    phase: p4
+    skills: [linux.performance]
+    difficulty: 3
+    prompt: "A 4-CPU server has load 12 while top shows the CPUs 90% idle. What is the most likely explanation?"
+    options:
+      - "A CPU-bound process"
+      - "Many tasks in uninterruptible sleep, usually waiting for disk or network storage"
+      - "Too many users logged in"
+      - "The load average is broken"
+    answer: 1
+    explanation: "On Linux the load also counts tasks in state D; idle CPUs plus high load point to I/O."
+  - id: p4-oom
+    phase: p4
+    skills: [linux.performance]
+    difficulty: 3
+    prompt: "A Java container exits with status 137 and no Java error in its logs. What happened?"
+    answers: ["OOM kill", "it was OOM killed", "the OOM killer killed it", "SIGKILL", "out of memory"]
+    explanation: "137 is 128 + 9 (SIGKILL), typically the kernel's OOM killer enforcing the container's memory limit."
+  - id: p4-cgroup
+    phase: p4
+    skills: [linux.boot-kernel]
+    difficulty: 3
+    prompt: "Which kernel feature lets a container see only its own processes, with its main process as PID 1?"
+    options: ["cgroups", "The pid namespace", "overlayfs", "seccomp"]
+    answer: 1
+    explanation: "Namespaces isolate what a process sees; the pid namespace gives it its own process ID space."
+  - id: p4-boot
+    phase: p4
+    skills: [linux.boot-kernel]
+    difficulty: 4
+    prompt: "After adding a disk to /etc/fstab, the server boots into an emergency shell. What is the fastest fix?"
+    options:
+      - "Reinstall GRUB"
+      - "Fix or comment out the fstab line (or add nofail), then reboot"
+      - "Rebuild the kernel"
+      - "Restore the whole disk from backup"
+    answer: 1
+    explanation: "systemd stops when a required mount fails; correcting fstab is enough."
+  - id: p4-backup
+    phase: p4
+    skills: [linux.operations]
+    difficulty: 3
+    prompt: "What is the only way to know that a backup works?"
+    options: ["Check that the file is big enough", "Restore it and check the data", "Compress it", "Keep three copies"]
+    answer: 1
+    explanation: "A restore test proves the backup is complete and measures the recovery time."
+  - id: p4-logrotate
+    phase: p4
+    skills: [linux.operations]
+    difficulty: 4
+    prompt: "logrotate renames app.log every night, but the application keeps writing to app.log.1. What is missing?"
+    options:
+      - "compress"
+      - "A postrotate step that makes the application reopen its log (or copytruncate)"
+      - "rotate 7"
+      - "missingok"
+    answer: 1
+    explanation: "The program keeps its open file descriptor; it must be told to reopen the path, or the file must be truncated in place."

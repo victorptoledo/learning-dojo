@@ -21,7 +21,7 @@ const HIDDEN_COURSE_FILES: [&str; 6] = [
 ];
 
 /// Extensions VS Code offers to install when the workspace opens.
-const RECOMMENDED_EXTENSIONS: [&str; 7] = [
+const RECOMMENDED_EXTENSIONS: [&str; 8] = [
     "rust-lang.rust-analyzer",
     "vscjava.vscode-java-pack",
     "vadimcn.vscode-lldb",
@@ -29,6 +29,7 @@ const RECOMMENDED_EXTENSIONS: [&str; 7] = [
     "usernamehw.errorlens",
     "ms-azuretools.vscode-docker",
     "redhat.vscode-yaml",
+    "timonwong.shellcheck",
 ];
 
 #[derive(Debug, Clone)]
@@ -74,6 +75,9 @@ impl CodeWorkspace {
                 "files.exclude": hidden,
                 "workbench.editorAssociations": { "*.md": "vscode.markdown.preview.editor" },
                 "rust-analyzer.linkedProjects": cargo_projects,
+                "files.associations": { "*.bats": "shellscript" },
+                "[shellscript]": { "files.eol": "
+        " },
             },
             "extensions": { "recommendations": RECOMMENDED_EXTENSIONS },
             "tasks": {

@@ -1,0 +1,51 @@
+id: linux.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz on scripting, text processing, processes and systemd, and a backup script with rotation."
+objectives:
+  - { id: o1, text: "Explain quoting, strict mode, awk, signals and systemd units in your own words", skills: [linux.scripting, linux.text-processing, linux.processes, linux.systemd-services] }
+  - { id: o2, text: "Write a robust backup script with options, atomic writes, rotation and a dry run", skills: [linux.scripting, linux.files] }
+prerequisites: [linux.p2.systemd-services]
+difficulty: 4
+estimated_minutes: 75
+xp: 350
+closes_phase: p2
+covers_skills: [linux.scripting, linux.text-processing, linux.processes, linux.systemd-services]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 90 }
+  hints:
+    - |-
+      Split it into functions: parse the options, validate, decide the archive name, create it (or say you would), then rotate. For the rotation, which archives belong to this source? Only names like `NAME-20261114-020000.tar.gz`; a glob such as `"$dest/$name"-[0-9]*.tar.gz` is a start, and a `[[ =~ ]]` check makes it exact.
+    - |-
+      Name and time: `name=$(basename "$src")` and `stamp=${BACKUP_NOW:-$(date +%Y%m%d-%H%M%S)}`. Create with `tar -czf "$tmp" -C "$(dirname "$src")" "$name"` into a temporary file in `DEST`, then `mv` it to the final name; a `trap 'rm -f "$tmp"' EXIT` removes the temporary file if tar fails. The timestamps sort as text, so the archives sorted by name are oldest first: everything except the last `KEEP` goes.
+    - |-
+      ```bash
+      archives=()
+      for file in "$dest/$name"-*.tar.gz; do
+          [[ -e "$file" ]] || continue
+          [[ "${file##*/}" =~ ^"$name"-[0-9]{8}-[0-9]{6}\.tar\.gz$ ]] && archives+=("$file")
+      done
+      # in a dry run, add the archive you would have created, then sort:
+      mapfile -t archives < <(printf '%s\n' "${archives[@]}" | LC_ALL=C sort)
+      excess=$(( ${#archives[@]} - keep ))
+      for (( i = 0; i < excess; i++ )); do
+          # remove "${archives[i]}" (or say you would), and print the line
+          :
+      done
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, bats and shellcheck that runs the grading tests.

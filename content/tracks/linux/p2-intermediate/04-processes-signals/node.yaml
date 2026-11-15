@@ -1,0 +1,23 @@
+id: linux.p2.processes-signals
+kind: lesson
+status: draft
+title: "Processes, Jobs and Signals"
+summary: "How processes are created, how to list and inspect them, foreground and background jobs, priorities, and signals with kill and trap."
+objectives:
+  - { id: o1, text: "Explain fork and exec, process ids, parents, states and zombies", skills: [linux.processes] }
+  - { id: o2, text: "List and inspect processes with ps, top, pgrep and /proc, and manage jobs with &, fg, bg and nohup", skills: [linux.processes] }
+  - { id: o3, text: "Send signals with kill and handle them in scripts with trap", skills: [linux.processes] }
+prerequisites: [linux.p2.csv-report]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A long-running bash script copies files from an inbox to an archive, one at a time. Explain what happens to it today when the system shuts it down with SIGTERM in the middle of a copy, and describe how you would change it so that it always stops cleanly. Also explain why `kill -9` should be the last resort.'
+  criteria:
+    - 'Explains that the default action of SIGTERM ends the process at once, possibly leaving a half-written file'
+    - 'Uses trap on TERM and INT to set a flag and stop between files, plus an EXIT trap to clean up'
+    - 'Writes to a temporary name and renames it, so a file is never half visible'
+    - 'Explains that SIGKILL cannot be caught, so no cleanup runs, and should follow a TERM and a grace period'

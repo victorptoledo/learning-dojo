@@ -1,0 +1,23 @@
+id: linux.p3.networking
+kind: lesson
+status: draft
+title: "Networking: IP, Ports, DNS and SSH"
+summary: "Interfaces, addresses and routes with ip, listening ports with ss, name resolution, testing connectivity layer by layer, and SSH keys and tunnels."
+objectives:
+  - { id: o1, text: "Read interfaces, addresses, subnets and routes with ip, and explain DHCP and the default gateway", skills: [linux.networking] }
+  - { id: o2, text: "Find listening ports and connections with ss, and debug DNS and connectivity layer by layer", skills: [linux.networking] }
+  - { id: o3, text: "Use SSH keys, the client config, scp/rsync and port forwarding", skills: [linux.networking] }
+prerequisites: [linux.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'From a Debian server, `curl https://api.partner.example/health` fails. Describe, step by step and with the commands you would run, how you find out whether the problem is the local network configuration, DNS, routing, a firewall or the remote service, and what each result would tell you.'
+  criteria:
+    - 'Checks the local side first: ip addr, ip route (default gateway) and maybe ping to the gateway'
+    - 'Tests DNS separately: getent hosts or dig, and /etc/resolv.conf'
+    - 'Tests reachability of the port (nc -zv, curl -v or openssl s_client) and the path (traceroute or mtr), knowing ICMP may be blocked'
+    - 'Reads curl -v output to tell a timeout from a refused connection, a TLS error and an HTTP error'

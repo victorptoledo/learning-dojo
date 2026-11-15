@@ -1,4 +1,17 @@
 namespace: linux
 skills:
+  - { id: linux.setup, title: "Linux, Distributions and Getting a Shell" }
+  - { id: linux.shell-navigation, title: "The Shell, the Filesystem Hierarchy and Getting Help" }
+  - { id: linux.files, title: "Files, Directories, Links and Inodes" }
+  - { id: linux.redirection, title: "Streams, Redirection, Pipes and Exit Codes" }
   - { id: linux.permissions-posix, title: "POSIX Permissions, sudo and User Management" }
+  - { id: linux.scripting, title: "Bash Scripting: Variables, Quoting, Control Flow and Functions" }
+  - { id: linux.text-processing, title: "Text Processing: grep, sed, awk and Friends" }
+  - { id: linux.processes, title: "Processes, Jobs and Signals" }
   - { id: linux.systemd-services, title: "systemd: Daemons, Unit Files and journalctl" }
+  - { id: linux.networking, title: "Networking: IP, Ports, DNS and SSH" }
+  - { id: linux.storage, title: "Disks, Filesystems, Mounts and LVM" }
+  - { id: linux.security, title: "Hardening a Linux Server" }
+  - { id: linux.performance, title: "Performance and Troubleshooting" }
+  - { id: linux.boot-kernel, title: "Boot, the Kernel, cgroups and Namespaces" }
+  - { id: linux.operations, title: "Running Linux in Production: Packages, Logs, Scheduling and Backups" }

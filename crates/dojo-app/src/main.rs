@@ -2,6 +2,7 @@ mod ai_prompt_actions;
 mod app;
 #[cfg(test)]
 mod app_tests;
+mod bridge_picker;
 mod career_actions;
 mod career_view;
 mod checks;

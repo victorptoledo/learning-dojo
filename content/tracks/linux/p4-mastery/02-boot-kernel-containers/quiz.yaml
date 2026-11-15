@@ -1,0 +1,34 @@
+questions:
+  - id: initramfs
+    prompt: "What is the initramfs for?"
+    options:
+      - "It stores the user's home directories"
+      - "A small temporary root filesystem with what the kernel needs to find and mount the real root"
+      - "A backup of the kernel"
+      - "The boot menu"
+    answer: 1
+    explanation: "It holds the drivers and tools (LVM, RAID, encryption) needed before the real root filesystem can be mounted."
+  - id: pid1
+    prompt: "Which program runs as PID 1 on a Debian 13 server?"
+    answers: ["systemd"]
+    explanation: "The kernel starts systemd as the first process; it brings the system up to the default target."
+  - id: previous-boot
+    prompt: "A server crashed and rebooted. How do you read the errors of the boot before the current one?"
+    options: ["journalctl -b -p err", "journalctl -b -1 -p err", "dmesg -1", "cat /var/log/boot.log"]
+    answer: 1
+    explanation: "-b -1 selects the previous boot (with a persistent journal), -p err the errors."
+  - id: sysctl-permanent
+    prompt: "How do you make sysctl net.ipv4.ip_forward=1 survive a reboot?"
+    options: ["Run sysctl -w twice", "Put it in a file under /etc/sysctl.d/", "Add it to /etc/fstab", "Write it to /proc/sys at login"]
+    answer: 1
+    explanation: "Files in /etc/sysctl.d/ are applied at boot (and by sysctl --system)."
+  - id: namespace-vs-cgroup
+    prompt: "Which kernel feature limits how much memory a container may use?"
+    options: ["The pid namespace", "cgroups", "The mount namespace", "overlayfs"]
+    answer: 1
+    explanation: "Namespaces control what a process sees; cgroups limit and account what it uses."
+  - id: container-kernel
+    prompt: "How many kernels run on a host with ten Docker containers?"
+    options: ["Eleven", "One: the containers share the host kernel", "Ten", "It depends on the images"]
+    answer: 1
+    explanation: "Containers are processes of the host; only virtual machines bring their own kernel."

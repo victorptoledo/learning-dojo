@@ -1,0 +1,34 @@
+questions:
+  - id: glob-who
+    prompt: "In ls *.txt, who turns *.txt into the list of file names?"
+    options: ["ls", "The shell, before ls runs", "The kernel", "The filesystem"]
+    answer: 1
+    explanation: "Globs are expanded by the shell. ls only receives the resulting names."
+  - id: etc
+    prompt: "Where would you look first for the system-wide configuration of the SSH server?"
+    options: ["/usr/bin", "/var/log", "/etc", "/home"]
+    answer: 2
+    explanation: "System configuration lives in /etc, here /etc/ssh/sshd_config."
+  - id: cd-builtin
+    prompt: "Why must cd be a shell builtin instead of a program in /usr/bin?"
+    options:
+      - "Because it is faster"
+      - "A separate program could only change its own working directory, not the shell's"
+      - "Because it needs root"
+      - "It does not have to be; it is a program"
+    answer: 1
+    explanation: "Each process has its own working directory. Only the shell itself can change the shell's."
+  - id: path-order
+    prompt: "PATH is /usr/local/bin:/usr/bin and both directories contain a tool called deploy. Which one runs when you type deploy?"
+    options: ["/usr/bin/deploy", "/usr/local/bin/deploy", "Both, one after the other", "Neither: bash asks which one"]
+    answer: 1
+    explanation: "PATH is searched from left to right and the first match wins."
+  - id: man-section
+    prompt: "Which command shows the manual of the crontab file format rather than the crontab command?"
+    answers: ["man 5 crontab", "man crontab.5", "man -s 5 crontab"]
+    explanation: "Section 5 holds file formats. man 5 crontab opens crontab(5)."
+  - id: proc
+    prompt: "What is in /proc?"
+    options: ["Programs waiting to run", "Virtual files the kernel generates about processes and the system", "Process logs", "Compiled programs"]
+    answer: 1
+    explanation: "/proc is a virtual filesystem: reading /proc/meminfo or /proc/1/status asks the kernel, nothing is stored on disk."

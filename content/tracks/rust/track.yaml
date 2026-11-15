@@ -6,7 +6,7 @@ category: "Programming Languages"
 icon: "🦀"
 description: "Master the systems language without fearing the borrow checker and without a garbage collector."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Java Refugee" }
   - { name: "Yellow Belt", required_xp: 300, title: "Borrow Apprentice" }

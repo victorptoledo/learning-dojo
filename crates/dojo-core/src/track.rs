@@ -93,14 +93,16 @@ pub struct Kata {
 pub enum KataLanguage {
     Rust,
     Java,
+    /// Bash scripts checked with bats and shellcheck in `dojo-linux`.
+    Bash,
 }
 
 impl Kata {
     pub fn language(&self) -> KataLanguage {
-        if self.runner.image == "dojo-java" {
-            KataLanguage::Java
-        } else {
-            KataLanguage::Rust
+        match self.runner.image.as_str() {
+            "dojo-java" => KataLanguage::Java,
+            "dojo-linux" => KataLanguage::Bash,
+            _ => KataLanguage::Rust,
         }
     }
 }

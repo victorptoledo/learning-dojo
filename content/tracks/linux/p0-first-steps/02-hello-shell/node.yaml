@@ -1,0 +1,47 @@
+id: linux.p0.hello-shell
+kind: kata
+status: draft
+title: "Hello, Shell: Your First Bash Kata"
+summary: "Write a script that greets by name, and see how bash katas are tested with bats and ShellCheck."
+objectives:
+  - { id: o1, text: "Write a bash script that reads its arguments and prints a message", skills: [linux.setup] }
+prerequisites: [linux.p0.setup]
+difficulty: 1
+estimated_minutes: 20
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      How does a script see its arguments? `$1` is the first, `$#` is how many there are and `"$*"` joins all of them with spaces. What should happen when `$#` is 0?
+    - |-
+      `${1:-stranger}` gives the first argument, or `stranger` when it is missing or empty. To join every argument, use `name="$*"`. Always quote expansions: `echo "Welcome to the dojo, $name!"`. For `--shout`, test `[ "$1" = "--shout" ]`, then `shift` it away.
+    - |-
+      ```bash
+      shout=false
+      if [ "${1:-}" = "--shout" ]; then
+          shout=true
+          shift
+      fi
+      name="$*"
+      if [ -z "$name" ]; then
+          name="stranger"
+      fi
+      message="Welcome to the dojo, $name!"
+      # if shout is true, turn the message to upper case (tr or ${message^^})
+      echo "$message"
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, bats and shellcheck that runs the grading tests.

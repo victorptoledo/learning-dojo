@@ -143,6 +143,61 @@ failures:
 test result: FAILED. 1 passed; 1 failed
 ";
 
+    /// What the dojo-linux image prints (`runner-images/linux/tap2cargo.awk`).
+    const LINUX_FAILING: &str = "
+running 3 tests
+test greets_by_name ... FAILED
+test greets_a_stranger ... ok
+test shellcheck::greet_sh ... FAILED
+
+failures:
+
+---- greets_by_name stdout ----
+thread 'greets_by_name' panicked at greets_by_name:
+todo: write greet.sh
+`assert_success' failed
+
+---- shellcheck::greet_sh stdout ----
+thread 'shellcheck::greet_sh' panicked at shellcheck::greet_sh:
+greet.sh:3:6: warning: Double quote to prevent globbing and word splitting. [SC2086]
+
+failures:
+
+test result: FAILED. 1 passed; 2 failed
+";
+
+    #[test]
+    fn reads_the_linux_image_output_like_cargo_test() {
+        let report = parse_cargo_test(LINUX_FAILING, false, 7);
+        assert_eq!(report.outcome, CheckOutcome::TestsFailed);
+        assert_eq!(report.tests.len(), 3);
+        assert!(
+            report.tests[0]
+                .message
+                .as_deref()
+                .unwrap()
+                .starts_with("todo: write greet.sh")
+        );
+        assert_eq!(report.tests[2].name, "shellcheck::greet_sh");
+        assert!(
+            report.tests[2]
+                .message
+                .as_deref()
+                .unwrap()
+                .contains("SC2086")
+        );
+
+        let syntax = parse_cargo_test(
+            "error: greet.sh has a syntax error
+greet.sh: line 1: syntax error near unexpected token `then'
+",
+            false,
+            7,
+        );
+        assert_eq!(syntax.outcome, CheckOutcome::CompileError);
+        assert!(syntax.details.contains("greet.sh: line 1"));
+    }
+
     #[test]
     fn reads_the_java_image_output_like_cargo_test() {
         let report = parse_cargo_test(JAVA_FAILING, false, 7);

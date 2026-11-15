@@ -1,0 +1,23 @@
+id: linux.p0.setup
+kind: lesson
+status: draft
+title: "Linux, Distributions and Your First Shell"
+summary: "What Linux is, why servers run it, how to get a Debian 13 shell on Windows and how the dojo checks bash katas."
+objectives:
+  - { id: o1, text: "Tell the kernel apart from the distribution and name what a distribution adds", skills: [linux.setup] }
+  - { id: o2, text: "Open a Debian 13 shell with WSL or Docker and run first commands", skills: [linux.setup] }
+  - { id: o3, text: "Install and query packages with apt", skills: [linux.setup] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Explain to a colleague who has only used Windows what "Linux" means on a server: the kernel, the distribution and the shell. Then describe two ways to get a Debian shell on a Windows machine and when you would pick each.'
+  criteria:
+    - 'Separates the kernel from the userland and the distribution (packages, init system, release policy)'
+    - 'Explains what the shell is and that it is just one program among many'
+    - 'Describes WSL 2 and a Docker container correctly, with a fitting use for each'
+    - 'Mentions why servers and containers run Linux (cost, automation, the cloud)'
