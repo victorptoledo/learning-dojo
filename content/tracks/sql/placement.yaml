@@ -1,0 +1,286 @@
+# Placement test of the SQL track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with SQL?
+  options:
+    - { label: "Never written a query, or only copied some", start_phase: p0, test: false }
+    - { label: "I write SELECTs with joins and GROUP BY at work", start_phase: p1, test: true }
+    - { label: "I use CTEs, window functions and design schemas with constraints", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-identity
+    phase: p1
+    skills: [sql.relational-model]
+    difficulty: 1
+    prompt: "Which column definition is the standard way to number the rows of a table automatically?"
+    options: ["id integer AUTO_INCREMENT", "id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY", "id SERIAL KEY", "id integer DEFAULT next"]
+    answer: 1
+    explanation: "Identity columns are standard SQL (PostgreSQL 10+, Oracle, Db2, SQL Server's IDENTITY is similar). AUTO_INCREMENT is MySQL; serial is PostgreSQL's older form."
+  - id: p1-float-money
+    phase: p1
+    skills: [sql.relational-model]
+    difficulty: 2
+    prompt: "Summing prices stored as double precision gives 59.99999999 instead of 60.00. What is the fix?"
+    options: ["Round in every query", "Store prices as numeric (or integer cents)", "Use real instead", "Store them as text"]
+    answer: 1
+    explanation: "Binary floating point cannot represent most decimal fractions; numeric is exact."
+  - id: p1-order-alias
+    phase: p1
+    skills: [sql.select-basics]
+    difficulty: 2
+    prompt: "Which clause may use an alias defined in the SELECT list?"
+    options: ["WHERE", "GROUP BY in every engine", "ORDER BY", "ON"]
+    answer: 2
+    explanation: "ORDER BY is evaluated after SELECT. WHERE and ON come before it (PostgreSQL and MySQL also accept aliases in GROUP BY, but it is not portable)."
+  - id: p1-distinct-pairs
+    phase: p1
+    skills: [sql.select-basics]
+    difficulty: 2
+    prompt: "What does SELECT DISTINCT country, city FROM customers return?"
+    options: ["Each country once", "Each city once", "Each different (country, city) combination once", "An error: DISTINCT takes one column"]
+    answer: 2
+    explanation: "DISTINCT applies to the whole row of the SELECT list."
+  - id: p1-null-in
+    phase: p1
+    skills: [sql.nulls]
+    difficulty: 3
+    prompt: "SELECT * FROM t WHERE x NOT IN (1, NULL). For a row with x = 5, what is the condition?"
+    options: ["TRUE", "FALSE", "UNKNOWN, so the row is dropped", "An error"]
+    answer: 2
+    explanation: "5 <> 1 is TRUE but 5 <> NULL is UNKNOWN; TRUE AND UNKNOWN is UNKNOWN."
+  - id: p1-avg-null
+    phase: p1
+    skills: [sql.nulls, sql.aggregation]
+    difficulty: 3
+    prompt: "A column holds 10, 20 and NULL. What does avg(col) return?"
+    answers: ["15"]
+    explanation: "avg skips NULLs: (10 + 20) / 2 = 15, not 30 / 3."
+  - id: p1-left-count
+    phase: p1
+    skills: [sql.joins]
+    difficulty: 3
+    prompt: "customers LEFT JOIN orders, grouped by customer. Why does count(*) give 1 for a customer with no orders?"
+    options: ["Because of a bug in the engine", "The customer's own row exists in the result, with NULL order columns, and count(*) counts rows", "Because LEFT JOIN adds an empty order", "It gives 0"]
+    answer: 1
+    explanation: "count(o.id) skips the NULL and gives 0."
+  - id: p1-self-join
+    phase: p1
+    skills: [sql.joins]
+    difficulty: 2
+    prompt: "employees(id, name, manager_id). How do you show each employee next to their manager's name?"
+    options: ["A self join: employees e LEFT JOIN employees m ON m.id = e.manager_id", "GROUP BY manager_id", "A UNION of employees with itself", "It needs two tables"]
+    answer: 0
+    explanation: "The same table appears twice with two aliases; LEFT keeps the employee without a manager."
+  - id: p1-having
+    phase: p1
+    skills: [sql.aggregation]
+    difficulty: 2
+    prompt: "Which query lists the categories with more than 10 products?"
+    options: ["SELECT category FROM products WHERE count(*) > 10 GROUP BY category", "SELECT category FROM products GROUP BY category HAVING count(*) > 10", "SELECT category, count(*) > 10 FROM products", "SELECT DISTINCT category FROM products LIMIT 10"]
+    answer: 1
+    explanation: "Conditions on aggregates go in HAVING, after GROUP BY."
+  - id: p1-on-conflict
+    phase: p1
+    skills: [sql.dml]
+    difficulty: 3
+    prompt: "In PostgreSQL, which statement adds a tag or does nothing if it already exists (tags.name is UNIQUE)?"
+    options: ["INSERT INTO tags (name) VALUES ('sql') ON CONFLICT (name) DO NOTHING", "INSERT IGNORE INTO tags VALUES ('sql')", "MERGE tags ('sql')", "UPSERT tags SET name = 'sql'"]
+    answer: 0
+    explanation: "ON CONFLICT ... DO NOTHING is PostgreSQL's and SQLite's form; INSERT IGNORE is MySQL."
+  - id: p1-update-join
+    phase: p1
+    skills: [sql.dml, sql.subqueries]
+    difficulty: 3
+    prompt: "Which UPDATE is portable across engines for 'block every order of a banned customer'?"
+    options: ["UPDATE orders SET status = 'blocked' FROM customers c WHERE ...", "UPDATE orders SET status = 'blocked' WHERE customer_id IN (SELECT id FROM customers WHERE banned)", "UPDATE orders JOIN customers ... SET ...", "UPDATE orders, customers SET ..."]
+    answer: 1
+    explanation: "A subquery in WHERE works everywhere; UPDATE ... FROM (PostgreSQL, SQL Server) and UPDATE ... JOIN (MySQL) are dialects."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-scalar-none
+    phase: p2
+    skills: [sql.subqueries]
+    difficulty: 2
+    prompt: "A scalar subquery in the SELECT list finds no row for some outer row. What value appears?"
+    options: ["0", "An error", "NULL", "The previous row's value"]
+    answer: 2
+    explanation: "An empty scalar subquery yields NULL; more than one row is an error."
+  - id: p2-except-all
+    phase: p2
+    skills: [sql.subqueries]
+    difficulty: 3
+    prompt: "Query A returns x, x, y and query B returns x. What does A EXCEPT ALL B return?"
+    options: ["y", "x, y", "x, x, y", "Nothing"]
+    answer: 1
+    explanation: "EXCEPT ALL subtracts by count: one x is removed, the other x and y remain. EXCEPT would return y only."
+  - id: p2-cte-twice
+    phase: p2
+    skills: [sql.cte-recursive]
+    difficulty: 2
+    prompt: "What does WITH let you do that a derived table in FROM does not?"
+    options: ["Use the result more than once and in later CTEs, by name", "Store the result after the query ends", "Skip the planner", "Change data in another database"]
+    answer: 0
+    explanation: "A CTE is named once and referenced as often as needed in the same statement."
+  - id: p2-recursive-stop
+    phase: p2
+    skills: [sql.cte-recursive]
+    difficulty: 3
+    prompt: "When does a WITH RECURSIVE query stop?"
+    options: ["After 100 iterations", "When an iteration of the recursive member produces no new rows", "When the anchor returns no rows twice", "Only with a LIMIT"]
+    answer: 1
+    explanation: "Each iteration reads the previous iteration's rows; an empty iteration ends the recursion."
+  - id: p2-view-store
+    phase: p2
+    skills: [sql.cte-recursive]
+    difficulty: 2
+    prompt: "A report reads a view over a large join. Is the join computed again on each read?"
+    options: ["Yes: a view stores only the query", "No: views cache their rows", "Only the first time each day", "Only in MySQL"]
+    answer: 0
+    explanation: "A plain view is a stored query; only a materialized view stores rows, refreshed explicitly."
+  - id: p2-row-number-ties
+    phase: p2
+    skills: [sql.window-functions]
+    difficulty: 3
+    prompt: "Two employees tie for the top salary. Which function gives them DIFFERENT numbers?"
+    options: ["rank()", "dense_rank()", "row_number()", "percent_rank()"]
+    answer: 2
+    explanation: "row_number numbers every row uniquely (ties in an arbitrary order unless the ORDER BY breaks them)."
+  - id: p2-lead
+    phase: p2
+    skills: [sql.window-functions]
+    difficulty: 2
+    prompt: "Which expression gives, for each login, the time of the same user's next login?"
+    options: ["lead(at) OVER (PARTITION BY user_id ORDER BY at)", "lag(at) OVER (ORDER BY user_id)", "max(at) OVER ()", "next(at)"]
+    answer: 0
+    explanation: "lead reads the following row of the window, partitioned per user and ordered by time."
+  - id: p2-check-cross-row
+    phase: p2
+    skills: [sql.constraints-keys]
+    difficulty: 3
+    prompt: "Which rule can a CHECK constraint NOT enforce?"
+    options: ["end_date > start_date", "quantity > 0", "status IN ('new', 'paid')", "no two bookings of a room overlap"]
+    answer: 3
+    explanation: "CHECK sees one row. Rules across rows need UNIQUE, an exclusion constraint or a trigger."
+  - id: p2-on-delete
+    phase: p2
+    skills: [sql.constraints-keys]
+    difficulty: 2
+    prompt: "Invoice lines exist only as parts of their invoice. Which action fits lines.invoice_id REFERENCES invoices?"
+    options: ["ON DELETE CASCADE", "ON DELETE SET NULL", "No foreign key", "ON UPDATE RESTRICT only"]
+    answer: 0
+    explanation: "A part that cannot exist without its parent is deleted with it."
+  - id: p2-junction
+    phase: p2
+    skills: [sql.normalisation]
+    difficulty: 2
+    prompt: "Books have many authors and authors write many books. What is the right primary key of book_authors?"
+    options: ["book_id alone", "author_id alone", "(book_id, author_id)", "A text column with both names"]
+    answer: 2
+    explanation: "Each pairing appears once; the composite key prevents duplicate pairs."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-prefix-like
+    phase: p3
+    skills: [sql.indexes-plans]
+    difficulty: 3
+    prompt: "Which pattern can a B-tree index on name serve (with a suitable collation or operator class)?"
+    options: ["name LIKE '%son'", "name LIKE '%an%'", "name LIKE 'Kar%'", "lower(name) LIKE 'kar%' with a plain index on name"]
+    answer: 2
+    explanation: "A prefix is a range in sorted order. Leading wildcards need a trigram index; lower() needs an expression index."
+  - id: p3-index-only
+    phase: p3
+    skills: [sql.indexes-plans]
+    difficulty: 4
+    prompt: "What lets PostgreSQL answer SELECT total FROM orders WHERE customer_id = 7 from the index alone?"
+    options: ["An index on (customer_id) INCLUDE (total), and an up-to-date visibility map", "Any index on customer_id", "A hash index", "A materialized view"]
+    answer: 0
+    explanation: "An index-only scan needs every requested column in the index; the visibility map (maintained by VACUUM) avoids visiting the table."
+  - id: p3-loops
+    phase: p3
+    skills: [sql.indexes-plans]
+    difficulty: 4
+    prompt: "In EXPLAIN ANALYZE, an Index Scan node shows actual time=0.010..0.012 rows=1 loops=200000. What does that tell you?"
+    options: ["It ran once and took 0.012 ms", "It ran 200 000 times, once per outer row of a nested loop: about 2.4 s in total", "It returned 200 000 rows", "The index is broken"]
+    answer: 1
+    explanation: "Times and rows are per loop; multiply by loops. A hash join may be better, or the estimate of outer rows was wrong."
+  - id: p3-repeatable
+    phase: p3
+    skills: [sql.transactions]
+    difficulty: 3
+    prompt: "Under PostgreSQL's REPEATABLE READ, another transaction commits a change to a row you read earlier. What do you see if you read it again?"
+    options: ["The new value", "The value from your transaction's snapshot", "An error at once", "A dirty value"]
+    answer: 1
+    explanation: "REPEATABLE READ reads one snapshot for the whole transaction. Updating that row yourself would fail with 40001."
+  - id: p3-nowait
+    phase: p3
+    skills: [sql.transactions]
+    difficulty: 3
+    prompt: "What does SELECT ... FOR UPDATE NOWAIT do when the row is locked by someone else?"
+    options: ["Waits until it is free", "Fails at once with a lock error", "Skips the row", "Reads the old version"]
+    answer: 1
+    explanation: "NOWAIT fails immediately (SQLSTATE 55P03); SKIP LOCKED leaves the row out; plain FOR UPDATE waits."
+  - id: p3-write-skew
+    phase: p3
+    skills: [sql.transactions]
+    difficulty: 4
+    prompt: "Two doctors are on call; each runs 'if at least one other doctor is on call, take me off' at the same time under REPEATABLE READ. What can happen?"
+    options: ["One waits for the other", "Both succeed and nobody is on call: write skew", "The database always rejects both", "A dirty read"]
+    answer: 1
+    explanation: "Each read a snapshot where the rule held and changed a different row. SERIALIZABLE (or locking the rows read) prevents it."
+  - id: p3-json-text
+    phase: p3
+    skills: [sql.json]
+    difficulty: 2
+    prompt: "WHERE payload ->> 'qty' > 10 compares what with what in PostgreSQL?"
+    options: ["Two numbers", "A text with a number, which fails or compares as text; cast with (payload ->> 'qty')::int", "Two jsonb values", "It always works"]
+    answer: 1
+    explanation: "->> returns text. Cast before numeric comparisons."
+  # ---- P4 Mastery ----------------------------------------------------------------
+  - id: p4-distinct-sum
+    phase: p4
+    skills: [sql.anti-patterns]
+    difficulty: 3
+    prompt: "sum(o.total) over customers JOIN orders JOIN tickets is too high. Someone suggests sum(DISTINCT o.total). Why is that wrong?"
+    options: ["DISTINCT is slow", "It merges different orders that happen to have the same total", "sum does not accept DISTINCT", "It is the correct fix"]
+    answer: 1
+    explanation: "Deduplicating values is not deduplicating orders. Aggregate each child table before joining."
+  - id: p4-count-exists
+    phase: p4
+    skills: [sql.anti-patterns]
+    difficulty: 2
+    prompt: "The code runs SELECT count(*) FROM orders WHERE customer_id = $1 and checks > 0. What is better?"
+    options: ["SELECT count(1) ...", "SELECT EXISTS (SELECT 1 FROM orders WHERE customer_id = $1)", "SELECT * ... LIMIT 100", "Nothing; it is equivalent"]
+    answer: 1
+    explanation: "EXISTS stops at the first match instead of counting all of them."
+  - id: p4-param-like
+    phase: p4
+    skills: [sql.applications]
+    difficulty: 3
+    prompt: "How should a search box value reach WHERE name LIKE ...?"
+    options: ["Concatenated: LIKE '%' + input + '%'", "As a bind parameter whose value is '%' + escaped input + '%'", "Inside double quotes", "It cannot be done safely"]
+    answer: 1
+    explanation: "The pattern is a value like any other: bind it, after escaping % and _ if the user's input should match them literally."
+  - id: p4-keyset-ties
+    phase: p4
+    skills: [sql.applications, sql.indexes-plans]
+    difficulty: 4
+    prompt: "A keyset page uses WHERE created_at < $1 ORDER BY created_at DESC LIMIT 20. What goes wrong?"
+    options: ["Nothing", "Rows that share the last created_at value are skipped; add id as a tie-breaker and compare (created_at, id)", "It always returns duplicates", "It cannot use an index"]
+    answer: 1
+    explanation: "Without a unique order, rows tied with the last one seen are lost between pages."
+  - id: p4-retry
+    phase: p4
+    skills: [sql.applications, sql.transactions]
+    difficulty: 3
+    prompt: "Which error should application code retry automatically?"
+    options: ["23505 unique_violation", "40P01 deadlock_detected", "42P01 undefined_table", "23502 not_null_violation"]
+    answer: 1
+    explanation: "Deadlocks (40P01) and serialization failures (40001) are transient: run the whole transaction again."

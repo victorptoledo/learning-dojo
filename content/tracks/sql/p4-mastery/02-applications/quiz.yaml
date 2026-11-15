@@ -1,0 +1,30 @@
+questions:
+  - id: injection
+    prompt: "What reliably prevents SQL injection?"
+    options: ["Escaping quotes in the input by hand", "Bind parameters, so values are sent separately from the SQL text", "Using an ORM for every query", "Checking the input length"]
+    answer: 1
+    explanation: "With bind parameters a value can never become SQL. ORMs help because they use parameters, but their raw-SQL helpers can still be misused."
+  - id: identifier-param
+    prompt: "A user picks the sort column. How should the column name reach the SQL?"
+    options: ["As a bind parameter", "Concatenated after escaping quotes", "Chosen from an allow-list of known columns in the code", "From a hidden form field"]
+    answer: 2
+    explanation: "Identifiers cannot be bind parameters; map the user's choice to a fixed set of column names in code."
+  - id: n-plus-one
+    prompt: "A page shows 50 posts and their authors, and runs 51 queries. What is this called?"
+    answers: ["N+1", "N+1 queries", "the N+1 problem", "N+1 problem", "n+1"]
+    explanation: "One query for the list plus one per row. Join or batch the authors with WHERE id = ANY($1)."
+  - id: keyset
+    prompt: "Which query fetches the page after the row (placed_at = :t, id = :i) in ORDER BY placed_at, id?"
+    options: ["... OFFSET :page * 20 LIMIT 20", "... WHERE (placed_at, id) > (:t, :i) ORDER BY placed_at, id LIMIT 20", "... WHERE placed_at > :t ORDER BY placed_at LIMIT 20", "... WHERE id > :i LIMIT 20"]
+    answer: 1
+    explanation: "The row value comparison continues exactly after the last row, including ties on placed_at. Comparing placed_at alone skips rows that share it."
+  - id: retry-codes
+    prompt: "Which error should the application answer by retrying the whole transaction?"
+    options: ["23505 unique_violation", "40001 serialization_failure", "42703 undefined_column", "22012 division_by_zero"]
+    answer: 1
+    explanation: "40001 and 40P01 (deadlock) are transient. Constraint and syntax errors will fail again."
+  - id: pool
+    prompt: "Why use a connection pool instead of opening a connection per request?"
+    options: ["Pools encrypt queries", "Opening a connection is slow and each one costs server memory, so a small reused set serves many requests", "PostgreSQL allows only one connection", "Pools cache query results"]
+    answer: 1
+    explanation: "A PostgreSQL connection is a server process; reuse a few instead of creating many."

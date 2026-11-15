@@ -1,0 +1,23 @@
+id: sql.p2.subqueries
+kind: lesson
+status: draft
+title: "Subqueries and Set Operations"
+summary: "Scalar, row and table subqueries, correlated subqueries, IN, EXISTS, ANY and ALL, derived tables, and combining results with UNION, INTERSECT and EXCEPT."
+objectives:
+  - { id: o1, text: "Use scalar, table and correlated subqueries in SELECT, FROM and WHERE, and know what each costs", skills: [sql.subqueries] }
+  - { id: o2, text: "Choose between IN, EXISTS, ANY and ALL, and rewrite a subquery as a join when it helps", skills: [sql.subqueries] }
+  - { id: o3, text: "Combine results with UNION, UNION ALL, INTERSECT and EXCEPT and respect their rules", skills: [sql.subqueries] }
+prerequisites: [sql.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Using employees(id, name, department_id, salary), write: (1) the employees who earn more than the average of their own department, with a correlated subquery and again with a derived table joined on the department; (2) the department ids that have employees but no employee above 100000, with a set operation. Explain how the database evaluates the correlated version, and why UNION ALL is usually preferred to UNION when the parts cannot overlap.'
+  criteria:
+    - 'The correlated subquery compares e.salary to (SELECT avg(salary) FROM employees x WHERE x.department_id = e.department_id)'
+    - 'The derived table groups by department_id once and is joined on department_id'
+    - 'Uses EXCEPT (or NOT EXISTS) correctly for the departments with no high earner'
+    - 'Explains that a correlated subquery is logically run per outer row (the planner may rewrite it), and that UNION removes duplicates with an extra sort or hash while UNION ALL does not'

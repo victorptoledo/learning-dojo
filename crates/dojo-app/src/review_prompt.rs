@@ -80,13 +80,14 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         KataLanguage::Rust => (kata_dir.join("src"), "rs"),
         KataLanguage::Java => (kata_dir.join("src").join("main"), "java"),
         KataLanguage::Bash => (kata_dir.to_path_buf(), "sh"),
+        KataLanguage::Sql => (kata_dir.to_path_buf(), "sql"),
     };
     let mut found = Vec::new();
     collect(&root, extension, &mut found);
     let mut files: Vec<PathBuf> = found
         .into_iter()
         .filter_map(|path| path.strip_prefix(kata_dir).ok().map(Path::to_path_buf))
-        .filter(|path| !path.starts_with("tests"))
+        .filter(|path| !path.starts_with("tests") && !path.starts_with("fixture"))
         .collect();
     files.sort();
     files
@@ -122,6 +123,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Rust => "Rust",
         KataLanguage::Java => "Java",
         KataLanguage::Bash => "Bash and Linux",
+        KataLanguage::Sql => "SQL (PostgreSQL 17)",
     };
     let files = kata
         .files
@@ -249,5 +251,17 @@ mod tests {
         std::fs::write(dir.path().join("tests/visible.bats"), "x").unwrap();
         let files = kata_files(dir.path(), KataLanguage::Bash);
         assert_eq!(files, vec![PathBuf::from("worker.sh")]);
+    }
+
+    #[test]
+    fn kata_files_lists_sql_queries_but_not_the_fixture_or_tests() {
+        let dir = tempfile::TempDir::new().unwrap();
+        std::fs::create_dir_all(dir.path().join("tests")).unwrap();
+        std::fs::create_dir_all(dir.path().join("fixture")).unwrap();
+        std::fs::write(dir.path().join("top_customers.sql"), "SELECT 1").unwrap();
+        std::fs::write(dir.path().join("fixture/01_shop.sql"), "CREATE TABLE t ()").unwrap();
+        std::fs::write(dir.path().join("tests/visible.sql"), "SELECT 1").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::Sql);
+        assert_eq!(files, vec![PathBuf::from("top_customers.sql")]);
     }
 }

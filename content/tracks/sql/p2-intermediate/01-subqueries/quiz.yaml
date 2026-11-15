@@ -1,0 +1,30 @@
+questions:
+  - id: scalar-many
+    prompt: "A scalar subquery in the SELECT list returns two rows for some outer row. What happens?"
+    options: ["The first row is used", "The query fails with an error", "Both values are joined with a comma", "The outer row is repeated"]
+    answer: 1
+    explanation: "A scalar subquery must return at most one row; more is a run-time error. No row gives NULL."
+  - id: correlated
+    prompt: "What makes a subquery correlated?"
+    options: ["It uses an aggregate", "It refers to a column of the outer query", "It appears in FROM", "It returns one column"]
+    answer: 1
+    explanation: "A correlated subquery depends on the current outer row, so logically it is evaluated per row."
+  - id: all-empty
+    prompt: "What does price > ALL (SELECT price FROM products WHERE false) return?"
+    options: ["TRUE", "FALSE", "NULL", "An error"]
+    answer: 0
+    explanation: "ALL over an empty set is vacuously TRUE; ANY over an empty set is FALSE."
+  - id: union-all
+    prompt: "Why prefer UNION ALL over UNION when the two parts can never share a row?"
+    options: ["UNION ALL sorts the result", "UNION must find and remove duplicates, which costs a sort or hash", "UNION ALL removes NULLs", "UNION cannot combine more than two queries"]
+    answer: 1
+    explanation: "UNION deduplicates; UNION ALL just appends the rows."
+  - id: by-position
+    prompt: "How does UNION match the columns of its two queries?"
+    options: ["By name", "By position", "By type only", "By the primary key"]
+    answer: 1
+    explanation: "Columns are matched by position; the result takes its column names from the first query."
+  - id: except
+    prompt: "Which set operation returns the rows of the first query that are not in the second?"
+    answers: ["EXCEPT", "MINUS", "EXCEPT DISTINCT"]
+    explanation: "EXCEPT (MINUS in Oracle). EXCEPT ALL keeps duplicates by count."

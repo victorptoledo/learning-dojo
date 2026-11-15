@@ -1,0 +1,23 @@
+id: sql.p1.nulls
+kind: lesson
+status: draft
+title: "NULL and Three-Valued Logic"
+summary: "What NULL means, why comparisons with it are UNKNOWN, how WHERE, NOT IN, aggregates, sorting and UNIQUE treat it, and the tools that handle it: IS NULL, COALESCE, NULLIF and IS DISTINCT FROM."
+objectives:
+  - { id: o1, text: "Evaluate expressions under three-valued logic and predict which rows WHERE keeps", skills: [sql.nulls] }
+  - { id: o2, text: "Use IS NULL, COALESCE, NULLIF and IS DISTINCT FROM correctly", skills: [sql.nulls] }
+  - { id: o3, text: "Explain the NOT IN trap and how aggregates, ORDER BY and UNIQUE treat NULL", skills: [sql.nulls] }
+prerequisites: [sql.p1.select-basics]
+difficulty: 2
+estimated_minutes: 40
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'The query SELECT name FROM customers WHERE id NOT IN (SELECT referred_by FROM customers) should list customers who referred nobody, but it returns no rows at all. Explain exactly why, step by step with three-valued logic, and give two correct rewrites. Then explain the difference between count(*), count(phone) and count(DISTINCT phone) on a table where some phones are NULL.'
+  criteria:
+    - 'Explains that referred_by contains NULL, so x <> NULL is UNKNOWN and NOT IN can never be TRUE'
+    - 'Rewrites with NOT EXISTS and with a NOT IN that filters out NULLs (or a LEFT JOIN ... IS NULL)'
+    - 'Explains that WHERE keeps only rows where the condition is TRUE, not UNKNOWN'
+    - 'States that count(*) counts rows, count(col) skips NULLs and count(DISTINCT col) counts different non-NULL values'

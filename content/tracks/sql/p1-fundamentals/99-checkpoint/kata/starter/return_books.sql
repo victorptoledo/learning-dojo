@@ -1,0 +1,2 @@
+-- todo: member 3 returns every open loan on 2026-11-15. Charge a fee of 0.25 per day overdue
+-- for the loans returned late (in fees), then close the loans.

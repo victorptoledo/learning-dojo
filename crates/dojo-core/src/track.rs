@@ -95,6 +95,8 @@ pub enum KataLanguage {
     Java,
     /// Bash scripts checked with bats and shellcheck in `dojo-linux`.
     Bash,
+    /// SQL files checked against PostgreSQL 17 in `dojo-sql`.
+    Sql,
 }
 
 impl Kata {
@@ -102,6 +104,7 @@ impl Kata {
         match self.runner.image.as_str() {
             "dojo-java" => KataLanguage::Java,
             "dojo-linux" => KataLanguage::Bash,
+            "dojo-sql" => KataLanguage::Sql,
             _ => KataLanguage::Rust,
         }
     }

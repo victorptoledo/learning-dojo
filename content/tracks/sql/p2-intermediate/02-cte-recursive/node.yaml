@@ -2,13 +2,23 @@ id: sql.p2.cte-recursive
 legacy_id: sql-02-cte-recursive
 kind: lesson
 status: draft
-title: "Common Table Expressions (CTEs) and Recursive Queries"
-summary: "Readable complex queries with `WITH`, and walking hierarchies and trees."
+title: "Common Table Expressions, Recursive Queries and Views"
+summary: "Readable queries with WITH, walking hierarchies and graphs with WITH RECURSIVE, generating series, and naming queries for reuse with views and materialized views."
 objectives:
-  - { id: o1, text: "Readable complex queries with `WITH`, and walking hierarchies and trees.", skills: [sql.cte-recursive] }
-prerequisites: [sql.p2.window-functions]
+  - { id: o1, text: "Break a complex query into named steps with WITH, and know when PostgreSQL inlines or materializes them", skills: [sql.cte-recursive] }
+  - { id: o2, text: "Walk trees and graphs with WITH RECURSIVE, with depth, paths and cycle protection", skills: [sql.cte-recursive] }
+  - { id: o3, text: "Create views and materialized views, and explain what each stores and how each is refreshed", skills: [sql.cte-recursive] }
+prerequisites: [sql.p2.subqueries]
 difficulty: 3
-estimated_minutes: 30
+estimated_minutes: 60
 xp: 300
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Categories form a tree: categories(id, name, parent_id). Write a recursive CTE that lists every category under "Sports" (at any depth) with its depth and its full path such as Sports > Running > Shoes. Explain the anchor and the recursive member, how the recursion ends, and what you would add if the data could contain a cycle. Then explain when you would wrap the query in a view and when in a materialized view.'
+  criteria:
+    - 'The anchor selects the Sports row with depth 0 and the path as its name'
+    - 'The recursive member joins categories to the CTE on parent_id = id, adding 1 to depth and appending to the path'
+    - 'Explains that the recursion stops when an iteration returns no new rows, and protects against cycles with a visited path or array check, the CYCLE clause or a depth limit'
+    - 'Says a view stores only the query (always current), a materialized view stores the result (fast reads, refreshed explicitly with REFRESH MATERIALIZED VIEW)'

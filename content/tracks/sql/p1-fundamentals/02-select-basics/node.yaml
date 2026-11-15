@@ -1,0 +1,23 @@
+id: sql.p1.select-basics
+kind: lesson
+status: draft
+title: "SELECT, WHERE, ORDER BY and Expressions"
+summary: "The anatomy of a query: the logical order in which clauses run, filters and their operators, CASE, sorting, DISTINCT and limiting the rows."
+objectives:
+  - { id: o1, text: "Explain the logical order of FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY and LIMIT", skills: [sql.select-basics] }
+  - { id: o2, text: "Filter rows with comparisons, AND/OR/NOT, IN, BETWEEN and LIKE, and compute columns with expressions and CASE", skills: [sql.select-basics] }
+  - { id: o3, text: "Sort, deduplicate and limit results portably (ORDER BY, DISTINCT, FETCH FIRST and LIMIT)", skills: [sql.select-basics] }
+prerequisites: [sql.p1.relational-model]
+difficulty: 2
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A colleague wrote SELECT name, price * 1.23 AS gross FROM products WHERE gross > 50 ORDER BY gross and it fails. Explain why, using the logical order in which the clauses are evaluated, and give two correct versions. Then write a query that labels each product as cheap (under 10), regular (10 to 50) or premium (over 50) and returns the 5 most expensive, explaining what happens with ties at the fifth place.'
+  criteria:
+    - 'Explains that WHERE runs before SELECT, so the alias does not exist yet, while ORDER BY runs after and may use it'
+    - 'Gives a fix that repeats the expression in WHERE and one that uses a subquery or CTE'
+    - 'Uses CASE with ordered WHEN branches and correct boundaries'
+    - 'Limits with FETCH FIRST 5 ROWS ONLY or LIMIT 5 after ORDER BY, and mentions WITH TIES or a tie-breaking column'

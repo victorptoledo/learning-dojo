@@ -1,0 +1,49 @@
+pass_percent: 85
+questions:
+  - id: fk-delete
+    skills: [sql.relational-model]
+    prompt: "orders.customer_id REFERENCES customers (id), with no ON DELETE option. What happens when you delete a customer who has orders?"
+    options: ["The orders are deleted too", "The delete fails: the orders still reference the customer", "The orders get customer_id NULL", "The orders stay and point to nothing"]
+    answer: 1
+    explanation: "The default action (NO ACTION) rejects a delete that would leave orphans. CASCADE and SET NULL must be asked for."
+  - id: order-of-clauses
+    skills: [sql.select-basics]
+    prompt: "Which clause is evaluated last, logically?"
+    options: ["WHERE", "HAVING", "SELECT", "ORDER BY"]
+    answer: 3
+    explanation: "FROM, WHERE, GROUP BY, HAVING, SELECT, DISTINCT, ORDER BY, then LIMIT or FETCH FIRST."
+  - id: unknown-and
+    skills: [sql.nulls]
+    prompt: "What is FALSE AND UNKNOWN?"
+    options: ["TRUE", "FALSE", "UNKNOWN", "An error"]
+    answer: 1
+    explanation: "FALSE AND anything is FALSE, so the UNKNOWN does not matter. TRUE AND UNKNOWN would be UNKNOWN."
+  - id: distinct-from
+    skills: [sql.nulls]
+    prompt: "Which condition is TRUE when old_email and new_email are both NULL?"
+    options: ["old_email = new_email", "old_email IS NOT DISTINCT FROM new_email", "old_email <> new_email", "old_email IS DISTINCT FROM new_email"]
+    answer: 1
+    explanation: "IS NOT DISTINCT FROM is a null-safe equality: two NULLs are not distinct. = gives UNKNOWN."
+  - id: full-join
+    skills: [sql.joins]
+    prompt: "Which join keeps unmatched rows from BOTH tables?"
+    answers: ["FULL JOIN", "FULL OUTER JOIN"]
+    explanation: "FULL OUTER JOIN keeps every row of both sides and fills the missing side with NULLs. MySQL lacks it."
+  - id: fan-out-sum
+    skills: [sql.joins, sql.aggregation]
+    prompt: "You join authors to books and to loans and compute count(b.id). An author has 2 books with 3 loans each. What does count(b.id) give?"
+    options: ["2", "3", "6", "5"]
+    answer: 2
+    explanation: "Each book repeats once per loan, so there are 6 rows. count(DISTINCT b.id) gives 2."
+  - id: having-filter
+    skills: [sql.aggregation]
+    prompt: "Where does the condition 'only customers with more than 5 orders' go?"
+    options: ["WHERE count(*) > 5", "HAVING count(*) > 5", "ORDER BY count(*) > 5", "GROUP BY count(*) > 5"]
+    answer: 1
+    explanation: "Conditions on aggregates go in HAVING, which filters groups after GROUP BY."
+  - id: upsert-key
+    skills: [sql.dml]
+    prompt: "What must exist for INSERT ... ON CONFLICT (email) DO UPDATE to work?"
+    options: ["A trigger on email", "A unique constraint or unique index on email", "A foreign key on email", "Nothing"]
+    answer: 1
+    explanation: "ON CONFLICT names a conflict target backed by a unique constraint or index; without one PostgreSQL rejects the statement."

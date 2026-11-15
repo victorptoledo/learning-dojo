@@ -1,0 +1,30 @@
+questions:
+  - id: check-null
+    prompt: "A column seats integer CHECK (seats > 0) without NOT NULL. Is INSERT ... (seats) VALUES (NULL) accepted?"
+    options: ["No: NULL > 0 is not TRUE", "Yes: a CHECK rejects only FALSE, and NULL > 0 is UNKNOWN", "Only in MySQL", "It depends on the index"]
+    answer: 1
+    explanation: "CHECK constraints reject FALSE only. Add NOT NULL when the value is required."
+  - id: unique-sqlstate
+    prompt: "Which SQLSTATE does PostgreSQL report when an INSERT breaks a UNIQUE constraint?"
+    answers: ["23505"]
+    explanation: "23505 unique_violation. The class 23 holds every integrity violation: 23502 not null, 23503 foreign key, 23514 check."
+  - id: cascade
+    prompt: "order_lines.order_id REFERENCES orders (id) ON DELETE CASCADE. What does deleting an order do?"
+    options: ["Fails while lines exist", "Deletes the order and its lines", "Sets the lines' order_id to NULL", "Deletes only the order"]
+    answer: 1
+    explanation: "CASCADE deletes the children with the parent; the default NO ACTION would reject the delete."
+  - id: fk-index
+    prompt: "Why index invoices.account_id when it references accounts (id)?"
+    options: ["PostgreSQL requires it for the foreign key", "So that deleting or changing an account does not scan the whole invoices table, and joins are fast", "Indexes make the constraint deferrable", "It is never useful"]
+    answer: 1
+    explanation: "The referenced key is indexed by its PRIMARY KEY, but the referencing column is not indexed automatically."
+  - id: overlap
+    prompt: "Which constraint can stop two bookings of the same room from overlapping in time?"
+    options: ["UNIQUE (room_id, starts_at)", "CHECK (ends_at > starts_at)", "An exclusion constraint on (room_id WITH =, during WITH &&)", "A foreign key to rooms"]
+    answer: 2
+    explanation: "UNIQUE compares equality only and CHECK sees one row. EXCLUDE with the overlap operator && compares ranges across rows."
+  - id: not-valid
+    prompt: "What does ADD CONSTRAINT ... CHECK (...) NOT VALID do on a large table?"
+    options: ["Disables the constraint", "Enforces it for new and changed rows without scanning the existing ones; VALIDATE CONSTRAINT checks them later", "Deletes invalid rows", "Checks only the first 1000 rows"]
+    answer: 1
+    explanation: "NOT VALID skips the long scan under a write-blocking lock; VALIDATE CONSTRAINT scans later with a weaker lock."

@@ -1,0 +1,30 @@
+questions:
+  - id: declarative
+    prompt: "What does it mean that SQL is declarative?"
+    options: ["You declare variables before using them", "You describe the result you want and the engine chooses how to compute it", "Every statement must be declared in a schema first", "Queries run in the order you write the clauses"]
+    answer: 1
+    explanation: "A query states what rows you want; the planner picks scans, indexes and join algorithms."
+  - id: dml-family
+    prompt: "Which statement belongs to DML, the data manipulation language?"
+    options: ["CREATE TABLE", "GRANT", "UPDATE", "COMMIT"]
+    answer: 2
+    explanation: "INSERT, UPDATE, DELETE and MERGE change rows. CREATE is DDL, GRANT access control, COMMIT transaction control."
+  - id: strings
+    prompt: "Which literal is the text Lisbon in standard SQL?"
+    options: ["\"Lisbon\"", "'Lisbon'", "`Lisbon`", "[Lisbon]"]
+    answer: 1
+    explanation: "Single quotes delimit strings. Double quotes delimit names (identifiers); backticks and brackets are MySQL and SQL Server ways to quote names."
+  - id: psql-describe
+    prompt: "In psql, which command shows the columns, types and indexes of the table orders?"
+    answers: ["\\d orders", "\\d+ orders"]
+    explanation: "\\d describes a relation; \\d+ adds storage details and comments. \\dt lists tables."
+  - id: folding
+    prompt: "In PostgreSQL you create a table with CREATE TABLE Customers (...). What is its name in the catalog?"
+    options: ["Customers", "customers", "CUSTOMERS", "It fails: names must be lower case"]
+    answer: 1
+    explanation: "PostgreSQL folds unquoted names to lower case. Only \"Customers\" in double quotes would keep the capital C, and then every query must quote it too."
+  - id: standard
+    prompt: "Which statement about the SQL standard is true?"
+    options: ["Every engine implements all of it", "It stopped changing in 1992", "Engines implement parts of it and add their own extensions", "Only PostgreSQL follows it"]
+    answer: 2
+    explanation: "SQL:2023 is the latest edition; engines cover a large shared core, differ at the edges and add features of their own."

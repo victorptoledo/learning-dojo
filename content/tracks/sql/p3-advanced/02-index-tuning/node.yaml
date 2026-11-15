@@ -1,0 +1,46 @@
+id: sql.p3.index-tuning
+kind: kata
+status: draft
+title: "Index Tuning: Make Three Queries Fast with Three Indexes"
+summary: "Read the plans of three slow queries on 200 000 orders, design a composite, an expression and a partial index that serve them, and rewrite a non-sargable query so it can use an index."
+objectives:
+  - { id: o1, text: "Design composite, expression and partial indexes from a query and verify them with EXPLAIN", skills: [sql.indexes-plans] }
+  - { id: o2, text: "Rewrite a non-sargable condition into a range that an index can serve, without changing the result", skills: [sql.indexes-plans] }
+prerequisites: [sql.p3.indexes-plans]
+difficulty: 4
+estimated_minutes: 75
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 90 }
+  hints:
+    - |-
+      Open the kata in `dojo-sql play` and run `EXPLAIN` on each query of the README. Where does each plan read rows it then throws away (a `Filter:` line), and where does it sort? Which columns does each query test with `=`, and which one does it order by? For the email, what does the query compare: `email`, or something computed from it?
+    - |-
+      Equality columns first, then the sort column: an index on `(customer_id, placed_at)` returns one customer's orders already ordered, so `LIMIT 10` stops early. The email lookup needs an expression index on `lower(email)`. Pending orders are 1% of the table: a partial index `ON orders (placed_at) WHERE status = 'pending'` (or `(status, placed_at)`) holds just them. For March, replace `date_trunc` on the column by a half-open range on `placed_at`.
+    - |-
+      ```sql
+      -- indexes.sql
+      CREATE INDEX orders_customer_placed ON orders (customer_id, placed_at);
+      CREATE INDEX customers_email_lower ON customers (...);
+      CREATE INDEX orders_pending ON orders (...) WHERE ...;
+
+      -- march_orders.sql
+      SELECT count(*) AS orders, sum(total) AS revenue
+      FROM orders
+      WHERE placed_at >= ... AND placed_at < ...
+        AND status = 'paid';
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

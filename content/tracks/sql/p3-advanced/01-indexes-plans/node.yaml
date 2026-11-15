@@ -1,0 +1,23 @@
+id: sql.p3.indexes-plans
+kind: lesson
+status: draft
+title: "Indexes and Query Plans"
+summary: "How a B-tree index works, which conditions can use one (sargable predicates), composite, covering, partial and expression indexes, what indexes cost, and reading EXPLAIN and EXPLAIN ANALYZE."
+objectives:
+  - { id: o1, text: "Explain how a B-tree index finds rows and which WHERE and ORDER BY clauses can use it", skills: [sql.indexes-plans] }
+  - { id: o2, text: "Design composite, covering, partial and expression indexes and weigh their cost on writes", skills: [sql.indexes-plans] }
+  - { id: o3, text: "Read EXPLAIN and EXPLAIN ANALYZE: scans, joins, estimated against actual rows", skills: [sql.indexes-plans] }
+prerequisites: [sql.p2.checkpoint]
+difficulty: 4
+estimated_minutes: 70
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A page runs SELECT id, total FROM orders WHERE customer_id = $1 AND status = ''paid'' ORDER BY placed_at DESC LIMIT 20 on a table of 50 million rows, and it is slow. Describe how you would investigate it with EXPLAIN (ANALYZE, BUFFERS), propose one index and explain the order of its columns, and say which plan you expect afterwards. Then explain why WHERE date(placed_at) = ''2026-03-01'' cannot use an index on placed_at and how to rewrite it.'
+  criteria:
+    - 'Reads the plan for the scan type, estimated versus actual rows, rows removed by filter and buffers'
+    - 'Proposes an index such as (customer_id, status, placed_at DESC) or (customer_id, placed_at DESC) with a reason for the column order: equality columns first, then the sort column'
+    - 'Expects an index scan that returns rows already ordered, stopping after 20 rows (no sort of all matches)'
+    - 'Explains that a function on the column hides it from the index, and rewrites to a half-open range placed_at >= ... AND placed_at < ... (or an expression index)'

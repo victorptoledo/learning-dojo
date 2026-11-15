@@ -1,0 +1,23 @@
+id: sql.p2.normalisation
+kind: lesson
+status: draft
+title: "Normalisation and Schema Design"
+summary: "Why redundancy causes update anomalies, functional dependencies, the normal forms from 1NF to BCNF in plain words, modelling one-to-many and many-to-many relationships, and when to denormalise on purpose."
+objectives:
+  - { id: o1, text: "Spot update, insert and delete anomalies and trace them to a functional dependency", skills: [sql.normalisation] }
+  - { id: o2, text: "Bring a table to 1NF, 2NF, 3NF and BCNF, and model one-to-one, one-to-many and many-to-many relationships", skills: [sql.normalisation] }
+  - { id: o3, text: "Judge when to denormalise (snapshots, history, read models) and how to keep the copies correct", skills: [sql.normalisation] }
+prerequisites: [sql.p2.constraints-keys]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A course platform keeps one spreadsheet-like table: enrolments(student_email, student_name, course_code, course_title, teacher_name, teacher_email, enrolled_on, grade). Name the anomalies this design invites with concrete examples, list the functional dependencies you see, and decompose it into normalised tables with keys and foreign keys. Then name one piece of data you would deliberately copy (denormalise) in a real system and why.'
+  criteria:
+    - 'Gives update, insert and delete anomalies with examples (renaming a course in many rows, a course with no students, losing a teacher when the last enrolment goes)'
+    - 'States dependencies such as student_email -> student_name, course_code -> course_title, teacher_name; teacher_email -> teacher_name'
+    - 'Decomposes into students, teachers, courses and enrolments with primary keys and foreign keys, enrolments keyed by student and course'
+    - 'Justifies a deliberate copy, such as the price or title at the time of purchase, or a cached counter, and says how it stays correct'

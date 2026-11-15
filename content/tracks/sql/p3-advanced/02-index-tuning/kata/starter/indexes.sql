@@ -1,0 +1,2 @@
+-- todo: at most three CREATE INDEX statements that make the three queries of the README use
+-- an index with no Seq Scan, no Sort and no Filter in their plans.

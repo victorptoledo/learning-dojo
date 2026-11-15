@@ -1,0 +1,23 @@
+id: sql.p1.relational-model
+kind: lesson
+status: draft
+title: "The Relational Model: Tables, Keys and Data Types"
+summary: "Relations, rows and columns, primary and foreign keys, the main data types and CREATE TABLE, with the ideas from relational algebra that every query is built on."
+objectives:
+  - { id: o1, text: "Describe tables, rows, columns, primary keys and foreign keys, and why rows have no order", skills: [sql.relational-model] }
+  - { id: o2, text: "Choose fitting data types for text, numbers, money, dates and times, and booleans", skills: [sql.relational-model] }
+  - { id: o3, text: "Create, alter and drop tables with CREATE TABLE, ALTER TABLE and DROP TABLE", skills: [sql.relational-model] }
+prerequisites: [sql.p0.first-queries]
+difficulty: 2
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write the CREATE TABLE statements for a small library: authors, books (each by one author) and members. Choose a type for every column and justify three of the choices (for example the key, a price or fee, and a date or timestamp). Then explain why SELECT * FROM books may return the rows in a different order tomorrow.'
+  criteria:
+    - 'Every table has a primary key, and books references authors with a foreign key'
+    - 'Uses numeric (not float) for money and date or timestamptz for points in time, and explains why'
+    - 'Uses NOT NULL where a value is required'
+    - 'Explains that a table is a set of rows with no defined order, so only ORDER BY guarantees one'

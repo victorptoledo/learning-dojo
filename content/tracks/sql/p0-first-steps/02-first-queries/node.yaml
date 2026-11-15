@@ -1,0 +1,40 @@
+id: sql.p0.first-queries
+kind: kata
+status: draft
+title: "First Queries: Your First SQL Kata"
+summary: "Write three small SELECT queries over a product table and see how SQL katas are checked on PostgreSQL."
+objectives:
+  - { id: o1, text: "Write SELECT queries that pick columns, filter rows and sort them", skills: [sql.setup, sql.select-basics] }
+prerequisites: [sql.p0.setup]
+difficulty: 1
+estimated_minutes: 20
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 60 }
+  hints:
+    - |-
+      Open the kata in `dojo-sql play` and run `\d products`. Which columns does each question ask for, and in which order? `SELECT name, price FROM products` is half of the first answer; what puts the rows in order?
+    - |-
+      `ORDER BY name` sorts; `ORDER BY price, name` sorts by price and breaks ties by name. Filters go in `WHERE`, and several conditions are joined with `AND`: "below 20" is `price < 20`, "in stock" is `stock > 0`. `SELECT DISTINCT category` removes repeated values.
+    - |-
+      ```sql
+      -- cheap_products.sql
+      SELECT name, price
+      FROM products
+      WHERE ... AND ...
+      ORDER BY ..., ...;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

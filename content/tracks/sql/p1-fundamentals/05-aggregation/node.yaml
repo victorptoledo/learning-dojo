@@ -1,0 +1,23 @@
+id: sql.p1.aggregation
+kind: lesson
+status: draft
+title: "Aggregation, GROUP BY and HAVING"
+summary: "Aggregate functions, grouping rows, filtering groups with HAVING, conditional aggregation with FILTER and CASE, and grouping sets for subtotals."
+objectives:
+  - { id: o1, text: "Summarise rows with count, sum, avg, min, max and string_agg, and group them with GROUP BY", skills: [sql.aggregation] }
+  - { id: o2, text: "Filter groups with HAVING and explain why non-grouped columns cannot be selected", skills: [sql.aggregation] }
+  - { id: o3, text: "Write conditional aggregates with FILTER or CASE, and subtotals with ROLLUP and GROUPING SETS", skills: [sql.aggregation] }
+prerequisites: [sql.p1.joins]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'For orders(id, customer_id, placed_at, status, total), write one query that returns, per calendar month of 2026, the number of orders, the number of cancelled orders, the revenue of non-cancelled orders and the average order value, keeping only months with more than 100 orders. Explain the role of WHERE, GROUP BY and HAVING in your query, and why SELECT customer_id, placed_at, count(*) FROM orders GROUP BY customer_id is rejected.'
+  criteria:
+    - 'Groups by date_trunc or extract on the month and filters the year in WHERE with a range'
+    - 'Uses count(*) FILTER (WHERE ...) or sum(CASE ...) for the conditional counts and sums'
+    - 'Puts the more than 100 orders condition in HAVING and explains WHERE filters rows before grouping'
+    - 'Explains that placed_at is neither grouped nor aggregated, so one group would need several values'

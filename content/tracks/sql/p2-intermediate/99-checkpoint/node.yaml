@@ -1,0 +1,48 @@
+id: sql.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz over subqueries, CTEs, views, window functions, constraints and normalisation, and a kata where you design a ticketing schema that rejects bad data and report on it."
+objectives:
+  - { id: o1, text: "Explain subqueries, CTEs, views, window functions, constraints and normal forms in your own words", skills: [sql.subqueries, sql.cte-recursive, sql.window-functions, sql.constraints-keys, sql.normalisation] }
+  - { id: o2, text: "Design a normalised schema whose constraints reject invalid data, and query it with a CTE and a window function", skills: [sql.constraints-keys, sql.normalisation, sql.window-functions, sql.subqueries] }
+prerequisites: [sql.p2.normalisation]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+closes_phase: p2
+covers_skills: [sql.subqueries, sql.cte-recursive, sql.window-functions, sql.constraints-keys, sql.normalisation]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 90 }
+  hints:
+    - |-
+      Go through the rules in the README one by one and ask, for each: is it NOT NULL, CHECK, UNIQUE, a primary key or a foreign key, and with which ON DELETE action? Which rule compares two columns of the same row, and which compares two rows? For `availability.sql`, how do you count tickets so that an event with none still shows up with 0?
+    - |-
+      Order matters in `schema.sql`: create a table before the tables that reference it. `CHECK (capacity > 0)`, `CHECK (ends_at > starts_at)` and `CHECK (price >= 0)` are row rules; "a seat is sold once per event" is `UNIQUE (event_id, seat)`. Tickets disappear with their event: `REFERENCES events (id) ON DELETE CASCADE`; a customer with tickets cannot be deleted: the default action (or `ON DELETE RESTRICT`). For the report, `LEFT JOIN tickets`, group per event, then `dense_rank() OVER (PARTITION BY venue ORDER BY sold DESC)` on the grouped rows.
+    - |-
+      ```sql
+      -- schema.sql (one of the four tables)
+      CREATE TABLE tickets (
+          id          integer PRIMARY KEY,
+          event_id    integer NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+          customer_id integer NOT NULL REFERENCES customers (id),
+          seat        text NOT NULL,
+          price       numeric(8, 2) NOT NULL CHECK (...),
+          UNIQUE (...)
+      );
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

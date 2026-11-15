@@ -1,0 +1,31 @@
+questions:
+  - id: row-order
+    prompt: "You run SELECT * FROM orders twice, with no ORDER BY. What is guaranteed about the order of the rows?"
+    options: ["They come in insertion order", "They come ordered by the primary key", "Nothing: without ORDER BY the order is undefined", "They come in the same order both times"]
+    answer: 2
+    explanation: "A table is a set of rows. The engine returns them in whatever order its plan produces; only ORDER BY promises one."
+  - id: money-type
+    prompt: "Which PostgreSQL type fits a product price?"
+    options: ["real", "double precision", "numeric(10, 2)", "text"]
+    answer: 2
+    explanation: "numeric is exact. Floats cannot represent most decimal fractions exactly, so sums of prices drift."
+  - id: foreign-key
+    prompt: "orders.customer_id REFERENCES customers (id). What happens when you insert an order with customer_id 999 and no customer 999 exists?"
+    options: ["The order is inserted with customer_id NULL", "The insert fails with a foreign key violation", "A customer 999 is created", "The insert succeeds; foreign keys are only documentation"]
+    answer: 1
+    explanation: "A foreign key is checked on every write: the referenced key must exist."
+  - id: primary-key
+    prompt: "Which two properties does a primary key enforce?"
+    options: ["Unique and not null", "Indexed and sorted", "Numeric and increasing", "Unique and immutable"]
+    answer: 0
+    explanation: "A primary key is UNIQUE plus NOT NULL. It is usually indexed as a side effect, but nothing forces it to be a number or to never change."
+  - id: timestamptz
+    prompt: "What does a timestamptz column store?"
+    options: ["A time and the name of its time zone", "An instant in time, converted to the session's zone on output", "A local wall-clock time", "A date without a time"]
+    answer: 1
+    explanation: "timestamptz stores an absolute instant (internally UTC) and converts on input and output; the zone itself is not kept."
+  - id: projection
+    prompt: "In relational algebra, which SQL part performs the projection (keeping some columns)?"
+    options: ["WHERE", "The SELECT list", "ORDER BY", "FROM"]
+    answer: 1
+    explanation: "Projection picks columns: the SELECT list. Selection picks rows: WHERE."

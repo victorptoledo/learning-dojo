@@ -1,0 +1,30 @@
+questions:
+  - id: cte-scope
+    prompt: "How long does a CTE defined with WITH exist?"
+    options: ["Until the session ends", "Only for the one statement it belongs to", "Until the transaction commits", "Until you DROP it"]
+    answer: 1
+    explanation: "A CTE is part of one statement. To keep a named query, create a view."
+  - id: recursive-parts
+    prompt: "In WITH RECURSIVE, what does the recursive member read on each iteration?"
+    options: ["The whole base table again", "Only the rows produced by the previous iteration", "Every row found so far", "The anchor only"]
+    answer: 1
+    explanation: "Each step works on the rows added in the last step (the working table); the recursion ends when a step adds none."
+  - id: cycle
+    prompt: "A recursive query over flights never finishes. What is the most likely cause?"
+    options: ["A missing index", "A cycle in the data with UNION ALL and no visited-path check", "Too many columns", "The anchor returns no rows"]
+    answer: 1
+    explanation: "With a cycle, each step finds rows again forever. Track the visited nodes, use the CYCLE clause, or limit the depth."
+  - id: inline
+    prompt: "In PostgreSQL 12 and later, what happens by default to a CTE that is referenced once and has no side effects?"
+    options: ["It is always materialized into a temporary table", "It is inlined into the main query and optimised with it", "It is cached between queries", "It runs in parallel"]
+    answer: 1
+    explanation: "Single-use, side-effect-free CTEs are inlined. AS MATERIALIZED forces the old behaviour."
+  - id: view-data
+    prompt: "What does a normal (not materialized) view store?"
+    options: ["A copy of the rows at creation time", "Only the query; each use runs it", "An index on the base tables", "The rows changed since the last refresh"]
+    answer: 1
+    explanation: "A view is a stored query, always current. A materialized view stores its result and needs REFRESH."
+  - id: refresh
+    prompt: "Which statement recomputes a materialized view called monthly_revenue?"
+    answers: ["REFRESH MATERIALIZED VIEW monthly_revenue", "REFRESH MATERIALIZED VIEW CONCURRENTLY monthly_revenue", "refresh materialized view monthly_revenue"]
+    explanation: "REFRESH MATERIALIZED VIEW reruns the query; CONCURRENTLY lets readers continue but needs a unique index."

@@ -1,0 +1,2 @@
+-- todo: every customer with their number of paid orders and the revenue of those orders
+-- (0 and 0 when they have none). Highest revenue first, then by name.

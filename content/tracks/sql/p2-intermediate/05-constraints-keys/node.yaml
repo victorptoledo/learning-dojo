@@ -1,0 +1,23 @@
+id: sql.p2.constraints-keys
+kind: lesson
+status: draft
+title: "Constraints and Keys"
+summary: "Letting the database guarantee valid data: NOT NULL, CHECK, UNIQUE, primary and composite keys, foreign keys with their ON DELETE actions, exclusion constraints, generated columns, and adding constraints to tables that already hold data."
+objectives:
+  - { id: o1, text: "Declare NOT NULL, CHECK, UNIQUE, primary key and foreign key constraints and predict which writes they reject", skills: [sql.constraints-keys] }
+  - { id: o2, text: "Choose ON DELETE and ON UPDATE actions, composite and surrogate keys, and deferrable constraints", skills: [sql.constraints-keys] }
+  - { id: o3, text: "Add constraints to large existing tables safely and read the SQLSTATE of a violation", skills: [sql.constraints-keys] }
+prerequisites: [sql.p2.window-functions]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the constraints for a booking system with rooms(id, name, capacity) and bookings(id, room_id, guest_email, starts_at, ends_at, guests). List every rule you would enforce in the database (not only in the application), write the DDL for them, and say what should happen to bookings when a room is deleted. Explain why "check it in the application" is not enough, and how you would add a new NOT NULL or CHECK constraint to a bookings table with 50 million rows without a long outage.'
+  criteria:
+    - 'Enforces keys, a foreign key from bookings to rooms, NOT NULL on required columns and CHECKs such as ends_at > starts_at and guests > 0'
+    - 'Prevents overlapping bookings of the same room (an exclusion constraint with tstzrange, or explains the race of checking in the application)'
+    - 'Chooses and justifies an ON DELETE action (RESTRICT to keep history, or CASCADE) for room deletion'
+    - 'Explains that constraints hold for every writer and every race, and adds constraints as NOT VALID followed by VALIDATE CONSTRAINT (or an equivalent online approach)'

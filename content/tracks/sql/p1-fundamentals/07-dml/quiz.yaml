@@ -1,0 +1,30 @@
+questions:
+  - id: no-where
+    prompt: "What does UPDATE products SET price = 0 do?"
+    options: ["Nothing: UPDATE requires WHERE", "Sets the price of every row to 0", "Sets the price of the first row to 0", "Asks for confirmation"]
+    answer: 1
+    explanation: "Without WHERE, UPDATE and DELETE affect every row. Check the WHERE with a SELECT first and work inside a transaction."
+  - id: returning
+    prompt: "In PostgreSQL, how do you get the generated id of a row you just inserted, in the same statement?"
+    answers: ["RETURNING id", "returning id"]
+    explanation: "INSERT ... RETURNING id returns the new key. SQL Server uses OUTPUT inserted.id, MySQL LAST_INSERT_ID()."
+  - id: excluded
+    prompt: "In INSERT ... ON CONFLICT (page) DO UPDATE SET views = page_views.views + EXCLUDED.views, what is EXCLUDED?"
+    options: ["The row already in the table", "The row the INSERT tried to add", "Rows deleted by the statement", "A table of conflicting keys"]
+    answer: 1
+    explanation: "EXCLUDED holds the proposed row; the table name (page_views) refers to the existing row."
+  - id: race
+    prompt: "Why is 'SELECT the row; if missing INSERT it, else UPDATE it' from the application unsafe?"
+    options: ["SELECT locks the whole table", "Two sessions can both see no row and both insert, causing a duplicate or an error", "UPDATE cannot follow SELECT", "It is safe"]
+    answer: 1
+    explanation: "Check-then-act races. A single INSERT ... ON CONFLICT, backed by a unique constraint, is atomic."
+  - id: mysql-upsert
+    prompt: "Which is MySQL's upsert syntax?"
+    options: ["ON CONFLICT DO UPDATE", "ON DUPLICATE KEY UPDATE", "MERGE ... WHEN MATCHED", "UPSERT INTO"]
+    answer: 1
+    explanation: "MySQL uses INSERT ... ON DUPLICATE KEY UPDATE. PostgreSQL and SQLite use ON CONFLICT; SQL Server and Oracle MERGE."
+  - id: truncate
+    prompt: "How is TRUNCATE orders different from DELETE FROM orders?"
+    options: ["TRUNCATE keeps the rows and deletes the table", "TRUNCATE empties the table without visiting rows: faster, stronger lock, no row triggers", "There is no difference", "DELETE cannot remove all rows"]
+    answer: 1
+    explanation: "TRUNCATE drops the table's storage at once. In PostgreSQL it is transactional, but it locks the table exclusively."

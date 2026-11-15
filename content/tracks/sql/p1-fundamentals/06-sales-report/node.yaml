@@ -1,0 +1,45 @@
+id: sql.p1.sales-report
+kind: kata
+status: draft
+title: "Sales Report: Joins and Aggregates over a Shop"
+summary: "Answer four questions about a shop's orders with joins, GROUP BY, HAVING, NULL handling and anti joins, and dodge the fan-out trap."
+objectives:
+  - { id: o1, text: "Combine inner and outer joins with GROUP BY to build per-customer and per-month reports", skills: [sql.joins, sql.aggregation] }
+  - { id: o2, text: "Keep rows without matches, turn missing sums into 0 and count without fan-out", skills: [sql.nulls, sql.joins] }
+prerequisites: [sql.p1.aggregation]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with `never_ordered.sql`: which products have no row in `order_items`? Then build the others one join at a time and look at the raw rows before you group. For `revenue_by_customer.sql`: how do you keep customers with no paid orders, and why would `count(o.id)` say Ada has 6 orders?
+    - |-
+      Revenue is `sum(i.quantity * i.unit_price)`. Keep every customer with `customers LEFT JOIN orders ON ... AND o.status = 'paid' LEFT JOIN order_items ON ...`: the status test belongs in `ON`. Each order appears once per item, so count `DISTINCT o.id`, and `coalesce(sum(...), 0)` turns the NULL of a customer without orders into 0. For the months: `date_trunc('month', placed_at)::date`, a range on `placed_at` in `WHERE`, and the revenue condition in `HAVING`.
+    - |-
+      ```sql
+      -- revenue_by_customer.sql
+      SELECT c.name,
+             count(DISTINCT o.id) AS paid_orders,
+             coalesce(sum(i.quantity * i.unit_price), 0) AS revenue
+      FROM customers c
+      LEFT JOIN orders o ON ...
+      LEFT JOIN order_items i ON ...
+      GROUP BY c.id, c.name
+      ORDER BY ...;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

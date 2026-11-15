@@ -1,0 +1,30 @@
+questions:
+  - id: arrow-text
+    prompt: "What type does payload ->> 'total' return in PostgreSQL?"
+    options: ["jsonb", "numeric", "text", "It depends on the value"]
+    answer: 2
+    explanation: "->> extracts as text; -> keeps jsonb. Cast before comparing numbers: (payload ->> 'total')::numeric."
+  - id: jsonb-vs-json
+    prompt: "Why is jsonb usually preferred over json?"
+    options: ["It keeps the exact text and key order", "It is stored parsed, so queries are faster and it can be indexed with GIN", "It allows duplicate keys", "It is the only type MySQL understands"]
+    answer: 1
+    explanation: "jsonb is binary and parsed once; json keeps the original text and is reparsed on every access."
+  - id: containment
+    prompt: "Which operator tests whether a jsonb document contains the fragment {\"status\": \"paid\"}?"
+    answers: ["@>"]
+    explanation: "doc @> '{\"status\": \"paid\"}' is containment, and a GIN index on the column can serve it."
+  - id: unnest
+    prompt: "Which function turns a JSON array into one row per element?"
+    options: ["jsonb_each", "jsonb_array_elements", "json_agg", "jsonb_set"]
+    answer: 1
+    explanation: "jsonb_array_elements unnests an array (use it with CROSS JOIN LATERAL). jsonb_each unnests an object's keys; json_agg does the opposite."
+  - id: promote
+    prompt: "Which payload field should become a real column?"
+    options: ["A rarely read debug note", "The customer id every report joins on and that must reference customers", "A free-form preferences object", "The raw webhook body kept for audit"]
+    answer: 1
+    explanation: "Fields you join, filter, sort on or constrain belong in typed columns, where they get foreign keys, statistics and plain indexes."
+  - id: missing-key
+    prompt: "What does payload ->> 'coupon' return for a document without that key?"
+    options: ["An error", "An empty string", "NULL", "The string 'null'"]
+    answer: 2
+    explanation: "A missing key yields SQL NULL, so a WHERE on it simply does not match."

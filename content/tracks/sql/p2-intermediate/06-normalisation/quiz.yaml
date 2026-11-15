@@ -1,0 +1,30 @@
+questions:
+  - id: anomaly
+    prompt: "A customer's name is stored in every order row. Renaming the customer requires changing many rows, and missing one leaves two names. Which anomaly is this?"
+    options: ["Insert anomaly", "Update anomaly", "Delete anomaly", "Phantom read"]
+    answer: 1
+    explanation: "Redundant copies must all be updated together; when they are not, the data contradicts itself."
+  - id: first-nf
+    prompt: "Which design breaks first normal form?"
+    options: ["A column tags holding 'sql,postgres,db'", "A foreign key to a lookup table", "A composite primary key", "A nullable column"]
+    answer: 0
+    explanation: "1NF asks for one value per cell. A list in a text column cannot be constrained, indexed or joined properly."
+  - id: second-nf
+    prompt: "order_lines is keyed by (order_id, product_code) and has a column product_name. Which normal form does that break?"
+    answers: ["2NF", "second normal form", "2"]
+    explanation: "product_name depends on product_code alone, part of the key: a partial dependency."
+  - id: many-to-many
+    prompt: "How do you model students enrolling in many courses, each course with many students?"
+    options: ["A course_ids column in students", "A junction table enrolments (student_id, course_id) with two foreign keys", "A student_id column in courses", "One table with every student and course column"]
+    answer: 1
+    explanation: "Many-to-many relationships get their own table keyed by the pair, which can also hold attributes such as the enrolment date."
+  - id: price-copy
+    prompt: "Why is copying the unit price into order_lines not a normalisation error?"
+    options: ["Because prices never change", "Because it is a different fact: the price the customer paid at that time", "Because numeric columns are exempt", "It is an error"]
+    answer: 1
+    explanation: "The catalogue price changes; the price of a past order must not. It is history, not redundancy."
+  - id: dependency
+    prompt: "What does the functional dependency email → name mean?"
+    options: ["Every email is unique", "Rows with the same email always have the same name", "Names are derived from emails", "Email must be the primary key"]
+    answer: 1
+    explanation: "A → B means equal A values imply equal B values. When A is not a key, the fact A → B belongs in its own table."

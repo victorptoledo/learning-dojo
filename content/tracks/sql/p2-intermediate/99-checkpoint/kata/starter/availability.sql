@@ -1,0 +1,2 @@
+-- todo: per event: title, venue name, tickets sold, seats left and the event's rank inside
+-- its venue by tickets sold. Order by venue name, rank, title.

@@ -1,0 +1,48 @@
+id: sql.p3.job-queue
+kind: kata
+status: draft
+title: "Job Queue: Claiming Work Safely with SKIP LOCKED"
+summary: "Build the SQL of a job queue in a table: claim the next job without two workers taking the same one, retry failures with exponential backoff, release stuck jobs and report on the queues."
+objectives:
+  - { id: o1, text: "Claim rows concurrently with UPDATE ... WHERE id = (SELECT ... FOR UPDATE SKIP LOCKED) and RETURNING", skills: [sql.transactions] }
+  - { id: o2, text: "Write single-statement state transitions with CASE and conditional aggregates over a queue", skills: [sql.transactions, sql.dml, sql.aggregation] }
+prerequisites: [sql.p3.transactions]
+difficulty: 4
+estimated_minutes: 75
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 90 }
+  hints:
+    - |-
+      Claiming is "find the next job, then mark it as mine". If those are two statements, what can a second worker do in between? How can one `UPDATE` find its row with a subquery, and what should that subquery do with a job another worker has locked right now: wait, fail, or skip it?
+    - |-
+      `UPDATE jobs SET ... WHERE id = (SELECT id FROM jobs WHERE ... ORDER BY priority DESC, run_at, id LIMIT 1 FOR UPDATE SKIP LOCKED) RETURNING id, attempts`. For the failure, one `UPDATE` with `CASE WHEN attempts >= max_attempts THEN 'dead' ELSE 'ready' END`, and the backoff `TIMESTAMPTZ '2026-11-15 12:00+00' + INTERVAL '30 seconds' * power(2, attempts)`. The statistics are `count(*) FILTER (WHERE ...)` per queue.
+    - |-
+      ```sql
+      -- claim.sql
+      UPDATE jobs
+      SET status = 'running', locked_by = 'worker-1',
+          locked_at = TIMESTAMPTZ '2026-11-15 12:00+00', attempts = attempts + 1
+      WHERE id = (
+          SELECT id FROM jobs
+          WHERE queue = 'emails' AND status = 'ready' AND run_at <= ...
+          ORDER BY ...
+          LIMIT 1
+          FOR UPDATE SKIP LOCKED
+      )
+      RETURNING id, attempts;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

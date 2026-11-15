@@ -1,0 +1,2 @@
+-- todo: authors with at least 2 books: name, number of books, number of loans of their
+-- books. Most loans first, then by name.

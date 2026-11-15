@@ -1,0 +1,3 @@
+-- todo: for every row of daily_sales: day, revenue, month-to-date total, change from the
+-- previous row (NULL for the first), and the average of this row and the 2 rows before it
+-- rounded to 2 decimals. Oldest day first.

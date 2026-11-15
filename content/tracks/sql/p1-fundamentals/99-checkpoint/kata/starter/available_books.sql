@@ -1,0 +1,2 @@
+-- todo: the titles of the books that are not out on loan right now (no open loan),
+-- alphabetically.

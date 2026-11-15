@@ -1,0 +1,30 @@
+questions:
+  - id: alias-where
+    prompt: "Why does SELECT price * 2 AS doubled FROM products WHERE doubled > 10 fail?"
+    options: ["Aliases need double quotes", "WHERE is evaluated before SELECT, so the alias does not exist yet", "You cannot multiply in SELECT", "WHERE only accepts columns of type integer"]
+    answer: 1
+    explanation: "Logically FROM and WHERE run before SELECT. ORDER BY runs after, so it may use the alias."
+  - id: and-or
+    prompt: "Which rows does WHERE a = 1 OR b = 2 AND c = 3 keep?"
+    options: ["(a = 1 OR b = 2) AND c = 3", "a = 1 OR (b = 2 AND c = 3)", "All three must be true", "It is a syntax error"]
+    answer: 1
+    explanation: "AND binds tighter than OR. Add parentheses to say what you mean."
+  - id: between
+    prompt: "Does price BETWEEN 10 AND 20 include a price of exactly 20?"
+    options: ["Yes, both ends are included", "No, the upper end is excluded", "Only if the column is an integer", "Only in PostgreSQL"]
+    answer: 0
+    explanation: "BETWEEN a AND b means >= a AND <= b."
+  - id: like
+    prompt: "Which pattern matches every name that starts with Ka?"
+    answers: ["LIKE 'Ka%'", "like 'Ka%'", "'Ka%'"]
+    explanation: "% stands for any text, _ for exactly one character."
+  - id: case-else
+    prompt: "A CASE has WHEN branches but no ELSE, and no branch matches. What does it return?"
+    options: ["An error", "An empty string", "NULL", "The value of the first branch"]
+    answer: 2
+    explanation: "Without ELSE, CASE yields NULL when nothing matches."
+  - id: fetch-first
+    prompt: "Which clause is the SQL standard way to keep the first 10 rows?"
+    options: ["LIMIT 10", "TOP 10", "FETCH FIRST 10 ROWS ONLY", "ROWNUM <= 10"]
+    answer: 2
+    explanation: "FETCH FIRST is standard (PostgreSQL, Oracle, Db2, SQL Server after OFFSET). LIMIT is PostgreSQL, MySQL and SQLite; TOP is SQL Server; ROWNUM is old Oracle."

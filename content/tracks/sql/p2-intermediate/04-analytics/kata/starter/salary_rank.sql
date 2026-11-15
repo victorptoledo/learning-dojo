@@ -1,0 +1,3 @@
+-- todo: department name, employee name, salary and the employee's rank by salary inside
+-- the department (highest first; equal salaries share a rank, with no gaps after them).
+-- Order by department name, rank, employee name.

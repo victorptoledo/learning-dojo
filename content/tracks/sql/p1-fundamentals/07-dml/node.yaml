@@ -1,0 +1,23 @@
+id: sql.p1.dml
+kind: lesson
+status: draft
+title: "INSERT, UPDATE, DELETE, Upserts and MERGE"
+summary: "Changing data safely: inserting single rows and query results, updating and deleting with joins, RETURNING, upserts with ON CONFLICT, the standard MERGE, and the habits that prevent the classic accidents."
+objectives:
+  - { id: o1, text: "Insert rows from values and from queries, and update and delete rows using other tables", skills: [sql.dml] }
+  - { id: o2, text: "Write upserts with ON CONFLICT and MERGE, and know the MySQL, SQL Server and SQLite forms", skills: [sql.dml] }
+  - { id: o3, text: "Change data safely: RETURNING, transactions around risky changes, and checking the WHERE first", skills: [sql.dml] }
+prerequisites: [sql.p1.aggregation]
+difficulty: 3
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A stock table has (sku primary key, quantity, updated_at). Each night a file of counted quantities arrives in a staging table counts(sku, quantity). Write the statements that (1) insert new SKUs and update the quantity and updated_at of existing ones, (2) delete stock rows whose sku is not in counts, and (3) return what changed. Write it once with INSERT ... ON CONFLICT and once with MERGE, and explain how you would run it safely on production data.'
+  criteria:
+    - 'The upsert uses ON CONFLICT (sku) DO UPDATE SET quantity = EXCLUDED.quantity, updated_at = now()'
+    - 'The MERGE version has WHEN MATCHED THEN UPDATE and WHEN NOT MATCHED THEN INSERT, and handles rows missing from counts (WHEN NOT MATCHED BY SOURCE in PostgreSQL 17, or a separate DELETE with NOT EXISTS)'
+    - 'Uses RETURNING (or an equivalent) to report the changed rows'
+    - 'Describes safety: a transaction, checking row counts or a SELECT with the same WHERE first, and a backup or rollback plan'

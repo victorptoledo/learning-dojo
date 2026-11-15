@@ -1,0 +1,30 @@
+questions:
+  - id: atomicity
+    prompt: "The server crashes between the two UPDATEs of a transfer inside BEGIN ... COMMIT. What is in the database after the restart?"
+    options: ["The first UPDATE only", "Neither UPDATE", "Both UPDATEs", "It depends on the isolation level"]
+    answer: 1
+    explanation: "Atomicity: an uncommitted transaction leaves no trace."
+  - id: default-level
+    prompt: "What is PostgreSQL's default isolation level?"
+    answers: ["READ COMMITTED", "read committed"]
+    explanation: "READ COMMITTED: each statement sees the data committed before it started."
+  - id: lost-update
+    prompt: "Two sessions run SELECT balance, then UPDATE accounts SET balance = <value computed in the app>. Under READ COMMITTED, what can happen?"
+    options: ["Nothing: READ COMMITTED prevents it", "A lost update: one session overwrites the other's change", "A dirty read", "A deadlock every time"]
+    answer: 1
+    explanation: "Both computed from the same old value. Use balance = balance - x, SELECT ... FOR UPDATE, a version check or SERIALIZABLE."
+  - id: retry-40001
+    prompt: "A SERIALIZABLE transaction fails with SQLSTATE 40001. What should the application do?"
+    options: ["Report a bug", "Retry only the failed statement", "Retry the whole transaction from the start", "Switch to READ UNCOMMITTED"]
+    answer: 2
+    explanation: "The transaction was rolled back; its reads may be stale, so the whole unit of work must run again."
+  - id: skip-locked
+    prompt: "What does SELECT ... FOR UPDATE SKIP LOCKED do with rows another transaction has locked?"
+    options: ["Waits for them", "Fails at once", "Leaves them out of the result", "Reads their old version"]
+    answer: 2
+    explanation: "SKIP LOCKED ignores locked rows, so several workers can each claim different rows without waiting. NOWAIT would fail instead."
+  - id: deadlock
+    prompt: "Which habit prevents most deadlocks?"
+    options: ["Always using SERIALIZABLE", "Locking rows in a consistent order, such as by id", "Avoiding indexes", "Using longer transactions"]
+    answer: 1
+    explanation: "Deadlocks need a cycle of waits; a global lock order makes a cycle impossible."
