@@ -1,0 +1,25 @@
+id: design-patterns.p1.decorator-adapter
+legacy_id: dp-02-decorator-adapter
+kind: lesson
+status: draft
+title: "Adapter, Decorator, Proxy and Facade: Composition over Inheritance"
+summary: "Four wrappers with four intentions: translate an interface, add behaviour, control access, and simplify a subsystem, with their uses in java.io, Spring AOP and the collections."
+objectives:
+  - { id: o1, text: "Tell adapter, decorator, proxy and facade apart by intention, not by structure", skills: [design-patterns.decorator-adapter] }
+  - { id: o2, text: "Wrap a third-party API in an adapter and add cross-cutting behaviour with stackable decorators", skills: [design-patterns.decorator-adapter] }
+  - { id: o3, text: "Explain how Spring uses proxies for @Transactional and why self-invocation bypasses them", skills: [design-patterns.decorator-adapter] }
+prerequisites: [design-patterns.p1.shipping-rules]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your service calls a weather provider''s SDK that returns temperatures in Fahrenheit as strings, throws checked exceptions and is slow. Design the wrappers you would put around it: which one is an adapter, which ones are decorators (caching, timing, retry), in what order you would stack them and why, and where a facade might appear if the service also needs the provider''s geocoding and alerts APIs.'
+  criteria:
+    - 'Defines an interface in the service''s own terms and an adapter that translates units, types and errors'
+    - 'Adds caching, timing or retry as decorators of that interface'
+    - 'Justifies the stacking order (for example cache outside retry)'
+    - 'Uses a facade to give callers one simple entry point over several provider APIs'
+    - 'Keeps the SDK types out of the rest of the code'

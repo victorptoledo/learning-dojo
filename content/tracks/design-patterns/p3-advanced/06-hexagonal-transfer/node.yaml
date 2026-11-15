@@ -1,0 +1,53 @@
+id: design-patterns.p3.hexagonal-transfer
+kind: kata
+status: draft
+title: "Hexagonal Transfer"
+summary: "Refactor a transfer service that reaches into a global map, a 2009 rate feed and the console into ports, adapters, an anti-corruption layer and a unit of work that makes transfers all or nothing."
+objectives:
+  - { id: o1, text: "Extract driven ports from a service and move technology into adapters, keeping the domain free of them", skills: [design-patterns.ports-adapters, design-patterns.dependency-injection] }
+  - { id: o2, text: "Translate a legacy model in an anti-corruption layer and make a use case atomic with a unit of work", skills: [design-patterns.ports-adapters, design-patterns.repository-uow] }
+prerequisites: [design-patterns.p3.ports-adapters]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      List what `TransferService` reaches out to: where accounts live, where rates come from, where it reports, and (missing today) what makes two writes one. Each becomes an interface in `dojo.domain` named for what the service needs. Which of them could one in-memory class implement together? And why does the money get lost today: what is the order of checks and writes?
+    - |-
+      Make `Account` a record with `withdraw` and `deposit` that return new accounts. `TransferService` takes `Accounts`, `ExchangeRates`, `Transactions` and `TransferLog`; inside `transactions.inTransaction(() -> ...)` it loads both accounts, takes the rate (skipping the port for the same currency), saves both, and returns a `Transfer`; it logs only after that returns. `InMemoryBank` implements `Accounts` and `Transactions` (snapshot the map, restore it on exception). `LegacyFxRates` asks the feed for `from + to`, then `to + from` and inverts.
+    - |-
+      ```java
+      @Override
+      public BigDecimal rate(String from, String to) {
+          BigDecimal direct = parse(feed.quote(from + to));
+          if (direct != null) {
+              return direct;
+          }
+          BigDecimal inverse = parse(feed.quote(to + from));
+          if (inverse != null) {
+              return BigDecimal.ONE.divide(inverse, MathContext.DECIMAL64).setScale(6, RoundingMode.HALF_EVEN);
+          }
+          throw new RateUnavailableException(from + " to " + to);
+      }
+
+      private static BigDecimal parse(String answer) {
+          int equals = answer.indexOf('=');
+          return equals < 0 ? null : new BigDecimal(answer.substring(equals + 1));
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

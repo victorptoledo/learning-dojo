@@ -1,0 +1,31 @@
+questions:
+  - id: di-what
+    prompt: "What is dependency injection?"
+    options: ["A Spring annotation", "An object receives its collaborators from outside instead of creating or looking them up", "A way to call methods by reflection", "A database feature"]
+    answer: 1
+    explanation: "DI is a design technique; containers only automate the wiring."
+  - id: constructor-why
+    prompt: "Why prefer constructor injection over `@Autowired` fields?"
+    options: ["It is required by Java", "Dependencies are explicit and final, objects cannot be half-wired, and tests just call new", "Fields are slower", "Spring cannot inject fields"]
+    answer: 1
+    explanation: "Field injection hides dependencies and needs reflection or a container to test."
+  - id: locator
+    prompt: "A service calls `applicationContext.getBean(PriceService.class)` inside a method. What is this?"
+    options: ["Constructor injection", "The service locator anti-pattern: a hidden dependency resolved at runtime", "A factory method", "A proxy"]
+    answer: 1
+    explanation: "Inject PriceService (or an ObjectProvider if it must be lazy) instead."
+  - id: composition-root
+    prompt: "What is the composition root?"
+    options: ["The root package", "The one place where concrete classes are chosen and wired together", "The main database table", "The first bean created"]
+    answer: 1
+    explanation: "Everything else depends on abstractions it receives."
+  - id: scope-mismatch
+    prompt: "A request-scoped bean is injected directly into a singleton service. What is the problem, and a fix?"
+    options: ["None", "The singleton would keep the first request's instance; use a scoped proxy or ObjectProvider", "It throws at compile time", "Request scope does not exist"]
+    answer: 1
+    explanation: "Longer-lived beans need a proxy or provider to reach the current short-lived instance."
+  - id: many-impls
+    prompt: "Three beans implement `Exporter`. How can a service use all of them?"
+    options: ["It cannot", "Inject List<Exporter> or Map<String, Exporter>", "Use getBean three times", "Make Exporter abstract"]
+    answer: 1
+    explanation: "Spring injects collections of all matching beans, a registry for free."

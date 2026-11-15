@@ -1,0 +1,31 @@
+questions:
+  - id: what-is
+    prompt: "Which description of a design pattern is the most useful?"
+    options: ["A class diagram to copy into your code", "A named solution to a recurring problem, with the forces it balances and its costs", "A library you add to the build", "A rule that every class must follow"]
+    answer: 1
+    explanation: "The problem and the forces tell you when to use it; the diagram alone leads to patterns where the problem is absent."
+  - id: families
+    prompt: "Adapter, decorator and facade belong to which GoF family?"
+    options: ["Creational", "Structural", "Behavioural", "Architectural"]
+    answer: 1
+    explanation: "Structural patterns are about composing objects into larger structures."
+  - id: lambda-absorbs
+    prompt: "Which pattern shrinks most when the language has lambdas and functional interfaces?"
+    options: ["Facade", "Strategy", "Repository", "Adapter"]
+    answer: 1
+    explanation: "A strategy with one method is a function: a lambda replaces the interface-plus-class-per-variant boilerplate."
+  - id: visitor-modern
+    prompt: "In Java 25, what usually replaces the classic visitor over a closed set of types?"
+    options: ["Reflection", "A sealed interface with records and an exhaustive switch", "A singleton registry", "Inheritance from an abstract visitor"]
+    answer: 1
+    explanation: "The compiler checks that the switch covers every permitted type, which is what double dispatch bought you."
+  - id: gof-principle
+    prompt: "Which of these is one of the two principles the GoF book puts above any single pattern?"
+    options: ["Make every class final", "Favour object composition over class inheritance", "Use a factory for every object", "Never use interfaces"]
+    answer: 1
+    explanation: "The other is: program to an interface, not an implementation."
+  - id: overuse
+    prompt: "Which is the strongest sign that a pattern was added too early?"
+    options: ["A strategy interface with four implementations", "A factory that only ever calls one constructor and has no other callers", "A decorator used for logging", "An adapter around a third-party SDK"]
+    answer: 1
+    explanation: "Indirection with nothing that varies is pure cost; add the factory when a second product or a real need appears."

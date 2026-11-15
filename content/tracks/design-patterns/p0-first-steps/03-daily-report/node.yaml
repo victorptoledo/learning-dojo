@@ -1,0 +1,49 @@
+id: design-patterns.p0.daily-report
+kind: kata
+status: draft
+title: "Split the Daily Report"
+summary: "Refactor a report that fetches, totals and formats in one method into a sale source, a pure totals record and a formatter, with the clock injected."
+objectives:
+  - { id: o1, text: "Split one method along its reasons to change without changing its output", skills: [design-patterns.solid] }
+  - { id: o2, text: "Invert the dependencies on the database and the clock so the report can be tested", skills: [design-patterns.solid] }
+prerequisites: [design-patterns.p0.solid]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Count the reasons `render()` would change: a new database, a new rule for adding up, a new layout, a new idea of "today". Which of them make it impossible to test? Those two become constructor parameters.
+    - |-
+      `SaleSource` is a one-method interface, so a test can pass a lambda. `DailyTotals.of(day, sales)` is pure arithmetic: a `TreeMap` and `merge`. `TextReport.format(totals)` is the old string building. `render()` then reads `LocalDate.now(clock)`, asks the source and hands the result on, in one line.
+    - |-
+      ```java
+      public DailyReport(SaleSource source, Clock clock) {
+          this.source = source;
+          this.clock = clock;
+      }
+
+      public static DailyReport withDefaults() {
+          return new DailyReport(new SaleArchive(), Clock.systemDefaultZone());
+      }
+
+      public String render() {
+          LocalDate today = LocalDate.now(clock);
+          return TextReport.format(DailyTotals.of(today, source.salesOn(today)));
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

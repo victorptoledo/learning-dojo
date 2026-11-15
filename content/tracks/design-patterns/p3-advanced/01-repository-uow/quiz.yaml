@@ -1,0 +1,31 @@
+questions:
+  - id: repo-shape
+    prompt: "What should a repository look like to the code that uses it?"
+    options: ["A set of SQL strings", "An in-memory collection of domain objects with domain-named queries", "A generic CRUD class for every table", "A static utility"]
+    answer: 1
+    explanation: "The collection illusion keeps persistence details behind the interface."
+  - id: per-aggregate
+    prompt: "An Order has OrderLines that never exist on their own. How many repositories?"
+    options: ["One for Order and one for OrderLine", "One for the Order aggregate; lines are loaded and saved through it", "None", "One per column"]
+    answer: 1
+    explanation: "Repositories are per aggregate root, so rules about the whole order cannot be bypassed."
+  - id: uow-jpa
+    prompt: "Which JPA concept is a unit of work?"
+    options: ["@Entity", "The persistence context (EntityManager), bounded by the transaction", "@Column", "The JDBC driver"]
+    answer: 1
+    explanation: "It tracks managed entities and writes their changes together at flush and commit."
+  - id: dirty-checking
+    prompt: "Inside a @Transactional method you load an entity, change a field and never call save. What happens at commit?"
+    options: ["Nothing is written", "The change is written: dirty checking finds managed entities that changed", "An exception", "Only if the field is @Id"]
+    answer: 1
+    explanation: "Managed entities are compared with their loaded state at flush."
+  - id: identity-map
+    prompt: "Within one persistence context you call `find(Account.class, 42)` twice. What do you get?"
+    options: ["Two different objects with the same data", "The same instance twice, and usually one query", "An error", "A proxy and a real object"]
+    answer: 1
+    explanation: "The identity map guarantees one object per row within the unit of work."
+  - id: tx-boundary
+    prompt: "A transfer debits in one @Transactional service method and credits in another, called one after the other from a controller. What is the risk?"
+    options: ["None", "A failure between them commits the debit without the credit; the transaction should wrap the whole use case", "Deadlocks only", "Slower JSON"]
+    answer: 1
+    explanation: "The unit of work must match the business operation."

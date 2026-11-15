@@ -1,0 +1,31 @@
+questions:
+  - id: telescoping
+    prompt: "A class has constructors with 1, 2, 4 and 7 parameters, and callers pass null for parts they skip. What fits best?"
+    options: ["More constructors", "A builder with named steps, validating once in build() or the record's compact constructor", "A singleton", "Making all fields public"]
+    answer: 1
+    explanation: "Builders replace telescoping constructors when there are many optional parts."
+  - id: compact-validation
+    prompt: "Where should a record validate its components so no invalid instance can ever exist?"
+    options: ["In a setter", "In its compact constructor", "In the builder only", "In the caller"]
+    answer: 1
+    explanation: "Every construction path, builder or not, goes through the canonical constructor."
+  - id: singleton-problem
+    prompt: "What is the main problem with a classic `Config.getInstance()` singleton?"
+    options: ["It is slow", "It is global state: dependencies are hidden and tests share and cannot easily replace it", "It cannot hold fields", "Java forbids private constructors"]
+    answer: 1
+    explanation: "Inject one instance instead; Spring beans are singletons per container without the global access."
+  - id: enum-singleton
+    prompt: "Without a DI container, what is the simplest thread-safe and serialisation-safe singleton in Java?"
+    options: ["A class with a public static field set in main", "An enum with a single constant", "A class implementing Cloneable", "A static method that creates a new instance"]
+    answer: 1
+    explanation: "The JVM guarantees one instance per enum constant, even through serialisation."
+  - id: prototype-modern
+    prompt: "How do you create a variant of an immutable record `Settings` with one field changed?"
+    options: ["settings.clone()", "A wither such as settings.withRetries(5) that returns a new record", "Reflection", "Mutating a field"]
+    answer: 1
+    explanation: "Cloneable is broken; immutable copies with changes are the modern prototype."
+  - id: flyweight
+    prompt: "Why does `Integer.valueOf(100) == Integer.valueOf(100)` usually print true, but `Integer.valueOf(1000) == Integer.valueOf(1000)` may not?"
+    options: ["A JVM bug", "Integer caches small values as shared flyweight instances, by default from -128 to 127", "== compares values", "1000 is too big for an int"]
+    answer: 1
+    explanation: "valueOf is a static factory that returns cached flyweights for a range; compare with equals."

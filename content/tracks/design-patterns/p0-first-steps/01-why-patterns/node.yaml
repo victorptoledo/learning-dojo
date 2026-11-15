@@ -1,0 +1,24 @@
+id: design-patterns.p0.why-patterns
+kind: lesson
+status: draft
+title: "What Design Patterns Are (and Are Not)"
+summary: "Patterns as named solutions to recurring design problems: where they came from, the three GoF families, how modern Java changed them, and when a pattern is the wrong answer."
+objectives:
+  - { id: o1, text: "Describe a pattern by its problem, forces, solution and consequences, not by its class diagram", skills: [design-patterns.foundations] }
+  - { id: o2, text: "Place the classic patterns in the creational, structural and behavioural families", skills: [design-patterns.foundations] }
+  - { id: o3, text: "Explain which patterns modern Java language features absorb, and why that is not the same as them disappearing", skills: [design-patterns.foundations] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A colleague says: "Design patterns are a Java thing from the nineties; in a modern language you do not need them." Write a short answer (half a page) that agrees with what is right in that claim, disagrees with what is wrong, and uses two concrete patterns as examples: one that modern Java mostly absorbed and one that is as relevant as ever.'
+  criteria:
+    - 'Separates the problem a pattern solves from the code shape it took in 1994'
+    - 'Gives a pattern that language features absorbed (strategy, command, visitor, iterator ...) and names the feature'
+    - 'Gives a pattern whose problem is still solved by design, not by syntax (adapter, facade, repository ...)'
+    - 'Mentions the value of a shared vocabulary in reviews and interviews'
+    - 'Warns against applying patterns where the problem is absent'

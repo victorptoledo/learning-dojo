@@ -1,0 +1,51 @@
+id: design-patterns.p2.editor-commands
+kind: kata
+status: draft
+title: "Editor Commands"
+summary: "Replace snapshot-based undo with command objects that undo themselves, an editor with undo and redo stacks, and macros that run and roll back as one step."
+objectives:
+  - { id: o1, text: "Refactor edits into command objects with execute, undo and a description", skills: [design-patterns.observer-command] }
+  - { id: o2, text: "Build an invoker with undo and redo stacks and a composite macro command with rollback", skills: [design-patterns.observer-command, design-patterns.state-visitor] }
+prerequisites: [design-patterns.p2.order-state]
+difficulty: 3
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Today undo works because the editor photographs the whole text before every edit. What would each edit need to remember to reverse **itself**? An insert knows where and what; what does a delete have to keep, and when does it learn it?
+    - |-
+      `Command` has `execute(Document)`, `undo(Document)` and `describe()`. `Insert` can be a record; `Delete` and `ReplaceAll` are classes that remember what they removed or replaced during `execute`. `Editor` holds a `Document` and two `ArrayDeque<Command>`: `run` executes then pushes on *done* and clears *undone*; `undo` and `redo` move a command between the stacks.
+    - |-
+      ```java
+      @Override
+      public void execute(Document document) {
+          List<Command> done = new ArrayList<>();
+          try {
+              for (Command step : steps) {
+                  step.execute(document);
+                  done.add(step);
+              }
+          } catch (RuntimeException e) {
+              for (Command step : done.reversed()) {
+                  step.undo(document);
+              }
+              throw e;
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

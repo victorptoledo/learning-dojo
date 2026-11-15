@@ -4,9 +4,9 @@ name: "Design Patterns"
 archetype: concept
 category: "Architecture & Engineering"
 icon: "🧩"
-description: "The 23 classic Gang of Four patterns adapted to modern languages: creational, structural and behavioural."
+description: "Design principles first (SOLID, composition, coupling and cohesion), then the Gang of Four patterns that still matter, written in modern Java where records, sealed types and lambdas replace or simplify many of them, then application patterns (repository, unit of work, dependency injection, specification, ports and adapters) and code smells with their refactorings. Every kata is a refactoring of messy Java code, graded on behaviour and structure."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Singleton Abuser" }
   - { name: "Yellow Belt", required_xp: 300, title: "Factory Practitioner" }
@@ -16,8 +16,22 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "Pattern Discerning Architect" }
   - { name: "Sensei", required_xp: 6000, title: "GoF Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Why the discipline exists and the vocabulary to talk about it" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core concepts and mental models" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Trade-offs, combining concepts and common practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Advanced techniques and architecture at scale" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Real production cases, failure modes and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What patterns are and are not, SOLID without slogans, and a first refactoring kata" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Composition, coupling and cohesion, then Strategy, Factory, Adapter, Decorator, Proxy and Facade" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Creational patterns, Observer, Command and Chain of Responsibility, and State, Visitor and Composite with sealed types" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Application patterns: repository and unit of work, dependency injection, specification, ports and adapters with an anti-corruption layer" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Code smells, anti-patterns and refactoring legacy code, and choosing (or removing) a pattern" }
+requirements:
+  - kind: tool
+    name: JDK 25 (java)
+    command: java
+    version_args: ["--version"]
+    min_version: "25"
+    required: false
+    why: Runs the katas and their visible tests in VS Code. The grading checks run in Docker and do not need it.
+    install_hint: "install Temurin 25: winget install EclipseAdoptium.Temurin.25.JDK, then reopen the terminal"
+  - kind: vscode-extension
+    name: Extension Pack for Java
+    id: vscjava.vscode-java-pack
+    required: false
+    why: Shows errors as you type and adds the Run Test and Debug buttons to JUnit tests.

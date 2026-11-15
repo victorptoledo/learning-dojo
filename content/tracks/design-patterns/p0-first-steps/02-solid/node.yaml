@@ -1,0 +1,24 @@
+id: design-patterns.p0.solid
+kind: lesson
+status: draft
+title: "SOLID Without the Slogans"
+summary: "The five SOLID principles as questions you ask of real code: reasons to change, extension without edits, honest subtypes, small interfaces and dependencies that point at abstractions."
+objectives:
+  - { id: o1, text: "Find the reasons to change in a class and split it by actor", skills: [design-patterns.solid] }
+  - { id: o2, text: "Recognise open/closed and Liskov violations and fix them", skills: [design-patterns.solid] }
+  - { id: o3, text: "Apply interface segregation and dependency inversion, and know when they are overkill", skills: [design-patterns.solid] }
+prerequisites: [design-patterns.p0.why-patterns]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Describe a class from a project you know (or invent a realistic one, such as an `OrderService` with 1,500 lines) and review it against the five SOLID principles. For each principle say whether it is violated, show the evidence in one sentence, and propose the smallest change that would fix it. End by saying which single change you would make first and why.'
+  criteria:
+    - 'Identifies reasons to change by actor or concern, not by counting methods'
+    - 'Gives a concrete open/closed or Liskov problem with its symptom (edits per new case, instanceof checks, surprising overrides)'
+    - 'Uses dependency inversion to make something testable or replaceable'
+    - 'Keeps changes small and avoids adding interfaces with nothing behind them'
+    - 'Prioritises the first change by risk or pain, not by the order of the letters'

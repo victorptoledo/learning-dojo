@@ -1,0 +1,31 @@
+questions:
+  - id: counting-set
+    prompt: "`CountingSet extends HashSet` overrides `add` and `addAll` to count insertions, and `addAll` of three items counts six. Why?"
+    options: ["HashSet has a bug", "HashSet.addAll calls add internally, so the subclass depends on an implementation detail of its parent", "Sets cannot hold three items", "Overriding is not allowed"]
+    answer: 1
+    explanation: "The fragile base class problem; a wrapper that forwards to any Set avoids it."
+  - id: explosion
+    prompt: "You have `LoggingClient`, `RetryingClient`, `LoggingRetryingClient` and `RetryingCachingClient`. What is the better design?"
+    options: ["More subclasses", "Small wrappers behind one interface, composed at runtime in any order", "One class with boolean flags", "A static utility class"]
+    answer: 1
+    explanation: "Decorators compose behaviour without a subclass per combination."
+  - id: control-coupling
+    prompt: "`report.save(data, true, false)` where the booleans mean 'compress' and 'notify'. What kind of coupling is this?"
+    options: ["Message coupling", "Control coupling: the caller tells the callee which path to take", "Data coupling", "No coupling"]
+    answer: 1
+    explanation: "Flags that select behaviour couple the caller to the callee's internals; separate methods or objects are clearer."
+  - id: demeter
+    prompt: "Which line breaks the Law of Demeter?"
+    options: ["names.stream().filter(n -> n.length() > 3).toList()", "order.getCustomer().getAddress().getCountry().getVatRate()", "builder.name(\"a\").age(3).build()", "this.repository.save(order)"]
+    answer: 1
+    explanation: "It navigates through objects returned by other objects; fluent chains on the same object are fine."
+  - id: dry-coincidence
+    prompt: "A shipping weight limit and a discount threshold are both 30. Should they share one constant?"
+    options: ["Yes, DRY demands it", "No: they are different knowledge that changes for different reasons; sharing them couples unrelated rules", "Only if they are in the same class", "Only in tests"]
+    answer: 1
+    explanation: "DRY is about one place per piece of knowledge, not about equal text."
+  - id: yagni
+    prompt: "Which is an application of YAGNI?"
+    options: ["Skipping tests to ship faster", "Not adding a plugin system for export formats nobody has asked for, while keeping the code easy to change", "Never extracting methods", "Writing all code in one file"]
+    answer: 1
+    explanation: "YAGNI rejects speculative features, not the practices that keep code changeable."

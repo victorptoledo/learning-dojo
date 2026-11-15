@@ -1,0 +1,49 @@
+questions:
+  - id: cp1-wrapper-vs-subclass
+    skills: [design-patterns.composition-coupling]
+    prompt: "You need a list that logs every add. Why is a wrapper around any `List` better than `LoggingArrayList extends ArrayList`?"
+    options: ["It is faster", "It works with every List implementation and does not depend on how ArrayList implements addAll", "Subclassing ArrayList is not allowed", "Wrappers need no interface"]
+    answer: 1
+    explanation: "Composition avoids the fragile base class problem and is not tied to one implementation."
+  - id: cp1-cohesion
+    skills: [design-patterns.composition-coupling]
+    prompt: "A class has fields a, b used only by methods 1–3 and fields c, d used only by methods 4–6. What does that suggest?"
+    options: ["High cohesion", "Low cohesion: it is probably two classes", "Tight coupling to the database", "It needs a factory"]
+    answer: 1
+    explanation: "Fields that split into groups used by different methods show two responsibilities in one class."
+  - id: cp1-strategy-test
+    skills: [design-patterns.strategy-factory]
+    prompt: "After moving each tax rule into its own strategy, what becomes easy that was hard before?"
+    options: ["Compiling faster", "Testing one country's rule without the calculator or the other countries", "Avoiding interfaces", "Using static methods"]
+    answer: 1
+    explanation: "Each strategy is a small unit with its own tests."
+  - id: cp1-factory-method
+    skills: [design-patterns.strategy-factory]
+    prompt: "`Collection.iterator()` returns a different iterator class for ArrayList, HashSet and TreeSet. Which pattern is that?"
+    options: ["Singleton", "Factory method: each subclass decides which product to create", "Facade", "Observer"]
+    answer: 1
+    explanation: "The caller asks the collection for an iterator and never names the concrete class."
+  - id: cp1-registry-open
+    skills: [design-patterns.strategy-factory]
+    prompt: "A calculator takes a `Map<String, Rule>` in its constructor. How do you add a new rule?"
+    options: ["Edit the calculator's switch", "Put one more entry in the map where the calculator is built", "Subclass the calculator", "Recompile the JDK"]
+    answer: 1
+    explanation: "The registry makes the calculator closed for modification and open for extension."
+  - id: cp1-adapter-boundary
+    skills: [design-patterns.decorator-adapter]
+    prompt: "After introducing `LegacyPayAdapter implements PaymentGateway`, which classes should still mention `LegacyPayClient`?"
+    options: ["Every service that takes payments", "Only the adapter (and the wiring that creates it)", "The decorators", "The controllers"]
+    answer: 1
+    explanation: "The adapter is the only translator; everything else speaks PaymentGateway."
+  - id: cp1-proxy-vs-decorator
+    skills: [design-patterns.decorator-adapter]
+    prompt: "What distinguishes a proxy from a decorator?"
+    options: ["The class diagram", "The intention: a proxy controls access to the object (lazy, security, transactions); a decorator adds behaviour", "Proxies cannot implement interfaces", "Decorators are always generated"]
+    answer: 1
+    explanation: "Both wrap and share the interface; what the wrapper is for tells them apart."
+  - id: cp1-facade-smell
+    skills: [design-patterns.decorator-adapter]
+    prompt: "A facade over the billing subsystem has started deciding discounts and refund rules. What is happening?"
+    options: ["It is becoming a better facade", "It is turning into a god class: a facade should simplify access, not hold business logic", "It became an adapter", "Nothing"]
+    answer: 1
+    explanation: "Facades remove ceremony; business rules belong in the domain objects behind them."

@@ -1,0 +1,49 @@
+id: design-patterns.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz on composition, coupling, strategy, factory and the four wrappers, and a notification hub refactored into channels, adapters and a decorator."
+objectives:
+  - { id: o1, text: "Explain composition, coupling, strategy, factory, adapter, decorator, proxy and facade in your own words", skills: [design-patterns.composition-coupling, design-patterns.strategy-factory, design-patterns.decorator-adapter] }
+  - { id: o2, text: "Refactor a switch-based notifier into strategies, adapters and a decorator wired by a factory method", skills: [design-patterns.strategy-factory, design-patterns.decorator-adapter] }
+prerequisites: [design-patterns.p1.payment-gateway]
+difficulty: 3
+estimated_minutes: 75
+xp: 350
+closes_phase: p1
+covers_skills: [design-patterns.composition-coupling, design-patterns.strategy-factory, design-patterns.decorator-adapter]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Four concerns are tangled in `Notifier.send`: choosing a channel, talking to the SMS library, talking to the mailer, and dropping duplicates. Which one varies by channel name? Which two translate somebody else's API? Which one could wrap **any** channel?
+    - |-
+      `Channel` is a one-method interface. `SmsChannel` and `EmailChannel` are adapters holding the old branch code. `DeduplicatingChannel` holds a `Channel`, a `Clock`, a `Duration` and a `Map<Message, Instant>`; it remembers a message only after the inner channel returns. `Notifier` keeps a `Map<String, Channel>`; `standard(...)` builds the two wrapped channels.
+    - |-
+      ```java
+      @Override
+      public void deliver(Message message) {
+          Instant now = clock.instant();
+          Instant last = lastDelivered.get(message);
+          if (last != null && Duration.between(last, now).compareTo(window) < 0) {
+              return;
+          }
+          inner.deliver(message);
+          lastDelivered.put(message, now);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

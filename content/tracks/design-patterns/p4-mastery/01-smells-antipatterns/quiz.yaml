@@ -1,0 +1,31 @@
+questions:
+  - id: smell-meaning
+    prompt: "What is a code smell?"
+    options: ["A compiler warning", "A surface sign that the design probably has a problem, worth investigating", "A bug", "A style violation that must always be fixed"]
+    answer: 1
+    explanation: "Smells are hints; sometimes the code is fine as it is."
+  - id: before-refactor
+    prompt: "Before refactoring an untested legacy class, what should you do first?"
+    options: ["Rewrite it", "Write characterisation tests that pin its current behaviour", "Fix all the bugs", "Delete the comments"]
+    answer: 1
+    explanation: "Refactoring preserves behaviour; you need a way to check that it did."
+  - id: primitive-obsession
+    prompt: "Amounts are `long` cents, currencies `String`, and a book is a `String[] {title, status}`. Which smell and move?"
+    options: ["Feature envy; move function", "Primitive obsession; replace primitives and arrays with value objects and records", "Long method; extract function", "Lava flow; delete"]
+    answer: 1
+    explanation: "Real types give names, validation and a home for behaviour."
+  - id: feature-envy
+    prompt: "`InvoicePrinter.total(Invoice i)` reads ten fields of Invoice and computes the total. Which smell?"
+    options: ["Data clumps", "Feature envy: the method wants to live in Invoice", "Speculative generality", "Shotgun surgery"]
+    answer: 1
+    explanation: "Move the function to the object whose data it uses."
+  - id: anemic
+    prompt: "When is an anemic domain model actually an anti-pattern?"
+    options: ["Always", "When complex rules and invariants are scattered over services that set fields, so no object protects them", "Never", "Only with JPA"]
+    answer: 1
+    explanation: "For simple CRUD, plain data and services are fine; for rich rules, behaviour belongs with the data."
+  - id: switch-type
+    prompt: "The same `if (type.equals(\"guest\"))` chain appears in three methods. Which move removes it?"
+    options: ["Add a fourth copy", "Replace Type Code with an enum or subclasses, then Replace Conditional with Polymorphism", "Inline everything", "Use reflection"]
+    answer: 1
+    explanation: "One type that owns the varying rules replaces the repeated conditionals."

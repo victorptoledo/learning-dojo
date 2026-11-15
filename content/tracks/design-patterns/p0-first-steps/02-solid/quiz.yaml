@@ -1,0 +1,36 @@
+questions:
+  - id: srp-actor
+    prompt: "A `Payroll` class computes pay, formats payslips and saves them to the database. What does the single responsibility principle say?"
+    options: ["It is fine: it is all about payroll", "It has three reasons to change (finance, HR layout, storage) and should be split along them", "It should have only one public method", "It should be made static"]
+    answer: 1
+    explanation: "Responsibility means a reason to change, usually an actor who asks for changes; three actors editing one class is the smell."
+  - id: ocp-symptom
+    prompt: "Which symptom points most directly at an open/closed violation?"
+    options: ["A class with many fields", "A switch on a type code that you edit, in several places, for every new case", "A method with three parameters", "An interface with two implementations"]
+    answer: 1
+    explanation: "Adding a case should mean adding code, not editing tested branches scattered across the codebase."
+  - id: lsp-list
+    prompt: "`List<Integer> list = List.of(1, 2); list.add(3);` throws UnsupportedOperationException. Which principle does this illustrate?"
+    options: ["Single responsibility", "Liskov substitution: a subtype that cannot honour the supertype's contract surprises callers", "Interface segregation only", "Dependency inversion"]
+    answer: 1
+    explanation: "Code written against List expects add to work; the optional operation breaks substitutability."
+  - id: isp-fakes
+    prompt: "Every test fake of `UserService` must implement 40 methods, though each test uses two. What helps?"
+    options: ["A bigger base class", "Role interfaces shaped by each client, such as UserLookup and UserRegistration", "Making UserService abstract", "Reflection"]
+    answer: 1
+    explanation: "Interface segregation: clients depend only on what they use, and one class can implement several roles."
+  - id: dip-owner
+    prompt: "With dependency inversion, who should define the `Accounts` interface that a `TransferService` uses?"
+    options: ["The JDBC driver", "The high-level side: it is shaped by what the service needs", "The database team", "Nobody: use the concrete DAO"]
+    answer: 1
+    explanation: "The abstraction belongs to the policy; low-level adapters implement it."
+  - id: dip-clock
+    prompt: "Why does `java.time.Clock` exist when `LocalDate.now()` works?"
+    options: ["It is faster", "So that code can receive time as a dependency and tests can fix it", "To support time zones only", "It is deprecated"]
+    answer: 1
+    explanation: "Passing a Clock inverts the dependency on the system time; tests pass Clock.fixed(...)."
+  - id: solid-limit
+    prompt: "When is adding an interface for dependency inversion most likely to be pure cost?"
+    options: ["For a payment provider", "For a small in-process value class with one implementation that tests can use directly", "For the system clock", "For a message broker"]
+    answer: 1
+    explanation: "Invert at boundaries: I/O, time, third parties. A pure value class needs no abstraction to be testable."

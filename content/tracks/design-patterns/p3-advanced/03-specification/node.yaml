@@ -1,0 +1,24 @@
+id: design-patterns.p3.specification
+kind: lesson
+status: draft
+title: "Specification and Strategy as Functions"
+summary: "Business rules as composable values: predicates and the specification pattern, specifications as data with several interpreters, Spring Data's Specification, and where plain functions are enough."
+objectives:
+  - { id: o1, text: "Express business rules as composable specifications instead of a growing list of finder methods", skills: [design-patterns.specification] }
+  - { id: o2, text: "Choose between a plain Predicate, a named specification and a specification as data with interpreters", skills: [design-patterns.specification] }
+  - { id: o3, text: "Use specifications for selection, validation and building queries, including Spring Data JPA", skills: [design-patterns.specification] }
+prerequisites: [design-patterns.p3.dependency-injection]
+difficulty: 4
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A loan service has rules like "the applicant is an adult", "income is at least three times the instalment", "no default in the last five years" and "the country is supported". The same rules are used to reject an application with reasons, to list eligible customers for a marketing campaign from the database, and to explain to support staff why someone was refused. Design the rules as specifications: their type, how they combine, how each use (validation with reasons, a database query, an explanation) is served, and whether `Predicate<Customer>` would be enough.'
+  criteria:
+    - 'Defines named, composable rules with and, or and not'
+    - 'Explains why a plain Predicate cannot become a query or an explanation'
+    - 'Uses specifications as data (records) interpreted in memory, as a query and as text'
+    - 'Keeps values out of query text (parameters)'
+    - 'Says where the rules live (domain) and who interprets them (domain or adapters)'

@@ -48,8 +48,8 @@ of your choice.
 
 | Status | Tracks |
 | :--- | :--- |
-| ✅ Complete | **Rust**, **Modern Java** (Java 25), **Spring Boot** (Boot 4.1), **Backend Developer**, **Linux** (Debian 13), **Git & GitHub**, **System Design**, **Docker & Containers**, **SQL & Relational Databases** (PostgreSQL 17), **Modern Python** (Python 3.15) |
-| 📝 Draft | Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Go, TypeScript, Modern C++, Node.js, Software Architecture, API Design, Design Patterns, Prompt Engineering, PostgreSQL, Kubernetes, AWS, Computer Science, Data Structures & Algorithms |
+| ✅ Complete | **Rust**, **Modern Java** (Java 25), **Spring Boot** (Boot 4.1), **Backend Developer**, **Linux** (Debian 13), **Git & GitHub**, **System Design**, **Docker & Containers**, **SQL & Relational Databases** (PostgreSQL 17), **Modern Python** (Python 3.15), **Design Patterns** (modern Java) |
+| 📝 Draft | Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Go, TypeScript, Modern C++, Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, Kubernetes, AWS, Computer Science, Data Structures & Algorithms |
 
 A complete track has 22 or more nodes, 7 to 10 katas, two checkpoints, a placement test and an
 interview bank. Draft tracks show their nodes as "under construction" 🚧 until they are written.

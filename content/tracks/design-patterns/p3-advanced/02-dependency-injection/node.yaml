@@ -1,0 +1,24 @@
+id: design-patterns.p3.dependency-injection
+kind: lesson
+status: draft
+title: "Dependency Injection and Inversion of Control"
+summary: "Inversion of control, constructor injection by hand and with Spring, the composition root, why service locators and field injection are anti-patterns, scopes, and how the container uses factories and proxies."
+objectives:
+  - { id: o1, text: "Wire an application by constructor injection in a composition root, with and without a container", skills: [design-patterns.dependency-injection] }
+  - { id: o2, text: "Explain why service locators, field injection and static access hide dependencies", skills: [design-patterns.dependency-injection] }
+  - { id: o3, text: "Reason about bean scopes, multiple implementations and the proxies a container creates", skills: [design-patterns.dependency-injection] }
+prerequisites: [design-patterns.p3.repository-uow]
+difficulty: 4
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A Spring Boot service class has nine `@Autowired` private fields, calls `ApplicationContext.getBean(...)` in two methods, and uses a static `FeatureFlags.isOn(...)` helper. Its unit tests need `@SpringBootTest` and take 40 seconds. Explain what each of the three habits costs, rewrite the class''s dependencies (describe the constructor), and say what the nine dependencies tell you about its design and what you would do next.'
+  criteria:
+    - 'Replaces field injection with constructor injection and explains testability and immutability'
+    - 'Removes getBean as a service locator, injecting what is needed (or a Provider/ObjectProvider for real laziness)'
+    - 'Turns the static helper into an injected dependency so tests can control it'
+    - 'Reads nine dependencies as a single responsibility smell and proposes a split'
+    - 'Shows a fast unit test built with new and fakes, without starting Spring'

@@ -1,0 +1,25 @@
+id: design-patterns.p1.strategy-factory
+legacy_id: dp-01-strategy-factory
+kind: lesson
+status: draft
+title: "Strategy and Factory: Removing Giant if/else Chains"
+summary: "Encapsulating interchangeable algorithms behind one interface (or one lambda), and separating creation from use with factory methods, simple factories and registries."
+objectives:
+  - { id: o1, text: "Replace a conditional on a type code with strategies, as classes or as lambdas", skills: [design-patterns.strategy-factory] }
+  - { id: o2, text: "Choose between a static factory method, a factory method and a registry of strategies", skills: [design-patterns.strategy-factory] }
+  - { id: o3, text: "Point to strategy and factory in the JDK and in Spring", skills: [design-patterns.strategy-factory] }
+prerequisites: [design-patterns.p1.composition-coupling]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A tax calculator has a method `tax(Country country, Order order)` with a `switch` over 12 countries, and every quarter two or three countries change their rules. Design its replacement: the strategy interface, how strategies are created and found, how a new country is added, and how you would test one country in isolation. Say whether you would use lambdas or classes, and why.'
+  criteria:
+    - 'Defines a small strategy interface and puts each country''s rules behind it'
+    - 'Describes a factory or registry that maps a country to its strategy'
+    - 'Shows that adding a country does not edit the calculator'
+    - 'Tests a strategy alone, without the calculator'
+    - 'Justifies lambdas (small, stateless) or classes (state, many methods, own tests)'

@@ -1,0 +1,54 @@
+id: design-patterns.p1.shipping-rules
+kind: kata
+status: draft
+title: "Shipping Rules"
+summary: "Turn an if/else chain over shipping methods into strategies written as lambdas, a factory of built-in rules and a calculator that is open for new methods."
+objectives:
+  - { id: o1, text: "Refactor a conditional on a type code into strategies behind a functional interface, keeping every price", skills: [design-patterns.strategy-factory] }
+  - { id: o2, text: "Build a registry so a new method is added without editing the calculator", skills: [design-patterns.strategy-factory] }
+prerequisites: [design-patterns.p1.strategy-factory]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Every branch of `quoteCents` answers the same question, "how much for this parcel?", in a different way. What would a type for that question look like, if a lambda could be one? Where would the four answers live, and what would the calculator keep instead of the branches?
+    - |-
+      `ShippingRule` is a `@FunctionalInterface` with `long quoteCents(Parcel)`. `ShippingRules.standard()` and friends each return a lambda holding one old branch; private helpers remove the repeated "abroad" and "fragile" checks. The calculator keeps a `Map<String, ShippingRule>` copied with `Map.copyOf`; `with(...)` copies it into a `HashMap`, adds one entry and builds a new calculator.
+    - |-
+      ```java
+      public String cheapest(Parcel parcel) {
+          return rules.entrySet().stream()
+                  .filter(entry -> accepts(entry.getValue(), parcel))
+                  .min(Comparator.comparingLong((Map.Entry<String, ShippingRule> entry) ->
+                                  entry.getValue().quoteCents(parcel))
+                          .thenComparing(Map.Entry::getKey))
+                  .map(Map.Entry::getKey)
+                  .orElseThrow(() -> new IllegalArgumentException("no method can ship this parcel"));
+      }
+
+      private static boolean accepts(ShippingRule rule, Parcel parcel) {
+          try {
+              rule.quoteCents(parcel);
+              return true;
+          } catch (IllegalArgumentException refused) {
+              return false;
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

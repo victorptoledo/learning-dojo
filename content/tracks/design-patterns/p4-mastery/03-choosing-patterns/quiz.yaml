@@ -1,0 +1,31 @@
+questions:
+  - id: forces-first
+    prompt: "What should drive the choice of a pattern?"
+    options: ["The number of patterns already in the codebase", "The forces of the problem: what varies, what must not change, what must be tested", "Interview popularity", "The newest framework"]
+    answer: 1
+    explanation: "A pattern resolves specific forces; without them it is only indirection."
+  - id: http-cross-cutting
+    prompt: "Every outgoing HTTP call needs a timeout, a retry and a metric. Which pattern fits best?"
+    options: ["Singleton", "Decorators (or the client's interceptor chain) wrapping one client interface", "Abstract factory", "Visitor"]
+    answer: 1
+    explanation: "Cross-cutting behaviour that stacks is the decorator's job; HTTP clients expose it as interceptors."
+  - id: erp-catalogue
+    prompt: "The product catalogue comes from an ERP with its own codes and units. What protects your model?"
+    options: ["Using the ERP's classes everywhere", "An anti-corruption layer behind a port the domain owns", "A singleton", "A builder"]
+    answer: 1
+    explanation: "Translate the foreign model once, at the boundary."
+  - id: remove-pattern
+    prompt: "A strategy interface has had exactly one implementation for three years, and nothing is planned. What is reasonable?"
+    options: ["Add two more implementations", "Consider inlining it: the variation it prepared for never came", "Make it a singleton", "Wrap it in a facade"]
+    answer: 1
+    explanation: "Patterns that no longer pay for themselves can be removed with the same care used to add them."
+  - id: platform
+    prompt: "Which pattern should you almost never hand-write in a Spring application?"
+    options: ["Strategy", "A proxy that opens and commits a transaction around service methods", "Builder", "Specification"]
+    answer: 1
+    explanation: "@Transactional already gives you that proxy; write your own only for behaviour Spring does not offer."
+  - id: interview-answer
+    prompt: "In an interview you are asked how you would support several payment providers. What makes the answer strong?"
+    options: ["Listing all 23 GoF patterns", "The forces, the pattern (adapter per provider behind a port, decorators for retry), its cost and an alternative", "Naming a library", "Drawing a UML diagram only"]
+    answer: 1
+    explanation: "Patterns are vocabulary for a reasoned design, not a recitation."

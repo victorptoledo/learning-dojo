@@ -1,0 +1,24 @@
+id: design-patterns.p3.repository-uow
+kind: lesson
+status: draft
+title: "Repository, Unit of Work and Data Mapping"
+summary: "The patterns between domain code and the database: repository as a collection-like boundary, unit of work and identity map (what JPA's persistence context really is), data mapper versus active record, and where Spring Data fits."
+objectives:
+  - { id: o1, text: "Design a repository interface in domain terms and keep persistence details behind it", skills: [design-patterns.repository-uow] }
+  - { id: o2, text: "Explain unit of work and identity map and recognise them in JPA's persistence context and @Transactional", skills: [design-patterns.repository-uow] }
+  - { id: o3, text: "Choose between data mapper, active record and table data gateway, and avoid generic repository traps", skills: [design-patterns.repository-uow] }
+prerequisites: [design-patterns.p2.checkpoint]
+difficulty: 4
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'In a Spring Boot service, controllers call `JpaRepository` methods directly, entities are returned as JSON, and a "transfer" endpoint calls `save` twice in two separate service methods without a common transaction. Describe what can go wrong, then redesign the persistence boundary: the repository interfaces you would define and where, what the unit of work is for a transfer, how JPA''s persistence context helps or surprises you (dirty checking, identity map, lazy loading), and how you would test the domain logic without a database.'
+  criteria:
+    - 'Identifies the partial-update risk of two saves without one transaction'
+    - 'Defines repositories per aggregate in domain terms, not one generic repository for everything'
+    - 'Places the transaction (unit of work) around the use case, at the service layer'
+    - 'Explains dirty checking and the identity map of the persistence context, and one surprise (lazy loading outside the transaction, or saves that are not needed)'
+    - 'Tests domain logic with in-memory implementations of the repository interfaces'

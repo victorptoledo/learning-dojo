@@ -1,0 +1,48 @@
+id: design-patterns.p1.payment-gateway
+kind: kata
+status: draft
+title: "Payment Gateway"
+summary: "Hide a 2011 payment SDK behind an adapter and pull retrying and metering out of checkout into decorators that stack in any order."
+objectives:
+  - { id: o1, text: "Write an adapter that translates a foreign API's amounts, status codes and errors into your own interface", skills: [design-patterns.decorator-adapter] }
+  - { id: o2, text: "Extract cross-cutting behaviour into decorators and reason about their order", skills: [design-patterns.decorator-adapter] }
+prerequisites: [design-patterns.p1.decorator-adapter]
+difficulty: 2
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      `CheckoutService.pay` does three jobs: it speaks the SDK's language, it retries, and it counts. Which of them should know about `LegacyPayClient`? If retrying and counting only needed "something that can charge a payment", what type would they take in their constructor?
+    - |-
+      Start with `interface PaymentGateway { Receipt charge(Payment payment); }`. Move the amount formatting and the status `switch` into `LegacyPayAdapter`, which turns `DECLINED` and `BUSY` into the two exceptions. `RetryingGateway` and `MeteredGateway` each hold a `PaymentGateway inner` and delegate to it; `CheckoutService` keeps only its validation and one `PaymentGateway`.
+    - |-
+      ```java
+      @Override
+      public Receipt charge(Payment payment) {
+          GatewayUnavailableException last = null;
+          for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+              try {
+                  return inner.charge(payment);
+              } catch (GatewayUnavailableException e) {
+                  last = e;
+              }
+          }
+          throw last;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

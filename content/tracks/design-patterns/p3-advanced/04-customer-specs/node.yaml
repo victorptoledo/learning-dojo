@@ -1,0 +1,54 @@
+id: design-patterns.p3.customer-specs
+kind: kata
+status: draft
+title: "Customer Specs"
+summary: "Replace a pile of finders and hand-written SQL with a sealed family of specification records, combinators, an in-memory interpreter and a parameterised SQL interpreter."
+objectives:
+  - { id: o1, text: "Refactor duplicated finder conditions into composable specification records", skills: [design-patterns.specification] }
+  - { id: o2, text: "Write two interpreters of one specification, in memory and as parameterised SQL", skills: [design-patterns.specification, design-patterns.state-visitor] }
+prerequisites: [design-patterns.p3.specification]
+difficulty: 4
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Every finder is a different combination of three tiny questions: is the customer active, in this country, with at least n orders? If each question were a value, and "and", "or" and "not" were values holding other values, how many finders would you need? Who would then know how to turn the values into a boolean, and into SQL?
+    - |-
+      Make `CustomerSpec` sealed with six records. Its static factories and the default `and`, `or` and `not` only build records. `isSatisfiedBy` is a default method with a `switch (this)` using record patterns. `CustomerQueries.where` calls a private recursive `render(spec, params)` that appends values to a list and returns the clause. Each finder becomes `findAll(...)` with a combination of specs.
+    - |-
+      ```java
+      private static String render(CustomerSpec spec, List<Object> params) {
+          return switch (spec) {
+              case IsActive active -> "active = TRUE";
+              case InCountry(String country) -> {
+                  params.add(country);
+                  yield "country = ?";
+              }
+              case MinOrders(int count) -> {
+                  params.add(count);
+                  yield "orders >= ?";
+              }
+              case And(CustomerSpec left, CustomerSpec right) ->
+                      "(" + render(left, params) + " AND " + render(right, params) + ")";
+              case Or(CustomerSpec left, CustomerSpec right) ->
+                      "(" + render(left, params) + " OR " + render(right, params) + ")";
+              case Not(CustomerSpec inner) -> "NOT " + wrap(render(inner, params));
+          };
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

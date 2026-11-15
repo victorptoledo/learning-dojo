@@ -1,0 +1,45 @@
+id: design-patterns.p2.order-state
+kind: kata
+status: draft
+title: "Order State"
+summary: "Replace an order's status string and its scattered checks with a sealed interface of state records, transitions the states own, and an exhaustive switch."
+objectives:
+  - { id: o1, text: "Refactor a status string into sealed state records that carry only their own data", skills: [design-patterns.state-visitor] }
+  - { id: o2, text: "Let each state own its transitions and describe states with an exhaustive switch", skills: [design-patterns.state-visitor] }
+prerequisites: [design-patterns.p2.state-visitor]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Look at the fields of `Order`: which of them only mean something in one status? If each status were its own type, which data would it carry, and which of the four actions would it allow? What should happen, in one place, for the actions it does not allow?
+    - |-
+      `OrderState` is sealed, with default methods `pay()`, `ship(tracking)`, `deliver()` and `cancel(reason)` that all throw the "cannot ... an order that is ..." exception built from `name()`. Each record overrides only its own transitions and returns a new state. `Order` keeps `id`, `state` and a history list, and every action becomes `moveTo(state.pay())` and so on.
+    - |-
+      ```java
+      public String describe() {
+          return id + ": " + switch (state) {
+              case Created created -> "created";
+              case Paid paid -> "paid " + money(paid.totalCents());
+              case Shipped shipped -> "shipped with " + shipped.tracking();
+              case Delivered delivered -> "delivered with " + delivered.tracking();
+              case Cancelled cancelled -> "cancelled (" + cancelled.reason() + "), refunded " + money(cancelled.refundedCents());
+          };
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.
