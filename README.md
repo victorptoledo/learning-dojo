@@ -1,186 +1,242 @@
 # 🥋 Learning Dojo
 
-A gamified learning platform for the terminal (TUI), written in **Rust** with [`ratatui`](https://ratatui.rs/).
+**Learning Dojo** is a learning platform that runs in your terminal. It turns the
+[roadmap.sh](https://roadmap.sh/) catalogue into structured tracks with written lessons, quizzes and
+hands-on coding exercises (*katas*). Your code is checked by real tests inside Docker. You earn XP and
+belts, keep a daily streak, and only move on when you have shown that you know the material.
 
-30 tracks inspired by the [roadmap.sh](https://roadmap.sh/) catalogue, each organised in five phases (First Steps → Fundamentals → Intermediate → Advanced → Mastery) with checkpoints, XP belts, a global daily streak and a **Rosetta bridge** that explains every concept from the programming language you already know.
+It is written in Rust with [`ratatui`](https://ratatui.rs/) and works offline. No account, no
+cloud, no built-in AI. When an AI review helps, the dojo writes a ready-made prompt for the AI chat
+of your choice.
 
-> **Status: v2 milestone M7.** Content model and validator (M0), SQLite progress (M1), katas checked in Docker (M2a), the complete Rust track (M2b: 22 nodes, 7 katas, Checkpoints 1 and 2), the complete Modern Java track (Java 25: 22 nodes, 7 katas, Checkpoints 1 and 2, placement bank), the complete Spring Boot track (Boot 4.1 on Java 25: 22 nodes, 7 katas tested with MockMvc, JPA on H2 and Spring Security), the complete Backend Developer track (22 nodes, 8 katas in Java and Spring: HTTP and ETags, a URL shortener, JWT from scratch, an issue tracker with optimistic concurrency, a rate limiter, idempotent payments, an outbox, a resilient client), the complete Linux track (Debian 13: 23 nodes, 8 bash katas checked with bats and ShellCheck in the `dojo-linux` image, Checkpoints 1 and 2, placement bank, lessons with further reading from man pages, the GNU manuals, the Wooledge BashGuide, the Arch Wiki and the systemd documentation), the placement test with Belt Exam (M3+M4: press `P` on a track you have not started) and mentoring without AI (M7: kata hints with `H`, spaced review with `R`, career paths and next steps with `G`). Every kata and every lesson exercise also has a review prompt for the AI chat of your choice: press `A` to save it and copy it to the clipboard (lesson answers go in `ANSWER.md`; for katas you attach your source files). It is feedback only and never changes progress. The other tracks are English drafts. Content review and more tracks come next; built-in AI review (M5) is postponed — see [`docs/architecture.md`](docs/architecture.md).
+```text
+┌ 🐧 Linux · Green Belt · 820 XP · 🔥 5 ─────────────────────────────────────────────┐
+│ ▾ P1 Fundamentals        4/7 │ Permission Audit: Find and Fix Risky Modes          │
+│   ✓ The Shell and the FHS    │ Report world-writable, setuid and setgid files...   │
+│   ✓ Files, Links and Inodes  │ 👉 What to do                                       │
+│   ✓ Streams and Pipes        │ 1. Press [O] to open the kata folder.               │
+│   ◐ Permission Audit         │ 2. Edit the .sh scripts...                          │
+│   🔒 Checkpoint 1            │ ✗ 9/12 tests passed                                 │
+└──────────────────────────────┴─────────────────────────────────────────────────────┘
+```
 
-## Getting started (for friends trying the dojo)
+## What you get
 
-The repository is private: accept the GitHub invitation first, then follow these steps once.
+- **Tracks in five phases.** Each track goes First Steps → Fundamentals → Intermediate → Advanced →
+  Mastery. Phases open in order, and Fundamentals and Intermediate end with a **checkpoint**: a
+  quiz plus an integration kata.
+- **Lessons.** Each lesson has a document, a quiz you must pass and a written exercise, plus a
+  "Further reading" list of reliable sources (official docs, man pages, well-known books and wikis).
+- **Katas.** You write real code in your editor; saving a file runs the hidden tests in a sandboxed
+  Docker container. When every test passes, the kata is completed and your solution is committed to
+  your own git repository.
+- **Rosetta bridges.** Every lesson explains its ideas from a language you already know: Java,
+  Python, JavaScript/TypeScript, C# or Go.
+- **Placement test.** If you already know part of a track, a short adaptive test lets you skip
+  ahead. A Belt Exam then confirms the skip.
+- **Mentoring without AI.** Kata hints that cost a little XP, spaced review of past quiz
+  questions, and career paths that recommend your next step.
+- **Study a topic.** Search every track for a subject that came up at work, open its lessons and
+  katas (even in phases you have not reached, as practice) and take a quiz on it.
+- **Mock technical interviews.** 20+ interview questions per track, from junior to senior. You
+  answer, reveal what a strong answer covers and rate yourself, then get a list of what to study.
+  The dojo can also turn your written answers into a prompt for an AI to evaluate.
+- **AI review prompts.** For any kata or lesson exercise, `A` copies a review prompt to the
+  clipboard. It is feedback only and never changes your progress.
 
-1. **Install the tools**
-   - [Git](https://git-scm.com/downloads), and sign in to GitHub when the first clone asks (Git Credential Manager does it on Windows).
-   - [Rust](https://rustup.rs/) (`rustup`, stable toolchain): the dojo is built from source.
-   - [Docker Desktop](https://www.docker.com/products/docker-desktop/), running: every kata is checked inside a container.
-   - Optional: [VS Code](https://code.visualstudio.com/). The dojo opens lessons and katas in it and recommends the extensions it needs.
-   - Not needed: a JDK, Maven or bash on your machine. The Java and Linux katas run in the dojo's own images.
-2. **Get the code**
+### Tracks
+
+| Status | Tracks |
+| :--- | :--- |
+| ✅ Complete | **Rust**, **Modern Java** (Java 25), **Spring Boot** (Boot 4.1), **Backend Developer**, **Linux** (Debian 13) |
+| 🚧 In progress | System Design, Git, Docker, SQL, Python |
+| 📝 Draft | Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Go, TypeScript, Modern C++, Node.js, Software Architecture, API Design, Design Patterns, Prompt Engineering, PostgreSQL, Kubernetes, AWS, Computer Science, Data Structures & Algorithms |
+
+A complete track has 22 or more nodes, 7 to 8 katas, two checkpoints, a placement test and an
+interview bank. Draft tracks show their nodes as "under construction" 🚧 until they are written.
+
+## Requirements
+
+| Tool | Why |
+| :--- | :--- |
+| [Git](https://git-scm.com/downloads) | to get the code; your kata solutions are kept in a git repository |
+| [Rust](https://rustup.rs/) (stable, via `rustup`) | the dojo is built from source |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) (running) | every kata is checked in a container |
+| [VS Code](https://code.visualstudio.com/) (optional) | the dojo opens lessons and katas in it; any editor works |
+
+You do **not** need a JDK, Maven, Python or bash on your machine: the Java, Spring and Linux katas
+run in the dojo's own images. The dojo is developed on Windows 11. It also builds on macOS and
+Linux, but those platforms get less testing.
+
+## Quick start
+
+1. **Get the code.** The repository is private, so accept the GitHub invitation first.
 
    ```bash
    git clone https://github.com/victorptoledo/learning-dojo.git
    cd learning-dojo
    ```
 
-3. **Start it** from inside the `learning-dojo` folder (the dojo reads `content/` and `runner-images/` from there):
-   - Windows: `.\dojo` (the first build takes a few minutes);
-   - macOS and Linux: `cargo run --release --bin dojo`.
-4. **First steps in the app**
-   - Pick a track (`M`) and a lesson. When a step needs a tool or a Docker image, the dojo shows a Prepare screen: `[I]` installs what it can, including building the kata images. You can also build them all up front with `cargo run --release --bin dojo -- runner build`.
-   - Your progress lives in `~/.dojo/dojo.db` and your kata solutions in a git repository of your own (`C:\dev\dojo-workspace` on Windows, `~/dojo-workspace` elsewhere; change it with `workspace = '...'` in `~/.dojo/config.toml`). Nothing is shared with anyone else.
-5. **Updates**: `git pull`, then start the dojo again; it rebuilds itself.
+2. **Start Docker Desktop.**
+3. **Run the dojo** from inside the `learning-dojo` folder (it reads `content/` and
+   `runner-images/` from there). The first build takes a few minutes.
 
-Good to know:
-- The complete tracks are Rust, Modern Java, Spring Boot, Backend Developer and Linux. The other tracks are drafts and show nodes "under construction".
-- The kata reference solutions are in `content/` (`kata/reference`). Try not to peek; the hints (`H`) are there for that.
-- The footer of each screen lists its keys; the key table below explains them.
+   ```bash
+   .\dojo
+   ```
 
-## Run
+   On macOS and Linux:
 
-On Windows, start it with the launcher:
+   ```bash
+   cargo run --release --bin dojo
+   ```
 
-```bash
-.\dojo
-```
+4. **Pick a track** with `M`, move with `↑`/`↓`, and press `Enter` on the first lesson.
 
-`dojo.cmd` builds the app and runs a copy of the binary, so a Dojo left open in another window never blocks the next build (arguments are passed through: `.\dojo --dev`, `.\dojo content validate`). `cargo run --bin dojo` works too. Only one Dojo runs at a time: opening a second one offers to close the first, because both would watch the workspace and check and commit twice.
-
-Validate the content folder (schemas, IDs, prerequisites, skills, completeness):
+The first time a step needs something (a Docker image, a VS Code extension, a tool), the dojo
+shows a **Prepare** screen with ✓/✗ for each item. Press `I` to install what it can, including
+building the kata images (the Java image is the biggest, about 1 GB). To build every
+image up front instead:
 
 ```bash
-cargo run --bin dojo -- content validate
+cargo run --release --bin dojo -- runner build
 ```
 
-Add `--strict` to fail on warnings as well. Draft tracks only produce warnings for completeness gaps; reviewed tracks turn them into errors.
+To update later, run `git pull` and start the dojo again; it rebuilds itself.
 
-## Katas
+## How it works
 
-Katas are checked in Docker, so Docker Desktop must be running. Build the runner image once (and again after changing `runner-images/`):
+1. **Read the lesson.** `Enter` opens the lesson document in your editor. The detail panel shows
+   the bridge from your language, the exercise and the further reading.
+2. **Pass the quiz.** Press `Q`. You need 80% to complete the lesson; a failed quiz can be retried
+   after you reread the lesson.
+3. **Solve the kata.** `Enter` on a kata creates its folder with the statement (`README.md`), the
+   starter code and a visible test, then opens it. Write the code and save: the tests run by
+   themselves and the result appears in the panel. `H` reveals a hint (each one costs 10% of the
+   kata's XP), and `C` re-runs the check.
+4. **Pass the checkpoint.** At the end of a phase, the quiz and the integration kata together
+   unlock the next phase.
+5. **Keep it fresh.** Questions from finished lessons come back after 1, 3, 7, 21 and 60 days:
+   press `R` when the footer shows reviews are due.
 
-```bash
-cargo run --bin dojo -- runner build
-```
+Nothing is ticked by hand: a lesson is completed by its quiz and a kata by its tests.
 
-In the TUI, press `Enter` on a kata to create its folder in your workspace (default `C:\dev\dojo-workspace`) and open it in your editor, with the statement (`README.md`) and the code to write (`src/lib.rs` for Rust, the classes under `src/main/java` for Java); `C` checks it. Saving any file in the folder runs the checks too. When every test passes the kata is completed and its folder is committed to the workspace git repository (never pushed). The grading tests stay in the dojo and are copied into the container only.
+**Where your things live.** All of these stay on your machine and are never pushed:
 
-Check that every kata's reference solution passes and its starter fails:
+| What | Where |
+| :--- | :--- |
+| Progress (XP, completions, reviews) | `~/.dojo/dojo.db` (SQLite) |
+| Settings | `~/.dojo/config.toml` (optional) |
+| Kata solutions, lesson answers, AI prompts | your workspace, a git repository: `C:\dev\dojo-workspace` on Windows, `~/dojo-workspace` elsewhere |
 
-```bash
-cargo run --bin dojo -- content verify-katas
-```
+## Keys
 
-Optional `~/.dojo/config.toml`:
-
-```toml
-workspace = 'C:\dev\dojo-workspace'
-editor = 'C:\Users\you\AppData\Local\Programs\antigravity\Antigravity.exe'
-# Any command that opens a folder or file. VS Code-like editors (code.cmd, Antigravity, Cursor)
-# open the folder plus files in one window; IntelliJ (idea64.exe) opens it as a project.
-# Default: VS Code if installed, else IntelliJ, else Explorer.
-```
-
-## Inside VS Code (recommended)
-
-```bash
-.\dojo vscode
-```
-
-This writes `dojo.code-workspace` in your workspace and opens it: one window with two roots,
-**📖 Lessons** (the course, read-only, with answers, grading tests and manifests hidden) and
-**🥋 Solutions** (your katas, a git repository). Markdown opens as a rendered preview,
-rust-analyzer gets every kata, and the **Dojo** task starts the dojo in VS Code's terminal when
-the workspace opens (VS Code asks once to allow automatic tasks). From that terminal, `Enter`
-opens lessons and kata files in the same window. The file is regenerated on every start and
-whenever a kata folder is created, and it is ignored by git.
-
-**Run and debug.** With a local Rust toolchain, the visible tests run in VS Code: **▶ Run Test** above each `#[test]` (or `cargo test` in the kata folder). With CodeLLDB, **⚙ Debug** next to it stops on your breakpoints. Only the hidden grading tests, run in Docker, complete a kata. The workspace recommends the extensions it relies on: rust-analyzer, CodeLLDB, Even Better TOML, Error Lens, Docker and YAML.
-
-IntelliJ works too (`editor` pointing at `idea64.exe`; from its terminal, files open in the same
-window), but it has no equivalent of the two-root workspace.
-
-## Preparing each step
-
-Every track lists what all of its nodes need, and each node adds its own (`requirements` in
-`track.yaml` and `node.yaml`): command-line tools with a minimum version, VS Code extensions, a
-running Docker engine, runner images. Required items block the step; optional ones only advise.
-
-When you open a node for the first time in a session, the dojo checks them. If anything is
-missing, a **Prepare** screen lists each item with ✓/✗, the version found and why the step
-needs it: `I` installs what it can (VS Code extensions, runner images, starting Docker Desktop;
-tools such as Rust show how to install them), `U` updates (for example `rustup update stable`,
-extension updates, rebuilding the image with a fresh base), `R` checks again, `Enter` continues
-when nothing required is missing. To see the whole track at once:
-
-```bash
-.\dojo doctor rust
-```
-
-## Controls
+The footer of each screen lists its keys. On the track screen:
 
 | Key | Action |
 | :--- | :--- |
-| `M` or `T` | Open the track selector |
-| `↑` / `k`, `↓` / `j` | Move through the tree (or the selector) |
-| `Enter` | Open the lesson document, or the kata folder (created on first use) with its statement and `src/lib.rs`, in your editor / pick a track |
-| `Q` | Take the quiz of the selected lesson |
-| `1`–`9`, typing, `Enter`, `Esc` | Answer a quiz question, confirm, leave the quiz |
-| `Space` | `--dev` only: tick or undo any node |
-| `C` | Check the selected kata now |
-| `O` | Open the kata folder in your editor again |
+| `M` or `T` | Choose a track |
+| `↑`/`↓` or `k`/`j` | Move through the tree |
+| `Enter` | Open the lesson document, or create and open the kata folder |
+| `O` | Open the kata folder again |
+| `Q` | Take the quiz of the lesson or checkpoint (practice only in phases you have not reached) |
+| `C` | Check the kata now |
+| `H` | Reveal the next kata hint |
+| `A` | Copy an AI review prompt for the kata or the lesson exercise |
+| `R` | Spaced review of due questions |
+| `P` | Placement test (on a track you have not started) |
+| `/` | Study a topic across every track |
+| `I` | Mock technical interview |
+| `B` | Pick the language bridges are explained from |
+| `G` | Career paths and next steps |
 | `PgUp` / `PgDn` | Scroll the detail panel |
-| `B` | Pick the bridge source language from a list (Java, Python, JavaScript / TypeScript, C#, Go) |
-| `/` | Study a topic: search every track for a subject (from work or an interview), open its lessons and katas, take a practice quiz on it (`Q`) or a mock interview (`I`) |
-| `I` | Mock technical interview for the active track: pick a level, answer, reveal what a strong answer covers, rate yourself, see what to study. Write your answers in the answers file (`W` opens it) and `E` copies a prompt that asks an AI to evaluate them; `P` copies the interview for an AI interviewer instead |
-| `Esc` | Close the selector or quit (progress is saved) |
+| `Esc` | Quit (progress is saved) |
 
-## Layout
+**In a quiz:** `1`–`9` picks an option, typing answers a text question, `Enter` confirms, and `Esc`
+leaves without recording anything.
 
-```
-crates/
-  dojo-core/      pure domain: tracks, phases, nodes, skills, progress
-  dojo-content/   loads content/ (YAML + Markdown) and validates it with JSON Schema
-  dojo-store/     SQLite progress store and the v1 profile import
-  dojo-runner/    runs kata checks in Docker and parses the test output
-  dojo-app/       the `dojo` binary: TUI and subcommands
-content/
-  schemas/        JSON Schema for every content file type
-  skills/         skill taxonomy, one file per namespace
-  tracks/<id>/    track.yaml + p0-first-steps/ ... p4-mastery/<NN-slug>/
-                  node.yaml, lesson.md, quiz.yaml, bridges/<language>.md,
-                  kata/ (README.md, starter/, tests/, reference/)
-runner-images/   one Dockerfile per runtime (rust/, java/)
-docs/
-  architecture.md full v2 design; examples/ shows every planned file format
-```
+**In a mock interview:** `Space` reveals what a strong answer covers, and `1`/`2`/`3` rates your
+answer (covered, partly, missed). `W` opens the answers file and `E` copies a prompt that asks an
+AI to evaluate your written answers. `P` copies the interview for an AI interviewer instead.
 
-Progress lives in `~/.dojo/dojo.db` (SQLite: settings plus an append-only event log; change it with `--db`). On first run a v1 `data/profile.json` is imported and renamed to `profile.v1.json`.
-
-Nothing is ticked by hand. A lesson is a document plus a quiz: pass the quiz (80% by default) to complete it. A kata is completed when its tests pass. A node without its document and quiz (or exercise) shows 🚧 and cannot be completed, and a phase opens only when every node of the earlier phases is done. The Rust track is fully written; the other tracks are still drafts. `--dev` lifts these rules and lets you undo completions:
+## Commands
 
 ```bash
-cargo run --bin dojo -- --dev
+.\dojo                          # the TUI (on macOS/Linux: cargo run --release --bin dojo -- <args>)
+.\dojo vscode                   # write dojo.code-workspace (lessons + solutions) and open it in VS Code
+.\dojo doctor rust              # check that this machine has everything the Rust track needs
+.\dojo runner build             # build the kata images in runner-images/
+.\dojo content validate         # check every track against the schemas and rules (--strict: warnings fail)
+.\dojo content verify-katas     # every kata: the reference must pass and the starter must fail
+.\dojo --dev                    # dev mode: tick or undo any node, ignoring the rules
 ```
 
-## Tracks
+On Windows, `dojo.cmd` builds the app and runs a copy of the binary, so a dojo left open never
+blocks the next build. Only one dojo runs at a time: opening a second one offers to close the first.
 
-| Category | Tracks |
+## Configuration
+
+`~/.dojo/config.toml` is optional:
+
+```toml
+workspace = 'C:\dev\dojo-workspace'   # where your kata solutions go
+editor = 'code'                       # any command that opens a folder or a file
+```
+
+The default editor is VS Code if it is installed, then IntelliJ, then the file explorer. Editors
+like VS Code, Cursor or Antigravity open the kata folder and its files in one window. IntelliJ
+(`idea64.exe`) opens the folder as a project.
+
+**VS Code workspace (recommended).** `.\dojo vscode` opens one window with two roots:
+**📖 Lessons**, the course (read-only, with answers and grading tests hidden), and
+**🥋 Solutions**, your katas. Markdown opens as a preview, rust-analyzer knows every Rust kata, the
+recommended extensions are suggested, and a **Dojo** task starts the dojo in VS Code's terminal.
+
+## Troubleshooting
+
+| Problem | Fix |
 | :--- | :--- |
-| Careers & Roles | Backend, Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React |
-| Programming Languages | Rust, Go, Modern Java & Spring Boot, Modern Python, TypeScript, Modern C++, Node.js |
-| Architecture & Engineering | System Design, Software Architecture, API Design, Design Patterns, Prompt Engineering |
-| Databases | PostgreSQL, SQL & Relational Databases |
-| Infrastructure & Tools | Docker, Kubernetes, Linux, Git & GitHub, AWS |
-| CS Fundamentals | Computer Science Fundamentals, Data Structures & Algorithms |
+| Checks fail because Docker is not reachable | Start Docker Desktop and wait until it says it is running, then press `C`. |
+| A `dojo-…` image is missing | Press `I` on the Prepare screen, or run `.\dojo runner build`. |
+| A bash kata fails with `$'\r': command not found` | The script was saved with Windows line ends. The dojo copes, but real servers will not: save `.sh` files with LF (the VS Code workspace does this for you). |
+| `cargo` is not found | Install Rust with `rustup` and open a new terminal. |
+| The first start is slow | The first build compiles the whole app and the first check of each language builds its image. Later starts are fast. |
+| The dojo says another one is running | Close the other window, or let the dojo close it for you. |
 
-Rust and Docker are the pilot tracks that get fully authored first.
+## Project layout
+
+```text
+crates/
+  dojo-core/      domain: tracks, phases, nodes, skills, progress, reviews, careers, interviews
+  dojo-content/   loads content/ (YAML + Markdown) and validates it with JSON Schema
+  dojo-store/     SQLite progress store (settings plus an append-only event log)
+  dojo-runner/    runs kata checks in Docker and parses the test output
+  dojo-app/       the dojo binary: TUI, screens and subcommands
+content/
+  schemas/        JSON Schema for every content file type
+  skills/         the skill taxonomy, one file per namespace
+  careers/        career paths built from track phases and skills
+  tracks/<id>/    track.yaml, placement.yaml, interview.yaml and p0-first-steps/ ... p4-mastery/<NN-slug>/
+                  with node.yaml, lesson.md, quiz.yaml, bridges/<language>.md
+                  and kata/ (README.md, starter/, tests/, reference/)
+runner-images/    one image per kata runtime: rust/, java/ (JUnit 6, Spring Boot), linux/ (bats, ShellCheck)
+docs/
+  architecture.md the full design and its decisions; examples/ shows every file format
+```
 
 ## Development
 
 ```bash
 cargo test
+cargo clippy --all-targets -- -D warnings
+cargo run --bin dojo -- content validate
+cargo run --bin dojo -- content verify-katas    # needs Docker and the images
 ```
 
-```bash
-cargo clippy --all-targets -- -D warnings
-```
+To write content, copy the structure of a complete track (`content/tracks/linux` is the most
+recent), then run `content validate` until it shows no errors or warnings for your track and
+`content verify-katas` until every kata's reference passes and its starter fails. The design,
+the content rules and the roadmap are in [`docs/architecture.md`](docs/architecture.md).
+
+Content and code are in English. The kata reference solutions live in `content/` (`kata/reference`):
+if you are here to learn, try the hints before you peek.
