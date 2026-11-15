@@ -1,0 +1,24 @@
+id: design-patterns.p2.creational
+kind: lesson
+status: draft
+title: "Creating Objects: Builder, Static Factories, Abstract Factory, Singleton and Prototype"
+summary: "The creational patterns in Java 25: records with compact constructors, static factories, builders for many optional parts, abstract factories for families, singletons done safely (or by the container), and copies instead of clones."
+objectives:
+  - { id: o1, text: "Choose between a constructor, a static factory, a record and a builder for a type", skills: [design-patterns.creational] }
+  - { id: o2, text: "Recognise abstract factory and explain why most singletons should be one instance managed by DI", skills: [design-patterns.creational] }
+  - { id: o3, text: "Create modified copies of immutable objects instead of cloning, and know where flyweights hide in the JDK", skills: [design-patterns.creational] }
+prerequisites: [design-patterns.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An `HttpRequestSpec` has a URL (required), a method (default GET), up to 20 headers, an optional body, a timeout (default 10 s) and a retry policy (default none). Today it has six constructors and callers pass `null` for what they do not need. Design its replacement: record or class, builder or not, where validation happens, how a caller makes a variant of an existing spec, and how tests get one cheaply. Then say whether the `HttpClient` that sends these specs should be a singleton, and how.'
+  criteria:
+    - 'Uses an immutable type (record) with validation in one place (compact constructor or build())'
+    - 'Uses a builder (or withers) for the optional parts and explains why telescoping constructors fail'
+    - 'Shows how to derive a variant (toBuilder() or with-methods) without mutation'
+    - 'Gives tests a cheap way to build specs (defaults, a test factory method)'
+    - 'Makes the client a single instance managed by the DI container rather than a static singleton, with a reason'

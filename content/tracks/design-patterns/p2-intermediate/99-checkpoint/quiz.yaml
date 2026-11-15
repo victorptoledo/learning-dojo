@@ -1,0 +1,49 @@
+questions:
+  - id: cp2-builder-validation
+    skills: [design-patterns.creational]
+    prompt: "A record has a builder. Where should validation live so that code bypassing the builder still cannot create an invalid instance?"
+    options: ["In each builder setter", "In the record's compact constructor, which build() calls", "In the caller", "Nowhere: builders make validation unnecessary"]
+    answer: 1
+    explanation: "All construction paths go through the canonical constructor."
+  - id: cp2-singleton-di
+    skills: [design-patterns.creational]
+    prompt: "Why is a Spring singleton bean less problematic than a classic `getInstance()` singleton?"
+    options: ["It is faster", "It is one instance injected explicitly, so dependencies are visible and tests can replace it", "It cannot hold state", "It is created lazily"]
+    answer: 1
+    explanation: "The problem with the classic singleton is global access, not the single instance."
+  - id: cp2-abstract-factory
+    skills: [design-patterns.creational]
+    prompt: "You must create a connection, a SQL dialect and a migrator that all match the same database. Which pattern fits?"
+    options: ["Prototype", "Abstract factory: one factory per family creates all the matching products", "Flyweight", "Observer"]
+    answer: 1
+    explanation: "An abstract factory keeps families consistent; in Spring a configuration class often plays that role."
+  - id: cp2-unsubscribe
+    skills: [design-patterns.observer-command]
+    prompt: "Short-lived objects subscribe to a long-lived event source and never unsubscribe. What happens?"
+    options: ["Nothing", "A memory leak: the source keeps them reachable and keeps notifying them", "They are garbage-collected anyway", "The source crashes"]
+    answer: 1
+    explanation: "Return a subscription handle and close it; the lapsed listener problem is the classic observer bug."
+  - id: cp2-macro-rollback
+    skills: [design-patterns.observer-command, design-patterns.state-visitor]
+    prompt: "The third step of a macro command throws. What should the macro do before rethrowing?"
+    options: ["Nothing", "Undo the two steps it already ran, in reverse order", "Run the remaining steps", "Clear the undo stack"]
+    answer: 1
+    explanation: "A composite command must behave as one step: all or nothing."
+  - id: cp2-pipeline
+    skills: [design-patterns.observer-command]
+    prompt: "Pricing rules are a `List<PricingStep>` folded in order. How do you add a 'black friday' rule before tax?"
+    options: ["Edit the engine's loop", "Insert one step into the list before the tax step where the engine is built", "Subclass the engine", "Add a listener"]
+    answer: 1
+    explanation: "A pipeline makes rules data: order and membership are configuration."
+  - id: cp2-default-branch
+    skills: [design-patterns.state-visitor]
+    prompt: "Why avoid `default ->` in a switch over your own sealed state interface?"
+    options: ["It is slower", "It disables the exhaustiveness check, so a new state fails at runtime instead of at compile time", "It is not allowed", "Records cannot be matched"]
+    answer: 1
+    explanation: "Without default, adding a permitted type makes every incomplete switch a compile error."
+  - id: cp2-state-transitions
+    skills: [design-patterns.state-visitor]
+    prompt: "In the sealed-records state machine, where is the rule 'a shipped order cannot be cancelled' expressed?"
+    options: ["In a big if/else in Order", "In Shipped not overriding cancel(), so the interface's default refuses it", "In the database", "In the controller"]
+    answer: 1
+    explanation: "Each state allows only the transitions it overrides; everything else is refused in one place."

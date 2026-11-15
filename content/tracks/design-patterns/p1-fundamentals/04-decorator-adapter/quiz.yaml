@@ -1,0 +1,31 @@
+questions:
+  - id: intention
+    prompt: "A wrapper implements the same interface as the object it wraps and adds retry logic. Which pattern is it?"
+    options: ["Adapter", "Decorator", "Facade", "Factory"]
+    answer: 1
+    explanation: "Same interface plus extra behaviour is a decorator; an adapter changes the interface."
+  - id: adapter-when
+    prompt: "When is Adapter the right pattern?"
+    options: ["To add logging to every call", "To use a class whose interface does not match the one your code needs, without changing either", "To create objects step by step", "To share one instance"]
+    answer: 1
+    explanation: "The adapter translates between an interface you own and one you cannot change."
+  - id: order
+    prompt: "`new Metered(new Retrying(adapter, 3))`: a payment succeeds on the third attempt. What does the meter count?"
+    options: ["Three calls, two failures", "One successful call", "Nothing", "Three successes"]
+    answer: 1
+    explanation: "The meter is outside the retries, so it sees one call that succeeded; inside it would see the attempts."
+  - id: self-invocation
+    prompt: "In a Spring bean, `placeOrder()` calls `this.saveAll()`, which is annotated `@Transactional`. What happens?"
+    options: ["A new transaction starts", "No transaction from that annotation: the call does not go through the proxy", "Spring throws at startup", "The transaction is read-only"]
+    answer: 1
+    explanation: "Spring's transactions live in the proxy around the bean; a call on `this` reaches the real object directly."
+  - id: facade-example
+    prompt: "Which is best described as a facade?"
+    options: ["BufferedInputStream", "JdbcTemplate over connections, statements, result sets and SQLExceptions", "Comparator", "Integer.valueOf"]
+    answer: 1
+    explanation: "A facade gives a small task-shaped API over a subsystem; BufferedInputStream is a decorator."
+  - id: lazy-proxy
+    prompt: "A lazily loaded JPA association throws LazyInitializationException after the transaction ended. What object threw it?"
+    options: ["The database driver", "A proxy that stands in for the entity and loads it on first access", "The controller", "The JSON serialiser itself"]
+    answer: 1
+    explanation: "Lazy associations are proxies; once the persistence context is closed they cannot load."

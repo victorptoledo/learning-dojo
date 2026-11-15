@@ -1,0 +1,47 @@
+id: design-patterns.p4.legacy-refactor
+kind: kata
+status: draft
+title: "Tame the God Class"
+summary: "Refactor an eight-year-old library back office, with every smell in the catalogue, into a type for member rules, records instead of arrays and short methods, keeping every result and message."
+objectives:
+  - { id: o1, text: "Refactor a god class in small steps under characterisation tests without changing behaviour", skills: [design-patterns.code-smells] }
+  - { id: o2, text: "Replace a type code and its conditionals with an enum that owns the rules, and arrays with records", skills: [design-patterns.code-smells, design-patterns.strategy-factory] }
+prerequisites: [design-patterns.p4.smells-antipatterns]
+difficulty: 5
+estimated_minutes: 75
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Make a list of the smells before you touch anything: which strings are really a type, which arrays are really records, which method does four jobs, which lookups are repeated? Which single change removes the most of them at once? (Hint: three methods ask "what kind of member is this?".)
+    - |-
+      Start with `enum MemberType` holding `maxLoans`, `loanDays` and a `LongUnaryOperator` for the fee, plus `parse`. Then replace `String[]` and `Object[]` with records `Book`, `Member` and `Loan` (give `Loan` a `daysLate(today)`). Then extract `member(id)` and `book(isbn)` lookups, `loansOf(member)`, a `Money.format` and an `OverdueReport.render(loans, today)`. Run the visible tests after every step.
+    - |-
+      ```java
+      public LocalDate borrow(String memberId, String isbn, LocalDate today) {
+          Member member = member(memberId);
+          Book book = book(isbn);
+          if (loans.containsKey(isbn)) throw new IllegalStateException("already on loan: " + isbn);
+          if (fines.get(memberId) > FINE_LIMIT_CENTS) throw new IllegalStateException("unpaid fines: " + memberId);
+          if (loansOf(member) >= member.type().maxLoans()) throw new IllegalStateException("loan limit reached: " + memberId);
+          Loan loan = new Loan(member, book, today.plusDays(member.type().loanDays()));
+          loans.put(isbn, loan);
+          outbox.add(memberId + ": you borrowed \"" + book.title() + "\", due " + loan.due());
+          return loan.due();
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

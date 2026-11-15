@@ -1,0 +1,58 @@
+id: design-patterns.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate patterns: a quiz on creational patterns, observer, command, chains, state and visitor, and a quote service refactored into a builder, a pipeline of pricing steps and observers."
+objectives:
+  - { id: o1, text: "Explain the creational patterns, observer, command, chain of responsibility, state, visitor and composite in your own words", skills: [design-patterns.creational, design-patterns.observer-command, design-patterns.state-visitor] }
+  - { id: o2, text: "Refactor a seven-parameter service into a validated builder, a pipeline of steps and isolated observers", skills: [design-patterns.creational, design-patterns.observer-command] }
+prerequisites: [design-patterns.p2.editor-commands]
+difficulty: 3
+estimated_minutes: 75
+xp: 350
+closes_phase: p2
+covers_skills: [design-patterns.creational, design-patterns.observer-command, design-patterns.state-visitor]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Three problems hide in `QuoteService.quote`: how the request is passed in, how the rules are applied, and who hears about the result. Which pattern fixes seven positional parameters? If each rule took the request and the quote so far and returned the next quote, what would the engine's loop look like? And who should decide that the audit log is interested?
+    - |-
+      `QuoteRequest` is a record that validates in its compact constructor, with a nested `Builder` whose `build()` calls the canonical constructor. Each rule in `PricingSteps` is a lambda that returns `quote` unchanged or `quote.adjusted(newCents, "label")`. `QuoteEngine` folds the steps, then loops over a `CopyOnWriteArrayList<QuoteListener>`, catching `RuntimeException` per listener. `QuoteService` subscribes two lambdas in its constructor.
+    - |-
+      ```java
+      public Quote quote(QuoteRequest request) {
+          Quote quote = new Quote(request.customer(), request.quantity() * request.unitCents(), List.of());
+          for (PricingStep step : steps) {
+              quote = step.apply(request, quote);
+          }
+          for (QuoteListener listener : listeners) {
+              try {
+                  listener.quoted(request, quote);
+              } catch (RuntimeException e) {
+                  failedNotifications++;
+              }
+          }
+          return quote;
+      }
+
+      public Subscription subscribe(QuoteListener listener) {
+          listeners.add(listener);
+          return () -> listeners.remove(listener);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

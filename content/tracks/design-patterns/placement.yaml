@@ -1,0 +1,274 @@
+# Placement test of the Design Patterns track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How much do you work with design patterns?
+  options:
+    - { label: "Little: I write features and have heard of SOLID and singletons", start_phase: p0, test: false }
+    - { label: "I use strategy, factory, adapter and decorator and know SOLID well", start_phase: p1, test: true }
+    - { label: "I design with patterns daily: state, observer, repositories, DI, ports and adapters", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-wrapper-set
+    phase: p1
+    skills: [design-patterns.composition-coupling]
+    difficulty: 2
+    prompt: "You need a Map that records every key read. Which design depends least on how a particular Map is implemented?"
+    options: ["class AuditMap extends HashMap", "A class that implements Map, holds any Map and forwards every call, recording reads", "A static helper called before each get", "Editing HashMap"]
+    answer: 1
+    explanation: "Forwarding composition works with every Map and does not rely on the parent's internals."
+  - id: p1-bridge
+    phase: p1
+    skills: [design-patterns.composition-coupling]
+    difficulty: 3
+    prompt: "You have 3 shapes and 4 renderers and created 12 subclasses (SvgCircle, PngCircle ...). Which pattern joins the two hierarchies with a field instead?"
+    answers: ["bridge", "bridge pattern", "the bridge pattern"]
+    explanation: "Bridge: Shape holds a Renderer, so 3 + 4 classes replace 3 × 4."
+  - id: p1-stamp-coupling
+    phase: p1
+    skills: [design-patterns.composition-coupling]
+    difficulty: 3
+    prompt: "`sendInvoice(Customer customer)` uses only `customer.email()`, and testing it means building a full Customer. What would lower the coupling?"
+    options: ["Pass the Customer's repository", "Pass only what is used: the email address (or a small Recipient value)", "Make Customer a singleton", "Add more getters"]
+    answer: 1
+    explanation: "Stamp coupling passes a whole structure when data coupling would do."
+  - id: p1-strategy-state
+    phase: p1
+    skills: [design-patterns.strategy-factory]
+    difficulty: 2
+    prompt: "A price rule needs no fields and has one method. How do you write it as a strategy in modern Java?"
+    options: ["An abstract class", "A lambda for a @FunctionalInterface", "A singleton class", "A static block"]
+    answer: 1
+    explanation: "Stateless one-method strategies are functions."
+  - id: p1-factory-hide
+    phase: p1
+    skills: [design-patterns.strategy-factory]
+    difficulty: 3
+    prompt: "`EnumSet.noneOf(type)` returns a RegularEnumSet for small enums and a JumboEnumSet for large ones. Which benefit of static factories does this show?"
+    options: ["Faster compilation", "Returning a hidden subtype chosen by the factory, without callers knowing", "Avoiding generics", "Thread safety"]
+    answer: 1
+    explanation: "A static factory can pick the implementation; a constructor always creates its own class."
+  - id: p1-spring-registry
+    phase: p1
+    skills: [design-patterns.strategy-factory]
+    difficulty: 3
+    prompt: "Beans `pdfExporter`, `csvExporter` and `xlsxExporter` implement `Exporter`. A service declares `Map<String, Exporter> exporters`. What are the map's keys?"
+    options: ["The class names", "The bean names, such as \"pdfExporter\"", "The interface name", "Nothing: Spring cannot inject maps"]
+    answer: 1
+    explanation: "Spring injects all beans of the type keyed by bean name: a ready-made registry."
+  - id: p1-adapter-checked
+    phase: p1
+    skills: [design-patterns.decorator-adapter]
+    difficulty: 2
+    prompt: "A vendor client throws checked `VendorException`s and returns its own `VendorResult`. Where should the translation into your exceptions and records happen?"
+    options: ["In every caller", "In one adapter that implements your interface", "In a global exception handler only", "Nowhere"]
+    answer: 1
+    explanation: "One adapter keeps vendor types and errors out of the rest of the code."
+  - id: p1-cache-retry-order
+    phase: p1
+    skills: [design-patterns.decorator-adapter]
+    difficulty: 4
+    prompt: "You stack a cache and a retry decorator around a slow client. Which order avoids retrying requests the cache could answer?"
+    options: ["Retry outside, cache inside", "Cache outside, retry inside", "The order never matters", "Merge them into one class"]
+    answer: 1
+    explanation: "The outer decorator sees the call first: a cache hit never reaches the retry loop."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-builder-when
+    phase: p2
+    skills: [design-patterns.creational]
+    difficulty: 2
+    prompt: "Which type gains least from a builder?"
+    options: ["An HTTP request with 10 optional parts", "A `record Point(int x, int y)`", "A report definition with optional filters, sorting and paging", "A test fixture with many defaults"]
+    answer: 1
+    explanation: "Two required components need no builder; builders pay off with many optional parts."
+  - id: p2-di-singleton
+    phase: p2
+    skills: [design-patterns.creational]
+    difficulty: 3
+    prompt: "Tests fail randomly because they share state through `Config.getInstance()`. What is the better design?"
+    options: ["Reset the singleton in every test with reflection", "Create one Config at startup and inject it; tests create their own", "Make getInstance synchronized", "Use a static block"]
+    answer: 1
+    explanation: "The problem is global access; injected single instances are isolated per test."
+  - id: p2-cloneable
+    phase: p2
+    skills: [design-patterns.creational]
+    difficulty: 3
+    prompt: "Why do Java experts advise against `Cloneable` for the prototype pattern?"
+    options: ["It is deprecated", "Object.clone is shallow, Cloneable declares no clone method, and it bypasses constructors and their checks", "It is slow", "Records cannot be cloned"]
+    answer: 1
+    explanation: "Prefer copy constructors, withers or copies of immutable records."
+  - id: p2-observer-copy
+    phase: p2
+    skills: [design-patterns.observer-command]
+    difficulty: 4
+    prompt: "A listener unsubscribes itself while the subject iterates over an ArrayList of listeners. What usually happens, and what is a fix?"
+    options: ["Nothing happens", "ConcurrentModificationException; iterate over a copy or use CopyOnWriteArrayList", "The listener is called twice", "A deadlock"]
+    answer: 1
+    explanation: "Changing the list during iteration breaks the iterator; copy-on-write lists suit listener lists."
+  - id: p2-command-executor
+    phase: p2
+    skills: [design-patterns.observer-command]
+    difficulty: 2
+    prompt: "In `executor.submit(() -> sendReport())`, which roles of the command pattern do you see?"
+    options: ["None", "The lambda is the command and the executor is the invoker", "The executor is the receiver", "It is an observer"]
+    answer: 1
+    explanation: "The request becomes an object the invoker can queue and run later."
+  - id: p2-chain-stop
+    phase: p2
+    skills: [design-patterns.observer-command]
+    difficulty: 3
+    prompt: "In a servlet filter chain, how does an authentication filter reject a request?"
+    options: ["It throws away the chain object", "It writes a 401 response and does not call chain.doFilter", "It calls the next filter twice", "It restarts the server"]
+    answer: 1
+    explanation: "Each link decides whether to pass the request on."
+  - id: p2-memento
+    phase: p2
+    skills: [design-patterns.observer-command]
+    difficulty: 3
+    prompt: "A command cannot compute its own inverse, so before running it saves the object's previous state to restore on undo. Which pattern is that?"
+    answers: ["memento", "the memento pattern", "memento pattern"]
+    explanation: "A memento captures state so it can be restored later."
+  - id: p2-expression-types
+    phase: p2
+    skills: [design-patterns.state-visitor]
+    difficulty: 4
+    prompt: "Plugins add new payment methods every month, and there are only two operations on them. Methods on each type, or switches over a sealed hierarchy?"
+    options: ["Switches over a sealed hierarchy", "Methods on each type: new types are then one new class each", "Neither", "Reflection"]
+    answer: 1
+    explanation: "When types change often and operations rarely, polymorphic methods win the expression problem."
+  - id: p2-record-pattern
+    phase: p2
+    skills: [design-patterns.state-visitor]
+    difficulty: 3
+    prompt: "What does `case Rect(double w, double h) -> w * h` in a switch do?"
+    options: ["Creates a Rect", "Matches a Rect and binds its components w and h in one step (a record pattern)", "Casts any shape to Rect", "Compares two rectangles"]
+    answer: 1
+    explanation: "Record patterns deconstruct records while matching their type."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-generic-repo
+    phase: p3
+    skills: [design-patterns.repository-uow]
+    difficulty: 3
+    prompt: "What is the main problem with one generic `Repository<T>` (findAll, save, delete) for every entity?"
+    options: ["It needs generics", "It exposes operations the domain should not allow and pushes queries back into callers", "It is slower", "It cannot be tested"]
+    answer: 1
+    explanation: "Repositories per aggregate expose only meaningful operations and domain queries."
+  - id: p3-n-plus-one
+    phase: p3
+    skills: [design-patterns.repository-uow]
+    difficulty: 3
+    prompt: "Listing 200 orders runs 201 queries because each order's customer loads lazily. What is this called?"
+    answers: ["n+1", "n + 1", "n+1 queries", "the n+1 problem", "n+1 problem", "n+1 select problem"]
+    explanation: "Fetch what the use case needs with a join fetch, an entity graph or a projection."
+  - id: p3-rollback-checked
+    phase: p3
+    skills: [design-patterns.repository-uow]
+    difficulty: 4
+    prompt: "A `@Transactional` method throws a checked exception. By default, does Spring roll back?"
+    options: ["Yes, always", "No: by default only unchecked exceptions and errors roll back, unless rollbackFor says otherwise", "Only on Tuesdays", "Only for read-only transactions"]
+    answer: 1
+    explanation: "Spring's default rollback rules follow EJB: RuntimeException and Error roll back."
+  - id: p3-constructor-smell
+    phase: p3
+    skills: [design-patterns.dependency-injection]
+    difficulty: 2
+    prompt: "A constructor needs eleven injected collaborators. What does that most likely tell you?"
+    options: ["Use field injection to hide them", "The class has too many responsibilities and should be split", "Spring is misconfigured", "Nothing"]
+    answer: 1
+    explanation: "Constructor injection makes the smell visible; that is a feature."
+  - id: p3-objectprovider
+    phase: p3
+    skills: [design-patterns.dependency-injection]
+    difficulty: 4
+    prompt: "A singleton must create a new prototype-scoped `ReportBuilder` for every report. What should it inject?"
+    options: ["ReportBuilder directly", "An ObjectProvider<ReportBuilder> (or a Supplier) and call getObject() per report", "The ApplicationContext", "A static factory"]
+    answer: 1
+    explanation: "Direct injection happens once; a provider gives a new instance each time without a service locator."
+  - id: p3-spec-reasons
+    phase: p3
+    skills: [design-patterns.specification]
+    difficulty: 3
+    prompt: "Support staff need to see which eligibility rule refused an application. Why are opaque lambdas a poor fit?"
+    options: ["Lambdas are slow", "A lambda can only answer true or false; specifications as data can be named and explained rule by rule", "Lambdas cannot be combined", "They are not thread-safe"]
+    answer: 1
+    explanation: "An interpreter over spec records can produce explanations as well as answers."
+  - id: p3-spec-jpa
+    phase: p3
+    skills: [design-patterns.specification]
+    difficulty: 3
+    prompt: "Which Spring Data interface must a repository extend to accept `findAll(Specification<T>)`?"
+    answers: ["JpaSpecificationExecutor", "JpaSpecificationExecutor<T>"]
+    explanation: "JpaSpecificationExecutor adds the methods that take specifications."
+  - id: p3-acl-direction
+    phase: p3
+    skills: [design-patterns.ports-adapters]
+    difficulty: 3
+    prompt: "In ports and adapters, which way do source dependencies point between `domain.TransferService` and `adapters.JpaAccounts`?"
+    options: ["The service imports JpaAccounts", "JpaAccounts imports the domain's Accounts port; the domain imports nothing from adapters", "Both import each other", "Neither depends on the other at all"]
+    answer: 1
+    explanation: "Dependencies point inward; the composition root wires the adapter into the service."
+  - id: p3-acl-tests
+    phase: p3
+    skills: [design-patterns.ports-adapters]
+    difficulty: 4
+    prompt: "How do you best test an anti-corruption layer over a vendor API?"
+    options: ["Only through the UI", "With recorded vendor responses (fixtures or a stub server), asserting the domain values and errors it produces", "It cannot be tested", "By calling production"]
+    answer: 1
+    explanation: "The ACL's job is translation; recorded foreign inputs and expected domain outputs test exactly that."
+  # ---- P4 Mastery ----------------------------------------------------------------
+  - id: p4-shotgun
+    phase: p4
+    skills: [design-patterns.code-smells]
+    difficulty: 3
+    prompt: "Adding a field to an invoice requires edits in eleven files across four packages. Which smell is it?"
+    options: ["Long method", "Shotgun surgery", "Lazy class", "Comments"]
+    answer: 1
+    explanation: "One change scattered over many places; gather the related code."
+  - id: p4-golden-master
+    phase: p4
+    skills: [design-patterns.code-smells]
+    difficulty: 3
+    prompt: "What kind of test records a legacy system's current outputs for many inputs and fails when they change?"
+    answers: ["characterization test", "characterisation test", "characterization tests", "characterisation tests", "golden master", "golden master test", "approval test", "approval tests", "snapshot test"]
+    explanation: "Characterisation (golden master, approval) tests pin behaviour before refactoring."
+  - id: p4-fix-while-refactor
+    phase: p4
+    skills: [design-patterns.code-smells]
+    difficulty: 4
+    prompt: "While refactoring you find a bug that the characterisation tests pin. What is the safest course?"
+    options: ["Fix it in the same commit", "Keep the behaviour, finish the refactoring, then fix the bug in its own commit with its own test", "Delete the test", "Ignore it forever"]
+    answer: 1
+    explanation: "Mixing behaviour changes into a refactoring makes both harder to review and revert."
+  - id: p4-twelve-filters
+    phase: p4
+    skills: [design-patterns.choosing-patterns]
+    difficulty: 3
+    prompt: "A search screen has 12 optional filters that combine freely. Which pattern fits the query side?"
+    options: ["One repository method per combination", "Specifications combined with and/or and translated into one query", "Singleton", "Observer"]
+    answer: 1
+    explanation: "Twelve optional filters would need thousands of finders; specifications compose them."
+  - id: p4-remove-visitor
+    phase: p4
+    skills: [design-patterns.choosing-patterns]
+    difficulty: 4
+    prompt: "A codebase on Java 25 has a classic visitor over a hierarchy it owns completely. What is a reasonable modernisation?"
+    options: ["Keep adding visit methods", "Seal the hierarchy, turn the nodes into records where possible, and replace visitors with exhaustive switches", "Use reflection", "Convert it to observer"]
+    answer: 1
+    explanation: "Sealed types give the same compile-time safety with far less ceremony."
+  - id: p4-pattern-fever
+    phase: p4
+    skills: [design-patterns.choosing-patterns]
+    difficulty: 4
+    prompt: "A new feature adds `ReportGeneratorFactoryProvider`, an abstract `BaseReportGenerator` and one implementation. What would you suggest in review?"
+    options: ["More abstractions for the future", "Start with the one concrete class; add the abstraction when a second variant actually appears", "Make it a singleton", "Add an observer"]
+    answer: 1
+    explanation: "Speculative generality is a smell; YAGNI until the forces show up."

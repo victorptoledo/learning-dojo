@@ -1,0 +1,24 @@
+id: design-patterns.p3.ports-adapters
+kind: lesson
+status: draft
+title: "Ports and Adapters and the Anti-Corruption Layer"
+summary: "Ports and adapters at the scale of a service: driving and driven ports, adapters for databases, clients and legacy systems, the anti-corruption layer that keeps foreign models out, the dependency rule and how to check it."
+objectives:
+  - { id: o1, text: "Define driving and driven ports for a use case and implement them with adapters", skills: [design-patterns.ports-adapters] }
+  - { id: o2, text: "Protect the domain model from a legacy or third-party model with an anti-corruption layer", skills: [design-patterns.ports-adapters] }
+  - { id: o3, text: "State the dependency rule and check it with package structure and automated tests", skills: [design-patterns.ports-adapters] }
+prerequisites: [design-patterns.p3.customer-specs]
+difficulty: 4
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your shipping service must get delivery quotes from a carrier whose API returns XML with its own concepts (consignments, legs, surcharges in a currency that depends on the leg, error codes in the body of HTTP 200 responses). Design the boundary: the port your domain owns (its name, method and types), the anti-corruption layer and what it translates, where the carrier''s types are allowed to appear, how you would test the domain and the adapter separately, and what you would do when a second carrier arrives.'
+  criteria:
+    - 'Defines a driven port in domain terms (for example DeliveryQuotes returning a Quote record)'
+    - 'Puts all translation (XML, currencies, error codes) in the anti-corruption layer adapter'
+    - 'Keeps carrier types out of the domain and checks it (package rule, test)'
+    - 'Tests the domain with a fake port and the adapter with recorded carrier responses'
+    - 'Adds the second carrier as a second adapter behind the same port'

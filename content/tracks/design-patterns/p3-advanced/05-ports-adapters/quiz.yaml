@@ -1,0 +1,31 @@
+questions:
+  - id: port-owner
+    prompt: "Who owns a driven port such as `ExchangeRates`?"
+    options: ["The rate provider's SDK", "The application: it is named and typed in the domain's terms", "The database", "Spring"]
+    answer: 1
+    explanation: "Ports express what the application needs; adapters fit technology to them."
+  - id: driving-driven
+    prompt: "Which is a driving (primary) adapter?"
+    options: ["A JPA repository implementation", "A REST controller that calls the application service", "An SMTP client", "An in-memory account store"]
+    answer: 1
+    explanation: "Driving adapters call into the application; driven adapters implement its outbound ports."
+  - id: dependency-rule
+    prompt: "What does the dependency rule of ports and adapters say?"
+    options: ["Adapters must not use frameworks", "Source dependencies point inward: the domain knows only its ports, never the adapters", "Every class needs an interface", "Controllers call repositories directly"]
+    answer: 1
+    explanation: "Only the composition root knows both sides."
+  - id: enforce
+    prompt: "What enforces the dependency rule most strongly?"
+    options: ["A wiki page", "A separate build module for the domain that does not depend on the adapters, so violations do not compile", "Code comments", "Naming conventions alone"]
+    answer: 1
+    explanation: "Module boundaries make violations compile errors; ArchUnit tests are the next best thing."
+  - id: acl-job
+    prompt: "What is the main job of an anti-corruption layer?"
+    options: ["Encrypting traffic", "Translating a foreign model into the domain's model so its concepts do not leak in", "Caching", "Load balancing"]
+    answer: 1
+    explanation: "It is an adapter whose purpose is model translation, both ways."
+  - id: acl-quirk
+    prompt: "A legacy feed knows EURUSD but not USDEUR. Where should the inversion of the rate happen?"
+    options: ["In every service that needs USDEUR", "In the anti-corruption layer that implements ExchangeRates", "In the database", "In the controller"]
+    answer: 1
+    explanation: "Quirks of the foreign system are handled once, in the translation layer."

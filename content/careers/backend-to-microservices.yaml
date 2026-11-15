@@ -7,6 +7,7 @@ stages:
     title: "Solid backend"
     requires:
       - { track: backend, phase: p2 }
+      - { track: design-patterns, phase: p2 }
       - { track: sql, phase: p2 }
       - { track: datastructures-and-algorithms, phase: p2 }
       - { any_of: [{ track: go, phase: p2 }, { track: java, phase: p2 }, { track: rust, phase: p2 }, { track: python, phase: p2 }] }
@@ -19,6 +20,7 @@ stages:
     title: "Distributed systems"
     requires:
       - { track: system-design, phase: p3 }
+      - { track: design-patterns, phase: p3 }
       - { track: kubernetes, phase: p2 }
       - { track: software-architect, phase: p3 }
   - id: s4

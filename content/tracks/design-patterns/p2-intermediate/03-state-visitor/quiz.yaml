@@ -1,0 +1,31 @@
+questions:
+  - id: sealed-check
+    prompt: "You add `Triangle` to the `permits` list of a sealed `Shape`. What happens to `switch (shape)` expressions without a default branch?"
+    options: ["They silently return null", "They stop compiling until they handle Triangle", "They throw at runtime only", "Nothing"]
+    answer: 1
+    explanation: "Exhaustiveness checking is why you avoid default branches over sealed types."
+  - id: state-records
+    prompt: "In a sealed-records state machine, why does only `Shipped` have a tracking number?"
+    options: ["To save memory", "So that impossible states (shipped without tracking, created with a refund) cannot be represented", "Records cannot have many fields", "For JSON"]
+    answer: 1
+    explanation: "Each state carries exactly the data that exists in it."
+  - id: visitor-modern
+    prompt: "What replaces the classic accept/visit double dispatch in Java 25 for a sealed hierarchy?"
+    options: ["Reflection", "One exhaustive switch with record patterns per operation", "An abstract base class", "Annotations"]
+    answer: 1
+    explanation: "The switch dispatches on type, and the compiler checks that every case is handled."
+  - id: expression-problem
+    prompt: "You keep adding operations (render, export, validate) over a stable set of element types. Which organisation makes that cheap?"
+    options: ["A method per operation on every type", "Switches over a sealed hierarchy: one new function per operation", "A singleton", "Inheritance from a base element"]
+    answer: 1
+    explanation: "New operations are one function each; new types would touch every switch, which is rarer here."
+  - id: composite
+    prompt: "A `Macro` command holds a list of commands and is itself a command. Which pattern is that?"
+    options: ["Adapter", "Composite", "Singleton", "Flyweight"]
+    answer: 1
+    explanation: "The group implements the same interface as its parts, so callers treat them alike."
+  - id: template-vs-strategy
+    prompt: "`JdbcTemplate.query(sql, rowMapper)` keeps the JDBC skeleton and takes the mapping step as an argument. Compared with a classic template method, what does it avoid?"
+    options: ["Using SQL", "Subclassing: the varying step is a function passed in", "Exceptions", "Transactions"]
+    answer: 1
+    explanation: "Callback (strategy) beats an abstract class with hooks when only a step varies."

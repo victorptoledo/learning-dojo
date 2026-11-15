@@ -1,0 +1,24 @@
+id: design-patterns.p4.smells-antipatterns
+kind: lesson
+status: draft
+title: "Code Smells, Anti-Patterns and Refactoring Moves"
+summary: "The smells that tell you where design hurts, the named anti-patterns that keep coming back, and the refactoring moves (with a safety net of characterisation tests) that fix them in small steps."
+objectives:
+  - { id: o1, text: "Name the common code smells in a piece of code and the refactoring that addresses each", skills: [design-patterns.code-smells] }
+  - { id: o2, text: "Recognise anti-patterns such as god class, anemic domain model, singleton abuse and golden hammer", skills: [design-patterns.code-smells] }
+  - { id: o3, text: "Refactor legacy code safely with characterisation tests, small steps and seams", skills: [design-patterns.code-smells] }
+prerequisites: [design-patterns.p3.hexagonal-transfer]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You inherit a 3,000-line `InvoiceService` with no tests. A change is due next week: invoices for a new country with a different tax rule. Write a plan: how you would get a safety net in place before changing anything, which smells you expect to find and which refactoring move addresses each, the order of your first five small steps, and how you would decide to stop refactoring and ship the change.'
+  criteria:
+    - 'Starts with characterisation (golden master or approval) tests around the behaviour to change'
+    - 'Names at least four smells (long method, switch on type, primitive obsession, feature envy, shotgun surgery ...) with a matching move'
+    - 'Plans small, behaviour-preserving steps, committed separately, with the tests run after each'
+    - 'Creates a seam for the new tax rule (strategy or polymorphism) instead of another branch'
+    - 'Limits the refactoring to what the change needs (boy scout rule, not a rewrite)'

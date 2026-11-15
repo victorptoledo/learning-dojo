@@ -1,4 +1,16 @@
 namespace: design-patterns
 skills:
+  - { id: design-patterns.foundations, title: "What Design Patterns Are, and When Not to Use Them" }
+  - { id: design-patterns.solid, title: "SOLID Principles in Practice" }
+  - { id: design-patterns.composition-coupling, title: "Composition over Inheritance, Coupling, Cohesion, DRY and YAGNI" }
   - { id: design-patterns.strategy-factory, title: "Strategy and Factory: Removing Giant if/else Chains" }
-  - { id: design-patterns.decorator-adapter, title: "Adapter and Decorator: Composition over Inheritance" }
+  - { id: design-patterns.decorator-adapter, title: "Adapter, Decorator, Proxy and Facade: Composition over Inheritance" }
+  - { id: design-patterns.creational, title: "Creational Patterns: Builder, Static Factory, Abstract Factory, Singleton, Prototype" }
+  - { id: design-patterns.observer-command, title: "Observer, Command and Chain of Responsibility" }
+  - { id: design-patterns.state-visitor, title: "State, Visitor, Composite and Template Method with Sealed Types" }
+  - { id: design-patterns.repository-uow, title: "Repository, Unit of Work and Data Mapping" }
+  - { id: design-patterns.dependency-injection, title: "Dependency Injection and Inversion of Control" }
+  - { id: design-patterns.specification, title: "Specification and Strategy as Functions" }
+  - { id: design-patterns.ports-adapters, title: "Ports and Adapters and the Anti-Corruption Layer" }
+  - { id: design-patterns.code-smells, title: "Code Smells, Anti-Patterns and Refactoring Moves" }
+  - { id: design-patterns.choosing-patterns, title: "Choosing, Combining and Removing Patterns" }

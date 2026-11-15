@@ -1,0 +1,31 @@
+questions:
+  - id: observer-why
+    prompt: "What dependency does the observer pattern remove?"
+    options: ["The listeners' dependency on the event", "The subject's dependency on each concrete party that reacts", "The dependency on Java", "The need for interfaces"]
+    answer: 1
+    explanation: "The subject knows one listener interface; new reactions subscribe without editing it."
+  - id: listener-failure
+    prompt: "One of five listeners throws while the subject notifies them. What should a robust subject do?"
+    options: ["Stop and rethrow, skipping the rest", "Catch it, record the failure, and keep notifying the others", "Remove all listeners", "Retry forever"]
+    answer: 1
+    explanation: "A listener must not break the subject's work or the other listeners."
+  - id: after-commit
+    prompt: "An email must be sent only if the order's transaction commits. Which Spring tool fits?"
+    options: ["@EventListener", "@TransactionalEventListener(phase = AFTER_COMMIT)", "@Async alone", "@Scheduled"]
+    answer: 1
+    explanation: "A transactional event listener runs in the chosen transaction phase; a plain listener runs inside the transaction."
+  - id: command-what
+    prompt: "What does the Command pattern turn a request into?"
+    options: ["A static method", "An object that can be stored, queued, logged, retried or undone", "A thread", "An exception"]
+    answer: 1
+    explanation: "Once the request is an object, an invoker can manage it without knowing what it does."
+  - id: redo-cleared
+    prompt: "In an editor with undo and redo stacks, what happens to the redo stack when the user runs a new command after undoing?"
+    options: ["It is kept", "It is cleared, because the undone future no longer follows from the current state", "It is merged", "It is reversed"]
+    answer: 1
+    explanation: "Redo only makes sense from the state the undo produced."
+  - id: chain-example
+    prompt: "Which is a chain of responsibility in the Java ecosystem?"
+    options: ["Integer.valueOf", "Servlet filters with FilterChain.doFilter", "String.format", "Collections.sort"]
+    answer: 1
+    explanation: "Each filter may handle, change or stop the request, then pass it to the next."

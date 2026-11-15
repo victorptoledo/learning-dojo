@@ -1,0 +1,212 @@
+# Technical interview questions for the design-patterns track, written for the dojo.
+# The topics follow what public interview guides and pattern catalogues treat as common (see
+# sources); the wording, key points and follow-ups are our own.
+sources:
+  - "https://refactoring.guru/design-patterns/catalog"
+  - "https://roadmap.sh/software-design-architecture"
+  - "https://martinfowler.com/eaaCatalog/"
+  - "https://refactoring.com/catalog/"
+  - "https://docs.spring.io/spring-framework/reference/core/beans.html"
+  - "https://java-design-patterns.com/patterns/"
+questions:
+  - id: what-is-pattern
+    level: junior
+    skills: [design-patterns.foundations]
+    question: "What is a design pattern, and can you name the three GoF families with an example of each?"
+    key_points:
+      - "A named, reusable solution to a recurring design problem, with its forces and consequences"
+      - "Not code to copy: the problem decides when it applies"
+      - "Creational (builder, factory), structural (adapter, decorator), behavioural (strategy, observer)"
+      - "A shared vocabulary for design discussions"
+    follow_up: "Which pattern have you used most recently, and what problem did it solve?"
+  - id: solid-overview
+    level: junior
+    skills: [design-patterns.solid]
+    question: "Explain the SOLID principles with a one-line example of a violation for each."
+    key_points:
+      - "S: a class with several reasons to change (pricing, formatting and storage together)"
+      - "O: a switch on type you edit for every new case"
+      - "L: a subtype that throws or behaves surprisingly (immutable List.add)"
+      - "I: fat interfaces that force fakes to implement unused methods"
+      - "D: business code that news up its database access or reads the system clock"
+    follow_up: "Which of the five do you find most useful in day-to-day code, and why?"
+  - id: composition-inheritance
+    level: junior
+    skills: [design-patterns.composition-coupling]
+    question: "Why is composition often preferred over inheritance? When is inheritance still the right tool?"
+    key_points:
+      - "Inheritance couples the child to the parent's implementation (fragile base class)"
+      - "Combinations of behaviour explode into subclasses; composition combines objects at runtime"
+      - "Composition works through interfaces and is easier to test"
+      - "Inheritance fits true is-a relations, frameworks designed for it, and sealed sets of variants"
+    follow_up: "What goes wrong when you extend HashSet to count insertions?"
+  - id: strategy-example
+    level: junior
+    skills: [design-patterns.strategy-factory]
+    question: "How would you remove a long if/else chain that computes shipping costs by carrier?"
+    key_points:
+      - "One strategy interface (functional, so lambdas work) with an implementation per carrier"
+      - "A factory or registry (Map) chooses the strategy by key"
+      - "A new carrier is new code, not an edit (open/closed)"
+      - "Each strategy is testable alone"
+    follow_up: "When would you keep the if/else instead?"
+  - id: singleton
+    level: junior
+    skills: [design-patterns.creational]
+    question: "What is a singleton, what are its problems, and how do you get a single instance in a Spring application?"
+    key_points:
+      - "One instance with global access, classically through a static getInstance"
+      - "Global mutable state: hidden dependencies, shared state between tests, hard to replace"
+      - "Thread safety and serialisation pitfalls in hand-written versions; enum singletons avoid them"
+      - "In Spring, beans are singletons per container and are injected, not looked up"
+    follow_up: "Is a Spring singleton bean thread-safe by default?"
+  - id: adapter-decorator
+    level: mid
+    skills: [design-patterns.decorator-adapter]
+    question: "What is the difference between adapter, decorator and proxy? Give a JDK or Spring example of each."
+    key_points:
+      - "Adapter changes the interface (InputStreamReader, Arrays.asList)"
+      - "Decorator keeps the interface and adds behaviour (BufferedInputStream, Collections.synchronizedList)"
+      - "Proxy keeps the interface and controls access (Spring @Transactional, JPA lazy loading)"
+      - "Structure looks alike; the intention differs"
+    follow_up: "In what order would you stack retry, cache and metrics decorators, and why?"
+  - id: transactional-proxy
+    level: mid
+    skills: [design-patterns.decorator-adapter, design-patterns.dependency-injection]
+    question: "How does Spring's @Transactional work, and why does calling an annotated method from the same class not start a transaction?"
+    key_points:
+      - "Spring wraps the bean in a proxy (JDK dynamic proxy or a generated subclass)"
+      - "The proxy opens, commits or rolls back the transaction around the call"
+      - "A call on this reaches the target object directly and bypasses the proxy"
+      - "Fixes: move the method to another bean, or restructure; avoid self-injection hacks"
+    follow_up: "Which exceptions cause a rollback by default?"
+  - id: builder-records
+    level: mid
+    skills: [design-patterns.creational]
+    question: "When would you use a builder in modern Java, and how do records change the picture?"
+    key_points:
+      - "Builders replace telescoping constructors for many optional parts"
+      - "Records give immutable values with validation in the compact constructor"
+      - "build() should call the canonical constructor so validation is in one place"
+      - "Withers or toBuilder() derive variants; small records need no builder"
+    follow_up: "How would you build test data for a record with ten components?"
+  - id: observer-events
+    level: mid
+    skills: [design-patterns.observer-command]
+    question: "Explain the observer pattern and how you would use it in a Spring application. What can go wrong?"
+    key_points:
+      - "The subject notifies listeners through one interface and does not know them"
+      - "Spring: publishEvent, @EventListener, @TransactionalEventListener for after-commit work"
+      - "Pitfalls: listeners that throw, lapsed listeners (leaks), implicit control flow, ordering"
+      - "In-process events are lost on crash; across services use a broker with an outbox"
+    follow_up: "How do you make sure an email is sent only if the order transaction commits?"
+  - id: state-machine
+    level: mid
+    skills: [design-patterns.state-visitor]
+    question: "An order has five statuses with rules about which transitions are allowed. How would you model it in Java 25?"
+    key_points:
+      - "A sealed interface of records, one per state, carrying only that state's data"
+      - "Each state overrides the transitions it allows; a default refuses the rest"
+      - "Transitions return new immutable states, so history is easy"
+      - "Exhaustive switches without default for state-dependent behaviour such as descriptions"
+    follow_up: "How would you persist such a state in a relational database?"
+  - id: visitor-sealed
+    level: mid
+    skills: [design-patterns.state-visitor]
+    question: "What problem does the visitor pattern solve, and how do sealed types and pattern matching change it?"
+    key_points:
+      - "Adding operations over a stable set of types without touching each type"
+      - "Classic version uses double dispatch (accept / visit) with much ceremony"
+      - "An exhaustive switch with record patterns over a sealed hierarchy does the same, compiler-checked"
+      - "The expression problem: new operations cheap, new types touch every switch"
+    follow_up: "When would you still choose polymorphic methods on each type?"
+  - id: command-undo
+    level: mid
+    skills: [design-patterns.observer-command]
+    question: "How would you implement undo and redo in an editor?"
+    key_points:
+      - "Each edit is a command with execute and undo"
+      - "An invoker keeps done and undone stacks; a new command clears redo"
+      - "Commands remember what they need to reverse (removed text), or use mementos (snapshots)"
+      - "Macros are composite commands that roll back on failure"
+    follow_up: "What are the trade-offs between reversible commands and snapshots?"
+  - id: repository-spring-data
+    level: mid
+    skills: [design-patterns.repository-uow]
+    question: "What is the repository pattern, and is a Spring Data JpaRepository a repository in that sense?"
+    key_points:
+      - "A collection-like interface for aggregates, in domain terms, hiding persistence"
+      - "One per aggregate root; tests use in-memory implementations"
+      - "Spring Data generates implementations, but exposes JPA's broad surface and derived query names"
+      - "In richer domains keep a small domain interface implemented by Spring Data in an adapter"
+    follow_up: "How do you avoid N+1 queries behind a repository?"
+  - id: unit-of-work
+    level: senior
+    skills: [design-patterns.repository-uow]
+    question: "Explain unit of work and identity map, and how they show up in JPA. What surprises do they cause?"
+    key_points:
+      - "Unit of work tracks changes and writes them together at commit; identity map gives one object per row"
+      - "The persistence context is both; @Transactional sets its boundary"
+      - "Dirty checking writes changes without save; unnecessary saves are common"
+      - "Surprises: lazy loading outside the transaction, memory growth in batch jobs, flush order"
+    follow_up: "Where should the transaction boundary be in a use case that touches two aggregates?"
+  - id: di-antipatterns
+    level: senior
+    skills: [design-patterns.dependency-injection]
+    question: "Compare constructor injection, field injection and a service locator. Why do many teams forbid the last two?"
+    key_points:
+      - "Constructor injection: explicit, final, testable with new, smells visible"
+      - "Field injection hides dependencies and needs reflection or a container in tests"
+      - "Service locator (getBean, static registry) moves failures to runtime and hides the graph"
+      - "Composition root: one place that wires concrete classes"
+    follow_up: "How do you inject a prototype-scoped bean into a singleton correctly?"
+  - id: specification
+    level: senior
+    skills: [design-patterns.specification]
+    question: "A search screen has many optional filters and the same rules are used for validation. How would you design the rules?"
+    key_points:
+      - "Specifications: named rules combined with and, or, not"
+      - "Predicate<T> is enough in memory; queries need specs as data or JPA criteria"
+      - "Sealed spec records with interpreters (memory, SQL with parameters, explanations)"
+      - "Spring Data Specification as a JPA-only alternative"
+    follow_up: "How do you make sure values from the UI never end up in the SQL text?"
+  - id: hexagonal-acl
+    level: senior
+    skills: [design-patterns.ports-adapters]
+    question: "How would you integrate a legacy system with a messy model into a new service without letting it leak in?"
+    key_points:
+      - "A driven port owned by the domain, in the domain's terms"
+      - "An anti-corruption layer adapter that translates types, codes, units and errors"
+      - "The dependency rule: the domain never imports the adapter or the legacy types"
+      - "Enforced by modules or ArchUnit; ACL tested with recorded legacy responses"
+    follow_up: "What changes when a second legacy system with the same role arrives?"
+  - id: smells-refactor
+    level: senior
+    skills: [design-patterns.code-smells]
+    question: "You inherit a 3,000-line class without tests and must change it next week. How do you proceed?"
+    key_points:
+      - "Characterisation tests first around the behaviour to change"
+      - "Find seams; refactor in small, behaviour-preserving, committed steps with IDE refactorings"
+      - "Name smells and moves: long method → extract, type code → polymorphism, primitive obsession → value objects"
+      - "Refactor what the change needs; do not fix bugs in the same step"
+    follow_up: "How do you convince a team lead that the refactoring is worth the time?"
+  - id: anemic-domain
+    level: senior
+    skills: [design-patterns.code-smells, design-patterns.repository-uow]
+    question: "What is an anemic domain model, and is it always a problem?"
+    key_points:
+      - "Entities with only getters and setters; all logic in services"
+      - "A problem when complex invariants are scattered and nothing protects them"
+      - "Fine for simple CRUD, reporting or data pipelines"
+      - "Fix by moving rules to the objects that own the data (tell, don't ask)"
+    follow_up: "How do JPA entities make rich domain models harder, and how do you work around it?"
+  - id: choose-or-remove
+    level: senior
+    skills: [design-patterns.choosing-patterns]
+    question: "How do you decide whether to introduce a pattern, and when have you removed one?"
+    key_points:
+      - "Start from the forces: what varies, what must not change, what must be tested"
+      - "Prefer the simplest code; refactor toward a pattern when the second or third case arrives"
+      - "Use what Java and Spring already provide (lambdas, sealed types, proxies, events)"
+      - "Remove patterns whose variation never came or that the language now covers"
+    follow_up: "Give an example of a pattern a framework implements for you that people still write by hand."

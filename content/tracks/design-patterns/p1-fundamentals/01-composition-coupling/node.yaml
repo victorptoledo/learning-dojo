@@ -1,0 +1,24 @@
+id: design-patterns.p1.composition-coupling
+kind: lesson
+status: draft
+title: "Composition, Coupling and Cohesion"
+summary: "Why composition beats deep inheritance, how to read coupling and cohesion in code, the Law of Demeter, and DRY, KISS and YAGNI with their limits."
+objectives:
+  - { id: o1, text: "Replace an inheritance hierarchy that mixes concerns with composed objects", skills: [design-patterns.composition-coupling] }
+  - { id: o2, text: "Judge the coupling and cohesion of a module and name the kind of coupling", skills: [design-patterns.composition-coupling] }
+  - { id: o3, text: "Apply DRY, KISS and YAGNI, and recognise when removing duplication couples things that should change apart", skills: [design-patterns.composition-coupling] }
+prerequisites: [design-patterns.p0.daily-report]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A codebase has `Employee`, with subclasses `Manager`, `Engineer` and `Contractor`, and then `RemoteManager`, `RemoteEngineer`, `PartTimeContractor` and so on, one subclass per combination of role, location and contract. Explain the problem in terms of coupling and cohesion, propose a design based on composition, and say which duplication you would deliberately keep and why.'
+  criteria:
+    - 'Names the combinatorial explosion and the fragile base class problem'
+    - 'Proposes composed parts (role, work location, contract) with an interface or sealed type each'
+    - 'Explains how the new design lowers coupling and raises cohesion'
+    - 'Gives an example of duplication that looks similar but changes for different reasons, and keeps it'
+    - 'Does not over-engineer: mentions YAGNI or a reason to stop'

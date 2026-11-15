@@ -1,0 +1,24 @@
+id: design-patterns.p2.observer-command
+kind: lesson
+status: draft
+title: "Observer, Command and Chain of Responsibility"
+summary: "Behaviour that travels: observers that hear about events without the subject knowing them, commands that turn requests into objects you can queue and undo, and chains and pipelines that pass a request along."
+objectives:
+  - { id: o1, text: "Decouple a subject from its listeners with the observer pattern, including unsubscribe and failure isolation", skills: [design-patterns.observer-command] }
+  - { id: o2, text: "Model operations as command objects with undo and redo, and group them as macros", skills: [design-patterns.observer-command] }
+  - { id: o3, text: "Build a chain of responsibility or pipeline, and name mediator and memento when you see them", skills: [design-patterns.observer-command] }
+prerequisites: [design-patterns.p2.creational]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'When an order is placed, today `OrderService.place()` saves it, then calls the email service, the loyalty service, the warehouse and the analytics client, in that order, and a failure in analytics rolls back the order. Redesign the "after placing" part with the observer pattern (in plain Java or with Spring events). Say what the event contains, which listeners must run inside the transaction and which after commit, how a failing listener is handled, and what you lose compared with the direct calls.'
+  criteria:
+    - 'Publishes one event (a record with the facts) instead of calling each party'
+    - 'Separates listeners that must be in the transaction from those that should run after commit (@TransactionalEventListener or equivalent)'
+    - 'Isolates failures so a listener cannot break the order or the other listeners'
+    - 'Names what is lost: explicit control flow, ordering, and easy tracing'
+    - 'Mentions when a message broker (outbox) would be needed instead of in-process events'

@@ -1,0 +1,31 @@
+questions:
+  - id: strategy-problem
+    prompt: "What problem does Strategy solve?"
+    options: ["Creating complex objects step by step", "An algorithm that varies and keeps growing, while the code that uses it should not change", "Notifying many listeners", "Hiding a subsystem"]
+    answer: 1
+    explanation: "Strategy puts each variant behind one interface so the context stays closed for modification."
+  - id: lambda-when
+    prompt: "When is a lambda the right way to write a strategy?"
+    options: ["Always", "When the strategy has one method and no state of its own", "Only for Comparator", "Never: strategies must be classes"]
+    answer: 1
+    explanation: "A one-method stateless strategy is a function; give it a class when it has state, several methods or its own tests."
+  - id: registry
+    prompt: "What does a registry (a Map from key to strategy) add over a simple factory with a switch?"
+    options: ["Nothing", "New variants are new entries, so even the choosing code needs no edit", "It is faster to compile", "It removes the need for an interface"]
+    answer: 1
+    explanation: "The switch is gone; variants can come from configuration, modules or Spring beans."
+  - id: static-factory
+    prompt: "Which is a static factory method?"
+    options: ["new ArrayList<>()", "List.of(1, 2, 3)", "list.add(4)", "list.stream()"]
+    answer: 1
+    explanation: "A named static method that returns an instance, possibly of a hidden subtype or a cached one."
+  - id: spring-map
+    prompt: "In Spring, how do you get every `ShippingRule` bean keyed by its bean name?"
+    options: ["Reflection over the classpath", "Declare a constructor parameter of type Map<String, ShippingRule>", "Call new on each class", "Use a static registry"]
+    answer: 1
+    explanation: "Spring injects all beans of a type as a List or as a Map keyed by bean name."
+  - id: enum-strategy
+    prompt: "When is an enum whose constants implement the behaviour a good fit?"
+    options: ["When variants come from plugins at runtime", "When the set of variants is closed and known at compile time", "When each variant needs dependencies from Spring", "Never"]
+    answer: 1
+    explanation: "Enums are a closed set; use a registry when variants come from outside the module."

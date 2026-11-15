@@ -1,0 +1,24 @@
+id: design-patterns.p4.choosing-patterns
+kind: lesson
+status: draft
+title: "Choosing, Combining and Removing Patterns"
+summary: "How to pick a pattern from the forces at hand, which patterns usually travel together, what modern Java and frameworks already do for you, when to remove one, and how to talk about patterns in design reviews and interviews."
+objectives:
+  - { id: o1, text: "Choose a pattern (or none) from the problem's forces and compare two candidates' costs", skills: [design-patterns.choosing-patterns] }
+  - { id: o2, text: "Recognise common combinations and the patterns a framework already provides", skills: [design-patterns.choosing-patterns] }
+  - { id: o3, text: "Explain a design decision in pattern vocabulary in a review or interview, including when to remove a pattern", skills: [design-patterns.choosing-patterns] }
+prerequisites: [design-patterns.p4.legacy-refactor]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Pick three of these problems and, for each, propose a design, name the pattern or patterns (or say none is needed), give one alternative you rejected and why: (a) export reports as CSV, PDF and XLSX, with more formats likely; (b) every outgoing HTTP call needs a timeout, a retry with backoff and a metric; (c) an order goes through 7 statuses with rules about who may move it; (d) a search screen with 12 optional filters; (e) the product catalogue comes from an ERP with its own codes and units.'
+  criteria:
+    - 'Names fitting patterns (for example strategy or registry for exports, decorators for HTTP, sealed state records, specifications, an anti-corruption layer)'
+    - 'Relates each choice to the forces of the problem (what varies, what must not change, what must be tested)'
+    - 'Gives a credible rejected alternative with its trade-off'
+    - 'Mentions what the language or framework already provides (lambdas, sealed types, Spring proxies, Spring Data specifications, HTTP client interceptors)'
+    - 'Says where no pattern is needed or a simpler option wins'

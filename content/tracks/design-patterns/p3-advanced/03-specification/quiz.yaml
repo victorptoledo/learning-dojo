@@ -1,0 +1,31 @@
+questions:
+  - id: finder-explosion
+    prompt: "A repository has 14 finder methods that combine the same four conditions differently. What does the specification pattern offer?"
+    options: ["More finders", "One findAll(spec) and named rules that combine with and, or and not", "A bigger interface", "Stored procedures"]
+    answer: 1
+    explanation: "Rules become values; combinations no longer need new methods."
+  - id: predicate-limit
+    prompt: "Why can a `Predicate<Customer>` not serve as a database query?"
+    options: ["It is too slow", "A lambda is opaque code: it can be evaluated but not inspected and translated into SQL", "Predicates cannot be combined", "Java forbids it"]
+    answer: 1
+    explanation: "To translate a rule you need it as data (or a library's criteria object)."
+  - id: data-spec
+    prompt: "Specs are a sealed interface of records with two interpreters (in memory and SQL). What does adding a third interpreter cost?"
+    options: ["Editing every record", "One new function with a switch over the records", "A new database", "Nothing is possible"]
+    answer: 1
+    explanation: "New operations are cheap over sealed data; new record types would touch every interpreter."
+  - id: injection
+    prompt: "A SQL interpreter of specs renders `country = 'PT'` by concatenation. What is wrong?"
+    options: ["Nothing", "Values in the text allow SQL injection; render `country = ?` and pass the value as a parameter", "Quotes are slow", "Countries need lowercase"]
+    answer: 1
+    explanation: "Specifications built from user input must only ever produce parameters."
+  - id: spring-spec
+    prompt: "What is a Spring Data JPA `Specification<T>`?"
+    options: ["A record of conditions", "A function that builds a JPA criteria Predicate from root, query and builder", "A Spring bean scope", "A test annotation"]
+    answer: 1
+    explanation: "It composes queries but depends on JPA; it cannot be evaluated without the criteria API."
+  - id: spec-uses
+    prompt: "Which three uses does Evans and Fowler's paper give for specifications?"
+    options: ["Logging, caching, retry", "Selection, validation and construction to order", "Sorting, hashing, equality", "Creating, updating, deleting"]
+    answer: 1
+    explanation: "Select matching objects, check whether one satisfies the rule, and build one that does."

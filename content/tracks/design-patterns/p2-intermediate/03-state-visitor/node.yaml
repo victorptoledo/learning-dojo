@@ -1,0 +1,24 @@
+id: design-patterns.p2.state-visitor
+kind: lesson
+status: draft
+title: "State, Visitor, Composite and Template Method with Sealed Types"
+summary: "Closed hierarchies in Java 25: state machines as sealed records, visitors replaced by exhaustive switches, composites as recursive records, template method versus strategy, and iterator, all with the expression problem in mind."
+objectives:
+  - { id: o1, text: "Model a life cycle as sealed state records whose transitions the compiler can check", skills: [design-patterns.state-visitor] }
+  - { id: o2, text: "Replace a visitor with a switch over sealed types and explain the expression problem trade-off", skills: [design-patterns.state-visitor] }
+  - { id: o3, text: "Recognise composite, template method and iterator, and choose template method or strategy", skills: [design-patterns.state-visitor] }
+prerequisites: [design-patterns.p2.observer-command]
+difficulty: 3
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A document format has paragraphs, headings, images, tables and lists (lists contain items, which may contain nested lists). You need to render it to HTML, count words, and extract all image URLs, and next year someone will add Markdown export. Model the document in Java 25 and implement one of the operations. Explain whether you chose a sealed hierarchy with switches or classic polymorphic methods, what happens when a new element type is added, and what happens when a new operation is added.'
+  criteria:
+    - 'Models elements as a sealed interface with records, and nested lists as a composite (records containing lists of elements)'
+    - 'Implements an operation as a recursive exhaustive switch with record patterns'
+    - 'Explains that new operations are cheap and new types force every switch to change (and the compiler finds them)'
+    - 'Contrasts with methods on each type, where new types are cheap and new operations touch every class'
+    - 'Avoids a default branch so the compiler can check exhaustiveness'
