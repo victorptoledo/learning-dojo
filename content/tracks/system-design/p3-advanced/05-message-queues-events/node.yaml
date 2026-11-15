@@ -1,0 +1,25 @@
+id: system-design.p3.message-queues-events
+legacy_id: sys-06-message-queues-events
+kind: lesson
+status: draft
+title: "Messaging, Apache Kafka and Event Patterns"
+summary: "Queues versus logs, Kafka partitions, keys, consumer groups, retention and compaction, sizing a topic, event patterns, orchestration versus choreography, schemas and stream processing."
+objectives:
+  - { id: o1, text: "Choose a queue or a log and design topics, partition keys and consumer groups", skills: [system-design.message-queues-events] }
+  - { id: o2, text: "Size partitions and retention from throughput, and handle failures with idempotency and dead letters", skills: [system-design.message-queues-events] }
+  - { id: o3, text: "Choose between event notification, state transfer, event sourcing, and orchestration or choreography", skills: [system-design.message-queues-events] }
+prerequisites: [system-design.p3.quorum-store]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A ride-hailing company wants every trip event (requested, accepted, started, location update every 4 seconds, completed, paid) to feed billing, driver payouts, a live map, fraud detection and the data warehouse. There are 300,000 active trips at peak. Design the topics, partition keys and partition counts, retention, the consumer groups, how ordering and duplicates are handled, and how a consumer that was down for an hour catches up.'
+  criteria:
+    - 'Uses a log (Kafka or similar) with one consumer group per use case'
+    - 'Partitions by trip id (or driver id) and explains the ordering this gives'
+    - 'Sizes throughput from the numbers (about 75,000 location events per second) and chooses partitions with headroom'
+    - 'Separates high-volume location updates from business events, or explains why not'
+    - 'Makes consumers idempotent, uses dead-letter handling, and explains catch-up through retained offsets'

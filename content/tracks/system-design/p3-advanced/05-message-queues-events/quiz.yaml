@@ -1,0 +1,30 @@
+questions:
+  - id: queue-vs-log
+    prompt: "Billing and analytics both need every order event, and analytics must be able to reprocess last week. What fits best?"
+    options: ["One queue with competing consumers", "A log topic with one consumer group per use case", "Two databases", "A cron job"]
+    answer: 1
+    explanation: "Each group keeps its own offset, reads everything, and can rewind within the retention period."
+  - id: ordering
+    prompt: "In Kafka, where is ordering guaranteed?"
+    options: ["Across the whole topic", "Within one partition", "Within one consumer group", "Nowhere"]
+    answer: 1
+    explanation: "Records of one partition are strictly ordered, so use the key that must stay in order."
+  - id: max-consumers
+    prompt: "A topic has 12 partitions. A group starts 20 consumers. How many receive records?"
+    answers: ["12"]
+    explanation: "Each partition goes to one consumer of the group; the other 8 sit idle."
+  - id: compaction
+    prompt: "What does log compaction keep?"
+    options: ["Only the oldest record", "The latest record for each key", "Nothing after 7 days", "One record per partition"]
+    answer: 1
+    explanation: "Compaction turns a topic into the current state per key, like a replicated table."
+  - id: exactly-once
+    prompt: "A consumer reads an event with Kafka transactions enabled and sends an email. Can the email still be sent twice?"
+    options: ["No, exactly-once covers everything", "Yes: exactly-once covers reads and writes inside Kafka, not external side effects", "Only if the broker crashes", "Only with acks=1"]
+    answer: 1
+    explanation: "External effects need their own idempotency, such as a key recorded with the email."
+  - id: state-transfer
+    prompt: "Which event style lets consumers keep working without calling the producer back?"
+    options: ["Event notification", "Event-carried state transfer", "Commands", "Polling"]
+    answer: 1
+    explanation: "The event includes the state consumers need, at the cost of bigger events and copies."

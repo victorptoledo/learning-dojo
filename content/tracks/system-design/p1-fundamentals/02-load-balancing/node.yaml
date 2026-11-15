@@ -3,12 +3,23 @@ legacy_id: sys-02-load-balancing
 kind: lesson
 status: draft
 title: "Load Balancers (L4 vs L7) and Consistent Hashing"
-summary: "Smart traffic distribution, health checks and balancing algorithms."
+summary: "L4 and L7 balancing, algorithms from round robin to power of two choices, health checks and draining, and consistent hashing with virtual nodes."
 objectives:
-  - { id: o1, text: "Smart traffic distribution, health checks and balancing algorithms.", skills: [system-design.load-balancing] }
+  - { id: o1, text: "Choose between L4 and L7 balancing and a balancing algorithm for a workload", skills: [system-design.load-balancing] }
+  - { id: o2, text: "Design health checks and connection draining that do not cause outages", skills: [system-design.load-balancing] }
+  - { id: o3, text: "Explain why hash mod N fails and how a consistent hash ring with virtual nodes fixes it", skills: [system-design.load-balancing] }
 prerequisites: [system-design.p1.dns-cdn]
 difficulty: 2
-estimated_minutes: 30
-xp: 200
+estimated_minutes: 45
+xp: 150
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You run 12 Memcached servers behind a client library that picks a server with hash(key) mod 12. Every time a server is replaced, the database behind the cache is overloaded for minutes. Explain why, propose a better placement scheme with its parameters, and describe how the application servers in front (stateless, HTTP/2 from mobile clients) should be balanced and health-checked.'
+  criteria:
+    - 'Explains that changing N in hash mod N remaps most keys, causing a burst of misses'
+    - 'Proposes consistent hashing (or rendezvous hashing) with virtual nodes and says about 1/N of keys move'
+    - 'Balances HTTP/2 per request at L7, not per connection at L4'
+    - 'Uses least outstanding requests or power of two choices for uneven request costs'
+    - 'Health checks test the instance only, and deploys drain connections first'

@@ -1,0 +1,30 @@
+questions:
+  - id: linearizable
+    prompt: "Which operation genuinely needs linearizability?"
+    options: ["Showing the number of likes", "Claiming a unique username", "Rendering a product description", "Listing recent blog posts"]
+    answer: 1
+    explanation: "Two users must never both get the same name, so every replica must agree at once."
+  - id: cap-normal
+    prompt: "According to CAP, what must a system give up when there is no network partition?"
+    options: ["Consistency", "Availability", "Nothing: the trade-off only applies during a partition", "Partition tolerance"]
+    answer: 2
+    explanation: "CAP is about behaviour during a partition; PACELC covers the latency trade-off the rest of the time."
+  - id: overlap
+    prompt: "With N = 3 replicas, which setting guarantees that a read overlaps the latest acknowledged write?"
+    options: ["W = 1, R = 1", "W = 2, R = 2", "W = 1, R = 2", "W = 2, R = 1"]
+    answer: 1
+    explanation: "W + R must exceed N: 2 + 2 = 4 > 3, so the read and write sets share a replica."
+  - id: read-repair
+    prompt: "A quorum read finds that one replica returned an older version. What does read repair do?"
+    options: ["Deletes that replica", "Sends the newest version to the replica that was behind", "Fails the read", "Triggers a leader election"]
+    answer: 1
+    explanation: "The coordinator writes the newest version back to stale replicas during the read."
+  - id: merkle
+    prompt: "Which structure lets two replicas find the key ranges where they differ without comparing every key?"
+    answers: ["Merkle tree", "merkle trees", "hash tree"]
+    explanation: "Anti-entropy compares hashes of ranges top-down and only syncs the ranges whose hashes differ."
+  - id: pacelc
+    prompt: "In PACELC terms, a store that serves eventual reads from the nearest replica during normal operation chooses what?"
+    options: ["Consistency", "Latency", "Partition tolerance", "Durability"]
+    answer: 1
+    explanation: "Else (no partition), it trades consistency for lower latency."

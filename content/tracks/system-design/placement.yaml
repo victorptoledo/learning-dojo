@@ -1,0 +1,276 @@
+# Placement test of the System Design track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How much system design have you done?
+  options:
+    - { label: "None yet: I build features in one application", start_phase: p0, test: false }
+    - { label: "I know caches, load balancers and replicas, and have used them", start_phase: p1, test: true }
+    - { label: "I design distributed systems: partitioning, consistency, messaging", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-ttl-cname
+    phase: p1
+    skills: [system-design.dns-cdn]
+    difficulty: 2
+    prompt: "www.shop.example is a CNAME to shop.cdn.example with a TTL of 3,600 s. You switch CDN providers by changing the CNAME. How long can some users keep reaching the old provider?"
+    options: ["Not at all", "Up to about an hour, or longer for clients that cache beyond the TTL", "Exactly 60 seconds", "Until the browser is reinstalled"]
+    answer: 1
+    explanation: "Resolvers may serve the cached answer for its full TTL, and some clients cache longer."
+  - id: p1-anycast-ddos
+    phase: p1
+    skills: [system-design.dns-cdn]
+    difficulty: 3
+    prompt: "Why does anycast help a CDN absorb a large DDoS attack?"
+    options: ["It encrypts the traffic", "The attack traffic is split among all sites announcing the address, each taking only its share", "It blocks UDP", "It drops all traffic from abroad"]
+    answer: 1
+    explanation: "Routing delivers each attacking source to its nearest site, so no single site receives everything."
+  - id: p1-stale-if-error
+    phase: p1
+    skills: [system-design.dns-cdn]
+    difficulty: 3
+    prompt: "Which Cache-Control extension lets a CDN keep serving an expired page when the origin returns errors?"
+    answers: ["stale-if-error"]
+    explanation: "stale-if-error=N allows serving a stale response for N seconds while the origin fails."
+  - id: p1-power-two
+    phase: p1
+    skills: [system-design.load-balancing]
+    difficulty: 3
+    prompt: "Fifty load balancer instances each pick backends independently. Which algorithm avoids overloading a slow backend without sharing state between them?"
+    options: ["Global least connections", "Power of two random choices with each balancer's own view of outstanding requests", "Round-robin DNS", "Hashing the client IP"]
+    answer: 1
+    explanation: "Comparing two random backends by local load gets most of the benefit of least-loaded with no coordination."
+  - id: p1-sticky
+    phase: p1
+    skills: [system-design.load-balancing]
+    difficulty: 2
+    prompt: "An app keeps user sessions in server memory and needs sticky sessions. What is the better design?"
+    options: ["More sticky servers", "Keep the servers stateless: sessions in a shared store or a signed token", "Longer session timeouts", "An L4 balancer"]
+    answer: 1
+    explanation: "Stateless servers can be added, removed and replaced freely; sticky sessions break on every failure and deploy."
+  - id: p1-weights-vnodes
+    phase: p1
+    skills: [system-design.load-balancing]
+    difficulty: 3
+    prompt: "A consistent hash ring mixes servers with 64 GB and 128 GB of memory. How do you give the bigger ones twice the keys?"
+    options: ["Hash their names twice", "Give them twice as many virtual nodes", "Put them first in the list", "Use hash mod N instead"]
+    answer: 1
+    explanation: "Each virtual node owns a share of the ring, so twice the points means about twice the keys."
+  - id: p1-lsm-read
+    phase: p1
+    skills: [system-design.storage-engines]
+    difficulty: 3
+    prompt: "In an LSM store, reads of keys that do not exist are slow. What is the usual remedy?"
+    options: ["More secondary indexes", "A Bloom filter per SSTable so most files are skipped", "Disabling compaction", "A bigger write-ahead log"]
+    answer: 1
+    explanation: "A negative answer from the filter proves the key is not in that file, so it is never read."
+  - id: p1-object-storage
+    phase: p1
+    skills: [system-design.storage-engines]
+    difficulty: 1
+    prompt: "Where should a photo-sharing app store the photo files themselves?"
+    options: ["In a BLOB column of the main database", "In object storage, with the key and metadata in the database", "In the cache", "In the search index"]
+    answer: 1
+    explanation: "Object storage is cheap, durable and built for large files; the database keeps only references."
+  - id: p1-oltp-olap
+    phase: p1
+    skills: [system-design.storage-engines]
+    difficulty: 2
+    prompt: "Analysts run heavy monthly reports directly on the production PostgreSQL and checkout slows down. What is the standard fix?"
+    options: ["Add an index for every report", "Stream changes into a columnar warehouse and run the reports there", "Run the reports at night only", "Increase the connection pool"]
+    answer: 1
+    explanation: "Separate OLTP from OLAP: change data capture feeds a column store built for scans."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-negative-cache
+    phase: p2
+    skills: [system-design.caching-strategies]
+    difficulty: 3
+    prompt: "A bot requests millions of non-existent product ids, and every request misses the cache and hits the database. What helps most?"
+    options: ["A longer TTL for existing products", "Caching 'not found' briefly, or a Bloom filter of valid ids in front", "Write-through caching", "More cache memory"]
+    answer: 1
+    explanation: "Negative caching (or a filter) stops repeated lookups of missing keys from reaching the database."
+  - id: p2-local-tier
+    phase: p2
+    skills: [system-design.caching-strategies]
+    difficulty: 3
+    prompt: "One key in Redis receives 200,000 reads per second and its shard is saturated. What is a common fix?"
+    options: ["Delete the key", "A short-lived in-process cache in each app instance for that key, or replicated copies of the key", "Write-behind caching", "A bigger TTL"]
+    answer: 1
+    explanation: "Hot keys are spread by caching them locally for a few seconds or reading one of several copies."
+  - id: p2-write-through
+    phase: p2
+    skills: [system-design.caching-strategies]
+    difficulty: 2
+    prompt: "With write-through caching, what happens on every write?"
+    options: ["Only the cache is updated", "The cache and the database are updated before the write is acknowledged", "The key is deleted", "Nothing until eviction"]
+    answer: 1
+    explanation: "Write-through keeps the cache current at the cost of every write paying for both."
+  - id: p2-deadline
+    phase: p2
+    skills: [system-design.overload]
+    difficulty: 3
+    prompt: "The front end gives up after 1 s. A back-end service receives the request after 950 ms spent upstream. What should it do with a 300 ms query?"
+    options: ["Run it", "Skip it: the propagated deadline shows the caller will not wait for the answer", "Retry it", "Cache it"]
+    answer: 1
+    explanation: "Propagated deadlines let downstream services avoid work whose result can no longer be used."
+  - id: p2-metastable
+    phase: p2
+    skills: [system-design.overload]
+    difficulty: 4
+    prompt: "A brief database slowdown is over, but the API stays overloaded for an hour until it is restarted. What is the likely mechanism?"
+    options: ["A memory leak", "A metastable failure: retries and queued backlog keep the load above capacity after the trigger is gone", "DNS caching", "A slow deploy"]
+    answer: 1
+    explanation: "The work created during the trigger (retries, backlogs) sustains the overload; shedding and retry limits break the loop."
+  - id: p2-bulkhead
+    phase: p2
+    skills: [system-design.overload]
+    difficulty: 3
+    prompt: "A service calls a fast inventory API and a slow recommendations API from the same thread pool. Recommendations slows down and everything fails. Which pattern prevents this?"
+    answers: ["bulkhead", "bulkheads", "the bulkhead pattern"]
+    explanation: "Separate pools or concurrency limits per dependency keep a slow one from using up all threads."
+  - id: p2-fanout-async
+    phase: p2
+    skills: [system-design.read-heavy]
+    difficulty: 3
+    prompt: "In a push-based feed, why is fan-out done asynchronously through a queue?"
+    options: ["Queues are cheaper than databases", "So posting returns at once and the fan-out to many inboxes happens in the background", "To guarantee strict consistency", "To avoid storing posts"]
+    answer: 1
+    explanation: "The author should not wait for thousands of inbox writes; followers see the post a moment later."
+  - id: p2-materialized
+    phase: p2
+    skills: [system-design.read-heavy]
+    difficulty: 2
+    prompt: "A dashboard runs an expensive aggregate over millions of rows on every page view. What is the usual fix?"
+    options: ["A bigger server", "Precompute it into a materialized view or read model refreshed periodically or from events", "Offset pagination", "A longer request timeout"]
+    answer: 1
+    explanation: "Move the work from read time to write or refresh time, accepting slightly stale numbers."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-monotonic
+    phase: p3
+    skills: [system-design.databases-replication-sharding]
+    difficulty: 3
+    prompt: "A user refreshes a page twice and a new comment appears, then disappears. Their reads went to two replicas with different lag. Which guarantee is missing?"
+    options: ["Read-your-writes", "Monotonic reads", "Linearizability of writes", "Durability"]
+    answer: 1
+    explanation: "Monotonic reads (for example pinning a user to one replica) stop time from going backwards."
+  - id: p3-shard-key
+    phase: p3
+    skills: [system-design.databases-replication-sharding]
+    difficulty: 3
+    prompt: "A messaging app shards messages. Which partition key keeps a conversation's history in one place and spreads load?"
+    options: ["The message timestamp", "The conversation id (hashed)", "The sender's country", "An auto-increment message id range"]
+    answer: 1
+    explanation: "Reading a conversation hits one partition, and hashing conversation ids spreads them evenly."
+  - id: p3-snowflake
+    phase: p3
+    skills: [system-design.databases-replication-sharding]
+    difficulty: 2
+    prompt: "Across 64 shards you need unique, roughly time-ordered ids without a central sequence. What is a common scheme?"
+    options: ["Auto-increment on each shard", "Snowflake-style ids: timestamp, machine id and a per-machine sequence", "Random 16-bit numbers", "The row count"]
+    answer: 1
+    explanation: "Each machine generates ids locally; the timestamp prefix keeps them roughly ordered."
+  - id: p3-quorum-tune
+    phase: p3
+    skills: [system-design.cap-pacelc]
+    difficulty: 3
+    prompt: "With N = 5, you want reads to always overlap writes and writes to survive 2 replicas down. Which W and R work?"
+    options: ["W = 3, R = 3", "W = 2, R = 3", "W = 5, R = 1", "W = 1, R = 1"]
+    answer: 0
+    explanation: "W = 3 tolerates 2 replicas down for writes, and 3 + 3 = 6 > 5 keeps the overlap."
+  - id: p3-lww-skew
+    phase: p3
+    skills: [system-design.cap-pacelc]
+    difficulty: 4
+    prompt: "Two replicas resolve conflicts with last-write-wins using each server's wall clock. One clock runs 2 s fast. What can happen?"
+    options: ["Nothing, clocks are synchronised", "A genuinely later write from the other server is silently discarded", "Both writes are kept", "Writes are rejected"]
+    answer: 1
+    explanation: "Skewed timestamps make an older write look newer; LWW drops the newer one with no error."
+  - id: p3-causal
+    phase: p3
+    skills: [system-design.cap-pacelc]
+    difficulty: 3
+    prompt: "Readers sometimes see an answer before the question it replies to. Which consistency model would rule that out while staying cheaper than linearizability?"
+    answers: ["causal", "causal consistency"]
+    explanation: "Causal consistency orders operations that depend on each other; unrelated ones may still differ."
+  - id: p3-consumer-lag
+    phase: p3
+    skills: [system-design.message-queues-events]
+    difficulty: 3
+    prompt: "A Kafka consumer group falls further behind every evening peak. Its 8 partitions are each consumed at full speed. What is the scaling fix?"
+    options: ["Add consumers to the group without changing the topic", "Increase the partition count (and the consumers), accepting the reshuffle of key order", "Lower the retention", "Use acks=0"]
+    answer: 1
+    explanation: "Parallelism is capped by partitions; more consumers than partitions sit idle."
+  - id: p3-dlq
+    phase: p3
+    skills: [system-design.message-queues-events]
+    difficulty: 2
+    prompt: "One malformed message makes a consumer crash and retry forever, blocking its partition. What should happen to it?"
+    options: ["Retry forever", "After a few retries, move it to a dead-letter topic with an alert, and continue", "Delete the topic", "Restart the broker"]
+    answer: 1
+    explanation: "A dead-letter queue isolates poison messages so the rest of the stream keeps flowing."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-two-nodes
+    phase: p4
+    skills: [system-design.consensus]
+    difficulty: 3
+    prompt: "A team runs etcd on 2 nodes 'for redundancy'. One node fails. What happens?"
+    options: ["The other node continues alone", "The cluster cannot commit writes: 1 of 2 is not a majority", "etcd elects both", "Reads and writes are unaffected"]
+    answer: 1
+    explanation: "Two nodes tolerate zero failures; use 3 or 5."
+  - id: p4-fencing-where
+    phase: p4
+    skills: [system-design.consensus]
+    difficulty: 4
+    prompt: "Where must a fencing token be checked for it to protect data?"
+    options: ["In the lock service only", "In the resource being written (storage or downstream service), which rejects old tokens", "In the client before acting", "In the load balancer"]
+    answer: 1
+    explanation: "Only the resource sees writes in their real order; a client-side check can be invalidated by a pause."
+  - id: p4-burn-rate
+    phase: p4
+    skills: [system-design.resilience]
+    difficulty: 3
+    prompt: "Why alert on error budget burn rate instead of on every error spike?"
+    options: ["It is cheaper to compute", "It pages when the SLO is genuinely at risk, ignoring brief blips that the budget absorbs", "Errors cannot be counted", "SLOs forbid alerts"]
+    answer: 1
+    explanation: "Burn-rate alerts measure how fast the budget is consumed, which matches user impact."
+  - id: p4-control-plane
+    phase: p4
+    skills: [system-design.resilience]
+    difficulty: 4
+    prompt: "During a zone outage, the autoscaler's API is overloaded and new instances do not start. Which principle would have avoided the outage?"
+    options: ["Bigger instances", "Static stability: pre-provisioned capacity so the data plane needs no control-plane action", "Longer health checks", "More retries"]
+    answer: 1
+    explanation: "Plans that depend on the control plane during a failure fail exactly when it is busiest."
+  - id: p4-active-active
+    phase: p4
+    skills: [system-design.resilience]
+    difficulty: 3
+    prompt: "What is the main extra problem of an active-active multi-region design compared with warm standby?"
+    options: ["Backups", "Concurrent writes to the same data in different regions must be resolved", "DNS", "TLS certificates"]
+    answer: 1
+    explanation: "With writes in several regions you need home regions, CRDTs or a globally consistent store."
+  - id: p4-hot-event
+    phase: p4
+    skills: [system-design.end-to-end]
+    difficulty: 4
+    prompt: "In a flash sale, a single event's inventory partition is the bottleneck for strongly consistent holds. What keeps correctness and adds parallelism?"
+    options: ["Make holds eventually consistent", "Split the inventory into several partitions (by section), each strongly consistent", "Cache the inventory", "Retry holds faster"]
+    answer: 1
+    explanation: "Each seat still has one linearizable owner, but writes spread over several partitions."
+  - id: p4-design-order
+    phase: p4
+    skills: [system-design.end-to-end]
+    difficulty: 2
+    prompt: "In a design review, which question best exposes a weak design early?"
+    options: ["Which framework is used?", "What happens when this component, or its zone, fails, and how many customers are affected?", "How many microservices are there?", "Is the code formatted?"]
+    answer: 1
+    explanation: "Failure modes and blast radius reveal hidden single points of failure and coupling."

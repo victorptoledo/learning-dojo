@@ -1,0 +1,31 @@
+questions:
+  - id: l4-l7
+    prompt: "You need to send /api/* to one service and /images/* to another. Which balancer can do it?"
+    options: ["An L4 balancer", "An L7 balancer", "Round-robin DNS", "Any of them"]
+    answer: 1
+    explanation: "Routing by path needs to read the HTTP request, which only an application-layer (L7) balancer does."
+  - id: grpc-l4
+    prompt: "gRPC traffic behind an L4 balancer piles up on one backend. Why?"
+    options: ["gRPC uses UDP", "HTTP/2 multiplexes many requests on one long-lived connection, and L4 balances connections", "L4 balancers do not support TLS", "gRPC needs sticky sessions"]
+    answer: 1
+    explanation: "All requests on the connection go where the connection went; balance per request at L7 instead."
+  - id: mod-n
+    prompt: "A cache uses hash(key) mod N. You go from 4 to 5 servers. Roughly what fraction of keys changes server?"
+    options: ["About 20 %", "About 50 %", "About 80 %", "None"]
+    answer: 2
+    explanation: "A key stays only when hash mod 4 equals hash mod 5, about 1 in 5; the rest move and miss."
+  - id: ring-add
+    prompt: "On a consistent hash ring with N servers you add one. Which keys move?"
+    options: ["About half of all keys", "About 1/(N+1) of the keys, all to the new server", "All keys", "Only keys of the server that failed"]
+    answer: 1
+    explanation: "The new server takes over the arcs just before its points; every other key keeps its owner."
+  - id: vnodes
+    prompt: "What do virtual nodes improve?"
+    options: ["Encryption", "The evenness of the load, and spreading a failed server's keys over many others", "The speed of the hash function", "Replication lag"]
+    answer: 1
+    explanation: "Many points per server make the arcs even and split a leaving server's share among many neighbours."
+  - id: health-db
+    prompt: "Every app server's /health also queries the shared database. What can go wrong?"
+    options: ["Nothing, it is more thorough", "A database blip marks every server unhealthy at once and the balancer has nowhere to send traffic", "Health checks get faster", "The database gets cached"]
+    answer: 1
+    explanation: "Health checks should report whether this instance can serve; shared dependencies fail all instances together."

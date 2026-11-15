@@ -1,0 +1,25 @@
+id: system-design.p3.cap-pacelc
+legacy_id: sys-05-cap-pacelc
+kind: lesson
+status: draft
+title: "CAP, PACELC, Consistency Models and Quorums"
+summary: "Consistency models from linearizable to eventual, CAP stated carefully, PACELC, quorum reads and writes, and read repair, hinted handoff and anti-entropy."
+objectives:
+  - { id: o1, text: "Name the consistency model an operation needs and the cost of providing it", skills: [system-design.cap-pacelc] }
+  - { id: o2, text: "Apply CAP and PACELC correctly to real systems and per operation", skills: [system-design.cap-pacelc] }
+  - { id: o3, text: "Choose N, W and R for a workload and explain read repair and anti-entropy", skills: [system-design.cap-pacelc] }
+prerequisites: [system-design.p3.partition-rebalancer]
+difficulty: 4
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An airline booking system runs in two regions. For each of these operations, state the consistency model you need, how you would provide it, and what users see during a network partition between the regions: searching flights, showing a seat map, assigning a specific seat, showing "my bookings" right after booking, and updating a frequent-flyer points balance.'
+  criteria:
+    - 'Distinguishes operations that need linearizability (seat assignment, points balance) from those that tolerate staleness (search, seat map)'
+    - 'Provides strong consistency with a single leader, consensus or conditional writes, accepting unavailability or extra latency'
+    - 'Uses read-your-writes for my bookings right after booking'
+    - 'Describes partition behaviour per operation in CAP terms (refuse vs serve stale)'
+    - 'Mentions the latency cost of cross-region coordination in normal operation (PACELC)'

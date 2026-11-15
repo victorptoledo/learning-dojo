@@ -1,0 +1,30 @@
+questions:
+  - id: majority
+    prompt: "A Raft cluster has 5 nodes. How many can fail while it still commits writes?"
+    options: ["1", "2", "3", "4"]
+    answer: 1
+    explanation: "A majority of 3 must remain, so 2 failures are tolerated."
+  - id: even
+    prompt: "Why are consensus clusters usually 3 or 5 nodes rather than 4?"
+    options: ["4 is slower to elect", "4 nodes tolerate only 1 failure, like 3, while needing a bigger majority", "Raft forbids even numbers", "4 nodes cannot be in different zones"]
+    answer: 1
+    explanation: "The majority of 4 is 3, so one failure is tolerated, the same as with 3 nodes."
+  - id: pause
+    prompt: "A worker checks that its lease is valid and then writes. Why can this still corrupt data?"
+    options: ["The check is slow", "The process can pause between the check and the write, while the lease expires and another worker takes over", "Leases cannot be checked", "Writes are always atomic"]
+    answer: 1
+    explanation: "GC pauses, VM stalls and clock skew can make the holder act on a lease that is already gone."
+  - id: fencing
+    prompt: "What does the storage do with fencing tokens?"
+    options: ["Ignores them", "Rejects writes carrying a token lower than the highest it has seen", "Accepts the lowest token", "Renews the lease"]
+    answer: 1
+    explanation: "Because tokens only grow, a stale holder's token is lower than the current one and is rejected."
+  - id: monotonic
+    prompt: "Which clock should a process use to measure how long it has held a lease?"
+    answers: ["monotonic", "monotonic clock", "the monotonic clock"]
+    explanation: "The monotonic clock never jumps backwards with NTP corrections, unlike the wall clock."
+  - id: redis-lock
+    prompt: "A Redis SET NX PX lock without fencing tokens is acceptable for which purpose?"
+    options: ["Preventing double payments", "Efficiency: avoiding duplicate work when an occasional duplicate is harmless", "Leader election of a database", "Guaranteeing mutual exclusion under pauses"]
+    answer: 1
+    explanation: "Without fencing, mutual exclusion can fail; use it only where a rare duplicate does no harm."

@@ -1,0 +1,24 @@
+id: system-design.p2.overload-backpressure
+kind: lesson
+status: draft
+title: "Overload: Timeouts, Retries, Back-Pressure and Load Shedding"
+summary: "How overload becomes an outage, timeouts and deadlines, retries with backoff and jitter, bounded queues and back-pressure, and shedding load by priority."
+objectives:
+  - { id: o1, text: "Explain how slow dependencies, queues and retries turn overload into a cascading or metastable failure", skills: [system-design.overload] }
+  - { id: o2, text: "Choose timeouts, deadlines and a retry policy with backoff, jitter and a budget", skills: [system-design.overload] }
+  - { id: o3, text: "Design bounded queues, concurrency limits and priority-based load shedding", skills: [system-design.overload] }
+prerequisites: [system-design.p2.lru-ttl-cache]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Every Black Friday the checkout service (which calls inventory, pricing and payments) falls over: latency climbs, the mobile app retries, and it only recovers after a restart. Diagnose what is happening, and design the timeouts, retry policy, queues, concurrency limits and load shedding that would keep checkout working at twice the expected traffic.'
+  criteria:
+    - 'Explains the feedback loop: slow dependency, more requests in flight, timeouts, retries amplifying load (metastable failure)'
+    - 'Sets timeouts from measured latency and propagates a deadline to the dependencies'
+    - 'Limits retries: idempotency keys for payments, backoff with jitter, a budget, one layer'
+    - 'Bounds queues and concurrency, and drops work whose client has already timed out'
+    - 'Sheds lower-priority traffic first and degrades gracefully (e.g. skips recommendations)'

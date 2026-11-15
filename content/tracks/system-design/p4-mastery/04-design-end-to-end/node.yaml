@@ -1,0 +1,24 @@
+id: system-design.p4.design-end-to-end
+kind: lesson
+status: draft
+title: "Designing a System End to End"
+summary: "The design process applied to two complete systems, a chat service and a flash ticket sale, plus a design review checklist, decision records and interview advice."
+objectives:
+  - { id: o1, text: "Run the full design process from requirements and estimates to deep dives and failure modes", skills: [system-design.end-to-end] }
+  - { id: o2, text: "Combine caching, partitioning, consistency, messaging and overload control in one coherent design", skills: [system-design.end-to-end, system-design.resilience] }
+  - { id: o3, text: "Review a design with a checklist and record decisions as ADRs", skills: [system-design.end-to-end] }
+prerequisites: [system-design.p4.resilience-at-scale]
+difficulty: 5
+estimated_minutes: 60
+xp: 450
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design a food-delivery platform for one country: customers browse restaurants near them and order, restaurants accept orders, couriers are matched and tracked live, and everyone gets status updates. Assume 3 million orders a day with a dinner peak, 200,000 couriers sending their location every 5 seconds while active. Go through requirements, estimates, API and data, the high-level design, two deep dives of your choice, and failure modes.'
+  criteria:
+    - 'States functional and non-functional requirements with numbers, and estimates the peak order and location rates'
+    - 'Separates the strongly consistent order and payment path from eventually consistent browsing, tracking and status'
+    - 'Handles location updates as a high-volume stream with a geospatial index for matching (geohash, H3 or similar)'
+    - 'Uses messaging for status changes and notifications, with idempotent consumers'
+    - 'Goes deep on at least two parts and names failure modes, overload protection and SLOs'

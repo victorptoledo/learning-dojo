@@ -1,0 +1,30 @@
+questions:
+  - id: resolver
+    prompt: "Which server walks from the root to the authoritative servers and caches the answers for many users?"
+    options: ["The authoritative name server", "The recursive resolver", "The TLD server", "The CDN edge"]
+    answer: 1
+    explanation: "The recursive resolver (your ISP's, or 1.1.1.1) does the lookups and caches each answer for its TTL."
+  - id: ttl-migration
+    prompt: "You will move a site to a new IP next week. The A record has a TTL of 86,400 s. What should you do first?"
+    options: ["Nothing, change it next week", "Lower the TTL now, days before the switch", "Raise the TTL", "Delete the record during the switch"]
+    answer: 1
+    explanation: "Resolvers keep the old answer for up to the old TTL; lowering it in advance makes the switch take effect quickly."
+  - id: anycast
+    prompt: "What does anycast do?"
+    options: ["Sends each packet to every server", "Announces one IP address from many locations so routing picks a nearby one", "Encrypts DNS", "Balances requests by cookie"]
+    answer: 1
+    explanation: "Many sites announce the same prefix with BGP; packets reach the closest one in routing terms."
+  - id: fingerprint
+    prompt: "Why can app.3f9a1c.js be cached with max-age=31536000, immutable?"
+    options: ["Because JavaScript never changes", "Because a new build gets a new file name, so the old URL never needs updating", "Because CDNs ignore max-age", "Because the file is small"]
+    answer: 1
+    explanation: "Fingerprinted names change with the content, so caching the old name forever is safe."
+  - id: private
+    prompt: "Which Cache-Control directive keeps a page with the user's account details out of the CDN but lets the browser cache it?"
+    answers: ["private", "Cache-Control: private"]
+    explanation: "private allows only the browser's own cache; no-store would forbid caching altogether."
+  - id: cache-key
+    prompt: "The CDN hit ratio fell to 5 % after a change. The origin now sends Vary: Cookie. Why?"
+    options: ["Cookies are slow", "Every distinct cookie value gets its own cached copy, so almost nothing is shared", "Vary disables HTTPS", "The CDN purges on every cookie"]
+    answer: 1
+    explanation: "Vary adds the header to the cache key; with per-user cookies the cache splits into one copy per user."

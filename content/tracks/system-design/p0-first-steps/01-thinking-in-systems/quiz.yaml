@@ -1,0 +1,30 @@
+questions:
+  - id: nfr
+    prompt: "Which of these is a non-functional requirement?"
+    options: ["Users can follow other users", "The feed loads in under 300 ms at p99", "Users can delete a photo", "Admins can ban accounts"]
+    answer: 1
+    explanation: "Non-functional requirements say how well the system works (latency, availability, cost), not what it does."
+  - id: qps
+    prompt: "5 million users each make 40 requests a day. Roughly how many requests per second is that on average?"
+    options: ["About 23", "About 230", "About 2,300", "About 23,000"]
+    answer: 2
+    explanation: "200 M requests / 86,400 s ≈ 2,300 per second. Peaks are usually 2 to 5 times higher."
+  - id: series
+    prompt: "A request needs three components, each 99.9 % available, all of them in series. What is the availability of the whole?"
+    options: ["99.9 %", "About 99.7 %", "99.99 %", "About 99.97 %"]
+    answer: 1
+    explanation: "In series you multiply: 0.999³ ≈ 0.997. Every extra dependency lowers availability."
+  - id: parallel
+    prompt: "Two independent replicas, each 99 % available; either one can serve. What is the availability?"
+    answers: ["99.99", "99.99%", "99.99 %"]
+    explanation: "1 − (0.01 × 0.01) = 0.9999. Only if their failures are truly independent."
+  - id: little
+    prompt: "A service handles 2,000 requests per second, each taking 50 ms. How many requests are in flight on average?"
+    options: ["40", "100", "400", "2,000"]
+    answer: 1
+    explanation: "Little's law: concurrency = throughput × latency = 2,000 × 0.05 s = 100."
+  - id: cross-ocean
+    prompt: "Which is the slowest?"
+    options: ["Reading 1 MB from memory", "A round trip inside a datacenter", "Reading 1 MB from an SSD", "A round trip from Europe to Australia"]
+    answer: 3
+    explanation: "Intercontinental round trips cost hundreds of milliseconds; that is why CDNs and regional deployments exist."

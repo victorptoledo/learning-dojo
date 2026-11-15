@@ -1,0 +1,30 @@
+questions:
+  - id: error-budget
+    prompt: "An SLO is 99.9 % of requests successful over 30 days. What is the error budget?"
+    options: ["0.01 % of requests", "0.1 % of requests, about 43 minutes of full outage", "1 % of requests", "There is none"]
+    answer: 1
+    explanation: "The budget is what the SLO allows to fail: 0.1 % of 30 days is about 43 minutes."
+  - id: static-stability
+    prompt: "Which design is statically stable against the loss of one of three zones?"
+    options: ["Run at 90 % in each zone and launch instances when one fails", "Run each zone at most about two thirds utilised so two zones carry the full load", "Run everything in one zone", "Use a bigger instance type"]
+    answer: 1
+    explanation: "Nothing new has to happen when a zone dies; the capacity is already there."
+  - id: cell
+    prompt: "What does a cell-based architecture mainly limit?"
+    options: ["Cost", "The blast radius: a failure affects only the customers of one cell", "Latency", "The number of deploys"]
+    answer: 1
+    explanation: "Independent cells each serve a subset of customers, so a bad deploy or poison request stays contained."
+  - id: shuffle
+    prompt: "With shuffle sharding, each customer gets a random 2 of 8 workers. Why does a poison customer hurt few others?"
+    options: ["Workers restart faster", "Few customers share both of its workers; the others keep at least one healthy worker", "Poison requests are dropped", "Each customer has its own server"]
+    answer: 1
+    explanation: "There are 28 possible pairs, so a full overlap is rare and partial overlaps survive through the other worker."
+  - id: rpo
+    prompt: "What does RPO measure?"
+    answers: ["data loss", "how much data you may lose", "recovery point objective", "the data you can lose"]
+    explanation: "RPO is the maximum acceptable data loss; RTO is the maximum acceptable downtime."
+  - id: fallback
+    prompt: "Why does the Amazon Builders' Library warn against rarely used fallbacks?"
+    options: ["They are expensive", "They are untested code that only runs during outages, when they are most likely to fail or overload something", "They are slow", "They break caching"]
+    answer: 1
+    explanation: "Prefer making the main path reliable, or exercise the fallback all the time."

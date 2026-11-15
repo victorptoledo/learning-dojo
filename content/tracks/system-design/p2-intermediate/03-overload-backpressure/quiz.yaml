@@ -1,0 +1,30 @@
+questions:
+  - id: goodput
+    prompt: "A service runs at 100 % CPU but almost every response arrives after the client has timed out. What has collapsed?"
+    options: ["Throughput", "Goodput", "Availability of the database", "The cache hit ratio"]
+    answer: 1
+    explanation: "It is busy (throughput) but doing work nobody can use; goodput counts only useful, in-time responses."
+  - id: jitter-why
+    prompt: "Why add jitter to exponential backoff?"
+    options: ["To make retries faster", "So clients that failed together do not retry in synchronised waves", "To avoid idempotency keys", "To make timeouts shorter"]
+    answer: 1
+    explanation: "Without jitter, every client retries at the same instants and recreates the spike."
+  - id: layers
+    prompt: "Three layers of services each retry a failed call 3 times. How many calls can one user request cause at the bottom?"
+    answers: ["27"]
+    explanation: "3 × 3 × 3 = 27: retries multiply across layers, so retry in one place only."
+  - id: unbounded
+    prompt: "What does an unbounded queue in front of overloaded workers do?"
+    options: ["Prevents overload", "Turns overload into ever-growing latency and memory, serving requests nobody waits for", "Drops old requests automatically", "Applies back-pressure"]
+    answer: 1
+    explanation: "Nothing pushes back, so the backlog and the age of every item grow until the process fails."
+  - id: shed-first
+    prompt: "Under overload, which traffic should be shed first?"
+    options: ["Payments", "Logins", "Recommendation prefetches and batch jobs", "Order placement"]
+    answer: 2
+    explanation: "Best-effort work goes first so that critical requests keep their capacity."
+  - id: expired-work
+    prompt: "A request has waited in the queue longer than the client's timeout. What should the worker do?"
+    options: ["Process it anyway", "Drop it: the client has given up, and serving it steals capacity from fresh requests", "Move it to the front", "Retry it twice"]
+    answer: 1
+    explanation: "Work past its deadline is already a failure; dropping it protects the requests that can still succeed."

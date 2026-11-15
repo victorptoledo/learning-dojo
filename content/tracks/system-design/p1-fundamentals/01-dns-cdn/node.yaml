@@ -3,12 +3,23 @@ legacy_id: sys-01-dns-cdn
 kind: lesson
 status: draft
 title: "DNS, Anycast and Edge CDNs"
-summary: "How traffic reaches your servers from users around the world with low latency."
+summary: "How a name becomes an address, TTLs and DNS-based routing, anycast, and CDNs controlled with HTTP caching headers."
 objectives:
-  - { id: o1, text: "How traffic reaches your servers from users around the world with low latency.", skills: [system-design.dns-cdn] }
-prerequisites: []
+  - { id: o1, text: "Follow a DNS resolution and choose record types and TTLs for a migration or a failover", skills: [system-design.dns-cdn] }
+  - { id: o2, text: "Explain anycast and when DNS is the right (or wrong) load-balancing tool", skills: [system-design.dns-cdn] }
+  - { id: o3, text: "Design CDN caching with Cache-Control, fingerprinted assets, purges and a small cache key", skills: [system-design.dns-cdn] }
+prerequisites: [system-design.p0.capacity-estimator]
 difficulty: 2
-estimated_minutes: 30
-xp: 100
+estimated_minutes: 45
+xp: 150
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A news site serves readers in Europe, Brazil and Japan from one region in Frankfurt and plans to add a second region in São Paulo. Design the edge: the DNS records and TTLs, what the CDN caches (static assets, article pages, the logged-in header) with which Cache-Control headers, how a breaking-news correction reaches readers quickly, and what readers see if Frankfurt goes down.'
+  criteria:
+    - 'Uses latency or geo DNS (or a CDN in front of both regions) with a reasoned TTL'
+    - 'Caches fingerprinted assets for a long time and article pages briefly with s-maxage or a purge'
+    - 'Keeps personalised content out of shared caches (private, or loaded separately)'
+    - 'Explains the correction path: purge by URL or tag, or short TTL with revalidation'
+    - 'Covers origin failure: failover between regions and stale-if-error'

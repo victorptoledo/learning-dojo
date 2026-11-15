@@ -1,0 +1,58 @@
+id: system-design.p2.lru-ttl-cache
+kind: kata
+status: draft
+title: "LRU + TTL Cache"
+summary: "A bounded, thread-safe cache with least-recently-used eviction, a time to live per entry, statistics and a getOrLoad that loads each missing key once."
+objectives:
+  - { id: o1, text: "Implement LRU eviction and per-entry expiry driven by a clock", skills: [system-design.caching-strategies] }
+  - { id: o2, text: "Count hits, misses, evictions and expirations, and coalesce concurrent loads", skills: [system-design.caching-strategies] }
+prerequisites: [system-design.p2.caching-strategies]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Two independent limits: the size (evict the least recently used) and the age (an entry is gone from `writtenAt + ttl`). Which Java map already keeps its entries in the order they were last accessed, and what do you store next to each value so a read can tell whether it expired?
+    - |-
+      Use `new LinkedHashMap<>(16, 0.75f, true)` of `K` to a `record Entry<V>(V value, Instant expiresAt)`. A private `lookup(key, now)` returns the value or removes an expired entry (counting the expiration); `get` and `getOrLoad` call it and count the hit or miss. In `put`, only for a **new** key in a full cache: remove the expired entries, then, if still full, remove the first key of the iterator (one eviction).
+    - |-
+      ```java
+      public synchronized V getOrLoad(K key, Function<? super K, ? extends V> loader) {
+          Optional<V> cached = lookup(key, clock.instant());
+          if (cached.isPresent()) {
+              hits++;
+              return cached.get();
+          }
+          misses++;
+          V loaded = loader.apply(key);   // under the lock: concurrent callers wait, then hit
+          put(key, loaded);
+          return loaded;
+      }
+
+      private Optional<V> lookup(K key, Instant now) {
+          Entry<V> entry = entries.get(key);              // also marks it as recently used
+          if (entry == null) return Optional.empty();
+          if (!now.isBefore(entry.expiresAt())) {
+              entries.remove(key);
+              expirations++;
+              return Optional.empty();
+          }
+          return Optional.of(entry.value());
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

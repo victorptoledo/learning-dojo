@@ -3,12 +3,23 @@ legacy_id: sys-04-databases-replication-sharding
 kind: lesson
 status: draft
 title: "Replication, Horizontal Sharding and Partitioning"
-summary: "Scaling relational and non-relational databases beyond one server."
+summary: "Single-leader, multi-leader and leaderless replication, sync versus async, replica-lag anomalies, failover and split brain, partitioning strategies, hot spots, rebalancing and routing."
 objectives:
-  - { id: o1, text: "Scaling relational and non-relational databases beyond one server.", skills: [system-design.databases-replication-sharding] }
-prerequisites: [system-design.p2.caching-strategies]
+  - { id: o1, text: "Choose a replication topology and mode, and explain what a failover can lose", skills: [system-design.databases-replication-sharding] }
+  - { id: o2, text: "Recognise replica-lag anomalies and apply read-your-writes, monotonic reads and consistent prefix", skills: [system-design.databases-replication-sharding] }
+  - { id: o3, text: "Choose a partition key and strategy, handle hot spots, and plan rebalancing and routing", skills: [system-design.databases-replication-sharding] }
+prerequisites: [system-design.p2.checkpoint]
 difficulty: 4
-estimated_minutes: 30
-xp: 350
+estimated_minutes: 55
+xp: 300
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A multi-tenant SaaS (project management) has outgrown one PostgreSQL server: 40,000 tenants, a few of them 1,000 times bigger than the median, and customers in Europe and the US. Design the replication and partitioning: the partition key, the strategy, what you do about the giant tenants, how reads scale, what happens when a primary fails, and how you move a tenant between shards.'
+  criteria:
+    - 'Partitions by tenant (directory or hash with fixed partitions) so most requests touch one shard'
+    - 'Isolates very large tenants on their own shards (directory placement)'
+    - 'Replicates each shard with a failover plan and says what async replication can lose'
+    - 'Scales reads with replicas while protecting read-your-writes'
+    - 'Describes a tenant move: copy, catch up through replication or CDC, brief write freeze, switch the directory'

@@ -1,0 +1,49 @@
+id: system-design.p3.quorum-store
+kind: kata
+status: draft
+title: "Quorum Store"
+summary: "The coordinator of a leaderless store: writes acknowledged by W replicas, reads from R replicas returning the newest version, and read repair of stale replicas."
+objectives:
+  - { id: o1, text: "Implement quorum writes and reads with versions over replicas that can fail", skills: [system-design.cap-pacelc] }
+  - { id: o2, text: "Show the effect of W + R > N and repair stale replicas during reads", skills: [system-design.cap-pacelc, system-design.databases-replication-sharding] }
+prerequisites: [system-design.p3.cap-pacelc]
+difficulty: 4
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      A write is a loop over all replicas counting acknowledgements; a read is a loop that stops as soon as it has `r` answers. Both treat `ReplicaDownException` as "no answer" and move on. After the read loop you know every answer: which one is the newest, and which replicas are behind it?
+    - |-
+      Number versions with a `long` field: `new Versioned(value, ++lastVersion)` (before checking the quorum, so failed writes use a version too). For reads, collect `record Answer(Replica replica, Optional<Versioned> value)` in list order, skipping replicas that throw, stopping at `r`. The newest is `answers.stream().flatMap(a -> a.value().stream()).max(Comparator.comparingLong(Versioned::version))`.
+    - |-
+      ```java
+      private void repair(String key, Versioned latest, List<Answer> answers) {
+          for (Answer answer : answers) {
+              boolean stale = answer.value().map(v -> v.version() < latest.version()).orElse(true);
+              if (stale) {
+                  try {
+                      answer.replica().write(key, latest);
+                      repairs++;
+                  } catch (ReplicaDownException e) {
+                      // a later read will repair it
+                  }
+              }
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

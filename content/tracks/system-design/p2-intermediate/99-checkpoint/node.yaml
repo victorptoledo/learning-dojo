@@ -1,0 +1,53 @@
+id: system-design.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz on caching, overload and read-heavy designs, and a home timeline with hybrid fan-out."
+objectives:
+  - { id: o1, text: "Explain cache patterns, stampedes, retries, back-pressure, load shedding and fan-out in your own words", skills: [system-design.caching-strategies, system-design.overload, system-design.read-heavy] }
+  - { id: o2, text: "Build a timeline that pushes to bounded inboxes, pulls celebrity posts and merges them at read time", skills: [system-design.read-heavy, system-design.caching-strategies] }
+prerequisites: [system-design.p2.read-heavy-designs]
+difficulty: 4
+estimated_minutes: 75
+xp: 350
+closes_phase: p2
+covers_skills: [system-design.caching-strategies, system-design.overload, system-design.read-heavy]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Decide everything at the moment of posting: count the author's followers; below the threshold, push the post into each follower's inbox; otherwise, keep it in the author's pulled list. Reading is then a merge of two sources. Which filter must the inbox part pass so that unfollows need no rewrite?
+    - |-
+      Keep `followers` and `following` as maps of sets, `inboxes` as `Map<String, ArrayDeque<Post>>` and `pulled` as `Map<String, List<Post>>`. On push: `addLast`, and `removeFirst` when the inbox exceeds `inboxSize`; count every insertion. On read: inbox posts whose author is in `following(user)`, plus the last `limit` posts of each followee's pulled list, sorted newest first with ties by higher id.
+    - |-
+      ```java
+      public List<Post> timeline(String user, int limit) {
+          if (limit < 0) throw new IllegalArgumentException("limit cannot be negative");
+          Set<String> followees = following.getOrDefault(user, Set.of());
+          List<Post> candidates = new ArrayList<>();
+          for (Post post : inboxes.getOrDefault(user, new ArrayDeque<>())) {
+              if (followees.contains(post.author())) candidates.add(post);
+          }
+          for (String followee : followees) {
+              List<Post> posts = pulled.getOrDefault(followee, List.of());
+              candidates.addAll(posts.subList(Math.max(0, posts.size() - limit), posts.size()));
+          }
+          candidates.sort(Comparator.comparing(Post::at).thenComparingLong(Post::id).reversed());
+          return List.copyOf(candidates.subList(0, Math.min(limit, candidates.size())));
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

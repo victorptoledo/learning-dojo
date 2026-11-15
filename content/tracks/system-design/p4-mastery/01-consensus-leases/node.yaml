@@ -1,0 +1,24 @@
+id: system-design.p4.consensus-leases
+kind: lesson
+status: draft
+title: "Consensus, Leader Election, Leases and Fencing"
+summary: "Why agreement is hard, Raft in one page, what consensus is used for, leases and the pause problem, fencing tokens, and clocks for ordering."
+objectives:
+  - { id: o1, text: "Explain how Raft elects a leader and commits entries, and what majorities tolerate", skills: [system-design.consensus] }
+  - { id: o2, text: "Design leader election or locking on etcd, ZooKeeper or conditional writes", skills: [system-design.consensus] }
+  - { id: o3, text: "Explain why leases alone are unsafe and make them safe with fencing tokens", skills: [system-design.consensus] }
+prerequisites: [system-design.p3.message-queues-events]
+difficulty: 5
+estimated_minutes: 55
+xp: 400
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A billing system runs a nightly job that charges subscriptions. It runs on three instances for availability, and exactly one must run the job; twice last month a long GC pause caused two instances to charge the same customers. Design the leader election and the protection against double charging: the tool, lease length and renewal, what the job does before and during each charge, and what happens when the leader dies mid-run.'
+  criteria:
+    - 'Uses a consensus-backed store (etcd, ZooKeeper, Consul) or conditional writes for the lease, not a cache lock alone'
+    - 'Explains the pause problem: checking the lease before acting is not enough'
+    - 'Introduces fencing tokens checked by the resource (the charges table or the payment call)'
+    - 'Adds idempotency per charge (key per customer and billing period) so a rerun is safe'
+    - 'Chooses a lease length and renewal interval, and describes takeover and resumption after the leader dies'
