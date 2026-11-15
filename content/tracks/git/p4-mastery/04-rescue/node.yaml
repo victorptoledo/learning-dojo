@@ -1,0 +1,56 @@
+id: git.p4.rescue
+kind: kata
+status: draft
+title: "Recovering from Mistakes: a Reflog Rescue Tool"
+summary: "Almost nothing committed is ever lost. Learn the recovery for each common mistake, then write a tool that undoes a bad reset or rebase and brings back deleted branches from the reflog."
+objectives:
+  - { id: o1, text: "Pick the right recovery for common mistakes: reset, rebase, deleted branch, lost stash, bad merge, bad push", skills: [git.recovery] }
+  - { id: o2, text: "Read a branch's and HEAD's reflog from a script to find where a branch was before a mistake", skills: [git.recovery, git.rebase-vs-merge] }
+  - { id: o3, text: "Move a branch safely, checked out or not, without creating a new 'mistake' in the reflog", skills: [git.recovery, git.undo] }
+prerequisites: [git.p4.workflows]
+difficulty: 4
+estimated_minutes: 75
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Make each mistake by hand in a scratch repository and run `git reflog show BRANCH` and `git reflog` after it. What message does a reset, a `git branch -f` and a finished rebase leave in the **branch's** reflog? After `git branch -D feature`, that branch's reflog is gone: which line of **HEAD's** reflog still remembers where `feature` was?
+    - |-
+      `git log -g --format=%gs refs/heads/BRANCH` lists the branch's reflog messages, newest first; the line at index `n` is `BRANCH@{n}`, so the position before that move is `BRANCH@{n+1}`. Mistakes start with `reset: `, `branch: Reset to ` or `rebase (finish): `. For a deleted branch, look in `git log -g --format=%gs HEAD` for the first line starting with `checkout: moving from BRANCH to ` and take `HEAD@{n+1}`. Move a branch that is not checked out with `git update-ref -m "rescue: ..." refs/heads/BRANCH HASH`; a checked-out one with `GIT_REFLOG_ACTION=rescue git reset -q --hard HASH`, so your own move is not logged as a `reset:`.
+    - |-
+      ```bash
+      # index of the newest line of a reflog that starts with one of the prefixes
+      find_entry() {   # find_entry REF PREFIX...
+          local ref="$1"
+          shift
+          # the prefixes are passed to awk as arguments; ARGC = 1 makes it read stdin, not files
+          git -C "$repo" log -g --format=%gs "$ref" -- 2> /dev/null | awk '
+              BEGIN { for (i = 1; i < ARGC; i++) prefix[i] = ARGV[i]; ARGC = 1 }
+              found { next }   # keep reading: exiting early would SIGPIPE git log under pipefail
+              { for (p in prefix) if (index($0, prefix[p]) == 1) { print NR - 1; found = 1 } }' "$@"
+      }
+      if git -C "$repo" show-ref --verify -q "refs/heads/$branch"; then
+          n=$(find_entry "refs/heads/$branch" "reset: " "branch: Reset to " "rebase (finish): ")
+          [ -n "$n" ] || fail "nothing to undo on $branch"
+          target=$(git -C "$repo" rev-parse "refs/heads/$branch@{$((n + 1))}")
+          # move it: reset --hard if it is checked out (and clean), update-ref otherwise
+      else
+          n=$(find_entry HEAD "checkout: moving from $branch to ")
+          # no entry: no trace; otherwise create the branch at HEAD@{n+1}
+      fi
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, Git, bats and shellcheck that runs the grading tests.

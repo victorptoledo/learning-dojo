@@ -1,0 +1,24 @@
+id: git.p2.conflicts
+kind: lesson
+status: draft
+title: "Resolving Merge and Rebase Conflicts"
+summary: "Why conflicts happen, how to read conflict markers and the diff3 view, ours and theirs in merges and rebases, tools, rerere, and how to avoid conflicts in the first place."
+objectives:
+  - { id: o1, text: "Read conflict markers (with the merge base shown by zdiff3) and resolve a conflict by intent, not by picking a side blindly", skills: [git.conflicts] }
+  - { id: o2, text: "Know what ours and theirs mean in a merge and in a rebase, and finish or abort each operation", skills: [git.conflicts] }
+  - { id: o3, text: "Reduce conflicts with small, frequent integration, and reuse resolutions with rerere", skills: [git.conflicts] }
+prerequisites: [git.p2.remotes]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'During `git rebase origin/main` you get a conflict in `pricing.py`: your commit changed the discount from 10% to 15%, and `main` meanwhile moved the discount into a function `discount_rate()`. Walk through how you would understand and resolve this conflict, which commands you run to finish, and how you make sure the result is correct. Mention what "ours" and "theirs" mean here.'
+  criteria:
+    - 'Reads the markers and the base section (zdiff3) to understand both intents rather than choosing a side'
+    - 'Produces a resolution that keeps main''s refactoring and applies the 15% change inside discount_rate()'
+    - 'Finishes with git add and git rebase --continue, and knows --abort as the way out'
+    - 'States that during a rebase ours is the branch being rebased onto (main) and theirs is the commit being replayed'
+    - 'Runs the tests (or the code) after resolving, because a conflict-free textual result can still be wrong'

@@ -1,0 +1,55 @@
+questions:
+  - id: rebase-result
+    skills: [git.rebase-vs-merge]
+    prompt: "feature has 3 commits on top of an old main. After git rebase main, how many of feature's original commit hashes are still on the branch?"
+    options: ["All 3", "None: the 3 commits were replayed as new commits", "Only the oldest", "Only the newest"]
+    answer: 1
+    explanation: "Each replayed commit has a new parent, hence a new hash. The originals stay in the reflog for a while."
+  - id: pull-merge-noise
+    skills: [git.rebase-vs-merge, git.remotes]
+    prompt: "Which setting stops git pull from creating 'Merge branch main of ...' commits on your feature branches?"
+    answers: ["pull.rebase true", "git config pull.rebase true", "git config --global pull.rebase true", "pull.rebase=true"]
+    explanation: "With pull.rebase true, pull replays your local commits on top of the fetched ones."
+  - id: tracking-offline
+    skills: [git.remotes]
+    prompt: "You are offline and run git log origin/main. What do you see?"
+    options: ["An error", "The server's main as it was at your last fetch", "Your local main", "Nothing until you reconnect"]
+    answer: 1
+    explanation: "origin/main is a local ref; only fetch updates it."
+  - id: lease-after-fetch
+    skills: [git.remotes]
+    prompt: "You run git fetch, then git push --force-with-lease. A colleague's commit on the branch arrived with that fetch, and you never looked at it. What happens?"
+    options:
+      - "The push is refused"
+      - "The push succeeds and overwrites the colleague's commit, because the lease compares with the origin/branch you just fetched"
+      - "Git merges the colleague's commit automatically"
+      - "The push becomes a normal push"
+    answer: 1
+    explanation: "The lease only protects against changes since your last fetch. Check that your branch contains origin/branch before forcing."
+  - id: ours-merge
+    skills: [git.conflicts]
+    prompt: "On main you run git merge feature and get a conflict. Which side does git checkout --ours FILE take?"
+    options: ["feature's version", "main's version", "The merge base", "Both"]
+    answer: 1
+    explanation: "In a merge, ours is the branch you are on (HEAD), here main."
+  - id: semantic-conflict
+    skills: [git.conflicts]
+    prompt: "A merge finished without any conflict, yet the build fails. How is that possible?"
+    options:
+      - "It is not possible"
+      - "Each side was fine alone, but together they break: for example one renamed a function the other started calling"
+      - "Git corrupted a file"
+      - "The merge base was wrong"
+    answer: 1
+    explanation: "Git merges text, not meaning. Build and test after every merge or rebase."
+  - id: autosquash-target
+    skills: [git.history-rewriting]
+    prompt: "How does git rebase -i --autosquash know which commit a fixup belongs to?"
+    options: ["From the commit date", "From its subject: 'fixup! ' followed by the target's subject (or hash)", "From the files it changes", "From a note in .git/config"]
+    answer: 1
+    explanation: "git commit --fixup=X writes the subject 'fixup! <X subject>', which autosquash matches."
+  - id: keep-base
+    skills: [git.history-rewriting, git.rebase-vs-merge]
+    prompt: "You want to fold fixups on your branch without moving it onto the newest main. Which rebase option does that?"
+    answers: ["--keep-base", "git rebase -i --autosquash --keep-base main"]
+    explanation: "--keep-base replays the commits onto their current merge base with main instead of main's tip."

@@ -1,0 +1,24 @@
+id: git.p4.signing-security
+kind: lesson
+status: draft
+title: "Signing Commits and Keeping Secrets out of History"
+summary: "Why author fields prove nothing, signing commits and tags with SSH or GPG keys, verification on the host, and what to do when a secret is committed: rotate first, then rewrite."
+objectives:
+  - { id: o1, text: "Explain why user.name and user.email can be forged and what a signature adds", skills: [git.signing-security] }
+  - { id: o2, text: "Sign commits and tags with an SSH (or GPG) key and verify them locally and on the host", skills: [git.signing-security] }
+  - { id: o3, text: "Prevent secrets from being committed and respond correctly when one is: rotate, rewrite with git filter-repo, coordinate", skills: [git.signing-security] }
+prerequisites: [git.p4.large-repos]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A developer pushed a commit containing a production database password to a public repository two hours ago, and three other commits have been pushed on top of it. Write the incident response in order: what to do in the first minutes, how to remove the secret from history, what everyone else on the team must do, and what you would put in place so it does not happen again. Finally, explain how commit signing would (or would not) have helped here.'
+  criteria:
+    - 'Rotates or revokes the password first, because it must be considered leaked the moment it was public'
+    - 'Removes it from history with git filter-repo (or BFG), force-pushes, and asks the host to purge caches/pull request refs if needed'
+    - 'Tells everyone to re-clone or reset their branches onto the rewritten history instead of merging the old one back'
+    - 'Prevents recurrence with .gitignore, a secret scanner in pre-commit and server-side push protection, and secrets kept in a secret manager'
+    - 'Explains that signing proves who made a commit, not that it is free of secrets'

@@ -1,0 +1,49 @@
+id: git.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata that reports how every branch stands against main."
+objectives:
+  - { id: o1, text: "Explain objects, the index, branches, merges and undo commands in your own words", skills: [git.dag-objects, git.staging-commits, git.branches, git.undo] }
+  - { id: o2, text: "Report ahead/behind counts and merge state for every branch from the commit graph", skills: [git.dag-objects, git.branches] }
+prerequisites: [git.p1.undoing-changes]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+closes_phase: p1
+covers_skills: [git.dag-objects, git.staging-commits, git.branches, git.undo]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Draw the graph of the fixture on paper first. For one branch, which commits are on the branch but not on `main`, and which are on `main` but not on the branch? Which Git command lists every local branch in a script-friendly way, and which one counts commits on each side of `main...branch`?
+    - |-
+      `git for-each-ref --format='%(refname:lstrip=2)' refs/heads` lists local branch names in order, slashes kept, and never confuses a branch with a tag of the same name (`refname:short` can). `git rev-list --left-right --count "main...$name"` prints two numbers: commits only on the left (`main`, so *behind*) and only on the right (the branch, so *ahead*). A branch is merged when it is ahead by 0. `git show-ref --verify -q "refs/heads/$base"` checks that the base exists.
+    - |-
+      ```bash
+      total=0
+      merged=0
+      while IFS= read -r name; do
+          [ "$name" = "$base" ] && continue
+          read -r behind ahead < <(git -C "$repo" rev-list --left-right --count "refs/heads/$base...refs/heads/$name")
+          state=open
+          # merged when ahead is 0; count totals
+          echo "$name ahead $ahead behind $behind $state"
+      done < <(git -C "$repo" for-each-ref --format='%(refname:lstrip=2)' refs/heads)
+      echo "total: $total branches, $merged merged"
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, Git, bats and shellcheck that runs the grading tests.

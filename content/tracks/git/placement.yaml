@@ -1,0 +1,311 @@
+# Placement test of the Git track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with Git?
+  options:
+    - { label: "Never used it, or only through an IDE button", start_phase: p0, test: false }
+    - { label: "I commit, branch, merge and push every day", start_phase: p1, test: true }
+    - { label: "I rebase, resolve conflicts and clean up history without fear", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-empty-dir
+    phase: p1
+    skills: [git.dag-objects]
+    difficulty: 2
+    prompt: "You create an empty folder logs/ in your project and run git add . and git commit. What does the commit contain for logs/?"
+    options: ["An empty tree named logs", "Nothing: Git tracks file contents, and a tree with no entries is never recorded", "A placeholder blob", "An error stops the commit"]
+    answer: 1
+    explanation: "Trees list files; a folder without files has nothing to list. Teams add a .gitkeep file to keep one."
+  - id: p1-branch-cost
+    phase: p1
+    skills: [git.dag-objects, git.branches]
+    difficulty: 1
+    prompt: "Why is creating a branch in Git instantaneous even in a huge repository?"
+    options: ["Git copies files lazily", "A branch is only a ref holding one commit hash", "Branches are stored on the server", "Git compresses the copy"]
+    answer: 1
+    explanation: "Creating a branch writes one small reference; no files or commits are copied."
+  - id: p1-cat-file
+    phase: p1
+    skills: [git.dag-objects]
+    difficulty: 3
+    prompt: "Which command prints the raw content of the commit HEAD points to (its tree, parents, author and message)?"
+    answers: ["git cat-file -p HEAD", "git cat-file -p @"]
+    explanation: "cat-file -p pretty-prints any object; for a commit you see the tree and parent hashes."
+  - id: p1-diff-head
+    phase: p1
+    skills: [git.staging-commits]
+    difficulty: 2
+    prompt: "You have staged and unstaged changes. Which command shows all of them together, compared with the last commit?"
+    options: ["git diff", "git diff --staged", "git diff HEAD", "git status"]
+    answer: 2
+    explanation: "git diff HEAD compares the working tree with HEAD; diff alone omits what is staged, --staged omits what is not."
+  - id: p1-gitignore-negate
+    phase: p1
+    skills: [git.staging-commits]
+    difficulty: 3
+    prompt: ".gitignore contains logs/ and then !logs/keep.txt. Is logs/keep.txt tracked when you run git add .?"
+    options:
+      - "Yes, the exception wins"
+      - "No: once the directory logs/ is excluded, Git does not look inside it, so the exception cannot apply"
+      - "Only on Windows"
+      - "Yes, but only after a commit"
+    answer: 1
+    explanation: "To re-include a file, ignore the contents (logs/*) instead of the directory itself, then add !logs/keep.txt."
+  - id: p1-merge-commit
+    phase: p1
+    skills: [git.branches]
+    difficulty: 2
+    prompt: "main has 2 new commits and feature has 3 since they split. What does git merge feature on main create?"
+    options: ["Nothing: it fast-forwards", "A merge commit with two parents", "Three new commits", "A rebase of feature"]
+    answer: 1
+    explanation: "Both sides moved, so a three-way merge records the combination in a merge commit."
+  - id: p1-detached-keep
+    phase: p1
+    skills: [git.branches]
+    difficulty: 3
+    prompt: "You are in detached HEAD and made two commits you want to keep. Which single command keeps them on a new branch and switches to it?"
+    answers: ["git switch -c keep", "git checkout -b keep", "git switch -c", "git checkout -b"]
+    explanation: "Creating a branch at the current commit gives those commits a name before you leave."
+  - id: p1-amend-pushed
+    phase: p1
+    skills: [git.undo]
+    difficulty: 2
+    prompt: "Why is git commit --amend a problem after the commit was pushed to a shared branch?"
+    options: ["It deletes the remote branch", "It replaces the commit with a new one, so the shared history and yours diverge", "It cannot change the message", "It only works on main"]
+    answer: 1
+    explanation: "Amend creates a new commit. The pushed one is still what others have."
+  - id: p1-reset-file
+    phase: p1
+    skills: [git.undo]
+    difficulty: 3
+    prompt: "You want config.yaml back exactly as it was three commits ago, without moving the branch. Which command does it?"
+    options: ["git reset --hard HEAD~3", "git restore --source=HEAD~3 config.yaml", "git revert HEAD~3", "git checkout HEAD~3"]
+    answer: 1
+    explanation: "restore --source copies one file from a commit; reset and checkout of a commit move HEAD."
+
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-rebase-onto-moved
+    phase: p2
+    skills: [git.rebase-vs-merge]
+    difficulty: 2
+    prompt: "A teammate rebased the shared branch release you had pulled, and force-pushed it. What do you see on your next git pull (merge mode)?"
+    options:
+      - "Nothing special"
+      - "Duplicated commits or confusing conflicts, because your old commits and their rewritten copies are merged together"
+      - "Git refuses to pull"
+      - "Your commits are deleted"
+    answer: 1
+    explanation: "That is why shared branches are never rebased."
+  - id: p2-orig-head
+    phase: p2
+    skills: [git.rebase-vs-merge, git.recovery]
+    difficulty: 3
+    prompt: "Right after a rebase that went wrong, which command restores the branch to its state before the rebase?"
+    answers: ["git reset --hard ORIG_HEAD", "git reset --hard ORIG_HEAD@{0}"]
+    explanation: "rebase saves the old tip in ORIG_HEAD; the reflog has it too."
+  - id: p2-upstream
+    phase: p2
+    skills: [git.remotes]
+    difficulty: 2
+    prompt: "git status says 'Your branch is ahead of origin/main by 2 commits'. Since when is that true?"
+    options: ["Since the server changed", "Since your last fetch: origin/main is your local snapshot of the server", "Always, in real time", "Since your last push only"]
+    answer: 1
+    explanation: "Status compares with the remote-tracking branch, which only fetch updates."
+  - id: p2-push-new
+    phase: p2
+    skills: [git.remotes]
+    difficulty: 2
+    prompt: "Which command pushes a new local branch feature/search and sets its upstream?"
+    answers: ["git push -u origin feature/search", "git push --set-upstream origin feature/search"]
+    explanation: "-u records origin/feature/search as the upstream, so later push and pull need no arguments."
+  - id: p2-lease-vs-force
+    phase: p2
+    skills: [git.remotes]
+    difficulty: 3
+    prompt: "What is the difference between git push --force and git push --force-with-lease?"
+    options:
+      - "None"
+      - "--force-with-lease refuses if the server's branch is not what your origin/branch says, so it never overwrites commits you have not seen"
+      - "--force-with-lease is slower"
+      - "--force also deletes tags"
+    answer: 1
+    explanation: "The lease is a compare-and-swap against your last fetched value."
+  - id: p2-conflict-base
+    phase: p2
+    skills: [git.conflicts]
+    difficulty: 2
+    prompt: "A zdiff3 conflict shows ours 'rate = rate_for(customer)', base 'rate = 0.10' and theirs 'rate = 0.15'. What is the right resolution?"
+    options:
+      - "Keep ours: it is newer code"
+      - "Keep both intents: our side moved the rate into rate_for(), their side raised it to 0.15, so apply the 0.15 inside rate_for()"
+      - "Keep theirs: the number is what matters"
+      - "Keep the base"
+    answer: 1
+    explanation: "The base shows what each side changed. Picking one side would silently drop the other change."
+  - id: p2-modify-delete
+    phase: p2
+    skills: [git.conflicts]
+    difficulty: 3
+    prompt: "A merge reports 'CONFLICT (modify/delete): legacy.py deleted in feature and modified in HEAD'. You agree the file should go. What do you run before continuing?"
+    answers: ["git rm legacy.py", "git rm -- legacy.py"]
+    explanation: "Removing the file resolves the conflict in favour of the deletion; git add would keep it."
+  - id: p2-fixup-target
+    phase: p2
+    skills: [git.history-rewriting]
+    difficulty: 2
+    prompt: "During review you fix a typo that belongs to commit a1b2c3d, three commits back. What is the tidiest way to record the fix?"
+    options: ["A new commit 'fix typo'", "git commit --fixup=a1b2c3d, folded later with an autosquash rebase", "git commit --amend", "Edit a1b2c3d in .git/objects"]
+    answer: 1
+    explanation: "amend only changes the last commit; a fixup commit targets any commit and folds automatically."
+  - id: p2-exec
+    phase: p2
+    skills: [git.history-rewriting]
+    difficulty: 3
+    prompt: "Which rebase option runs a command after every replayed commit and stops at the first one that fails?"
+    answers: ["--exec", "-x", "git rebase -i --exec"]
+    explanation: "git rebase -i --exec 'make test' main checks every commit of the branch."
+
+  # ---- P3 Advanced ---------------------------------------------------------------
+  - id: p3-bisect-terms
+    phase: p3
+    skills: [git.bisect]
+    difficulty: 3
+    prompt: "You want bisect to find when a page got slow, not when it broke. What lets you use words that fit?"
+    options: ["You cannot", "git bisect start --term-old=fast --term-new=slow", "git bisect perf", "git log --slow"]
+    answer: 1
+    explanation: "Custom terms replace good and bad; the search is the same."
+  - id: p3-bisect-skip
+    phase: p3
+    skills: [git.bisect]
+    difficulty: 2
+    prompt: "During a manual bisect the current commit does not compile for an unrelated reason. Which command moves on without marking it?"
+    answers: ["git bisect skip"]
+    explanation: "skip leaves the commit out; in bisect run, exit code 125 does the same."
+  - id: p3-bisect-merge
+    phase: p3
+    skills: [git.bisect]
+    difficulty: 4
+    prompt: "Bisect over a history of merged pull requests keeps landing inside feature branches. Which option makes it test only the commits of the main line first?"
+    answers: ["--first-parent", "git bisect start --first-parent"]
+    explanation: "It follows first parents only, so each step is one merged pull request."
+  - id: p3-lightweight
+    phase: p3
+    skills: [git.tags-releases]
+    difficulty: 2
+    prompt: "git describe ignores your tag v1.2.0 and git push --follow-tags does not send it. What kind of tag is it most likely?"
+    options: ["A signed tag", "A lightweight tag", "An annotated tag", "A remote tag"]
+    answer: 1
+    explanation: "Without --tags, describe uses annotated tags only, and --follow-tags only pushes annotated tags."
+  - id: p3-semver-feature
+    phase: p3
+    skills: [git.tags-releases]
+    difficulty: 1
+    prompt: "Version 2.3.4 gets a new optional parameter, fully backward compatible. What is the next version?"
+    options: ["2.3.5", "2.4.0", "3.0.0", "2.3.4-1"]
+    answer: 1
+    explanation: "A compatible feature bumps MINOR and resets PATCH."
+  - id: p3-hook-exec
+    phase: p3
+    skills: [git.hooks]
+    difficulty: 2
+    prompt: "Your new .git/hooks/pre-commit script never runs. What is the most common cause?"
+    options: ["Hooks only run on the server", "The file is not executable (chmod +x)", "Hooks need a .sh extension", "pre-commit only runs on merges"]
+    answer: 1
+    explanation: "Git silently ignores non-executable hooks, and hook names have no extension."
+  - id: p3-hook-bypass
+    phase: p3
+    skills: [git.hooks]
+    difficulty: 2
+    prompt: "Which flag skips the pre-commit and commit-msg hooks for one commit?"
+    answers: ["--no-verify", "-n", "git commit --no-verify"]
+    explanation: "This is why important rules are also enforced in CI or on the server."
+  - id: p3-worktree-branch
+    phase: p3
+    skills: [git.worktrees-submodules]
+    difficulty: 3
+    prompt: "Which command creates a second working directory ../hotfix with a new branch hotfix/vat started from main?"
+    answers: ["git worktree add -b hotfix/vat ../hotfix main", "git worktree add ../hotfix -b hotfix/vat main"]
+    explanation: "worktree add -b creates the branch and checks it out in the new folder."
+  - id: p3-submodule-status
+    phase: p3
+    skills: [git.worktrees-submodules]
+    difficulty: 3
+    prompt: "After git pull, git status shows 'modified: vendor/lib (new commits)' though you never touched it. What does it mean?"
+    options:
+      - "Someone pushed to the submodule's repository"
+      - "The superproject now records a different submodule commit than the one checked out; run git submodule update"
+      - "The submodule is corrupt"
+      - "You must delete .gitmodules"
+    answer: 1
+    explanation: "Pulling moved the gitlink; the submodule's checkout stays where it was until you update it."
+
+  # ---- P4 Mastery ---------------------------------------------------------------
+  - id: p4-partial-vs-shallow
+    phase: p4
+    skills: [git.large-repos]
+    difficulty: 3
+    prompt: "Developers on a huge repository need git log and blame to work fully but do not want to download every old file version. Which clone fits?"
+    options: ["--depth 1", "--filter=blob:none", "--single-branch", "--bare"]
+    answer: 1
+    explanation: "A blobless clone keeps every commit and tree and fetches file contents on demand; a shallow clone cuts history."
+  - id: p4-lfs-track
+    phase: p4
+    skills: [git.large-repos]
+    difficulty: 2
+    prompt: "Where does git lfs track \"*.psd\" record the rule?"
+    answers: [".gitattributes", "in .gitattributes"]
+    explanation: "LFS uses a filter attribute, so the rule is versioned with the repository."
+  - id: p4-signed-required
+    phase: p4
+    skills: [git.signing-security]
+    difficulty: 3
+    prompt: "What does a 'Verified' badge on a commit tell you?"
+    options:
+      - "The code was reviewed"
+      - "The commit was signed by a key registered to that account, and the signature is valid"
+      - "CI passed"
+      - "The commit contains no secrets"
+    answer: 1
+    explanation: "Signatures are about identity, nothing else."
+  - id: p4-secret-order
+    phase: p4
+    skills: [git.signing-security]
+    difficulty: 3
+    prompt: "A token was pushed to a public repository an hour ago. Which order of steps is right?"
+    options:
+      - "Rewrite history, force-push, then maybe rotate"
+      - "Rotate the token, then rewrite history with git filter-repo, force-push and have everyone re-clone"
+      - "Make the repository private; nothing else"
+      - "Revert the commit"
+    answer: 1
+    explanation: "The token is already leaked; rotation is what stops its use. A revert leaves it in history."
+  - id: p4-workflow-choice
+    phase: p4
+    skills: [git.workflows]
+    difficulty: 2
+    prompt: "A team deploys a web service many times a day. Which branching model fits best?"
+    options: ["Gitflow with develop and release branches", "Trunk-based development or GitHub flow with short-lived branches", "One long-lived branch per developer", "A branch per environment"]
+    answer: 1
+    explanation: "Continuous delivery needs small changes integrated quickly; flags hide unfinished work."
+  - id: p4-recover-branch
+    phase: p4
+    skills: [git.recovery]
+    difficulty: 4
+    prompt: "You deleted the branch feature with git branch -D a minute ago and lost the hash. Where do you find its last tip?"
+    options:
+      - "Nowhere, it is gone"
+      - "In HEAD's reflog, the entry before 'checkout: moving from feature to ...' (or the hash git branch -D printed)"
+      - "In feature's own reflog"
+      - "In .git/refs/heads/feature.bak"
+    answer: 1
+    explanation: "A deleted branch loses its own reflog, but HEAD's reflog remembers where you were when you left it."

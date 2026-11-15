@@ -1,0 +1,41 @@
+questions:
+  - id: annotated
+    prompt: "Why are annotated tags preferred for releases?"
+    options:
+      - "They are smaller"
+      - "They are full objects with tagger, date, message and an optional signature"
+      - "They move with the branch"
+      - "Only annotated tags can be checked out"
+    answer: 1
+    explanation: "A lightweight tag is only a ref; an annotated tag records who released what, when and why, and can be signed."
+  - id: push-tags
+    prompt: "You ran git tag -a v2.0.0 -m 'Release' and git push. Is the tag on the server?"
+    options: ["Yes, push sends everything", "No: tags are pushed explicitly, for example git push origin v2.0.0 or --follow-tags", "Only if it is signed", "Only on GitHub"]
+    answer: 1
+    explanation: "A plain git push only updates branches."
+  - id: move-tag
+    prompt: "v1.4.0 was pushed yesterday on the wrong commit. What should you do?"
+    options:
+      - "Delete it and recreate it on the right commit"
+      - "Release v1.4.1 from the right commit and leave v1.4.0 alone"
+      - "Force-push the tag"
+      - "Rename the commit"
+    answer: 1
+    explanation: "Clones, caches and registries keep the old tag; a moved tag means two different v1.4.0s."
+  - id: semver-major
+    prompt: "Your library removes a public function. Which part of the version must change?"
+    answers: ["major", "MAJOR", "the major version"]
+    explanation: "Breaking changes bump MAJOR; compatible features MINOR; fixes PATCH."
+  - id: describe
+    prompt: "What does git describe --tags print as v1.4.0-12-g3f9a2c1?"
+    options:
+      - "Tag v1.4.0, build 12"
+      - "12 commits after the tag v1.4.0, at commit 3f9a2c1"
+      - "Version 1.4.12"
+      - "12 tags since v1.4.0"
+    answer: 1
+    explanation: "Nearest tag, number of commits since it, g plus the abbreviated hash."
+  - id: notes-range
+    prompt: "Which command lists the commits that went into v1.5.0 since v1.4.0?"
+    answers: ["git log v1.4.0..v1.5.0", "git log --oneline v1.4.0..v1.5.0", "git shortlog v1.4.0..v1.5.0"]
+    explanation: "A..B lists what is reachable from B but not from A."

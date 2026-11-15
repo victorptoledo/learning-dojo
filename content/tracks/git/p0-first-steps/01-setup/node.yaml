@@ -1,0 +1,23 @@
+id: git.p0.setup
+kind: lesson
+status: draft
+title: "Version Control, Installing and Configuring Git"
+summary: "Why version control exists, what makes Git distributed, how to install and configure it, and how the dojo checks git katas."
+objectives:
+  - { id: o1, text: "Explain what version control solves and how a distributed system differs from a centralised one", skills: [git.setup] }
+  - { id: o2, text: "Install Git and set your identity, default branch, editor and line-ending policy", skills: [git.setup] }
+  - { id: o3, text: "Tell system, global and local configuration apart and find where a setting comes from", skills: [git.setup] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A new teammate has just installed Git on Windows and is about to clone the team repository. Write the first-day setup you would give them: the commands to run, what each setting does, and how they can check later where a setting comes from.'
+  criteria:
+    - 'Sets user.name and user.email and explains that they are recorded in every commit'
+    - 'Sets init.defaultBranch, core.editor and a sensible core.autocrlf (or a .gitattributes policy) for Windows'
+    - 'Explains the system, global and local levels and that the most specific one wins'
+    - 'Uses git config --list --show-origin (or --show-scope) to find where a value comes from'

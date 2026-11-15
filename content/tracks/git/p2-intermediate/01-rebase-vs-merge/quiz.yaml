@@ -1,0 +1,30 @@
+questions:
+  - id: new-hashes
+    prompt: "After git rebase main on feature, do feature's commits keep their hashes?"
+    options: ["Yes, rebase only moves the branch", "No: they are replayed as new commits with new parents, so new hashes", "Only the first one changes", "Only if there were conflicts"]
+    answer: 1
+    explanation: "A commit's hash covers its parent. A new parent means a new commit."
+  - id: golden-rule
+    prompt: "Which branch should you not rebase?"
+    options: ["Your local feature branch before pushing", "A shared branch such as main that others have built on", "A branch only you push to", "A branch with a single commit"]
+    answer: 1
+    explanation: "Rewriting commits others have makes their history diverge from yours."
+  - id: ff-after-rebase
+    prompt: "feature was just rebased onto main. What does git merge feature do on main?"
+    options: ["A three-way merge", "A fast-forward", "A conflict", "A squash"]
+    answer: 1
+    explanation: "After the rebase main is an ancestor of feature, so main just moves forward."
+  - id: squash-revert
+    prompt: "Which merge method makes it easiest to revert a whole feature with one git revert of a normal commit?"
+    options: ["Rebase and fast-forward", "Squash merge", "Octopus merge", "Cherry-pick"]
+    answer: 1
+    explanation: "A squash merge turns the branch into one commit; reverting it removes the feature."
+  - id: undo-rebase
+    prompt: "A rebase went wrong and has finished. Which reference usually points to the branch's tip before the rebase?"
+    answers: ["ORIG_HEAD", "git reset --hard ORIG_HEAD"]
+    explanation: "rebase, merge and reset save the previous tip in ORIG_HEAD; the reflog has it too."
+  - id: reflog-scope
+    prompt: "Which statement about the reflog is true?"
+    options: ["It is pushed with the branch", "It is local to your clone and records every move of HEAD and branches", "It only records commits", "It is kept forever"]
+    answer: 1
+    explanation: "The reflog is never shared. Entries expire after 90 days (30 for unreachable ones) by default."

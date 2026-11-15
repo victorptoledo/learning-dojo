@@ -1,0 +1,51 @@
+id: git.p3.commit-msg-hook
+kind: kata
+status: draft
+title: "Commit Message Guard: a commit-msg Hook and Its Installer"
+summary: "Write a commit-msg hook that enforces Conventional Commits subjects, and an installer that puts it where Git looks for hooks, core.hooksPath included."
+objectives:
+  - { id: o1, text: "Write a commit-msg hook that reads the message file, ignores comments and rejects bad subjects with a clear reason", skills: [git.hooks] }
+  - { id: o2, text: "Install a hook where Git will run it, using git rev-parse --git-path hooks, and keep any existing hook", skills: [git.hooks] }
+prerequisites: [git.p3.hooks]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with `commit-msg.sh` alone: write a few message files by hand and call `bash commit-msg.sh msg.txt`. Which lines does Git itself drop from a message (think of the comment lines in the editor)? Which subjects should pass without the format check because Git writes them (merges, reverts, fixups)? For the installer: where does Git look for hooks when `core.hooksPath` is set?
+    - |-
+      `grep -v '^#' "$1"` drops comments; `mapfile -t lines < <(...)` gives you the lines in an array. Test the subject with `[[ $subject =~ $pattern ]]`, keeping the regular expression in a variable: `pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9-]+\))?!?: [^ ]'`. `${#subject}` is its length. In `install.sh`, `git -C "$repo" rev-parse --git-path hooks` prints the hooks directory, relative to the repository unless it is absolute; copy the hook with `cp`, then `chmod +x`.
+    - |-
+      ```bash
+      # commit-msg.sh
+      mapfile -t lines < <(grep -v '^#' "$1" || true)
+      while [ "${#lines[@]}" -gt 0 ] && [ -z "${lines[0]// /}" ]; do
+          lines=("${lines[@]:1}")
+      done
+      [ "${#lines[@]}" -gt 0 ] || fail "empty message"
+      subject="${lines[0]}"
+      case "$subject" in
+          "Merge "* | 'Revert "'* | "fixup! "* | "squash! "* | "amend! "*) exit 0 ;;
+      esac
+      # format, length, second line
+
+      # install.sh
+      hooks=$(git -C "$repo" rev-parse --git-path hooks)
+      case "$hooks" in /*) ;; *) hooks="$repo/$hooks" ;; esac
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, Git, bats and shellcheck that runs the grading tests.

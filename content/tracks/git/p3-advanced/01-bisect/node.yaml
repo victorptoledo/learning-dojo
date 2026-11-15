@@ -1,0 +1,24 @@
+id: git.p3.bisect
+kind: lesson
+status: draft
+title: "Finding Regressions with git bisect"
+summary: "Binary search through history: mark good and bad commits, automate the test with bisect run, skip untestable commits, and keep history bisectable."
+objectives:
+  - { id: o1, text: "Find the commit that introduced a regression with git bisect start, good, bad and reset", skills: [git.bisect] }
+  - { id: o2, text: "Automate the search with git bisect run and a script whose exit code means good, bad or skip (125)", skills: [git.bisect] }
+  - { id: o3, text: "Explain what makes a history easy to bisect and how merges and untestable commits affect the search", skills: [git.bisect] }
+prerequisites: [git.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 40
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Checkout totals in production are wrong since last week''s release; the release before it was fine. There are about 400 commits between the two tags. Describe how you would find the commit responsible with git bisect, including the test script you would write for `git bisect run`, how you would handle commits that do not build, and roughly how many steps it takes.'
+  criteria:
+    - 'Starts with git bisect start <bad> <good> using the two release tags'
+    - 'Writes a test script with exit 0 for good, 1-127 (not 125) for bad and 125 for commits that cannot be tested'
+    - 'Estimates about log2(400), roughly 9 steps'
+    - 'Ends with git bisect reset and inspects the culprit with git show'
+    - 'Mentions that small, building commits make bisect reliable'

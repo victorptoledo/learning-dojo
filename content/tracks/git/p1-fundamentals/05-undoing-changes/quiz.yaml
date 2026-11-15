@@ -1,0 +1,37 @@
+questions:
+  - id: unstage
+    prompt: "You staged secrets.env by mistake. Which command removes it from the index but keeps the file on disk?"
+    answers: ["git restore --staged secrets.env", "git reset secrets.env", "git reset HEAD secrets.env", "git restore --staged"]
+    explanation: "restore --staged copies HEAD's version back into the index; the working tree is not touched."
+  - id: soft
+    prompt: "What does git reset --soft HEAD~2 leave you with?"
+    options:
+      - "The last two commits deleted, with their changes lost"
+      - "The branch two commits back, with the changes of those two commits staged"
+      - "The branch unchanged and the index cleared"
+      - "Two new revert commits"
+    answer: 1
+    explanation: "--soft moves only the branch. The index and working tree keep the content, ready to commit again as one."
+  - id: hard-lost
+    prompt: "After git reset --hard HEAD~1, what can Git no longer give you back?"
+    options: ["The commit that was removed", "Uncommitted edits that were in the working tree", "The branch", "Nothing: everything is recoverable"]
+    answer: 1
+    explanation: "The commit is still in the reflog. Edits that were never committed are gone."
+  - id: revert-shared
+    prompt: "A bad commit is already on the shared main branch. What is the safe way to undo it?"
+    options: ["git reset --hard before the commit and force-push", "git revert the commit and push", "git commit --amend", "Delete the branch"]
+    answer: 1
+    explanation: "revert adds a new commit and rewrites nothing, so everyone else's clones stay valid."
+  - id: revert-merge
+    prompt: "Why does git revert need -m 1 for a merge commit?"
+    options:
+      - "To revert only the first file"
+      - "A merge has several parents; -m says which parent's line to keep"
+      - "To sign the revert"
+      - "It does not; -m sets the message"
+    answer: 1
+    explanation: "-m 1 means 'undo relative to the first parent', the branch you merged into."
+  - id: clean
+    prompt: "Before running git clean -fd, what should you run to see what would be deleted?"
+    answers: ["git clean -n", "git clean -nd", "git clean --dry-run", "git clean -n -d"]
+    explanation: "-n is a dry run. clean deletes untracked files, which Git has never stored."

@@ -1,4 +1,19 @@
 namespace: git
 skills:
+  - { id: git.setup, title: "Version Control, Installing and Configuring Git" }
   - { id: git.dag-objects, title: "Git's Object Model: Blobs, Trees, Commits and SHA Hashes" }
+  - { id: git.staging-commits, title: "The Working Tree, the Index, Commits and Reading History" }
+  - { id: git.branches, title: "Branches, HEAD and Merging" }
+  - { id: git.undo, title: "Undoing Local Changes: restore, reset and revert" }
   - { id: git.rebase-vs-merge, title: "Rebase vs Merge and the Reflog Safety Net" }
+  - { id: git.remotes, title: "Remotes: clone, fetch, pull and push" }
+  - { id: git.conflicts, title: "Resolving Merge and Rebase Conflicts" }
+  - { id: git.history-rewriting, title: "Rewriting History: Interactive Rebase, Fixup and Autosquash" }
+  - { id: git.bisect, title: "Finding Regressions with git bisect" }
+  - { id: git.tags-releases, title: "Tags, Versions and Releases" }
+  - { id: git.hooks, title: "Git Hooks: Client-side and Server-side Automation" }
+  - { id: git.worktrees-submodules, title: "Worktrees, Submodules and Subtrees" }
+  - { id: git.large-repos, title: "Large Repositories: Shallow, Partial and Sparse, LFS and Maintenance" }
+  - { id: git.signing-security, title: "Signing Commits and Keeping Secrets out of History" }
+  - { id: git.workflows, title: "Team Workflows: Trunk-based, GitHub Flow and Pull Request Review" }
+  - { id: git.recovery, title: "Recovering from Mistakes" }

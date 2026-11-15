@@ -1,0 +1,23 @@
+id: git.p1.staging-commits
+kind: lesson
+status: draft
+title: "The Working Tree, the Index, Commits and Reading History"
+summary: "The three places a change lives, how to stage exactly what you mean, how to write a commit someone can review, and how to read history with log, diff, show and blame."
+objectives:
+  - { id: o1, text: "Move changes between the working tree, the index and the repository with add, commit and status", skills: [git.staging-commits] }
+  - { id: o2, text: "Stage part of a file, ignore files with .gitignore and write atomic commits with good messages", skills: [git.staging-commits] }
+  - { id: o3, text: "Read history with log, diff, show and blame, and filter it by author, path, date and content", skills: [git.staging-commits] }
+prerequisites: [git.p1.dag-objects]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You fixed a bug in `checkout.py` and, while there, renamed a few variables in the same file and updated `README.md`. Describe how you would turn this into clean commits: the commands, how you check what is staged, and the commit messages you would write. Then explain how a reviewer could later find out when and why a specific line of `checkout.py` changed.'
+  criteria:
+    - 'Separates the bug fix from the refactoring (and the README) into atomic commits, using git add -p or similar'
+    - 'Checks the staged content with git diff --staged (and git status) before committing'
+    - 'Writes messages with a short imperative subject and a body explaining why'
+    - 'Uses git blame (or git log -L / log -S) and git show to find when and why a line changed'

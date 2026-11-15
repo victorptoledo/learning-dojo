@@ -5,10 +5,21 @@ status: draft
 title: "Git's Object Model: Blobs, Trees, Commits and SHA Hashes"
 summary: "Git doesn't store diffs; it stores immutable snapshots in a directed acyclic graph."
 objectives:
-  - { id: o1, text: "Git doesn't store diffs; it stores immutable snapshots in a directed acyclic graph.", skills: [git.dag-objects] }
-prerequisites: []
+  - { id: o1, text: "Name the four object types and what each one stores", skills: [git.dag-objects] }
+  - { id: o2, text: "Explain content addressing: why the same content always has the same hash and why history cannot change silently", skills: [git.dag-objects] }
+  - { id: o3, text: "Read the commit graph and explain branches, tags and HEAD as references to commits", skills: [git.dag-objects] }
+prerequisites: [git.p0.first-repo]
 difficulty: 2
-estimated_minutes: 30
+estimated_minutes: 40
 xp: 150
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Explain to a teammate what happens inside `.git` when they run `git add hello.txt` and then `git commit -m "Add hello"` in a repository that already has commits. Name every object that is created, what it contains and how it points to the others, and say why renaming a branch does not create any object.'
+  criteria:
+    - 'git add writes a blob with the file content (no name) and records it in the index'
+    - 'git commit writes a tree (names, modes and blob/tree hashes) and a commit (tree, parent, author, committer, message)'
+    - 'Explains that the hash is computed from the content, so identical content is stored once'
+    - 'Explains that a branch is a reference holding a commit hash, so renaming it only rewrites a small file'
+    - 'Mentions that changing an old commit would change its hash and every descendant''s hash'

@@ -1,0 +1,37 @@
+questions:
+  - id: shallow-cost
+    prompt: "A CI job clones with --depth 1. Which command is most likely to give a wrong or incomplete answer there?"
+    options: ["git status", "git describe --tags", "git diff HEAD", "git ls-files"]
+    answer: 1
+    explanation: "With one commit and no tags in reach, describe cannot find the nearest tag. Fetch tags or more depth."
+  - id: blobless
+    prompt: "What does git clone --filter=blob:none download?"
+    options:
+      - "Only the latest commit"
+      - "Every commit and tree, but file contents only when they are first needed"
+      - "Only the files of one directory"
+      - "Nothing until the first checkout"
+    answer: 1
+    explanation: "A blobless partial clone keeps the full history graph and fetches blobs on demand."
+  - id: sparse
+    prompt: "Which command limits the working tree of a monorepo to services/payments?"
+    answers: ["git sparse-checkout set services/payments", "sparse-checkout set services/payments"]
+    explanation: "Cone mode checks out whole directories plus the files at the root."
+  - id: lfs-pointer
+    prompt: "What is committed to Git for a file tracked by Git LFS?"
+    options: ["The file, compressed", "A small pointer file with the content's SHA-256 and size", "Nothing", "A link to the file's folder"]
+    answer: 1
+    explanation: "The real content goes to the LFS server; Git stores and versions the pointer."
+  - id: lfs-history
+    prompt: "A 300 MB video was committed a year ago. You now run git lfs track '*.mp4'. Are clones smaller?"
+    options:
+      - "Yes, LFS moves old versions automatically"
+      - "No: the old blob stays in history until you rewrite it (git lfs migrate or git filter-repo)"
+      - "Yes, after git gc"
+      - "Only on GitHub"
+    answer: 1
+    explanation: "Tracking applies to new commits. Removing old blobs means rewriting history and re-cloning."
+  - id: maintenance
+    prompt: "Which command schedules Git's background maintenance (prefetch, commit-graph, incremental repack) for a repository?"
+    answers: ["git maintenance start"]
+    explanation: "It registers the repository and sets up scheduled tasks with the system scheduler."

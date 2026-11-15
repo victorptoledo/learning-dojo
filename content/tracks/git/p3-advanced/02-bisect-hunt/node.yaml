@@ -1,0 +1,49 @@
+id: git.p3.bisect-hunt
+kind: kata
+status: draft
+title: "Regression Hunt: Automating git bisect"
+summary: "Wrap git bisect run in a script that checks its inputs, finds the first bad commit, honours skips and always leaves the repository as it found it."
+objectives:
+  - { id: o1, text: "Drive git bisect start, run and reset from a script and read the result from refs/bisect/bad", skills: [git.bisect] }
+  - { id: o2, text: "Validate the good and bad ends before searching and restore the original checkout in every case", skills: [git.bisect, git.branches] }
+prerequisites: [git.p3.bisect]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 90 }
+  hints:
+    - |-
+      Run a bisect by hand on a small repository with `git bisect start HEAD GOOD` and `git bisect run sh -c '...'`. Where does Git keep the answer once the search is over, before you reset? What must you check **before** starting, so a bisect never runs on a range where the ends are wrong?
+    - |-
+      Test the ends first: run the command at `HEAD` (it must fail), then `git checkout -q --detach GOOD`, run it (it must pass), and `git checkout -q` back to where you were (`git symbolic-ref -q --short HEAD` gives the branch, or `git rev-parse HEAD` if detached). Then `git bisect start HEAD GOOD`, `git bisect run bash -c "$cmd"`, read `git rev-parse refs/bisect/bad`, and `git bisect reset`. Send Git's own output to `/dev/null`.
+    - |-
+      ```bash
+      passes() {
+          (cd "$repo" && bash -c "$cmd") > /dev/null 2>&1
+      }
+      orig=$(git -C "$repo" symbolic-ref -q --short HEAD || git -C "$repo" rev-parse HEAD)
+      if passes; then
+          echo "hunt.sh: HEAD passes the test, nothing to hunt" >&2
+          exit 1
+      fi
+      # check GOOD the same way, then go back to "$orig"
+      git -C "$repo" bisect start HEAD "$good" > /dev/null
+      git -C "$repo" bisect run bash -c "$cmd" > /dev/null 2>&1
+      culprit=$(git -C "$repo" rev-parse refs/bisect/bad)
+      # print "HASH SUBJECT" after git bisect reset
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, Git, bats and shellcheck that runs the grading tests.

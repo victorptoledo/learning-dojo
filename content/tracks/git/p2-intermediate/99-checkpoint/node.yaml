@@ -1,0 +1,51 @@
+id: git.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz on rebase, remotes, conflicts and rewriting, and an integration kata that lands a feature branch on main like a merge button that keeps history linear."
+objectives:
+  - { id: o1, text: "Explain merge versus rebase, remote-tracking branches, ours and theirs, and fixup commits in your own words", skills: [git.rebase-vs-merge, git.remotes, git.conflicts, git.history-rewriting] }
+  - { id: o2, text: "Land a branch: fold its fixups, rebase it on origin/main, fast-forward main on the server and clean up, refusing every unsafe state", skills: [git.remotes, git.rebase-vs-merge, git.history-rewriting] }
+prerequisites: [git.p2.autosquash]
+difficulty: 4
+estimated_minutes: 75
+xp: 400
+closes_phase: p2
+covers_skills: [git.rebase-vs-merge, git.remotes, git.conflicts, git.history-rewriting]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 90 }
+  hints:
+    - |-
+      Write the steps as a list before any code: what must be checked before the fetch, what right after it, and what can still fail after the rebase? Which single `git push` makes the server's `main` point at your rebased branch, and why is it guaranteed to be a fast-forward?
+    - |-
+      After `git fetch -q origin`: refuse if `origin/BRANCH` has commits the branch lacks, and if local `main` has commits that `origin/main` lacks (`git merge-base --is-ancestor main origin/main`). `GIT_SEQUENCE_EDITOR=true GIT_EDITOR=true git rebase -q -i --autosquash origin/main BRANCH` folds and rebases in one go. `git push origin BRANCH:main` moves the server's `main` (a fast-forward, since the branch now sits on `origin/main`) and also updates your `origin/main`. Then `git switch main`, `git merge --ff-only origin/main`, `git push origin --delete BRANCH` if the server had it, and only then `git branch -d BRANCH` (while `origin/BRANCH` still holds the old, unrebased commits, `-d` calls the branch unmerged).
+    - |-
+      ```bash
+      if ! GIT_SEQUENCE_EDITOR=true GIT_EDITOR=true \
+          git -C "$repo" rebase -q -i --autosquash origin/main "$branch" > /dev/null 2>&1; then
+          git -C "$repo" rebase --abort
+          echo "land.sh: $branch conflicts with origin/main" >&2
+          exit 1
+      fi
+      count=$(git -C "$repo" rev-list --count "origin/main..refs/heads/$branch")
+      # nothing to land when count is 0
+      git -C "$repo" push -q origin "refs/heads/$branch:refs/heads/main"
+      git -C "$repo" switch -q main
+      git -C "$repo" merge -q --ff-only origin/main
+      # delete the branch here and on the server, then print the summary
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, Git, bats and shellcheck that runs the grading tests.

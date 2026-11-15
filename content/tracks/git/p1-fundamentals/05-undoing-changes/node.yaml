@@ -1,0 +1,23 @@
+id: git.p1.undoing-changes
+kind: lesson
+status: draft
+title: "Undoing Local Changes: restore, reset and revert"
+summary: "Throw away edits, unstage, move a branch back with reset (soft, mixed, hard), and undo a shared commit with revert."
+objectives:
+  - { id: o1, text: "Discard or unstage changes with git restore, and clean untracked files safely", skills: [git.undo] }
+  - { id: o2, text: "Explain what git reset --soft, --mixed and --hard each change: the branch, the index and the working tree", skills: [git.undo] }
+  - { id: o3, text: "Choose between reset (rewrite private history) and revert (add an undo commit to shared history)", skills: [git.undo] }
+prerequisites: [git.p1.history-report]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Describe how you would undo each of these, with the exact command and what it changes: (1) you edited `config.yaml` and want the committed version back; (2) you staged `secrets.env` by mistake; (3) your last two local commits, not pushed yet, should become one commit; (4) a commit already on the shared `main` broke production and must be undone.'
+  criteria:
+    - 'Uses git restore (or checkout --) for the working tree, and git restore --staged for the index'
+    - 'Uses git reset --soft HEAD~2 then a new commit (or an interactive rebase) for the unpushed commits'
+    - 'Uses git revert for the shared commit and explains why reset would break other clones'
+    - 'Explains what each reset mode changes (branch, index, working tree)'

@@ -1,0 +1,23 @@
+id: git.p3.tags-releases
+kind: lesson
+status: draft
+title: "Tags, Versions and Releases"
+summary: "Lightweight and annotated tags, semantic versioning, git describe, pushing tags, release branches and changelogs, and GitHub releases."
+objectives:
+  - { id: o1, text: "Create, list, push and delete lightweight and annotated tags and explain why annotated tags are used for releases", skills: [git.tags-releases] }
+  - { id: o2, text: "Choose version numbers with semantic versioning and describe builds with git describe", skills: [git.tags-releases] }
+  - { id: o3, text: "Produce release notes from history between two tags and organise release branches and hotfixes", skills: [git.tags-releases] }
+prerequisites: [git.p3.bisect-hunt]
+difficulty: 3
+estimated_minutes: 40
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your service is at v1.4.2. Since then, main has received a bug fix, a new optional API field, and a change that removes a deprecated endpoint. Explain which version or versions you would release and in which order, the exact commands to tag and publish them, how you would produce the release notes, and what you would do if you discovered that the tag was put on the wrong commit after it had been pushed.'
+  criteria:
+    - 'Applies semantic versioning: the removal is a breaking change (major), the field a minor, the fix a patch'
+    - 'Uses annotated (or signed) tags: git tag -a vX.Y.Z -m ..., and pushes them explicitly (git push origin vX.Y.Z or --follow-tags)'
+    - 'Builds release notes from git log vOLD..vNEW (or Conventional Commits tooling)'
+    - 'Does not move a published tag; releases a new version instead, explaining that clones and caches keep the old tag'

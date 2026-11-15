@@ -1,0 +1,49 @@
+id: git.p0.first-repo
+kind: kata
+status: draft
+title: "First Repository: Your First Git Kata"
+summary: "Write a script that creates a repository with a README, a .gitignore and a first commit, and see how git katas are tested."
+objectives:
+  - { id: o1, text: "Create a repository on a chosen branch, stage files and commit them from a script", skills: [git.setup] }
+  - { id: o2, text: "Ignore files with .gitignore and check the result with git status and git check-ignore", skills: [git.setup] }
+prerequisites: [git.p0.setup]
+difficulty: 1
+estimated_minutes: 25
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Do it by hand first in a scratch folder: which command creates the repository, which one chooses the branch name, and what must happen to README.md and .gitignore before `git commit` sees them? How does a script run git in another folder without `cd`?
+    - |-
+      `git init -q -b main "$dir"` creates the repository on `main` whatever `init.defaultBranch` says. `git -C "$dir" add README.md .gitignore` and `git -C "$dir" commit -q -m "Initial commit"` run inside `$dir`. `basename "$dir"` gives the project name, and `[ -e "$dir/.git" ]` tells you it is already a repository.
+    - |-
+      ```bash
+      if [ "$#" -ne 1 ]; then
+          echo "usage: newrepo.sh DIR" >&2
+          exit 2
+      fi
+      dir="$1"
+      # refuse an existing repository here
+      mkdir -p "$dir"
+      git init -q -b main "$dir"
+      name=$(basename "$dir")
+      # write README.md only if it is missing, then .gitignore
+      printf '%s\n' '*.log' '.env' > "$dir/.gitignore"
+      # add both files and commit
+      echo "created $dir on branch main"
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, Git, bats and shellcheck that runs the grading tests.

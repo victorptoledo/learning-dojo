@@ -1,11 +1,11 @@
-# Image that checks Linux (bash) katas: bash -n, bats-core tests and shellcheck, offline.
+# Image that checks Linux (bash) katas, git katas included: bash -n, bats-core tests and shellcheck, offline.
 # Prints results in the `cargo test` format the dojo already reads (see tap2cargo.awk).
 FROM debian:trixie-slim
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         bats bats-assert bats-support bats-file shellcheck \
-        procps psmisc gawk sed grep findutils coreutils file less tree bc \
+        procps psmisc gawk sed grep findutils coreutils file less tree bc git \
     && rm -rf /var/lib/apt/lists/*
 
 COPY check.sh tap2cargo.awk /opt/dojo/

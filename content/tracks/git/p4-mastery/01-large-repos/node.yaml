@@ -1,0 +1,23 @@
+id: git.p4.large-repos
+kind: lesson
+status: draft
+title: "Large Repositories: Shallow, Partial and Sparse, LFS and Maintenance"
+summary: "Why big repositories get slow and what to do: shallow and partial clones, sparse checkout, Git LFS for large binaries, packfiles and background maintenance, and monorepo trade-offs."
+objectives:
+  - { id: o1, text: "Speed up clones and checkouts with shallow clones, partial clones (blob:none) and sparse-checkout, and know their costs", skills: [git.large-repos] }
+  - { id: o2, text: "Keep large binaries out of history with Git LFS and explain how pointer files work", skills: [git.large-repos] }
+  - { id: o3, text: "Keep a repository fast with git maintenance, the commit-graph and fsmonitor, and weigh monorepo against polyrepo", skills: [git.large-repos] }
+prerequisites: [git.p3.worktrees-submodules]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A monorepo has 15 years of history, 8 GB of packed objects (a good part of it old design files and test videos) and 300 developers. Clones take 40 minutes, CI checkouts 6 minutes and `git status` 4 seconds. Propose changes for developers, for CI and for the repository itself, explaining what each one changes and what it costs.'
+  criteria:
+    - 'For CI: shallow (--depth) or partial clones (--filter=blob:none), fetching only what the job needs'
+    - 'For developers: partial clone plus sparse-checkout (cone mode) for the parts they work on; git maintenance start; fsmonitor/untracked cache for status'
+    - 'For binaries: Git LFS going forward, and explains that removing old blobs from history requires a rewrite (git filter-repo, or git lfs migrate) and coordination'
+    - 'Mentions the trade-offs: shallow clones limit log/blame/bisect, partial clones need the server for missing blobs, rewriting changes every hash'
