@@ -1,0 +1,53 @@
+id: kubernetes.p3.helm-release
+kind: kata
+status: draft
+title: "A Production Release with Helm"
+summary: "Finish a Helm chart so production values turn on autoscaling, a disruption budget, a safe rollout strategy and config-driven restarts."
+objectives:
+  - { id: o1, text: "Write Helm templates with conditionals, helpers and values", skills: [kubernetes.kustomize-helm] }
+  - { id: o2, text: "Combine an HPA, a PodDisruptionBudget and a rollout strategy for safe production releases", skills: [kubernetes.hpa-autoscaling, kubernetes.deployments] }
+prerequisites: [kubernetes.p3.hpa-autoscaling]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-k8s, timeout_secs: 90 }
+  hints:
+    - |-
+      Render both value sets often: `helm template ledger chart` and `helm template ledger chart -f chart/values-prod.yaml`. Which values already exist in `values.yaml`, and which templates do not use them yet? When the HPA is on, who should own the replica count?
+    - |-
+      Wrap whole files in `{{- if .Values.autoscaling.enabled }}` … `{{- end }}` (and the same with `podDisruptionBudget.enabled`). In the Deployment, put `replicas:` inside `{{- if not .Values.autoscaling.enabled }}`. The config checksum is the common Helm idiom `{{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}` in the Pod template's annotations. Reuse `include "ledger.fullname" .`, `"ledger.labels"` and `"ledger.selectorLabels"` from `_helpers.tpl`.
+    - |-
+      ```yaml
+      {{- if .Values.autoscaling.enabled }}
+      apiVersion: autoscaling/v2
+      kind: HorizontalPodAutoscaler
+      metadata:
+        name: {{ include "ledger.fullname" . }}
+        labels:
+          {{- include "ledger.labels" . | nindent 4 }}
+      spec:
+        scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: {{ include "ledger.fullname" . }} }
+        minReplicas: {{ .Values.autoscaling.minReplicas }}
+        maxReplicas: ...
+        metrics:
+          - type: Resource
+            resource: { name: cpu, target: { type: Utilization, averageUtilization: ... } }
+        behavior:
+          scaleDown: { stabilizationWindowSeconds: ... }
+      {{- end }}
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your chart is rendered and checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-k8s runner image
+    image: dojo-k8s
+    why: The container with kubeconform, kustomize, helm, yq and bats that checks your manifests offline.

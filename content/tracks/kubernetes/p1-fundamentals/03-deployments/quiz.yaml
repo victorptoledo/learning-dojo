@@ -1,0 +1,42 @@
+questions:
+  - id: chain
+    prompt: "What does a Deployment create directly?"
+    options: ["Pods", "ReplicaSets", "Services", "Nodes"]
+    answer: 1
+    explanation: "One ReplicaSet per template version; each ReplicaSet creates and deletes Pods to match its replica count."
+  - id: selector-mismatch
+    prompt: "A Deployment's selector is app: orders but its template labels are app: order. What happens on apply?"
+    options:
+      - "It runs with zero Pods"
+      - "The API rejects it: the selector does not match the template labels"
+      - "Kubernetes fixes the label"
+      - "It creates Pods forever"
+    answer: 1
+    explanation: "The API server validates that the selector selects the template, and the selector is immutable afterwards."
+  - id: what-rolls-out
+    prompt: "Which change starts a rolling update?"
+    options:
+      - "spec.replicas from 3 to 5"
+      - "A new image tag in spec.template"
+      - "A new annotation on the Deployment's own metadata"
+      - "kubectl scale"
+    answer: 1
+    explanation: "Only changes to spec.template create a new ReplicaSet; replicas and the Deployment's own metadata do not."
+  - id: surge-math
+    prompt: "replicas: 4, maxSurge: 1, maxUnavailable: 0. What is the most Pods that can exist during the rollout, and the fewest ready ones?"
+    options: ["5 and 4", "4 and 3", "8 and 4", "5 and 3"]
+    answer: 0
+    explanation: "One extra Pod may be created above 4, and none of the 4 may be unavailable."
+  - id: stalled
+    prompt: "The new version never passes its readiness probe. What do users see?"
+    options:
+      - "An outage: all Pods are replaced"
+      - "Nothing: the old Pods keep serving and the rollout stalls, then is reported failed after progressDeadlineSeconds"
+      - "The Deployment rolls back automatically"
+      - "Kubernetes skips the probe"
+    answer: 1
+    explanation: "Rolling updates wait for readiness; Kubernetes reports the failure but does not roll back by itself."
+  - id: undo
+    prompt: "Which command returns a Deployment to its previous revision?"
+    answers: ["kubectl rollout undo", "kubectl rollout undo deployment", "kubectl rollout undo deploy"]
+    explanation: "It scales the previous ReplicaSet back up; remember to revert the change in Git too."

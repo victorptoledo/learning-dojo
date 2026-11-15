@@ -1,0 +1,24 @@
+id: kubernetes.p2.scheduling
+kind: lesson
+status: draft
+title: "Scheduling: Node Selection, Affinity, Taints and Topology Spread"
+summary: "How the scheduler filters and scores nodes, and how to steer it: nodeSelector, node and Pod affinity, taints and tolerations, topology spread, priorities and disruption budgets."
+objectives:
+  - { id: o1, text: "Explain the scheduler's filter and score phases and read why a Pod is Pending", skills: [kubernetes.scheduling] }
+  - { id: o2, text: "Place Pods with nodeSelector, node affinity, Pod anti-affinity, taints and tolerations", skills: [kubernetes.scheduling] }
+  - { id: o3, text: "Spread replicas across zones and nodes and protect them with a PodDisruptionBudget", skills: [kubernetes.scheduling] }
+prerequisites: [kubernetes.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A cluster has three zones, a pool of general nodes and a pool of GPU nodes that only GPU jobs may use. The `api` Deployment (6 replicas) must survive the loss of a zone and a node drain during upgrades, and must never land on GPU nodes. The `train` Job needs a GPU node. Write the scheduling parts of both Pod specs (and any node-side setting) and explain each choice, including the difference between required and preferred rules.'
+  criteria:
+    - 'Taints the GPU nodes (NoSchedule) and gives only the train Job a matching toleration plus a node affinity or selector for GPU nodes'
+    - 'Explains that a toleration allows but does not attract, so the Job also needs affinity or a nodeSelector'
+    - 'Spreads api with topologySpreadConstraints on topology.kubernetes.io/zone (and hostname), maxSkew 1'
+    - 'Adds a PodDisruptionBudget (for example minAvailable 4 or maxUnavailable 1) for drains'
+    - 'Explains required (hard, may leave Pods Pending) versus preferred (soft, scored) rules'

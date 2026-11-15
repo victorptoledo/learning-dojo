@@ -1,0 +1,30 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/acme/ledger
+  tag: "" # defaults to the chart's appVersion
+
+config:
+  LOG_LEVEL: info
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+strategy:
+  maxSurge: 25%
+  maxUnavailable: 0
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  scaleDownStabilizationSeconds: 300
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1

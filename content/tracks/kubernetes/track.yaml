@@ -4,9 +4,9 @@ name: "Kubernetes"
 archetype: platform
 category: "Infrastructure & Tools"
 icon: "☸️"
-description: "Industrial-grade orchestration: Ingress, NetworkPolicies, Helm, StatefulSets, HPA and service meshes."
+description: "Containers at scale, declared and reconciled: the control plane, Pods, Deployments, Services, configuration, probes and resources, scheduling, storage and StatefulSets, Ingress and the Gateway API, Jobs, Kustomize and Helm, RBAC, Pod security, NetworkPolicy, autoscaling, debugging, operators and production operation."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "kubectl Applier" }
   - { name: "Yellow Belt", required_xp: 300, title: "Pod Navigator" }
@@ -16,8 +16,8 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "Cluster Operator" }
   - { name: "Sensei", required_xp: 6000, title: "Kubernetes Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install it, run a first command and see why it exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core commands, objects and basic configuration" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Composition, configuration, troubleshooting and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, security and automation" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production operation, high availability and incident handling" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Why Kubernetes exists, a local cluster with kubectl and a first Pod manifest" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The control plane, Pods, Deployments and rollouts, Services and DNS, configuration, probes and resources" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Scheduling, storage and StatefulSets, Ingress and the Gateway API, Jobs and CronJobs, Kustomize and Helm" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "RBAC, Pod security, NetworkPolicy, autoscaling and safe releases with Helm" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Debugging, operators and CRDs, and running clusters in production" }

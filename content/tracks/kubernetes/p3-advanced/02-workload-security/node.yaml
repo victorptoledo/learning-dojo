@@ -1,0 +1,25 @@
+id: kubernetes.p3.workload-security
+kind: lesson
+status: draft
+title: "Security Contexts, Pod Security Standards and NetworkPolicy"
+summary: "Hardening what runs: security contexts (non-root, no privilege escalation, dropped capabilities, seccomp, read-only root), the Pod Security Standards and their admission, and NetworkPolicies that make traffic deny-by-default."
+objectives:
+  - { id: o1, text: "Write a security context that meets the restricted Pod Security Standard", skills: [kubernetes.workload-security] }
+  - { id: o2, text: "Enforce Pod Security Standards per namespace with Pod Security Admission labels", skills: [kubernetes.workload-security] }
+  - { id: o3, text: "Write default-deny NetworkPolicies with explicit ingress and egress allowances, DNS included", skills: [kubernetes.network-policy] }
+prerequisites: [kubernetes.p3.rbac]
+difficulty: 4
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An attacker gets remote code execution in the `api` container of namespace `shop`. Describe what they can do in a default cluster (no hardening), then the controls from this lesson and the previous one that limit them, each with the exact field or object, and what each control prevents. Finish with one thing these controls do not protect against.'
+  criteria:
+    - 'Default risks: root in the container, writable file system for tools, a mounted ServiceAccount token, unrestricted network to every Pod and to the internet or cloud metadata'
+    - 'Security context: runAsNonRoot, allowPrivilegeEscalation false, capabilities drop ALL, seccompProfile RuntimeDefault, readOnlyRootFilesystem'
+    - 'Namespace label pod-security.kubernetes.io/enforce: restricted so violating Pods are rejected'
+    - 'Default-deny NetworkPolicy for ingress and egress, with explicit allows (from the gateway, to the database, DNS to kube-system)'
+    - 'automountServiceAccountToken false or a least-privilege ServiceAccount'
+    - 'Names a limit: application-level flaws (SQL injection, stolen data the app can read), kernel exploits, or a CNI that does not enforce policies'

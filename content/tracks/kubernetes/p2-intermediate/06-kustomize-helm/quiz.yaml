@@ -1,0 +1,45 @@
+questions:
+  - id: no-templates
+    prompt: "What is the main design difference between Kustomize and Helm?"
+    options:
+      - "Kustomize only works with Helm charts"
+      - "Kustomize patches plain, valid YAML; Helm renders text templates with values"
+      - "Helm cannot render to YAML"
+      - "Kustomize needs a server component"
+    answer: 1
+    explanation: "Every Kustomize input is valid Kubernetes YAML; Helm templates only become YAML after rendering."
+  - id: overlay-base
+    prompt: "How does a prod overlay include the shared manifests?"
+    options:
+      - "It copies them"
+      - "It lists the base folder (for example ../../base) under resources"
+      - "With a Helm dependency"
+      - "With kubectl apply -f base first"
+    answer: 1
+    explanation: "The overlay then patches and transforms what the base produces."
+  - id: hash
+    prompt: "Why does configMapGenerator add a suffix such as -h7k2m9 to the ConfigMap name?"
+    options:
+      - "To avoid conflicts between namespaces"
+      - "It is a hash of the content, and the references are rewritten, so a config change changes the Pod template and rolls out"
+      - "For encryption"
+      - "To mark it immutable"
+    answer: 1
+    explanation: "Without it, changing the ConfigMap would not restart the Pods that read it as env vars."
+  - id: image-tag
+    prompt: "Which kustomization.yaml field sets the image tag of a Deployment without a patch?"
+    answers: ["images", "images:"]
+    explanation: "images: [{ name: ..., newTag: ... }] rewrites matching image references everywhere."
+  - id: release
+    prompt: "What is a Helm release?"
+    options:
+      - "A chart version on a registry"
+      - "One installation of a chart in a cluster, with numbered revisions Helm can upgrade and roll back"
+      - "A Git tag"
+      - "A values file"
+    answer: 1
+    explanation: "Release state is stored in the cluster, by default as Secrets in the release namespace."
+  - id: render
+    prompt: "Which command renders a chart to YAML locally without installing anything?"
+    answers: ["helm template", "helm template ."]
+    explanation: "Render, read and validate the output before you install; the dojo's checker does exactly this."

@@ -1,0 +1,89 @@
+pass_percent: 80
+questions:
+  - id: api-door
+    skills: [kubernetes.control-plane]
+    prompt: "Which component is the only one that reads and writes etcd?"
+    options: ["kube-scheduler", "kube-apiserver", "kubelet", "kube-controller-manager"]
+    answer: 1
+    explanation: "Everything else goes through the API server and watches the objects it cares about."
+  - id: reconcile
+    skills: [kubernetes.control-plane]
+    prompt: "You delete one Pod of a Deployment with 3 replicas. Why does a new one appear?"
+    options:
+      - "kubectl recreates it"
+      - "The ReplicaSet controller sees 2 Pods where 3 are desired and creates one"
+      - "The kubelet restarts the deleted Pod"
+      - "etcd restores it from a backup"
+    answer: 1
+    explanation: "Controllers keep converging the actual state to the declared state."
+  - id: pod-shares
+    skills: [kubernetes.pods]
+    prompt: "What do two containers in the same Pod share?"
+    options:
+      - "Their file systems from the images"
+      - "The network namespace (IP and ports), the Pod's volumes and the node they run on"
+      - "Their process trees and memory limits"
+      - "Nothing"
+    answer: 1
+    explanation: "Each container keeps its own image file system and limits; network, volumes and lifecycle are shared."
+  - id: sigterm-grace
+    skills: [kubernetes.pods]
+    prompt: "A Pod is deleted. In which order do things happen for its main container?"
+    options:
+      - "SIGKILL, then SIGTERM"
+      - "preStop hook, SIGTERM, wait up to terminationGracePeriodSeconds, SIGKILL"
+      - "SIGHUP, then the container is paused"
+      - "The container is frozen and moved"
+    answer: 1
+    explanation: "The process should finish in-flight work after SIGTERM within the grace period."
+  - id: rollout-trigger
+    skills: [kubernetes.deployments]
+    prompt: "Which edit to a Deployment does NOT create a new ReplicaSet?"
+    options: ["A new image tag", "A new environment variable", "spec.replicas from 3 to 6", "A new label in the Pod template"]
+    answer: 2
+    explanation: "Scaling changes the replica count of the current ReplicaSet; template changes start a rollout."
+  - id: rollback
+    skills: [kubernetes.deployments]
+    prompt: "Version 1.5 is live and broken. What is the fastest safe way back, and what else must you do?"
+    options:
+      - "Delete the Deployment and apply 1.4"
+      - "kubectl rollout undo, then revert the change in Git so the next apply does not bring 1.5 back"
+      - "Scale to 0 and back to 3"
+      - "Edit each Pod's image"
+    answer: 1
+    explanation: "undo scales the previous ReplicaSet back up; Git must agree or the bad version returns."
+  - id: target-port
+    skills: [kubernetes.services-dns]
+    prompt: "A Service has port 80 and targetPort http. What must be true for traffic to arrive?"
+    options:
+      - "The Pods expose port 80"
+      - "A container of the selected Pods declares a port named http, and the process listens on it"
+      - "The node has port 80 open"
+      - "The Service type is LoadBalancer"
+    answer: 1
+    explanation: "A named targetPort is resolved against the containers' declared ports in each Pod."
+  - id: dns-name
+    skills: [kubernetes.services-dns]
+    prompt: "From namespace web, which name reaches the Service cache in namespace infra?"
+    answers: ["cache.infra", "cache.infra.svc", "cache.infra.svc.cluster.local"]
+    explanation: "A short name is searched in the caller's namespace first; add the namespace to cross it."
+  - id: secret-rotation
+    skills: [kubernetes.config-secrets]
+    prompt: "A Secret is rotated. Which consumer sees the new value without a restart?"
+    options:
+      - "An env var from secretKeyRef"
+      - "A file from a secret volume mounted without subPath"
+      - "A file from a volume mounted with subPath"
+      - "envFrom with secretRef"
+    answer: 1
+    explanation: "The kubelet updates mounted Secret and ConfigMap files in place; env vars are fixed at container start."
+  - id: oom
+    skills: [kubernetes.probes-resources]
+    prompt: "Pods restart with reason OOMKilled while the node has plenty of free memory. Why?"
+    options:
+      - "The node is out of memory anyway"
+      - "The container passed its own memory limit, which the kernel enforces regardless of free node memory"
+      - "The CPU limit is too low"
+      - "The readiness probe failed"
+    answer: 1
+    explanation: "Limits are per container (cgroup); raise the limit or fix the memory use."

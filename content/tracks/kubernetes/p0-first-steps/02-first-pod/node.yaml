@@ -1,0 +1,49 @@
+id: kubernetes.p0.first-pod
+kind: kata
+status: draft
+title: "Hello, Pod: Your First Manifest"
+summary: "Write a Pod manifest by hand and see how the dojo validates and checks Kubernetes YAML without a cluster."
+objectives:
+  - { id: o1, text: "Write a Pod manifest with apiVersion, kind, metadata, labels and a container", skills: [kubernetes.setup] }
+  - { id: o2, text: "Read kubeconform and test failures for a manifest", skills: [kubernetes.setup] }
+prerequisites: [kubernetes.p0.setup]
+difficulty: 1
+estimated_minutes: 20
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-k8s, timeout_secs: 60 }
+  hints:
+    - |-
+      Every Kubernetes object starts with the same four keys: `apiVersion`, `kind`, `metadata` and `spec`. Where do labels go, and where do the containers go? Run `kubectl explain pod.spec.containers` on a cluster, or read the Pod API reference.
+    - |-
+      Labels are a map under `metadata.labels`. `spec.containers` is a **list**: each item starts with `- name: ...` and has an `image`. `command` is a list of strings, like the exec form of a Dockerfile `CMD`. `restartPolicy` sits in `spec`, next to `containers`, not inside a container.
+    - |-
+      ```yaml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: hello
+        labels:
+          app: ...
+          track: ...
+      spec:
+        restartPolicy: ...
+        containers:
+          - name: hello
+            image: ...
+            command: ["echo", "..."]
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your manifests are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-k8s runner image
+    image: dojo-k8s
+    why: The container with kubeconform, kustomize, helm, yq and bats that checks your manifests offline.

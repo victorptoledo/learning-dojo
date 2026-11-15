@@ -102,6 +102,9 @@ pub enum KataLanguage {
     Sql,
     /// Python modules checked with pytest and ruff in `dojo-python`.
     Python,
+    /// Kubernetes manifests (plain, Kustomize or Helm) rendered and checked offline by
+    /// `dojo-k8s` with kubeconform and bats.
+    Kubernetes,
 }
 
 impl Kata {
@@ -112,6 +115,7 @@ impl Kata {
             "dojo-docker" => KataLanguage::Docker,
             "dojo-sql" => KataLanguage::Sql,
             "dojo-python" => KataLanguage::Python,
+            "dojo-k8s" => KataLanguage::Kubernetes,
             _ => KataLanguage::Rust,
         }
     }
@@ -348,6 +352,7 @@ mod tests {
         };
 
         assert_eq!(kata("dojo-docker").language(), KataLanguage::Docker);
+        assert_eq!(kata("dojo-k8s").language(), KataLanguage::Kubernetes);
         assert_eq!(kata("dojo-linux").language(), KataLanguage::Bash);
         assert_eq!(kata("dojo-rust").language(), KataLanguage::Rust);
     }

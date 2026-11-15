@@ -1,0 +1,46 @@
+questions:
+  - id: orchestrator-job
+    prompt: "A node running five of your Pods loses power. What does Kubernetes do, if the Pods belong to Deployments?"
+    options:
+      - "Nothing until an operator runs kubectl again"
+      - "It creates replacement Pods on healthy nodes, because the desired replica count is no longer met"
+      - "It moves the stopped containers' memory to another node"
+      - "It restarts the node remotely"
+    answer: 1
+    explanation: "Controllers see fewer running Pods than desired and create new ones; the scheduler places them on nodes that are still Ready."
+  - id: declarative
+    prompt: "What does declarative mean in Kubernetes?"
+    options:
+      - "Every command is written in YAML instead of typed"
+      - "You store the desired state in the API and controllers keep making the actual state match it"
+      - "Manifests are applied in the order they are declared"
+      - "Kubernetes asks for confirmation before each change"
+    answer: 1
+    explanation: "The loop never ends: a deleted Pod is replaced because the declared state still asks for it."
+  - id: object-fields
+    prompt: "Which part of an object does the cluster write, not you?"
+    options: ["metadata", "spec", "status", "kind"]
+    answer: 2
+    explanation: "You write apiVersion, kind, metadata and spec; controllers and the kubelet report what is true in status."
+  - id: context
+    prompt: "What does a kubectl context select?"
+    options:
+      - "The YAML file to apply"
+      - "A cluster, a user and a default namespace from your kubeconfig"
+      - "The container a command runs in"
+      - "The Kubernetes version of the client"
+    answer: 1
+    explanation: "kubectl config use-context switches between them; check it before changing anything."
+  - id: first-debug
+    prompt: "A Pod does not start. Which kubectl command shows its details and the recent events about it?"
+    answers: ["kubectl describe pod", "kubectl describe", "kubectl describe pods"]
+    explanation: "describe shows the spec, the state of each container and the events: scheduling failures, image pulls, probe failures."
+  - id: apply-vs-create
+    prompt: "Why do teams prefer kubectl apply -f with files in Git over kubectl create and kubectl scale typed by hand?"
+    options:
+      - "apply is faster"
+      - "The repository records what should run, changes are reviewed, and applying the same file again is safe"
+      - "create cannot make Deployments"
+      - "apply works without a cluster"
+    answer: 1
+    explanation: "apply is idempotent and reviewable; hand-typed commands leave no record and drift from what the files say."

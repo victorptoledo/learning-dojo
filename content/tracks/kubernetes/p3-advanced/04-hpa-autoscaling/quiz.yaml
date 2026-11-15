@@ -1,0 +1,46 @@
+questions:
+  - id: formula
+    prompt: "An HPA targets 50 % CPU utilisation. 3 replicas run at 100 % on average. How many replicas does it ask for (within its limits)?"
+    options: ["4", "5", "6", "9"]
+    answer: 2
+    explanation: "ceil(3 × 100 / 50) = 6."
+  - id: unknown
+    prompt: "kubectl get hpa shows the CPU target as <unknown>/70%. What is the most likely cause?"
+    options:
+      - "The Deployment has too many replicas"
+      - "The containers have no CPU request, or the metrics server is missing"
+      - "The HPA is in another namespace"
+      - "The CPU limit is too high"
+    answer: 1
+    explanation: "Utilisation is usage divided by request; without a request (or metrics) there is nothing to compute."
+  - id: replicas-field
+    prompt: "Why remove spec.replicas from a Deployment manifest that an HPA scales?"
+    options:
+      - "The API rejects both"
+      - "Each apply would reset the replica count to the manifest's value and fight the autoscaler"
+      - "The HPA needs it to be zero"
+      - "It makes the rollout faster"
+    answer: 1
+    explanation: "The HPA owns the field; leave it out of the applied configuration."
+  - id: scale-down-window
+    prompt: "What does behavior.scaleDown.stabilizationWindowSeconds: 300 do?"
+    options:
+      - "Waits 300 s before every scale-up"
+      - "Uses the highest recommendation of the last 5 minutes, so short dips do not shrink the workload"
+      - "Deletes idle Pods after 300 s"
+      - "Limits the HPA to one change per hour"
+    answer: 1
+    explanation: "It damps flapping; scale-up has its own window, 0 by default."
+  - id: keda-zero
+    prompt: "Which tool scales a queue consumer on its backlog and down to zero replicas when the queue is empty?"
+    answers: ["KEDA", "keda"]
+    explanation: "KEDA manages an HPA for one-and-more replicas and handles zero itself."
+  - id: pending-nodes
+    prompt: "The HPA asked for 20 replicas, but 8 stay Pending. What must also scale?"
+    options:
+      - "The metrics server"
+      - "The nodes: a Cluster Autoscaler or Karpenter adds capacity for Pending Pods"
+      - "The Service"
+      - "etcd"
+    answer: 1
+    explanation: "Pod autoscaling only creates Pods; someone must provide nodes with free requested capacity."

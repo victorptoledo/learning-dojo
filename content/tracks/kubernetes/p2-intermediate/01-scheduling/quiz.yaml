@@ -1,0 +1,46 @@
+questions:
+  - id: pending-why
+    prompt: "A Pod is Pending with the event '0/4 nodes are available: 4 Insufficient cpu'. What does it mean?"
+    options:
+      - "The nodes are using 100 % CPU right now"
+      - "No node has enough unrequested CPU left for the Pod's CPU request"
+      - "The container's CPU limit is too low"
+      - "The image is too large"
+    answer: 1
+    explanation: "Scheduling compares requests with allocatable capacity, not live usage."
+  - id: toleration-attract
+    prompt: "A Pod tolerates the taint gpu=true:NoSchedule. Where can it run?"
+    options:
+      - "Only on GPU nodes"
+      - "On GPU nodes and on untainted nodes: a toleration permits, it does not attract"
+      - "Nowhere until the taint is removed"
+      - "Only on nodes with the label gpu=true"
+    answer: 1
+    explanation: "Add node affinity or a nodeSelector to send it to GPU nodes."
+  - id: required-preferred
+    prompt: "What is the difference between requiredDuringScheduling and preferredDuringScheduling affinity?"
+    options:
+      - "None"
+      - "Required filters nodes and can leave the Pod Pending; preferred only adds score"
+      - "Required evicts running Pods"
+      - "Preferred applies only to DaemonSets"
+    answer: 1
+    explanation: "Both are ignored during execution: label changes later do not evict running Pods."
+  - id: skew
+    prompt: "6 replicas, 3 zones, maxSkew 1 on topology.kubernetes.io/zone with DoNotSchedule. How are they placed?"
+    options: ["6/0/0", "3/3/0", "2/2/2", "Random"]
+    answer: 2
+    explanation: "The difference between the fullest and emptiest zone may be at most 1."
+  - id: noexecute
+    prompt: "Which taint effect also evicts Pods already running on the node?"
+    answers: ["NoExecute", "noexecute"]
+    explanation: "NoSchedule and PreferNoSchedule only affect new Pods."
+  - id: pdb
+    prompt: "What does a PodDisruptionBudget protect against?"
+    options:
+      - "Node hardware failures"
+      - "Voluntary evictions such as kubectl drain and autoscaler scale-down, which wait while the budget would be broken"
+      - "Container crashes"
+      - "OOM kills"
+    answer: 1
+    explanation: "Involuntary disruptions are not prevented, but they do count against the budget."

@@ -1,0 +1,24 @@
+id: kubernetes.p1.deployments
+kind: lesson
+status: draft
+title: "Deployments, ReplicaSets, Rollouts and Rollbacks"
+summary: "How a Deployment manages ReplicaSets, how a rolling update replaces Pods without downtime, and how to watch, pause and undo a rollout."
+objectives:
+  - { id: o1, text: "Write a Deployment whose selector matches its Pod template and explain the ReplicaSet it owns", skills: [kubernetes.deployments] }
+  - { id: o2, text: "Tune a rolling update with maxSurge, maxUnavailable, minReadySeconds and readiness", skills: [kubernetes.deployments] }
+  - { id: o3, text: "Watch, pause, inspect and roll back a rollout with kubectl rollout", skills: [kubernetes.deployments] }
+prerequisites: [kubernetes.p1.pods]
+difficulty: 2
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A Deployment runs 4 replicas of version 1.3. You change the image to 1.4 with `maxSurge: 1` and `maxUnavailable: 0`. Describe step by step what the Deployment controller does with ReplicaSets and Pods, what decides the pace, and what happens if 1.4 never becomes ready. Then explain how you would roll back, and what changing only a label in the Pod template would do.'
+  criteria:
+    - 'A new ReplicaSet is created for the new template (pod-template-hash) and scaled up while the old one is scaled down'
+    - 'With maxSurge 1 and maxUnavailable 0 there are at most 5 Pods and never fewer than 4 ready'
+    - 'Readiness (and minReadySeconds) gates the pace; a never-ready Pod stalls the rollout and progressDeadlineSeconds marks it failed, with the old Pods still serving'
+    - 'Rolls back with kubectl rollout undo (or by reverting the manifest in Git and applying it), which scales the old ReplicaSet back up'
+    - 'Notes that any change to the Pod template, even a label, triggers a new rollout, while changing replicas does not'

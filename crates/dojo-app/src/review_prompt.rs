@@ -98,6 +98,7 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         }
         KataLanguage::Sql => (kata_dir.to_path_buf(), "sql"),
         KataLanguage::Python => (kata_dir.to_path_buf(), "py"),
+        KataLanguage::Kubernetes => (kata_dir.to_path_buf(), "yaml"),
     };
     let mut found = Vec::new();
     collect(&root, extension, &mut found);
@@ -152,6 +153,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Docker => "Dockerfile and Docker Compose",
         KataLanguage::Sql => "SQL (PostgreSQL 17)",
         KataLanguage::Python => "Python",
+        KataLanguage::Kubernetes => "Kubernetes manifests, Kustomize and Helm",
     };
     let files = kata
         .files
@@ -307,6 +309,23 @@ mod tests {
         std::fs::write(dir.path().join("tests/visible.sql"), "SELECT 1").unwrap();
         let files = kata_files(dir.path(), KataLanguage::Sql);
         assert_eq!(files, vec![PathBuf::from("top_customers.sql")]);
+    }
+
+    #[test]
+    fn kata_files_lists_kubernetes_manifests_and_overlays_but_not_tests() {
+        let dir = tempfile::TempDir::new().unwrap();
+        for folder in ["tests", "base", "overlays/prod"] {
+            std::fs::create_dir_all(dir.path().join(folder)).unwrap();
+        }
+        std::fs::write(dir.path().join("base/deployment.yaml"), "kind: Deployment").unwrap();
+        std::fs::write(dir.path().join("overlays/prod/kustomization.yaml"), "x").unwrap();
+        std::fs::write(dir.path().join("tests/render.txt"), "x").unwrap();
+        std::fs::write(dir.path().join("tests/fixture.yaml"), "x").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::Kubernetes);
+        assert_eq!(
+            files,
+            ["base/deployment.yaml", "overlays/prod/kustomization.yaml"].map(PathBuf::from)
+        );
     }
 
     #[test]

@@ -3,12 +3,23 @@ legacy_id: k8s-01-control-plane
 kind: lesson
 status: draft
 title: "The Control Plane: API Server, etcd, Scheduler and Controller Manager"
-summary: "How Kubernetes' brain reconciles the desired state with the actual state."
+summary: "How Kubernetes' brain reconciles the desired state with the actual state: the API server, etcd, the scheduler, the controllers, and the kubelet on every node."
 objectives:
-  - { id: o1, text: "How Kubernetes' brain reconciles the desired state with the actual state.", skills: [kubernetes.control-plane] }
-prerequisites: []
+  - { id: o1, text: "Name the control plane and node components and what each one does", skills: [kubernetes.control-plane] }
+  - { id: o2, text: "Trace a kubectl apply from the API server to a running container", skills: [kubernetes.control-plane] }
+  - { id: o3, text: "Explain the reconciliation loop, watches, and why controllers are level-triggered", skills: [kubernetes.control-plane] }
+prerequisites: [kubernetes.p0.first-pod]
 difficulty: 2
-estimated_minutes: 30
+estimated_minutes: 40
 xp: 200
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Walk through, component by component, what happens between `kubectl apply -f deployment.yaml` (a Deployment with 3 replicas) and three containers running. Then explain what happens when one of the nodes running a replica is switched off, and why nothing in the cluster "runs a script" to fix it.'
+  criteria:
+    - 'kubectl sends the object to the API server, which authenticates, authorises, runs admission and stores it in etcd'
+    - 'The Deployment controller creates a ReplicaSet and the ReplicaSet controller creates three Pods (watching through the API server)'
+    - 'The scheduler binds each unscheduled Pod to a node; the kubelet on that node starts the containers through the container runtime'
+    - 'Node loss: the node controller marks the node NotReady, its Pods are evicted after a timeout and the ReplicaSet controller creates replacements'
+    - 'Explains reconciliation: controllers compare desired and actual state continuously (level-triggered), not one-off commands'

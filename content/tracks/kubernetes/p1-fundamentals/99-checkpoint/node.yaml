@@ -1,0 +1,51 @@
+id: kubernetes.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata that deploys a configured, probed and sized web service behind a Service."
+objectives:
+  - { id: o1, text: "Explain the control plane, Pods, Deployments, Services, configuration, probes and resources in your own words", skills: [kubernetes.control-plane, kubernetes.pods, kubernetes.deployments, kubernetes.services-dns, kubernetes.config-secrets, kubernetes.probes-resources] }
+  - { id: o2, text: "Write a ConfigMap, a Deployment and a Service that fit together: matching labels and ports, probes, resources and a safe rollout", skills: [kubernetes.deployments, kubernetes.services-dns, kubernetes.probes-resources] }
+prerequisites: [kubernetes.p1.probes-resources]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+closes_phase: p1
+covers_skills: [kubernetes.control-plane, kubernetes.pods, kubernetes.deployments, kubernetes.services-dns, kubernetes.config-secrets, kubernetes.probes-resources]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-k8s, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with the visible test: which label does the Service select, and which labels do the Pods carry? Then go down the README table one row at a time; every row is one place in one of the three files.
+    - |-
+      Name the container port (`name: http`) and use that name everywhere: `targetPort: http` in the Service and `port: http` in both probes. `envFrom` takes a list of sources, each with a `configMapRef`. Resources sit inside the container under `resources.requests` and `resources.limits`; the rollout settings sit in the Deployment's `spec.strategy`, not in the Pod template.
+    - |-
+      ```yaml
+      # deployment.yaml, inside the container
+                ports: [{ name: http, containerPort: 8080 }]
+                envFrom: [{ configMapRef: { name: ... } }]
+                readinessProbe: { httpGet: { path: /ready, port: http } }
+                livenessProbe: { httpGet: { path: ..., port: http } }
+                resources:
+                  requests: { cpu: ..., memory: ... }
+                  limits: { memory: ... }
+      # deployment.yaml, under spec
+        strategy:
+          type: RollingUpdate
+          rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your manifests are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-k8s runner image
+    image: dojo-k8s
+    why: The container with kubeconform, kustomize, helm, yq and bats that checks your manifests offline.

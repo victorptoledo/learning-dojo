@@ -1,0 +1,24 @@
+id: kubernetes.p3.rbac
+kind: lesson
+status: draft
+title: "Authentication, RBAC and ServiceAccounts"
+summary: "Who may do what in a cluster: how the API server authenticates people and workloads, Roles and bindings, ServiceAccounts and their tokens, and least privilege in practice."
+objectives:
+  - { id: o1, text: "Trace an API request through authentication, authorisation and admission", skills: [kubernetes.rbac] }
+  - { id: o2, text: "Write Roles, ClusterRoles and bindings that grant only what is needed, and test them with kubectl auth can-i", skills: [kubernetes.rbac] }
+  - { id: o3, text: "Give workloads their own ServiceAccounts and control token mounting", skills: [kubernetes.rbac] }
+prerequisites: [kubernetes.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A deployment tool running in namespace `ci` must update the image of Deployments in namespaces `shop` and `billing` and read their rollout status. Today it runs with a binding to `cluster-admin`. Design its least-privilege access: the identity, the Role or ClusterRole (with exact rules), the bindings, and how you would prove the result works and grants nothing more. Also name two permissions that look harmless but let a holder escalate.'
+  criteria:
+    - 'A dedicated ServiceAccount in ci (not the default one)'
+    - 'Rules limited to apiGroups apps, resource deployments, verbs get, list, watch, patch (and update if needed); nothing on secrets'
+    - 'Either a Role per namespace, or one ClusterRole bound with a RoleBinding in each of shop and billing (not a ClusterRoleBinding)'
+    - 'Verifies with kubectl auth can-i --as=system:serviceaccount:ci:<name> for allowed and denied actions'
+    - 'Names escalation risks: create pods (or workloads) in a namespace, get/list secrets, the escalate/bind/impersonate verbs, or wildcards'

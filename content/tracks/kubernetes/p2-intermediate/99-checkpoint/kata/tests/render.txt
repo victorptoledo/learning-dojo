@@ -1,0 +1,3 @@
+# name: command that prints the YAML to check
+staging: kustomize build overlays/staging
+prod: kustomize build overlays/prod

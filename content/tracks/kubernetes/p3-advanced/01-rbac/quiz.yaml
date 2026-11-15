@@ -1,0 +1,49 @@
+questions:
+  - id: order
+    prompt: "In which order does the API server process a request?"
+    options:
+      - "Admission, authentication, authorisation"
+      - "Authentication, authorisation, admission"
+      - "Authorisation, admission, authentication"
+      - "Only RBAC"
+    answer: 1
+    explanation: "First who you are, then whether you may, then whether the object passes the policies."
+  - id: rolebinding-clusterrole
+    prompt: "A RoleBinding in namespace shop references the ClusterRole edit. Where can the subject edit?"
+    options: ["Everywhere", "Only in namespace shop", "Nowhere: it is invalid", "Only cluster-scoped resources"]
+    answer: 1
+    explanation: "A RoleBinding always limits the granted rules to its own namespace."
+  - id: deny
+    prompt: "How do you deny one user the right to delete Pods that another binding grants?"
+    options:
+      - "Add a deny rule"
+      - "You cannot: RBAC is allow-only, so remove or narrow the binding that grants it"
+      - "Bind the view role"
+      - "Use a NetworkPolicy"
+    answer: 1
+    explanation: "Permissions are the union of all bindings; there are no deny rules."
+  - id: create-pods
+    prompt: "Why is create on pods a sensitive permission even without access to secrets?"
+    options:
+      - "Pods use CPU"
+      - "A Pod can mount any Secret and run as any ServiceAccount in its namespace"
+      - "It allows deleting nodes"
+      - "It is not sensitive"
+    answer: 1
+    explanation: "The same holds for anything that creates Pods: Deployments, Jobs, CronJobs, StatefulSets."
+  - id: can-i
+    prompt: "Which command checks whether the ServiceAccount ci/deployer may patch Deployments in shop?"
+    answers:
+      - "kubectl auth can-i patch deployments -n shop --as=system:serviceaccount:ci:deployer"
+      - "kubectl auth can-i patch deployments --namespace shop --as system:serviceaccount:ci:deployer"
+      - "kubectl auth can-i patch deployments -n shop --as system:serviceaccount:ci:deployer"
+    explanation: "--as impersonates the subject, so you need the impersonate permission to run it."
+  - id: automount
+    prompt: "An application never calls the Kubernetes API. What should you set?"
+    options:
+      - "A ClusterRoleBinding to view"
+      - "automountServiceAccountToken: false, so no token is mounted into its containers"
+      - "hostNetwork: true"
+      - "Nothing: tokens are harmless"
+    answer: 1
+    explanation: "A token an attacker can read from the file system is a credential; do not hand it out."

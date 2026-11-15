@@ -1,0 +1,1 @@
+{{/* todo: the HorizontalPodAutoscaler, only when .Values.autoscaling.enabled */}}

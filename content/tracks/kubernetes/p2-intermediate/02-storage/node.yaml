@@ -1,0 +1,24 @@
+id: kubernetes.p2.storage
+kind: lesson
+status: draft
+title: "Storage: Volumes, PersistentVolumes, StorageClasses and StatefulSets"
+summary: "Data that outlives a Pod: ephemeral volumes, PersistentVolumeClaims bound to PersistentVolumes, dynamic provisioning with StorageClasses and CSI, and StatefulSets for stable identity."
+objectives:
+  - { id: o1, text: "Choose between emptyDir, configMap/secret volumes and persistent volumes", skills: [kubernetes.storage] }
+  - { id: o2, text: "Explain PVCs, PVs, StorageClasses, access modes, binding and reclaim policies", skills: [kubernetes.storage] }
+  - { id: o3, text: "Write a StatefulSet with a headless Service and volumeClaimTemplates, and explain its ordering and identity", skills: [kubernetes.storage] }
+prerequisites: [kubernetes.p2.scheduling]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You must run a three-node replicated database (each member keeps its own data and finds its peers by name) on Kubernetes. Explain why a Deployment with one PVC is the wrong tool, then describe the StatefulSet setup: names and DNS of the members, how each gets its own volume, what happens to a volume when a Pod is rescheduled or the StatefulSet is scaled down, and what the StorageClass decides. Finish with one reason a team might still choose a managed database instead.'
+  criteria:
+    - 'A Deployment shares one PVC (ReadWriteOnce allows one node) and gives Pods random names, so members cannot have their own data or stable identity'
+    - 'StatefulSet Pods are named db-0, db-1, db-2 with DNS through a headless Service (db-0.db.ns.svc.cluster.local)'
+    - 'volumeClaimTemplates create one PVC per Pod (data-db-0…), which follows the Pod when it is rescheduled and is kept on scale-down by default'
+    - 'The StorageClass picks the provisioner (CSI driver), disk type, reclaim policy and volumeBindingMode (WaitForFirstConsumer for zonal disks)'
+    - 'Gives a fair reason for a managed database: backups, failover, upgrades and on-call are someone else''s job'

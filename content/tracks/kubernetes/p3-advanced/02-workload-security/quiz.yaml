@@ -1,0 +1,50 @@
+questions:
+  - id: run-as-non-root
+    prompt: "What does runAsNonRoot: true do?"
+    options:
+      - "It changes the image's user to a random UID"
+      - "The kubelet refuses to start the container if it would run as UID 0"
+      - "It removes the root account from the image"
+      - "It drops all capabilities"
+    answer: 1
+    explanation: "Combine it with a numeric non-root USER in the image or runAsUser in the Pod."
+  - id: restricted
+    prompt: "Which setting is required by the restricted Pod Security Standard?"
+    options:
+      - "readOnlyRootFilesystem: true"
+      - "capabilities drop ALL and allowPrivilegeEscalation: false"
+      - "runAsUser: 1000 exactly"
+      - "A NetworkPolicy"
+    answer: 1
+    explanation: "Restricted also requires runAsNonRoot and a RuntimeDefault or Localhost seccomp profile; a read-only root is good practice but not required."
+  - id: psa-label
+    prompt: "Which namespace label makes Pod Security Admission reject Pods that violate restricted?"
+    answers: ["pod-security.kubernetes.io/enforce: restricted", "pod-security.kubernetes.io/enforce=restricted", "pod-security.kubernetes.io/enforce"]
+    explanation: "warn and audit report violations without rejecting; use them first during a rollout."
+  - id: default-deny
+    prompt: "A NetworkPolicy with podSelector: {} and policyTypes [Ingress, Egress] and no rules is applied. What changes?"
+    options:
+      - "Nothing, it has no rules"
+      - "All traffic to and from every Pod in the namespace is denied unless another policy allows it"
+      - "Only traffic from other namespaces is denied"
+      - "The namespace is deleted"
+    answer: 1
+    explanation: "It is the standard default-deny starting point; then add allow policies."
+  - id: dns-egress
+    prompt: "After a default-deny egress policy, every outgoing call fails, even to allowed Pods by Service name. What was forgotten?"
+    options:
+      - "An Ingress"
+      - "Egress to the cluster DNS (kube-dns on port 53 UDP and TCP)"
+      - "A ServiceAccount"
+      - "The metrics server"
+    answer: 1
+    explanation: "Name resolution is traffic too; allow it explicitly."
+  - id: and-or
+    prompt: "In a from list, a namespaceSelector and a podSelector are in the same item. What does it allow?"
+    options:
+      - "Pods matching the podSelector in any namespace, plus every Pod of the selected namespaces"
+      - "Only Pods matching the podSelector inside the namespaces matching the namespaceSelector"
+      - "Nothing"
+      - "Every Pod in the cluster"
+    answer: 1
+    explanation: "Same item means AND; separate items (two dashes) mean OR."

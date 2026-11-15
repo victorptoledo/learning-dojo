@@ -1,0 +1,35 @@
+id: kubernetes.p4.broken-release
+kind: kata
+status: draft
+title: "Fix a Broken Release"
+summary: "A release went out and the incident channel is full: find and fix every cause in the manifests, from the symptoms alone."
+objectives:
+  - { id: o1, text: "Map incident symptoms to their causes in Kubernetes manifests", skills: [kubernetes.debugging] }
+  - { id: o2, text: "Fix Service wiring, probes, resources, configuration references and disruption budgets", skills: [kubernetes.debugging, kubernetes.services-dns, kubernetes.probes-resources] }
+prerequisites: [kubernetes.p4.debugging]
+difficulty: 4
+estimated_minutes: 60
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-k8s, timeout_secs: 60 }
+  hints:
+    - |-
+      Take the symptoms one at a time and ask which object would produce each: "no endpoints" is about a Service and labels, "connection refused" about ports, "never ready" about a probe, "137" about memory, "CreateContainerConfigError" about a reference, a stuck drain about a budget. The failing test names point to the same objects.
+    - |-
+      Compare each Service selector with the Pod template labels, each `targetPort` and probe port with the container's declared ports, each `configMapKeyRef.key` with the ConfigMap's `data`. A liveness probe should check the process (`/health`), not dependencies (`/ready`). A PDB with `minAvailable` equal to the replica count allows no eviction at all.
+    - |-
+      The eight fixes, by file: `service.yaml` (selector, targetPort), `deployment.yaml` (image tag, readiness port, liveness path, memory, the env key), `pdb.yaml` (`maxUnavailable: 1` instead of `minAvailable: 3`). The ConfigMap is right; the Deployment asks for the wrong key.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your manifests are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-k8s runner image
+    image: dojo-k8s
+    why: The container with kubeconform, kustomize, helm, yq and bats that checks your manifests offline.

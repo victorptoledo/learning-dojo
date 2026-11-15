@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: catalog
+          image: ghcr.io/acme/catalog:2.3.0
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: catalog-config
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 128Mi

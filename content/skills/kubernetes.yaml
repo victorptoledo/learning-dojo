@@ -1,4 +1,21 @@
 namespace: kubernetes
 skills:
+  - { id: kubernetes.setup, title: "Why Kubernetes, Local Clusters and kubectl" }
   - { id: kubernetes.control-plane, title: "The Control Plane: API Server, etcd, Scheduler and Controller Manager" }
+  - { id: kubernetes.pods, title: "Pods: Containers, Init Containers, Sidecars, Labels and Namespaces" }
+  - { id: kubernetes.deployments, title: "Deployments, ReplicaSets, Rollouts and Rollbacks" }
+  - { id: kubernetes.services-dns, title: "Services, EndpointSlices and Cluster DNS" }
+  - { id: kubernetes.config-secrets, title: "ConfigMaps and Secrets" }
+  - { id: kubernetes.probes-resources, title: "Probes, Requests and Limits, and QoS Classes" }
+  - { id: kubernetes.scheduling, title: "Scheduling: Node Selection, Affinity, Taints and Topology Spread" }
+  - { id: kubernetes.storage, title: "Storage: Volumes, PersistentVolumes, StorageClasses and StatefulSets" }
+  - { id: kubernetes.ingress-gateway, title: "Ingress and the Gateway API" }
+  - { id: kubernetes.jobs, title: "Jobs, CronJobs and DaemonSets" }
+  - { id: kubernetes.kustomize-helm, title: "Packaging Manifests: Kustomize and Helm" }
+  - { id: kubernetes.rbac, title: "Authentication, RBAC and ServiceAccounts" }
+  - { id: kubernetes.workload-security, title: "Security Contexts and Pod Security Standards" }
+  - { id: kubernetes.network-policy, title: "NetworkPolicy" }
   - { id: kubernetes.hpa-autoscaling, title: "Horizontal Pod Autoscaler (HPA) and KEDA" }
+  - { id: kubernetes.debugging, title: "Debugging Workloads: describe, Events, Logs and Ephemeral Containers" }
+  - { id: kubernetes.operators, title: "Extending Kubernetes: CRDs, Controllers and Operators" }
+  - { id: kubernetes.production, title: "Kubernetes in Production: Upgrades, Backups, GitOps and Policy" }

@@ -1,0 +1,42 @@
+questions:
+  - id: needs-controller
+    prompt: "You apply an Ingress to a fresh cluster and nothing answers. What is missing most often?"
+    options:
+      - "A NodePort Service"
+      - "An Ingress controller that watches Ingress objects and runs the proxy"
+      - "A CoreDNS restart"
+      - "A PersistentVolume"
+    answer: 1
+    explanation: "The Ingress object is only configuration; a controller (selected by the IngressClass) implements it."
+  - id: prefix
+    prompt: "With pathType Prefix and path /api, which request path matches?"
+    options: ["/apiv2", "/api/orders", "/v1/api", "/ap"]
+    answer: 1
+    explanation: "Prefix matching works on whole path segments."
+  - id: annotations
+    prompt: "Why are Ingress manifests often not portable between controllers?"
+    options:
+      - "Ingress has no API version"
+      - "Features beyond host and path routing live in controller-specific annotations"
+      - "Each controller needs a different kind"
+      - "TLS is not supported"
+    answer: 1
+    explanation: "Rewrites, timeouts and canaries are annotations such as nginx.ingress.kubernetes.io/..., which other controllers ignore."
+  - id: roles
+    prompt: "In the Gateway API, which object does an application team usually own?"
+    options: ["GatewayClass", "Gateway", "HTTPRoute", "IngressClass"]
+    answer: 2
+    explanation: "Routes live in the app's namespace and attach to a Gateway the platform team owns."
+  - id: attach
+    prompt: "Which field of an HTTPRoute names the Gateway it attaches to?"
+    answers: ["parentRefs", "spec.parentRefs"]
+    explanation: "The Gateway's allowedRoutes decides whether a route from that namespace is accepted."
+  - id: canary
+    prompt: "How do you send 10 % of a route's traffic to a new version with the Gateway API?"
+    options:
+      - "Two HTTPRoutes with the same path"
+      - "Two backendRefs in one rule, with weights 90 and 10"
+      - "An annotation on the Gateway"
+      - "A second Gateway"
+    answer: 1
+    explanation: "Weighted backends are part of the HTTPRoute spec, so every conformant controller supports them."

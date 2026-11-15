@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: checkout-config
+  labels:
+    app.kubernetes.io/name: checkout
+data:
+  PAYMENTS_URL: http://payments.billing
+  LOG_LEVEL: info

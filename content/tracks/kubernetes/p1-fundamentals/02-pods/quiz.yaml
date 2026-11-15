@@ -1,0 +1,50 @@
+questions:
+  - id: shared-network
+    prompt: "Two containers in one Pod both try to listen on port 8080. What happens?"
+    options:
+      - "Both work: each container has its own network"
+      - "The second one fails to bind: they share one network namespace and port space"
+      - "Kubernetes renumbers the second port"
+      - "The Pod is split into two Pods"
+    answer: 1
+    explanation: "Containers in a Pod share the IP and ports; they talk over localhost and must use different ports."
+  - id: init-order
+    prompt: "How do init containers run?"
+    options:
+      - "In parallel with the app containers"
+      - "One at a time, in order, each to successful completion, before the app containers start"
+      - "After the app containers exit"
+      - "Only when the Pod restarts"
+    answer: 1
+    explanation: "If an init container fails, the kubelet retries it (per the restart policy) and the app does not start."
+  - id: native-sidecar
+    prompt: "How is a native sidecar declared since Kubernetes 1.29?"
+    options:
+      - "With kind: Sidecar"
+      - "As an init container with restartPolicy: Always"
+      - "With the annotation sidecar: true"
+      - "As the last item of containers"
+    answer: 1
+    explanation: "It starts before the app containers, keeps running, and is stopped after them."
+  - id: crashloop
+    prompt: "What does CrashLoopBackOff mean?"
+    options:
+      - "The image cannot be downloaded"
+      - "The container keeps exiting and the kubelet waits longer and longer before restarting it"
+      - "The node is out of memory"
+      - "The Pod cannot be scheduled"
+    answer: 1
+    explanation: "Restarts back off exponentially up to five minutes; the logs of the previous run (kubectl logs --previous) say why it exits."
+  - id: termination
+    prompt: "What does the kubelet send first when a Pod is deleted?"
+    answers: ["SIGTERM", "TERM", "sigterm"]
+    explanation: "After any preStop hook it sends SIGTERM, waits terminationGracePeriodSeconds (30 s by default) and then sends SIGKILL."
+  - id: selectors
+    prompt: "How does a Service know which Pods to send traffic to?"
+    options:
+      - "By the Pods' names"
+      - "By a label selector matching the Pods' labels"
+      - "By annotations on the Pods"
+      - "By the namespace only"
+    answer: 1
+    explanation: "Labels identify and selectors pick; annotations cannot be selected on."

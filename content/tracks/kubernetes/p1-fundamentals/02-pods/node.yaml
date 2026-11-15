@@ -1,0 +1,24 @@
+id: kubernetes.p1.pods
+kind: lesson
+status: draft
+title: "Pods: Containers, Init Containers, Sidecars, Labels and Namespaces"
+summary: "The smallest unit Kubernetes runs: what containers in one Pod share, init and sidecar containers, the Pod lifecycle, labels, annotations and namespaces."
+objectives:
+  - { id: o1, text: "Explain what containers in one Pod share and when to put two containers in a Pod", skills: [kubernetes.pods] }
+  - { id: o2, text: "Describe the Pod phases, container states, restart policies and graceful termination", skills: [kubernetes.pods] }
+  - { id: o3, text: "Use labels, selectors, annotations and namespaces to organise objects", skills: [kubernetes.pods] }
+prerequisites: [kubernetes.p1.control-plane]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A service needs three things: its database schema migrated before it starts, a log shipper that tails the files it writes, and its configuration fetched from a vault before start. Design the Pod: which containers are app, init or sidecar containers, what they share, and in which order they start and stop. Then explain why the database itself should not be a container in the same Pod.'
+  criteria:
+    - 'Uses init containers for one-off work that must finish before the app starts (migration, fetching config), run in order'
+    - 'Uses a sidecar (an init container with restartPolicy: Always, or a second container) for the log shipper, sharing an emptyDir volume'
+    - 'States what a Pod shares: network namespace (localhost, ports), volumes, lifecycle and node'
+    - 'Explains termination: SIGTERM, terminationGracePeriodSeconds, sidecars stopped after the app'
+    - 'Keeps the database out: different scaling, lifecycle and storage; Pods are scaled and replaced as a unit'

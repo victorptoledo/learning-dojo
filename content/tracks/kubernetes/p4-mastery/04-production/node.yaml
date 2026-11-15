@@ -1,0 +1,24 @@
+id: kubernetes.p4.production
+kind: lesson
+status: draft
+title: "Kubernetes in Production: Upgrades, Backups, GitOps and Policy"
+summary: "Running clusters for real: managed versus self-managed control planes, version skew and upgrades, etcd and application backups, GitOps, policy, observability, multi-tenancy, progressive delivery and cost."
+objectives:
+  - { id: o1, text: "Plan a cluster upgrade within the version skew policy, with drains and disruption budgets", skills: [kubernetes.production] }
+  - { id: o2, text: "Design backups (etcd and application data) and a GitOps workflow with policy checks", skills: [kubernetes.production] }
+  - { id: o3, text: "Review a workload and a cluster against a production readiness checklist", skills: [kubernetes.production] }
+prerequisites: [kubernetes.p4.operators-crds]
+difficulty: 5
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You inherit a production cluster: Kubernetes three minor versions behind, workloads applied by hand with kubectl, no backups beyond the cloud disks, every team with cluster-admin. Write a 90-day plan in priority order: what you fix first and why, how you upgrade safely, how deployments should work afterwards, and how you would know the plan worked.'
+  criteria:
+    - 'Starts with risk reduction: backups and a tested restore (etcd or the provider''s, plus application data with Velero or database backups), and removing cluster-admin from everyone'
+    - 'Upgrades one minor version at a time within the skew policy: control plane first, then nodes by draining with PDBs; checks deprecated APIs before each step'
+    - 'Moves to GitOps (Argo CD or Flux): manifests in Git, reviewed, reconciled, with drift detection'
+    - 'Adds policy (Pod Security, Kyverno or Gatekeeper) and observability (metrics, logs, alerts on SLOs)'
+    - 'Defines measurable outcomes: current version, restore test passed, no manual kubectl in prod, fewer incidents or faster recovery'

@@ -1,0 +1,55 @@
+id: kubernetes.p2.stateful-db
+kind: kata
+status: draft
+title: "A Database with a StatefulSet"
+summary: "Run PostgreSQL as a StatefulSet with a headless Service, a volume per replica, its password from a Secret and a PodDisruptionBudget."
+objectives:
+  - { id: o1, text: "Write a StatefulSet with a headless Service and volumeClaimTemplates", skills: [kubernetes.storage] }
+  - { id: o2, text: "Wire a Secret, probes, resources and a PodDisruptionBudget to a stateful workload", skills: [kubernetes.storage, kubernetes.scheduling, kubernetes.config-secrets] }
+prerequisites: [kubernetes.p2.storage]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-k8s, timeout_secs: 60 }
+  hints:
+    - |-
+      What makes a Service headless, and which field of the StatefulSet must name it? Where does a StatefulSet declare the PVC each replica gets, and how does the container refer to it?
+    - |-
+      `clusterIP: None` makes the Service headless, and `spec.serviceName: postgres` ties the StatefulSet to it. `volumeClaimTemplates` is a list under the StatefulSet's `spec` (next to `template`, not inside it); its `metadata.name: data` is the volume name the container mounts. The password is an `env` entry with `valueFrom.secretKeyRef`. Spreading is `topologySpreadConstraints` in the Pod spec.
+    - |-
+      ```yaml
+      spec:
+        serviceName: postgres
+        replicas: 3
+        template:
+          spec:
+            topologySpreadConstraints:
+              - { maxSkew: 1, topologyKey: kubernetes.io/hostname, whenUnsatisfiable: ScheduleAnyway, labelSelector: { matchLabels: { app.kubernetes.io/name: postgres } } }
+            containers:
+              - name: postgres
+                env:
+                  - name: POSTGRES_PASSWORD
+                    valueFrom: { secretKeyRef: { name: ..., key: ... } }
+                volumeMounts: [{ name: data, mountPath: ... }]
+        volumeClaimTemplates:
+          - metadata: { name: data }
+            spec:
+              accessModes: [...]
+              storageClassName: ...
+              resources: { requests: { storage: ... } }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your manifests are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-k8s runner image
+    image: dojo-k8s
+    why: The container with kubeconform, kustomize, helm, yq and bats that checks your manifests offline.
