@@ -6,6 +6,36 @@ A gamified learning platform for the terminal (TUI), written in **Rust** with [`
 
 > **Status: v2 milestone M7.** Content model and validator (M0), SQLite progress (M1), katas checked in Docker (M2a), the complete Rust track (M2b: 22 nodes, 7 katas, Checkpoints 1 and 2), the complete Modern Java track (Java 25: 22 nodes, 7 katas, Checkpoints 1 and 2, placement bank), the complete Spring Boot track (Boot 4.1 on Java 25: 22 nodes, 7 katas tested with MockMvc, JPA on H2 and Spring Security), the complete Backend Developer track (22 nodes, 8 katas in Java and Spring: HTTP and ETags, a URL shortener, JWT from scratch, an issue tracker with optimistic concurrency, a rate limiter, idempotent payments, an outbox, a resilient client), the complete Linux track (Debian 13: 23 nodes, 8 bash katas checked with bats and ShellCheck in the `dojo-linux` image, Checkpoints 1 and 2, placement bank, lessons with further reading from man pages, the GNU manuals, the Wooledge BashGuide, the Arch Wiki and the systemd documentation), the placement test with Belt Exam (M3+M4: press `P` on a track you have not started) and mentoring without AI (M7: kata hints with `H`, spaced review with `R`, career paths and next steps with `G`). Every kata and every lesson exercise also has a review prompt for the AI chat of your choice: press `A` to save it and copy it to the clipboard (lesson answers go in `ANSWER.md`; for katas you attach your source files). It is feedback only and never changes progress. The other tracks are English drafts. Content review and more tracks come next; built-in AI review (M5) is postponed — see [`docs/architecture.md`](docs/architecture.md).
 
+## Getting started (for friends trying the dojo)
+
+The repository is private: accept the GitHub invitation first, then follow these steps once.
+
+1. **Install the tools**
+   - [Git](https://git-scm.com/downloads), and sign in to GitHub when the first clone asks (Git Credential Manager does it on Windows).
+   - [Rust](https://rustup.rs/) (`rustup`, stable toolchain): the dojo is built from source.
+   - [Docker Desktop](https://www.docker.com/products/docker-desktop/), running: every kata is checked inside a container.
+   - Optional: [VS Code](https://code.visualstudio.com/). The dojo opens lessons and katas in it and recommends the extensions it needs.
+   - Not needed: a JDK, Maven or bash on your machine. The Java and Linux katas run in the dojo's own images.
+2. **Get the code**
+
+   ```bash
+   git clone https://github.com/victorptoledo/learning-dojo.git
+   cd learning-dojo
+   ```
+
+3. **Start it** from inside the `learning-dojo` folder (the dojo reads `content/` and `runner-images/` from there):
+   - Windows: `.\dojo` (the first build takes a few minutes);
+   - macOS and Linux: `cargo run --release --bin dojo`.
+4. **First steps in the app**
+   - Pick a track (`M`) and a lesson. When a step needs a tool or a Docker image, the dojo shows a Prepare screen: `[I]` installs what it can, including building the kata images. You can also build them all up front with `cargo run --release --bin dojo -- runner build`.
+   - Your progress lives in `~/.dojo/dojo.db` and your kata solutions in a git repository of your own (`C:\dev\dojo-workspace` on Windows, `~/dojo-workspace` elsewhere; change it with `workspace = '...'` in `~/.dojo/config.toml`). Nothing is shared with anyone else.
+5. **Updates**: `git pull`, then start the dojo again; it rebuilds itself.
+
+Good to know:
+- The complete tracks are Rust, Modern Java, Spring Boot, Backend Developer and Linux. The other tracks are drafts and show nodes "under construction".
+- The kata reference solutions are in `content/` (`kata/reference`). Try not to peek; the hints (`H`) are there for that.
+- The footer of each screen lists its keys; the key table below explains them.
+
 ## Run
 
 On Windows, start it with the launcher:
