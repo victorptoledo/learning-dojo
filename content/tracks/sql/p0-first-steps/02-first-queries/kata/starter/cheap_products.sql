@@ -1,0 +1,2 @@
+-- todo: the name and price of the products that cost less than 20.00 and are in stock,
+-- cheapest first; equal prices in order of name.

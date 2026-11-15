@@ -1,0 +1,30 @@
+questions:
+  - id: no-group
+    prompt: "What does SELECT count(*), max(total) FROM orders return when there is no GROUP BY?"
+    options: ["One row per order", "Exactly one row", "One row per customer", "An error"]
+    answer: 1
+    explanation: "Without GROUP BY the whole input is one group, so aggregates return one row (even for an empty table: count 0, max NULL)."
+  - id: ungrouped
+    prompt: "Why is SELECT customer_id, placed_at, count(*) FROM orders GROUP BY customer_id rejected?"
+    options: ["count(*) needs a column", "placed_at is neither grouped nor aggregated, so a group has many values for it", "customer_id must come last", "GROUP BY needs ORDER BY"]
+    answer: 1
+    explanation: "Each output row is one group; a column must be grouped, aggregated or functionally dependent on a grouped key."
+  - id: where-having
+    prompt: "Which clause should hold the condition status = 'paid' in a per-customer revenue report?"
+    options: ["HAVING, because it is a report", "WHERE, because it filters rows before grouping", "ORDER BY", "Either; the cost is the same"]
+    answer: 1
+    explanation: "Row conditions go in WHERE. HAVING is for conditions on aggregates, such as sum(total) > 100."
+  - id: filter-clause
+    prompt: "Which expression counts only cancelled orders inside a grouped query?"
+    answers: ["count(*) FILTER (WHERE status = 'cancelled')", "sum(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END)", "count(CASE WHEN status = 'cancelled' THEN 1 END)"]
+    explanation: "FILTER restricts the rows an aggregate sees; CASE inside the aggregate is the portable form."
+  - id: sum-empty
+    prompt: "What does sum(total) return for a group of rows whose totals are all NULL?"
+    options: ["0", "NULL", "An error", "The number of rows"]
+    answer: 1
+    explanation: "Aggregates skip NULLs; with no values left, sum returns NULL. Wrap it in coalesce(sum(total), 0) when you need 0."
+  - id: rollup
+    prompt: "GROUP BY ROLLUP (country, category) produces groups for which combinations?"
+    options: ["(country, category) only", "(country, category), (country) and the grand total ()", "Every combination including (category) alone", "(country) and (category) separately"]
+    answer: 1
+    explanation: "ROLLUP removes columns from the right: full detail, per country, then the grand total. CUBE would add (category) alone."

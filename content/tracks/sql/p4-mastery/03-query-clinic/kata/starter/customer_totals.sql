@@ -1,0 +1,2 @@
+-- todo: every customer with the total of their orders and their number of tickets (0 when
+-- they have none), by name.

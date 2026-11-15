@@ -1,0 +1,2 @@
+-- todo: the number and revenue of the paid orders of March 2025, written so that the
+-- existing index orders_placed_at can be used.

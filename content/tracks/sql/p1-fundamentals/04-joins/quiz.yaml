@@ -1,0 +1,29 @@
+questions:
+  - id: inner-missing
+    prompt: "Customers Ada (2 orders), Grace (1 order) and Linus (none). How many rows does customers JOIN orders ON orders.customer_id = customers.id return?"
+    answers: ["3"]
+    explanation: "An inner join returns one row per matching pair: 2 for Ada, 1 for Grace, none for Linus."
+  - id: left-where
+    prompt: "customers LEFT JOIN orders ON o.customer_id = c.id WHERE o.status = 'paid'. What happens to customers without orders?"
+    options: ["They are kept with NULLs", "They are dropped, because NULL = 'paid' is not TRUE", "They get a status of 'paid'", "The query fails"]
+    answer: 1
+    explanation: "WHERE filters the joined result. The NULL-extended rows fail the test, so the left join behaves like an inner join. Move the condition to ON."
+  - id: count-zero
+    prompt: "In customers LEFT JOIN orders ... GROUP BY customer, which expression gives 0 for a customer without orders?"
+    options: ["count(*)", "count(o.id)", "sum(1)", "count(c.id)"]
+    answer: 1
+    explanation: "count(o.id) skips the NULL from the missing match. count(*) and count(c.id) count the customer's own row and give 1."
+  - id: anti-join
+    prompt: "Which query lists customers that have NO orders?"
+    options: ["SELECT ... FROM customers c JOIN orders o ON o.customer_id = c.id WHERE o.id IS NULL", "SELECT ... FROM customers c WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)", "SELECT ... FROM customers c WHERE c.id <> ALL (SELECT customer_id FROM orders) when customer_id may be NULL", "SELECT DISTINCT ... FROM customers c CROSS JOIN orders o"]
+    answer: 1
+    explanation: "NOT EXISTS is the anti join. An inner join never produces o.id NULL, and <> ALL breaks like NOT IN when the list holds a NULL."
+  - id: fan-out
+    prompt: "A customer has 2 orders and 3 tickets. Joining customers to orders and to tickets, how many rows does that customer produce?"
+    answers: ["6"]
+    explanation: "Each order pairs with each ticket: 2 × 3 = 6, so a sum of order totals is tripled."
+  - id: lateral
+    prompt: "What does LATERAL allow a subquery in FROM to do?"
+    options: ["Run in parallel", "Refer to columns of tables listed before it, once per row", "Skip the planner", "Update the joined rows"]
+    answer: 1
+    explanation: "A lateral subquery is evaluated per row of the preceding tables, for example the top 3 orders of each customer. SQL Server calls it CROSS APPLY."

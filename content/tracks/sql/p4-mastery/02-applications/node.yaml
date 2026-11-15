@@ -1,0 +1,23 @@
+id: sql.p4.applications
+kind: lesson
+status: draft
+title: "SQL from Applications: Parameters, N+1 and Pagination"
+summary: "Running SQL from code the right way: bind parameters and SQL injection, the N+1 query problem and how to batch, keyset pagination, connection pools, transactions in code, ORMs and query builders, and migrations."
+objectives:
+  - { id: o1, text: "Pass values as bind parameters, explain SQL injection and handle dynamic identifiers safely", skills: [sql.applications] }
+  - { id: o2, text: "Detect and fix N+1 queries with joins, IN/ANY lists and batching, and paginate with keysets instead of OFFSET", skills: [sql.applications] }
+  - { id: o3, text: "Use connection pools, transactions and retries from code, and work with ORMs and schema migrations without losing control of the SQL", skills: [sql.applications] }
+prerequisites: [sql.p4.anti-patterns]
+difficulty: 4
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An endpoint lists the latest orders with their customer names and items: it runs one query for 20 orders, then one query per order for the customer and one per order for the items, and pages with ?page=N using OFFSET. Its search box builds WHERE name LIKE ''%'' + input + ''%'' by string concatenation. Explain every problem, how you would find them in production, and rewrite the data access: the queries, how parameters are passed, and how the next page is requested.'
+  criteria:
+    - 'Identifies SQL injection from concatenation and fixes it with bind parameters (the pattern is a parameter too, and wildcards in the input are escaped)'
+    - 'Identifies N+1 (41 queries for 20 orders) and fixes it with a join or a second query using = ANY or IN over the 20 ids'
+    - 'Replaces OFFSET with keyset pagination on (placed_at, id) with a matching index, and returns a cursor for the next page'
+    - 'Mentions finding them with query logs or pg_stat_statements, or ORM SQL logging, counting queries per request'

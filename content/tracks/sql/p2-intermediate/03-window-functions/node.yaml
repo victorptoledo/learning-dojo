@@ -1,0 +1,24 @@
+id: sql.p2.window-functions
+legacy_id: sql-01-window-functions
+kind: lesson
+status: draft
+title: "Window Functions: OVER, PARTITION BY, ROW_NUMBER and RANK"
+summary: "Analytical calculations over sets of rows without collapsing them: ranking, running totals, moving averages, comparing with the previous row, top-N per group and frames."
+objectives:
+  - { id: o1, text: "Write window functions with OVER, PARTITION BY and ORDER BY, and explain how they differ from GROUP BY", skills: [sql.window-functions] }
+  - { id: o2, text: "Rank rows with ROW_NUMBER, RANK and DENSE_RANK and solve top-N per group", skills: [sql.window-functions] }
+  - { id: o3, text: "Compute running totals, moving averages and row-to-row differences with frames, LAG and LEAD", skills: [sql.window-functions] }
+prerequisites: [sql.p2.cte-recursive]
+difficulty: 3
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'For daily_sales(day, store_id, revenue), write one query that returns, per store and day, the revenue, the running total of the month, the average of that day and the 6 days before it, the change from the previous day, and the rank of the day within its store by revenue. Then write a query that keeps only the 3 best days of each store, and explain why you cannot filter on a window function in WHERE.'
+  criteria:
+    - 'Uses sum(revenue) OVER (PARTITION BY store_id, date_trunc(''month'', day) ORDER BY day) for the running total'
+    - 'Uses a frame ROWS BETWEEN 6 PRECEDING AND CURRENT ROW for the moving average, and LAG(revenue) for the change'
+    - 'Ranks with RANK, DENSE_RANK or ROW_NUMBER partitioned by store and explains the difference on ties'
+    - 'Filters the top 3 in an outer query or CTE, explaining that window functions are computed after WHERE (in the SELECT step)'

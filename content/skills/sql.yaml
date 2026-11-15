@@ -1,4 +1,19 @@
 namespace: sql
 skills:
+  - { id: sql.setup, title: "Relational Databases, SQL and Getting a PostgreSQL" }
+  - { id: sql.relational-model, title: "The Relational Model: Tables, Keys and Data Types" }
+  - { id: sql.select-basics, title: "SELECT, WHERE, ORDER BY and Expressions" }
+  - { id: sql.nulls, title: "NULL and Three-Valued Logic" }
+  - { id: sql.joins, title: "Joins of Every Kind" }
+  - { id: sql.aggregation, title: "Aggregation, GROUP BY and HAVING" }
+  - { id: sql.dml, title: "INSERT, UPDATE, DELETE, Upserts and MERGE" }
+  - { id: sql.subqueries, title: "Subqueries and Set Operations" }
+  - { id: sql.cte-recursive, title: "Common Table Expressions, Recursive Queries and Views" }
   - { id: sql.window-functions, title: "Window Functions: OVER, PARTITION BY, ROW_NUMBER and RANK" }
-  - { id: sql.cte-recursive, title: "Common Table Expressions (CTEs) and Recursive Queries" }
+  - { id: sql.constraints-keys, title: "Constraints and Keys" }
+  - { id: sql.normalisation, title: "Normalisation and Schema Design" }
+  - { id: sql.indexes-plans, title: "Indexes and Query Plans" }
+  - { id: sql.transactions, title: "Transactions, Isolation and Locking" }
+  - { id: sql.json, title: "JSON in SQL" }
+  - { id: sql.anti-patterns, title: "Common SQL Anti-Patterns" }
+  - { id: sql.applications, title: "SQL from Applications: Parameters, N+1 and Pagination" }

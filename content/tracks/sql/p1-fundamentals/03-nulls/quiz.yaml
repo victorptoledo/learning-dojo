@@ -1,0 +1,30 @@
+questions:
+  - id: null-equals
+    prompt: "What does SELECT NULL = NULL return in PostgreSQL?"
+    options: ["true", "false", "NULL (unknown)", "An error"]
+    answer: 2
+    explanation: "Any comparison with NULL is UNKNOWN, shown as NULL. Use IS NOT DISTINCT FROM for a null-safe equality."
+  - id: where-unknown
+    prompt: "Which rows does a WHERE clause keep?"
+    options: ["Rows where the condition is TRUE or UNKNOWN", "Only rows where the condition is TRUE", "Rows where the condition is not FALSE", "All rows when the condition contains NULL"]
+    answer: 1
+    explanation: "WHERE, HAVING and ON keep only TRUE. A CHECK constraint is the other way round: it rejects only FALSE."
+  - id: not-in-null
+    prompt: "The subquery returns (1, 2, NULL). What does WHERE id NOT IN (subquery) return for a row with id 5?"
+    options: ["TRUE, the row is kept", "UNKNOWN, the row is dropped", "FALSE, but other rows are kept", "An error"]
+    answer: 1
+    explanation: "5 <> 1 AND 5 <> 2 AND 5 <> NULL is TRUE AND TRUE AND UNKNOWN, which is UNKNOWN."
+  - id: count-col
+    prompt: "A table has 10 rows; 4 of them have phone NULL. What does count(phone) return?"
+    answers: ["6"]
+    explanation: "count(column) skips NULLs; count(*) would return 10."
+  - id: coalesce
+    prompt: "What does coalesce(NULL, NULL, 'guest', 'x') return?"
+    options: ["NULL", "'guest'", "'x'", "An error: too many arguments"]
+    answer: 1
+    explanation: "COALESCE returns its first non-NULL argument."
+  - id: nullif-div
+    prompt: "Why write total / nullif(items, 0)?"
+    options: ["To round the result", "To turn a division by zero into NULL instead of an error", "To ignore NULL items", "To force integer division"]
+    answer: 1
+    explanation: "NULLIF(items, 0) is NULL when items is 0, and dividing by NULL gives NULL instead of failing."

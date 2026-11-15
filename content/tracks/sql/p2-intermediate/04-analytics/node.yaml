@@ -1,0 +1,48 @@
+id: sql.p2.analytics
+kind: kata
+status: draft
+title: "Analytics: Rankings, Running Totals and an Org Chart"
+summary: "Rank salaries per department, keep the top earners with ties, compute month-to-date totals and moving averages, and walk a reporting line with a recursive CTE."
+objectives:
+  - { id: o1, text: "Rank and filter rows per group with window functions and a CTE", skills: [sql.window-functions, sql.cte-recursive] }
+  - { id: o2, text: "Compute running totals, differences and moving averages with frames and LAG", skills: [sql.window-functions] }
+  - { id: o3, text: "Walk a hierarchy with WITH RECURSIVE, tracking depth and path", skills: [sql.cte-recursive] }
+prerequisites: [sql.p2.window-functions]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 60 }
+  hints:
+    - |-
+      Which ranking function gives tied salaries the same number and no gaps after them? For the top earners, should two people tied at second place both be kept? You cannot filter a window function in `WHERE`: where can you compute it first? For the org chart, what is the anchor row, and how does one step find the next level?
+    - |-
+      `dense_rank() OVER (PARTITION BY department_id ORDER BY salary DESC)` ranks within each department. For the top 2 with ties, compute `rank()` in a CTE and keep `rank <= 2` outside. Month-to-date: `sum(revenue) OVER (PARTITION BY date_trunc('month', day) ORDER BY day)`; the change is `revenue - lag(revenue) OVER (ORDER BY day)`; the moving average uses `ROWS BETWEEN 2 PRECEDING AND CURRENT ROW` and `round(..., 2)`. The recursive member joins `employees e` to the CTE on `e.manager_id = chain.id`.
+    - |-
+      ```sql
+      -- reports_to.sql
+      WITH RECURSIVE chain AS (
+          SELECT id, name, 0 AS depth, name::text AS path
+          FROM employees
+          WHERE name = 'Bruno Reis'
+          UNION ALL
+          SELECT e.id, e.name, ..., ...
+          FROM employees AS e
+          JOIN chain ON ...
+      )
+      SELECT name, depth, path FROM chain ORDER BY path;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

@@ -1,0 +1,3 @@
+-- todo: the employees with one of the 2 highest salary ranks of their department (ties at
+-- the boundary are all included): department name, employee name, salary.
+-- Order by department name, salary from highest, employee name.

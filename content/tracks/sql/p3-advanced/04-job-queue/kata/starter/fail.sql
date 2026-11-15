@@ -1,0 +1,2 @@
+-- todo: job 7 failed with 'smtp timeout': retry it later with exponential backoff, or mark it
+-- dead when it has used all its attempts. Return id, status and run_at.

@@ -1,0 +1,30 @@
+questions:
+  - id: distinct-bandage
+    prompt: "A join returns each order twice, so a developer adds SELECT DISTINCT. What is the problem?"
+    options: ["DISTINCT is not standard SQL", "It hides the join that multiplies rows; aggregates computed from the join stay wrong, and it adds a sort", "DISTINCT removes NULLs", "Nothing: it is the right fix"]
+    answer: 1
+    explanation: "Duplicates mean a missing condition or a fan-out. Fix the join, or use EXISTS for has-one checks."
+  - id: between-ts
+    prompt: "placed_at is a timestamptz. Which orders does BETWEEN '2026-03-01' AND '2026-03-31' miss?"
+    options: ["None", "Orders on March 31 after midnight", "Orders on March 1", "Orders with NULL placed_at only"]
+    answer: 1
+    explanation: "'2026-03-31' means 2026-03-31 00:00, so the rest of the last day is excluded. Use >= '2026-03-01' AND < '2026-04-01'."
+  - id: integer-division
+    prompt: "In PostgreSQL, what does SELECT 7 / 2 return?"
+    answers: ["3"]
+    explanation: "Integer division truncates. Write 7 / 2.0 or cast to numeric for 3.5."
+  - id: exists-count
+    prompt: "What is the better way to ask whether a customer has any order?"
+    options: ["SELECT count(*) FROM orders WHERE customer_id = 7", "SELECT EXISTS (SELECT 1 FROM orders WHERE customer_id = 7)", "SELECT * FROM orders WHERE customer_id = 7", "SELECT max(id) FROM orders"]
+    answer: 1
+    explanation: "EXISTS stops at the first match; count(*) visits every matching row."
+  - id: jaywalking
+    prompt: "A column tag_ids holds '3,17,42'. Which problem does it NOT cause?"
+    options: ["No foreign key can check the ids", "Queries need LIKE '%,17,%' and cannot use an index", "Removing one tag means rewriting the string", "It prevents storing more than three tags"]
+    answer: 3
+    explanation: "The list can grow, which is not the problem. The problems are integrity, indexing and updates; use a junction table."
+  - id: implicit-cast
+    prompt: "Why can WHERE phone = 912345678 be slow in MySQL when phone is a varchar column with an index?"
+    options: ["Numbers are slower than text", "MySQL casts every phone to a number to compare, so the index on the text cannot be used", "varchar columns cannot be indexed", "It is always fast"]
+    answer: 1
+    explanation: "Comparing a string column with a number converts the column, which is like a function on it. Compare with a string literal of the column's type."

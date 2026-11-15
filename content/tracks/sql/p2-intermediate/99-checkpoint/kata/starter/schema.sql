@@ -1,0 +1,2 @@
+-- todo: create the tables venues, events, customers and tickets with the columns of the
+-- README and the constraints that enforce its rules.

@@ -1,0 +1,30 @@
+questions:
+  - id: vs-group-by
+    prompt: "How does sum(total) OVER (PARTITION BY customer_id) differ from sum(total) ... GROUP BY customer_id?"
+    options: ["It is faster but gives the same rows", "It keeps every row and adds the customer's total to each", "It only works on sorted tables", "It sums over all customers"]
+    answer: 1
+    explanation: "A window function computes over the partition without collapsing rows; GROUP BY returns one row per customer."
+  - id: rank-gap
+    prompt: "Salaries 9000, 8000, 8000, 7000 ordered descending. What does rank() give the 7000 row?"
+    answers: ["4"]
+    explanation: "rank gives tied rows the same number (2, 2) and skips the next one, so 7000 is 4. dense_rank would give 3."
+  - id: where-window
+    prompt: "Why does WHERE row_number() OVER (ORDER BY score DESC) <= 3 fail?"
+    options: ["row_number needs PARTITION BY", "Window functions are evaluated after WHERE, in the SELECT step", "WHERE cannot compare numbers", "It needs GROUP BY"]
+    answer: 1
+    explanation: "Compute the row number in a subquery or CTE and filter it in the outer query."
+  - id: lag
+    prompt: "Which function returns the value of the previous row in the window's order?"
+    options: ["lead", "lag", "first_value", "prev"]
+    answer: 1
+    explanation: "lag(x) reads the previous row, lead(x) the next; both accept an offset and a default."
+  - id: default-frame
+    prompt: "sum(amount) OVER (ORDER BY day) with two rows on the same day. What running total do those two rows show?"
+    options: ["Different totals, one row at a time", "The same total, including both rows", "NULL", "Only the first row's amount"]
+    answer: 1
+    explanation: "The default frame is RANGE UNBOUNDED PRECEDING to CURRENT ROW, which includes all peers with the same ORDER BY value. Use ROWS for one row at a time."
+  - id: moving-avg
+    prompt: "Which frame gives a moving average of the current row and the 6 rows before it?"
+    options: ["ROWS BETWEEN 6 PRECEDING AND CURRENT ROW", "RANGE BETWEEN 6 FOLLOWING AND CURRENT ROW", "ROWS 7", "PARTITION BY 7"]
+    answer: 0
+    explanation: "ROWS BETWEEN 6 PRECEDING AND CURRENT ROW is 7 physical rows; RANGE with an interval would count calendar days instead."

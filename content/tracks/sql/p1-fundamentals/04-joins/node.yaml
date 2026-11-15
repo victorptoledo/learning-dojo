@@ -1,0 +1,23 @@
+id: sql.p1.joins
+kind: lesson
+status: draft
+title: "Joins of Every Kind"
+summary: "Inner, left, right and full outer joins, cross and self joins, semi and anti joins with EXISTS, LATERAL, and the classic mistakes: lost rows, filters in the wrong clause and fan-out."
+objectives:
+  - { id: o1, text: "Choose between inner, left, right, full and cross joins and predict their rows, including NULLs from missing matches", skills: [sql.joins] }
+  - { id: o2, text: "Write self joins, semi joins (EXISTS) and anti joins (NOT EXISTS, LEFT JOIN ... IS NULL)", skills: [sql.joins] }
+  - { id: o3, text: "Spot the classic join bugs: a filter in WHERE that undoes an outer join, and fan-out that multiplies sums", skills: [sql.joins] }
+prerequisites: [sql.p1.nulls]
+difficulty: 3
+estimated_minutes: 60
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Given customers(id, name) and orders(id, customer_id, status, total), write a query that lists every customer with the number of their PAID orders, showing 0 for customers with none. Explain why putting status = ''paid'' in WHERE instead of ON gives a different answer. Then explain what goes wrong when you join customers to both orders and support_tickets in one query and sum the order totals, and how to fix it.'
+  criteria:
+    - 'Uses LEFT JOIN with the status condition in ON and counts a column from orders (not count(*))'
+    - 'Explains that a WHERE condition on the right table drops the NULL-extended rows, turning the left join into an inner join'
+    - 'Explains fan-out: each order row is repeated once per ticket, so sums are multiplied'
+    - 'Fixes fan-out by aggregating each child table first (subquery, CTE or LATERAL) and joining the totals'

@@ -1,0 +1,30 @@
+questions:
+  - id: sargable
+    prompt: "Which condition can use a B-tree index on placed_at?"
+    options: ["WHERE date(placed_at) = '2026-03-01'", "WHERE extract(month FROM placed_at) = 3", "WHERE placed_at >= '2026-03-01' AND placed_at < '2026-03-02'", "WHERE placed_at::text LIKE '2026-03-01%'"]
+    answer: 2
+    explanation: "Only the range leaves the column alone. A function or cast on the column hides it from the index unless you build an expression index."
+  - id: composite-order
+    prompt: "An index on (customer_id, placed_at). Which query can NOT use it efficiently?"
+    options: ["WHERE customer_id = 7", "WHERE customer_id = 7 AND placed_at > '2026-01-01'", "WHERE placed_at > '2026-01-01'", "WHERE customer_id = 7 ORDER BY placed_at"]
+    answer: 2
+    explanation: "The index is sorted by customer_id first. Without a condition on the leading column, matching placed_at values are spread over the whole index."
+  - id: seq-scan-ok
+    prompt: "90% of the rows have status = 'paid'. The planner ignores the index on status for WHERE status = 'paid'. Why?"
+    options: ["The index is broken", "Reading most of the table through the index costs more than one sequential scan", "Indexes cannot be used with text", "ANALYZE must be disabled"]
+    answer: 1
+    explanation: "An index scan pays a random table read per match. For low selectivity a sequential scan is cheaper."
+  - id: partial
+    prompt: "CREATE INDEX ON orders (placed_at) WHERE status = 'pending'. Which query can use it?"
+    options: ["SELECT * FROM orders WHERE placed_at > now() - interval '1 day'", "SELECT * FROM orders WHERE status = 'pending' AND placed_at > now() - interval '1 day'", "SELECT * FROM orders WHERE status = 'paid'", "Any query on orders"]
+    answer: 1
+    explanation: "A partial index holds only rows that match its condition, so the query's WHERE must imply status = 'pending'."
+  - id: explain-analyze
+    prompt: "What does EXPLAIN ANALYZE add to EXPLAIN?"
+    options: ["Nothing; they are synonyms", "It runs the query and reports actual times, rows and loops next to the estimates", "It creates the missing indexes", "It updates the statistics"]
+    answer: 1
+    explanation: "EXPLAIN only estimates. EXPLAIN ANALYZE executes, so wrap data changes in a transaction you roll back."
+  - id: estimate-gap
+    prompt: "A plan node shows rows=5 estimated and actual rows=480000. What is the most likely cause of the bad plan?"
+    answers: ["stale statistics", "bad statistics", "outdated statistics", "missing statistics", "statistics"]
+    explanation: "The planner chose its plan for 5 rows. Run ANALYZE, or look for a condition it cannot estimate (functions, correlated columns)."

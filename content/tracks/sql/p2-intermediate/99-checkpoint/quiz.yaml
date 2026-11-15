@@ -1,0 +1,48 @@
+pass_percent: 85
+questions:
+  - id: exists-semi
+    skills: [sql.subqueries]
+    prompt: "Which predicate asks only whether a matching row exists, whatever it contains?"
+    answers: ["EXISTS", "exists"]
+    explanation: "EXISTS (subquery) is TRUE as soon as the subquery returns a row; it is the semi join."
+  - id: intersect
+    skills: [sql.subqueries]
+    prompt: "SELECT city FROM customers INTERSECT SELECT city FROM suppliers returns what?"
+    options: ["Cities of customers or suppliers", "Cities that appear in both, each once", "Every pair of customer and supplier", "Cities of customers without suppliers"]
+    answer: 1
+    explanation: "INTERSECT keeps rows present in both results and removes duplicates."
+  - id: anchor
+    skills: [sql.cte-recursive]
+    prompt: "In a recursive CTE that lists everyone below a manager, what does the anchor select?"
+    options: ["Every employee", "The manager's own row, the starting point", "The employees without a manager", "Nothing: it is optional"]
+    answer: 1
+    explanation: "The anchor is the start of the walk; the recursive member then adds one level per iteration."
+  - id: mat-view
+    skills: [sql.cte-recursive]
+    prompt: "A dashboard reads an expensive aggregate that may be up to an hour old. What fits best?"
+    options: ["A normal view", "A materialized view refreshed every hour", "A CTE", "A trigger on every table"]
+    answer: 1
+    explanation: "A materialized view stores the result, so reads are cheap; you schedule REFRESH to keep it within the accepted age."
+  - id: dense-rank
+    skills: [sql.window-functions]
+    prompt: "Scores 50, 40, 40, 30 ordered descending. What does dense_rank() give 30?"
+    answers: ["3"]
+    explanation: "dense_rank gives ties the same rank without gaps: 1, 2, 2, 3. rank would give 4."
+  - id: partition
+    skills: [sql.window-functions]
+    prompt: "What does PARTITION BY do in OVER (PARTITION BY store_id ORDER BY day)?"
+    options: ["Splits the table into physical partitions", "Makes each store an independent window, so totals and ranks restart per store", "Groups rows like GROUP BY and removes them", "Sorts by store"]
+    answer: 1
+    explanation: "Partitions are independent windows; rows are kept, and the function restarts in each partition."
+  - id: set-null
+    skills: [sql.constraints-keys]
+    prompt: "tasks.assignee_id REFERENCES users (id) ON DELETE SET NULL. What happens to a user's tasks when the user is deleted?"
+    options: ["They are deleted", "Their assignee_id becomes NULL", "The delete is rejected", "Nothing; the id stays and points nowhere"]
+    answer: 1
+    explanation: "SET NULL keeps the children and clears the link, which suits optional relationships."
+  - id: third-nf
+    skills: [sql.normalisation]
+    prompt: "employees(id, department_id, department_name). department_name depends on department_id, not on id directly. Which normal form is broken?"
+    options: ["1NF", "2NF", "3NF", "None"]
+    answer: 2
+    explanation: "A non-key column that depends on another non-key column is a transitive dependency, which 3NF forbids. Move department names to a departments table."

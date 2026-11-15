@@ -1,0 +1,48 @@
+id: sql.p4.query-clinic
+kind: kata
+status: draft
+title: "Query Clinic: Four Broken Queries from Production"
+summary: "Diagnose and fix four real-world anti-patterns: NOT IN over NULLs, fan-out sums, OFFSET pagination and BETWEEN on timestamps, with tests that compare against the right answer and read the plan."
+objectives:
+  - { id: o1, text: "Fix queries that return wrong results because of NULL, fan-out and timestamp ranges", skills: [sql.anti-patterns, sql.nulls, sql.joins] }
+  - { id: o2, text: "Replace OFFSET pagination with a keyset query that an index serves directly", skills: [sql.applications, sql.indexes-plans] }
+prerequisites: [sql.p4.applications]
+difficulty: 4
+estimated_minutes: 75
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 90 }
+  hints:
+    - |-
+      Run each patient query of the README in `dojo-sql play` and look at what comes back. Does `SELECT referred_by FROM customers` contain a NULL? How many rows does Linus produce before grouping in the totals query? Which orders of March 31 does `BETWEEN '2026-03-01' AND '2026-03-31'` keep? For the page, which index can jump straight to the last row the client saw?
+    - |-
+      `NOT EXISTS (SELECT 1 FROM customers r WHERE r.referred_by = c.id)` ignores NULLs. Aggregate orders and tickets each in their own subquery (or CTE) grouped by `customer_id`, then `LEFT JOIN` both to customers with `coalesce(..., 0)`. Keyset: `WHERE (placed_at, id) > (TIMESTAMPTZ '2026-02-18 23:00+00', 1500) ORDER BY placed_at, id LIMIT 20` uses `orders_placed_id`. March is `placed_at >= TIMESTAMPTZ '2026-03-01 00:00+00' AND placed_at < TIMESTAMPTZ '2026-04-01 00:00+00'`.
+    - |-
+      ```sql
+      -- customer_totals.sql
+      WITH revenue AS (
+          SELECT customer_id, sum(total) AS revenue FROM orders GROUP BY customer_id
+      ),
+      ticket_counts AS (
+          SELECT customer_id, count(*) AS tickets FROM tickets GROUP BY customer_id
+      )
+      SELECT c.name, coalesce(r.revenue, 0), coalesce(t.tickets, 0)
+      FROM customers c
+      LEFT JOIN revenue r ON ...
+      LEFT JOIN ticket_counts t ON ...
+      ORDER BY c.name;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

@@ -1,0 +1,2 @@
+-- todo: per month of 2026, the number of paid orders and their revenue, only for months
+-- with a revenue of at least 100. Month as a date (the first day), oldest first.

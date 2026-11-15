@@ -1,0 +1,214 @@
+# Technical interview questions for the sql track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://www.geeksforgeeks.org/sql-interview-questions/"
+  - "https://www.datacamp.com/blog/top-sql-interview-questions-and-answers-for-beginners-and-intermediate-practitioners"
+  - "https://www.toptal.com/sql/interview-questions"
+  - "https://www.stratascratch.com/blog/sql-interview-questions-you-must-prepare-the-ultimate-guide/"
+  - "https://github.com/nilbuild/developer-roadmap/tree/master/roadmaps/sql/content"
+  - "https://use-the-index-luke.com/"
+questions:
+  - id: keys
+    level: junior
+    skills: [sql.relational-model, sql.constraints-keys]
+    question: "What are a primary key and a foreign key, and what does the database do to enforce each?"
+    key_points:
+      - "A primary key identifies each row: unique and not null, one per table"
+      - "A foreign key requires its values to exist as a key in the referenced table"
+      - "Both are checked on every insert and update; deleting a referenced row is rejected or cascaded by the ON DELETE action"
+      - "Mentions surrogate versus natural keys, or that the primary key gets an index"
+    follow_up: "Why should you index the referencing column of a foreign key?"
+  - id: where-having
+    level: junior
+    skills: [sql.aggregation, sql.select-basics]
+    question: "What is the difference between WHERE and HAVING? Give a query that needs both."
+    key_points:
+      - "WHERE filters rows before grouping; HAVING filters groups after GROUP BY"
+      - "Aggregates can appear in HAVING but not in WHERE"
+      - "Example: orders of 2026 (WHERE) per customer with more than 5 orders (HAVING)"
+      - "Conditions without aggregates belong in WHERE so fewer rows are grouped"
+    follow_up: "In which logical order are FROM, WHERE, GROUP BY, HAVING, SELECT and ORDER BY evaluated?"
+  - id: join-kinds
+    level: junior
+    skills: [sql.joins]
+    question: "Explain INNER, LEFT, RIGHT and FULL OUTER joins with customers and orders. Which customers does each one return?"
+    key_points:
+      - "INNER returns only customers with matching orders, once per order"
+      - "LEFT keeps every customer, with NULL order columns when there is none"
+      - "RIGHT keeps every order; FULL keeps unmatched rows from both sides"
+      - "Joins repeat a row once per match"
+    follow_up: "How do you list the customers who have no orders at all?"
+  - id: null-comparison
+    level: junior
+    skills: [sql.nulls]
+    question: "Why does WHERE phone = NULL return no rows, and how do NULLs affect count, sum and avg?"
+    key_points:
+      - "Comparisons with NULL are UNKNOWN, and WHERE keeps only TRUE"
+      - "Use IS NULL / IS NOT NULL"
+      - "count(*) counts rows; count(col), sum and avg skip NULLs"
+      - "avg divides by the non-NULL count; sum of no values is NULL, use coalesce for 0"
+    follow_up: "What does NOT IN return when the subquery contains a NULL?"
+  - id: delete-truncate-drop
+    level: junior
+    skills: [sql.dml, sql.relational-model]
+    question: "What is the difference between DELETE, TRUNCATE and DROP TABLE?"
+    key_points:
+      - "DELETE removes rows that match a WHERE, row by row, firing row triggers"
+      - "TRUNCATE empties the whole table at once, faster, with a stronger lock"
+      - "DROP TABLE removes the table and its definition"
+      - "In PostgreSQL all three are transactional; in MySQL and Oracle DDL commits implicitly"
+    follow_up: "How would you delete 50 million old rows from a busy table without blocking it?"
+  - id: union-vs-union-all
+    level: junior
+    skills: [sql.subqueries]
+    question: "What is the difference between UNION and UNION ALL, and which would you use by default?"
+    key_points:
+      - "UNION removes duplicates, UNION ALL keeps every row"
+      - "UNION needs a sort or hash to find duplicates, so it costs more"
+      - "Use UNION ALL unless duplicates must go"
+      - "Columns are matched by position and must be type compatible"
+    follow_up: "How would you find rows that are in one table but not another?"
+  - id: second-highest
+    level: mid
+    skills: [sql.window-functions, sql.subqueries]
+    question: "Find the second-highest salary in each department. Show two different ways and say how each handles ties."
+    key_points:
+      - "dense_rank() OVER (PARTITION BY department ORDER BY salary DESC) = 2 in an outer query or CTE"
+      - "rank, dense_rank and row_number differ on ties; dense_rank gives the second distinct salary"
+      - "Alternative: max(salary) where salary < the department's max, as a correlated subquery or join"
+      - "Explains why a window function cannot be filtered in WHERE directly"
+    follow_up: "What changes if you need the second-highest earner even when two people tie for first?"
+  - id: running-total
+    level: mid
+    skills: [sql.window-functions]
+    question: "Write a running total and a 7-day moving average of daily revenue. What is a window frame and what is the default one?"
+    key_points:
+      - "sum(revenue) OVER (ORDER BY day) for the running total"
+      - "avg(revenue) OVER (ORDER BY day ROWS BETWEEN 6 PRECEDING AND CURRENT ROW)"
+      - "The default frame with ORDER BY is RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW, which includes ties"
+      - "ROWS counts rows, RANGE with an interval counts calendar days (missing days matter)"
+    follow_up: "How would you restart the running total every month?"
+  - id: recursive-cte
+    level: mid
+    skills: [sql.cte-recursive]
+    question: "How do you query a hierarchy stored as employees(id, manager_id)? Write a query for everyone below a manager with their depth."
+    key_points:
+      - "WITH RECURSIVE with an anchor (the manager) and a recursive member joining employees on manager_id = previous id"
+      - "Carries depth + 1 and optionally a path"
+      - "The recursion ends when a step returns no rows"
+      - "Protects against cycles with a visited path, the CYCLE clause or a depth limit"
+    follow_up: "How would you return the chain of managers above an employee instead?"
+  - id: correlated-subquery
+    level: mid
+    skills: [sql.subqueries, sql.joins]
+    question: "What is a correlated subquery? When is it slow, and how would you rewrite one?"
+    key_points:
+      - "A subquery that refers to the outer row, logically evaluated per row"
+      - "Planners often turn EXISTS and IN into semi joins; scalar subqueries in SELECT over large tables may really run per row"
+      - "Rewrite with a join to a grouped derived table or CTE, LATERAL, or a window function"
+      - "Mentions reading the plan to see SubPlan or loops"
+    follow_up: "When is EXISTS a better choice than a join followed by DISTINCT?"
+  - id: normal-forms
+    level: mid
+    skills: [sql.normalisation]
+    question: "Explain 1NF, 2NF and 3NF with an example table that breaks each, and when you would denormalise on purpose."
+    key_points:
+      - "1NF: one value per cell, no repeating groups or lists in a column"
+      - "2NF: no column depends on part of a composite key"
+      - "3NF: no column depends on another non-key column (transitive dependency)"
+      - "Anomalies: update, insert, delete"
+      - "Deliberate denormalisation: price at purchase time, counters, read models, kept correct explicitly"
+    follow_up: "How do you model a many-to-many relationship that has attributes of its own?"
+  - id: index-design
+    level: mid
+    skills: [sql.indexes-plans]
+    question: "A query filters on customer_id and sorts by created_at DESC with LIMIT 20. What index would you create and why in that column order?"
+    key_points:
+      - "A composite index on (customer_id, created_at), optionally DESC"
+      - "Equality columns first, then the sort or range column"
+      - "The index returns rows already ordered, so the scan stops after 20 rows with no sort"
+      - "Mentions INCLUDE columns for an index-only scan, or the write cost of indexes"
+    follow_up: "Why might the planner still choose a sequential scan for another customer?"
+  - id: sargable
+    level: mid
+    skills: [sql.indexes-plans, sql.anti-patterns]
+    question: "Why can WHERE date(created_at) = '2026-03-01' or WHERE lower(email) = ? not use a plain index on the column? How do you fix each?"
+    key_points:
+      - "A function or cast on the column hides it from the B-tree, whose entries are the raw values"
+      - "Rewrite the date as a half-open range on the bare column"
+      - "Create an expression index on lower(email), or store a normalised column"
+      - "Mentions implicit casts having the same effect"
+    follow_up: "Why is a half-open range better than BETWEEN for timestamps?"
+  - id: upsert
+    level: mid
+    skills: [sql.dml, sql.transactions]
+    question: "How do you insert a row or update it if it already exists, safely under concurrency? How does it differ across engines?"
+    key_points:
+      - "A single statement backed by a unique constraint: INSERT ... ON CONFLICT DO UPDATE (PostgreSQL, SQLite)"
+      - "MySQL: ON DUPLICATE KEY UPDATE; SQL Server and Oracle: MERGE (with locking hints for concurrency)"
+      - "Check-then-insert from the application races"
+      - "EXCLUDED refers to the proposed row"
+    follow_up: "Why is MERGE alone not a race-free upsert in PostgreSQL?"
+  - id: isolation-levels
+    level: senior
+    skills: [sql.transactions]
+    question: "Describe the isolation levels and the anomalies each prevents. What does PostgreSQL do differently from the standard and from MySQL?"
+    key_points:
+      - "Dirty read, non-repeatable read, phantom; plus lost update and write skew"
+      - "READ COMMITTED is the default in PostgreSQL and SQL Server, REPEATABLE READ in MySQL InnoDB"
+      - "PostgreSQL uses MVCC snapshots: REPEATABLE READ has no phantoms, SERIALIZABLE uses SSI and aborts with 40001"
+      - "Higher levels need retry loops in the application"
+    follow_up: "Give an example of write skew and how SERIALIZABLE or a lock prevents it."
+  - id: lost-update
+    level: senior
+    skills: [sql.transactions, sql.applications]
+    question: "Two requests withdraw money from the same account at the same time. How can the balance end up wrong, and what are your options to prevent it?"
+    key_points:
+      - "Read-modify-write in the application under READ COMMITTED loses an update"
+      - "Atomic UPDATE balance = balance - x WHERE balance >= x, checking the row count"
+      - "Pessimistic: SELECT ... FOR UPDATE in a short transaction"
+      - "Optimistic: a version column checked in the UPDATE; or SERIALIZABLE with retries"
+    follow_up: "How do you avoid deadlocks when a transfer locks two accounts?"
+  - id: slow-query
+    level: senior
+    skills: [sql.indexes-plans, sql.anti-patterns]
+    question: "A query that used to take 50 ms now takes 30 seconds in production. Walk through how you would diagnose it."
+    key_points:
+      - "Find it (pg_stat_statements, slow query log, APM) and get the real parameters"
+      - "EXPLAIN (ANALYZE, BUFFERS): compare estimated and actual rows, look for seq scans, sorts spilling, nested loops with many loops"
+      - "Check statistics (ANALYZE), data growth, a changed plan, missing or unused indexes, non-sargable predicates"
+      - "Check locks and blocking (pg_stat_activity, pg_locks), not only the plan"
+      - "Fix and verify with the plan, then guard against regressions"
+    follow_up: "What would make the planner's row estimates wrong, and how can you help it?"
+  - id: pagination
+    level: senior
+    skills: [sql.applications, sql.indexes-plans]
+    question: "An API lists millions of orders newest first with ?page=N. Why does it get slower on deep pages, and how would you redesign it?"
+    key_points:
+      - "OFFSET reads and discards all previous rows; pages also shift when rows are inserted"
+      - "Keyset pagination: WHERE (created_at, id) < (last_created_at, last_id) ORDER BY created_at DESC, id DESC LIMIT n"
+      - "Needs a unique order (a tie-breaker) and a matching index"
+      - "Returns an opaque cursor instead of page numbers; trade-off: no random page jumps"
+    follow_up: "How do you support filters (by status) together with keyset pagination?"
+  - id: injection-n-plus-one
+    level: senior
+    skills: [sql.applications]
+    question: "Reviewing a service's data access, what would you look for to catch SQL injection and N+1 queries, and how do you fix them?"
+    key_points:
+      - "Injection: SQL built by concatenation or formatting; fix with bind parameters everywhere, allow-lists for identifiers"
+      - "N+1: one query per row of a list, often ORM lazy loading in loops"
+      - "Fix N+1 with joins, eager loading or batched = ANY($1) queries"
+      - "Detect with query counts per request, ORM logging or pg_stat_statements"
+    follow_up: "How do you pass a variable-length list of ids safely and efficiently?"
+  - id: json-or-columns
+    level: senior
+    skills: [sql.json, sql.normalisation]
+    question: "A team wants to store all product attributes in one jsonb column to avoid migrations. What do you advise?"
+    key_points:
+      - "jsonb is fine for truly variable or rarely queried attributes"
+      - "Fields that are filtered, joined, sorted or constrained belong in typed columns"
+      - "JSON loses types, constraints, foreign keys and good statistics; queries become harder"
+      - "Indexing options: GIN for containment, expression indexes for hot keys; generated columns to expose fields"
+      - "A hybrid: core columns plus a jsonb column for the rest"
+    follow_up: "How would you enforce that every product of category 'shoes' has a size in its attributes?"

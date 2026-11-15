@@ -17,6 +17,7 @@ stages:
     title: "Data and retrieval"
     requires:
       - { track: data-engineer, phase: p2 }
+      - { track: sql, phase: p2 }
       - { track: ai-engineer, phase: p3 }
   - id: s4
     title: "AI in production"

@@ -1,0 +1,1 @@
+-- todo: the name and price of every product, ordered by name (A to Z).

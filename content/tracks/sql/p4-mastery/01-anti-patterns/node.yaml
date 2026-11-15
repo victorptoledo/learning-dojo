@@ -1,0 +1,23 @@
+id: sql.p4.anti-patterns
+kind: lesson
+status: draft
+title: "Common SQL Anti-Patterns"
+summary: "The mistakes that pass review and fail in production: NOT IN with NULLs, fan-out sums, DISTINCT as a bandage, BETWEEN on timestamps, functions on indexed columns, SELECT *, implicit casts, EAV and id lists in columns, float money and more, each with its fix."
+objectives:
+  - { id: o1, text: "Recognise the classic correctness anti-patterns in queries and explain the wrong result each produces", skills: [sql.anti-patterns] }
+  - { id: o2, text: "Recognise the performance anti-patterns (non-sargable filters, OFFSET pages, row-by-row work) and rewrite them", skills: [sql.anti-patterns] }
+  - { id: o3, text: "Recognise schema anti-patterns (EAV, lists in columns, float money, missing constraints) and propose a better design", skills: [sql.anti-patterns] }
+prerequisites: [sql.p3.json]
+difficulty: 4
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this query from a pull request and list every problem you find, ordered by how badly it can hurt, with a corrected version: SELECT DISTINCT * FROM orders o, customers c, refunds r WHERE o.customer_id = c.id AND r.order_id = o.id OR r.order_id IS NULL AND to_char(o.placed_at, ''YYYY-MM'') = ''2026-03'' AND c.id NOT IN (SELECT customer_id FROM blocked_customers). For each problem, say whether it gives wrong results, slow results or both.'
+  criteria:
+    - 'Spots the AND/OR precedence bug and the comma joins, and rewrites with explicit JOIN ... ON and a LEFT JOIN for the optional refunds'
+    - 'Spots NOT IN with a possibly NULL customer_id and rewrites with NOT EXISTS'
+    - 'Spots the non-sargable to_char on placed_at and rewrites it as a half-open range'
+    - 'Explains that DISTINCT hides the duplication instead of fixing it, and that SELECT * returns duplicate column names and unneeded data'

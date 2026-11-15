@@ -98,6 +98,8 @@ pub enum KataLanguage {
     /// A Dockerfile (and maybe a compose file) built on the host engine and checked
     /// by `dojo-docker` with hadolint and bats.
     Docker,
+    /// SQL files checked against PostgreSQL 17 in `dojo-sql`.
+    Sql,
 }
 
 impl Kata {
@@ -106,6 +108,7 @@ impl Kata {
             "dojo-java" => KataLanguage::Java,
             "dojo-linux" => KataLanguage::Bash,
             "dojo-docker" => KataLanguage::Docker,
+            "dojo-sql" => KataLanguage::Sql,
             _ => KataLanguage::Rust,
         }
     }

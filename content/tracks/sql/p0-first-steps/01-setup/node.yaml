@@ -1,0 +1,23 @@
+id: sql.p0.setup
+kind: lesson
+status: draft
+title: "Relational Databases, SQL and Your First PostgreSQL"
+summary: "What a relational database is, why SQL is declarative, which engines you will meet, and how to get a PostgreSQL 17 with psql to try every query of this track."
+objectives:
+  - { id: o1, text: "Explain what a relational database and a DBMS are, and why SQL describes results instead of steps", skills: [sql.setup] }
+  - { id: o2, text: "Start a PostgreSQL 17 (dojo-sql play, Docker or a local install) and work in psql", skills: [sql.setup] }
+  - { id: o3, text: "Name the main engines (PostgreSQL, MySQL, SQL Server, SQLite) and what the SQL standard does and does not promise", skills: [sql.setup] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A colleague keeps the data of a small shop in a folder of CSV files and a script that loops over them. Explain what they would gain by moving it into a relational database, what "SQL is declarative" means with an example query, and why the same query may need small changes to run on PostgreSQL, MySQL and SQLite.'
+  criteria:
+    - 'Names concrete gains: concurrent access, transactions, constraints that keep the data valid, indexes, a query language'
+    - 'Explains declarative as describing the wanted result while the engine chooses the algorithm, with a query as example'
+    - 'Mentions the query planner or optimizer choosing scans, joins and indexes'
+    - 'Explains that the standard is implemented partly and with extensions, so dialects differ (examples: LIMIT vs FETCH FIRST vs TOP, types, upsert syntax)'

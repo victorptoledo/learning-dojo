@@ -1,0 +1,2 @@
+-- todo: every member with their number of loans and of open loans. Most loans first,
+-- then by name.

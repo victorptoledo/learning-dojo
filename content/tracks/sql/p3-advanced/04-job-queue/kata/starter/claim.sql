@@ -1,0 +1,2 @@
+-- todo: worker-1 claims the next due job of the queue 'emails' and gets back its id and
+-- attempts, without ever taking a job another worker holds.

@@ -1,0 +1,23 @@
+id: sql.p3.transactions
+kind: lesson
+status: draft
+title: "Transactions, Isolation and Locking"
+summary: "ACID, BEGIN, COMMIT, ROLLBACK and savepoints, the read anomalies and the isolation levels that prevent them, MVCC in PostgreSQL, row locks with SELECT FOR UPDATE and SKIP LOCKED, optimistic concurrency, and deadlocks."
+objectives:
+  - { id: o1, text: "Explain ACID and use BEGIN, COMMIT, ROLLBACK and SAVEPOINT", skills: [sql.transactions] }
+  - { id: o2, text: "Name the read anomalies (dirty read, non-repeatable read, phantom, lost update, write skew) and the isolation level that prevents each, in PostgreSQL and other engines", skills: [sql.transactions] }
+  - { id: o3, text: "Prevent races with atomic updates, SELECT ... FOR UPDATE, SKIP LOCKED and version columns, and handle deadlocks and serialization failures with retries", skills: [sql.transactions] }
+prerequisites: [sql.p3.index-tuning]
+difficulty: 4
+estimated_minutes: 70
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Two requests withdraw 80 from an account with a balance of 100 at the same moment. The code reads the balance with SELECT, checks it in the application and then runs UPDATE accounts SET balance = :new_balance. Explain step by step how both withdrawals can succeed under READ COMMITTED, and give three fixes: one with a single atomic statement, one with a lock, and one with SERIALIZABLE. For each, say what the application must do when the database refuses.'
+  criteria:
+    - 'Shows the interleaving: both read 100, both compute 20, both write 20 (a lost update), or both pass the check'
+    - 'Atomic fix: UPDATE ... SET balance = balance - 80 WHERE id = ... AND balance >= 80, checking the affected row count'
+    - 'Lock fix: SELECT ... FOR UPDATE inside a transaction so the second request waits and then sees 20'
+    - 'SERIALIZABLE fix: one transaction fails with a serialization error (SQLSTATE 40001) and the application retries the whole transaction'

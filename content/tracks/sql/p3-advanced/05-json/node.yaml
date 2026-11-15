@@ -1,0 +1,23 @@
+id: sql.p3.json
+kind: lesson
+status: draft
+title: "JSON in SQL"
+summary: "Storing documents next to relational columns with jsonb, reading them with -> and ->>, querying with containment, JSON path and JSON_TABLE, building JSON from rows, indexing it, and knowing when a column beats a key."
+objectives:
+  - { id: o1, text: "Store and read JSON with jsonb, ->, ->>, #>> and the SQL/JSON functions", skills: [sql.json] }
+  - { id: o2, text: "Query, unnest, build and index JSON documents (containment, jsonb_array_elements, JSON_TABLE, json_agg, GIN)", skills: [sql.json] }
+  - { id: o3, text: "Decide between JSON and relational columns, and know the MySQL, SQL Server and SQLite equivalents", skills: [sql.json] }
+prerequisites: [sql.p3.job-queue]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An events table stores webhook payloads in a jsonb column payload, such as {"type": "order.paid", "order": {"id": 42, "total": 99.5}, "items": [{"sku": "A1", "qty": 2}]}. Write queries that (1) count events per type in the last day, (2) list every sku with its total quantity from order.paid events, and (3) return one JSON object per customer with their name and an array of their orders. Say which index you would add for (1), and which parts of the payload you would promote to real columns and why.'
+  criteria:
+    - 'Reads the type with payload ->> ''type'' and filters time with a range on a timestamp column'
+    - 'Unnests items with jsonb_array_elements (or JSON_TABLE) and sums (item ->> ''qty'')::int grouped by sku'
+    - 'Builds JSON with json_build_object or jsonb_build_object and json_agg'
+    - 'Proposes an expression index on (payload ->> ''type'') or a GIN index for containment, and promotes stable, queried, constrained fields (type, order id, timestamps) to typed columns'

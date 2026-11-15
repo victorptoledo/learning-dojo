@@ -1,0 +1,2 @@
+-- todo: Bruno Reis and everyone below him at any depth: name, depth (Bruno is 0) and the path
+-- from Bruno, such as 'Bruno Reis > Duarte Lima'. Order by path.

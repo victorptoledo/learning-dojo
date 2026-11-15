@@ -1,0 +1,48 @@
+id: sql.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata over a library, with joins, NULL, aggregates, date arithmetic and a two-step change."
+objectives:
+  - { id: o1, text: "Explain tables and keys, the logical order of a query, NULL, joins, grouping and DML in your own words", skills: [sql.relational-model, sql.select-basics, sql.nulls, sql.joins, sql.aggregation, sql.dml] }
+  - { id: o2, text: "Answer report questions over a library and change its data correctly with INSERT ... SELECT and UPDATE", skills: [sql.joins, sql.nulls, sql.aggregation, sql.dml] }
+prerequisites: [sql.p1.dml]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+closes_phase: p1
+covers_skills: [sql.relational-model, sql.select-basics, sql.nulls, sql.joins, sql.aggregation, sql.dml]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 60 }
+  hints:
+    - |-
+      A loan is open while `returned_on IS NULL`. Which question is an anti join ("books with no open loan"), which needs a `LEFT JOIN` to keep members without loans, and which one multiplies rows when you join books and loans? For `return_books.sql`, think about the order of the two statements: after the `UPDATE`, which loans are still open?
+    - |-
+      `DATE '2026-11-15' - due_on` is a number of days in PostgreSQL. `count(l.id) FILTER (WHERE l.returned_on IS NULL)` counts open loans per member. For authors, `count(DISTINCT b.id)` counts books even though each book repeats once per loan, and the "at least 2 books" test goes in `HAVING`. In `return_books.sql`, first `INSERT INTO fees ... SELECT` from the overdue open loans of member 3, then `UPDATE` them.
+    - |-
+      ```sql
+      -- return_books.sql
+      INSERT INTO fees (loan_id, member_id, amount)
+      SELECT id, member_id, (DATE '2026-11-15' - due_on) * 0.25
+      FROM loans
+      WHERE ...;
+
+      UPDATE loans
+      SET returned_on = DATE '2026-11-15'
+      WHERE ...;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

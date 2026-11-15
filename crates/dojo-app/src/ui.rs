@@ -357,6 +357,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::Docker => {
                 "2. Edit the Dockerfile (and compose.yaml when the kata has one). Lines marked \"todo\" are yours to write:"
             }
+            KataLanguage::Sql => {
+                "2. Edit the .sql files in the kata folder. Each one that holds only a \"-- todo: ...\" comment is yours to write:"
+            }
         }),
         Line::from(match language {
             KataLanguage::Rust => {
@@ -370,6 +373,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             }
             KataLanguage::Docker => {
                 "   the dojo builds your image on Docker Desktop, runs it with no network, then checks it with bats and hadolint."
+            }
+            KataLanguage::Sql => {
+                "   the tests run them on PostgreSQL 17 over fixture/; try them first with the play command in README.md."
             }
         }),
         Line::from("3. Save the file. The tests run by themselves and the result appears below."),
