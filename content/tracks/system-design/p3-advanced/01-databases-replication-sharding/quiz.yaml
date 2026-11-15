@@ -1,0 +1,30 @@
+questions:
+  - id: async-loss
+    prompt: "A leader with asynchronous replication fails and a replica is promoted. What can be lost?"
+    options: ["Nothing", "Writes the leader acknowledged but had not shipped yet", "All reads", "The replica's indexes"]
+    answer: 1
+    explanation: "With async replication the leader acknowledges before replicas have the write; those writes may vanish."
+  - id: own-write
+    prompt: "A user saves a comment and, reading from a replica, does not see it. Which guarantee is missing?"
+    answers: ["read-your-writes", "read your writes", "read-after-write"]
+    explanation: "Read-your-writes: route the writer's reads to the leader or to a replica that has caught up."
+  - id: split-brain
+    prompt: "What is split brain?"
+    options: ["A partition with two indexes", "Two nodes both believing they are the leader and accepting writes", "A replica that lags", "A query that hits two shards"]
+    answer: 1
+    explanation: "It happens when the old leader is not fenced off after a failover; writes diverge."
+  - id: range-hotspot
+    prompt: "Events are partitioned by key range on their timestamp. What goes wrong?"
+    options: ["Range scans are impossible", "All current writes hit the one partition that holds 'now'", "Hashes collide", "Rebalancing moves every key"]
+    answer: 1
+    explanation: "Time-ordered keys concentrate writes; prefix the key with the source or hash it."
+  - id: fixed-partitions
+    prompt: "A cluster has 256 fixed partitions over 8 nodes and you add a 9th node. What moves?"
+    options: ["Every key is rehashed", "Some whole partitions move from existing nodes to the new one", "Nothing until a restart", "Only new writes go to the new node"]
+    answer: 1
+    explanation: "Keys never change partition; only the assignment of partitions to nodes changes."
+  - id: lww
+    prompt: "Two regions update the same record concurrently and last write wins by timestamp. What is the risk?"
+    options: ["Deadlocks", "One of the writes is silently discarded", "Both writes are kept", "The record is locked"]
+    answer: 1
+    explanation: "LWW keeps one value and drops the other, with no error; use merges, CRDTs or a home region when that matters."

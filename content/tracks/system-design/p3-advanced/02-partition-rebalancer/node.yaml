@@ -1,0 +1,49 @@
+id: system-design.p3.partition-rebalancer
+kind: kata
+status: draft
+title: "Partition Rebalancer"
+summary: "Fixed partitions assigned to nodes: joins and leaves move whole partitions, only to or from the changing node, and keep every node within one partition of the others."
+objectives:
+  - { id: o1, text: "Map keys to fixed partitions and partitions to nodes", skills: [system-design.databases-replication-sharding] }
+  - { id: o2, text: "Rebalance on join and leave with the minimum number of moves while keeping balance", skills: [system-design.databases-replication-sharding] }
+prerequisites: [system-design.p3.databases-replication-sharding]
+difficulty: 3
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Keys never move between partitions, so `partitionFor` is one line. Everything else is bookkeeping of two views of the same assignment: partition → owner, and node → its partitions. Joining is "steal from the richest until I have my share"; leaving is "give each partition to the poorest". How many partitions does the newcomer need?
+    - |-
+      Keep `String[] owner` and a `TreeMap<String, TreeSet<Integer>> owned`. Iterating the TreeMap visits names in order, so a strict `>` (or `<`) comparison keeps the first, smallest name on ties. Join: `target = partitions / (owned.size() + 1)`, then `target` times take `owned.get(donor).pollLast()`. Remember the special first node and the errors.
+    - |-
+      ```java
+      public List<Move> removeNode(String node) {
+          if (!owned.containsKey(node)) throw new IllegalArgumentException(node + " is not in the cluster");
+          if (owned.size() == 1) throw new IllegalStateException("cannot remove the last node");
+          TreeSet<Integer> leaving = owned.remove(node);
+          List<Move> moves = new ArrayList<>();
+          for (int partition : leaving) {            // ascending
+              String receiver = leastLoaded();       // fewest partitions, smallest name on ties
+              owned.get(receiver).add(partition);
+              owner[partition] = receiver;
+              moves.add(new Move(partition, node, receiver));
+          }
+          return moves;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

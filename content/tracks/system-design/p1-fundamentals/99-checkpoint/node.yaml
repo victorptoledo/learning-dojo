@@ -1,0 +1,57 @@
+id: system-design.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz on DNS, CDNs, load balancing, hashing and storage, and the client of a sharded cache with replicas, health tracking and Bloom filters."
+objectives:
+  - { id: o1, text: "Explain DNS TTLs, CDN caching, balancing algorithms, consistent hashing and storage engines in your own words", skills: [system-design.dns-cdn, system-design.load-balancing, system-design.storage-engines] }
+  - { id: o2, text: "Build a sharded client that places keys with replicas, fails over, probes shards back and skips reads with Bloom filters", skills: [system-design.load-balancing, system-design.storage-engines] }
+prerequisites: [system-design.p1.bloom-filter]
+difficulty: 3
+estimated_minutes: 75
+xp: 350
+closes_phase: p1
+covers_skills: [system-design.dns-cdn, system-design.load-balancing, system-design.storage-engines]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Three concerns, one loop each: placement (the ring's preference list never changes), health (count consecutive failures per shard, down at the threshold, back after a successful ping) and the read shortcut (a filter per shard of the keys written there). `put` and `get` both walk the preference list and skip shards that are down; what else does `get` skip?
+    - |-
+      Keep a `TreeMap<String, ShardState>` where `ShardState` holds the `Shard`, a `BloomFilter.forCapacity(100_000, 0.01)`, an `int failures` and a `boolean down`. In `put`, on success reset `failures`, add the key to the filter and count the ack; on `ShardUnavailableException` call a `failed(state)` that increments and marks down at the threshold. Throw `UnavailableException` after the loop if there were no acks.
+    - |-
+      ```java
+      public Optional<String> get(String key) {
+          for (String name : ring.nodesFor(key, replicas)) {
+              ShardState state = states.get(name);
+              if (state.down) continue;
+              if (!state.filter.mightContain(key)) {
+                  skipped++;
+                  continue;
+              }
+              try {
+                  Optional<String> value = state.shard.get(key);
+                  state.failures = 0;
+                  if (value.isPresent()) return value;
+              } catch (ShardUnavailableException e) {
+                  failed(state);
+              }
+          }
+          return Optional.empty();
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

@@ -1,0 +1,51 @@
+id: system-design.p1.hash-ring
+kind: kata
+status: draft
+title: "Hash Ring"
+summary: "A consistent hash ring with virtual nodes and replica lists, where adding or removing a node moves only the keys it gains or loses."
+objectives:
+  - { id: o1, text: "Implement a consistent hash ring with virtual nodes and wrap-around lookup", skills: [system-design.load-balancing] }
+  - { id: o2, text: "Choose replicas as the next distinct nodes clockwise and verify the minimal-movement property", skills: [system-design.load-balancing] }
+prerequisites: [system-design.p1.load-balancing]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      A ring is a sorted map from a point (a `long`) to the node that sits there. Which Java collection keeps keys sorted and can answer "the first key at or after h"? What do you do when there is none, because the key's point is past the last node point?
+    - |-
+      Use a `TreeMap<Long, String>` for the points and a `TreeSet<String>` for the names. `add` puts `hash64(node + "#" + i)` for every `i`; `remove` deletes the same points with `points.remove(point, node)` (only if that node still owns it). `nodeFor`: `ceilingEntry(hash64(key))`, or `firstEntry()` when it is `null`.
+    - |-
+      ```java
+      public List<String> nodesFor(String key, int count) {
+          if (count < 0) throw new IllegalArgumentException("count cannot be negative");
+          int wanted = Math.min(count, nodes.size());
+          Set<String> found = new LinkedHashSet<>();
+          long h = Hashing.hash64(key);
+          for (String node : points.tailMap(h, true).values()) {
+              if (found.size() == wanted) break;
+              found.add(node);
+          }
+          for (String node : points.headMap(h, false).values()) {
+              if (found.size() == wanted) break;
+              found.add(node);
+          }
+          return List.copyOf(found);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

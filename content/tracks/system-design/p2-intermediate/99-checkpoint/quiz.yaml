@@ -1,0 +1,48 @@
+questions:
+  - id: effective-latency
+    skills: [system-design.caching-strategies]
+    prompt: "The hit ratio of a cache in front of a 40 ms database rises from 90 % to 99 % (the cache answers in 1 ms). By how much does the load on the database fall?"
+    options: ["By 9 %", "By half", "Ten times", "It does not change"]
+    answer: 2
+    explanation: "Misses fall from 10 % to 1 % of requests: one tenth of the database load."
+  - id: cache-aside-race
+    skills: [system-design.caching-strategies]
+    prompt: "In cache-aside with delete on write, what bounds how long a stale value can survive the read/write race?"
+    options: ["The eviction policy", "The TTL of the entry", "The number of replicas", "Nothing bounds it"]
+    answer: 1
+    explanation: "The TTL is the safety net: whatever race left a stale value, it expires."
+  - id: single-flight
+    skills: [system-design.caching-strategies]
+    prompt: "What is the name of the technique where only one request loads a missing key while concurrent requests for it wait for that result?"
+    answers: ["single flight", "singleflight", "request coalescing", "coalescing"]
+    explanation: "Single flight (request coalescing) turns a thousand concurrent misses into one load."
+  - id: retry-budget
+    skills: [system-design.overload]
+    prompt: "Which retry policy is safest for a service with many clients?"
+    options: ["Retry immediately up to 10 times", "Exponential backoff with jitter, a few attempts, a retry budget and idempotent requests only", "Never use timeouts so no retry is needed", "Retry at every layer for robustness"]
+    answer: 1
+    explanation: "Backoff with jitter spreads retries; limits and budgets cap amplification; idempotency makes them safe."
+  - id: lifo
+    skills: [system-design.overload]
+    prompt: "A queue has a large backlog of requests from clients with a 2-second timeout. Why might a server serve the newest requests first?"
+    options: ["They are smaller", "Their clients are still waiting; the oldest have probably already timed out", "It is fairer", "To empty the queue faster"]
+    answer: 1
+    explanation: "Serving requests nobody waits for wastes capacity; new requests can still succeed."
+  - id: shed-cheap
+    skills: [system-design.overload]
+    prompt: "Why must rejecting a request be much cheaper than serving it?"
+    options: ["Because clients prefer errors", "Otherwise the rejections themselves consume the capacity and the server still overloads", "Because 503 responses are cached", "It does not need to be"]
+    answer: 1
+    explanation: "Load shedding only helps if turning work away costs little compared with doing it."
+  - id: celebrity
+    skills: [system-design.read-heavy]
+    prompt: "Why do feed systems pull celebrity posts at read time instead of pushing them?"
+    options: ["Celebrity posts are private", "Pushing would mean millions of inbox writes per post", "Reads are cheaper than writes", "Celebrities post rarely"]
+    answer: 1
+    explanation: "Fan-out on write costs one write per follower; for huge accounts the hybrid pulls instead."
+  - id: read-model-lag
+    skills: [system-design.read-heavy]
+    prompt: "A user saves a profile and the read model, updated from events, still shows the old one for a second. What is a common fix?"
+    options: ["Make all reads synchronous joins", "Read your own writes from the write side (or show the pending change) for a short time", "Drop the read model", "Increase the TTL"]
+    answer: 1
+    explanation: "Read models are eventually consistent; route the writer's own reads to the source briefly."

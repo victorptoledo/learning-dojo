@@ -1,8 +1,17 @@
 ---
 from: java
 status: draft
-concept: "Cache invalidation and consistency"
-from_way: "Adding a caching annotation without knowing what happens when the cache is unreachable."
-native_way: "Choose the strategy explicitly: cache-aside for read-heavy data, write-through for critical consistency; add jitter to TTLs to avoid mass expiry."
-sensei_tip: "Beware the cache stampede (thundering herd): when a hot key expires, thousands of requests hit the database at once. Use a lock or pre-warming."
+concept: "Keeping a second copy close"
+from_way: "Spring's @Cacheable on a service method, with a ConcurrentMapCache or Caffeine behind it."
+native_way: "A cache is a design decision with a staleness budget, a fill pattern, an eviction policy and a failure mode, often in two tiers: in-process and distributed."
+sensei_tip: "Caffeine's refreshAfterWrite gives you stale-while-revalidate, and its LoadingCache coalesces concurrent loads of the same key, which is single flight for free. You build a simpler version in the next kata."
 ---
+
+| Java / Spring | Caching concept |
+| --- | --- |
+| `@Cacheable("products")` | cache-aside / read-through |
+| `@CacheEvict(key = "#id")` on update | delete on write |
+| Caffeine `expireAfterWrite(5, MINUTES)` | TTL expiration |
+| Caffeine `maximumSize(10_000)` | W-TinyLFU eviction |
+| `LinkedHashMap(cap, 0.75f, true)` + `removeEldestEntry` | an LRU cache in a dozen lines |
+| Spring Data Redis `RedisCacheManager` | the distributed tier |

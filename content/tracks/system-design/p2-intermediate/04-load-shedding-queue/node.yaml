@@ -1,0 +1,56 @@
+id: system-design.p2.load-shedding-queue
+kind: kata
+status: draft
+title: "Load-Shedding Queue"
+summary: "A bounded, thread-safe work queue with priorities, a limit for sheddable work, critical jobs that push out sheddable ones, and deadlines that drop stale jobs."
+objectives:
+  - { id: o1, text: "Bound a queue and shed low-priority work before critical work", skills: [system-design.overload] }
+  - { id: o2, text: "Drop queued jobs whose deadline has passed and count every outcome", skills: [system-design.overload] }
+prerequisites: [system-design.p2.overload-backpressure]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Keep one FIFO per priority; `poll` looks at the critical one first. Every public method starts the same way: drop the jobs that waited too long. After that, `offer` is a small decision table: how many jobs are queued, which priority arrives, and is there a sheddable job that could make room?
+    - |-
+      Store `record Job(String id, Instant offeredAt)` in two `ArrayDeque`s. Because the clock never goes back, expired jobs are always at the head: drop them with a `while` on `peekFirst()` while `now` is not before `offeredAt + maxWait`. For a critical offer into a full queue, `sheddable.pollLast()` removes the newest sheddable job (count it as shed). Make every method `synchronized`.
+    - |-
+      ```java
+      public synchronized boolean offer(String job, Priority priority) {
+          Instant now = clock.instant();
+          dropExpired(now);
+          int queued = critical.size() + sheddable.size();
+          boolean ok;
+          if (priority == Priority.SHEDDABLE) {
+              ok = queued < sheddableLimit;
+              if (ok) sheddable.addLast(new Job(job, now));
+          } else {
+              if (queued >= capacity && !sheddable.isEmpty()) {
+                  sheddable.pollLast();
+                  shed++;
+                  queued--;
+              }
+              ok = queued < capacity;
+              if (ok) critical.addLast(new Job(job, now));
+          }
+          if (ok) accepted++; else rejected++;
+          return ok;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

@@ -1,0 +1,30 @@
+questions:
+  - id: hit-ratio
+    prompt: "A cache answers in 1 ms and the database in 50 ms. With a 95 % hit ratio, what is the average latency?"
+    options: ["About 1 ms", "About 3.5 ms", "About 25 ms", "About 48 ms"]
+    answer: 1
+    explanation: "0.95 × 1 + 0.05 × 50 = 3.45 ms."
+  - id: delete-not-set
+    prompt: "In cache-aside, why delete the key on write instead of setting the new value?"
+    options: ["Deletes are faster", "Concurrent writers that SET can leave an older value cached; a delete only costs one extra miss", "Redis cannot overwrite keys", "It saves memory"]
+    answer: 1
+    explanation: "Two SETs can arrive in the wrong order; a delete makes the next reader load the current value."
+  - id: write-behind
+    prompt: "What is the main risk of write-behind caching?"
+    options: ["Slow writes", "Acknowledged writes are lost if the cache fails before flushing them", "Too many cache misses", "It cannot be used with Redis"]
+    answer: 1
+    explanation: "The write is acknowledged from memory and reaches the database later; a crash in between loses it."
+  - id: stampede
+    prompt: "A popular key expires and the database receives 2,000 identical queries in one second. What is this called?"
+    answers: ["cache stampede", "stampede", "dog-pile", "dogpile", "thundering herd"]
+    explanation: "A stampede; single flight, stale-while-revalidate or early refresh prevent it."
+  - id: jitter
+    prompt: "Why add random jitter to TTLs?"
+    options: ["To save memory", "So keys written together do not all expire at the same moment", "To encrypt keys", "To make LRU exact"]
+    answer: 1
+    explanation: "Synchronised expiry causes a wave of misses; spreading the expiry spreads the load."
+  - id: lfu-vs-lru
+    prompt: "A nightly job scans every product once. Which policy best protects the cache of popular products?"
+    options: ["LRU", "FIFO", "A frequency-aware policy such as LFU or W-TinyLFU", "No eviction"]
+    answer: 2
+    explanation: "A scan touches each item once; LRU would evict the popular items for them, frequency-based admission does not."

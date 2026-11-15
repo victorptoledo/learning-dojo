@@ -1,0 +1,30 @@
+questions:
+  - id: first-step
+    prompt: "What should come first in a system design discussion?"
+    options: ["Choosing the database", "Clarifying requirements and the scale, with numbers", "Drawing microservices", "Discussing Kubernetes"]
+    answer: 1
+    explanation: "Requirements and estimates decide which parts deserve design effort; tools come later."
+  - id: chat-order
+    prompt: "In the chat design, what gives every member of a group the same message order?"
+    options: ["Wall-clock timestamps from each sender's phone", "A per-chat sequence number assigned by the chat's partition, and a log partitioned by chat", "Random ids", "Sorting by message length"]
+    answer: 1
+    explanation: "One partition owns the chat's order; phone clocks disagree and cannot be trusted."
+  - id: chat-resync
+    prompt: "A phone reconnects after being offline. How does it get exactly the messages it missed?"
+    options: ["The server resends the last 100", "It asks for everything after the last sequence number it has", "It reloads the whole history", "It waits for new messages"]
+    answer: 1
+    explanation: "Sequence numbers make resync exact and idempotent: duplicates are recognised by (chat_id, seq)."
+  - id: flash-linearizable
+    prompt: "In the flash sale, which step must be linearizable?"
+    options: ["Showing the seat map", "Holding a specific seat with a conditional write", "Loading the event page", "Placing users in the waiting room"]
+    answer: 1
+    explanation: "Only the hold must have exactly one winner; the seat map can be seconds stale."
+  - id: waiting-room
+    prompt: "What role does the virtual waiting room play?"
+    options: ["It caches seats", "Admission control: it lets users in at the rate the core can serve, shedding the rest fairly", "It processes payments", "It replaces the database"]
+    answer: 1
+    explanation: "It is load shedding with fairness in front of inventory and payments."
+  - id: adr
+    prompt: "What does an architecture decision record capture that a diagram does not?"
+    answers: ["the why", "why", "the reasons", "the rationale", "context and consequences"]
+    explanation: "Context, the decision, the alternatives and the consequences: why the system looks the way it does."

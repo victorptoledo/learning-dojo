@@ -1,0 +1,51 @@
+id: system-design.p4.fenced-lease
+kind: kata
+status: draft
+title: "Fenced Lease"
+summary: "A lease manager with expiry, renewal, release and strictly increasing fencing tokens, and storage that rejects writes from holders who lost their lease."
+objectives:
+  - { id: o1, text: "Implement leases that expire, renew and release safely under concurrency", skills: [system-design.consensus] }
+  - { id: o2, text: "Protect a resource with fencing tokens so a paused holder cannot corrupt it", skills: [system-design.consensus] }
+prerequisites: [system-design.p4.consensus-leases]
+difficulty: 4
+estimated_minutes: 45
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      The manager holds at most one live lease and a counter that only grows. Almost every rule is the same question: "is this the live lease?" Write that check once and use it in `renew`, `release` and `isSafeToAct`. And the store needs only one number to protect itself: which?
+    - |-
+      Fields: `Lease live` (null when released) and `long lastToken`. Live means `live != null && now.isBefore(live.expiresAt())`; current means live and `live.token() == lease.token()`. `tryAcquire` creates `new Lease(owner, ++lastToken, now.plus(duration))` only when nothing is live. The store keeps `long highest` and refuses `token < highest`.
+    - |-
+      ```java
+      public synchronized Optional<Lease> renew(Lease lease) {
+          Instant now = clock.instant();
+          if (!isCurrent(lease, now)) return Optional.empty();
+          live = new Lease(lease.owner(), lease.token(), now.plus(leaseDuration));
+          return Optional.of(live);
+      }
+
+      public synchronized boolean isSafeToAct(Lease lease, Duration margin) {
+          Instant now = clock.instant();
+          return isCurrent(lease, now) && now.isBefore(live.expiresAt().minus(margin));
+      }
+
+      private boolean isCurrent(Lease lease, Instant now) {
+          return live != null && now.isBefore(live.expiresAt()) && live.token() == lease.token();
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

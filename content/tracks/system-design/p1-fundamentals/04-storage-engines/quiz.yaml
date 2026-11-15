@@ -1,0 +1,30 @@
+questions:
+  - id: lsm-writes
+    prompt: "Why do LSM-tree engines sustain very high write throughput?"
+    options: ["They skip the write-ahead log", "Writes go to memory and are flushed as sequential, immutable files", "They never compact", "They update pages in place"]
+    answer: 1
+    explanation: "A memtable absorbs writes and is flushed sequentially as an SSTable; compaction merges in the background."
+  - id: tombstone
+    prompt: "In an LSM tree, what does a delete write?"
+    answers: ["a tombstone", "tombstone"]
+    explanation: "A tombstone marks the key as deleted until compaction removes the older values and the marker."
+  - id: composite
+    prompt: "A table has an index on (customer_id, created_at). Which query cannot use it efficiently?"
+    options: ["WHERE customer_id = 7", "WHERE customer_id = 7 AND created_at > '2026-01-01'", "WHERE created_at > '2026-01-01'", "WHERE customer_id = 7 ORDER BY created_at"]
+    answer: 2
+    explanation: "A composite index is sorted by its first column; without it the index cannot narrow the search."
+  - id: global-index
+    prompt: "In a sharded store, what is the cost of a local (per-partition) secondary index?"
+    options: ["Writes must update a remote partition", "A query by the indexed value must ask every partition", "It cannot be used for equality", "It needs a global lock"]
+    answer: 1
+    explanation: "Each partition only knows its own rows, so a query on the indexed value scatters to all partitions and gathers."
+  - id: bloom-guarantee
+    prompt: "A Bloom filter says a key is not present. What do you know?"
+    options: ["It is probably absent", "It is definitely absent", "It is present", "Nothing"]
+    answer: 1
+    explanation: "A Bloom filter has no false negatives: a zero bit proves the key was never added."
+  - id: replication-backup
+    prompt: "Why are replicas not a backup?"
+    options: ["Replicas are slower", "A bad write or delete is replicated too, so you need copies from before the mistake", "Replicas cannot be read", "Backups are always faster to restore"]
+    answer: 1
+    explanation: "Replication protects against losing machines; backups and point-in-time recovery protect against mistakes."

@@ -1,0 +1,222 @@
+# Technical interview questions for the system-design track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://github.com/donnemartin/system-design-primer"
+  - "https://roadmap.sh/system-design"
+  - "https://github.com/ByteByteGoHq/system-design-101"
+  - "https://aws.amazon.com/builders-library/"
+  - "https://sre.google/sre-book/table-of-contents/"
+questions:
+  - id: estimate-qps
+    level: junior
+    skills: [system-design.fundamentals]
+    question: "A service has 20 million daily active users who each make about 50 requests a day. Estimate the average and peak requests per second, and tell me what you would ask next."
+    key_points:
+      - "1 billion requests / 86,400 s ≈ 11,600 per second on average"
+      - "Applies a peak factor (2–5×) and states it as an assumption"
+      - "Asks about the read/write ratio, item sizes and growth"
+      - "Uses the numbers to decide what to design carefully"
+    follow_up: "How many application servers do you need if one handles 1,500 requests per second at 70 % CPU?"
+  - id: availability-composition
+    level: junior
+    skills: [system-design.fundamentals]
+    question: "A request passes through a load balancer, an application and a database, each 99.9 % available. What is the availability of the request, and how would you improve it?"
+    key_points:
+      - "In series the availabilities multiply: about 99.7 %"
+      - "Redundant copies in parallel raise availability: 1 − (1 − a)ⁿ"
+      - "Only if the copies fail independently (different zones, staggered deploys)"
+      - "Removing dependencies from the critical path also helps"
+    follow_up: "What does 99.99 % allow in downtime per month?"
+  - id: cdn-what
+    level: junior
+    skills: [system-design.dns-cdn]
+    question: "What does a CDN do, and how do you decide what it may cache and for how long?"
+    key_points:
+      - "Caching reverse proxies near users; TLS ends close to the user"
+      - "Controlled by Cache-Control: max-age, s-maxage, private, no-store"
+      - "Fingerprinted static assets cached for a year; HTML briefly or revalidated"
+      - "Personalised responses stay out of shared caches; watch the cache key and Vary"
+    follow_up: "How do you get a correction to users within a minute if pages are cached for an hour?"
+  - id: l4-l7
+    level: junior
+    skills: [system-design.load-balancing]
+    question: "Explain the difference between layer 4 and layer 7 load balancing and when you would use each."
+    key_points:
+      - "L4 balances TCP/UDP connections by address and port, cheaply"
+      - "L7 reads HTTP and routes per request by path, header or cookie"
+      - "HTTP/2 and gRPC need per-request (L7) balancing"
+      - "Common layering: L4 in front of a fleet of L7 proxies"
+    follow_up: "What should the health check of a backend test, and what should it not test?"
+  - id: consistent-hashing
+    level: mid
+    skills: [system-design.load-balancing]
+    question: "Why does hash(key) mod N cause trouble for a cache cluster, and how does consistent hashing fix it?"
+    key_points:
+      - "Changing N remaps most keys, causing a burst of misses"
+      - "A ring of hash values: a key belongs to the next node clockwise"
+      - "Adding or removing a node moves about 1/N of the keys"
+      - "Virtual nodes even out the load and support weights"
+      - "Replicas are the next distinct nodes clockwise"
+    follow_up: "How does rendezvous hashing compare?"
+  - id: btree-lsm
+    level: mid
+    skills: [system-design.storage-engines]
+    question: "Compare B-tree and LSM-tree storage engines. Which would you choose for an event ingestion service, and why?"
+    key_points:
+      - "B-trees update pages in place after a write-ahead log; predictable reads"
+      - "LSM trees append to a memtable and flush sorted files; compaction merges them"
+      - "LSM sustains higher write throughput; reads may check several files"
+      - "Bloom filters skip files that cannot contain a key"
+      - "Ingestion leans LSM, partitioned by source with time in the key"
+    follow_up: "What is write amplification, and where does it come from in each?"
+  - id: cache-aside-consistency
+    level: mid
+    skills: [system-design.caching-strategies]
+    question: "You add a Redis cache-aside layer in front of a product database. How do you keep the cache consistent with the database, and what can still go wrong?"
+    key_points:
+      - "Delete the key after writing the database rather than setting it"
+      - "A TTL as the safety net for races and missed invalidations"
+      - "The read-then-set race can cache a stale value; leases or CDC invalidation mitigate it"
+      - "States the acceptable staleness per data type"
+    follow_up: "How do you protect the database when a very popular key expires?"
+  - id: cache-stampede
+    level: mid
+    skills: [system-design.caching-strategies, system-design.overload]
+    question: "What is a cache stampede and how do you prevent it?"
+    key_points:
+      - "Many concurrent misses for one hot key all hit the origin"
+      - "Single flight / request coalescing: one load, others wait"
+      - "Stale-while-revalidate or early probabilistic refresh"
+      - "TTL jitter to avoid synchronised expiry; warming before known peaks"
+    follow_up: "What happens to your database if the whole cache cluster restarts?"
+  - id: retries-safe
+    level: mid
+    skills: [system-design.overload]
+    question: "How do you design retries so that they help with transient failures without making an outage worse?"
+    key_points:
+      - "Only idempotent operations, or idempotency keys"
+      - "Only retryable errors; honour Retry-After"
+      - "Exponential backoff with jitter and a small attempt limit"
+      - "A retry budget, and retries at one layer only"
+      - "Timeouts from measured latency and propagated deadlines"
+    follow_up: "When would you use a circuit breaker on top of this?"
+  - id: load-shedding
+    level: senior
+    skills: [system-design.overload]
+    question: "Your service receives twice the traffic it can handle. Walk me through how it should behave, and how you would build that."
+    key_points:
+      - "Keeps goodput flat instead of collapsing: reject early and cheaply"
+      - "Bounded queues and concurrency limits instead of unbounded buffering"
+      - "Drops queued work past its deadline; may serve newest first"
+      - "Sheds by priority and per-client quotas; degrades features"
+      - "Verifies with load tests at 2× capacity"
+    follow_up: "How do you make sure the rejections themselves are cheap?"
+  - id: feed-design
+    level: mid
+    skills: [system-design.read-heavy]
+    question: "Design the home timeline of a social network. How do posts reach followers' timelines?"
+    key_points:
+      - "Compares fan-out on write (inboxes) with fan-out on read"
+      - "Hybrid: push for normal accounts, pull for accounts with huge followings"
+      - "Bounded inboxes of ids; asynchronous fan-out through a queue"
+      - "Filters unfollows, blocks and deletions at read time"
+      - "Cursor pagination"
+    follow_up: "What changes for a user who follows 5,000 accounts?"
+  - id: replication-lag
+    level: mid
+    skills: [system-design.databases-replication-sharding]
+    question: "You move reads to asynchronous replicas. What problems will users notice, and how do you address them?"
+    key_points:
+      - "Not seeing their own writes: read-your-writes via the leader or position tracking"
+      - "Monotonic reads: pin a session to one replica"
+      - "Consistent prefix: related writes in the same partition"
+      - "Monitors replica lag and removes lagging replicas from rotation"
+    follow_up: "What can be lost if the leader fails and a replica is promoted?"
+  - id: sharding-key
+    level: mid
+    skills: [system-design.databases-replication-sharding]
+    question: "How would you choose a shard key for a multi-tenant SaaS database, and how do you add capacity later?"
+    key_points:
+      - "Tenant id keeps a tenant's data together and spreads tenants"
+      - "Handles skew: giant tenants on dedicated shards (directory)"
+      - "Many fixed partitions so adding nodes moves whole partitions"
+      - "Cross-shard queries and transactions avoided on hot paths"
+      - "A plan for moving a tenant: copy, catch up, switch"
+    follow_up: "How do you run a report across all tenants?"
+  - id: cap-explain
+    level: mid
+    skills: [system-design.cap-pacelc]
+    question: "Explain CAP and PACELC, and give an example of choosing differently for two operations in the same product."
+    key_points:
+      - "During a partition, choose consistency or availability"
+      - "Outside partitions, consistency costs latency (PACELC)"
+      - "Applies per operation, not per product"
+      - "Example: seat booking strongly consistent, seat map eventually consistent"
+    follow_up: "What does linearizable mean, and why is it expensive?"
+  - id: quorums
+    level: senior
+    skills: [system-design.cap-pacelc]
+    question: "In a leaderless store with N replicas, how do W and R affect consistency and availability? What weakens the guarantee?"
+    key_points:
+      - "W + R > N makes read and write sets overlap"
+      - "Lower W or R trade consistency for latency and availability"
+      - "Concurrent writes need version vectors or LWW (which drops writes)"
+      - "Failed writes are not rolled back; sloppy quorums break the overlap"
+      - "Read repair, hinted handoff and Merkle-tree anti-entropy repair divergence"
+    follow_up: "Which N, W and R would you choose for a shopping cart, and why?"
+  - id: kafka-design
+    level: mid
+    skills: [system-design.message-queues-events]
+    question: "When would you use a log like Kafka instead of a job queue like RabbitMQ or SQS? How do you choose the partition key and count?"
+    key_points:
+      - "Logs keep ordered, replayable streams for many consumer groups"
+      - "Queues distribute tasks to competing consumers and delete them on ack"
+      - "The key defines per-entity ordering; hot keys make hot partitions"
+      - "Partitions cap consumer parallelism; size for peak with headroom"
+      - "At-least-once with idempotent consumers and dead-letter handling"
+    follow_up: "What does Kafka's exactly-once cover, and what does it not?"
+  - id: outbox-events
+    level: senior
+    skills: [system-design.message-queues-events]
+    question: "An order service must save an order and publish OrderPlaced reliably, and three other services react to it. Design the flow and its failure handling."
+    key_points:
+      - "Avoids the dual write: transactional outbox or change data capture"
+      - "Event-carried state transfer versus notification, with a reason"
+      - "Idempotent consumers keyed by event id"
+      - "Choreography or orchestration with compensations for failures"
+      - "Schema evolution with compatible changes"
+    follow_up: "How would you rebuild a consumer's state from scratch?"
+  - id: distributed-lock
+    level: senior
+    skills: [system-design.consensus]
+    question: "Exactly one of several instances must run a job at a time. How do you implement this safely?"
+    key_points:
+      - "A lease from a consensus-backed store (etcd, ZooKeeper) or conditional writes"
+      - "Leases expire, so a dead holder does not block forever"
+      - "Pauses and clock skew make 'check then act' unsafe"
+      - "Fencing tokens checked by the resource reject stale holders"
+      - "Idempotent work so a rerun after takeover is harmless"
+    follow_up: "Why is a Redis SET NX lock alone not enough here?"
+  - id: blast-radius
+    level: senior
+    skills: [system-design.resilience]
+    question: "One customer's bad input crashed the workers and took the whole service down for everyone. How would you redesign to limit the blast radius?"
+    key_points:
+      - "Cells: independent copies of the stack serving subsets of customers"
+      - "Shuffle sharding: each customer on a random subset of workers"
+      - "Staged rollouts and per-cell deploys"
+      - "Poison-message handling (dead letters) and input validation"
+      - "SLOs and error budgets to measure impact"
+    follow_up: "How do you route customers to cells, and how do you move one?"
+  - id: multi-region
+    level: senior
+    skills: [system-design.resilience, system-design.end-to-end]
+    question: "The business wants the product to survive the loss of a whole cloud region. What options would you present, and how would you choose?"
+    key_points:
+      - "Backup and restore, pilot light, warm standby, active-active"
+      - "Chooses from RTO and RPO targets and cost"
+      - "Async replication means some data loss; sync adds write latency"
+      - "Active-active needs conflict handling and regional routing"
+      - "Failover drills and static stability"
+    follow_up: "Which data in your design must never be written in two regions at once?"

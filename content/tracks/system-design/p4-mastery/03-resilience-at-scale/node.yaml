@@ -1,0 +1,24 @@
+id: system-design.p4.resilience-at-scale
+kind: lesson
+status: draft
+title: "Resilience at Scale: Cells, Shuffle Sharding and Multi-Region"
+summary: "SLIs, SLOs and error budgets, failure domains and safe change, static stability, cell-based architecture, shuffle sharding, multi-region patterns with RTO and RPO, and graceful degradation."
+objectives:
+  - { id: o1, text: "Define SLIs and SLOs and use the error budget to steer reliability work", skills: [system-design.resilience] }
+  - { id: o2, text: "Apply static stability, cells and shuffle sharding to limit the blast radius of failures", skills: [system-design.resilience] }
+  - { id: o3, text: "Choose a multi-region pattern from RTO and RPO, and plan degradation and failover drills", skills: [system-design.resilience] }
+prerequisites: [system-design.p4.fenced-lease]
+difficulty: 5
+estimated_minutes: 55
+xp: 400
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A B2B email-sending platform serves 20,000 customers from one region. Last quarter one customer sent a malformed campaign that crashed the sending workers and stopped email for everyone for two hours, and a zone outage caused another hour of downtime. Propose an architecture and practices that limit the blast radius of both kinds of failure, with the SLOs you would set and the RTO and RPO of your regional strategy.'
+  criteria:
+    - 'Sets SLIs and SLOs (e.g. emails accepted and sent within a time) with an error budget'
+    - 'Isolates customers with cells or shuffle sharding so a poison campaign affects few others'
+    - 'Makes the service statically stable across zones (capacity for the loss of one zone without scaling up)'
+    - 'Chooses a multi-region pattern with explicit RTO and RPO, and says how failover is tested'
+    - 'Adds safe change practices: staged rollouts and automatic rollback, plus blameless postmortems'

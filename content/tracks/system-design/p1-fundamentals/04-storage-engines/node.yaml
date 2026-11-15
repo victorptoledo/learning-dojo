@@ -1,0 +1,25 @@
+id: system-design.p1.storage-engines
+kind: lesson
+status: draft
+title: "Storage Engines, Indexes and Data Models"
+summary: "Relational, key-value, document, wide-column, graph and object stores; B-trees versus LSM trees; indexes; OLTP versus OLAP; durability; and Bloom filters."
+objectives:
+  - { id: o1, text: "Choose a data model and a store from the access patterns of a feature", skills: [system-design.storage-engines] }
+  - { id: o2, text: "Explain how B-trees and LSM trees write, read and compact, and what each costs", skills: [system-design.storage-engines] }
+  - { id: o3, text: "Design indexes, including local versus global secondary indexes in a partitioned store", skills: [system-design.storage-engines] }
+  - { id: o4, text: "Size a Bloom filter and explain its guarantees", skills: [system-design.storage-engines] }
+prerequisites: [system-design.p1.hash-ring]
+difficulty: 3
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An IoT platform ingests 200,000 temperature readings per second from 5 million sensors. Users ask for the last 24 hours of one sensor, and analysts want daily averages per city over two years. Choose the data model(s) and storage engine(s), design the keys and indexes, and explain how you keep the analytics from slowing ingestion and how you would avoid reading disk for sensors that sent nothing.'
+  criteria:
+    - 'Chooses a write-optimised store (LSM, wide-column or time-series) partitioned by sensor, with time in the key'
+    - 'Explains why the per-sensor query is a cheap range scan with that key'
+    - 'Moves analytics to a columnar store fed by a stream or CDC, not the ingestion database'
+    - 'Mentions Bloom filters (or a similar structure) to skip files without the key'
+    - 'Addresses retention or downsampling of old readings and durability (replication, backups)'

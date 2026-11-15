@@ -1,8 +1,15 @@
 namespace: system-design
 skills:
+  - { id: system-design.fundamentals, title: "Requirements, Back-of-the-Envelope Estimates and Availability" }
   - { id: system-design.dns-cdn, title: "DNS, Anycast and Edge CDNs" }
   - { id: system-design.load-balancing, title: "Load Balancers (L4 vs L7) and Consistent Hashing" }
+  - { id: system-design.storage-engines, title: "Storage Engines, Indexes, Data Models and Bloom Filters" }
   - { id: system-design.caching-strategies, title: "Caching Strategies (Redis) and Expiration Policies" }
+  - { id: system-design.overload, title: "Timeouts, Retries, Back-Pressure and Load Shedding" }
+  - { id: system-design.read-heavy, title: "Read-Heavy Designs: Fan-out, Denormalization and Read Models" }
   - { id: system-design.databases-replication-sharding, title: "Replication, Horizontal Sharding and Partitioning" }
-  - { id: system-design.cap-pacelc, title: "CAP, PACELC and Eventual Consistency" }
+  - { id: system-design.cap-pacelc, title: "CAP, PACELC, Consistency Models and Quorums" }
   - { id: system-design.message-queues-events, title: "Messaging, Apache Kafka and Event Patterns" }
+  - { id: system-design.consensus, title: "Consensus, Leader Election, Leases and Fencing" }
+  - { id: system-design.resilience, title: "Resilience at Scale: Cells, Shuffle Sharding and Multi-Region" }
+  - { id: system-design.end-to-end, title: "Designing a System End to End" }

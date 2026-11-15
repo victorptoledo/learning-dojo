@@ -1,0 +1,48 @@
+questions:
+  - id: ttl-failover
+    skills: [system-design.dns-cdn]
+    prompt: "A region fails and DNS health checks remove its address. Some users keep failing for many minutes. Why?"
+    options: ["DNS is not replicated", "Resolvers and clients cache the old answer for its TTL, some even longer", "Anycast is broken", "The CDN purged everything"]
+    answer: 1
+    explanation: "DNS failover is bounded by caching: the TTL, plus clients that ignore it."
+  - id: s-maxage
+    skills: [system-design.dns-cdn]
+    prompt: "Which directive sets how long a shared cache such as a CDN may keep a response, without changing the browser's max-age?"
+    answers: ["s-maxage", "Cache-Control: s-maxage"]
+    explanation: "s-maxage applies only to shared caches and overrides max-age there."
+  - id: least-outstanding
+    skills: [system-design.load-balancing]
+    prompt: "One backend becomes slow. Which algorithm sends it less traffic automatically?"
+    options: ["Round robin", "Least outstanding requests", "Hash of the client IP", "Round-robin DNS"]
+    answer: 1
+    explanation: "A slow server accumulates requests in flight, so least outstanding (or power of two choices) avoids it."
+  - id: replicas-ring
+    skills: [system-design.load-balancing]
+    prompt: "On a ring with virtual nodes, how are the 3 replicas of a key chosen?"
+    options: ["The 3 nearest points, even if two belong to the same server", "The first 3 distinct servers clockwise from the key", "3 random servers", "The 3 least loaded servers"]
+    answer: 1
+    explanation: "Walk clockwise and skip points of servers already chosen, so replicas land on distinct machines."
+  - id: remove-node
+    skills: [system-design.load-balancing]
+    prompt: "A node leaves a consistent hash ring. Which keys change owner?"
+    options: ["About half of all keys", "Only the keys the leaving node owned", "All keys", "None, until a rebalance"]
+    answer: 1
+    explanation: "Its arcs pass to the next points clockwise; every other key keeps its owner."
+  - id: engine-choice
+    skills: [system-design.storage-engines]
+    prompt: "A service ingests 500,000 small events per second and reads them by device and time range. Which engine family fits best?"
+    options: ["A B-tree with many secondary indexes", "An LSM tree partitioned by device with time in the key", "A graph database", "Object storage with one file per event"]
+    answer: 1
+    explanation: "LSM engines turn writes into sequential appends, and device + time keys make the reads range scans."
+  - id: bloom-size
+    skills: [system-design.storage-engines]
+    prompt: "Roughly how many bits per key does a Bloom filter need for a 1 % false-positive rate?"
+    options: ["1", "About 10", "About 100", "64, one per hash"]
+    answer: 1
+    explanation: "m/n = −ln(0.01)/(ln 2)² ≈ 9.6 bits per key, with about 7 hash functions."
+  - id: availability-parallel
+    skills: [system-design.fundamentals]
+    prompt: "A cache shard is 99 % available. With each key on 2 independent shards, how available is a key for reads?"
+    options: ["98 %", "99 %", "99.5 %", "99.99 %"]
+    answer: 3
+    explanation: "Either copy is enough: 1 − 0.01² = 99.99 %, provided the failures are independent."

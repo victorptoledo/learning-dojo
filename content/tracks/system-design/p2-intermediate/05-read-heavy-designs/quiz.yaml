@@ -1,0 +1,30 @@
+questions:
+  - id: push-cost
+    prompt: "With fan-out on write, what does a post by an account with 2 million followers cost?"
+    options: ["One write", "About 2 million inbox writes", "2 million reads at read time", "Nothing until someone reads"]
+    answer: 1
+    explanation: "Pushing inserts the post id into every follower's inbox, so the cost grows with the follower count."
+  - id: hybrid
+    prompt: "In the hybrid feed, how do a celebrity's posts reach a follower's timeline?"
+    options: ["They are pushed like everyone else's", "They are merged in at read time from the celebrity's own list", "They are never shown", "Through a nightly batch job"]
+    answer: 1
+    explanation: "Celebrities are pulled at read time, which avoids the giant fan-out on write."
+  - id: unfollow
+    prompt: "A user unfollows an account whose posts are already in their inbox. What is the cheapest correct approach?"
+    options: ["Rewrite the inbox immediately", "Filter by the current follow list when the timeline is read", "Delete the account", "Keep showing the posts"]
+    answer: 1
+    explanation: "Filtering at read time is cheap and always correct; the stale ids age out of the bounded inbox."
+  - id: offset
+    prompt: "Why is LIMIT 20 OFFSET 100000 slow on a large table?"
+    options: ["LIMIT is not indexed", "The database still reads and discards the 100,000 skipped rows", "OFFSET locks the table", "It disables the cache"]
+    answer: 1
+    explanation: "Keyset pagination with WHERE (created_at, id) < (?, ?) jumps to the position through the index instead."
+  - id: cqrs-cost
+    prompt: "What is the main cost of a CQRS read model?"
+    options: ["Writes become slower to validate", "It lags behind the write model, and there are more stores to run", "It cannot be indexed", "It forbids caching"]
+    answer: 1
+    explanation: "Projections are updated asynchronously, so reads can be slightly stale, and each read model is another system."
+  - id: hot-counter
+    prompt: "A viral post's like counter is one row that every like updates. Which technique removes the hot row?"
+    answers: ["sharded counters", "sharded counter", "counter sharding"]
+    explanation: "Split the counter into N rows, increment a random one and sum them on read (or batch the increments)."

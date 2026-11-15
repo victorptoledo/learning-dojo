@@ -1,0 +1,24 @@
+id: system-design.p0.thinking-in-systems
+kind: lesson
+status: draft
+title: "Thinking in Systems: Requirements, Estimates and Availability"
+summary: "What system design is, functional and non-functional requirements, latency numbers, back-of-the-envelope estimates and availability in nines."
+objectives:
+  - { id: o1, text: "Turn a product idea into functional and measurable non-functional requirements", skills: [system-design.fundamentals] }
+  - { id: o2, text: "Estimate requests per second, storage and servers from a few facts, and apply Little's law", skills: [system-design.fundamentals] }
+  - { id: o3, text: "Compute the availability of components in series and in parallel", skills: [system-design.fundamentals] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 40
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A city wants an app where 2 million residents report potholes with a photo and follow the repair status. Write the requirements (functional and non-functional, with numbers), a back-of-the-envelope estimate of requests per second, storage per year and bandwidth, and say which part of the system the numbers tell you to design most carefully.'
+  criteria:
+    - 'Lists the main functional requirements (report with photo and location, see status, notifications)'
+    - 'Gives non-functional requirements as numbers: latency, availability, durability of reports'
+    - 'Estimates read and write rates with stated assumptions and a peak factor'
+    - 'Estimates storage separately for photos and metadata, and notes object storage for photos'
+    - 'Draws a conclusion from the numbers about where to focus (reads, photos, peaks after a storm)'

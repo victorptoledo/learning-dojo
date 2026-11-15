@@ -1,0 +1,47 @@
+id: system-design.p0.capacity-estimator
+kind: kata
+status: draft
+title: "Capacity Estimator"
+summary: "Back-of-the-envelope arithmetic in Java: requests per second, peaks, storage, servers with headroom, Little's law and availability in nines."
+objectives:
+  - { id: o1, text: "Compute traffic, storage and servers with correct rounding and overflow checks", skills: [system-design.fundamentals] }
+  - { id: o2, text: "Compute availability in series and in parallel, and downtime per year", skills: [system-design.fundamentals] }
+prerequisites: [system-design.p0.thinking-in-systems]
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Every method is one formula plus validation. Write the formula first and make the visible tests pass, then add the checks: which inputs make the formula meaningless (a negative count, a factor below 1, a utilization of 0)?
+    - |-
+      Counts round up: `Math.ceilDiv(dailyUsers * requests, 86_400)`. Servers: the usable capacity of one server is `rpsPerServer * util / 100`, so `ceilDiv(peak * 100, rpsPerServer * util) + 1`. Availability: `serial` multiplies, `parallel` is `1 - Math.pow(1 - each, copies)`, and downtime is `Math.round((1 - a) * 365 * 86_400)` seconds.
+    - |-
+      ```java
+      public static long storageBytes(long itemsPerDay, long bytesPerItem, int days, int replicas) {
+          if (itemsPerDay < 0 || bytesPerItem < 0 || days < 0 || replicas < 0) {
+              throw new IllegalArgumentException("counts cannot be negative");
+          }
+          long perDay = Math.multiplyExact(itemsPerDay, bytesPerItem);
+          return Math.multiplyExact(Math.multiplyExact(perDay, (long) days), (long) replicas);
+      }
+
+      public static long inFlight(long rps, Duration latency) {
+          return Math.ceilDiv(Math.multiplyExact(rps, latency.toNanos()), 1_000_000_000L);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

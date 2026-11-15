@@ -3,12 +3,23 @@ legacy_id: sys-03-caching-strategies
 kind: lesson
 status: draft
 title: "Caching Strategies (Redis) and Expiration Policies"
-summary: "Cache-aside, write-through, write-behind and eviction policies (LRU/LFU)."
+summary: "Cache layers and hit-ratio arithmetic, cache-aside and its race, write-through and write-behind, expiration and eviction policies, stampedes, hot keys and Redis in production."
 objectives:
-  - { id: o1, text: "Cache-aside, write-through, write-behind and eviction policies (LRU/LFU).", skills: [system-design.caching-strategies] }
-prerequisites: [system-design.p1.load-balancing]
+  - { id: o1, text: "Choose a cache layer and compute the effect of the hit ratio on latency and origin load", skills: [system-design.caching-strategies] }
+  - { id: o2, text: "Apply cache-aside, write-through, write-behind or refresh-ahead and explain their consistency risks", skills: [system-design.caching-strategies] }
+  - { id: o3, text: "Choose expiration and eviction policies and protect against stampedes, hot keys and cold caches", skills: [system-design.caching-strategies] }
+prerequisites: [system-design.p1.checkpoint]
 difficulty: 3
-estimated_minutes: 30
+estimated_minutes: 50
 xp: 250
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A ticketing site shows the seat map of a concert (read 50,000 times a second when sales open, changed every time a seat is sold) and the artist page (read often, edited a few times a day). Design the caching for both: layers, pattern, TTLs, invalidation, and what happens at 10:00:00 when sales open and the cache is cold. Say how stale each may be and why.'
+  criteria:
+    - 'Treats the two differently: the artist page can be cached long (CDN or Redis with invalidation), the seat map only briefly or with versioned updates'
+    - 'Uses cache-aside or read-through with delete on write and a TTL safety net, aware of the race'
+    - 'Prevents a stampede at opening: pre-warming, single flight or stale-while-revalidate'
+    - 'Handles the hot key (one concert) with a local cache or replicated keys'
+    - 'Keeps the final seat purchase on the database with a correctness check, not on the cache'

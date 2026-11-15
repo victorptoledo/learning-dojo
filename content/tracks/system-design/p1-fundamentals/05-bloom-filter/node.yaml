@@ -1,0 +1,52 @@
+id: system-design.p1.bloom-filter
+kind: kata
+status: draft
+title: "Bloom Filter"
+summary: "A Bloom filter with double hashing, sized from the expected items and the false-positive rate, with no false negatives."
+objectives:
+  - { id: o1, text: "Implement a Bloom filter with double hashing over a bit set", skills: [system-design.storage-engines] }
+  - { id: o2, text: "Size the filter from n and p and estimate its false-positive rate as it fills", skills: [system-design.storage-engines] }
+prerequisites: [system-design.p1.storage-engines]
+difficulty: 2
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      The whole filter is a bit array and a rule that turns an item into `k` positions. Write a private `position(h, i)` first; `add` sets the `k` positions and `mightContain` returns `false` as soon as one of them is 0. What must stay the same between `add` and `mightContain` for there to be no false negatives?
+    - |-
+      Keep a `BitSet bits`, the size `m`, `k` and a `long added`. The positions are `(int) Math.floorMod(h[0] + i * h[1], (long) m)` with `h = Hashing.hash128(item)`. Sizing: `m = (int) Math.ceil(-n * Math.log(p) / (Math.log(2) * Math.log(2)))` (check it fits an `int` first) and `k = max(1, Math.round(m / (double) n * Math.log(2)))`.
+    - |-
+      ```java
+      public boolean mightContain(String item) {
+          long[] h = Hashing.hash128(item);
+          for (int i = 0; i < hashes; i++) {
+              if (!bits.get(position(h, i))) return false;
+          }
+          return true;
+      }
+
+      public double expectedFalsePositiveRate() {
+          if (added == 0) return 0;
+          return Math.pow(1 - Math.exp(-hashes * (double) added / size), hashes);
+      }
+
+      private int position(long[] h, int i) {
+          return (int) Math.floorMod(h[0] + i * h[1], (long) size);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.
