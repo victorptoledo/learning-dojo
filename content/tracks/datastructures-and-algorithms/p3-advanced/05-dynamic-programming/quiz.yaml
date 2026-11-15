@@ -1,0 +1,30 @@
+questions:
+  - id: two-properties
+    prompt: "Which two properties make a problem a good fit for dynamic programming?"
+    options: ["Sorted input and small values", "Overlapping subproblems and optimal substructure", "Recursion and randomness", "Graphs and heaps"]
+    answer: 1
+    explanation: "The same subproblems recur, and the best answer is built from best answers to subproblems."
+  - id: dp-cost
+    prompt: "A DP has states dp[i][j] for i < 1,000 and j < 1,000, each computed from 3 earlier states. What is its time?"
+    options: ["O(1,000)", "About 3 million steps: states × work per state", "O(2^1000)", "O(1,000 log 1,000)"]
+    answer: 1
+    explanation: "One million states times constant work each."
+  - id: memo-vs-table
+    prompt: "What is a practical difference between top-down memoisation and bottom-up tabulation?"
+    options: ["Memoisation is always faster", "Memoisation computes only the states it needs but uses recursion depth; tabulation needs an order but no recursion and allows rolling rows", "Tabulation cannot handle two dimensions", "There is none"]
+    answer: 1
+    explanation: "Both visit each state once; they differ in which states, stack use and memory tricks."
+  - id: knapsack-direction
+    prompt: "In one-row 0/1 knapsack, why must the capacity loop run from high to low?"
+    options: ["It is faster", "So best[c - w] still holds the value from before this item, and the item is not used twice", "To sort the items", "It does not matter"]
+    answer: 1
+    explanation: "Running upwards would reuse the item already counted at a smaller capacity: that is the unbounded knapsack."
+  - id: lis-fast
+    prompt: "What is the best known time for the length of the longest increasing subsequence of n values?"
+    options: ["O(n²)", "O(n log n), with a tails array and binary search", "O(n)", "O(2ⁿ)"]
+    answer: 1
+    explanation: "The plain DP is O(n²); keeping the smallest tail per length and binary-searching it gives n log n."
+  - id: edit-distance
+    prompt: "What is the Levenshtein (edit) distance between \"flaw\" and \"lawn\"?"
+    answers: ["2", "two"]
+    explanation: "Delete f and insert n: two edits."

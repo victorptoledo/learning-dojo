@@ -1,0 +1,31 @@
+questions:
+  - id: index-cost
+    prompt: "Why is reading a[i] O(1) in an array?"
+    options: ["The JVM caches every element", "The address is base + i × element size, computed in one step", "Arrays are hash tables", "Only for small arrays"]
+    answer: 1
+    explanation: "Elements are contiguous and the same size, so the address is a multiplication and an addition."
+  - id: insert-middle
+    prompt: "What does inserting one element at the front of an array-backed list of n elements cost?"
+    options: ["O(1)", "O(log n)", "O(n)", "O(n²)"]
+    answer: 2
+    explanation: "Every existing element shifts one slot to the right."
+  - id: prefix-range
+    prompt: "With prefix[k] = a[0] + ... + a[k-1], what is the sum of a[i..j] inclusive?"
+    options: ["prefix[j] - prefix[i]", "prefix[j + 1] - prefix[i]", "prefix[j] - prefix[i - 1]", "prefix[j + 1] + prefix[i]"]
+    answer: 1
+    explanation: "prefix[j + 1] includes a[j]; subtracting prefix[i] removes everything before a[i]."
+  - id: string-plus
+    prompt: "In Java, what happens on `s = s + c` for a String s of length n?"
+    options: ["c is appended in place", "A new String of length n + 1 is created and n characters are copied", "The old string is resized", "Nothing until the string is printed"]
+    answer: 1
+    explanation: "Strings are immutable; a loop of these is O(n²). Use StringBuilder."
+  - id: anagram-count
+    prompt: "Two lowercase ASCII words are anagrams. What is the fastest typical check?"
+    options: ["Sort both and compare: O(n log n)", "Count letters in an int[26]: O(n)", "Compare every permutation", "Compare their hash codes"]
+    answer: 1
+    explanation: "Counting is linear; hash codes can collide and sorting adds a log factor."
+  - id: code-points
+    prompt: "Why can `s.length()` differ from the number of characters a user sees?"
+    options: ["Java strings are null-terminated", "length() counts UTF-16 code units; characters outside the Basic Multilingual Plane, like many emoji, take two", "length() counts bytes", "It never differs"]
+    answer: 1
+    explanation: "A surrogate pair is two chars but one code point; use codePoints() when it matters."

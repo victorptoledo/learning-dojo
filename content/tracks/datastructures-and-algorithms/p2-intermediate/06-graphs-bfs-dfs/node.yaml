@@ -1,0 +1,25 @@
+id: datastructures-and-algorithms.p2.graphs-bfs-dfs
+legacy_id: dsa-02-graphs-bfs-dfs
+kind: lesson
+status: draft
+title: "Graphs: BFS, DFS and Topological Sort"
+summary: "Model relationships as graphs, store them as adjacency lists, traverse them with BFS and DFS, find shortest paths in unweighted graphs, detect cycles, count connected components, and order dependencies with topological sort."
+objectives:
+  - { id: o1, text: "Model a problem as a directed or undirected graph and choose an adjacency list or matrix", skills: [datastructures-and-algorithms.graphs-bfs-dfs] }
+  - { id: o2, text: "Use BFS for unweighted shortest paths and levels, and DFS for reachability, components and cycle detection", skills: [datastructures-and-algorithms.graphs-bfs-dfs] }
+  - { id: o3, text: "Order a DAG with Kahn's algorithm or DFS finishing times, and detect when no order exists", skills: [datastructures-and-algorithms.graphs-bfs-dfs] }
+prerequisites: [datastructures-and-algorithms.p2.heap-and-trees]
+difficulty: 3
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A company has 3,000 microservices. Each service declares the services it calls, and a deployment tool must (1) find, for a failing service, every service that could be affected (anything that calls it directly or indirectly), (2) give the fewest hops between two services for a tracing UI, (3) decide a safe order to start all services so that every service starts after the ones it calls, and (4) report a circular dependency with the services on the cycle. Model the graph (direction of the edges, representation, memory for about 20,000 edges), choose the algorithm for each question with its cost, and say what changes if the graph is stored in a database instead of memory.'
+  criteria:
+    - 'Models a directed graph as adjacency lists (a Map from service to callers or callees), with O(V + E) memory; explains the edge direction chosen'
+    - '(1) BFS or DFS over the reverse edges (callers) from the failing service, O(V + E)'
+    - '(2) BFS from the source, which gives the fewest hops in an unweighted graph, O(V + E)'
+    - '(3) Topological sort (Kahn with in-degrees, or DFS post-order reversed); services with no dependencies start first'
+    - '(4) Cycle detection: Kahn leaves nodes unprocessed, or DFS finds a back edge to a node on the current path (gray), and the path gives the cycle'

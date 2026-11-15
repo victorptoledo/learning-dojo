@@ -1,4 +1,17 @@
 namespace: datastructures-and-algorithms
 skills:
+  - { id: datastructures-and-algorithms.complexity, title: "Big-O, Amortised Analysis and Dynamic Arrays" }
+  - { id: datastructures-and-algorithms.arrays-strings, title: "Arrays, Strings and Their Costs" }
   - { id: datastructures-and-algorithms.hash-tables, title: "Hash Tables Inside: Hash Functions, Collisions and Load Factor" }
-  - { id: datastructures-and-algorithms.graphs-bfs-dfs, title: "Graphs: BFS, DFS and Dijkstra" }
+  - { id: datastructures-and-algorithms.linear-structures, title: "Linked Lists, Stacks, Queues and Deques" }
+  - { id: datastructures-and-algorithms.two-pointers, title: "Two Pointers, Sliding Windows and Prefix Sums" }
+  - { id: datastructures-and-algorithms.sorting-searching, title: "Sorting and Binary Search" }
+  - { id: datastructures-and-algorithms.recursion-backtracking, title: "Recursion, Divide and Conquer and Backtracking" }
+  - { id: datastructures-and-algorithms.trees-heaps, title: "Trees, Binary Search Trees and Heaps" }
+  - { id: datastructures-and-algorithms.graphs-bfs-dfs, title: "Graphs: BFS, DFS and Topological Sort" }
+  - { id: datastructures-and-algorithms.shortest-paths, title: "Shortest Paths, Union-Find and Spanning Trees" }
+  - { id: datastructures-and-algorithms.tries, title: "Tries and Prefix Search" }
+  - { id: datastructures-and-algorithms.dynamic-programming, title: "Dynamic Programming" }
+  - { id: datastructures-and-algorithms.greedy, title: "Greedy Algorithms" }
+  - { id: datastructures-and-algorithms.bit-manipulation, title: "Bit Manipulation" }
+  - { id: datastructures-and-algorithms.problem-solving, title: "Solving Problems Out Loud" }

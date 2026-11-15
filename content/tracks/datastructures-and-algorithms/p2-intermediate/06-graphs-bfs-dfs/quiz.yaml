@@ -1,0 +1,31 @@
+questions:
+  - id: adjacency-memory
+    prompt: "A road network has 1,000,000 intersections and 3,000,000 roads. Which representation fits in memory?"
+    options: ["An adjacency matrix", "Adjacency lists", "Either", "Neither"]
+    answer: 1
+    explanation: "A matrix needs 10¹² cells; lists need O(V + E), a few million entries."
+  - id: bfs-cost
+    prompt: "What does a BFS over a graph with V vertices and E edges cost?"
+    options: ["O(V)", "O(E log V)", "O(V + E)", "O(V × E)"]
+    answer: 2
+    explanation: "Each vertex is enqueued once and each edge examined once (twice if undirected)."
+  - id: visited-when
+    prompt: "In BFS, when should a node be marked visited?"
+    options: ["When it is dequeued", "When it is enqueued", "At the end", "Never"]
+    answer: 1
+    explanation: "Marking on enqueue stops the same node from being queued many times by different neighbours."
+  - id: dfs-cycle
+    prompt: "In a directed graph, a DFS reaches a neighbour that is still on the current recursion path (gray). What does it mean?"
+    options: ["Nothing special", "There is a cycle", "The graph is disconnected", "The neighbour is a leaf"]
+    answer: 1
+    explanation: "An edge back to an ancestor on the path closes a cycle; edges to finished (black) nodes do not."
+  - id: topo-order
+    prompt: "Which graphs have a topological order?"
+    options: ["All directed graphs", "Exactly the directed acyclic graphs (DAGs)", "Only trees", "Only undirected graphs"]
+    answer: 1
+    explanation: "A cycle has no node that can go first; every DAG has at least one order."
+  - id: components
+    prompt: "How do you count the connected components of an undirected graph?"
+    options: ["Count the edges", "Start a BFS or DFS from every unvisited node and count how many you start", "Sort the nodes", "Run Dijkstra"]
+    answer: 1
+    explanation: "Each traversal marks exactly one component; union-find (next phase) is an alternative."

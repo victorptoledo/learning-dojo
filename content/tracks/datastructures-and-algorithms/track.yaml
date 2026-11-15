@@ -4,9 +4,9 @@ name: "Data Structures & Algorithms"
 archetype: language
 category: "CS Fundamentals"
 icon: "🧠"
-description: "Essential data structures and algorithmic techniques: trees, graphs, hash tables and dynamic programming."
+description: "The data structures and algorithmic techniques behind every library and every coding interview: Big-O and amortised cost, arrays, hashing, lists, stacks and queues, two pointers and sliding windows, sorting and binary search, recursion and backtracking, trees and heaps, graphs, union-find, tries, dynamic programming, greedy algorithms and bits. Each structure is tied to where the JDK and real systems use it, and practised as Java katas whose hidden tests also check the running time."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Array Iterator" }
   - { name: "Yellow Belt", required_xp: 300, title: "LinkedList Traverser" }
@@ -16,8 +16,22 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "Algorithm Virtuoso" }
   - { name: "Sensei", required_xp: 6000, title: "Knuth Disciple" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Read code in Big-O, reason about amortised cost and build a growable array" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Arrays and strings, hash tables, linked lists, stacks and queues, two pointers and sliding windows" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Sorting and binary search, recursion and backtracking, trees and heaps, and graph traversal" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Shortest paths and union-find, tries, and dynamic programming from memoisation to tables" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Greedy algorithms, bit manipulation and solving a problem out loud in an interview" }
+requirements:
+  - kind: tool
+    name: JDK 25 (java)
+    command: java
+    version_args: ["--version"]
+    min_version: "25"
+    required: false
+    why: Runs the katas and their visible tests in VS Code. The grading checks run in Docker and do not need it.
+    install_hint: "install Temurin 25: winget install EclipseAdoptium.Temurin.25.JDK, then reopen the terminal"
+  - kind: vscode-extension
+    name: Extension Pack for Java
+    id: vscjava.vscode-java-pack
+    required: false
+    why: Shows errors as you type and adds the Run Test and Debug buttons to JUnit tests.

@@ -1,0 +1,46 @@
+id: datastructures-and-algorithms.p3.autocomplete
+kind: kata
+status: draft
+title: "Autocomplete"
+summary: "A trie with word frequencies, O(prefix length) prefix counts, top-k suggestions, and removal that prunes the branches nobody needs."
+objectives:
+  - { id: o1, text: "Implement a trie whose nodes count the words below them, so prefix queries cost O(prefix length)", skills: [datastructures-and-algorithms.tries] }
+  - { id: o2, text: "Rank suggestions with a bounded heap and remove words while pruning empty branches", skills: [datastructures-and-algorithms.tries, datastructures-and-algorithms.trees-heaps] }
+prerequisites: [datastructures-and-algorithms.p3.tries]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Every operation starts the same way: walk from the root, one character per level. `countWithPrefix` must stop right there, after the prefix, so the answer must already be stored in the node you reach. What number would that node need to hold, and when exactly does it change?
+    - |-
+      Give each node `Map<Character, Node> children`, `long frequency` and `int words` (distinct words ending in its subtree). In `add`, first check whether the word is new (`frequency(word) == 0`); only then add 1 to `words` on the root and every node of the path. In `remove`, subtract 1 along the path, and as soon as a child's `words` reaches 0, remove that child from its parent's map: its whole subtree is unused. Keep a node counter, and subtract the size of the removed subtree.
+    - |-
+      ```java
+      // keep the best k: the WORST of them sits at the head so it can be evicted
+      Comparator<Hit> bestFirst = Comparator.comparingLong(Hit::frequency).reversed()
+              .thenComparing(Hit::word);
+      PriorityQueue<Hit> best = new PriorityQueue<>(bestFirst.reversed());
+      // ... for every word found under the prefix node:
+      best.add(new Hit(word, node.frequency));
+      if (best.size() > k) best.poll();
+      // at the end
+      List<Hit> hits = new ArrayList<>(best);
+      hits.sort(bestFirst);
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

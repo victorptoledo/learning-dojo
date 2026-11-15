@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p1.linked-lists-stacks-queues
+kind: lesson
+status: draft
+title: "Linked Lists, Stacks, Queues and Deques"
+summary: "Singly and doubly linked lists and what they are really good for, the classic pointer techniques, stacks and queues as abstract types, circular buffers, deques, and monotonic stacks and queues."
+objectives:
+  - { id: o1, text: "State the costs of linked list operations and pick between a linked list and an array-backed list", skills: [datastructures-and-algorithms.linear-structures] }
+  - { id: o2, text: "Use stacks, queues and deques for matching, undo, BFS and buffering, and implement them on a circular array", skills: [datastructures-and-algorithms.linear-structures] }
+  - { id: o3, text: "Apply the linked list techniques interviews ask for: reversal, fast and slow pointers, a dummy head", skills: [datastructures-and-algorithms.linear-structures] }
+prerequisites: [datastructures-and-algorithms.p1.hash-map]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You are designing three small components of a text editor backend: (1) undo and redo of edits, (2) a buffer that holds the last 10,000 keystrokes for crash recovery and drops the oldest when full, and (3) a check that the brackets in a file are balanced. For each, choose the abstract type (stack, queue, deque) and the concrete Java class or structure, give the cost of the main operations, and explain why java.util.LinkedList and java.util.Stack are not your first choice. Then explain how you would detect that a corrupted singly linked list of edit records loops back on itself, using O(1) extra memory.'
+  criteria:
+    - 'Undo/redo: two stacks (ArrayDeque used as stacks); a new edit clears the redo stack; push and pop are O(1)'
+    - 'Keystroke buffer: a fixed-size circular buffer (ring) with head and tail indexes modulo the capacity, O(1) add and evict, no allocation per keystroke'
+    - 'Brackets: a stack of opening brackets; a closing bracket must match the top; the stack must be empty at the end'
+    - 'Explains that ArrayDeque is a cache-friendly circular array, LinkedList allocates a node per element, and Stack is a synchronized Vector'
+    - 'Cycle detection with fast and slow pointers (Floyd): they meet if and only if there is a cycle, using O(1) memory'

@@ -1,0 +1,31 @@
+questions:
+  - id: first-step
+    prompt: "What should you do first when you get a coding problem in an interview?"
+    options: ["Start coding the optimal solution", "Restate the problem and ask clarifying questions about inputs, outputs and edge cases", "Ask for the answer", "Write tests"]
+    answer: 1
+    explanation: "Clarifying avoids solving the wrong problem and shows how you work with requirements."
+  - id: brute-force
+    prompt: "Why state a brute-force solution before optimising?"
+    options: ["Interviewers want the slowest answer", "It proves you understand the problem, gives a fallback, and shows where the time goes", "It is always enough", "It saves time writing tests"]
+    answer: 1
+    explanation: "The bottleneck of the brute force usually points at the technique that removes it."
+  - id: signal-sorted
+    prompt: "The input is sorted and you need a pair with a property. Which technique should come to mind first?"
+    options: ["Dynamic programming", "Two pointers or binary search", "Backtracking", "Union-find"]
+    answer: 1
+    explanation: "Sorted input lets you discard candidates in O(1) (two pointers) or halve the range (binary search)."
+  - id: signal-topk
+    prompt: "\"Return the k most frequent items\" most directly suggests which structures?"
+    options: ["A hash map for counts and a heap of size k (or bucket sort)", "A trie", "A stack", "A linked list"]
+    answer: 0
+    explanation: "Count in O(n), then select the top k in O(n log k)."
+  - id: test-by-hand
+    prompt: "After writing the code, what is the most convincing way to check it in an interview?"
+    options: ["Say it looks right", "Trace it on a small example and on edge cases (empty, one element, duplicates, extremes), out loud", "Rewrite it", "Ask the interviewer to run it"]
+    answer: 1
+    explanation: "Tracing finds off-by-one errors and shows rigour; fix bugs calmly when you find them."
+  - id: stuck
+    prompt: "You are stuck and the interviewer gives a hint. What is the best reaction?"
+    options: ["Ignore it to show independence", "Acknowledge it, say how it changes your approach, and continue thinking aloud", "Stop and wait for more hints", "Start over in another language"]
+    answer: 1
+    explanation: "Using hints well is part of collaboration, which is what the interviewer is assessing."

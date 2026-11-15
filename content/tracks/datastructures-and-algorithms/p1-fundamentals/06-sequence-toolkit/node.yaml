@@ -1,0 +1,48 @@
+id: datastructures-and-algorithms.p1.sequence-toolkit
+kind: kata
+status: draft
+title: "Sequence Toolkit"
+summary: "Six linear-time problems on arrays and strings: two pointers, a sliding window, a monotonic stack, bracket matching and prefix sums with a hash map."
+objectives:
+  - { id: o1, text: "Replace nested loops with two pointers and sliding windows that move each index at most once", skills: [datastructures-and-algorithms.two-pointers] }
+  - { id: o2, text: "Use a stack for matching and next-greater problems, and prefix sums with a hash map for subarray sums", skills: [datastructures-and-algorithms.linear-structures, datastructures-and-algorithms.two-pointers] }
+prerequisites: [datastructures-and-algorithms.p1.two-pointers-sliding-window]
+difficulty: 2
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Each method has an obvious O(n²) answer with two nested loops, and the hidden tests use 200,000 elements, so that answer runs out of time. For each one, ask: what do I know after looking at index i that lets me never look at an earlier index again? Sorted input, a window that only grows on the right and shrinks on the left, and a stack of "still waiting" indexes are the three usual answers.
+    - |-
+      `pairWithSum`: one pointer at each end; move the left one right when the sum is too small, the right one left when it is too big. `longestUniqueRun`: remember the last index of each character; when you see a repeat inside the window, jump the left edge past it. `nextGreater`: keep a stack of indexes whose answer is unknown; a new value pops (and answers) every smaller value on top. `countSubarraysWithSum`: a subarray `(i, j]` sums to `k` when `prefix[j] - prefix[i] == k`, so count earlier prefixes equal to `prefix - k` in a `HashMap<Long, Integer>`.
+    - |-
+      ```java
+      public static int[] nextGreater(int[] values) {
+          int[] answer = new int[values.length];
+          Arrays.fill(answer, -1);
+          Deque<Integer> waiting = new ArrayDeque<>(); // indexes, values decreasing from bottom to top
+          for (int i = 0; i < values.length; i++) {
+              while (!waiting.isEmpty() && values[waiting.peek()] < values[i]) {
+                  answer[waiting.pop()] = values[i];
+              }
+              waiting.push(i);
+          }
+          return answer;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

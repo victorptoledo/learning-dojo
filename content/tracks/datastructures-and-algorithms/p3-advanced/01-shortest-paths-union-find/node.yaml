@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p3.shortest-paths-union-find
+kind: lesson
+status: draft
+title: "Shortest Paths, Union-Find and Spanning Trees"
+summary: "Dijkstra with a priority queue, why negative edges need Bellman-Ford, 0-1 BFS and A*, union-find with path compression and union by size, and minimum spanning trees with Kruskal and Prim."
+objectives:
+  - { id: o1, text: "Choose BFS, Dijkstra, 0-1 BFS, Bellman-Ford or A* for a shortest-path problem and state the cost", skills: [datastructures-and-algorithms.shortest-paths] }
+  - { id: o2, text: "Implement union-find with path compression and union by size and use it for dynamic connectivity", skills: [datastructures-and-algorithms.shortest-paths] }
+  - { id: o3, text: "Compute a minimum spanning tree with Kruskal or Prim and explain the cut property behind them", skills: [datastructures-and-algorithms.shortest-paths, datastructures-and-algorithms.greedy] }
+prerequisites: [datastructures-and-algorithms.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A logistics company models its network as 50,000 depots and 400,000 one-way routes, each with a travel time in minutes. It needs (1) the fastest route from a depot to all others, recomputed when traffic changes, (2) the cheapest set of fibre links that connects all depots for a new data network, given possible links with costs, (3) a live answer to "are these two depots in the same region?" while regions are merged during the day, and (4) a promotion that gives some routes a negative "cost" (a discount). For each, name the algorithm and data structure, give the time cost, and explain why it is correct; for (4), explain what goes wrong with Dijkstra and what to use instead.'
+  criteria:
+    - '(1) Dijkstra with a binary heap (PriorityQueue with lazy deletion), O((V + E) log V); correct because the smallest tentative distance is final when weights are non-negative'
+    - '(2) Minimum spanning tree with Kruskal (sort edges, union-find) in O(E log E), or Prim with a heap; justified by the cut property'
+    - '(3) Union-find with path compression and union by size: near-constant amortised time per merge and query'
+    - '(4) Explains that negative edges break Dijkstra''s "settled is final" assumption; uses Bellman-Ford O(V·E), which also detects negative cycles'
+    - 'Mentions reconstructing paths with a parent array and that a heap entry with an outdated distance must be skipped'

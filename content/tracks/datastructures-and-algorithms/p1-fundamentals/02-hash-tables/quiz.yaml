@@ -1,0 +1,31 @@
+questions:
+  - id: contract
+    prompt: "Which rule must hashCode and equals follow for a HashMap to work?"
+    options: ["Different objects must have different hash codes", "Equal objects must have equal hash codes", "hashCode must be unique per JVM", "equals must compare hash codes"]
+    answer: 1
+    explanation: "Collisions between different objects are allowed; equal objects with different hashes break lookups."
+  - id: bucket-index
+    prompt: "A table has 1,024 buckets. How does java.util.HashMap pick a bucket from the spread hash h?"
+    options: ["h % 1000", "h & 1023", "h >> 10", "Math.abs(h) / 1024"]
+    answer: 1
+    explanation: "With a power-of-two size, the low bits select the bucket: h & (n − 1), cheaper than a modulo."
+  - id: mutable-key
+    prompt: "You put a key in a HashMap and then change a field used by its hashCode. What happens to map.get(key)?"
+    options: ["It finds it, HashMap rehashes automatically", "It usually misses: the entry sits in the bucket of the old hash", "It throws ConcurrentModificationException", "It returns a random value"]
+    answer: 1
+    explanation: "The map never learns about the change; use immutable keys."
+  - id: open-addressing
+    prompt: "What is open addressing?"
+    options: ["Each bucket holds a linked list", "Colliding keys are placed in other slots of the same array, found by probing", "Keys are stored in a tree", "The table is shared between threads"]
+    answer: 1
+    explanation: "Linear or quadratic probing (or Robin Hood hashing) keeps everything in one array; Python's dict works this way."
+  - id: rehash-cost
+    prompt: "A HashMap with load factor 0.75 doubles when full. What is the amortised cost of put?"
+    options: ["O(n) every time", "O(1) amortised: doubling makes the total rehashing O(n)", "O(log n)", "O(n²)"]
+    answer: 1
+    explanation: "Same argument as the dynamic array: each resize is paid for by the inserts since the previous one."
+  - id: treeify
+    prompt: "What does Java 8+ HashMap do when one bucket collects many colliding keys?"
+    options: ["Throws an exception", "Converts that bucket into a red-black tree, making lookups in it O(log n)", "Doubles the table forever", "Rejects new keys"]
+    answer: 1
+    explanation: "Above 8 entries (with at least 64 buckets) a bin becomes a tree; this limits damage from bad hashes and hash flooding."

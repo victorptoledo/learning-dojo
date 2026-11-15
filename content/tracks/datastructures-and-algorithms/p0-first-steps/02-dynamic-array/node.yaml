@@ -1,0 +1,52 @@
+id: datastructures-and-algorithms.p0.dynamic-array
+kind: kata
+status: draft
+title: "Dynamic Array"
+summary: "A growable array like ArrayList: doubling on growth, halving at a quarter full, and the amortised O(1) append the hidden tests time."
+objectives:
+  - { id: o1, text: "Implement a dynamic array whose append is amortised O(1) by growing geometrically", skills: [datastructures-and-algorithms.complexity] }
+  - { id: o2, text: "Shrink without thrashing and keep index checks and shifting correct", skills: [datastructures-and-algorithms.complexity] }
+prerequisites: [datastructures-and-algorithms.p0.complexity]
+difficulty: 1
+estimated_minutes: 40
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Keep two fields: an `Object[]` for the slots and an `int size` for how many are used. The capacity is just the length of the array. What must happen in `add` when `size == elements.length`, and how much bigger must the new array be so that a million appends copy only about a million elements in total?
+    - |-
+      Write one private `resize(int newCapacity)` that copies with `Arrays.copyOf(elements, newCapacity)`. `add` calls `resize(elements.length * 2)` when full. `removeLast` and `remove` call `resize(elements.length / 2)` when, after removing, `size <= elements.length / 4` and the capacity is above 4. Shrinking at a half instead of a quarter would resize on every add/remove pair at the boundary.
+    - |-
+      ```java
+      public void add(int index, T value) {
+          if (index < 0 || index > size) throw new IndexOutOfBoundsException(index);
+          if (size == elements.length) resize(elements.length * 2);
+          System.arraycopy(elements, index, elements, index + 1, size - index);
+          elements[index] = value;
+          size++;
+      }
+
+      public T remove(int index) {
+          checkIndex(index);
+          T old = elementAt(index);
+          System.arraycopy(elements, index + 1, elements, index, size - index - 1);
+          elements[--size] = null; // do not keep the object alive
+          shrinkIfSparse();
+          return old;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

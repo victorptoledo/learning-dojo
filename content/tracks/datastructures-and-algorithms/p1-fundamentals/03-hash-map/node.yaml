@@ -1,0 +1,51 @@
+id: datastructures-and-algorithms.p1.hash-map
+kind: kata
+status: draft
+title: "Hash Map"
+summary: "A separate-chaining hash map with power-of-two buckets, the JDK's hash spreading, resizing at load factor 0.75, and keys whose hash codes collide on purpose."
+objectives:
+  - { id: o1, text: "Implement put, get and remove over bucket chains, using hashCode to find the bucket and equals to find the key", skills: [datastructures-and-algorithms.hash-tables] }
+  - { id: o2, text: "Keep lookups O(1) on average by spreading hash bits and resizing at a load factor", skills: [datastructures-and-algorithms.hash-tables, datastructures-and-algorithms.complexity] }
+prerequisites: [datastructures-and-algorithms.p1.hash-tables]
+difficulty: 2
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Each bucket holds a small singly linked list of entries (key, value, next). Every operation has the same first two steps: which bucket does this key go to, and is there already an entry in that chain whose key `equals` this one? Which of the two steps uses `hashCode` and which uses `equals`?
+    - |-
+      With a power-of-two bucket count, `index = spread(key.hashCode()) & (buckets.length - 1)` where `spread(h) = h ^ (h >>> 16)`. Without the spread, keys like `i * 65536` all share their low 16 bits and land in bucket 0. After a `put` that adds a new key, if `size > buckets.length * 3 / 4`, allocate twice the buckets and move every entry to its new index.
+    - |-
+      ```java
+      public V put(K key, V value) {
+          requireKey(key);
+          int index = indexFor(key, buckets.length);
+          for (Entry<K, V> e = buckets[index]; e != null; e = e.next) {
+              if (e.key.equals(key)) {
+                  V old = e.value;
+                  e.value = value;
+                  return old;
+              }
+          }
+          buckets[index] = new Entry<>(key, value, buckets[index]);
+          size++;
+          if (size > buckets.length * 3L / 4) resize();
+          return null;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

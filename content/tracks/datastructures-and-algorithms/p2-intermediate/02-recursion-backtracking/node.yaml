@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p2.recursion-backtracking
+kind: lesson
+status: draft
+title: "Recursion, Divide and Conquer and Backtracking"
+summary: "Write recursion from a base case and a smaller subproblem, estimate its cost with recursion trees and the master theorem, know the call stack's limits, split problems with divide and conquer, and search spaces of choices with backtracking and pruning."
+objectives:
+  - { id: o1, text: "Write correct recursive functions and estimate their time and stack depth", skills: [datastructures-and-algorithms.recursion-backtracking] }
+  - { id: o2, text: "Apply divide and conquer and read its cost from the recurrence, for example T(n) = 2T(n/2) + O(n)", skills: [datastructures-and-algorithms.recursion-backtracking, datastructures-and-algorithms.sorting-searching] }
+  - { id: o3, text: "Solve subset, permutation and constraint problems with choose-explore-unchoose backtracking and pruning", skills: [datastructures-and-algorithms.recursion-backtracking] }
+prerequisites: [datastructures-and-algorithms.p2.sorting-binary-search]
+difficulty: 3
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A scheduling tool must assign 12 talks to 3 rooms and 4 time slots so that no speaker gives two talks at the same time and each talk fits its room size. A colleague wrote a recursive function that tries every assignment, and it never finishes. Explain how many assignments a naive search explores, design a backtracking search (the state, the choice at each level, what you undo, and at least two pruning rules), say how deep the recursion gets and whether that is a stack problem, and explain how you would turn the same function into "count all valid schedules" and "stop at the first one".'
+  criteria:
+    - 'Estimates the naive search space (12 talks over 12 room-slot cells: up to 12! ≈ 479 million orderings, or 12^12 if cells can repeat) and why it is too slow'
+    - 'Defines the state (which talks are placed where), one decision per level (the next talk or the next cell), and undoes the choice after the recursive call'
+    - 'Prunes early: reject a placement that breaks a constraint immediately, place the most constrained talks first, skip symmetric rooms'
+    - 'Notes that the recursion depth is only 12, so the stack is not a problem; the breadth is'
+    - 'Counting returns the sum of the children; stopping at the first solution returns true up the call chain as soon as one is found'

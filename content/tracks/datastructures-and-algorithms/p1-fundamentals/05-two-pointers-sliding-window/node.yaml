@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p1.two-pointers-sliding-window
+kind: lesson
+status: draft
+title: "Two Pointers, Sliding Windows and Prefix Sums"
+summary: "Turn O(n²) scans into O(n): opposite-end and same-direction pointers, fixed and variable sliding windows with their invariant, and prefix sums with a hash map for subarray counts."
+objectives:
+  - { id: o1, text: "Apply opposite-end and same-direction two pointers, and explain why each index moves at most n times", skills: [datastructures-and-algorithms.two-pointers] }
+  - { id: o2, text: "Write fixed and variable sliding windows around an explicit invariant, and know when a window does not apply", skills: [datastructures-and-algorithms.two-pointers] }
+  - { id: o3, text: "Count or find subarrays with a target sum using prefix sums and a hash map, including negative values", skills: [datastructures-and-algorithms.two-pointers, datastructures-and-algorithms.hash-tables] }
+prerequisites: [datastructures-and-algorithms.p1.linked-lists-stacks-queues]
+difficulty: 2
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A payments team needs three reports over a day of transactions (about 5 million rows, ordered by time): (a) the length of the longest run of consecutive transactions in which no card number repeats, (b) the shortest run of consecutive transactions whose amounts (all positive) add up to at least 10,000 euros, and (c) how many runs of consecutive balance changes (positive and negative) sum to exactly zero. For each, name the technique, state the invariant or the key equation, give the time and memory, and explain why a naive solution does not fit in a nightly batch. Then say which of the three would break if amounts could be negative in (b), and why.'
+  criteria:
+    - '(a) Variable sliding window with a map or set of cards in the window; the left edge jumps past the previous occurrence; O(n) time, O(distinct cards) memory'
+    - '(b) Variable window that grows on the right and shrinks on the left while the sum is at least the target; O(n) time, O(1) memory'
+    - '(c) Prefix sums with a hash map counting earlier prefixes; a run sums to zero when two prefixes are equal; O(n) time and memory'
+    - 'Explains that the naive O(n²) solution is about 10^13 steps for 5 million rows'
+    - 'Explains that (b) relies on positive amounts: with negatives, shrinking can increase the sum, so the window invariant fails (a deque of prefix sums or another technique is needed)'

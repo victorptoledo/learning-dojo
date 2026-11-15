@@ -1,0 +1,211 @@
+# Technical interview questions for the datastructures-and-algorithms track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/datastructures-and-algorithms"
+  - "https://www.techinterviewhandbook.org/algorithms/study-cheatsheet/"
+  - "https://algs4.cs.princeton.edu/home/"
+  - "https://cp-algorithms.com/"
+  - "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/"
+questions:
+  - id: big-o-explain
+    level: junior
+    skills: [datastructures-and-algorithms.complexity]
+    question: "What does Big-O notation describe, and what are the time complexities of searching an unsorted array, a sorted array and a HashMap?"
+    key_points:
+      - "How the running time (or memory) grows with the input size, ignoring constants and smaller terms"
+      - "Unsorted array: O(n) scan; sorted array: O(log n) with binary search"
+      - "HashMap: O(1) expected, O(n) or O(log n) worst case per bucket"
+      - "Distinguishes worst case, average case and amortised cost"
+    follow_up: "Why is ArrayList.add O(1) even though it sometimes copies the whole array?"
+  - id: arraylist-vs-linkedlist
+    level: junior
+    skills: [datastructures-and-algorithms.linear-structures, datastructures-and-algorithms.arrays-strings]
+    question: "When would you choose a LinkedList over an ArrayList in Java, and why is the answer 'almost never'?"
+    key_points:
+      - "ArrayList: O(1) indexing, amortised O(1) append, O(n) insert in the middle"
+      - "LinkedList: O(1) insert/remove only next to a node you already hold; O(n) to find it"
+      - "Arrays are cache friendly; linked nodes are scattered and each costs an object header"
+      - "For queues and stacks, ArrayDeque beats both"
+    follow_up: "Where does the JDK itself use a doubly linked list to good effect?"
+  - id: valid-brackets
+    level: junior
+    skills: [datastructures-and-algorithms.linear-structures]
+    question: "How would you check that a string of brackets like \"{[()]}\" is balanced? Walk me through the algorithm and its cost."
+    key_points:
+      - "Push opening brackets on a stack; a closing bracket must match the top, which is popped"
+      - "Fail on a mismatch or on a closing bracket with an empty stack"
+      - "Succeed only if the stack is empty at the end"
+      - "O(n) time, O(n) memory in the worst case; use ArrayDeque, not Stack"
+    follow_up: "How would you report the position of the first error to the user?"
+  - id: two-sum
+    level: junior
+    skills: [datastructures-and-algorithms.hash-tables, datastructures-and-algorithms.two-pointers]
+    question: "Given an array of integers and a target, find two indexes whose values sum to the target. Give two different solutions with their costs."
+    key_points:
+      - "Brute force over all pairs is O(n²)"
+      - "One pass with a HashMap from value to index: look up target − value, O(n) time and memory"
+      - "If the array is sorted (or you sort pairs with indexes), two pointers from both ends: O(n) after an O(n log n) sort, O(1) extra memory"
+      - "Mentions overflow of the sum and duplicates"
+    follow_up: "How does it change if you must return all pairs without duplicates?"
+  - id: hashmap-internals
+    level: mid
+    skills: [datastructures-and-algorithms.hash-tables]
+    question: "Explain how java.util.HashMap works internally: from put(key, value) to get(key), including collisions, resizing and the worst case."
+    key_points:
+      - "hashCode is spread (h ^ h >>> 16) and masked with (capacity − 1) to pick a bucket"
+      - "Collisions are chained in the bucket; equals finds the key"
+      - "Resizes (doubles) when size exceeds capacity × load factor (0.75); amortised O(1)"
+      - "Buckets with more than 8 entries become red-black trees (with capacity ≥ 64)"
+      - "equals and hashCode must be consistent, and keys must not be mutated"
+    follow_up: "How would you make a HashMap safe for concurrent writers, and what does ConcurrentHashMap do differently?"
+  - id: lru-cache
+    level: mid
+    skills: [datastructures-and-algorithms.hash-tables, datastructures-and-algorithms.linear-structures]
+    question: "Design an LRU cache with O(1) get and put. Which data structures do you combine, and how would you do it with the JDK?"
+    key_points:
+      - "A hash map from key to node plus a doubly linked list in recency order"
+      - "get moves the node to the front; put inserts at the front and evicts from the back when full"
+      - "Both operations O(1)"
+      - "In Java: LinkedHashMap with accessOrder = true and removeEldestEntry"
+    follow_up: "What changes if the cache is shared by many threads, or entries also expire after a TTL?"
+  - id: sliding-window
+    level: mid
+    skills: [datastructures-and-algorithms.two-pointers]
+    question: "Find the length of the longest substring without repeating characters. Explain why your solution is linear."
+    key_points:
+      - "Variable sliding window with the last index (or count) of each character"
+      - "When a repeat appears inside the window, move the left edge past its previous occurrence"
+      - "Both edges only move forward, so total work is O(n)"
+      - "Memory O(alphabet) with an array, or O(distinct) with a map"
+    follow_up: "How would you find the shortest window that contains all characters of another string?"
+  - id: binary-search-bugs
+    level: mid
+    skills: [datastructures-and-algorithms.sorting-searching]
+    question: "Write (or describe) a binary search that returns the first position of a value in a sorted array with duplicates. What are the classic bugs?"
+    key_points:
+      - "States an invariant such as 'the answer is in [lo, hi]' and keeps it in both branches"
+      - "lowerBound: if a[mid] < target then lo = mid + 1 else hi = mid"
+      - "Midpoint overflow: use lo + (hi − lo) / 2 or (lo + hi) >>> 1"
+      - "Off-by-one and infinite loops when the range does not shrink"
+    follow_up: "How would you use binary search when there is no array, for example to find a minimum capacity?"
+  - id: sorting-choice
+    level: mid
+    skills: [datastructures-and-algorithms.sorting-searching]
+    question: "Which sorting algorithms does the JDK use, why are they different for primitives and objects, and when would you not sort at all?"
+    key_points:
+      - "Primitives: dual-pivot quicksort; objects: TimSort, which is stable"
+      - "Stability matters for objects (multi-key sorts), not for primitives"
+      - "TimSort is O(n) on already sorted runs; O(n log n) worst case"
+      - "Do not sort for top k (heap), k-th element (quickselect), membership (hash set) or small key ranges (counting sort)"
+    follow_up: "Why can no comparison sort beat O(n log n)?"
+  - id: top-k-frequent
+    level: mid
+    skills: [datastructures-and-algorithms.trees-heaps, datastructures-and-algorithms.hash-tables]
+    question: "Return the k most frequent words in a large list of words. Compare at least two approaches."
+    key_points:
+      - "Count with a HashMap in O(n)"
+      - "Min-heap of size k over the counts: O(n log k)"
+      - "Alternatively bucket sort by frequency (O(n)) or quickselect"
+      - "Sorting all distinct words is O(m log m) and wasteful when k is small; tie-breaking needs a comparator"
+    follow_up: "What if the words arrive as an endless stream and memory is limited?"
+  - id: validate-bst
+    level: mid
+    skills: [datastructures-and-algorithms.trees-heaps, datastructures-and-algorithms.recursion-backtracking]
+    question: "How do you check that a binary tree is a valid binary search tree, and what goes wrong with the obvious solution?"
+    key_points:
+      - "Checking only each node against its direct children is wrong: every node must respect all its ancestors"
+      - "Pass (min, max) bounds down the recursion, or check that an in-order traversal is strictly increasing"
+      - "O(n) time; O(height) stack, which can be O(n) for degenerate trees"
+      - "Mentions an iterative version with an explicit stack and care with Integer.MIN/MAX bounds"
+    follow_up: "Why does a plain BST become slow on sorted input, and how do TreeMap and databases avoid it?"
+  - id: heap-vs-treemap
+    level: mid
+    skills: [datastructures-and-algorithms.trees-heaps]
+    question: "PriorityQueue or TreeMap: what can each do, what are the costs, and when would you choose which?"
+    key_points:
+      - "PriorityQueue: binary heap, O(1) peek, O(log n) add/poll, O(n) search or remove of an arbitrary element, builds in O(n)"
+      - "TreeMap: red-black tree, O(log n) for everything including floor, ceiling, ranges and both ends"
+      - "Heap for 'repeatedly take the best'; TreeMap for ordered queries or updates of arbitrary keys"
+      - "The heap's iteration order is not sorted"
+    follow_up: "How would you keep the running median of a stream?"
+  - id: number-of-islands
+    level: mid
+    skills: [datastructures-and-algorithms.graphs-bfs-dfs]
+    question: "Count the islands in a grid of land and water cells. Which traversal do you use, and what are the costs and pitfalls?"
+    key_points:
+      - "Treat cells as graph nodes with up to 4 neighbours; each unvisited land cell starts a new island"
+      - "Flood fill with BFS or DFS, marking cells as visited"
+      - "O(rows × cols) time and memory"
+      - "Recursive DFS can overflow the stack on large grids; use a queue or an explicit stack"
+    follow_up: "What if land cells are added one at a time and you must report the count after each addition?"
+  - id: topological-sort
+    level: mid
+    skills: [datastructures-and-algorithms.graphs-bfs-dfs]
+    question: "A build tool must run tasks after their dependencies. How do you compute an order, and how do you detect a circular dependency?"
+    key_points:
+      - "Model a DAG with edges from dependency to dependent"
+      - "Kahn's algorithm: in-degrees, a queue of ready tasks, decrement on completion; O(V + E)"
+      - "If fewer than V tasks are ordered, the remainder sits on a cycle"
+      - "DFS alternative: post-order reversed, cycle = edge to a node on the current path"
+    follow_up: "How would you run independent tasks in parallel and compute the minimum total time?"
+  - id: dijkstra
+    level: senior
+    skills: [datastructures-and-algorithms.shortest-paths]
+    question: "Explain Dijkstra's algorithm, why it is correct, how you implement it with Java's PriorityQueue, and when it fails."
+    key_points:
+      - "Settles the closest unsettled node and relaxes its edges; uses a priority queue of tentative distances"
+      - "Correct because with non-negative weights no later path can be shorter than the settled one"
+      - "PriorityQueue has no decrease-key: push duplicates and skip outdated entries (lazy deletion)"
+      - "O((V + E) log V); fails with negative weights (use Bellman-Ford), and A* speeds it up with a heuristic"
+    follow_up: "How do map services answer shortest-path queries on continent-sized graphs in milliseconds?"
+  - id: union-find
+    level: senior
+    skills: [datastructures-and-algorithms.shortest-paths]
+    question: "What is union-find, which two optimisations make it fast, and which problems does it solve better than BFS or DFS?"
+    key_points:
+      - "Disjoint sets as a forest of parent pointers; find returns the root, union links two roots"
+      - "Union by size or rank keeps trees shallow; path compression flattens them on find"
+      - "Together almost O(1) amortised per operation (inverse Ackermann)"
+      - "Best for connectivity that only grows: online components, cycle detection while adding edges, Kruskal, merging accounts"
+    follow_up: "Why can union-find not easily support deleting an edge?"
+  - id: dp-approach
+    level: senior
+    skills: [datastructures-and-algorithms.dynamic-programming]
+    question: "How do you recognise a dynamic programming problem and get from a brute-force recursion to an efficient solution? Use an example such as coin change."
+    key_points:
+      - "Overlapping subproblems and optimal substructure"
+      - "Define the state, the recurrence and the base cases (coin change: fewest[a] = 1 + min over coins of fewest[a − coin])"
+      - "Memoise the recursion, then tabulate in a valid order; cost = states × work per state"
+      - "Shows why greedy fails ({1, 3, 4} for 6) and how to reconstruct the coins used"
+    follow_up: "How would you reduce memory for a two-dimensional DP such as edit distance?"
+  - id: lis
+    level: senior
+    skills: [datastructures-and-algorithms.dynamic-programming, datastructures-and-algorithms.sorting-searching]
+    question: "Find the length of the longest strictly increasing subsequence. Give the O(n²) and the O(n log n) solutions and explain why the faster one works."
+    key_points:
+      - "O(n²): lis[i] = 1 + max lis[j] for j < i with a[j] < a[i]"
+      - "O(n log n): tails[k] = smallest last value of an increasing subsequence of length k + 1"
+      - "Each value replaces the first tail ≥ it (lower bound) or extends the array; tails stays sorted"
+      - "The tails array is not itself a valid subsequence; reconstruction needs parent indexes"
+    follow_up: "How would you return the subsequence itself, not just its length?"
+  - id: greedy-intervals
+    level: senior
+    skills: [datastructures-and-algorithms.greedy]
+    question: "Given meeting intervals, how do you find the maximum number of non-overlapping meetings and the minimum number of rooms for all of them? Justify the greedy choices."
+    key_points:
+      - "Max non-overlapping: sort by end time, take each meeting that starts after the last taken ends"
+      - "Exchange argument: an optimal schedule can swap in the earliest-ending meeting without losing any"
+      - "Min rooms: sort by start, min-heap of end times (or sweep starts and ends); answer = maximum overlap"
+      - "Both O(n log n); weighted versions need DP"
+    follow_up: "Give a counterexample to 'take the shortest meeting first'."
+  - id: bits-and-sets
+    level: senior
+    skills: [datastructures-and-algorithms.bit-manipulation]
+    question: "Show a few bit manipulation techniques you would use in production or interviews, and the Java pitfalls around them."
+    key_points:
+      - "Test, set and clear bits with masks; x & (x − 1) clears the lowest bit; x & −x isolates it"
+      - "XOR cancels pairs (find the single element); bitCount is a single instruction"
+      - "Bitmasks as small sets for subset enumeration and bitmask DP; EnumSet and BitSet in the JDK"
+      - "Pitfalls: signed integers, >> vs >>>, 1 << 40 on an int, shift distances masked mod 32/64"
+    follow_up: "How do Bloom filters and bitmap indexes use bits to save memory and time?"

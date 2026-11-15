@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p1.arrays-strings
+kind: lesson
+status: draft
+title: "Arrays, Strings and Their Costs"
+summary: "Why arrays give O(1) indexing and fast scans, what inserting in the middle costs, how 2D arrays and prefix sums work, and how strings are stored, compared, built and hashed."
+objectives:
+  - { id: o1, text: "State the cost of indexing, scanning, inserting and deleting in an array, and use prefix sums for range queries", skills: [datastructures-and-algorithms.arrays-strings] }
+  - { id: o2, text: "Explain string immutability, builders, character encodings and why counting with an int[26] or a map beats sorting", skills: [datastructures-and-algorithms.arrays-strings] }
+  - { id: o3, text: "Recognise array and string patterns in interview problems: frequency counts, in-place reversal and reading in place", skills: [datastructures-and-algorithms.arrays-strings] }
+prerequisites: [datastructures-and-algorithms.p0.dynamic-array]
+difficulty: 1
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An API returns the hourly request counts of the last year as an int array (8,760 values). The dashboard asks thousands of times per second for the total between hour a and hour b, and a second endpoint must report whether two product names are anagrams of each other (case-insensitive, letters only, names up to 200 characters, any Unicode letters possible). Design both: the data you precompute, the cost of building it and of each query, and the pitfalls (overflow, Unicode, immutability) you would watch for in Java.'
+  criteria:
+    - 'Precomputes a prefix-sum array of length n + 1 in O(n) and answers each range in O(1) as prefix[b + 1] - prefix[a]'
+    - 'Uses long for the prefix sums to avoid int overflow'
+    - 'Counts characters with a map (or an int[26] only if restricted to ASCII letters) in O(n) instead of sorting in O(n log n)'
+    - 'Handles case and Unicode: normalises case with a locale-independent method and works on code points rather than chars'
+    - 'Avoids building strings with + in a loop; uses StringBuilder or no new strings at all'

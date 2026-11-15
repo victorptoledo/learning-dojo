@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p0.complexity
+kind: lesson
+status: draft
+title: "Big-O, Amortised Analysis and Dynamic Arrays"
+summary: "Read the cost of code in Big-O, know the common growth rates and what they mean at a million items, and see why appending to a dynamic array is O(1) on average."
+objectives:
+  - { id: o1, text: "Derive the Big-O time and space of simple code and compare growth rates at realistic sizes", skills: [datastructures-and-algorithms.complexity] }
+  - { id: o2, text: "Explain amortised cost with the doubling array, and tell worst-case, average and amortised bounds apart", skills: [datastructures-and-algorithms.complexity] }
+  - { id: o3, text: "Know where Big-O stops being enough: constants, memory locality and input sizes", skills: [datastructures-and-algorithms.complexity] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 40
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A colleague wrote a method that removes duplicates from a list of 500,000 customer ids by looping over the list and, for each id, checking `result.contains(id)` on an ArrayList before adding it. The batch job now takes minutes. Give the Big-O time of the method and explain where it comes from, estimate how many basic operations it performs, propose a faster version with its Big-O time and extra memory, and explain why `ArrayList.add` at the end is not the problem even though it sometimes copies the whole array.'
+  criteria:
+    - 'Identifies the nested linear scan (contains on a list) as O(n²) overall'
+    - 'Estimates roughly n²/2 ≈ 10^11 comparisons for 500,000 ids and relates it to minutes of run time'
+    - 'Proposes a HashSet (or LinkedHashSet to keep order) giving O(n) expected time and O(n) extra memory'
+    - 'Explains amortised O(1) append: geometric growth makes the total copying O(n)'
+    - 'Mentions an alternative such as sorting first (O(n log n)) and its trade-off'

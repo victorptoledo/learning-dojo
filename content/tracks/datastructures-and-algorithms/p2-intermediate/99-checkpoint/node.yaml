@@ -1,0 +1,51 @@
+id: datastructures-and-algorithms.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz on sorting, binary search, recursion, trees, heaps and graph traversal, and a build planner with topological order, cycle detection and the critical path."
+objectives:
+  - { id: o1, text: "Explain sorting and searching costs, recursion and backtracking, tree and heap operations, and BFS, DFS and topological sort", skills: [datastructures-and-algorithms.sorting-searching, datastructures-and-algorithms.recursion-backtracking, datastructures-and-algorithms.trees-heaps, datastructures-and-algorithms.graphs-bfs-dfs] }
+  - { id: o2, text: "Build a dependency planner with Kahn's algorithm and a priority queue, an iterative DFS for cycles, and longest paths in a DAG", skills: [datastructures-and-algorithms.graphs-bfs-dfs, datastructures-and-algorithms.trees-heaps] }
+prerequisites: [datastructures-and-algorithms.p2.graphs-bfs-dfs]
+difficulty: 3
+estimated_minutes: 90
+xp: 400
+closes_phase: p2
+covers_skills: [datastructures-and-algorithms.sorting-searching, datastructures-and-algorithms.recursion-backtracking, datastructures-and-algorithms.trees-heaps, datastructures-and-algorithms.graphs-bfs-dfs]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Draw the tasks as a graph with an edge from each dependency to the task that needs it. "In which order can they run" is a topological sort; "is there a cycle" is the case where the sort gets stuck; "when can it finish" is the longest path to the task, which is easy once you visit tasks in topological order. What do you have to keep so that the next ready task is always the alphabetically smallest?
+    - |-
+      Compute one cached analysis per change: a `Map<String, List<String>>` of dependents, a count of unfinished dependencies per task, and Kahn's algorithm with a `PriorityQueue<String>` of ready names. While you pop a task, its finish time is its duration plus the maximum finish of its dependencies, which are all done already. If the order has fewer tasks than the planner, there is a cycle. For `findCycle`, run a DFS with an explicit stack and a map from each task on the current path to its position in it.
+    - |-
+      ```java
+      PriorityQueue<String> ready = new PriorityQueue<>();
+      waiting.forEach((name, count) -> { if (count == 0) ready.add(name); });
+      while (!ready.isEmpty()) {
+          String name = ready.poll();
+          long start = 0;
+          for (String dep : tasks.get(name).dependsOn()) start = Math.max(start, finish.get(dep));
+          finish.put(name, start + tasks.get(name).duration());
+          order.add(name);
+          for (String next : dependents.getOrDefault(name, List.of())) {
+              if (waiting.merge(next, -1, Integer::sum) == 0) ready.add(next);
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

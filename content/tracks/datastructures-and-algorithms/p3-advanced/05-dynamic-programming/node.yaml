@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p3.dynamic-programming
+kind: lesson
+status: draft
+title: "Dynamic Programming"
+summary: "Recognise overlapping subproblems and optimal substructure, go from a brute-force recursion to memoisation and then to a table, reduce memory to a row, and know the classic families: sequences, grids, knapsack, strings and intervals."
+objectives:
+  - { id: o1, text: "Turn a brute-force recursion into a memoised one and then into a bottom-up table, keeping state, recurrence and base cases explicit", skills: [datastructures-and-algorithms.dynamic-programming] }
+  - { id: o2, text: "Estimate DP cost as number of states times work per state, and reduce memory with rolling rows", skills: [datastructures-and-algorithms.dynamic-programming] }
+  - { id: o3, text: "Recognise the classic DP families and rebuild the actual solution, not just its value", skills: [datastructures-and-algorithms.dynamic-programming] }
+prerequisites: [datastructures-and-algorithms.p3.autocomplete]
+difficulty: 4
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A cloud cost tool must choose which of 300 optional jobs to run tonight. Each job needs a whole number of CPU-hours (1 to 500) and brings a business value; the cluster has 40,000 CPU-hours. A colleague''s recursive solution "take or skip each job" works for 20 jobs and hangs for 300. Explain why, define the DP state, recurrence and base case, give the time and memory of the table and how to cut memory to one row, explain how to recover which jobs were chosen, and say what changes if each job could run any number of times. Finally, explain why sorting jobs by value per CPU-hour and taking the best first is not correct here.'
+  criteria:
+    - 'Explains that take-or-skip explores 2^300 branches and repeats the same (job, remaining capacity) subproblems'
+    - 'Defines best[i][c] = best value using the first i jobs within capacity c, with best[i][c] = max(best[i-1][c], best[i-1][c - w_i] + v_i) and best[0][c] = 0'
+    - 'Gives O(n · C) = 300 × 40,000 = 12 million cells; one row of C + 1 values when iterating capacity from high to low'
+    - 'Recovers the chosen jobs by keeping the full table (or a choice bitset) and walking back from best[n][C]'
+    - 'Unbounded version iterates capacity from low to high; greedy by ratio fails for 0/1 knapsack (it is only optimal for the fractional version)'

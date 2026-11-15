@@ -1,0 +1,31 @@
+questions:
+  - id: lower-bound-sort
+    prompt: "Why can no comparison sort beat O(n log n) in the worst case?"
+    options: ["Computers are too slow", "There are n! orderings, and each comparison at best halves the possibilities, so at least log₂(n!) ≈ n log n comparisons are needed", "Memory is limited", "Only quicksort is that fast"]
+    answer: 1
+    explanation: "The decision-tree argument: a binary tree with n! leaves has height at least log₂(n!)."
+  - id: jdk-primitive
+    prompt: "Which algorithm does Arrays.sort(int[]) use in the JDK?"
+    options: ["TimSort", "Dual-pivot quicksort", "Bubble sort", "Radix sort only"]
+    answer: 1
+    explanation: "Primitives use dual-pivot quicksort (stability is meaningless for them); objects use stable TimSort."
+  - id: comparator-overflow
+    prompt: "What is wrong with the comparator `(a, b) -> a.price - b.price` for int prices?"
+    options: ["Nothing", "The subtraction can overflow and give the wrong sign; use Integer.compare(a.price, b.price)", "Comparators must return booleans", "It sorts in reverse"]
+    answer: 1
+    explanation: "A large positive minus a large negative overflows int; Comparator.comparingInt avoids it."
+  - id: counting-sort
+    prompt: "Ten million exam scores between 0 and 100 need sorting. What is fastest?"
+    options: ["Merge sort", "Counting sort: count each score and write them back, O(n + k)", "Quicksort", "Insertion sort"]
+    answer: 1
+    explanation: "A small key range makes a linear sort possible; it does not compare elements."
+  - id: midpoint
+    prompt: "Why write the midpoint as `lo + (hi - lo) / 2` or `(lo + hi) >>> 1` in Java?"
+    options: ["It is faster", "`(lo + hi) / 2` can overflow int for large indexes", "It rounds up", "Java requires it"]
+    answer: 1
+    explanation: "This exact bug sat in the JDK's binarySearch for years before it was fixed in 2006."
+  - id: search-on-answer
+    prompt: "\"Find the smallest speed at which all tasks finish within H hours.\" Which approach fits?"
+    options: ["Try every speed from 1 upwards", "Binary search on the speed, checking each candidate in O(n)", "Sort the tasks and take the median", "Dynamic programming over hours"]
+    answer: 1
+    explanation: "Feasibility is monotonic in speed, so binary search finds the boundary in O(n log maxSpeed)."

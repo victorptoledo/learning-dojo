@@ -1,0 +1,30 @@
+questions:
+  - id: sorted-pair
+    prompt: "In a sorted array, two pointers start at both ends looking for a pair with a target sum. The current sum is too small. What do you do?"
+    options: ["Move the right pointer left", "Move the left pointer right", "Move both", "Restart from the middle"]
+    answer: 1
+    explanation: "Only a larger left value can raise the sum; every pair with the old left value and a smaller right value is too small too."
+  - id: why-linear
+    prompt: "Why is a sliding window O(n) even though the left edge moves inside a loop over the right edge?"
+    options: ["The inner loop runs once", "Each edge only moves forward, so together they move at most 2n times", "The JIT unrolls it", "It is O(n log n)"]
+    answer: 1
+    explanation: "Count total moves, not loop nesting: neither pointer ever goes back."
+  - id: fixed-window
+    prompt: "What is the best way to compute the average of every window of k consecutive values?"
+    options: ["Sum each window from scratch: O(n·k)", "Keep a running sum: add the entering value, subtract the leaving one", "Sort the array", "Use binary search"]
+    answer: 1
+    explanation: "Each step changes the sum by two values, so all windows cost O(n)."
+  - id: prefix-zero
+    prompt: "Prefix sums of an array are [0, 3, 1, 4, 1]. How many non-empty subarrays sum to zero?"
+    answers: ["1", "one"]
+    explanation: "A subarray sums to zero when two prefix sums are equal: the two 1s give exactly one pair."
+  - id: dedupe-sorted
+    prompt: "Removing duplicates from a sorted array in place uses which pointers?"
+    options: ["Two pointers from both ends", "A read pointer and a slower write pointer in the same direction", "A stack", "A hash map"]
+    answer: 1
+    explanation: "The read pointer scans; the write pointer only advances when it sees a new value."
+  - id: window-precondition
+    prompt: "For which problem is a simple variable sliding window NOT valid?"
+    options: ["Longest substring without repeated characters", "Shortest subarray of positive numbers with sum ≥ k", "Shortest subarray with sum ≥ k when values can be negative", "Longest run with at most two distinct values"]
+    answer: 2
+    explanation: "With negatives, shrinking the window can increase the sum, so the window's monotonic behaviour breaks."

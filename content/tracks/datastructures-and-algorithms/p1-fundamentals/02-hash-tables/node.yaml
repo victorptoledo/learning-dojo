@@ -1,0 +1,25 @@
+id: datastructures-and-algorithms.p1.hash-tables
+legacy_id: dsa-01-hash-tables
+kind: lesson
+status: draft
+title: "Hash Tables Inside: Hash Functions, Collisions and Load Factor"
+summary: "How maps reach O(1) lookups: hash functions and the equals/hashCode contract, separate chaining and open addressing, load factor and rehashing, worst cases and hash flooding, and what java.util.HashMap actually does."
+objectives:
+  - { id: o1, text: "Explain how a key becomes a bucket index and why equals and hashCode must agree", skills: [datastructures-and-algorithms.hash-tables] }
+  - { id: o2, text: "Compare separate chaining and open addressing, and explain load factor, rehashing and their amortised cost", skills: [datastructures-and-algorithms.hash-tables] }
+  - { id: o3, text: "Recognise the worst cases (bad hashes, mutable keys, hash flooding) and how HashMap defends against them", skills: [datastructures-and-algorithms.hash-tables] }
+prerequisites: [datastructures-and-algorithms.p1.arrays-strings]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A service caches user sessions in a HashMap keyed by a `SessionKey` class with fields `userId` (long) and `device` (String). After a release, lookups miss for sessions that are clearly in the map, and a profiler later shows one bucket with thousands of entries. The new SessionKey overrides equals but its hashCode returns `device.length()`, and the code sometimes changes `device` on a key after inserting it. Explain each symptom, write the hashCode and equals you would use (in words or code), say what the load factor and initial capacity should be for about 2 million sessions, and explain what HashMap does when one bucket gets very long.'
+  criteria:
+    - 'Explains that mutating a key after insertion leaves it in a bucket chosen by its old hash, so lookups miss; keys must be immutable (a record is a good fit)'
+    - 'Explains that hashCode = device.length() gives few distinct values, so many keys collide in the same buckets and lookups degrade towards O(n)'
+    - 'Proposes equals and hashCode over both fields (for example Objects.hash or a record) and states the contract: equal objects must have equal hash codes'
+    - 'Sizes the map: with load factor 0.75, about 2,000,000 / 0.75 ≈ 2.7 million buckets, so new HashMap<>(2_700_000) or HashMap.newHashMap(2_000_000)'
+    - 'Mentions treeification: Java 8+ turns a bucket with more than 8 entries into a red-black tree when the table has at least 64 buckets, so the worst case per bucket becomes O(log n)'

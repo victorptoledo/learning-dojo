@@ -1,0 +1,31 @@
+questions:
+  - id: list-insert-known
+    prompt: "In a doubly linked list, which operation is O(1)?"
+    options: ["Finding the middle element", "Removing a node you already hold a reference to", "Reading the element at index i", "Binary search"]
+    answer: 1
+    explanation: "Unlink it by updating its neighbours' pointers; the expensive part is usually finding the node."
+  - id: lifo
+    prompt: "Which structure gives back the most recently added element first?"
+    options: ["Queue", "Stack", "Priority queue", "Hash set"]
+    answer: 1
+    explanation: "A stack is last in, first out (LIFO); a queue is first in, first out (FIFO)."
+  - id: ring-buffer
+    prompt: "In a circular buffer of capacity 8 with head at index 6 and 4 elements, at which index does the next element go?"
+    options: ["10", "2", "0", "6"]
+    answer: 1
+    explanation: "(head + size) mod capacity = (6 + 4) mod 8 = 2."
+  - id: floyd
+    prompt: "How do fast and slow pointers detect a cycle in a linked list?"
+    options: ["The fast pointer reaches null", "The fast pointer (two steps) eventually meets the slow pointer (one step) inside the cycle", "They count the nodes", "They compare node values"]
+    answer: 1
+    explanation: "Inside a cycle the gap between them shrinks by one per step, so they must meet; without a cycle, fast reaches null."
+  - id: dummy-head
+    prompt: "Why do many linked list solutions start with a dummy (sentinel) node before the head?"
+    options: ["It makes the list faster", "Inserting or deleting at the head becomes the same code as anywhere else", "Java requires it", "It stores the length"]
+    answer: 1
+    explanation: "With a sentinel, every real node has a predecessor, so there is no special case for the head."
+  - id: monotonic-deque
+    prompt: "What does a monotonic deque give you for a sliding window?"
+    options: ["The window sorted", "The window's maximum (or minimum) in O(1), with amortised O(1) updates", "The median of the window", "The sum of the window"]
+    answer: 1
+    explanation: "It keeps only candidates in decreasing order; each element enters and leaves once."

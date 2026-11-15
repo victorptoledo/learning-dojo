@@ -8,6 +8,7 @@ stages:
     requires:
       - { track: backend, phase: p2 }
       - { track: sql, phase: p2 }
+      - { track: datastructures-and-algorithms, phase: p2 }
       - { any_of: [{ track: go, phase: p2 }, { track: java, phase: p2 }, { track: rust, phase: p2 }, { track: python, phase: p2 }] }
   - id: s2
     title: "Contracts and containers"

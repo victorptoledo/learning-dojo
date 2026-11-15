@@ -1,0 +1,31 @@
+questions:
+  - id: power-of-two
+    prompt: "Which expression is true exactly when a positive int n is a power of two?"
+    options: ["(n & 1) == 0", "(n & (n - 1)) == 0", "(n | (n - 1)) == 0", "(n ^ 1) == 0"]
+    answer: 1
+    explanation: "A power of two has one set bit; n − 1 flips it and all lower bits, so the AND is 0."
+  - id: lowest-bit
+    prompt: "What does `x & -x` give?"
+    options: ["The highest set bit", "The lowest set bit of x, as a value", "Zero", "The absolute value of x"]
+    answer: 1
+    explanation: "In two's complement, -x = ~x + 1, which keeps only the lowest set bit in common with x; Fenwick trees use it."
+  - id: unsigned-shift
+    prompt: "In Java, what is `-8 >> 1` compared with `-8 >>> 1`?"
+    options: ["Both are -4", "-4 (sign kept) and a large positive number (zero filled)", "Both are 4", "A compile error"]
+    answer: 1
+    explanation: ">> is an arithmetic shift that copies the sign bit; >>> shifts in zeros."
+  - id: xor-single
+    prompt: "Every value in an array appears twice except one. How do you find it in O(n) time and O(1) memory?"
+    options: ["Sort and scan", "XOR all values: pairs cancel and the single one remains", "Sum them", "Use a HashSet"]
+    answer: 1
+    explanation: "x ^ x = 0 and x ^ 0 = x, and XOR is commutative and associative."
+  - id: shift-overflow
+    prompt: "What is wrong with `long mask = 1 << 40;` in Java?"
+    options: ["Nothing", "1 is an int, so the shift is done on 32 bits (distance taken mod 32) before widening: write 1L << 40", "Shifts over 32 are illegal", "It throws at run time"]
+    answer: 1
+    explanation: "The int 1 << 40 equals 1 << 8 = 256; the literal must be a long."
+  - id: subsets-mask
+    prompt: "How many iterations does `for (int mask = 0; mask < (1 << n); mask++)` run, and what does it enumerate?"
+    options: ["n, the elements", "2ⁿ, every subset of n elements (bit i = element i is in)", "n², all pairs", "n!, all orders"]
+    answer: 1
+    explanation: "Each mask is one subset; bitmask DP builds on this."

@@ -1,0 +1,48 @@
+questions:
+  - id: concat-loop
+    skills: [datastructures-and-algorithms.arrays-strings]
+    prompt: "A loop runs `result = result + line` for 100,000 lines of 80 characters. Why is it slow in Java?"
+    options: ["String concatenation uses locks", "Strings are immutable, so each step copies everything built so far: O(n²) characters copied", "The JIT cannot compile loops", "Strings are stored as linked lists"]
+    answer: 1
+    explanation: "Each new String copies the old one; a StringBuilder appends in amortised O(1)."
+  - id: equals-hashcode
+    skills: [datastructures-and-algorithms.hash-tables]
+    prompt: "A class overrides `equals` but not `hashCode`. Two equal objects are used as keys in a HashMap. What happens?"
+    options: ["They share one entry", "They usually land in different buckets, so the map holds both and get may miss", "The map throws an exception", "Nothing, HashMap only uses equals"]
+    answer: 1
+    explanation: "The bucket comes from hashCode; equal objects with different hash codes are never compared."
+  - id: load-factor
+    skills: [datastructures-and-algorithms.hash-tables]
+    prompt: "What is the load factor of a hash table with 1,536 entries in 2,048 buckets?"
+    answers: ["0.75", ".75", "75%", "3/4"]
+    explanation: "Entries divided by buckets: 1,536 / 2,048 = 0.75, the point where java.util.HashMap doubles."
+  - id: linked-list-get
+    skills: [datastructures-and-algorithms.linear-structures]
+    prompt: "Which operation is O(n) on a doubly linked list but O(1) on an array list?"
+    options: ["Adding at the front", "get(i) by index", "Removing a node you already hold", "Adding at the end"]
+    answer: 1
+    explanation: "A linked list must walk i nodes; an array computes the address of slot i."
+  - id: deque-choice
+    skills: [datastructures-and-algorithms.linear-structures]
+    prompt: "Which JDK class is the usual choice for a stack or a queue in single-threaded code?"
+    options: ["java.util.Stack", "java.util.LinkedList", "java.util.ArrayDeque", "java.util.Vector"]
+    answer: 2
+    explanation: "ArrayDeque is a circular array: O(1) at both ends, cache friendly, no locks; Stack is a synchronized Vector."
+  - id: window-negatives
+    skills: [datastructures-and-algorithms.two-pointers]
+    prompt: "A sliding window finds the shortest subarray with sum ≥ k. Why does it fail when values can be negative?"
+    options: ["Negative numbers overflow", "Shrinking the window from the left can then increase the sum, so the invariant 'shrinking only lowers the sum' breaks", "Windows need sorted input", "It does not fail"]
+    answer: 1
+    explanation: "With only positive values, adding grows the sum and removing shrinks it; negatives break that monotonicity."
+  - id: prefix-count
+    skills: [datastructures-and-algorithms.two-pointers, datastructures-and-algorithms.hash-tables]
+    prompt: "To count subarrays with sum exactly k in O(n), what do you store in a hash map while scanning the prefix sums?"
+    options: ["Each prefix sum and how many times it has occurred", "The maximum sum seen", "The indexes of negative values", "Every subarray"]
+    answer: 0
+    explanation: "A subarray ending here sums to k when an earlier prefix equals prefix − k; the map counts those."
+  - id: monotonic-stack
+    skills: [datastructures-and-algorithms.linear-structures, datastructures-and-algorithms.two-pointers]
+    prompt: "A monotonic stack computes the next greater element of n values. Why is it O(n) although it has a loop inside a loop?"
+    options: ["The inner loop runs at most once", "Each index is pushed once and popped at most once, so all inner iterations together are at most n", "The JIT removes the inner loop", "It is O(n log n)"]
+    answer: 1
+    explanation: "Amortised counting: total pops cannot exceed total pushes."
