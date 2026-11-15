@@ -33,6 +33,7 @@ const RECOMMENDED_EXTENSIONS: [&str; 11] = [
     "ms-python.python",
     "charliermarsh.ruff",
     "golang.go",
+    "typescriptteam.native-preview",
 ];
 
 #[derive(Debug, Clone)]

@@ -1,0 +1,58 @@
+id: typescript.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz and an integration kata, an order pipeline with derived union types, as const satisfies tables, typed events, custom errors and limited concurrency."
+objectives:
+  - { id: o1, text: "Explain derived and conditional types, enums vs unions, satisfies, ES modules, async code and error handling in your own words", skills: [typescript.utility-conditional, typescript.enums-modules, typescript.async-errors] }
+  - { id: o2, text: "Build a multi-module pipeline that derives its types from constants and survives partial failures", skills: [typescript.enums-modules, typescript.async-errors, typescript.unions-narrowing] }
+prerequisites: [typescript.p2.retry]
+difficulty: 3
+estimated_minutes: 80
+xp: 350
+closes_phase: p2
+covers_skills: [typescript.utility-conditional, typescript.enums-modules, typescript.async-errors]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 90 }
+  hints:
+    - |-
+      Start in `status.ts`: once `OrderStatus` is a real union and `TRANSITIONS` keeps its literal types, half of the type tests pass. Which type operator turns `ORDER_STATUSES` into a union? What does `as const satisfies Record<OrderStatus, readonly OrderStatus[]>` check that a plain annotation would not keep?
+    - |-
+      `type OrderStatus = (typeof ORDER_STATUSES)[number]`. In `orders.ts`, a small table from event type to target status (`{ pay: "paid", ... } as const satisfies Record<OrderEvent["type"], OrderStatus>`) makes `apply` short: look up the target, check `canTransition`, then spread the order into a new object and add `trackingId` or `cancelReason` by switching on `event.type`. `summarize` starts from `Object.fromEntries(ORDER_STATUSES.map((s) => [s, 0]))`. `processAll` is the worker pool from the retry kata, but each worker catches its own errors and stores an outcome per index.
+    - |-
+      ```ts
+      type Outcome = { id: string; ok: true; order: Order } | { id: string; ok: false; error: Error };
+
+      export async function processAll(ids, load, event, { concurrency = 4 } = {}): Promise<ProcessResult> {
+        const outcomes = new Array<Outcome>(ids.length);
+        let next = 0;
+        const worker = async () => {
+          while (next < ids.length) {
+            const index = next;
+            next += 1;
+            const id = ids[index] as string;
+            try {
+              outcomes[index] = { id, ok: true, order: apply(await load(id), event) };
+            } catch (error) {
+              // store { id, ok: false, error } with error turned into an Error
+            }
+          }
+        };
+        // start the workers, wait for them, then split outcomes into updated and failed
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

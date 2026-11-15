@@ -1,0 +1,42 @@
+questions:
+  - id: only-tsc
+    prompt: "Which tool in this list type-checks your code?"
+    options: ["esbuild", "Node.js type stripping", "tsc", "Vite"]
+    answer: 2
+    explanation: "Runtimes and bundlers only strip types; type-checking is a separate tsc step."
+  - id: library
+    prompt: "Which strategy fits a library published to npm?"
+    options:
+      - "Publish the .ts sources only"
+      - "Compile with tsc to .js plus .d.ts files and point package.json exports at them"
+      - "Bundle everything with the dependencies into one file"
+    answer: 1
+    explanation: "Node refuses to strip types under node_modules, and consumers need declaration files."
+  - id: ts7-api
+    prompt: "Why does typescript-eslint need @typescript/typescript6 in a TypeScript 7 project?"
+    options:
+      - "TypeScript 7 cannot type-check JavaScript"
+      - "TypeScript 7.0 ships no programmatic API yet, and typescript-eslint imports the compiler as a library"
+      - "ESLint is written in Go"
+    answer: 1
+    explanation: "The new API is planned for 7.1; until then tools that need the API use the 6.0 package."
+  - id: rewrite
+    prompt: "Sources import `./money.ts` and you compile them to dist/. Which option makes the output import `./money.js`?"
+    answers: ["rewriteRelativeImportExtensions"]
+    explanation: "It rewrites relative .ts extensions to .js in the emitted code."
+  - id: pin
+    prompt: "Why pin the TypeScript version in devDependencies?"
+    options:
+      - "Newer versions are slower"
+      - "A new version can report new errors; that should happen in a deliberate upgrade, not a random CI run"
+      - "npm requires it"
+    answer: 1
+    explanation: "Type checking is part of the build: treat the compiler version like any other dependency."
+  - id: checkers
+    prompt: "What does `tsc --checkers 8` change in TypeScript 7?"
+    options:
+      - "It runs eight different linters"
+      - "It uses eight parallel type-checking workers instead of the default four"
+      - "It checks eight files only"
+    answer: 1
+    explanation: "The native compiler checks files in parallel; --singleThreaded turns that off."

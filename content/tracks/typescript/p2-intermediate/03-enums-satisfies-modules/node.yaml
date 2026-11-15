@@ -1,0 +1,25 @@
+id: typescript.p2.enums-satisfies-modules
+kind: lesson
+status: draft
+title: "Enums vs Unions, as const, satisfies and ES Modules"
+summary: "Why modern code replaces enums with unions and as const objects, checking values without widening them with satisfies, and ES modules on Node.js: import type, nodenext vs bundler, CommonJS interop and package exports."
+objectives:
+  - { id: o1, text: "Replace enums with union types and as const objects, and derive the union from the constant", skills: [typescript.enums-modules] }
+  - { id: o2, text: "Choose between an annotation and satisfies, and write typed constant tables with as const satisfies", skills: [typescript.enums-modules] }
+  - { id: o3, text: "Write ES modules for Node.js with import type and extensions, and explain nodenext, bundler, CommonJS interop and package exports", skills: [typescript.enums-modules] }
+prerequisites: [typescript.p2.type-utils]
+difficulty: 3
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A codebase has `export enum Role { Admin = "admin", Editor = "editor", Viewer = "viewer" }` and `const permissions: Record<string, string[]> = { admin: [...], editr: [...] }` (note the typo), and it is moving to run its .ts files directly on Node.js 26. Rewrite both without an enum, so the role list exists at runtime, the Role type is derived from it, and the permissions table fails to compile on a missing or misspelled role while keeping its literal types. Then list three changes the move to Node type stripping forces on its imports.'
+  criteria:
+    - "Defines the roles as an as const array (or object) and derives the Role union with an indexed access type"
+    - "Writes the table with as const satisfies Record<Role, readonly ...[]> and explains what satisfies checks and what it keeps"
+    - "Explains why the enum must go (it generates code, so it is not erasable; string enums are nominal)"
+    - "Mentions explicit .ts extensions on relative imports"
+    - "Mentions import type (or the type modifier) for type-only imports, and verbatimModuleSyntax"
+    - "Mentions a third change, such as no directory imports, no paths aliases (use # imports) or the package type"

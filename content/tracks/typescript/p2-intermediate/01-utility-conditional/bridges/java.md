@@ -1,8 +1,16 @@
 ---
 from: java
 status: draft
-concept: "Type transformations"
-from_way: "Writing dozens of DTOs by hand for every variation of fields on a screen."
-native_way: "`type UpdateUserDto = Partial<Omit<User, 'id'>>;` produces the right type in one line."
-sensei_tip: "TypeScript's type system is Turing-complete: you can encode rules that validate route schemas while you type."
+concept: "Types computed from other types"
+from_way: "Types are declared one by one; to get a 'User without password' you write a new class or record, or use code generation (MapStruct, Lombok)."
+native_way: "Types are computed: Omit<User, \"password\">, Partial<User>, mapped and conditional types derive new shapes at compile time."
+sensei_tip: "Many Java DTO classes become one-line derived types. Keep a single source type and derive the request, response and patch types from it."
 ---
+
+| Java | TypeScript |
+| --- | --- |
+| Separate `UserDto` record | `type PublicUser = Omit<User, "password">` |
+| Builder or nullable fields for patches | `Partial<User>` |
+| `EnumMap<Status, Integer>` | `Record<Status, number>` |
+| Annotation processors / code generation | Mapped and conditional types |
+| No equivalent | `ReturnType<typeof f>`, `Awaited<...>` |

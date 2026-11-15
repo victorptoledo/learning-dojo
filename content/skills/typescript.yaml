@@ -1,4 +1,16 @@
 namespace: typescript
 skills:
-  - { id: typescript.structural-typing, title: "Structural vs Nominal Typing" }
-  - { id: typescript.utility-conditional, title: "Conditional and Utility Types (`Partial`, `Pick`, `Omit`, `infer`)" }
+  - { id: typescript.toolchain, title: "TypeScript 7, Node.js Type Stripping and tsconfig" }
+  - { id: typescript.structural-typing, title: "Types, Inference and Structural Typing" }
+  - { id: typescript.unions-narrowing, title: "Unions, Literal Types, Narrowing, unknown and never" }
+  - { id: typescript.interfaces-classes, title: "Interfaces, Type Aliases, Functions and Classes" }
+  - { id: typescript.generics, title: "Generics, Constraints, keyof and Indexed Access" }
+  - { id: typescript.utility-conditional, title: "Utility, Conditional, Mapped and Template Literal Types" }
+  - { id: typescript.enums-modules, title: "Enums vs Unions, as const, satisfies and ES Modules" }
+  - { id: typescript.async-errors, title: "Promises, async/await and Error Handling" }
+  - { id: typescript.runtime-validation, title: "Runtime Validation at the Boundaries with zod" }
+  - { id: typescript.declaration-files, title: "Declaration Files, Ambient Types and Augmentation" }
+  - { id: typescript.testing-linting, title: "Testing, Type-Level Tests and Linting" }
+  - { id: typescript.production-builds, title: "TypeScript in Production: Builds, Bundlers and CI" }
+  - { id: typescript.monorepos, title: "Monorepos, Workspaces and Project References" }
+  - { id: typescript.soundness-performance, title: "Soundness, Variance and Type-Checking Performance" }

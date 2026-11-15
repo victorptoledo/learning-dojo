@@ -2,13 +2,24 @@ id: typescript.p2.utility-conditional
 legacy_id: ts-02-utility-conditional
 kind: lesson
 status: draft
-title: "Conditional and Utility Types (`Partial`, `Pick`, `Omit`, `infer`)"
-summary: "Compile-time metaprogramming: manipulating types like functions."
+title: "Utility, Conditional, Mapped and Template Literal Types"
+summary: "Compile-time metaprogramming: built-in utility types, conditional types with infer and distribution, mapped types with modifiers and key remapping, template literal types and type-level tests."
 objectives:
-  - { id: o1, text: "Compile-time metaprogramming: manipulating types like functions.", skills: [typescript.utility-conditional] }
-prerequisites: [typescript.p1.structural-typing]
+  - { id: o1, text: "Derive types from one source with Partial, Pick, Omit, Record, ReturnType and Awaited", skills: [typescript.utility-conditional] }
+  - { id: o2, text: "Write conditional types with infer, explain distribution over unions, and filter with never", skills: [typescript.utility-conditional] }
+  - { id: o3, text: "Write mapped types with modifiers and key remapping, and template literal types", skills: [typescript.utility-conditional] }
+prerequisites: [typescript.p1.checkpoint]
 difficulty: 3
-estimated_minutes: 30
+estimated_minutes: 60
 xp: 250
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An API client has `interface Product { id: string; name: string; priceCents: number; createdAt: string; tags: string[] }` and hand-written `CreateProduct`, `UpdateProduct` and `ProductSummary` interfaces that keep drifting from it. Derive all three from Product with utility types (create: no id or createdAt; update: any subset of the create fields; summary: id and name only), then write `type Setters<T>` that gives `{ setName(value: string): void; ... }`. Explain one pitfall of Omit and how distribution would affect a conditional type applied to a union.'
+  criteria:
+    - "Defines CreateProduct with Omit<Product, \"id\" | \"createdAt\">, UpdateProduct with Partial<CreateProduct>, ProductSummary with Pick"
+    - "Writes Setters with a mapped type, key remapping with as and a template literal with Capitalize"
+    - "Explains that Omit does not check that the omitted keys exist (Pick does)"
+    - "Explains that a conditional type over a naked type parameter distributes over each member of a union"
+    - "Mentions wrapping in [T] to stop distribution, or why distribution is what you usually want"

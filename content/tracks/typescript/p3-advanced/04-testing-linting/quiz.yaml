@@ -1,0 +1,46 @@
+questions:
+  - id: types-not-behaviour
+    prompt: "Which bug can strict type checking NOT catch?"
+    options:
+      - "Passing a string where a number is expected"
+      - "Reading a property that does not exist"
+      - "Using + instead of - in a price calculation"
+      - "Forgetting a case of a discriminated union in a checked switch"
+    answer: 2
+    explanation: "Both operators type-check on numbers; only a test of the behaviour finds it."
+  - id: ts-expect-error
+    prompt: "When does a `// @ts-expect-error` comment itself cause an error?"
+    options:
+      - "Always"
+      - "When the next line has no type error"
+      - "When the next line has a type error"
+    answer: 1
+    explanation: "That is what makes it a test: it fails when the code it marks stops being rejected. @ts-ignore never fails."
+  - id: test-typecheck
+    prompt: "Why must test files also be type-checked with tsc when `node --test` runs them?"
+    options:
+      - "node --test cannot run .ts files"
+      - "Node only strips types, so type errors in tests go unnoticed"
+      - "tsc runs the tests"
+    answer: 1
+    explanation: "Type stripping does not check types, in tests as in production code."
+  - id: floating
+    prompt: "Which typescript-eslint rule reports `db.save(user);` when save returns a promise that is not awaited?"
+    answers: ["no-floating-promises", "@typescript-eslint/no-floating-promises"]
+    explanation: "It is a type-checked rule: it needs the compiler to know that save returns a promise."
+  - id: fake-timers
+    prompt: "How can a node:test test check a 30-second retry delay without waiting 30 seconds?"
+    options:
+      - "It cannot"
+      - "Enable mock timers and advance them with mock.timers.tick, or inject the wait function"
+      - "Run the test with --fast"
+    answer: 1
+    explanation: "Control time: fake the timers or pass a clock or wait function into the code under test."
+  - id: strict-assert
+    prompt: "Why import `assert` from `node:assert/strict` instead of `node:assert`?"
+    options:
+      - "It is faster"
+      - "Its equal and deepEqual use strict comparison (===), so 1 and \"1\" are not equal"
+      - "Only the strict version works with TypeScript"
+    answer: 1
+    explanation: "The legacy assert.equal uses ==; the strict module avoids coercion surprises."

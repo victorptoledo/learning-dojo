@@ -1,0 +1,45 @@
+questions:
+  - id: structural
+    prompt: "`interface Point { x: number; y: number }`. Which value can be passed to `function draw(p: Point)` without an error?"
+    code: |
+      const a = { x: 1, y: 2, label: "A" };
+      draw(a);
+    options:
+      - "It compiles: a has every property Point requires"
+      - "It fails: a was not declared as a Point"
+      - "It fails: a has an extra property label"
+    answer: 0
+    explanation: "Compatibility is structural, and the excess property check only applies to fresh object literals, not to a variable."
+  - id: excess
+    prompt: "Why does `draw({ x: 1, y: 2, label: \"A\" })` fail while passing a variable works?"
+    options:
+      - "Object literals are compared nominally"
+      - "A fresh object literal gets an excess property check, because extra keys there are usually typos"
+      - "label is a reserved word"
+    answer: 1
+    explanation: "Excess property checks are a lint-like rule for literals written directly where a type is expected."
+  - id: const-literal
+    prompt: "What type does TypeScript infer for `const mode = \"dark\"`?"
+    answers: ["\"dark\"", "'dark'", "dark"]
+    explanation: "A const can never be reassigned, so its type is the literal type \"dark\"; with let it would be string."
+  - id: alias
+    prompt: "With `type Celsius = number` and `type Fahrenheit = number`, what happens when a Celsius is passed where a Fahrenheit is expected?"
+    options:
+      - "A compile error"
+      - "It compiles: both aliases are the same type, number"
+      - "A runtime error"
+    answer: 1
+    explanation: "An alias is a new name, not a new type. A brand (number & { __brand: \"Celsius\" }) makes them distinct."
+  - id: unchecked-index
+    prompt: "With noUncheckedIndexedAccess, what is the type of `names[0]` when `names: string[]`?"
+    options: ["string", "string | undefined", "string | null", "any"]
+    answer: 1
+    explanation: "The index may be out of range, so the element may be undefined; narrow it before use."
+  - id: as-runtime
+    prompt: "What does `JSON.parse(text) as User` do at runtime?"
+    options:
+      - "Checks that the parsed value has the properties of User"
+      - "Nothing: the assertion only changes the type the compiler sees"
+      - "Converts the value into a User instance"
+    answer: 1
+    explanation: "Assertions are erased. Validate untrusted data with code (type guards or a schema library)."

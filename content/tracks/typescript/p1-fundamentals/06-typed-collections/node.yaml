@@ -1,0 +1,53 @@
+id: typescript.p1.typed-collections
+kind: kata
+status: draft
+title: "Typed Collections: Generic Helpers"
+summary: "Write pluck, indexBy, partition, maxBy, chunk and keyed with precise generic signatures (keyof, T[K], overloads with type guards), checked by runtime and type-level tests."
+objectives:
+  - { id: o1, text: "Turn loose signatures into generic ones that keep the caller's types, with keyof and indexed access", skills: [typescript.generics] }
+  - { id: o2, text: "Write overload signatures over one implementation, including one that takes a type guard", skills: [typescript.generics, typescript.interfaces-classes] }
+  - { id: o3, text: "Read type-level tests written with Expect<Equal<...>> and @ts-expect-error", skills: [typescript.generics] }
+prerequisites: [typescript.p1.generics]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Do the bodies first with the starter's loose signatures, and get the runtime tests green. Then take one signature at a time: for `pluck`, which type parameter would let `key` be only a key of the item, and what is the type of `item[key]` then?
+    - |-
+      `pluck<T, K extends keyof T>(items: readonly T[], key: K): T[K][]`. For `indexBy`, add a second type parameter `K` for the key and return `Map<K, T>`; no constraint is needed, since any value can be a Map key. `keyed<K extends string, V>(keys: readonly K[], value: (key: K) => V): Record<K, V>` keeps the literal keys. For `partition`, write two overload signatures: one whose predicate is `(item: T) => item is S` returning `[S[], Exclude<T, S>[]]`, one with a boolean predicate.
+    - |-
+      ```ts
+      export function partition<T, S extends T>(
+        items: readonly T[],
+        predicate: (item: T) => item is S,
+      ): [S[], Exclude<T, S>[]];
+      export function partition<T>(items: readonly T[], predicate: (item: T) => boolean): [T[], T[]];
+      export function partition<T>(items: readonly T[], predicate: (item: T) => boolean): [T[], T[]] {
+        const matching: T[] = [];
+        const rest: T[] = [];
+        // push each item into one of the two arrays
+        return [matching, rest];
+      }
+
+      export function keyed<K extends string, V>(keys: readonly K[], value: (key: K) => V): Record<K, V> {
+        const result = {} as Record<K, V>; // the one cast: it is filled right below
+        // ...
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

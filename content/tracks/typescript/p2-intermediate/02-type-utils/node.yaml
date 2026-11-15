@@ -1,0 +1,53 @@
+id: typescript.p2.type-utils
+kind: kata
+status: draft
+title: "Type Utilities: Programming with Types"
+summary: "Write ten utility types with mapped types, modifiers, key remapping, conditional types with infer, recursion and template literal types, graded entirely by type-level tests."
+objectives:
+  - { id: o1, text: "Write mapped types with modifiers and key remapping", skills: [typescript.utility-conditional] }
+  - { id: o2, text: "Write conditional and recursive types with infer, including template literal parsing", skills: [typescript.utility-conditional] }
+prerequisites: [typescript.p2.utility-conditional]
+difficulty: 4
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with the visible test, `Mutable`: a mapped type over `keyof T` that removes a modifier. Then do the one-liners (`ElementOf`, `UnwrapPromise`, `PickByValue`, `Getters`) before the recursive ones. For `OptionalKeys`, ask: when is `{}` assignable to `Pick<T, K>`?
+    - |-
+      `Mutable` uses `-readonly`. `ElementOf` and `UnwrapPromise` are conditional types with `infer`; `UnwrapPromise` calls itself. `PickByValue` and `Getters` remap keys with `as` (to `never` to drop a key, to `` `get${Capitalize<K>}` `` to rename it; `K extends string ? ... : never` skips symbols). `OptionalKeys` maps each key to itself when `object extends Pick<T, K>`, otherwise to `never`, then indexes the result with `[keyof T]`. `Merge` must be a single mapped type over `keyof A | keyof B`.
+    - |-
+      ```ts
+      export type DeepReadonly<T> = T extends (...args: never[]) => unknown
+        ? T
+        : T extends readonly (infer Item)[]
+          ? readonly DeepReadonly<Item>[]
+          : T extends object
+            ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+            : T;
+
+      type ParamNames<Path extends string> = Path extends `${string}:${infer Name}/${infer Rest}`
+        ? Name | ParamNames<`/${Rest}`>
+        : Path extends `${string}:${infer Name}`
+          ? Name
+          : never;
+
+      export type PathKeys<T> = {
+        [K in keyof T & string]: T[K] extends object ? K | `${K}.${PathKeys<T[K]>}` : K;
+      }[keyof T & string];
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

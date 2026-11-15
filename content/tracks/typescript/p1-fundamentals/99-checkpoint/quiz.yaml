@@ -1,0 +1,62 @@
+pass_percent: 85
+questions:
+  - id: assignable
+    skills: [typescript.structural-typing]
+    prompt: "Given `interface HasId { id: string }` and `class Order { id = \"o1\"; total = 10 }`, does `const x: HasId = new Order()` compile?"
+    options:
+      - "Yes: an Order has an id of type string, which is all HasId needs"
+      - "No: Order does not implement HasId"
+      - "No: Order has an extra property total"
+    answer: 0
+    explanation: "Structural typing: the class never mentions HasId, but its shape fits. Excess property checks apply only to fresh object literals."
+  - id: brand
+    skills: [typescript.structural-typing]
+    prompt: "Which declaration makes an `EmailAddress` that a plain `string` cannot be passed as?"
+    options:
+      - "type EmailAddress = string"
+      - "type EmailAddress = string & { readonly __brand: \"EmailAddress\" }"
+      - "interface EmailAddress extends String {}"
+    answer: 1
+    explanation: "A type alias is the same type; the brand property exists only in the type system and makes the types distinct."
+  - id: narrow-unknown
+    skills: [typescript.unions-narrowing]
+    prompt: "Which check lets you read `value.length` when `value: unknown`?"
+    options:
+      - "if (value)"
+      - "if (typeof value === \"string\")"
+      - "if (value !== null)"
+      - "if (value as string)"
+    answer: 1
+    explanation: "Only a check that proves a type with length narrows unknown; truthiness or a null check do not."
+  - id: exhaustive
+    skills: [typescript.unions-narrowing]
+    prompt: "A team adds `{ kind: \"refund\" }` to an `Event` union. What makes every switch that forgot it fail to compile?"
+    answers: ["assertNever", "a never check", "default: assertNever(event)", "never"]
+    explanation: "Passing the value to a parameter of type never in the default branch only compiles when every member was handled."
+  - id: nullish
+    skills: [typescript.unions-narrowing]
+    prompt: "`const pageSize = query.size ?? 20` with `query.size = 0`. What is pageSize?"
+    options: ["0", "20", "undefined"]
+    answer: 0
+    explanation: "?? only falls back on null and undefined; || would replace 0 as well."
+  - id: interface-type
+    skills: [typescript.interfaces-classes]
+    prompt: "Which is a reason to prefer `interface Admin extends User` over `type Admin = User & { ... }`?"
+    options:
+      - "extends reports conflicting property types, while an intersection silently turns them into never"
+      - "Interfaces exist at runtime"
+      - "Intersections cannot have methods"
+    answer: 0
+    explanation: "extends checks compatibility; an intersection with id: number and id: string makes id never without an error at the declaration."
+  - id: really-private
+    skills: [typescript.interfaces-classes]
+    prompt: "Which field stays inaccessible from outside the class after the types are erased?"
+    options: ["private balance = 0", "#balance = 0", "protected balance = 0", "readonly balance = 0"]
+    answer: 1
+    explanation: "#fields are JavaScript private fields, enforced by the engine; private and protected are compile-time only."
+  - id: keyof-generic
+    skills: [typescript.generics]
+    prompt: "What is the type of `get(user, \"name\")` with `function get<T, K extends keyof T>(o: T, k: K): T[K]` and `user: { id: number; name: string }`?"
+    options: ["string", "number | string", "unknown", "\"name\""]
+    answer: 0
+    explanation: "K is inferred as \"name\", and T[K] is the type of that property."

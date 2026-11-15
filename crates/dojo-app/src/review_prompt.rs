@@ -100,6 +100,7 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         KataLanguage::Python => (kata_dir.to_path_buf(), "py"),
         KataLanguage::Kubernetes => (kata_dir.to_path_buf(), "yaml"),
         KataLanguage::Go => (kata_dir.to_path_buf(), "go"),
+        KataLanguage::TypeScript => (kata_dir.to_path_buf(), "ts"),
     };
     let mut found = Vec::new();
     collect(&root, extension, &mut found);
@@ -114,11 +115,12 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
     files
 }
 
-/// Virtual environments and caches (`.venv`, `__pycache__`) are not the learner's code.
+/// Virtual environments, caches and packages (`.venv`, `__pycache__`, `node_modules`) are
+/// not the learner's code.
 fn in_tool_folder(path: &Path) -> bool {
     path.components().any(|part| {
         let part = part.as_os_str().to_string_lossy();
-        part.starts_with('.') || part == "__pycache__"
+        part.starts_with('.') || part == "__pycache__" || part == "node_modules"
     })
 }
 
@@ -157,6 +159,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Python => "Python",
         KataLanguage::Kubernetes => "Kubernetes manifests, Kustomize and Helm",
         KataLanguage::Go => "Go",
+        KataLanguage::TypeScript => "TypeScript",
     };
     let files = kata
         .files
@@ -354,5 +357,19 @@ mod tests {
         std::fs::write(dir.path().join("go.mod"), "module dojo/ledger").unwrap();
         let files = kata_files(dir.path(), KataLanguage::Go);
         assert_eq!(files, vec![PathBuf::from("ledger.go")]);
+    }
+
+    #[test]
+    fn kata_files_lists_typescript_modules_but_not_tests_or_node_modules() {
+        let dir = tempfile::TempDir::new().unwrap();
+        for folder in ["tests", "node_modules/zod"] {
+            std::fs::create_dir_all(dir.path().join(folder)).unwrap();
+        }
+        std::fs::write(dir.path().join("shapes.ts"), "export {}").unwrap();
+        std::fs::write(dir.path().join("tsconfig.json"), "{}").unwrap();
+        std::fs::write(dir.path().join("tests/visible.test.ts"), "x").unwrap();
+        std::fs::write(dir.path().join("node_modules/zod/index.d.ts"), "x").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::TypeScript);
+        assert_eq!(files, vec![PathBuf::from("shapes.ts")]);
     }
 }

@@ -1,0 +1,24 @@
+id: typescript.p2.async-errors
+kind: lesson
+status: draft
+title: "Promises, async/await and Error Handling"
+summary: "Typed promises and async functions, sequential vs concurrent work, floating promises, cancellation with AbortSignal, unknown in catch, custom errors with cause, using declarations and Result unions."
+objectives:
+  - { id: o1, text: "Write typed async functions, run independent work concurrently and choose the right Promise combinator", skills: [typescript.async-errors] }
+  - { id: o2, text: "Cancel work with AbortSignal and clean up with finally or using", skills: [typescript.async-errors] }
+  - { id: o3, text: "Handle unknown errors safely, write custom error classes with cause, and return expected failures as Result unions", skills: [typescript.async-errors] }
+prerequisites: [typescript.p2.enums-satisfies-modules]
+difficulty: 3
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this function: `async function syncAll(ids: string[]) { ids.forEach(async (id) => { try { await push(await load(id)) } catch (e) { console.log(e.message) } }) }`. It is called with 5,000 ids. List every problem you see (types, errors, concurrency, completion), then rewrite it so that it waits for all ids, runs at most 10 at a time, never loses an error, and returns which ids failed and why, typed with a Result-style union.'
+  criteria:
+    - "Notices that forEach with an async callback does not wait, so syncAll resolves before the work finishes (floating promises)"
+    - "Notices that e is unknown under strict and e.message does not type-check (or may crash for non-Errors), and narrows with instanceof Error"
+    - "Notices that the errors are only logged and lost to the caller"
+    - "Limits concurrency (a worker pool or batching) instead of starting 5,000 requests at once"
+    - "Returns a typed summary such as { ok: string[]; failed: { id: string; error: Error }[] }"

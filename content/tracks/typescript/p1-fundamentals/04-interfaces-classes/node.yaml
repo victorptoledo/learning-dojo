@@ -1,0 +1,24 @@
+id: typescript.p1.interfaces-classes
+kind: lesson
+status: draft
+title: "Interfaces, Type Aliases, Functions and Classes"
+summary: "When to use interface or type, declaration merging, typing parameters, callbacks and overloads, and classes with implements, #private fields, override and no parameter properties."
+objectives:
+  - { id: o1, text: "Choose between interface and type alias, and explain extends vs intersections and declaration merging", skills: [typescript.interfaces-classes] }
+  - { id: o2, text: "Type functions with optional, default and rest parameters, function types, options objects and overloads", skills: [typescript.interfaces-classes] }
+  - { id: o3, text: "Write classes with implements, #private fields, getters and override, without non-erasable syntax", skills: [typescript.interfaces-classes] }
+prerequisites: [typescript.p1.shapes]
+difficulty: 2
+estimated_minutes: 50
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this class from a pull request and rewrite it for a codebase that runs .ts files directly on Node.js 26 with erasableSyntaxOnly and noImplicitOverride: `class Cache extends Store { constructor(private ttl: number, private items: Map<string, unknown>) { super(); } get(key) { return this.items.get(key) } }`. Explain each change, say whether the "private" fields are really private, and say whether a `type` or an `interface` fits best for the options of a new `createCache(options)` factory, and why.'
+  criteria:
+    - "Replaces the parameter properties with declared fields assigned in the constructor, and explains they are not erasable"
+    - "Explains that TypeScript's private is compile-time only and suggests #private fields for real privacy"
+    - "Adds a parameter type (key: string) and explains noImplicitAny"
+    - "Adds override if get overrides a Store method, and explains noImplicitOverride"
+    - "Chooses an interface (or a type) for the options with a reason (extension, merging, or consistency)"

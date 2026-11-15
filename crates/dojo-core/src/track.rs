@@ -107,6 +107,8 @@ pub enum KataLanguage {
     Kubernetes,
     /// A Go package checked with go test (race detector on), go vet and gofmt in `dojo-go`.
     Go,
+    /// TypeScript modules type-checked by tsc and tested with node:test in `dojo-node`.
+    TypeScript,
 }
 
 impl Kata {
@@ -119,6 +121,7 @@ impl Kata {
             "dojo-python" => KataLanguage::Python,
             "dojo-k8s" => KataLanguage::Kubernetes,
             "dojo-go" => KataLanguage::Go,
+            "dojo-node" => KataLanguage::TypeScript,
             _ => KataLanguage::Rust,
         }
     }

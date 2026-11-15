@@ -1,0 +1,58 @@
+id: typescript.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata, a typed ledger built from unions, narrowing, interfaces, a class with private state and generics."
+objectives:
+  - { id: o1, text: "Explain structural typing, narrowing, interfaces vs types, classes and generics in your own words", skills: [typescript.structural-typing, typescript.unions-narrowing, typescript.interfaces-classes, typescript.generics] }
+  - { id: o2, text: "Build a small typed module that parses, validates, stores and reports records", skills: [typescript.unions-narrowing, typescript.interfaces-classes, typescript.generics] }
+prerequisites: [typescript.p1.typed-collections]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+closes_phase: p1
+covers_skills: [typescript.structural-typing, typescript.unions-narrowing, typescript.interfaces-classes, typescript.generics]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Build it bottom up: `parseAmount`, then `parseLine`, then the `Ledger` storage, and only then the reports. How should the ledger store transactions so that a duplicate id is found in constant time? And how does a caller of `parseLine` get to `value` only after checking `ok`?
+    - |-
+      `parseAmount`: a regular expression such as `/^(\d+)(?:\.(\d{1,2}))?$/` accepts exactly the valid forms; pad the decimals to two digits. For the date, build `new Date(Date.UTC(y, m - 1, d))` and check that it gives back the same year, month and day (February 30 rolls over to March). Store transactions in a private `Map<string, Transaction>` (`#transactions`). `totalsByCategory` sums into a `Map`, then sorts its entries with `b - a || nameA.localeCompare(nameB)`.
+    - |-
+      ```ts
+      export class Ledger {
+        readonly #transactions = new Map<string, Transaction>();
+
+        constructor(transactions: Iterable<Transaction> = []) {
+          for (const transaction of transactions) this.add(transaction);
+        }
+
+        static fromLines(lines: Iterable<string>): { ledger: Ledger; errors: LineError[] } {
+          const ledger = new Ledger();
+          const errors: LineError[] = [];
+          let line = 0;
+          for (const text of lines) {
+            line += 1;
+            // skip blank and # lines; parseLine; on !parsed.ok push { line, message: parsed.error }
+            // a duplicate id is an error too, not an exception
+          }
+          return { ledger, errors };
+        }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

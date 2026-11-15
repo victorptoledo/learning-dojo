@@ -1,0 +1,25 @@
+id: typescript.p4.production-builds
+kind: lesson
+status: draft
+title: "TypeScript in Production: Builds, Bundlers and CI"
+summary: "Running the source on Node.js 26, compiling with tsc or bundling, source maps, the native TypeScript 7 toolchain and its 6.0 compatibility package, upgrading from 5.x, type-checking in CI and runtime concerns types do not solve."
+objectives:
+  - { id: o1, text: "Choose between running the source, compiling with tsc and bundling, and configure each with source maps", skills: [typescript.production-builds] }
+  - { id: o2, text: "Explain what the native TypeScript 7 compiler changes, and keep tools that need the compiler API working", skills: [typescript.production-builds, typescript.toolchain] }
+  - { id: o3, text: "Design a CI pipeline that type-checks, lints, tests and audits with a pinned TypeScript", skills: [typescript.production-builds] }
+prerequisites: [typescript.p3.typed-events]
+difficulty: 4
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team has a Node.js API built with `tsc` on TypeScript 5.6 (`moduleResolution: "node"`, `baseUrl` with path aliases, an `enum` for roles), deployed as `dist/` in a Docker image, and a library package published to npm from the same repository. Plan the move to TypeScript 7 on Node.js 26: the order of the upgrade, what has to change in tsconfig and in the code, whether the API should keep compiling or run its sources, what the library must keep doing, how ESLint keeps working, and what the CI runs.'
+  criteria:
+    - "Upgrades through 6.0 first and fixes its deprecations (moduleResolution node, baseUrl, explicit types) before switching to 7.0"
+    - "Replaces path aliases with package.json # imports (or relative imports) and the enum with a union or as const object if the sources run on Node"
+    - "Makes a justified choice for the API (run the source with type stripping, or keep tsc output with source maps)"
+    - "Keeps emitting JavaScript and .d.ts files for the library (declaration, exports with types)"
+    - "Keeps typescript-eslint working with @typescript/typescript6 (npm alias) while tsc runs 7.0"
+    - "Lists CI steps with a pinned TypeScript: npm ci, tsc, lint, tests"

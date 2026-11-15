@@ -1,0 +1,52 @@
+id: typescript.p1.shapes
+kind: kata
+status: draft
+title: "Shapes: Discriminated Unions and Narrowing"
+summary: "Area, perimeter and descriptions over a discriminated union with exhaustive switches, and a parser that narrows unknown input into a valid Shape or null."
+objectives:
+  - { id: o1, text: "Switch on a discriminant and make every switch exhaustive with assertNever", skills: [typescript.unions-narrowing] }
+  - { id: o2, text: "Narrow unknown data with typeof, Array.isArray and type predicates, without any or as", skills: [typescript.unions-narrowing, typescript.structural-typing] }
+prerequisites: [typescript.p1.unions-narrowing]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with `area`: inside `switch (shape.kind)`, what type does `shape` have in `case "circle":`? Which fields can you read there? For `parseShape`, the input is `unknown`: what must you prove before you can even read `input.kind`?
+    - |-
+      Each `case` narrows `shape` to one member, so `shape.radius` is allowed only under `"circle"`. End each switch with `default: return assertNever(shape);`. For `parseShape`, write two type predicates: `isRecord(value): value is Record<string, unknown>` (an object, not null, not an array) and `isPositive(value): value is number` (a finite number above 0); then switch on `input.kind` and build a **new** object with only the fields of that kind.
+    - |-
+      ```ts
+      function isRecord(value: unknown): value is Record<string, unknown> {
+        return typeof value === "object" && value !== null && !Array.isArray(value);
+      }
+
+      export function parseShape(input: unknown): Shape | null {
+        if (!isRecord(input)) return null;
+        switch (input.kind) {
+          case "circle": {
+            const { radius } = input;
+            return isPositive(radius) ? { kind: "circle", radius } : null;
+          }
+          // rectangle; triangle with the triangle inequality: a < b + c, b < a + c, c < a + b
+          default:
+            return null;
+        }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

@@ -1,0 +1,52 @@
+id: typescript.p3.validate-boundary
+kind: kata
+status: draft
+title: "Validate at the Boundary: Configuration with zod"
+summary: "A zod 4 schema for a service configuration with defaults, inferred input and output types, error messages with paths, parsing from JSON and environment variables, and a branded id."
+objectives:
+  - { id: o1, text: "Write a zod schema with rules and defaults and infer the input and output types from it", skills: [typescript.runtime-validation] }
+  - { id: o2, text: "Parse untrusted input from objects, JSON text and environment variables, and report every issue with its path", skills: [typescript.runtime-validation, typescript.unions-narrowing] }
+  - { id: o3, text: "Brand a validated string so only the parser can create it", skills: [typescript.runtime-validation] }
+prerequisites: [typescript.p3.runtime-validation]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Write `ConfigSchema` first, field by field from the README's table, and run the visible test: it checks the defaults. Then `parseConfig`: which zod method validates without throwing, and where in its result are the path and message of each problem?
+    - |-
+      `z.object({ server: z.object({ host: z.string().min(1).default("0.0.0.0"), port: z.number().int().min(1).max(65535) }), ... })`, with `z.url()`, `z.enum([...])` and `z.array(z.string()).default([])`. `safeParse` returns `{ success, data }` or `{ success, error }`; map `error.issues` to `` `${issue.path.join(".")}: ${issue.message}` ``. In `configFromEnv`, build the nested object yourself: a missing variable must stay `undefined`, and a number variable goes through `Number(...)`, with `""` turned into `NaN` so it is rejected.
+    - |-
+      ```ts
+      function numberFrom(text: string | undefined): number | undefined {
+        if (text === undefined) return undefined;
+        return text.trim() === "" ? Number.NaN : Number(text);
+      }
+
+      export function configFromEnv(env: Readonly<Record<string, string | undefined>>): Result<Config, string[]> {
+        return parseConfig({
+          server: { host: env.APP_HOST, port: numberFrom(env.APP_PORT) },
+          database: { url: env.DATABASE_URL, poolSize: numberFrom(env.DB_POOL_SIZE) },
+          logLevel: env.LOG_LEVEL,
+          features: env.FEATURES?.split(",") /* trim each, drop the empty ones */,
+        });
+      }
+
+      export const UserIdSchema = z.string().regex(/^usr_[a-z0-9]{8}$/).brand<"UserId">();
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 and zod 4 that type-checks your code and runs the tests.

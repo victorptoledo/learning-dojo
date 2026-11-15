@@ -1,0 +1,45 @@
+questions:
+  - id: workspace
+    prompt: "What do npm or pnpm workspaces do?"
+    options:
+      - "They type-check every package"
+      - "They link local packages into node_modules so they can be imported by name"
+      - "They publish every package"
+    answer: 1
+    explanation: "Workspaces are a package manager feature; type-checking across packages is project references' job."
+  - id: composite
+    prompt: "Which compiler option must a project have to be referenced by another project?"
+    answers: ["composite", "\"composite\": true", "composite: true"]
+    explanation: "composite makes the project emit declarations and build info, so dependents can use them."
+  - id: tsc-b
+    prompt: "What does `tsc -b` do that plain `tsc` does not?"
+    options:
+      - "It bundles the code"
+      - "It builds referenced projects in dependency order and skips the ones that are up to date"
+      - "It runs the tests"
+    answer: 1
+    explanation: "Build mode follows references, uses .tsbuildinfo to skip unchanged projects, and in TypeScript 7 builds in parallel."
+  - id: dts-boundary
+    prompt: "When api references domain, what does tsc check api against?"
+    options:
+      - "domain's .ts sources"
+      - "domain's emitted declaration files"
+      - "Nothing from domain"
+    answer: 1
+    explanation: "Dependents read the referenced project's .d.ts output, which is faster and limits them to its public types."
+  - id: node-modules-ts
+    prompt: "Why can Node.js not run an internal package whose exports point at .ts files through a workspace symlink?"
+    options:
+      - "Symlinks are not supported on Windows"
+      - "Node refuses to strip types from files under node_modules"
+      - "Workspaces only support CommonJS"
+    answer: 1
+    explanation: "Type stripping is disabled for node_modules on purpose; build such packages or keep the code inside the app."
+  - id: cycles
+    prompt: "domain references nothing; api references domain. A developer imports api code from domain. What happens with project references?"
+    options:
+      - "It works"
+      - "The build fails: domain does not reference api, and adding that reference would create a cycle"
+      - "tsc copies the code"
+    answer: 1
+    explanation: "References make the dependency direction explicit and enforced."

@@ -304,6 +304,51 @@ SyntaxError: invalid syntax
         assert!(syntax.details.contains("SyntaxError: invalid syntax"));
     }
 
+    /// What the dojo-node image prints (`runner-images/node/report.mjs`).
+    const NODE_FAILING: &str = "
+running 3 tests
+test types::grading::rejects_wrong_shape ... FAILED
+test visible::adds_two_numbers ... ok
+test visible::group::todo_case ... FAILED
+
+failures:
+
+---- types::grading::rejects_wrong_shape stdout ----
+thread 'types::grading::rejects_wrong_shape' panicked at types::grading::rejects_wrong_shape:
+grading.types.ts:7:25 TS2344: Type 'false' does not satisfy the constraint 'true'.
+
+---- visible::group::todo_case stdout ----
+thread 'visible::group::todo_case' panicked at visible::group::todo_case:
+todo: write todo()
+
+failures:
+
+test result: FAILED. 1 passed; 2 failed
+";
+
+    #[test]
+    fn reads_the_node_image_output_like_cargo_test() {
+        let report = parse_cargo_test(NODE_FAILING, false, 7);
+        assert_eq!(report.outcome, CheckOutcome::TestsFailed);
+        assert_eq!(report.tests.len(), 3);
+        assert!(report.tests[0].message.as_deref().unwrap().contains("TS2344"));
+        assert!(report.tests[1].passed);
+        assert_eq!(
+            report.tests[2].message.as_deref(),
+            Some("todo: write todo()")
+        );
+
+        let types = parse_cargo_test(
+            "error: the code does not compile (tsc found type errors)
+lib.ts:2:3 TS2322: Type 'string' is not assignable to type 'number'.
+",
+            false,
+            7,
+        );
+        assert_eq!(types.outcome, CheckOutcome::CompileError);
+        assert!(types.details.contains("TS2322"));
+    }
+
     #[test]
     fn reads_the_java_image_output_like_cargo_test() {
         let report = parse_cargo_test(JAVA_FAILING, false, 7);

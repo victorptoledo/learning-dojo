@@ -4,9 +4,9 @@ name: "TypeScript"
 archetype: language
 category: "Programming Languages"
 icon: "🔷"
-description: "Structural static typing for JavaScript: advanced generics, inference, utility types and decorators."
+description: "TypeScript 7 on Node.js 26 as it is written today: strict mode, structural typing, narrowing, generics, type-level programming, ES modules, async code, runtime validation, declaration files, testing and TypeScript in production."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Any Abuser" }
   - { name: "Yellow Belt", required_xp: 300, title: "Interface Modeler" }
@@ -16,8 +16,22 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "Sound Architecture Titan" }
   - { name: "Sensei", required_xp: 6000, title: "TypeScript Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install TypeScript 7 and Node.js 26, type-check with tsc, run .ts files and meet the dojo's katas" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Structural typing, unions and narrowing, interfaces, functions, classes and generics" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Type-level programming, enums vs unions, satisfies, ES modules, async code and errors" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Runtime validation, declaration files, testing and linting, typed APIs with mapped types" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Builds and CI, monorepos and project references, soundness and type-checking performance" }
+requirements:
+  - kind: tool
+    name: Node.js 26 (node)
+    command: node
+    version_args: ["--version"]
+    min_version: "26"
+    required: false
+    why: Runs the katas' .ts files and their visible tests locally (npm test). The grading checks run in Docker and do not need it.
+    install_hint: "install Node.js 26 LTS: winget install OpenJS.NodeJS.LTS, then reopen the terminal"
+  - kind: vscode-extension
+    name: TypeScript 7 for VS Code
+    id: typescriptteam.native-preview
+    required: false
+    why: Uses the native TypeScript 7 language server for errors as you type, completions and refactorings.

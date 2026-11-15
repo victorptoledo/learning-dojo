@@ -1,0 +1,40 @@
+questions:
+  - id: alias-only
+    prompt: "Which of these can only be written with a `type` alias, not an `interface`?"
+    options:
+      - "{ id: number; name: string }"
+      - "\"small\" | \"medium\" | \"large\""
+      - "An object type with an optional property"
+      - "An object type with a method"
+    answer: 1
+    explanation: "Interfaces describe object shapes; unions, tuples, primitives and computed types need a type alias."
+  - id: merging
+    prompt: "What happens when a file declares `interface Config { port: number }` twice, the second time with `{ host: string }`?"
+    options:
+      - "A duplicate identifier error"
+      - "The declarations merge: Config has port and host"
+      - "The second declaration replaces the first"
+    answer: 1
+    explanation: "Interfaces support declaration merging; a type alias declared twice is an error."
+  - id: private-runtime
+    prompt: "Which field cannot be read from outside the class at runtime, even with JavaScript tricks?"
+    options: ["private token: string", "protected token: string", "#token: string", "readonly token: string"]
+    answer: 2
+    explanation: "#private fields are enforced by the JavaScript engine; private and protected disappear with the types."
+  - id: param-props
+    prompt: "Why does `constructor(private readonly db: Db) {}` fail with Node.js type stripping?"
+    options:
+      - "Constructors cannot have parameters in TypeScript 7"
+      - "A parameter property generates an assignment, so it cannot be removed by erasing the types"
+      - "readonly is not allowed on parameters"
+    answer: 1
+    explanation: "Node only erases types. erasableSyntaxOnly reports parameter properties, enums and namespaces with values."
+  - id: overload-visible
+    prompt: "With two overload signatures and one implementation signature, which signatures can callers use?"
+    options: ["Only the implementation signature", "Only the overload signatures", "All three"]
+    answer: 1
+    explanation: "The implementation signature is not visible from outside; it must be compatible with every overload."
+  - id: void-callback
+    prompt: "Why does `items.forEach((item) => list.push(item))` compile although push returns a number?"
+    answers: ["void", "the callback type returns void", "a void return type allows any return value"]
+    explanation: "A function type returning void accepts functions that return something; the caller promises to ignore the value."
