@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p3.tries
+kind: lesson
+status: draft
+title: "Tries and Prefix Search"
+summary: "Prefix trees for autocomplete, spell checking and routing tables: node layouts and their memory, counts per node for O(prefix) queries, top-k suggestions, deletion with pruning, and compressed tries."
+objectives:
+  - { id: o1, text: "Implement trie insert, search, prefix search and delete, and state their cost in terms of key length", skills: [datastructures-and-algorithms.tries] }
+  - { id: o2, text: "Choose a node layout (array, map, compressed) by alphabet and memory, and compare a trie with a hash map and a sorted array", skills: [datastructures-and-algorithms.tries] }
+  - { id: o3, text: "Recognise trie problems: autocomplete, word search on a grid, longest prefix match, bitwise tries for XOR", skills: [datastructures-and-algorithms.tries] }
+prerequisites: [datastructures-and-algorithms.p3.route-finder]
+difficulty: 3
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A search box must suggest the 5 most popular completions of whatever the user has typed, from a catalogue of 2 million product names (average 30 characters) with a popularity score each, in under 10 ms per keystroke. Compare three designs: a HashMap from every prefix to its top 5, a sorted array of names with binary search, and a trie. For each, estimate memory and query cost, and say how it handles a new product being added. Then describe how you would make the trie version fast for short prefixes such as "s", which match hundreds of thousands of names.'
+  criteria:
+    - 'HashMap of prefixes: O(1) lookup but stores about 30 prefixes per name (tens of millions of entries); updates must touch every prefix of the new name'
+    - 'Sorted array: binary search finds the range of names with the prefix in O(log n · L), but ranking the top 5 needs a scan of the whole range'
+    - 'Trie: walk the prefix in O(L); memory is high for map-based nodes, reduced by compressed (radix) nodes'
+    - 'Proposes caching the top k at each trie node (updated on insert along the path) so a short prefix answers in O(L) without visiting the subtree'
+    - 'Mentions that a new product is inserted along its path in O(L), updating counts or cached top-k lists on the way'

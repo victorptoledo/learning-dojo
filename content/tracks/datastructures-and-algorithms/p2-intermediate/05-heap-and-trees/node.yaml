@@ -1,0 +1,52 @@
+id: datastructures-and-algorithms.p2.heap-and-trees
+kind: kata
+status: draft
+title: "Heap and Trees"
+summary: "Your own binary min-heap with O(n) heapify, top-k and k-way merge on top of it, and binary tree problems that must survive a tree 200,000 levels deep."
+objectives:
+  - { id: o1, text: "Implement a binary heap with sift-up, sift-down and bottom-up heapify, and use it for top-k and k-way merge", skills: [datastructures-and-algorithms.trees-heaps] }
+  - { id: o2, text: "Traverse binary trees in order and by level with an explicit stack or queue, and use the BST property", skills: [datastructures-and-algorithms.trees-heaps, datastructures-and-algorithms.recursion-backtracking] }
+prerequisites: [datastructures-and-algorithms.p2.trees-heaps]
+difficulty: 3
+estimated_minutes: 75
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      In the heap, everything follows from two repair moves: an item that may be smaller than its parent moves up, and an item that may be larger than a child moves down. Which one does `add` need, which one does `poll` need, and which one, applied from the bottom of the array to the top, builds a heap from any list?
+    - |-
+      `siftDown(i)`: pick the smaller child `c` of `i` (`2i + 1` or `2i + 2`); if it is smaller than the item, move it up and continue at `c`. `heapify` copies the items into the array and calls `siftDown(i)` for `i` from `size / 2 - 1` down to `0`. For the trees, an in-order walk with an `ArrayDeque` stack serves both `isValidBst` (each value must be greater than the previous one) and `kthSmallest` (stop at the k-th pop); `levelOrder` is a BFS that reads `queue.size()` at the start of each level.
+    - |-
+      ```java
+      public static List<Integer> largest(int[] values, int k) {
+          if (k <= 0) return List.of();
+          var heap = new MinHeap<Integer>(Comparator.naturalOrder()); // the k largest so far
+          for (int value : values) {
+              if (heap.size() < k) {
+                  heap.add(value);
+              } else if (value > heap.peek()) { // beats the smallest of the k
+                  heap.poll();
+                  heap.add(value);
+              }
+          }
+          var out = new ArrayList<Integer>();
+          while (!heap.isEmpty()) out.add(heap.poll());
+          Collections.reverse(out);
+          return out;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

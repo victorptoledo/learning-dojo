@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p2.sorting-binary-search
+kind: lesson
+status: draft
+title: "Sorting and Binary Search"
+summary: "How the main sorts work and what they cost, stability and comparators, the n log n lower bound and the linear sorts that dodge it, what the JDK uses and when its sort is all you need, and binary search with a clear invariant, including search on the answer."
+objectives:
+  - { id: o1, text: "Explain insertion, merge, quick, heap and counting sort with their costs, stability and memory", skills: [datastructures-and-algorithms.sorting-searching] }
+  - { id: o2, text: "Choose between the library sort, a custom comparator, a partial sort or a linear sort for a given problem", skills: [datastructures-and-algorithms.sorting-searching] }
+  - { id: o3, text: "Write binary searches with an explicit invariant, including lower and upper bounds and binary search on a monotonic answer", skills: [datastructures-and-algorithms.sorting-searching] }
+prerequisites: [datastructures-and-algorithms.p1.checkpoint]
+difficulty: 2
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An e-commerce backend has three tasks. (1) Show 50 million orders sorted by customer and, within a customer, by date, after they were already sorted by date. (2) Find the 100 most expensive products among 20 million, refreshed every minute. (3) A warehouse robot must carry boxes (given weights, fixed order) to a truck in at most D trips per day; find the smallest robot capacity that works. For each task, say which algorithm or library call you would use, its cost, and why; mention stability, comparator pitfalls and whether a full sort is needed. For (3), write the binary search invariant and the check function in words.'
+  criteria:
+    - '(1) Uses a stable sort by customer (List.sort / Collections.sort on objects is stable TimSort) or a single comparator on (customer, date); O(n log n)'
+    - 'Warns about comparator pitfalls: subtraction overflow (use Integer.compare / Comparator.comparing) and inconsistent comparators'
+    - '(2) Avoids a full sort: a min-heap of size 100 (O(n log k)) or quickselect, rather than sorting 20 million items'
+    - '(3) Binary search on the capacity between max(weight) and sum(weights), with a greedy O(n) check of trips needed; total O(n log(sum))'
+    - 'States the invariant (the answer stays inside [lo, hi]) and how each branch keeps it, with an overflow-safe midpoint'

@@ -1,0 +1,31 @@
+questions:
+  - id: trie-cost
+    prompt: "What does looking up a word of length L in a trie of n words cost?"
+    options: ["O(log n)", "O(L), independent of n", "O(n)", "O(n · L)"]
+    answer: 1
+    explanation: "One step per character; the number of stored words does not matter."
+  - id: prefix-count
+    prompt: "How can a trie answer 'how many words start with this prefix' in O(prefix length)?"
+    options: ["By scanning the subtree", "By storing at each node the number of words below it, updated on insert and delete", "By hashing the prefix", "It cannot"]
+    answer: 1
+    explanation: "The count is ready at the node where the prefix ends."
+  - id: children-array
+    prompt: "What is the trade-off of storing children in a 26-slot array instead of a HashMap?"
+    options: ["Arrays are slower to index", "Arrays give O(1) child access with no hashing but waste memory on sparse nodes and only fit small alphabets", "HashMaps cannot hold characters", "There is no difference"]
+    answer: 1
+    explanation: "Most deep trie nodes have one or two children, so 26 slots each is mostly empty."
+  - id: radix
+    prompt: "What does a compressed (radix or Patricia) trie change?"
+    options: ["It stores only hashes", "It merges chains of single-child nodes into one edge labelled with a string", "It sorts the children", "It removes the root"]
+    answer: 1
+    explanation: "Fewer nodes means far less memory; lookups compare edge labels instead of single characters."
+  - id: longest-prefix-match
+    prompt: "IP routers pick the route with the longest matching prefix for each packet. Which structure fits?"
+    options: ["A hash map of full addresses", "A binary trie over address bits (or a compressed variant)", "A heap", "A linked list"]
+    answer: 1
+    explanation: "Walk the address bits and remember the last node that had a route: that is the longest match."
+  - id: delete-prune
+    prompt: "After deleting a word from a trie, which nodes can be removed?"
+    options: ["All nodes on its path", "Nodes on its path that no longer end a word and have no children", "Only the root", "None"]
+    answer: 1
+    explanation: "A node still needed by another word (as a prefix or a path) must stay."

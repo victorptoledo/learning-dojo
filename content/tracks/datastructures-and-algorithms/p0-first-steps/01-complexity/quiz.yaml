@@ -1,0 +1,30 @@
+questions:
+  - id: nested-loops
+    prompt: "A method loops over n items and, inside, loops over all n items again. What is its time complexity?"
+    options: ["O(n)", "O(n log n)", "O(n²)", "O(2ⁿ)"]
+    answer: 2
+    explanation: "n iterations of an inner loop of n steps: n × n."
+  - id: drop-constants
+    prompt: "Which is the same as O(3n² + 100n + 7)?"
+    options: ["O(3n²)", "O(n²)", "O(n² + n)", "O(100n)"]
+    answer: 1
+    explanation: "Big-O keeps the fastest-growing term and drops constant factors."
+  - id: halving
+    prompt: "A loop halves its range every iteration until one element is left. How many iterations for n elements?"
+    options: ["About n / 2", "About log₂ n", "About √n", "Exactly n"]
+    answer: 1
+    explanation: "Halving reaches 1 after log₂ n steps: about 20 for a million."
+  - id: amortised-append
+    prompt: "An array doubles its capacity when full. Why is append O(1) amortised although a resize copies everything?"
+    options: ["Copies are free in Java", "Resizes happen at sizes 1, 2, 4, ..., so all copies for n appends total less than 2n", "The JVM resizes in the background", "Append is actually O(log n)"]
+    answer: 1
+    explanation: "A geometric series: n + n/2 + n/4 + ... < 2n copies, spread over n appends."
+  - id: add-ten
+    prompt: "A dynamic array grows by 10 slots instead of doubling. What do n appends cost in total?"
+    options: ["O(n)", "O(n log n)", "O(n²)", "O(1)"]
+    answer: 2
+    explanation: "It copies about n/10 times, each copy up to n elements: quadratic. The growth must be by a factor."
+  - id: million-n2
+    prompt: "Roughly how many operations is an O(n²) algorithm on n = 1,000,000?"
+    answers: ["10^12", "1e12", "a trillion", "one trillion", "1000000000000"]
+    explanation: "10⁶ squared is 10¹²: at about 10⁹ simple operations per second, more than 15 minutes."

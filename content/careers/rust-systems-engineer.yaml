@@ -18,7 +18,7 @@ stages:
     requires:
       - { track: rust, phase: p4 }
       - { skill: rust.concurrency, min: 1 }
-      - { track: datastructures-and-algorithms, phase: p2 }
+      - { track: datastructures-and-algorithms, phase: p3 }
   - id: s4
     title: "Systems at scale"
     requires:

@@ -1,0 +1,272 @@
+# Placement test of the Data Structures & Algorithms track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How much data structures and algorithms have you studied?
+  options:
+    - { label: "Little: I use lists and maps but have not studied Big-O or algorithms", start_phase: p0, test: false }
+    - { label: "I know Big-O, hash tables, stacks and queues, and solve easy interview problems", start_phase: p1, test: true }
+    - { label: "I am comfortable with sorting, binary search, trees, heaps and graph traversal", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-arraylist-remove-front
+    phase: p1
+    skills: [datastructures-and-algorithms.arrays-strings]
+    difficulty: 2
+    prompt: "A loop calls list.remove(0) on an ArrayList of 200,000 elements until it is empty. What is the total cost?"
+    options: ["O(n)", "O(n log n)", "O(n²): every removal shifts the rest", "O(1)"]
+    answer: 2
+    explanation: "Each remove(0) moves all remaining elements; use an ArrayDeque to consume from the front."
+  - id: p1-stringbuilder
+    phase: p1
+    skills: [datastructures-and-algorithms.arrays-strings]
+    difficulty: 2
+    prompt: "Which change turns building a CSV line from 10,000 fields from O(n²) into O(n) character copies?"
+    options: ["Use String.concat instead of +", "Append to one StringBuilder (or use String.join)", "Call intern() on each field", "Use a char[] of length 10"]
+    answer: 1
+    explanation: "A StringBuilder grows geometrically, so appends are amortised O(1)."
+  - id: p1-range-sum
+    phase: p1
+    skills: [datastructures-and-algorithms.arrays-strings]
+    difficulty: 2
+    prompt: "An array has prefix sums [0, 4, 6, 13, 15]. What is the sum of elements at indexes 1 to 3 inclusive?"
+    answers: ["11"]
+    explanation: "prefix[4] − prefix[1] = 15 − 4 = 11."
+  - id: p1-hashcode-record
+    phase: p1
+    skills: [datastructures-and-algorithms.hash-tables]
+    difficulty: 2
+    prompt: "Which key type is the safest choice for a HashMap keyed by (customerId, orderDate)?"
+    options: ["A mutable class with setters and Lombok @Data", "A record OrderKey(long customerId, LocalDate orderDate)", "The string customerId + orderDate without a separator", "An int[] of both values"]
+    answer: 1
+    explanation: "Records are immutable with matching equals and hashCode; arrays use identity, and concatenation without a separator can collide."
+  - id: p1-load-factor-resize
+    phase: p1
+    skills: [datastructures-and-algorithms.hash-tables]
+    difficulty: 3
+    prompt: "A HashMap with 16 buckets and load factor 0.75 receives its entries one by one. After which insertion does it first resize?"
+    answers: ["13", "the 13th", "13th"]
+    explanation: "The threshold is 16 × 0.75 = 12, so the 13th entry triggers the doubling."
+  - id: p1-queue-class
+    phase: p1
+    skills: [datastructures-and-algorithms.linear-structures]
+    difficulty: 1
+    prompt: "A BFS needs a FIFO queue in single-threaded Java code. Which class is the usual choice?"
+    options: ["java.util.Stack", "java.util.ArrayDeque", "java.util.TreeSet", "java.util.Vector"]
+    answer: 1
+    explanation: "ArrayDeque is a circular array with O(1) offer and poll."
+  - id: p1-middle-node
+    phase: p1
+    skills: [datastructures-and-algorithms.linear-structures]
+    difficulty: 2
+    prompt: "How do you find the middle node of a singly linked list in one pass and O(1) memory?"
+    options: ["Count the nodes, then walk again", "Move a slow pointer one step and a fast pointer two steps; when fast reaches the end, slow is in the middle", "Copy into an array", "Reverse the list"]
+    answer: 1
+    explanation: "Fast and slow pointers; the first option needs two passes."
+  - id: p1-window-distinct
+    phase: p1
+    skills: [datastructures-and-algorithms.two-pointers]
+    difficulty: 3
+    prompt: "What is the time complexity of finding the longest substring with at most k distinct characters using a sliding window with a count map?"
+    options: ["O(n · k)", "O(n): each pointer only moves forward", "O(n²)", "O(n log n)"]
+    answer: 1
+    explanation: "The window grows and shrinks at most n times each; map updates are O(1)."
+  - id: p1-subarray-zero
+    phase: p1
+    skills: [datastructures-and-algorithms.two-pointers, datastructures-and-algorithms.hash-tables]
+    difficulty: 3
+    prompt: "How do you check in O(n) whether an array with negative numbers has a contiguous subarray summing to 0?"
+    options: ["A sliding window", "Check whether any prefix sum repeats (including the initial 0), using a hash set", "Sort the array", "Two pointers from both ends"]
+    answer: 1
+    explanation: "Equal prefix sums enclose a zero-sum subarray; a window needs non-negative values."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-timsort-sorted
+    phase: p2
+    skills: [datastructures-and-algorithms.sorting-searching]
+    difficulty: 3
+    prompt: "List.sort is called on a list of 1,000,000 objects that is already sorted. Roughly how much work does TimSort do?"
+    options: ["O(n²)", "O(n log n) comparisons regardless", "About n comparisons: it detects one run", "It throws"]
+    answer: 2
+    explanation: "TimSort finds existing runs, so sorted input is linear."
+  - id: p2-upper-bound
+    phase: p2
+    skills: [datastructures-and-algorithms.sorting-searching]
+    difficulty: 3
+    prompt: "In the sorted array [2, 4, 4, 4, 7], what does upperBound(4) return (the first index with a value greater than 4)?"
+    answers: ["4"]
+    explanation: "Index 4 holds 7, the first value greater than 4; upperBound − lowerBound = 4 − 1 = 3 copies of 4."
+  - id: p2-bsearch-answer
+    phase: p2
+    skills: [datastructures-and-algorithms.sorting-searching]
+    difficulty: 3
+    prompt: "You binary-search the smallest eating speed between 1 and 10⁹ bananas per hour, with an O(n) check per speed. For n = 10⁵ piles, roughly how many steps in total?"
+    options: ["10⁵", "About 3 · 10⁶ (30 checks of 10⁵)", "10¹⁴", "10⁹"]
+    answer: 1
+    explanation: "log₂(10⁹) ≈ 30 iterations of an O(n) check."
+  - id: p2-permutations
+    phase: p2
+    skills: [datastructures-and-algorithms.recursion-backtracking]
+    difficulty: 2
+    prompt: "How many permutations does a backtracking search list for 8 distinct elements?"
+    answers: ["40320", "40,320", "8!"]
+    explanation: "8! = 40,320."
+  - id: p2-recursion-space
+    phase: p2
+    skills: [datastructures-and-algorithms.recursion-backtracking]
+    difficulty: 3
+    prompt: "A recursive merge sort sorts n elements. How deep does its recursion go?"
+    options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"]
+    answer: 1
+    explanation: "Each level halves the range; the merge buffer is O(n), but the stack is only log n deep."
+  - id: p2-bst-delete
+    phase: p2
+    skills: [datastructures-and-algorithms.trees-heaps]
+    difficulty: 3
+    prompt: "When deleting a BST node with two children, which node usually replaces it?"
+    options: ["Its parent", "Its in-order successor: the smallest node of its right subtree", "The root", "Its left child, always"]
+    answer: 1
+    explanation: "The successor keeps the BST order and has at most one child, so it is easy to remove."
+  - id: p2-kth-largest-stream
+    phase: p2
+    skills: [datastructures-and-algorithms.trees-heaps]
+    difficulty: 3
+    prompt: "A stream of scores arrives and you must always know the 10th largest so far. What do you keep?"
+    options: ["All scores, sorted after each one", "A min-heap of the 10 largest: its root is the answer", "A max-heap of all scores", "A hash set"]
+    answer: 1
+    explanation: "Each new score costs O(log 10); a larger one replaces the root."
+  - id: p2-grid-bfs
+    phase: p2
+    skills: [datastructures-and-algorithms.graphs-bfs-dfs]
+    difficulty: 2
+    prompt: "What finds the fewest moves for a knight between two squares of a chessboard?"
+    options: ["DFS", "BFS from the start square", "Dijkstra with random weights", "Sorting the squares"]
+    answer: 1
+    explanation: "All moves cost 1, so BFS gives the shortest path."
+  - id: p2-course-schedule
+    phase: p2
+    skills: [datastructures-and-algorithms.graphs-bfs-dfs]
+    difficulty: 3
+    prompt: "Courses have prerequisites. How do you decide whether all courses can be completed?"
+    options: ["Count the courses", "Run Kahn's algorithm: if every course gets ordered, there is no cycle and it is possible", "BFS from course 0", "Sort courses by name"]
+    answer: 1
+    explanation: "It is possible exactly when the prerequisite graph is a DAG."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-dijkstra-pick
+    phase: p3
+    skills: [datastructures-and-algorithms.shortest-paths]
+    difficulty: 3
+    prompt: "A road graph has 10⁶ junctions and 3 · 10⁶ roads with travel times. Which shortest-path method fits?"
+    options: ["Floyd-Warshall", "Dijkstra with a binary heap", "Bellman-Ford", "BFS ignoring the times"]
+    answer: 1
+    explanation: "Non-negative weights and a sparse graph: O((V + E) log V)."
+  - id: p3-union-find-cycle
+    phase: p3
+    skills: [datastructures-and-algorithms.shortest-paths]
+    difficulty: 3
+    prompt: "Edges of an undirected graph arrive one at a time. How do you detect the first edge that closes a cycle?"
+    options: ["Run a DFS after each edge", "Union-find: an edge whose endpoints already have the same root closes a cycle", "Sort the edges", "Count the edges"]
+    answer: 1
+    explanation: "Near-constant time per edge instead of O(V + E)."
+  - id: p3-negative-cycle
+    phase: p3
+    skills: [datastructures-and-algorithms.shortest-paths]
+    difficulty: 4
+    prompt: "Currency exchange rates form a graph with edge weights −log(rate). What does a negative cycle mean, and which algorithm finds it?"
+    options: ["A data error; Dijkstra", "An arbitrage opportunity; Bellman-Ford", "A disconnected graph; BFS", "Nothing; Kruskal"]
+    answer: 1
+    explanation: "A cycle whose rates multiply to more than 1 has negative total weight; Bellman-Ford detects it."
+  - id: p3-trie-memory
+    phase: p3
+    skills: [datastructures-and-algorithms.tries]
+    difficulty: 3
+    prompt: "A trie of a million URLs uses far too much memory. What is the usual fix?"
+    options: ["Use a 256-slot array per node", "Compress chains of single-child nodes into labelled edges (a radix tree)", "Store each URL twice", "Switch to a linked list"]
+    answer: 1
+    explanation: "Most nodes in a URL trie have one child; a radix tree removes them."
+  - id: p3-trie-prefix
+    phase: p3
+    skills: [datastructures-and-algorithms.tries]
+    difficulty: 2
+    prompt: "What does checking whether any stored word starts with a prefix of length L cost in a trie?"
+    options: ["O(L)", "O(n)", "O(n · L)", "O(log n)"]
+    answer: 0
+    explanation: "Walk L nodes; the number of words does not matter."
+  - id: p3-lcs
+    phase: p3
+    skills: [datastructures-and-algorithms.dynamic-programming]
+    difficulty: 3
+    prompt: "What is the length of the longest common subsequence of \"ABCBDAB\" and \"BDCABA\"?"
+    answers: ["4"]
+    explanation: "For example BCBA or BDAB; the DP over prefixes gives 4."
+  - id: p3-coin-ways
+    phase: p3
+    skills: [datastructures-and-algorithms.dynamic-programming]
+    difficulty: 3
+    prompt: "In how many ways can you pay 5 with coins {1, 2, 5} (order does not matter)?"
+    answers: ["4", "four"]
+    explanation: "5, 2+2+1, 2+1+1+1, 1+1+1+1+1."
+  - id: p3-memo-state
+    phase: p3
+    skills: [datastructures-and-algorithms.dynamic-programming]
+    difficulty: 4
+    prompt: "A recursion f(i, remaining) has i < 300 and remaining ≤ 40,000, and each call does O(1) work besides two recursive calls. With memoisation, what is the time?"
+    options: ["O(2³⁰⁰)", "About 12 million states × O(1): O(n · C)", "O(300)", "O(40,000²)"]
+    answer: 1
+    explanation: "Time = number of distinct states × work per state."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-merge-intervals
+    phase: p4
+    skills: [datastructures-and-algorithms.greedy]
+    difficulty: 2
+    prompt: "What do the intervals [1,3], [2,6], [8,10], [9,12] merge into?"
+    options: ["[1,6], [8,12]", "[1,12]", "[1,3], [2,6], [8,12]", "[1,6], [8,10], [9,12]"]
+    answer: 0
+    explanation: "Sort by start and extend the current interval while the next one overlaps."
+  - id: p4-greedy-proof
+    phase: p4
+    skills: [datastructures-and-algorithms.greedy]
+    difficulty: 4
+    prompt: "Which problem is correctly solved by a greedy algorithm?"
+    options: ["0/1 knapsack by value per weight", "Minimum spanning tree by adding the lightest edge that joins two components", "Coin change with arbitrary coins, largest first", "Longest path in a graph, longest edge first"]
+    answer: 1
+    explanation: "Kruskal's choice is justified by the cut property; the others have counterexamples."
+  - id: p4-popcount
+    phase: p4
+    skills: [datastructures-and-algorithms.bit-manipulation]
+    difficulty: 2
+    prompt: "What does Integer.bitCount(0b1011_0110) return?"
+    answers: ["5", "five"]
+    explanation: "Five bits are set."
+  - id: p4-missing-number
+    phase: p4
+    skills: [datastructures-and-algorithms.bit-manipulation]
+    difficulty: 3
+    prompt: "An array holds all numbers from 0 to n except one. Which O(n) time, O(1) memory method finds the missing one without overflow risk?"
+    options: ["Sort and scan", "XOR all indexes 0..n with all values: everything cancels except the missing number", "A HashSet", "Binary search on an unsorted array"]
+    answer: 1
+    explanation: "XOR cancels pairs and never overflows; summing works too but can overflow for large n."
+  - id: p4-size-to-complexity
+    phase: p4
+    skills: [datastructures-and-algorithms.problem-solving]
+    difficulty: 3
+    prompt: "An interview problem says n ≤ 2 · 10⁵. Which target complexity should you aim for?"
+    options: ["O(2ⁿ)", "O(n²)", "O(n log n) or better", "O(n³)"]
+    answer: 2
+    explanation: "n² would be 4 · 10¹⁰ steps; n log n is a few million."
+  - id: p4-signal
+    phase: p4
+    skills: [datastructures-and-algorithms.problem-solving]
+    difficulty: 3
+    prompt: "\"Return every way to split a string into palindromes.\" Which technique does 'every way' point to first?"
+    options: ["Binary search", "Backtracking (optionally with precomputed palindrome checks)", "Union-find", "A heap"]
+    answer: 1
+    explanation: "Listing all solutions is a search over choices; DP can precompute which substrings are palindromes."

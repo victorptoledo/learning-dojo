@@ -1,0 +1,49 @@
+id: datastructures-and-algorithms.p2.search-toolkit
+kind: kata
+status: draft
+title: "Search Toolkit"
+summary: "Lower bound, search in a rotated array, binary search on the answer, quickselect with a three-way partition, inversions by merge sort, and combinations by backtracking."
+objectives:
+  - { id: o1, text: "Write binary searches with a clear invariant, on arrays and on a monotonic answer", skills: [datastructures-and-algorithms.sorting-searching] }
+  - { id: o2, text: "Use partitioning and merging beyond sorting: quickselect and inversion counting", skills: [datastructures-and-algorithms.sorting-searching, datastructures-and-algorithms.recursion-backtracking] }
+  - { id: o3, text: "Enumerate combinations by backtracking with pruning", skills: [datastructures-and-algorithms.recursion-backtracking] }
+prerequisites: [datastructures-and-algorithms.p2.recursion-backtracking]
+difficulty: 3
+estimated_minutes: 75
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      For every binary search, write down the invariant before the loop: "the answer is in [lo, hi]". Each step must keep it true and shrink the range. For `minShipCapacity`, what is the smallest capacity that can possibly work, the largest one you would ever need, and how do you check one capacity in O(n)?
+    - |-
+      `lowerBound`: `lo = 0, hi = length`; if `a[mid] < target` the answer is after mid (`lo = mid + 1`), else it is mid or before (`hi = mid`). Use `(lo + hi) >>> 1` so the sum cannot overflow. `searchRotated`: if `a[lo] <= a[mid]` the left half is sorted, so check whether the target lies in it. `kthSmallest`: a random pivot and a three-way (Dutch national flag) partition into `< = >`, then keep only the part that contains index `k - 1`. `countInversions`: merge sort on a copy, adding `mid - i` whenever the right element is taken first.
+    - |-
+      ```java
+      private static void backtrack(int[] sorted, int start, int left,
+                                    List<Integer> chosen, List<List<Integer>> out) {
+          if (left == 0) {
+              out.add(List.copyOf(chosen));
+              return;
+          }
+          for (int i = start; i < sorted.length && sorted[i] <= left; i++) {
+              chosen.add(sorted[i]);
+              backtrack(sorted, i, left - sorted[i], chosen, out); // i, not i + 1: reuse allowed
+              chosen.removeLast();                               // undo the choice
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

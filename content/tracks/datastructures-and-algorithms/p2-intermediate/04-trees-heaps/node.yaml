@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p2.trees-heaps
+kind: lesson
+status: draft
+title: "Trees, Binary Search Trees and Heaps"
+summary: "Tree vocabulary and the four traversals, binary search trees and why they must stay balanced (AVL, red-black, B-trees), and binary heaps as priority queues, with where TreeMap, PriorityQueue and database indexes use them."
+objectives:
+  - { id: o1, text: "Traverse trees in pre-, in-, post- and level order, recursively and with an explicit stack or queue", skills: [datastructures-and-algorithms.trees-heaps] }
+  - { id: o2, text: "Explain BST search, insert and delete, why balance matters, and what red-black trees and B-trees guarantee", skills: [datastructures-and-algorithms.trees-heaps] }
+  - { id: o3, text: "Use a binary heap for priority queues, top-k, k-way merge and running medians, and know its costs", skills: [datastructures-and-algorithms.trees-heaps] }
+prerequisites: [datastructures-and-algorithms.p2.search-toolkit]
+difficulty: 3
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A gaming backend keeps a leaderboard of 5 million players. It must (a) update a player''s score many times per second, (b) show the top 100, (c) show a player''s rank, and (d) list players with scores between two values. A teammate proposes a PriorityQueue. Explain what a binary heap can and cannot do for these four operations, propose a structure (or a combination) that supports all of them with their costs, explain why a plain unbalanced BST would be dangerous here, and say how Redis sorted sets solve the same problem.'
+  criteria:
+    - 'Explains that a heap gives the top quickly (peek O(1), poll O(log n)) but cannot find, update or rank an arbitrary player efficiently (O(n) search)'
+    - 'Proposes a balanced ordered structure (TreeMap / red-black tree keyed by score and player id) plus a HashMap from player to current score for updates'
+    - 'Gives costs: update = remove + insert O(log n), top 100 by iterating from the high end, range queries O(log n + k)'
+    - 'Explains rank needs subtree sizes (an order-statistic tree) or a skip list with span counts; plain TreeMap gives rank only in O(n)'
+    - 'Explains that an unbalanced BST degrades to a linked list (O(n) operations) when scores arrive in sorted order, and that Redis sorted sets use a skip list plus a hash table'

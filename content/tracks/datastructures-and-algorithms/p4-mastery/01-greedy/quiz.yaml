@@ -1,0 +1,31 @@
+questions:
+  - id: activity-key
+    prompt: "To fit the most non-overlapping meetings in one room, which meetings should the greedy algorithm pick first?"
+    options: ["The shortest", "The ones that start earliest", "The ones that end earliest", "The longest"]
+    answer: 2
+    explanation: "Ending earliest leaves the most room for the rest; an exchange argument proves it optimal."
+  - id: greedy-coins
+    prompt: "With coins {1, 3, 4}, what does greedy (largest coin first) pay for 6, and is it optimal?"
+    options: ["3 + 3, optimal", "4 + 1 + 1, not optimal: 3 + 3 uses fewer coins", "6, optimal", "It cannot pay 6"]
+    answer: 1
+    explanation: "Greedy works for coin systems like euros, not for arbitrary ones; use DP."
+  - id: exchange
+    prompt: "What does an exchange argument show?"
+    options: ["That the algorithm is fast", "That any optimal solution can be changed step by step into the greedy one without getting worse", "That the input is sorted", "That DP is needed"]
+    answer: 1
+    explanation: "If the greedy choice can always be swapped in, the greedy solution is optimal too."
+  - id: meeting-rooms
+    prompt: "How do you find the minimum number of rooms for a set of meetings?"
+    options: ["Count the meetings", "Sort by start and keep a min-heap of end times: the heap's largest size is the answer", "Sort by length", "Use union-find"]
+    answer: 1
+    explanation: "The heap holds the meetings in progress; a room is reused when the earliest end has passed."
+  - id: fractional
+    prompt: "For which knapsack is greedy by value per kilogram optimal?"
+    options: ["0/1 knapsack", "Fractional knapsack, where items can be split", "Both", "Neither"]
+    answer: 1
+    explanation: "Splitting removes the indivisibility that makes the 0/1 version need DP."
+  - id: huffman
+    prompt: "What does Huffman coding repeatedly merge?"
+    options: ["The two most frequent symbols", "The two least frequent nodes, using a min-heap", "Adjacent symbols", "Random pairs"]
+    answer: 1
+    explanation: "Rare symbols end up deep (long codes), frequent ones shallow (short codes); gzip uses it."

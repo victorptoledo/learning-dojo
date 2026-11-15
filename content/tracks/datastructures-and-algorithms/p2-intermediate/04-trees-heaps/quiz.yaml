@@ -1,0 +1,31 @@
+questions:
+  - id: inorder-bst
+    prompt: "In which order does an in-order traversal visit the keys of a binary search tree?"
+    options: ["Insertion order", "Ascending order", "Level by level", "Random order"]
+    answer: 1
+    explanation: "Left subtree (smaller), node, right subtree (larger): sorted."
+  - id: degenerate
+    prompt: "You insert 1, 2, 3, ..., n into a plain (unbalanced) BST. What does a search cost?"
+    options: ["O(1)", "O(log n)", "O(n): the tree is a chain", "O(n log n)"]
+    answer: 2
+    explanation: "Each key becomes the right child of the previous one; balancing trees prevent this."
+  - id: heap-array
+    prompt: "In an array-based binary heap, where are the children of the node at index i?"
+    options: ["i + 1 and i + 2", "2i + 1 and 2i + 2", "i / 2 and i / 2 + 1", "Anywhere"]
+    answer: 1
+    explanation: "The heap is a complete tree stored level by level, so no pointers are needed."
+  - id: heapify-cost
+    prompt: "How long does building a heap from n unsorted items take with bottom-up heapify?"
+    options: ["O(n log n)", "O(n)", "O(log n)", "O(n²)"]
+    answer: 1
+    explanation: "Most nodes are near the bottom and sift down only a little; the sum is linear."
+  - id: btree-db
+    prompt: "Why do databases use B-trees rather than binary search trees for indexes?"
+    options: ["B-trees are simpler", "Each node holds hundreds of keys and fits a disk page, so a lookup reads only 3 or 4 pages", "Binary trees cannot be stored on disk", "B-trees do not need balancing"]
+    answer: 1
+    explanation: "A high branching factor makes the tree very shallow, minimising page reads."
+  - id: running-median
+    prompt: "How do you keep the median of a stream of numbers in O(log n) per number?"
+    options: ["Sort after every insert", "A max-heap for the lower half and a min-heap for the upper half, kept balanced", "One min-heap", "A hash map"]
+    answer: 1
+    explanation: "The median is at the top of one heap (or the mean of both tops)."

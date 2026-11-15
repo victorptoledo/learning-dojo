@@ -1,0 +1,49 @@
+id: datastructures-and-algorithms.p3.route-finder
+kind: kata
+status: draft
+title: "Route Finder"
+summary: "Union-find with path compression and union by size, BFS on a grid, Dijkstra with a priority queue and path reconstruction, and Kruskal's minimum spanning tree."
+objectives:
+  - { id: o1, text: "Implement union-find with both optimisations and use it in Kruskal's algorithm", skills: [datastructures-and-algorithms.shortest-paths] }
+  - { id: o2, text: "Find shortest paths with BFS for unit costs and Dijkstra for non-negative weights, and rebuild the path", skills: [datastructures-and-algorithms.shortest-paths, datastructures-and-algorithms.graphs-bfs-dfs] }
+prerequisites: [datastructures-and-algorithms.p3.shortest-paths-union-find]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Three different questions: "how many steps" when every step costs the same, "how far" when edges have weights, and "which edges connect everything most cheaply". Which traversal answers the first with a plain queue, what has to replace the queue for the second, and what structure tells you quickly whether an edge would close a cycle in the third?
+    - |-
+      `UnionFind`: two `int[]` arrays, `parent` and `size`. `find` walks to the root, then walks the path again pointing each node at the root. `union` attaches the smaller root under the larger. Dijkstra: an adjacency list, `long[] distance` filled with `Long.MAX_VALUE`, and a `PriorityQueue<long[]>` of `{distance, node}`; when you poll an entry whose distance is larger than `distance[node]`, skip it. Keep `previous[node]` for every improvement and walk it back from the target. Kruskal: sort a copy of the edges by weight and keep those for which `union` returns `true`.
+    - |-
+      ```java
+      while (!queue.isEmpty()) {
+          long[] entry = queue.poll();
+          int node = (int) entry[1];
+          if (entry[0] > distance[node]) continue;      // outdated: a shorter one was found
+          for (Edge e : graph.get(node)) {
+              long candidate = distance[node] + e.weight();
+              if (candidate < distance[e.to()]) {
+                  distance[e.to()] = candidate;
+                  previous[e.to()] = node;
+                  queue.add(new long[] {candidate, e.to()});
+              }
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

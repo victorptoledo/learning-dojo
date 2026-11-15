@@ -1,0 +1,30 @@
+questions:
+  - id: base-case
+    prompt: "A recursive function has no base case for n = 0. What happens when it is called with 0?"
+    options: ["It returns 0", "It recurses until the stack overflows (StackOverflowError in Java)", "The compiler rejects it", "The JIT adds one"]
+    answer: 1
+    explanation: "Every recursion needs a case that answers without recursing, and every call must move towards it."
+  - id: naive-fib
+    prompt: "What is the time complexity of `fib(n) = fib(n - 1) + fib(n - 2)` without memoisation?"
+    options: ["O(n)", "O(n log n)", "Exponential, about O(1.6ⁿ)", "O(n²)"]
+    answer: 2
+    explanation: "The call tree branches twice per level and recomputes the same values; memoisation makes it O(n)."
+  - id: master
+    prompt: "Merge sort satisfies T(n) = 2T(n/2) + O(n). What is T(n)?"
+    options: ["O(n)", "O(n log n)", "O(n²)", "O(log n)"]
+    answer: 1
+    explanation: "log n levels of the recursion tree, each doing O(n) work in total."
+  - id: subsets-count
+    prompt: "How many subsets does a set of 20 elements have?"
+    answers: ["1048576", "2^20", "1,048,576"]
+    explanation: "Each element is either in or out: 2²⁰ = 1,048,576."
+  - id: backtrack-undo
+    prompt: "In choose-explore-unchoose backtracking, why do you remove the last choice after the recursive call?"
+    options: ["To save memory", "So the shared state is back to what it was before, ready for the next choice at this level", "To print the result", "Java requires it"]
+    answer: 1
+    explanation: "One mutable path is reused for every branch; forgetting to undo leaks choices into siblings."
+  - id: pruning
+    prompt: "What does pruning do in a backtracking search?"
+    options: ["Sorts the results", "Stops exploring a branch as soon as it cannot lead to a valid solution", "Removes duplicate results at the end", "Converts recursion to iteration"]
+    answer: 1
+    explanation: "Cutting a branch early skips its whole subtree, which is often most of the search space."

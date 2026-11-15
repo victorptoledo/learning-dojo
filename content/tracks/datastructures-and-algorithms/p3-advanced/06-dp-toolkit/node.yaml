@@ -1,0 +1,50 @@
+id: datastructures-and-algorithms.p3.dp-toolkit
+kind: kata
+status: draft
+title: "DP Toolkit"
+summary: "Grid paths, edit distance, the O(n log n) longest increasing subsequence, 0/1 knapsack, minimum coins and word break: find the state, the recurrence and the table."
+objectives:
+  - { id: o1, text: "Define the state, recurrence and base case of a problem and fill the table in a valid order", skills: [datastructures-and-algorithms.dynamic-programming] }
+  - { id: o2, text: "Reduce memory to one row and combine DP with binary search when the plain table is too slow", skills: [datastructures-and-algorithms.dynamic-programming, datastructures-and-algorithms.sorting-searching] }
+prerequisites: [datastructures-and-algorithms.p3.dynamic-programming]
+difficulty: 4
+estimated_minutes: 90
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      For each problem, write the brute-force recursion first, on paper: what are its arguments? Those arguments are the state. Count how many distinct states there are and how much work each one does; that product is the cost of the memoised or tabulated version. Which problems have a state of one index, and which of two?
+    - |-
+      `gridPaths`: one `long[] row` updated in place, `row[c] = (row[c] + row[c - 1]) % MOD`. `editDistance`: two rows, `d[i][j] = min(d[i-1][j-1] + (same ? 0 : 1), d[i-1][j] + 1, d[i][j-1] + 1)`. `knapsack`: one `long[] best` of size capacity + 1, loop `c` from capacity down to the weight. `minCoins`: `fewest[a] = 1 + min(fewest[a - coin])`, with a marker for unreachable. `wordBreak`: `can[end]` is true if some `can[start]` is true and `text.substring(start, end)` is a word; only look back as far as the longest word.
+    - |-
+      ```java
+      public static int longestIncreasingSubsequence(int[] values) {
+          int[] tails = new int[values.length]; // tails[k]: smallest end of an increasing run of length k + 1
+          int length = 0;
+          for (int v : values) {
+              int lo = 0, hi = length;
+              while (lo < hi) {                 // first tail >= v
+                  int mid = (lo + hi) >>> 1;
+                  if (tails[mid] < v) lo = mid + 1; else hi = mid;
+              }
+              tails[lo] = v;
+              if (lo == length) length++;
+          }
+          return length;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

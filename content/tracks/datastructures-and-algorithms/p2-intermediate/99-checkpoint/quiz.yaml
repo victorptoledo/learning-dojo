@@ -1,0 +1,48 @@
+questions:
+  - id: stable-sort
+    skills: [datastructures-and-algorithms.sorting-searching]
+    prompt: "You sort orders by date, then sort the result by customer. When does every customer's orders stay in date order?"
+    options: ["Always", "Only if the second sort is stable", "Only with quicksort", "Never"]
+    answer: 1
+    explanation: "A stable sort keeps equal keys in their previous order; Java's object sort (TimSort) is stable."
+  - id: binary-search-answer
+    skills: [datastructures-and-algorithms.sorting-searching]
+    prompt: "What property must a predicate have for a binary search on the answer to work?"
+    options: ["It must be fast", "It must be monotonic: false up to some value, true from then on", "It must use sorted input", "It must be recursive"]
+    answer: 1
+    explanation: "Binary search needs one boundary between false and true to home in on."
+  - id: recursion-depth
+    skills: [datastructures-and-algorithms.recursion-backtracking]
+    prompt: "A recursive in-order traversal works on balanced trees but fails on a tree built by inserting sorted keys into a plain BST. Why?"
+    options: ["The values are too large", "The tree is a chain n levels deep, so the recursion is n frames deep and overflows the stack", "In-order traversal needs a heap", "Sorted keys are not allowed"]
+    answer: 1
+    explanation: "Recursion depth equals tree height; use an explicit stack or keep the tree balanced."
+  - id: backtracking-undo
+    skills: [datastructures-and-algorithms.recursion-backtracking]
+    prompt: "In a backtracking search, what happens right after the recursive call returns?"
+    options: ["The result is printed", "The choice just made is undone, so the next choice starts from the same state", "The recursion restarts", "The stack is cleared"]
+    answer: 1
+    explanation: "Choose, explore, un-choose: one shared state is reused for every branch."
+  - id: heap-search
+    skills: [datastructures-and-algorithms.trees-heaps]
+    prompt: "What does a binary min-heap NOT give you in O(log n) or better?"
+    options: ["The minimum", "Removing the minimum", "Inserting a value", "Finding whether an arbitrary value is present"]
+    answer: 3
+    explanation: "A heap only orders parents before children; finding an arbitrary value means scanning, O(n)."
+  - id: treemap-structure
+    skills: [datastructures-and-algorithms.trees-heaps]
+    prompt: "Which structure is java.util.TreeMap built on?"
+    answers: ["red-black tree", "a red-black tree", "red black tree", "red-black"]
+    explanation: "TreeMap is a red-black tree: a balanced BST with O(log n) operations and ordered iteration."
+  - id: bfs-shortest
+    skills: [datastructures-and-algorithms.graphs-bfs-dfs]
+    prompt: "Why does BFS find the shortest path in an unweighted graph but DFS does not?"
+    options: ["BFS uses less memory", "BFS visits nodes in order of distance from the start, so the first visit is along a shortest path", "DFS cannot visit every node", "BFS sorts the edges"]
+    answer: 1
+    explanation: "The queue processes all nodes at distance d before any at d + 1."
+  - id: kahn-cycle
+    skills: [datastructures-and-algorithms.graphs-bfs-dfs]
+    prompt: "Kahn's algorithm finishes but its output has fewer nodes than the graph. What does that mean?"
+    options: ["The graph is disconnected", "The graph has a cycle: the nodes on it never reach in-degree 0", "There is a bug in the queue", "Some nodes have no edges"]
+    answer: 1
+    explanation: "Disconnected DAGs are still fully ordered; only a cycle keeps nodes waiting forever."

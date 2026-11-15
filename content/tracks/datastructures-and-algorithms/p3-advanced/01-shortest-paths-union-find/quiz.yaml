@@ -1,0 +1,31 @@
+questions:
+  - id: dijkstra-negative
+    prompt: "Why does Dijkstra's algorithm fail with negative edge weights?"
+    options: ["It cannot add negative numbers", "It assumes that once the closest unsettled node is taken its distance is final, which a later negative edge can undercut", "It loops forever", "Priority queues reject negatives"]
+    answer: 1
+    explanation: "With non-negative weights no later path can be shorter; a negative edge breaks that invariant."
+  - id: dijkstra-cost
+    prompt: "What is the cost of Dijkstra with a binary heap on V vertices and E edges?"
+    options: ["O(V + E)", "O((V + E) log V)", "O(V²·E)", "O(E²)"]
+    answer: 1
+    explanation: "Each edge relaxation may push a heap entry (O(log V)), and each vertex is settled once."
+  - id: lazy-deletion
+    prompt: "With Java's PriorityQueue (no decrease-key), how do you handle a node whose distance improved?"
+    options: ["Remove it with remove(Object) every time", "Push a new entry and skip polled entries whose distance is larger than the best known", "Rebuild the heap", "Ignore the improvement"]
+    answer: 1
+    explanation: "Lazy deletion keeps operations O(log n); remove(Object) is O(n)."
+  - id: path-compression
+    prompt: "What does path compression do in union-find?"
+    options: ["Stores the path as a string", "Makes every node visited by find point directly to the root", "Removes elements", "Sorts the sets"]
+    answer: 1
+    explanation: "Later finds on those nodes take one step; with union by size, operations are almost O(1) amortised."
+  - id: kruskal
+    prompt: "In Kruskal's algorithm, when is an edge skipped?"
+    options: ["When it is the heaviest", "When its two endpoints are already connected (it would close a cycle)", "When it is directed", "Never"]
+    answer: 1
+    explanation: "Union-find answers 'already connected?' quickly; only edges that join two components are kept."
+  - id: zero-one-bfs
+    prompt: "Edges cost either 0 or 1. What is the simplest efficient shortest-path method?"
+    options: ["Bellman-Ford", "0-1 BFS with a deque: 0-edges go to the front, 1-edges to the back", "Floyd-Warshall", "Plain DFS"]
+    answer: 1
+    explanation: "The deque keeps nodes in distance order without a heap, giving O(V + E)."

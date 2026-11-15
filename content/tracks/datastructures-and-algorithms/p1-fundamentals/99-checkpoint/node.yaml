@@ -1,0 +1,48 @@
+id: datastructures-and-algorithms.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz on arrays, strings, hashing, lists, stacks, queues and window techniques, and a sliding-window monitor that answers every question in O(1)."
+objectives:
+  - { id: o1, text: "Explain the costs of arrays, strings, hash tables, linked lists, stacks and queues, and when two pointers or a window apply", skills: [datastructures-and-algorithms.arrays-strings, datastructures-and-algorithms.hash-tables, datastructures-and-algorithms.linear-structures, datastructures-and-algorithms.two-pointers] }
+  - { id: o2, text: "Combine a queue, a hash map and a monotonic deque into a sliding-window monitor with O(1) queries", skills: [datastructures-and-algorithms.hash-tables, datastructures-and-algorithms.linear-structures, datastructures-and-algorithms.two-pointers] }
+prerequisites: [datastructures-and-algorithms.p1.sequence-toolkit]
+difficulty: 3
+estimated_minutes: 75
+xp: 350
+closes_phase: p1
+covers_skills: [datastructures-and-algorithms.arrays-strings, datastructures-and-algorithms.hash-tables, datastructures-and-algorithms.linear-structures, datastructures-and-algorithms.two-pointers]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Every event arrives once and leaves once, in the same order. If each structure is updated in O(1) when an event arrives and when it leaves, every question can be read off in O(1). Which structure gives you "the oldest event" cheaply, which one "how many of this user", and what is left over for the maximum?
+    - |-
+      Keep an `ArrayDeque<Event>` of all live events, a `HashMap<String, Integer>` of counts per user (remove the key at 0, so `size()` is the number of distinct users), a `long` sum of latencies, and a second `ArrayDeque<Event>` for the maximum. Put the eviction loop in `advanceTo` and call it from `record` before adding the new event.
+    - |-
+      ```java
+      // on arrival: smaller latencies at the back can never be the maximum again
+      while (!maxima.isEmpty() && maxima.peekLast().latency() < latencyMs) {
+          maxima.pollLast();
+      }
+      maxima.addLast(event);
+
+      // on departure (oldest first): drop it from the front if it is there
+      Event gone = events.pollFirst();
+      if (maxima.peekFirst() == gone) maxima.pollFirst();   // identity, not equals
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.
