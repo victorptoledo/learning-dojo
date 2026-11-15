@@ -69,8 +69,9 @@ impl KataRunner for DockerRunner {
             .map_err(|error| format!("cannot start docker: {error}"))?;
 
         let timeout = Duration::from_secs(u64::from(kata.runner.timeout_secs));
-        let finished = self.wait_or_kill(&mut child, &container, timeout)?;
-        let output = collect_output(&mut child);
+        let (finished, output) = wait_with_output(&mut child, timeout, || {
+            let _ = self.docker_command().args(["kill", &container]).output();
+        })?;
         let duration_ms = started.elapsed().as_millis() as u64;
         Ok(match finished {
             Some(exit_ok) => parse_cargo_test(&output, exit_ok, duration_ms),
@@ -108,40 +109,38 @@ impl DockerRunner {
         }
         Err(format!("The image `{image}` is not built yet. Run `dojo runner build`.").into())
     }
-
-    /// `Some(exit_ok)` when the container finished, `None` when it was killed on timeout.
-    fn wait_or_kill(
-        &self,
-        child: &mut Child,
-        container: &str,
-        timeout: Duration,
-    ) -> Result<Option<bool>, RunnerError> {
-        let deadline = Instant::now() + timeout;
-        loop {
-            if let Some(status) = child.try_wait()? {
-                return Ok(Some(status.success()));
-            }
-            if Instant::now() >= deadline {
-                let _ = self.docker_command().args(["kill", container]).output();
-                let _ = child.wait();
-                return Ok(None);
-            }
-            thread::sleep(POLL_INTERVAL);
-        }
-    }
 }
 
-/// Reads whatever the container wrote. The pipes are drained on threads so a chatty
-/// build cannot block on a full pipe.
-fn collect_output(child: &mut Child) -> String {
+/// Waits for `child` until it exits or `timeout` passes, then calls `kill` and reaps it.
+/// The pipes are drained on threads from the start: a check that writes more than the
+/// pipe buffer would otherwise block on a full pipe and never exit.
+/// `Some(exit_ok)` when it finished, `None` when it was killed; plus stdout and stderr.
+fn wait_with_output(
+    child: &mut Child,
+    timeout: Duration,
+    kill: impl FnOnce(),
+) -> Result<(Option<bool>, String), RunnerError> {
     let stdout = child.stdout.take().map(spawn_reader);
     let stderr = child.stderr.take().map(spawn_reader);
+    let deadline = Instant::now() + timeout;
+    let finished = loop {
+        if let Some(status) = child.try_wait()? {
+            break Some(status.success());
+        }
+        if Instant::now() >= deadline {
+            kill();
+            let _ = child.kill();
+            let _ = child.wait();
+            break None;
+        }
+        thread::sleep(POLL_INTERVAL);
+    };
     let mut text = String::new();
     for reader in [stdout, stderr].into_iter().flatten() {
         text.push_str(&reader.join().unwrap_or_default());
         text.push('\n');
     }
-    text
+    Ok((finished, text))
 }
 
 pub(crate) fn spawn_reader(mut pipe: impl Read + Send + 'static) -> thread::JoinHandle<String> {
@@ -194,4 +193,43 @@ pub fn build_images(images_dir: &Path) -> Result<Vec<String>, RunnerError> {
         built.push(tag);
     }
     Ok(built)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A command that prints the file at `path` to stdout.
+    fn print_file(path: &Path) -> Command {
+        if cfg!(windows) {
+            let mut command = Command::new("cmd");
+            command.arg("/C").arg("type").arg(path);
+            command
+        } else {
+            let mut command = Command::new("cat");
+            command.arg(path);
+            command
+        }
+    }
+
+    #[test]
+    fn output_larger_than_the_pipe_buffer_does_not_block_the_check() {
+        let dir = tempfile::tempdir().unwrap();
+        let file = dir.path().join("big.txt");
+        let line = "x".repeat(99) + "\n";
+        std::fs::write(&file, line.repeat(10_000)).unwrap();
+        let mut child = print_file(&file)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+
+        let started = Instant::now();
+        let (finished, output) =
+            wait_with_output(&mut child, Duration::from_secs(30), || {}).unwrap();
+
+        assert_eq!(finished, Some(true));
+        assert!(started.elapsed() < Duration::from_secs(20));
+        assert!(output.len() >= 1_000_000, "read {} bytes", output.len());
+    }
 }
