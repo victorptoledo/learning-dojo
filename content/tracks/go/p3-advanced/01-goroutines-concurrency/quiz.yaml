@@ -1,0 +1,46 @@
+questions:
+  - id: main-exit
+    prompt: "main starts a goroutine with `go work()` and then returns. What happens to work()?"
+    options:
+      - "main waits for it automatically"
+      - "It is stopped when the program exits, finished or not"
+      - "It keeps running in the background"
+    answer: 1
+    explanation: "Returning from main ends the program. Wait explicitly with a WaitGroup, a channel or errgroup."
+  - id: wg-go
+    prompt: "What does `wg.Go(f)` do (Go 1.25)?"
+    options:
+      - "Runs f in the current goroutine"
+      - "Adds 1 to the WaitGroup, runs f in a new goroutine and calls Done when f returns"
+      - "Waits for f with a timeout"
+    answer: 1
+    explanation: "It replaces the Add(1) / go / defer Done() pattern, which was easy to get wrong."
+  - id: gomaxprocs
+    prompt: "What does GOMAXPROCS control?"
+    options:
+      - "The maximum number of goroutines"
+      - "How many goroutines can execute Go code at the same moment (the number of Ps)"
+      - "The number of OS threads ever created"
+    answer: 1
+    explanation: "Goroutines are unlimited; threads blocked in system calls do not count toward GOMAXPROCS."
+  - id: container
+    prompt: "A Go 1.27 service runs in a container limited to 2 CPUs on a 64-core node. What is GOMAXPROCS by default?"
+    options: ["64", "2", "1"]
+    answer: 1
+    explanation: "Since Go 1.25 the runtime reads the cgroup CPU limit and updates GOMAXPROCS when it changes."
+  - id: panic-goroutine
+    prompt: "A goroutine started by a request handler panics and nothing recovers it. What happens?"
+    options:
+      - "Only that goroutine stops"
+      - "The whole program crashes"
+      - "The handler returns 500"
+    answer: 1
+    explanation: "net/http recovers panics in the handler's own goroutine only; goroutines you start must recover themselves if needed."
+  - id: leak
+    prompt: "Which change fixes a leak where N goroutines send on an unbuffered channel but only the first value is read?"
+    options:
+      - "make(chan T, N), so every send completes even if nobody reads"
+      - "Calling runtime.GC()"
+      - "Closing the channel from the receiver while senders still send"
+    answer: 0
+    explanation: "With room for every value no sender blocks. Closing a channel others send on would panic them."

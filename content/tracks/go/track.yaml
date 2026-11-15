@@ -4,20 +4,34 @@ name: "Go"
 archetype: language
 category: "Programming Languages"
 icon: "🐹"
-description: "Radical simplicity, native concurrency with goroutines and channels, and a cloud-native ecosystem."
+description: "Go 1.27 as it is written today: modules and the toolchain, slices and maps inside, interfaces, errors, generics and iterators, testing and fuzzing, goroutines, channels, the memory model and context, net/http, log/slog, pprof and Go in production."
 status: draft
-bridges_available: [java]
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Gopher Beginner" }
-  - { name: "Yellow Belt", required_xp: 300, title: "Goroutine Novice" }
-  - { name: "Green Belt", required_xp: 800, title: "Channel Piper" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Slice Header Reader" }
+  - { name: "Green Belt", required_xp: 800, title: "Error Wrapper" }
   - { name: "Purple Belt", required_xp: 1500, title: "Interface Hacker" }
-  - { name: "Brown Belt", required_xp: 2500, title: "Concurrent Architect" }
-  - { name: "Black Belt", required_xp: 4000, title: "Rob Pike Disciple" }
-  - { name: "Sensei", required_xp: 6000, title: "Cloud Native Master" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Channel Piper" }
+  - { name: "Black Belt", required_xp: 4000, title: "Race-Free Architect" }
+  - { name: "Sensei", required_xp: 6000, title: "Cloud Native Gopher" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install Go 1.27, understand modules and the go command, and meet the dojo's Go katas" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types and zero values, slices and maps inside, structs and methods, and errors as values" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Interfaces and embedding, generics and iterators, and testing with table tests, fuzzing and benchmarks" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Goroutines, channels and select, sync and the memory model, the race detector and context" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "HTTP services, structured logging, profiling and Go in production" }
+requirements:
+  - kind: tool
+    name: Go 1.27 (go)
+    command: go
+    version_args: ["version"]
+    min_version: "1.27"
+    required: false
+    why: Runs the visible tests locally with go test. The grading checks run in Docker and do not need it.
+    install_hint: "install Go: winget install GoLang.Go, then reopen the terminal"
+  - kind: vscode-extension
+    name: Go extension for VS Code
+    id: golang.go
+    required: false
+    why: Formats on save with gofmt, shows errors as you type with gopls, and runs and debugs the tests.

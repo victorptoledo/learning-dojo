@@ -1,0 +1,45 @@
+questions:
+  - id: static
+    prompt: "Which setting makes go build produce a fully static binary that runs on a scratch image?"
+    answers: ["CGO_ENABLED=0"]
+    explanation: "Without cgo the binary links nothing from the system's C library."
+  - id: govulncheck
+    prompt: "What makes govulncheck's reports shorter than a plain dependency scanner's?"
+    options:
+      - "It only checks the standard library"
+      - "It reports vulnerabilities in functions your code actually calls"
+      - "It ignores indirect dependencies"
+    answer: 1
+    explanation: "It analyses the call graph, so a vulnerable function you never reach is reported as informational only."
+  - id: config
+    prompt: "A required setting is missing at start-up. What should the service do?"
+    options:
+      - "Start with a default and log a warning"
+      - "Refuse to start with a clear error"
+      - "Start and fail on the first request"
+    answer: 1
+    explanation: "Fail fast: a misconfigured instance should never receive traffic."
+  - id: godebug
+    prompt: "A new Go release changes a behaviour that could break programs. How does Go keep old modules working?"
+    options:
+      - "It does not: you must fix the code before upgrading"
+      - "With a GODEBUG setting whose default follows the go line in go.mod"
+      - "With build tags"
+    answer: 1
+    explanation: "Modules keep the old behaviour until they raise their go line; a godebug block can pin one setting."
+  - id: internal-dir
+    prompt: "Why put most packages of a service under internal/?"
+    options:
+      - "They compile faster"
+      - "Other modules cannot import them, so you can change them freely"
+      - "They are excluded from tests"
+    answer: 1
+    explanation: "The go command enforces internal/, so the module's only public API is what you decide to expose."
+  - id: version-ldflags
+    prompt: "How do you stamp a version string into `var version string` in package main at build time?"
+    options:
+      - "go build -ldflags=\"-X main.version=1.4.2\""
+      - "go build -version=1.4.2"
+      - "GOVERSION=1.4.2 go build"
+    answer: 0
+    explanation: "-X sets a package-level string variable; debug.ReadBuildInfo also exposes the VCS revision."

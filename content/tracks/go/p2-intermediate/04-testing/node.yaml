@@ -1,0 +1,24 @@
+id: go.p2.testing
+kind: lesson
+status: draft
+title: "Testing: Table Tests, Fuzzing and Benchmarks"
+summary: "The testing package and go test, white-box and black-box tests, helpers and cleanup, table-driven tests with subtests, fakes and httptest, examples, fuzzing with a corpus, benchmarks with b.Loop, coverage and testing/synctest."
+objectives:
+  - { id: o1, text: "Write table-driven tests with subtests, clear failure messages, helpers and cleanup", skills: [go.testing] }
+  - { id: o2, text: "Write a fuzz test with a seed corpus and a property, and explain how failing inputs are kept", skills: [go.testing] }
+  - { id: o3, text: "Write a benchmark with b.Loop, read -benchmem output and compare runs with benchstat", skills: [go.testing] }
+prerequisites: [go.p2.generic-collections]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You must test `func ParseDuration(text string) (time.Duration, error)`, a home-made parser for values such as `"1h30m"`, `"45s"` and `"2d"` that has already crashed in production on an input nobody remembers. Describe the tests you would write: the table of cases (with a few rows), what the fuzz test checks and how its findings are kept, and how you would show that a faster version is really faster.'
+  criteria:
+    - 'Writes a table-driven test with named cases run as subtests with t.Run, covering valid inputs, edge cases and errors, with got/want messages'
+    - 'Writes a FuzzParseDuration with seeds (f.Add) and a property such as no panic, or a round trip through formatting, or agreement with time.ParseDuration for the shared syntax'
+    - 'Explains that go test -fuzz finds inputs, saves failures under testdata/fuzz and replays them in every go test run'
+    - 'Writes a benchmark with b.Loop (or b.N), runs it with -benchmem and -count, and compares versions with benchstat'
+    - 'Mentions running tests with -race in CI or keeping the crashing input as a regression case'

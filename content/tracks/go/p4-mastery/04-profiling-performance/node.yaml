@@ -1,0 +1,24 @@
+id: go.p4.profiling-performance
+kind: lesson
+status: draft
+title: "Profiling and Performance: pprof, Benchmarks, Escape Analysis and the GC"
+summary: "Measuring before optimising, pprof profiles (CPU, heap, allocs, goroutine, goroutineleak, block, mutex) from tests and from net/http/pprof, the execution tracer and flight recorder, escape analysis and allocation fixes, the Green Tea GC with GOGC and GOMEMLIMIT, and PGO."
+objectives:
+  - { id: o1, text: "Collect and read CPU, heap and goroutine profiles with pprof, from benchmarks and from a running service", skills: [go.performance] }
+  - { id: o2, text: "Find heap escapes with -gcflags=-m and reduce allocations where a profile shows they matter", skills: [go.performance, go.testing] }
+  - { id: o3, text: "Explain the garbage collector, GOGC, GOMEMLIMIT and profile-guided optimisation", skills: [go.performance] }
+prerequisites: [go.p4.slog-observability]
+difficulty: 5
+estimated_minutes: 55
+xp: 400
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'After a release, the p99 latency of a Go API went from 40 ms to 300 ms and its memory doubles every few hours until the container is killed (limit 1 GiB). CPU looks normal. Describe how you would investigate, step by step, with the Go tools: which profiles or traces you take, what you look for in each, and what fixes and settings you would consider for the likely causes.'
+  criteria:
+    - 'Takes heap profiles over time (inuse_space) and compares them, and a goroutine profile (or the Go 1.27 goroutineleak profile) to check for leaked goroutines holding memory'
+    - 'Uses the execution tracer, or block and mutex profiles, to explain latency when the CPU profile is flat (lock contention, GC, blocking)'
+    - 'Collects profiles from net/http/pprof on an internal port (or the flight recorder), not by guessing'
+    - 'Proposes concrete fixes such as stopping the leak with context cancellation, bounding a cache, streaming instead of buffering, or reducing allocations found with -gcflags=-m'
+    - 'Mentions GOMEMLIMIT a bit under the container limit (and GOGC) as protection, not as the fix, and verifying with benchmarks or a load test'

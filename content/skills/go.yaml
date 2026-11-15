@@ -1,9 +1,17 @@
 namespace: go
 skills:
-  - { id: go.tooling-modules, title: "Go Toolchain and Modules" }
-  - { id: go.types-slices, title: "Structs, Slices and Pointers" }
-  - { id: go.errors-idiomatic, title: "The Famous `if err != nil`" }
-  - { id: go.interfaces-duck-typing, title: "Implicit Interfaces (Structural Typing)" }
-  - { id: go.goroutines-concurrency, title: "Goroutines: Thousands of Lightweight Threads" }
-  - { id: go.channels-select, title: "Channels and the `select` Statement" }
+  - { id: go.tooling-modules, title: "The Go Toolchain, Modules and go.mod" }
+  - { id: go.types-slices, title: "Types, Zero Values, Strings, Slices and Maps" }
+  - { id: go.structs-methods, title: "Structs, Methods, Pointers and Embedding" }
+  - { id: go.errors-idiomatic, title: "Errors as Values: Wrapping, errors.Is and errors.As" }
+  - { id: go.interfaces-duck-typing, title: "Implicit Interfaces, Embedding and Type Switches" }
+  - { id: go.generics, title: "Generics, Constraints and Iterators" }
+  - { id: go.testing, title: "Testing: Table Tests, Fuzzing and Benchmarks" }
+  - { id: go.goroutines-concurrency, title: "Goroutines and the Scheduler" }
+  - { id: go.channels-select, title: "Channels, select and Concurrency Patterns" }
+  - { id: go.sync-memory-model, title: "sync, Atomics, the Memory Model and the Race Detector" }
   - { id: go.context-lifecycle, title: "Context: Cancellation, Deadlines and Propagation" }
+  - { id: go.http, title: "HTTP Services with net/http and ServeMux Patterns" }
+  - { id: go.observability, title: "Structured Logging with log/slog and Observability" }
+  - { id: go.performance, title: "Profiling and Performance: pprof, Benchmarks, Escape Analysis and the GC" }
+  - { id: go.production, title: "Go in Production: Builds, Containers, Configuration and Security" }

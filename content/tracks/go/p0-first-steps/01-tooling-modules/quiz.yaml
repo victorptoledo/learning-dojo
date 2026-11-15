@@ -1,0 +1,39 @@
+questions:
+  - id: exported
+    prompt: "In package `shop`, which of these names can another package use?"
+    options: ["total", "_Total", "Total", "shop.total"]
+    answer: 2
+    explanation: "A name is exported when it starts with an upper case letter; visibility is per package, not per file or type."
+  - id: go-line
+    prompt: "What does the line `go 1.26.0` in go.mod mean?"
+    options:
+      - "A comment that records which Go version created the file"
+      - "The minimum Go version the module needs; it decides which language features are available"
+      - "The exact toolchain everyone must install"
+    answer: 1
+    explanation: "Since Go 1.21 the go line is a requirement. The toolchain line names a preferred newer toolchain."
+  - id: go-sum
+    prompt: "What does go.sum contain?"
+    options:
+      - "The checksums of the module versions the build uses, so downloads can be verified"
+      - "A lock file with the versions chosen for every dependency"
+      - "Build output to speed up compilation"
+    answer: 0
+    explanation: "Versions come from go.mod via minimal version selection; go.sum only holds hashes. Commit both."
+  - id: tidy
+    prompt: "Which command adds missing requirements and removes unused ones from go.mod?"
+    answers: ["go mod tidy"]
+    explanation: "go mod tidy makes go.mod and go.sum match what the packages really import."
+  - id: unused
+    prompt: "What happens when a Go file imports a package it never uses?"
+    options: ["A warning from go vet", "Nothing", "A compile error", "gofmt removes it"]
+    answer: 2
+    explanation: "Unused imports and unused local variables are compile errors. Tools such as goimports fix imports on save."
+  - id: internal
+    prompt: "What is special about a package under an `internal/` folder?"
+    options:
+      - "It is compiled without optimisations"
+      - "Only packages inside the tree rooted at internal's parent can import it"
+      - "Its names are never exported"
+    answer: 1
+    explanation: "The go command enforces it, so a module can share code between its own packages without making it public API."

@@ -102,6 +102,8 @@ pub enum KataLanguage {
     Sql,
     /// Python modules checked with pytest and ruff in `dojo-python`.
     Python,
+    /// A Go package checked with go test (race detector on), go vet and gofmt in `dojo-go`.
+    Go,
 }
 
 impl Kata {
@@ -112,6 +114,7 @@ impl Kata {
             "dojo-docker" => KataLanguage::Docker,
             "dojo-sql" => KataLanguage::Sql,
             "dojo-python" => KataLanguage::Python,
+            "dojo-go" => KataLanguage::Go,
             _ => KataLanguage::Rust,
         }
     }

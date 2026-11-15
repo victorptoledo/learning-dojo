@@ -1,0 +1,39 @@
+questions:
+  - id: flat-cum
+    prompt: "In a pprof CPU profile, what is the difference between flat and cum?"
+    options:
+      - "flat is time in the function itself; cum also includes the functions it calls"
+      - "flat is wall time; cum is CPU time"
+      - "They are the same number in different units"
+    answer: 0
+    explanation: "A function with low flat and high cum is a caller of the real hot spot."
+  - id: escape
+    prompt: "Which flag shows the compiler's escape analysis decisions?"
+    answers: ["-gcflags=-m", "go build -gcflags=-m", "-gcflags -m"]
+    explanation: "It prints which values escape to the heap and which stay on the stack."
+  - id: leak-profile
+    prompt: "Memory grows and so does the goroutine count. Which profile shows where the goroutines are stuck?"
+    options: ["cpu", "goroutine (or goroutineleak in Go 1.27)", "allocs"]
+    answer: 1
+    explanation: "The goroutine profile groups goroutines by stack; goroutineleak lists those that can never wake up."
+  - id: gomemlimit
+    prompt: "A service runs in a container limited to 1 GiB. What does setting GOMEMLIMIT=900MiB do?"
+    options:
+      - "Caps the heap hard; allocations above it fail"
+      - "Makes the GC work harder as the process nears 900 MiB, to stay under the container limit"
+      - "Nothing unless GOGC=off"
+    answer: 1
+    explanation: "It is a soft limit that changes GC pacing; it protects against OOM kills but does not fix a leak."
+  - id: tracer
+    prompt: "CPU profiles look normal but latency spikes. Which tool shows scheduling, blocking and GC over time?"
+    options: ["go vet", "The execution tracer (go tool trace)", "gofmt"]
+    answer: 1
+    explanation: "The tracer records what each goroutine was doing, which explains waits that a CPU profile cannot see."
+  - id: pgo
+    prompt: "How do you enable profile-guided optimisation for a main package?"
+    options:
+      - "Put a production CPU profile named default.pgo in the main package's folder and rebuild"
+      - "Pass -O3 to go build"
+      - "Set GOGC=pgo"
+    answer: 0
+    explanation: "Since Go 1.21 go build uses default.pgo automatically (-pgo=auto)."

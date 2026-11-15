@@ -1,0 +1,41 @@
+questions:
+  - id: zero-value
+    prompt: "What does `var m map[string]int; m[\"a\"] = 1` do?"
+    options: ["Creates the map and stores 1", "Panics: assignment to entry in nil map", "Does not compile"]
+    answer: 1
+    explanation: "A nil map can be read (it returns zero values) but not written. Create it with make or a literal first."
+  - id: aliasing
+    prompt: "What does this print?"
+    code: |
+      s := []int{1, 2, 3, 4}
+      t := s[:2]
+      t[0] = 9
+      fmt.Println(s[0])
+    options: ["1", "9", "It panics"]
+    answer: 1
+    explanation: "t is a new slice header over the same backing array, so writing through t changes s."
+  - id: len-string
+    prompt: "What is `len(\"héllo\")`?"
+    options: ["5", "6", "10"]
+    answer: 1
+    explanation: "len counts bytes, and é takes two bytes in UTF-8. utf8.RuneCountInString counts runes."
+  - id: append-result
+    prompt: "Why must you write `s = append(s, x)` and not just `append(s, x)`?"
+    options:
+      - "append may allocate a new backing array and returns the only slice header that sees the new element"
+      - "append is a method and returns nothing"
+      - "It is only a style rule enforced by gofmt"
+    answer: 0
+    explanation: "The caller's header keeps the old length; the compiler even rejects an unused append result."
+  - id: map-order
+    prompt: "How do you print a map's entries sorted by key?"
+    options:
+      - "range over the map: Go keeps insertion order"
+      - "Collect the keys, sort them (for example slices.Sorted(maps.Keys(m))), then index the map"
+      - "Use a sync.Map"
+    answer: 1
+    explanation: "Map iteration order is randomised on purpose, so code never depends on it."
+  - id: conversion
+    prompt: "Given `n := 65`, what is `string(rune(n))`?"
+    answers: ["A", "\"A\""]
+    explanation: "Converting an integer to string gives the character with that code point; use strconv.Itoa for \"65\"."

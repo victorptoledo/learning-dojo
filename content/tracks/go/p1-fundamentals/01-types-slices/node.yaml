@@ -2,13 +2,23 @@ id: go.p1.types-slices
 legacy_id: go-02-types-slices
 kind: lesson
 status: draft
-title: "Structs, Slices and Pointers"
-summary: "How Go handles dynamic collections (slices), maps and simple pointers."
+title: "Types, Zero Values, Strings, Slices and Maps"
+summary: "Declarations and zero values, the basic types and explicit conversions, strings as bytes and runes, control flow, arrays, slices and their headers, append and aliasing, and maps."
 objectives:
-  - { id: o1, text: "How Go handles dynamic collections (slices), maps and simple pointers.", skills: [go.types-slices] }
-prerequisites: [go.p0.tooling-modules]
+  - { id: o1, text: "Declare variables and constants, use zero values, iota and explicit conversions, and loop with for and range", skills: [go.types-slices] }
+  - { id: o2, text: "Explain a slice header, how append grows a slice and when two slices share a backing array", skills: [go.types-slices] }
+  - { id: o3, text: "Use maps with the comma-ok form, iterate them in a stable order and avoid nil map writes", skills: [go.types-slices] }
+prerequisites: [go.p0.hello-dojo]
 difficulty: 2
-estimated_minutes: 30
+estimated_minutes: 45
 xp: 150
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A function `func Evens(xs []int) []int` returns `xs[:0]` after appending the even numbers into it, and a caller reports that their original slice "changed by itself". Explain what happens with the slice header and the backing array, then write a version that leaves the input alone, and say when the original trick (filtering in place) is acceptable.'
+  criteria:
+    - 'Explains that xs[:0] has length 0 but the same backing array and capacity, so append overwrites the caller''s elements'
+    - 'Describes the slice header (pointer, length, capacity) and that slices share the array until append reallocates'
+    - 'Gives a safe version that allocates a new slice (var out []int or make([]int, 0, len(xs))) and appends into it'
+    - 'Says that in-place filtering is fine when the caller owns the slice and documents or expects it, and mentions slices.DeleteFunc as the standard way'

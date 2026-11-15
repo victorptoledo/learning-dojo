@@ -1,0 +1,62 @@
+questions:
+  - id: toolchain-line
+    skills: [go.tooling-modules]
+    prompt: "A module's go.mod says `go 1.27.0`. A teammate has Go 1.26 with the default settings. What happens when they run go build?"
+    options:
+      - "The build fails with a syntax error on new features"
+      - "The go command downloads and uses a Go 1.27 toolchain (GOTOOLCHAIN=auto)"
+      - "The go line is ignored"
+    answer: 1
+    explanation: "Since Go 1.21 the go line is a requirement, and an older go command switches to a newer toolchain when it needs one."
+  - id: export
+    skills: [go.tooling-modules]
+    prompt: "Which declaration can another package use?"
+    options: ["func parse() {}", "type ledger struct{}", "var ErrClosed = errors.New(\"closed\")", "const maxSize = 10"]
+    answer: 2
+    explanation: "Only names that start with an upper case letter are exported."
+  - id: append-share
+    skills: [go.types-slices]
+    prompt: "What does this print?"
+    code: |
+      a := make([]int, 2, 4)
+      b := append(a, 1)
+      c := append(a, 2)
+      fmt.Println(b[2], c[2])
+    options: ["1 2", "2 2", "1 1", "0 0"]
+    answer: 1
+    explanation: "a has spare capacity, so both appends write into the same backing array; c's append overwrote b's element."
+  - id: map-missing
+    skills: [go.types-slices]
+    prompt: "What is `counts[\"zebra\"]` when counts is a non-nil `map[string]int` without that key?"
+    answers: ["0"]
+    explanation: "Reading a missing key returns the zero value; use v, ok := counts[k] to tell missing from zero."
+  - id: pointer-receiver
+    skills: [go.structs-methods]
+    prompt: "Why does `func (l *Ledger) Open(...)` use a pointer receiver?"
+    options:
+      - "Pointer receivers are faster for every type"
+      - "The method changes the ledger, and a value receiver would change a copy"
+      - "Methods on structs must always use pointers"
+    answer: 1
+    explanation: "Mutating methods need a pointer receiver; then the other methods use one too, for consistency."
+  - id: embedding-promote
+    skills: [go.structs-methods]
+    prompt: "`type Admin struct { User; Level int }` and User has a method `Name() string`. What is true?"
+    options:
+      - "admin.Name() works because the method is promoted"
+      - "An Admin can be passed to func Greet(u User)"
+      - "Admin inherits User's private fields from another package"
+    answer: 0
+    explanation: "Embedding promotes fields and methods, but an Admin is still not a User."
+  - id: wrap
+    skills: [go.errors-idiomatic]
+    prompt: "Transfer returns `fmt.Errorf(\"transfer: %v\", err)` where err wraps ErrUnknownAccount. Does `errors.Is(result, ErrUnknownAccount)` hold?"
+    options: ["Yes", "No: %v copies the message and drops the chain; %w keeps it"]
+    answer: 1
+    explanation: "Only %w wraps. Every layer that should keep the cause visible must use it."
+  - id: join
+    skills: [go.errors-idiomatic]
+    prompt: "What does `errors.Join()` return when it is given no errors (or only nil ones)?"
+    options: ["An empty error with message \"\"", "nil", "It panics"]
+    answer: 1
+    explanation: "errors.Join discards nil errors and returns nil when nothing is left, so it is safe to return directly."

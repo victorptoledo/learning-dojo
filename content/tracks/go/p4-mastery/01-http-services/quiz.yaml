@@ -1,0 +1,36 @@
+questions:
+  - id: pattern
+    prompt: "Which registration handles only GET requests for /todos/42 and gives the handler \"42\"?"
+    options:
+      - "mux.HandleFunc(\"/todos/\", h) and strings.TrimPrefix"
+      - "mux.HandleFunc(\"GET /todos/{id}\", h) and r.PathValue(\"id\")"
+      - "mux.HandleFunc(\"GET /todos/:id\", h) and r.URL.Query().Get(\"id\")"
+    answer: 1
+    explanation: "Since Go 1.22, ServeMux patterns accept a method and {name} wildcards read with PathValue."
+  - id: method-not-allowed
+    prompt: "Only \"GET /todos\" is registered. What does a POST /todos get?"
+    options: ["404 Not Found", "405 Method Not Allowed with an Allow header", "200 from the GET handler"]
+    answer: 1
+    explanation: "ServeMux knows the path exists with other methods and answers 405 with Allow: GET, HEAD."
+  - id: dollar
+    prompt: "What does the pattern \"GET /{$}\" match?"
+    options: ["Every path", "Only the path /", "Paths with a dollar sign"]
+    answer: 1
+    explanation: "A pattern ending in / matches the whole subtree; {$} anchors it to exactly /."
+  - id: header-order
+    prompt: "A handler writes the body and then calls w.WriteHeader(404). What status does the client get?"
+    options: ["404", "200", "500"]
+    answer: 1
+    explanation: "Writing the body sends the headers with 200; later WriteHeader calls are ignored (and logged)."
+  - id: timeouts
+    prompt: "What is the risk of `http.ListenAndServe(\":8080\", mux)` in production?"
+    options:
+      - "It only serves HTTP/1.0"
+      - "The server has no read or write timeouts, so slow clients can hold connections forever"
+      - "It cannot serve JSON"
+    answer: 1
+    explanation: "Configure an http.Server with ReadHeaderTimeout, ReadTimeout, WriteTimeout and IdleTimeout."
+  - id: shutdown
+    prompt: "Which method stops accepting new connections and waits for in-flight requests to finish?"
+    answers: ["Shutdown", "srv.Shutdown", "srv.Shutdown(ctx)", "Server.Shutdown"]
+    explanation: "Shutdown(ctx) drains gracefully until ctx expires; Close drops connections at once."

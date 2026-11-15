@@ -1,0 +1,24 @@
+id: go.p1.structs-methods
+kind: lesson
+status: draft
+title: "Structs, Methods, Pointers and Embedding"
+summary: "Struct types and literals, value semantics and copies, pointers and new(expr), methods with value and pointer receivers, constructors and useful zero values, embedding and struct tags."
+objectives:
+  - { id: o1, text: "Declare structs, build them with literals and explain when assignment copies and what it still shares", skills: [go.structs-methods] }
+  - { id: o2, text: "Choose between value and pointer receivers and write NewX constructors that validate", skills: [go.structs-methods] }
+  - { id: o3, text: "Compose types with embedding and explain how promotion differs from inheritance", skills: [go.structs-methods] }
+prerequisites: [go.p1.word-stats]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A Java developer ports a class hierarchy to Go: `Animal` with a `Name` field and a `Describe()` method, and `Dog extends Animal` overriding `Describe()`. They embed `Animal` in `Dog`, call a function `func Show(a Animal)` with a `Dog`, and are surprised. Explain what compiles, what does not, what `Describe()` really calls inside `Animal`''s methods, and how you would model this in idiomatic Go.'
+  criteria:
+    - 'Explains that embedding promotes Animal''s fields and methods to Dog, but Dog is not an Animal: Show(dog) does not compile (Show(dog.Animal) would)'
+    - 'Explains that a method declared on Dog shadows the promoted one, but inside Animal''s methods the receiver is the Animal, so there is no virtual dispatch back to Dog'
+    - 'Proposes an interface (for example Describer with Describe() string) implemented by both types, and functions that accept the interface'
+    - 'Mentions composition over inheritance and keeping embedding for reuse of fields and helpers'
+    - 'Mentions pointer receivers for methods that change state'

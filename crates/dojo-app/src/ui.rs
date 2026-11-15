@@ -363,6 +363,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::Python => {
                 "2. Edit the .py modules in the kata folder. Each function that still raises NotImplementedError(\"todo ...\") is yours to write:"
             }
+            KataLanguage::Go => {
+                "2. Edit the .go files in the kata folder (not the _test.go ones). Each function that still calls panic(\"todo ...\") is yours to write:"
+            }
         }),
         Line::from(match language {
             KataLanguage::Rust => {
@@ -382,6 +385,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             }
             KataLanguage::Python => {
                 "   that raise is a placeholder; pytest runs the tests and ruff must find no mistakes."
+            }
+            KataLanguage::Go => {
+                "   that panic is a placeholder; go test runs the tests with the race detector, and go vet and gofmt must be happy."
             }
         }),
         Line::from("3. Save the file. The tests run by themselves and the result appears below."),

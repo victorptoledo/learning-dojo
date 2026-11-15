@@ -198,6 +198,52 @@ greet.sh: line 1: syntax error near unexpected token `then'
         assert!(syntax.details.contains("greet.sh: line 1"));
     }
 
+    /// What the dojo-go image prints (`runner-images/go/report/main.go`).
+    const GO_FAILING: &str = "
+running 4 tests
+test TestGreetsByName ... FAILED
+test TestGreet/blank_name ... ok
+test go_vet ... ok
+test gofmt::greet_go ... FAILED
+
+failures:
+
+---- TestGreetsByName stdout ----
+thread 'TestGreetsByName' panicked at TestGreetsByName:
+todo: write Greet
+
+---- gofmt::greet_go stdout ----
+thread 'gofmt::greet_go' panicked at gofmt::greet_go:
+greet.go is not formatted: run `gofmt -w greet.go` (VS Code's Go extension formats on save)
+
+failures:
+
+test result: FAILED. 2 passed; 2 failed
+";
+
+    #[test]
+    fn reads_the_go_image_output_like_cargo_test() {
+        let report = parse_cargo_test(GO_FAILING, false, 7);
+        assert_eq!(report.outcome, CheckOutcome::TestsFailed);
+        assert_eq!(report.tests.len(), 4);
+        assert_eq!(
+            report.tests[0].message.as_deref(),
+            Some("todo: write Greet")
+        );
+        assert_eq!(report.tests[1].name, "TestGreet/blank_name");
+        assert!(report.tests[1].passed);
+
+        let broken = parse_cargo_test(
+            "error: the code does not compile
+./greet.go:7:2: undefined: who
+",
+            false,
+            7,
+        );
+        assert_eq!(broken.outcome, CheckOutcome::CompileError);
+        assert!(broken.details.contains("undefined: who"));
+    }
+
     /// What the dojo-python image prints (`runner-images/python/junit2cargo.py`).
     const PYTHON_FAILING: &str = "
 running 3 tests

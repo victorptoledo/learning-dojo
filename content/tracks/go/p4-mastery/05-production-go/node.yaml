@@ -1,0 +1,24 @@
+id: go.p4.production-go
+kind: lesson
+status: draft
+title: "Go in Production: Builds, Containers, Configuration and Security"
+summary: "Service layout with cmd and internal, static and trimmed builds with version info, cross-compilation and embed, multi-stage distroless images, configuration from the environment, the service lifecycle, govulncheck and supply-chain safety, secure APIs, and upgrading Go with go fix and GODEBUG."
+objectives:
+  - { id: o1, text: "Lay out a service and build small, static, versioned binaries and non-root container images", skills: [go.production, go.tooling-modules] }
+  - { id: o2, text: "Load validated configuration from the environment and run the full service lifecycle with timeouts, health checks and graceful shutdown", skills: [go.production, go.http] }
+  - { id: o3, text: "Keep a service secure and current with govulncheck, go.sum, static analysis, safe APIs, go fix and GODEBUG", skills: [go.production] }
+prerequisites: [go.p4.profiling-performance]
+difficulty: 4
+estimated_minutes: 50
+xp: 400
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You inherit a Go 1.21 service built on a developer laptop with `go build`, shipped in a `golang:1.21` image (1.1 GB) running as root, configured by a `config.json` committed with the database password, never upgraded, and killed by Kubernetes on every deploy with requests in flight. Write the plan, in priority order, to make it production-ready: what you change, the tools and settings you use, and why each step comes where it does.'
+  criteria:
+    - 'Removes the secret from the repository (and rotates it), loading configuration from the environment or a secret manager into a validated struct'
+    - 'Builds in CI with CGO_ENABLED=0, -trimpath and a version via -ldflags, in a multi-stage Dockerfile ending on distroless or scratch as non-root'
+    - 'Adds graceful shutdown on SIGTERM with srv.Shutdown and a deadline, server timeouts, and health and readiness endpoints'
+    - 'Upgrades Go to a supported release: raises the go line, runs tests with -race, applies go fix, and reads release notes and GODEBUG changes'
+    - 'Adds govulncheck, go vet and a linter such as staticcheck to CI, plus regular dependency updates'

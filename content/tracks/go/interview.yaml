@@ -1,0 +1,212 @@
+# Technical interview questions for the go track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/questions/golang"
+  - "https://www.turing.com/interview-questions/golang"
+  - "https://www.educative.io/blog/50-golang-interview-questions"
+  - "https://www.simplilearn.com/golang-interview-questions-article"
+  - "https://go.dev/doc/faq"
+  - "https://go.dev/doc/effective_go"
+  - "https://go.dev/ref/mem"
+questions:
+  - id: zero-values
+    level: junior
+    skills: [go.types-slices]
+    question: "What are zero values in Go, and why does it matter that every type has one?"
+    key_points:
+      - "Every variable is initialised: 0, \"\", false, nil for pointers, slices, maps, channels, funcs and interfaces"
+      - "Structs get the zero value of each field"
+      - "Good types make the zero value useful (strings.Builder, sync.Mutex, bytes.Buffer)"
+      - "A nil map can be read but writing to it panics; a nil slice works with len, range and append"
+    follow_up: "How would you design a type whose zero value is ready to use, and when is a constructor still needed?"
+  - id: slices-arrays
+    level: junior
+    skills: [go.types-slices]
+    question: "What is the difference between an array and a slice? What does append do when the capacity runs out?"
+    key_points:
+      - "An array has a fixed length in its type and is copied as a value"
+      - "A slice is a header: pointer to a backing array, length and capacity"
+      - "Sub-slices share the backing array, so writes are visible through both"
+      - "append writes in place when there is capacity, otherwise allocates a bigger array and copies; always keep its result"
+    follow_up: "How can two appends to the same slice overwrite each other, and how does a full slice expression s[a:b:c] help?"
+  - id: maps
+    level: junior
+    skills: [go.types-slices]
+    question: "How do maps behave in Go: missing keys, iteration order, concurrency?"
+    key_points:
+      - "A missing key returns the zero value; v, ok := m[k] tells missing from zero"
+      - "Iteration order is randomised on purpose"
+      - "Keys must be comparable: no slices, maps or funcs"
+      - "Maps are not safe for concurrent writes; the runtime may abort with concurrent map writes"
+    follow_up: "When would you choose sync.Map over a map with a sync.Mutex?"
+  - id: errors-basics
+    level: junior
+    skills: [go.errors-idiomatic]
+    question: "Why does Go return errors instead of throwing exceptions, and what does idiomatic error handling look like?"
+    key_points:
+      - "error is an interface with Error() string, returned as the last result"
+      - "Callers check err != nil immediately and keep the happy path unindented"
+      - "Wrap with fmt.Errorf and %w to add context; inspect with errors.Is and errors.As"
+      - "panic is for bugs and impossible states, not expected failures"
+    follow_up: "What is the difference between %w and %v in fmt.Errorf, and when would you choose %v on purpose?"
+  - id: value-pointer-receivers
+    level: junior
+    skills: [go.structs-methods]
+    question: "When do you use a pointer receiver and when a value receiver?"
+    key_points:
+      - "Pointer receivers to mutate the receiver, for large structs, and for types holding locks"
+      - "Value receivers for small immutable-style types such as time.Time"
+      - "Be consistent: if one method needs a pointer, use pointers for all"
+      - "Method sets: methods with pointer receivers belong to *T only, which affects interface satisfaction"
+    follow_up: "Why does *Buffer satisfy io.Writer but Buffer does not, when Write has a pointer receiver?"
+  - id: go-toolchain
+    level: junior
+    skills: [go.tooling-modules]
+    question: "What are go.mod and go.sum for, and what does the go line in go.mod mean today?"
+    key_points:
+      - "go.mod declares the module path, the go version, the toolchain and the requirements"
+      - "Minimal version selection picks versions; go.sum holds checksums verified against sum.golang.org"
+      - "The go line is a minimum requirement and selects language features; older toolchains switch to a newer one (GOTOOLCHAIN=auto)"
+      - "go mod tidy aligns the files with the imports; both files are committed"
+    follow_up: "How do you depend on a private module, and what do GOPRIVATE and GOPROXY change?"
+  - id: interfaces-implicit
+    level: mid
+    skills: [go.interfaces-duck-typing]
+    question: "How are interfaces satisfied in Go, and how does that change the way you design packages?"
+    key_points:
+      - "Implicitly: a type with the methods satisfies the interface, no implements keyword"
+      - "Small interfaces (io.Reader, io.Writer, fmt.Stringer) compose well"
+      - "Define interfaces at the consumer with only the methods it needs; accept interfaces, return structs"
+      - "Compile-time checks with var _ I = (*T)(nil)"
+    follow_up: "Explain the typed nil trap: why can a function that returns error return a non-nil interface holding a nil pointer?"
+  - id: embedding-vs-inheritance
+    level: mid
+    skills: [go.structs-methods, go.interfaces-duck-typing]
+    question: "Go has no inheritance. How do embedding and interfaces replace it?"
+    key_points:
+      - "Embedding promotes fields and methods of the inner type: composition, not subtyping"
+      - "An outer type is not its embedded type; there is no virtual dispatch back to the outer type"
+      - "Polymorphism comes from interfaces"
+      - "Embedding an interface value is a way to decorate (wrap) behaviour"
+    follow_up: "How would you write an io.Writer that counts bytes by embedding another io.Writer?"
+  - id: generics-when
+    level: mid
+    skills: [go.generics]
+    question: "When do you use generics in Go and when an interface? What do constraints like comparable and ~int mean?"
+    key_points:
+      - "Generics for containers and algorithms over any element type; interfaces when behaviour (methods) is what matters"
+      - "comparable allows ==; cmp.Ordered allows <; type sets list allowed types"
+      - "~T includes named types whose underlying type is T"
+      - "Go 1.27 allows generic methods on concrete types, but not in interfaces"
+    follow_up: "How would you write an iterator method for a generic tree with iter.Seq, and what must it do when yield returns false?"
+  - id: goroutines-threads
+    level: mid
+    skills: [go.goroutines-concurrency]
+    question: "What is a goroutine, how is it different from an OS thread, and how does the scheduler run them?"
+    key_points:
+      - "A function running concurrently, with a small growable stack, cheap to create"
+      - "G-M-P model: goroutines scheduled onto OS threads through GOMAXPROCS processors"
+      - "Blocking I/O parks only the goroutine (network poller); work stealing and async preemption"
+      - "GOMAXPROCS follows container CPU limits since Go 1.25"
+    follow_up: "What is a goroutine leak, how do you detect one in production, and how do you prevent it?"
+  - id: channels-buffered
+    level: mid
+    skills: [go.channels-select]
+    question: "Explain buffered and unbuffered channels, closing, and what select does."
+    key_points:
+      - "Unbuffered: send and receive meet (synchronisation); buffered: queue up to the capacity"
+      - "Only the sender closes; receiving from a closed channel returns zero values with ok false; sending panics"
+      - "nil channels block forever, which disables select cases"
+      - "select waits on several operations; default makes it non-blocking; timers and ctx.Done() for timeouts"
+    follow_up: "How do you close the output channel of a fan-in with several producer goroutines?"
+  - id: context
+    level: mid
+    skills: [go.context-lifecycle]
+    question: "What is context.Context for, and what are the rules for using it?"
+    key_points:
+      - "Carries cancellation, deadlines and request-scoped values through a call tree"
+      - "First parameter, passed down, never stored in structs; always call cancel"
+      - "Code checks ctx.Done() in loops and selects and returns ctx.Err()"
+      - "Values only for request-scoped data, with unexported key types"
+    follow_up: "How does WithCancelCause help when several goroutines work for one request and one fails?"
+  - id: testing-go
+    level: mid
+    skills: [go.testing]
+    question: "How do you test Go code: table tests, fakes, fuzzing and benchmarks?"
+    key_points:
+      - "Table-driven tests with t.Run subtests and got/want messages"
+      - "Small interfaces and hand-written fakes instead of mocking frameworks; httptest for HTTP"
+      - "Fuzz tests with f.Add seeds and properties; failures saved in testdata/fuzz"
+      - "Benchmarks with b.Loop and -benchmem, compared with benchstat; -race in CI"
+    follow_up: "How would you test code that sleeps or has timeouts without making the tests slow or flaky?"
+  - id: mutex-vs-channel
+    level: mid
+    skills: [go.sync-memory-model, go.channels-select]
+    question: "When do you use a mutex and when a channel?"
+    key_points:
+      - "Channels to transfer ownership, distribute work and signal events"
+      - "Mutexes to protect shared state such as caches and counters"
+      - "Atomics for single values; sync.Once and OnceValue for lazy initialisation"
+      - "Both are idiomatic; pick the one that makes the code simplest"
+    follow_up: "What does the copylocks vet check catch, and why must a mutex not be copied?"
+  - id: http-server
+    level: mid
+    skills: [go.http]
+    question: "How do you build an HTTP API with the standard library in current Go?"
+    key_points:
+      - "http.Handler and HandlerFunc; ServeMux patterns with methods and wildcards since Go 1.22, r.PathValue"
+      - "Middleware as func(http.Handler) http.Handler"
+      - "An http.Server with timeouts and graceful Shutdown on SIGTERM"
+      - "Each request runs in its own goroutine, so shared state needs synchronisation"
+    follow_up: "Why is http.Get dangerous in a service, and how do you configure a client properly?"
+  - id: memory-model
+    level: senior
+    skills: [go.sync-memory-model]
+    question: "What does the Go memory model guarantee, and what is a data race?"
+    key_points:
+      - "A data race: concurrent access to the same memory, at least one write, no happens-before ordering"
+      - "Happens-before edges come from channels, mutexes, WaitGroups, Once and atomics"
+      - "DRF-SC: race-free programs behave as if sequentially consistent"
+      - "The race detector finds races on executed paths, with no false positives, at a CPU and memory cost"
+    follow_up: "Why is a plain bool flag polled in a loop by another goroutine a bug even if it seems to work?"
+  - id: gc-performance
+    level: senior
+    skills: [go.performance]
+    question: "How does Go's garbage collector work, and how do you investigate a memory or latency problem?"
+    key_points:
+      - "Concurrent, non-moving mark and sweep with short pauses; Green Tea is the default since Go 1.26"
+      - "GOGC trades memory for fewer collections; GOMEMLIMIT sets a soft limit for containers"
+      - "Heap, allocs, goroutine and goroutineleak profiles with pprof; the execution tracer for latency"
+      - "Escape analysis (-gcflags=-m) and fewer allocations as the usual fix; PGO for free gains"
+    follow_up: "A service is OOM-killed after a few hours. What do you look at first, and why is raising GOMEMLIMIT not the fix?"
+  - id: concurrency-design
+    level: senior
+    skills: [go.goroutines-concurrency, go.context-lifecycle, go.channels-select]
+    question: "Design a component that calls a slow dependency for many items with bounded concurrency, timeouts and clean cancellation."
+    key_points:
+      - "A semaphore or a fixed set of workers to bound concurrency"
+      - "A context per operation with a timeout per call; cancel siblings on the first error (errgroup or WithCancelCause)"
+      - "Results by index or through a channel closed after a WaitGroup; errors joined or the first one returned"
+      - "No goroutine leaks: every goroutine can finish; tested with -race and testing/synctest"
+    follow_up: "How would you add retries with backoff without retrying forever after the caller has given up?"
+  - id: api-design
+    level: senior
+    skills: [go.interfaces-duck-typing, go.errors-idiomatic, go.production]
+    question: "What makes a Go package API good to use and easy to evolve?"
+    key_points:
+      - "Small surface: exported names only where needed, internal/ for the rest"
+      - "Concrete return types, small consumer-side interfaces, useful zero values"
+      - "Errors callers can inspect: sentinels and types, wrapped with %w, documented"
+      - "Context first for blocking calls; no global state; compatibility (semver, /v2 paths, deprecation comments, go fix inline directives)"
+    follow_up: "How do you make a breaking change to a widely used module without breaking its users?"
+  - id: production
+    level: senior
+    skills: [go.production, go.observability]
+    question: "What does it take to run a Go service well in production?"
+    key_points:
+      - "Static builds with version info, multi-stage distroless images, non-root"
+      - "Configuration from the environment validated at start-up, secrets outside the code"
+      - "Structured logs with slog, metrics, traces, health endpoints, pprof on an internal port"
+      - "Timeouts, graceful shutdown, GOMEMLIMIT; govulncheck, linters and -race in CI; regular Go upgrades with go fix"
+    follow_up: "Walk through what happens between Kubernetes sending SIGTERM and your process exiting."

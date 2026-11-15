@@ -1,0 +1,54 @@
+id: go.p0.hello-dojo
+kind: kata
+status: draft
+title: "Hello, Dojo: Your First Go Kata"
+summary: "Write a greeting and an initials function with the strings package, and see how Go katas are tested with go test, the race detector, go vet and gofmt."
+objectives:
+  - { id: o1, text: "Write exported functions with strings, fmt.Sprintf and strings.Builder", skills: [go.tooling-modules] }
+  - { id: o2, text: "Run the visible test with go test and read a failing t.Errorf message", skills: [go.tooling-modules] }
+prerequisites: [go.p0.tooling-modules]
+difficulty: 1
+estimated_minutes: 20
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-go, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with the visible test: what does `Greet("Ada", false)` return? Then ask what "blank" means: is `"   "` a name? Which function of the `strings` package removes the spaces around a name?
+    - |-
+      `strings.TrimSpace(name)` removes surrounding white space; compare the result with `""` to pick `"stranger"`. `fmt.Sprintf("Welcome to the dojo, %s!", who)` builds the message, and `strings.ToUpper` shouts it. For `Initials`, `strings.Fields` splits on any run of white space and drops empty words. A string is a sequence of bytes, so take the first letter with `utf8.DecodeRuneInString(word)`, not `word[0]`.
+    - |-
+      ```go
+      func Greet(name string, shout bool) string {
+      	who := strings.TrimSpace(name)
+      	if who == "" {
+      		who = "stranger"
+      	}
+      	message := fmt.Sprintf("Welcome to the dojo, %s!", who)
+      	// return strings.ToUpper(message) when shout is true
+      	return message
+      }
+
+      func Initials(name string) string {
+      	var initials strings.Builder
+      	for _, word := range strings.Fields(name) {
+      		first, _ := utf8.DecodeRuneInString(word)
+      		// write unicode.ToUpper(first) into initials
+      	}
+      	return initials.String()
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-go runner image
+    image: dojo-go
+    why: The Go 1.27 container with the race detector, go vet and gofmt that runs the grading tests.

@@ -1,0 +1,50 @@
+questions:
+  - id: copy
+    prompt: "What does this print?"
+    code: |
+      type Point struct{ X, Y int }
+      a := Point{1, 2}
+      b := a
+      b.X = 9
+      fmt.Println(a.X)
+    options: ["1", "9", "It does not compile"]
+    answer: 0
+    explanation: "Structs are values: b := a copies every field, so changing b leaves a alone."
+  - id: receiver
+    prompt: "A method `func (c Counter) Inc() { c.n++ }` is called as `c.Inc()`. What happens to `c.n`?"
+    options:
+      - "It goes up by one"
+      - "Nothing: the method changed a copy; it needs a pointer receiver *Counter"
+      - "It does not compile"
+    answer: 1
+    explanation: "A value receiver works on a copy. Methods that change the receiver use pointer receivers."
+  - id: consistency
+    prompt: "A type has one method with a pointer receiver. What do the Go guidelines suggest for its other methods?"
+    options:
+      - "Use pointer receivers for all of them, for consistency"
+      - "Use value receivers for the read-only ones to save memory"
+      - "It does not matter at all"
+    answer: 0
+    explanation: "Mixing receivers makes the method sets confusing; once one method needs a pointer, use pointers everywhere."
+  - id: embedding
+    prompt: "`type Invoice struct { Audit; Number string }` and `func Save(a Audit)`. Does `Save(invoice)` compile?"
+    options:
+      - "Yes: Invoice inherits from Audit"
+      - "No: embedding promotes fields and methods, but an Invoice is not an Audit; pass invoice.Audit"
+    answer: 1
+    explanation: "Embedding is composition. Polymorphism in Go comes from interfaces."
+  - id: new-expr
+    prompt: "What does `p := new(42)` do in Go 1.26 and later?"
+    options:
+      - "It does not compile: new takes a type"
+      - "It creates a new int variable holding 42 and returns its address"
+      - "It allocates 42 bytes"
+    answer: 1
+    explanation: "Since Go 1.26, new accepts an expression and returns a pointer to a new variable initialised with it."
+  - id: escape
+    prompt: "Is it safe to return `&local` from a function, where local is a local variable?"
+    options:
+      - "Yes: escape analysis moves the variable to the heap when it outlives the call"
+      - "No: the pointer dangles after the function returns"
+    answer: 0
+    explanation: "Go is garbage collected; the compiler decides stack or heap, and the pointer stays valid."

@@ -1,0 +1,55 @@
+id: go.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata, a bank ledger built from structs, pointer receivers, maps, money in cents and wrapped errors."
+objectives:
+  - { id: o1, text: "Explain modules, slices and maps, receivers, embedding and error wrapping in your own words", skills: [go.tooling-modules, go.types-slices, go.structs-methods, go.errors-idiomatic] }
+  - { id: o2, text: "Build a small package whose errors callers can inspect with errors.Is and errors.As", skills: [go.structs-methods, go.errors-idiomatic, go.types-slices] }
+prerequisites: [go.p1.errors-idiomatic]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+closes_phase: p1
+covers_skills: [go.tooling-modules, go.types-slices, go.structs-methods, go.errors-idiomatic]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-go, timeout_secs: 90 }
+  hints:
+    - |-
+      Build it bottom up: `Open` and `Balance` first (most tests need them), then `Transfer`, then `ParseCents`, and only then `ApplyLines` and `Statement`. Write one small private helper that looks an account up and returns an error wrapping `ErrUnknownAccount`: `Balance` and `Transfer` both need it.
+    - |-
+      `fmt.Errorf("account %s: %w", id, ErrUnknownAccount)` keeps the sentinel in the chain, and `Transfer` can wrap that error again with `%w`. Do every check before you touch a balance, so a failed transfer changes nothing. For `ParseCents`, `strings.Cut(text, ".")` splits units and decimals; check that both parts are only digits (and the decimals one or two of them) before `strconv.ParseInt`. In `ApplyLines`, `strings.Fields` splits a line, the index of the loop gives the line number, and `errors.Join(failures...)` returns `nil` for an empty slice.
+    - |-
+      ```go
+      func (l *Ledger) ApplyLines(lines []string) error {
+      	var failures []error
+      	for i, line := range lines {
+      		text := strings.TrimSpace(line)
+      		if text == "" || strings.HasPrefix(text, "#") {
+      			continue
+      		}
+      		if err := l.apply(strings.Fields(text)); err != nil {
+      			failures = append(failures, &LineError{Line: i + 1, Err: err})
+      		}
+      	}
+      	return errors.Join(failures...)
+      }
+
+      // apply checks there are 4 fields, parses the amount with ParseCents,
+      // then switches on fields[0]: "open" calls l.Open, "transfer" calls l.Transfer.
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-go runner image
+    image: dojo-go
+    why: The Go 1.27 container with the race detector, go vet and gofmt that runs the grading tests.

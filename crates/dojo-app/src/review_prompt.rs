@@ -98,6 +98,7 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         }
         KataLanguage::Sql => (kata_dir.to_path_buf(), "sql"),
         KataLanguage::Python => (kata_dir.to_path_buf(), "py"),
+        KataLanguage::Go => (kata_dir.to_path_buf(), "go"),
     };
     let mut found = Vec::new();
     collect(&root, extension, &mut found);
@@ -106,6 +107,7 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         .filter_map(|path| path.strip_prefix(kata_dir).ok().map(Path::to_path_buf))
         .filter(|path| !path.starts_with("tests") && !path.starts_with("fixture"))
         .filter(|path| !in_tool_folder(path))
+        .filter(|path| !path.to_string_lossy().ends_with("_test.go"))
         .collect();
     files.sort();
     files
@@ -152,6 +154,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Docker => "Dockerfile and Docker Compose",
         KataLanguage::Sql => "SQL (PostgreSQL 17)",
         KataLanguage::Python => "Python",
+        KataLanguage::Go => "Go",
     };
     let files = kata
         .files
@@ -322,5 +325,15 @@ mod tests {
         std::fs::write(dir.path().join("__pycache__/cart.py"), "x").unwrap();
         let files = kata_files(dir.path(), KataLanguage::Python);
         assert_eq!(files, vec![PathBuf::from("cart.py")]);
+    }
+
+    #[test]
+    fn kata_files_lists_go_sources_but_not_test_files() {
+        let dir = tempfile::TempDir::new().unwrap();
+        std::fs::write(dir.path().join("ledger.go"), "package ledger").unwrap();
+        std::fs::write(dir.path().join("ledger_test.go"), "package ledger_test").unwrap();
+        std::fs::write(dir.path().join("go.mod"), "module dojo/ledger").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::Go);
+        assert_eq!(files, vec![PathBuf::from("ledger.go")]);
     }
 }

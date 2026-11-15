@@ -1,0 +1,305 @@
+# Placement test of the Go track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with Go?
+  options:
+    - { label: "Never used it", start_phase: p0, test: false }
+    - { label: "I write small programs: slices, maps, structs, if err != nil", start_phase: p1, test: true }
+    - { label: "I use Go at work: interfaces, generics, goroutines, tests", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-zero-struct
+    phase: p1
+    skills: [go.types-slices]
+    difficulty: 1
+    prompt: "What does this print?"
+    code: |
+      var names []string
+      fmt.Println(len(names), names == nil)
+    options: ["0 true", "0 false", "It panics"]
+    answer: 0
+    explanation: "A declared slice is nil with length 0; len, range and append all work on it."
+  - id: p1-range-string
+    phase: p1
+    skills: [go.types-slices]
+    difficulty: 2
+    prompt: "How many times does the loop body run for `for i, r := range \"añb\"`?"
+    answers: ["3"]
+    explanation: "range over a string decodes runes, so ñ (two bytes) is one iteration; len(\"añb\") is 4."
+  - id: p1-cap-growth
+    phase: p1
+    skills: [go.types-slices]
+    difficulty: 3
+    prompt: "What does this print?"
+    code: |
+      s := make([]int, 3, 3)
+      t := append(s, 4)
+      t[0] = 9
+      fmt.Println(s[0])
+    options: ["9", "0", "It panics"]
+    answer: 1
+    explanation: "s had no spare capacity, so append copied into a new array; t no longer shares memory with s."
+  - id: p1-map-comma-ok
+    phase: p1
+    skills: [go.types-slices]
+    difficulty: 2
+    prompt: "Which form tells a missing key apart from a key whose value is 0?"
+    options: ["v := m[k]; v != 0", "v, ok := m[k]", "m.Has(k)"]
+    answer: 1
+    explanation: "The comma-ok form returns false for missing keys; maps have no Has method."
+  - id: p1-receiver-set
+    phase: p1
+    skills: [go.structs-methods]
+    difficulty: 2
+    prompt: "`func (c *Counter) Inc()` and `c := Counter{}`. Can you call `c.Inc()`?"
+    options:
+      - "Yes: c is addressable, so Go takes &c automatically"
+      - "No: only pointers can call it"
+      - "Yes, but it changes a copy"
+    answer: 0
+    explanation: "Calling a pointer method on an addressable value is shorthand for (&c).Inc()."
+  - id: p1-embed-shadow
+    phase: p1
+    skills: [go.structs-methods]
+    difficulty: 3
+    prompt: "Both `Base` and `Outer` (which embeds Base) have a method `Name()`. What does `outer.Name()` call?"
+    options: ["Base.Name", "Outer.Name", "It does not compile: ambiguous"]
+    answer: 1
+    explanation: "A method on the outer type shadows the promoted one; outer.Base.Name() still reaches the inner one."
+  - id: p1-struct-compare
+    phase: p1
+    skills: [go.structs-methods]
+    difficulty: 2
+    prompt: "Can `type Point struct{ X, Y int }` be used as a map key?"
+    options: ["Yes: all its fields are comparable", "No: structs are never comparable", "Only through a pointer"]
+    answer: 0
+    explanation: "Structs whose fields are all comparable support == and can be map keys."
+  - id: p1-errorf-v
+    phase: p1
+    skills: [go.errors-idiomatic]
+    difficulty: 2
+    prompt: "`err := fmt.Errorf(\"load: %v\", fs.ErrNotExist)`. What is `errors.Is(err, fs.ErrNotExist)`?"
+    answers: ["false"]
+    explanation: "%v formats the message only; %w would keep the error in the chain."
+  - id: p1-defer-args
+    phase: p1
+    skills: [go.errors-idiomatic]
+    difficulty: 3
+    prompt: "What does this print?"
+    code: |
+      x := 1
+      defer fmt.Println(x)
+      x = 2
+    options: ["1", "2", "Nothing"]
+    answer: 0
+    explanation: "The arguments of a deferred call are evaluated when the defer statement runs."
+  - id: p1-errors-as
+    phase: p1
+    skills: [go.errors-idiomatic]
+    difficulty: 3
+    prompt: "Which call finds a `*PathError` anywhere in a chain of wrapped errors?"
+    options: ["err.(*fs.PathError)", "errors.As(err, &pathErr) or errors.AsType[*fs.PathError](err)", "errors.Unwrap(err) == pathErr"]
+    answer: 1
+    explanation: "A type assertion only looks at the outer error; As and AsType walk the chain."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-implicit
+    phase: p2
+    skills: [go.interfaces-duck-typing]
+    difficulty: 2
+    prompt: "A type `Celsius float64` has `func (c Celsius) String() string`. What happens with `fmt.Println(Celsius(21.5))`?"
+    options:
+      - "It prints 21.5"
+      - "It prints what String returns, because Celsius satisfies fmt.Stringer"
+      - "It does not compile"
+    answer: 1
+    explanation: "fmt checks for the Stringer interface, which Celsius satisfies implicitly."
+  - id: p2-nil-interface
+    phase: p2
+    skills: [go.interfaces-duck-typing]
+    difficulty: 4
+    prompt: "A function's return type is `error`, and it ends with `var e *MyErr; return e`. What is `f() == nil`?"
+    answers: ["false"]
+    explanation: "The interface holds the type *MyErr with a nil value, so it is not nil."
+  - id: p2-small-interface
+    phase: p2
+    skills: [go.interfaces-duck-typing]
+    difficulty: 3
+    prompt: "A function only reads bytes from its input. Which parameter type is most idiomatic?"
+    options: ["*os.File", "io.Reader", "[]byte", "any"]
+    answer: 1
+    explanation: "Accept the smallest interface you need; files, buffers, sockets and strings all satisfy io.Reader."
+  - id: p2-type-switch
+    phase: p2
+    skills: [go.interfaces-duck-typing]
+    difficulty: 2
+    prompt: "Which statement branches on the dynamic type of an `any` value v?"
+    answers: ["switch v.(type)", "switch x := v.(type)", "a type switch"]
+    explanation: "A type switch with v.(type) picks the case matching the dynamic type."
+  - id: p2-constraint
+    phase: p2
+    skills: [go.generics]
+    difficulty: 3
+    prompt: "A generic Index[T ...](xs []T, x T) int compares with ==. Which constraint is the loosest that compiles?"
+    options: ["any", "comparable", "cmp.Ordered"]
+    answer: 1
+    explanation: "== needs comparable; cmp.Ordered would also allow < but excludes structs and pointers."
+  - id: p2-iterator
+    phase: p2
+    skills: [go.generics]
+    difficulty: 4
+    prompt: "What is the type of an iterator that can be used as `for k, v := range seq`?"
+    options: ["iter.Seq2[K, V], that is func(yield func(K, V) bool)", "chan Pair[K, V]", "func() (K, V, bool)"]
+    answer: 0
+    explanation: "Range over func accepts functions taking a yield callback; iter.Seq2 names the two-value form."
+  - id: p2-generic-method
+    phase: p2
+    skills: [go.generics]
+    difficulty: 4
+    prompt: "In Go 1.27, `func (l *List[T]) Map[U any](f func(T) U) *List[U]` is declared. Can an interface require such a method?"
+    options: ["Yes", "No: interface methods cannot have type parameters"]
+    answer: 1
+    explanation: "Generic methods are allowed on concrete types only, and never satisfy interface methods."
+  - id: p2-subtest
+    phase: p2
+    skills: [go.testing]
+    difficulty: 2
+    prompt: "Which call turns one row of a table-driven test into a named subtest?"
+    answers: ["t.Run", "t.Run(name, func(t *testing.T) {...})"]
+    explanation: "t.Run gives each case its own name, failures and -run filtering."
+  - id: p2-fuzz
+    phase: p2
+    skills: [go.testing]
+    difficulty: 3
+    prompt: "What does a plain `go test` (without -fuzz) do with a FuzzXxx function?"
+    options:
+      - "Skips it"
+      - "Runs its seed corpus (f.Add values and testdata/fuzz files) as regular tests"
+      - "Fuzzes it for 10 seconds"
+    answer: 1
+    explanation: "Only -fuzz generates new inputs; saved failures are replayed in every run."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-goroutine-loop
+    phase: p3
+    skills: [go.goroutines-concurrency]
+    difficulty: 3
+    prompt: "With Go 1.22 or later, what does `for i := range 3 { go func() { fmt.Print(i) }() }` (followed by a proper wait) print?"
+    options: ["333", "0, 1 and 2 in some order", "012 always in that order"]
+    answer: 1
+    explanation: "Each iteration has its own i, but goroutines run in no fixed order."
+  - id: p3-gomaxprocs
+    phase: p3
+    skills: [go.goroutines-concurrency]
+    difficulty: 3
+    prompt: "What happens to other goroutines when one goroutine blocks reading from a network socket?"
+    options:
+      - "They all wait"
+      - "The runtime parks it and keeps running the others on the available threads"
+      - "The program creates one OS thread per goroutine to compensate"
+    answer: 1
+    explanation: "The network poller parks blocked goroutines, so blocking calls are cheap."
+  - id: p3-unbuffered
+    phase: p3
+    skills: [go.channels-select]
+    difficulty: 2
+    prompt: "What does `ch := make(chan int); ch <- 1` do in main with no other goroutine?"
+    options: ["Stores 1 for later", "Deadlocks: fatal error, all goroutines are asleep", "Panics: send on nil channel"]
+    answer: 1
+    explanation: "An unbuffered send waits for a receiver; with none, the runtime reports a deadlock."
+  - id: p3-select-random
+    phase: p3
+    skills: [go.channels-select]
+    difficulty: 3
+    prompt: "Two cases of a select are ready at the same time. Which one runs?"
+    options: ["The first one written", "One chosen at random", "Both"]
+    answer: 1
+    explanation: "select picks uniformly among ready cases, so no case can starve the others by position."
+  - id: p3-close-send
+    phase: p3
+    skills: [go.channels-select]
+    difficulty: 3
+    prompt: "What happens when a goroutine sends on a closed channel?"
+    answers: ["panic", "it panics", "a panic"]
+    explanation: "Sending on a closed channel panics, which is why only the sender closes."
+  - id: p3-mutex-copy
+    phase: p3
+    skills: [go.sync-memory-model]
+    difficulty: 3
+    prompt: "Which tool reports that a struct holding a sync.Mutex is copied by value?"
+    options: ["gofmt", "go vet (copylocks)", "the race detector only"]
+    answer: 1
+    explanation: "go vet's copylocks analyzer flags copies of values that contain locks."
+  - id: p3-race-def
+    phase: p3
+    skills: [go.sync-memory-model]
+    difficulty: 4
+    prompt: "Goroutine A sets `done = true` (a plain bool) and goroutine B loops `for !done {}`. What does the memory model say?"
+    options:
+      - "B stops soon after A writes"
+      - "It is a data race: B may never see the write; use atomic.Bool, a channel or a mutex"
+      - "Bools are always atomic in Go"
+    answer: 1
+    explanation: "Without a happens-before edge, the compiler and CPU may keep B's read forever stale."
+  - id: p3-ctx-param
+    phase: p3
+    skills: [go.context-lifecycle]
+    difficulty: 2
+    prompt: "Where does a context.Context go in a function signature, by convention?"
+    options: ["First parameter, named ctx", "Last parameter", "A field of the receiver struct"]
+    answer: 0
+    explanation: "Contexts are passed explicitly per call, first, and never stored in structs."
+  - id: p3-ctx-err
+    phase: p3
+    skills: [go.context-lifecycle]
+    difficulty: 3
+    prompt: "A call failed with a wrapped error after its context's deadline passed. Which check is right?"
+    answers: ["errors.Is(err, context.DeadlineExceeded)"]
+    explanation: "Libraries wrap context errors, so compare with errors.Is, not ==."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-pathvalue
+    phase: p4
+    skills: [go.http]
+    difficulty: 3
+    prompt: "Patterns \"GET /items/{id}\" and \"GET /items/new\" are both registered. Which handles GET /items/new?"
+    options: ["The {id} pattern, registered first", "The /items/new pattern, because it is more specific", "It panics at registration"]
+    answer: 1
+    explanation: "ServeMux picks the most specific matching pattern regardless of registration order."
+  - id: p4-client-timeout
+    phase: p4
+    skills: [go.http]
+    difficulty: 3
+    prompt: "What is the timeout of `http.Get(url)`?"
+    options: ["30 seconds", "None: http.DefaultClient has no timeout", "It inherits the server's WriteTimeout"]
+    answer: 1
+    explanation: "Create an http.Client with Timeout and pass contexts with NewRequestWithContext."
+  - id: p4-slog-with
+    phase: p4
+    skills: [go.observability]
+    difficulty: 2
+    prompt: "Which slog call returns a logger that adds `request_id` to every record?"
+    answers: ["logger.With(\"request_id\", id)", "With", "logger.With"]
+    explanation: "With returns a derived logger; the original is unchanged."
+  - id: p4-pprof-heap
+    phase: p4
+    skills: [go.performance]
+    difficulty: 4
+    prompt: "Memory of a service grows steadily. Which heap profile view shows what is still alive now?"
+    options: ["alloc_space", "inuse_space", "the CPU profile"]
+    answer: 1
+    explanation: "inuse_space shows memory held at the time of the profile; alloc_space counts everything ever allocated."
+  - id: p4-govulncheck
+    phase: p4
+    skills: [go.production]
+    difficulty: 3
+    prompt: "Which tool from the Go team reports known vulnerabilities that your code actually reaches?"
+    answers: ["govulncheck"]
+    explanation: "It uses the Go vulnerability database and call-graph analysis."

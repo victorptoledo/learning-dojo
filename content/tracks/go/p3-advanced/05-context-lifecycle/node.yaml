@@ -1,0 +1,25 @@
+id: go.p3.context-lifecycle
+legacy_id: go-07-context-lifecycle
+kind: lesson
+status: draft
+title: "Context: Cancellation, Deadlines and Propagation"
+summary: "The Context interface and its tree, WithCancel, WithTimeout and WithDeadline, the conventions (first parameter, passed down, never stored, always cancel), respecting Done in selects, causes, AfterFunc, WithoutCancel, signal.NotifyContext, request-scoped values and stopping goroutine leaks."
+objectives:
+  - { id: o1, text: "Derive contexts with cancellation and deadlines and follow the conventions for passing them", skills: [go.context-lifecycle] }
+  - { id: o2, text: "Make loops, selects and goroutines stop on ctx.Done() and report causes with WithCancelCause", skills: [go.context-lifecycle, go.channels-select] }
+  - { id: o3, text: "Use context values only for request-scoped data, with unexported key types", skills: [go.context-lifecycle] }
+prerequisites: [go.p3.sync-memory-model]
+difficulty: 4
+estimated_minutes: 45
+xp: 400
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A `ReportService` struct stores a `ctx context.Context` field set in its constructor, its methods call the database with `context.Background()`, one long CSV export loop never looks at any context, and request user IDs are passed around with `context.WithValue(ctx, "user", id)`. Users who close the browser leave exports running for minutes. Review the design and describe the changes, with the signatures you would end up with.'
+  criteria:
+    - 'Removes the stored context: each method takes ctx context.Context as its first parameter and passes it to the database (QueryContext) and other calls'
+    - 'Uses r.Context() from the HTTP handler so a client disconnect cancels the work, and adds a timeout with WithTimeout and defer cancel()'
+    - 'Makes the export loop check ctx.Done() or ctx.Err() regularly (select or a check per row) and return ctx.Err()'
+    - 'Replaces the string key with an unexported key type and typed helper functions, and keeps the user id as request-scoped data (or passes it as an argument)'
+    - 'Mentions comparing errors with errors.Is(err, context.Canceled) or context.DeadlineExceeded, or WithoutCancel for work that must finish'

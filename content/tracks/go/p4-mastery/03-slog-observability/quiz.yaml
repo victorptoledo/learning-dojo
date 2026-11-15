@@ -1,0 +1,42 @@
+questions:
+  - id: handler
+    prompt: "Which slog handler writes one JSON object per record, for a log system?"
+    answers: ["slog.NewJSONHandler", "NewJSONHandler", "JSONHandler"]
+    explanation: "TextHandler writes key=value pairs; both write to any io.Writer, usually os.Stdout."
+  - id: with
+    prompt: "What does `logger.With(\"request_id\", id)` return?"
+    options:
+      - "Nothing: it logs a record with that attribute"
+      - "A new logger that adds request_id to every record it writes"
+      - "A context holding the id"
+    answer: 1
+    explanation: "With is how request-scoped attributes reach every log line of a request."
+  - id: odd-args
+    prompt: "What is wrong with `logger.Info(\"payment\", \"order\", 42, \"amount\")`?"
+    options:
+      - "Nothing"
+      - "The key amount has no value; go vet reports the odd number of arguments"
+      - "Info only accepts strings"
+    answer: 1
+    explanation: "Use typed attributes such as slog.Int to make such mistakes impossible."
+  - id: logvaluer
+    prompt: "How can a type make sure it is never logged in clear?"
+    options:
+      - "Implement slog.LogValuer and return a redacted value"
+      - "Implement fmt.Stringer"
+      - "Make all its fields unexported"
+    answer: 0
+    explanation: "slog calls LogValue before formatting, so the secret never reaches the handler."
+  - id: runtime-metrics
+    prompt: "Where does the Go runtime publish heap size, GC pauses and goroutine counts?"
+    options: ["expvar only", "runtime/metrics", "log/slog"]
+    answer: 1
+    explanation: "runtime/metrics is the stable interface; Prometheus and OpenTelemetry clients export it."
+  - id: pprof-port
+    prompt: "Where should the net/http/pprof endpoints listen?"
+    options:
+      - "On the public port, next to the API"
+      - "On a separate internal port or address, never exposed publicly"
+      - "Nowhere: pprof is only for development"
+    answer: 1
+    explanation: "Profiles reveal internals and cost CPU; keep them reachable only by operators."
