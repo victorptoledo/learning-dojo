@@ -2,13 +2,24 @@ id: go.p3.channels-select
 legacy_id: go-06-channels-select
 kind: lesson
 status: draft
-title: "Channels and the `select` Statement"
-summary: "Safe communication between goroutines and event multiplexing."
+title: "Channels, select and Concurrency Patterns"
+summary: "Unbuffered and buffered channels, close and range, nil and directional channels, select with default, timers and cancellation, and the patterns built on them: pipelines, fan-out and fan-in, worker pools, semaphores and done channels."
 objectives:
-  - { id: o1, text: "Safe communication between goroutines and event multiplexing.", skills: [go.channels-select] }
+  - { id: o1, text: "Use unbuffered and buffered channels correctly, including who closes them and what closed and nil channels do", skills: [go.channels-select] }
+  - { id: o2, text: "Wait on several operations with select, with timeouts, default and cancellation", skills: [go.channels-select] }
+  - { id: o3, text: "Build pipelines, fan-out and fan-in, worker pools and semaphores that end cleanly", skills: [go.channels-select] }
 prerequisites: [go.p3.goroutines-concurrency]
 difficulty: 4
-estimated_minutes: 30
+estimated_minutes: 50
 xp: 350
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design a function that resizes images: it receives up to 10,000 file names, must never run more than 8 resizes at once, must return the results (or the errors) for every file, and must not leak goroutines if it returns early. Describe the channels and goroutines you would use, who closes each channel and when, and how the function knows that every worker has finished.'
+  criteria:
+    - 'Uses a jobs channel fed by one producer that closes it after the last file, and 8 worker goroutines ranging over it (or a semaphore of size 8)'
+    - 'Sends results (value or error with the file name) on a results channel'
+    - 'Closes the results channel only after all workers finish, with a sync.WaitGroup and a separate goroutine that waits and closes'
+    - 'Explains how early return avoids leaks: a context or done channel checked in select by producers and workers, or buffered channels with enough room'
+    - 'Mentions that only the sender closes a channel and that sending on a closed channel panics'

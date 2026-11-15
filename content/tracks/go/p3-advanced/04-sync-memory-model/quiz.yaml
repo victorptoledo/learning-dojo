@@ -1,0 +1,45 @@
+questions:
+  - id: race-def
+    prompt: "Which of these is a data race?"
+    options:
+      - "Two goroutines read the same variable at the same time"
+      - "One goroutine writes a variable while another reads it, with no synchronisation between them"
+      - "Two goroutines send on the same channel"
+    answer: 1
+    explanation: "A race needs concurrent access, at least one write, and no happens-before ordering. Channel operations are synchronised."
+  - id: drf-sc
+    prompt: "What does the Go memory model promise for a program without data races?"
+    options:
+      - "Nothing more than for racy programs"
+      - "It behaves as if goroutines ran interleaved on one CPU (sequential consistency)"
+      - "Goroutines run in the order they were started"
+    answer: 1
+    explanation: "DRF-SC: data-race-free programs are sequentially consistent, which is why removing every race matters."
+  - id: copy-mutex
+    prompt: "A struct with a sync.Mutex field has methods with value receivers. What goes wrong?"
+    options:
+      - "Nothing"
+      - "Each call locks a copy of the mutex, so nothing is protected; go vet reports copylocks"
+      - "It does not compile"
+    answer: 1
+    explanation: "Mutexes must not be copied after first use; use pointer receivers."
+  - id: atomic-fit
+    prompt: "When is an atomic.Int64 enough instead of a mutex?"
+    options:
+      - "When a single counter is updated on its own"
+      - "When a counter and a timestamp must change together"
+      - "Whenever a map is shared"
+    answer: 0
+    explanation: "Atomics protect one variable. Invariants across several fields need a mutex."
+  - id: oncevalue
+    prompt: "Which sync helper runs a loader once and returns its value and error to every caller?"
+    answers: ["sync.OnceValues", "OnceValues"]
+    explanation: "sync.OnceValues (and OnceValue for a single result) wrap sync.Once with results, safe from any goroutine."
+  - id: race-limits
+    prompt: "go test -race passes. What does that prove?"
+    options:
+      - "The program has no data races at all"
+      - "No race happened on the code paths the tests executed"
+      - "The program is free of deadlocks"
+    answer: 1
+    explanation: "The detector checks what runs; untested concurrent paths can still race, and deadlocks are a different problem."

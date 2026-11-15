@@ -1,0 +1,54 @@
+id: go.p3.parallel-fetch
+kind: kata
+status: draft
+title: "Parallel Fetch with Context"
+summary: "Fetch many URLs with a semaphore limit and a timeout per call, cancel the others on the first failure with WithCancelCause, stop when the caller's context ends, and return the fastest of several answers without leaking goroutines."
+objectives:
+  - { id: o1, text: "Bound concurrency with a semaphore and give each call its own timeout derived from the caller's context", skills: [go.context-lifecycle, go.channels-select] }
+  - { id: o2, text: "Cancel sibling work on the first failure and report it with WithCancelCause and Cause", skills: [go.context-lifecycle, go.errors-idiomatic] }
+  - { id: o3, text: "Return the first result of several goroutines without leaking the others", skills: [go.goroutines-concurrency, go.sync-memory-model] }
+prerequisites: [go.p3.context-lifecycle]
+difficulty: 4
+estimated_minutes: 75
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-go, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with `All`, and wrap the caller's context once at the top: which `context` function gives you a cancel that also records **why** it was cancelled? Then think about the loop that starts goroutines: before starting call number 4 with a limit of 3, what must it wait for, and what else could end that wait?
+    - |-
+      `ctx, cancel := context.WithCancelCause(ctx)` with `defer cancel(nil)`. A buffered channel `make(chan struct{}, limit)` is the semaphore: the loop sends into it in a `select` that also watches `ctx.Done()`, and each goroutine receives from it when it finishes. Inside a goroutine, `context.WithTimeout(ctx, perCall)` gives the call its timeout; on failure call `cancel(fmt.Errorf("fetch %s: %w", url, err))`; only the first cause is kept. After `wg.Wait()`, `context.Cause(ctx)` is that failure, or the parent's error, or `nil`. In `First`, give the results channel room for every URL so the losers never block.
+    - |-
+      ```go
+      for i, url := range urls {
+      	select {
+      	case slots <- struct{}{}:
+      	case <-ctx.Done():
+      	}
+      	if ctx.Err() != nil {
+      		break // a failure or the caller stopped everything: start nothing new
+      	}
+      	wg.Go(func() {
+      		defer func() { <-slots }()
+      		callCtx, cancelCall := context.WithTimeout(ctx, perCall)
+      		defer cancelCall()
+      		// fetch(callCtx, url): on error cancel(...) with the wrapped error,
+      		// otherwise store the body at bodies[i]
+      	})
+      }
+      wg.Wait()
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-go runner image
+    image: dojo-go
+    why: The Go 1.27 container with the race detector, go vet and gofmt that runs the grading tests.

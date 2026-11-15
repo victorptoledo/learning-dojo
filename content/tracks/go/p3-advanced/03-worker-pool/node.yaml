@@ -1,0 +1,52 @@
+id: go.p3.worker-pool
+kind: kata
+status: draft
+title: "Worker Pool and Pipeline"
+summary: "A generic Map with a bounded number of workers that keeps job order and joins every error, and a Generate, Square, Sum pipeline with fan-out, fan-in and closed channels, checked with the race detector and testing/synctest."
+objectives:
+  - { id: o1, text: "Bound concurrency with a fixed number of worker goroutines fed by a channel", skills: [go.channels-select, go.goroutines-concurrency] }
+  - { id: o2, text: "Collect results and errors from goroutines without data races", skills: [go.goroutines-concurrency, go.errors-idiomatic] }
+  - { id: o3, text: "Fan out and fan in with a WaitGroup that closes the output after the last worker", skills: [go.channels-select] }
+prerequisites: [go.p3.channels-select]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-go, timeout_secs: 120 }
+  hints:
+    - |-
+      For `Map`, allocate the results (and one error per job) **before** starting any goroutine, with `make([]Out, len(jobs))`: then each worker writes only its own index and needs no lock. How do the workers learn which index to process next, and how do they learn there is nothing left?
+    - |-
+      Send the indexes `0..len(jobs)-1` on a channel and close it; start `workers` goroutines with `wg.Go` that `range` over that channel, call `fn(jobs[i])` and store the value or `fmt.Errorf("job %d: %w", i, err)` at index `i`. After `wg.Wait()`, `errors.Join(failures...)` skips the nil entries and keeps job order. In `Square`, the output must be closed by a separate goroutine that first calls `wg.Wait()`; closing it in a worker would make the others panic.
+    - |-
+      ```go
+      func Square(in <-chan int, workers int) <-chan int {
+      	out := make(chan int)
+      	var wg sync.WaitGroup
+      	for range max(workers, 1) {
+      		wg.Go(func() {
+      			for n := range in {
+      				out <- n * n
+      			}
+      		})
+      	}
+      	go func() {
+      		// wait for every worker, then close out
+      	}()
+      	return out
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-go runner image
+    image: dojo-go
+    why: The Go 1.27 container with the race detector, go vet and gofmt that runs the grading tests.

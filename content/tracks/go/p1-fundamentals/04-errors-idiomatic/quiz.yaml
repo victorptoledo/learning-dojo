@@ -1,0 +1,43 @@
+questions:
+  - id: wrap-verb
+    prompt: "Which fmt.Errorf verb wraps an error so errors.Is and errors.As can find it?"
+    answers: ["%w", "w"]
+    explanation: "%w keeps the original error in the chain; %v only copies its message."
+  - id: is
+    prompt: "`err` may wrap `ErrNotFound`. Which check is right?"
+    options: ["err == ErrNotFound", "errors.Is(err, ErrNotFound)", "err.Error() == \"not found\"", "strings.Contains(err.Error(), \"not found\")"]
+    answer: 1
+    explanation: "errors.Is walks the chain of wrapped errors; == only matches the outer error, and strings break when messages change."
+  - id: as
+    prompt: "How do you get the `Field` of a `*ValidationError` somewhere inside err in Go 1.26 and later, in one line?"
+    options:
+      - "ve := err.(*ValidationError)"
+      - "ve, ok := errors.AsType[*ValidationError](err)"
+      - "ve := errors.Unwrap(err).Field"
+    answer: 1
+    explanation: "errors.AsType is the generic form of errors.As. A plain type assertion only looks at the outer error."
+  - id: defer-order
+    prompt: "What does this print?"
+    code: |
+      for i := range 3 {
+      	defer fmt.Print(i)
+      }
+    options: ["012", "210", "333"]
+    answer: 1
+    explanation: "Deferred calls run last in, first out, and their arguments are evaluated when defer runs."
+  - id: panic-use
+    prompt: "When is panic the right tool?"
+    options:
+      - "When a file the user named does not exist"
+      - "When an invariant that the program guarantees is broken, which can only be a bug"
+      - "To return early from deep recursion on bad input"
+    answer: 1
+    explanation: "Expected failures are errors; panic is for bugs and impossible states."
+  - id: handle-once
+    prompt: "A repository logs an error and returns it, the service logs and returns it, and the handler logs it. What is the problem?"
+    options:
+      - "None: more logs are safer"
+      - "The same failure is logged three times; return it with context and log once at the boundary"
+      - "Errors cannot be returned after logging"
+    answer: 1
+    explanation: "Handle an error once: either add context and return it, or handle it (log, respond) and stop."

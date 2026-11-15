@@ -1,0 +1,24 @@
+id: go.p2.generics-iterators
+kind: lesson
+status: draft
+title: "Generics, Constraints and Iterators"
+summary: "Generic functions and types, constraints (any, comparable, cmp.Ordered, type sets with ~), type inference, generic methods in Go 1.27, when generics help, and iterators with range over functions, iter.Seq and the slices and maps helpers."
+objectives:
+  - { id: o1, text: "Write generic functions and types with the right constraint, including type sets with ~", skills: [go.generics] }
+  - { id: o2, text: "Use generic methods (Go 1.27) and explain their limits and when not to use generics", skills: [go.generics] }
+  - { id: o3, text: "Write lazy iterators with iter.Seq that stop when yield returns false, and compose them with slices and maps", skills: [go.generics] }
+prerequisites: [go.p2.interfaces-duck-typing]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A code base has `func MaxInt(xs []int) int`, `func MaxFloat(xs []float64) float64` and `func MaxString(xs []string) string`, plus a `Cache` that stores `interface{}` and makes every caller type-assert on the way out. Describe how you would replace them with generics: the signatures, the constraints you pick and why, what happens for an empty slice, and how the cache would expose its entries for iteration without returning its internal map.'
+  criteria:
+    - 'Writes one Max[T cmp.Ordered](xs []T) (T, bool) or similar, and explains why cmp.Ordered (needs <) rather than any or comparable'
+    - 'Handles the empty slice with the zero value (var zero T) and a bool or an error, or mentions slices.Max panicking on empty input'
+    - 'Turns the cache into Cache[K comparable, V any] with typed Get returning (V, bool), so no type assertions remain'
+    - 'Exposes entries with an All() iter.Seq2[K, V] method that stops when yield returns false'
+    - 'Mentions a limit or trade-off: type sets with ~ for named types, or keeping interfaces when behaviour (methods) is what matters'

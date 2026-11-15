@@ -105,6 +105,8 @@ pub enum KataLanguage {
     /// Kubernetes manifests (plain, Kustomize or Helm) rendered and checked offline by
     /// `dojo-k8s` with kubeconform and bats.
     Kubernetes,
+    /// A Go package checked with go test (race detector on), go vet and gofmt in `dojo-go`.
+    Go,
 }
 
 impl Kata {
@@ -116,6 +118,7 @@ impl Kata {
             "dojo-sql" => KataLanguage::Sql,
             "dojo-python" => KataLanguage::Python,
             "dojo-k8s" => KataLanguage::Kubernetes,
+            "dojo-go" => KataLanguage::Go,
             _ => KataLanguage::Rust,
         }
     }

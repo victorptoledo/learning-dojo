@@ -2,13 +2,24 @@ id: go.p3.goroutines-concurrency
 legacy_id: go-05-goroutines-concurrency
 kind: lesson
 status: draft
-title: "Goroutines: Thousands of Lightweight Threads"
-summary: "Concurrent execution at almost no cost with the `go` keyword."
+title: "Goroutines and the Scheduler"
+summary: "The go statement, waiting with sync.WaitGroup and wg.Go, concurrency versus parallelism, the G-M-P scheduler and container-aware GOMAXPROCS, the network poller, and goroutine leaks with the Go 1.27 leak profile."
 objectives:
-  - { id: o1, text: "Concurrent execution at almost no cost with the `go` keyword.", skills: [go.goroutines-concurrency] }
-prerequisites: [go.p2.interfaces-duck-typing]
+  - { id: o1, text: "Start goroutines and wait for them with sync.WaitGroup and wg.Go", skills: [go.goroutines-concurrency] }
+  - { id: o2, text: "Explain the G-M-P scheduler, GOMAXPROCS in containers and why blocking a goroutine is cheap", skills: [go.goroutines-concurrency] }
+  - { id: o3, text: "Recognise goroutine leaks, fix them, and find them with the goroutine and goroutine leak profiles", skills: [go.goroutines-concurrency] }
+prerequisites: [go.p2.checkpoint]
 difficulty: 4
-estimated_minutes: 30
+estimated_minutes: 45
 xp: 300
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A service handles each request by starting 3 goroutines that call other services and send their answers on an unbuffered channel; the handler returns after reading the first answer. In production memory grows slowly and `runtime.NumGoroutine()` climbs to 200,000 in a day. Explain what is happening, how you would confirm it, and two ways to fix the code. Also explain why setting GOMAXPROCS by hand in the Kubernetes deployment is no longer needed.'
+  criteria:
+    - 'Explains that the two slower goroutines block forever on the unbuffered send because nobody receives: a goroutine leak per request'
+    - 'Confirms it with the goroutine profile (pprof /debug/pprof/goroutine) or the Go 1.27 goroutineleak profile, or the goroutine count metric'
+    - 'Fixes with a buffered channel sized for every sender, and/or a context cancelled when the handler returns so the calls stop'
+    - 'States the rule that every goroutine needs a known way to finish'
+    - 'Explains that since Go 1.25 GOMAXPROCS follows the container CPU limit (cgroups) automatically'

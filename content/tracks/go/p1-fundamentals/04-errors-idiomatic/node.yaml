@@ -1,0 +1,24 @@
+id: go.p1.errors-idiomatic
+legacy_id: go-03-errors-idiomatic
+kind: lesson
+status: draft
+title: "Errors as Values: Wrapping, errors.Is and errors.As"
+summary: "The error interface, sentinel errors and custom error types, wrapping with %w, errors.Is, errors.As and errors.AsType, errors.Join, handling an error once, defer, and when panic and recover are right."
+objectives:
+  - { id: o1, text: "Return and check errors idiomatically, with sentinel errors and custom error types", skills: [go.errors-idiomatic] }
+  - { id: o2, text: "Wrap errors with %w to add context and inspect chains with errors.Is, errors.As and errors.AsType", skills: [go.errors-idiomatic] }
+  - { id: o3, text: "Release resources with defer and keep panic and recover for bugs and boundaries", skills: [go.errors-idiomatic] }
+prerequisites: [go.p1.structs-methods]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this handler: `user, err := store.Find(id); if err != nil { log.Println(err); if err.Error() == "not found" { w.WriteHeader(404) } else { panic(err) } }`, where `store.Find` returns `fmt.Errorf("query user %s: %v", id, ErrNotFound)`. List what is wrong, then write how `Find` should build its error and how the handler should react to a missing user, an invalid id (a `*ValidationError`) and anything else.'
+  criteria:
+    - 'Points out that comparing err.Error() strings is fragile and that %v hides the sentinel, so errors.Is cannot find it; Find must wrap with %w'
+    - 'Uses errors.Is(err, ErrNotFound) for 404 and errors.As or errors.AsType for *ValidationError (400 with the field)'
+    - 'Says panic is wrong for an expected failure; unknown errors are logged once with context and answered with 500'
+    - 'Mentions handling an error once (not logging at every layer) and adding context about what was being done'

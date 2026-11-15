@@ -1,0 +1,42 @@
+questions:
+  - id: tree
+    prompt: "A child context was derived with WithTimeout from a parent. The parent is cancelled. What happens to the child?"
+    options: ["Nothing until its own timeout", "It is cancelled too", "It panics"]
+    answer: 1
+    explanation: "Cancellation flows down the tree: children are cancelled with their parent, never the reverse."
+  - id: defer-cancel
+    prompt: "Why write `defer cancel()` right after WithTimeout even when the call succeeds quickly?"
+    options:
+      - "It is only a style rule"
+      - "It releases the timer and the child contexts at once; otherwise they live until the timeout (go vet: lostcancel)"
+      - "It makes the call faster"
+    answer: 1
+    explanation: "Forgetting cancel leaks resources until the deadline."
+  - id: err
+    prompt: "What does ctx.Err() return after a WithTimeout context reached its deadline?"
+    answers: ["context.DeadlineExceeded", "DeadlineExceeded"]
+    explanation: "A manual cancel gives context.Canceled; compare with errors.Is because callers often wrap it."
+  - id: struct-field
+    prompt: "Where should a context live?"
+    options:
+      - "In a field of the service struct, set by the constructor"
+      - "As the first parameter of each function that needs it"
+      - "In a global variable"
+    answer: 1
+    explanation: "A context belongs to one operation; storing it ties a long-lived object to one request."
+  - id: values
+    prompt: "Which is an appropriate use of context.WithValue?"
+    options:
+      - "Passing the database connection to handlers"
+      - "Passing an optional page size to a function"
+      - "Carrying a request ID through middleware, handlers and logs"
+    answer: 2
+    explanation: "Values are for request-scoped data crossing API boundaries; dependencies and options are arguments."
+  - id: cause
+    prompt: "Several fetches run under one context; the first failure should stop the others and be reported. Which pair fits?"
+    options:
+      - "context.WithCancelCause and context.Cause"
+      - "context.WithValue and ctx.Value"
+      - "context.WithoutCancel and ctx.Err"
+    answer: 0
+    explanation: "cancel(err) records why; Cause(ctx) returns that error instead of a plain context.Canceled."

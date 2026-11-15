@@ -1,0 +1,39 @@
+questions:
+  - id: closed-receive
+    prompt: "What does `v, ok := <-ch` give when ch is closed and empty?"
+    options: ["It blocks forever", "v is the zero value and ok is false", "It panics"]
+    answer: 1
+    explanation: "Receiving from a closed channel never blocks; ok tells you the value is not real."
+  - id: who-closes
+    prompt: "Who should close a channel?"
+    options:
+      - "The receiver, when it has had enough values"
+      - "The sender, when no more values will come and receivers need to know"
+      - "Nobody: closing is required for garbage collection otherwise"
+    answer: 1
+    explanation: "Sending on a closed channel panics, so only the side that sends may close. Unclosed channels are still collected."
+  - id: nil-select
+    prompt: "In a select, what does a case on a nil channel do?"
+    options: ["Panics", "Is never chosen", "Is chosen immediately"]
+    answer: 1
+    explanation: "Operations on nil channels block forever, so setting a channel to nil disables its case."
+  - id: default
+    prompt: "What does a `default` case change in a select?"
+    options:
+      - "The select becomes non-blocking: default runs if no other case is ready"
+      - "It runs after every other case"
+      - "It sets a timeout of one second"
+    answer: 0
+    explanation: "Use it for try-send and try-receive; use a timer or ctx.Done() to wait with a limit."
+  - id: fan-in-close
+    prompt: "Several workers send on one results channel. When can it be closed?"
+    options:
+      - "When the first worker finishes"
+      - "After all workers finish, typically in a goroutine that calls wg.Wait() and then close"
+      - "Before the workers start"
+    answer: 1
+    explanation: "Closing earlier would make the other workers panic on their next send."
+  - id: semaphore
+    prompt: "What does `sem := make(chan struct{}, 3)` used with `sem <- struct{}{}` and `<-sem` do?"
+    answers: ["limits concurrency to 3", "a semaphore of 3", "at most 3 at once"]
+    explanation: "The buffer has three slots, so a fourth goroutine blocks until one is given back."

@@ -1,0 +1,52 @@
+id: go.p1.word-stats
+kind: kata
+status: draft
+title: "Word Stats: Slices, Maps and Sorting"
+summary: "Split text into words rune by rune, count them in a map, rank the most frequent with a tie rule, keep first-seen order with a set and group words by length."
+objectives:
+  - { id: o1, text: "Walk a string as runes and build words with strings.Builder and unicode", skills: [go.types-slices] }
+  - { id: o2, text: "Count and group with maps, and use a map[string]bool as a set", skills: [go.types-slices] }
+  - { id: o3, text: "Sort a slice with slices.SortFunc and a two-level comparison", skills: [go.types-slices] }
+prerequisites: [go.p1.types-slices]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-go, timeout_secs: 90 }
+  hints:
+    - |-
+      `Words` is the heart of the kata: the other functions call it. Walk the text one rune at a time and keep the word you are building. What decides that a rune ends a word? And to know whether an apostrophe is inside a word, which two runes do you need to look at?
+    - |-
+      Convert once with `runes := []rune(strings.ToLower(text))`, so `runes[i-1]` and `runes[i+1]` are the neighbours. Append to a `strings.Builder` while a rune is a letter, a digit or an inner apostrophe; otherwise flush the builder into the result if it is not empty (and flush once more after the loop). `Count` is `counts[word]++`. `Top` copies the map into a `[]WordCount`, sorts it and cuts it with `[:min(n, len(ranking))]`. `ByLength` can start from `FirstSeen`, so every word is already distinct.
+    - |-
+      ```go
+      slices.SortFunc(ranking, func(a, b WordCount) int {
+      	if c := cmp.Compare(b.Count, a.Count); c != 0 { // b before a: descending
+      		return c
+      	}
+      	return strings.Compare(a.Word, b.Word)
+      })
+
+      func FirstSeen(text string) []string {
+      	seen := make(map[string]bool)
+      	var order []string
+      	for _, word := range Words(text) {
+      		// append word to order the first time you see it
+      	}
+      	return order
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-go runner image
+    image: dojo-go
+    why: The Go 1.27 container with the race detector, go vet and gofmt that runs the grading tests.

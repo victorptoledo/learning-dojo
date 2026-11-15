@@ -1,0 +1,60 @@
+id: go.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz over interfaces, generics, iterators and testing, and an integration kata, a log pipeline built on io.Reader, a Matcher interface, lazy iterators, a generic counter and joined errors."
+objectives:
+  - { id: o1, text: "Explain implicit interfaces, constraints, iterators and Go's testing tools in your own words", skills: [go.interfaces-duck-typing, go.generics, go.testing] }
+  - { id: o2, text: "Build a package that composes io.Reader and io.Writer, an interface with several implementations, lazy iterators and generic helpers", skills: [go.interfaces-duck-typing, go.generics, go.errors-idiomatic] }
+prerequisites: [go.p2.testing]
+difficulty: 3
+estimated_minutes: 80
+xp: 350
+closes_phase: p2
+covers_skills: [go.interfaces-duck-typing, go.generics, go.testing]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-go, timeout_secs: 90 }
+  hints:
+    - |-
+      Do the small pieces first: `Level.String` and `ParseLevel`, then the three `Match` methods, then `Parse`, and the iterator functions last. For `Parse`, which standard type reads an `io.Reader` line by line, and how does it tell you, after the loop, that reading failed?
+    - |-
+      `bufio.NewScanner(r)` with `for scanner.Scan()` reads lines; `scanner.Err()` after the loop is the reader's failure, which you return wrapped with `%w`. Parse one line with `strings.SplitN(line, " ", 4)`: four parts, then `time.Parse(time.RFC3339, parts[0])` and `ParseLevel(parts[1])`. `MatcherFunc.Match` is `return f(e)`, and `All` can return a `MatcherFunc` that loops over the matchers. `Select` returns `func(yield func(Entry) bool)` that calls `m.Match` only inside its loop.
+    - |-
+      ```go
+      func Parse(r io.Reader) ([]Entry, error) {
+      	var entries []Entry
+      	var problems []error
+      	scanner := bufio.NewScanner(r)
+      	for number := 1; scanner.Scan(); number++ {
+      		line := strings.TrimSpace(scanner.Text())
+      		if line == "" || strings.HasPrefix(line, "#") {
+      			continue
+      		}
+      		entry, err := parseLine(line) // your helper: SplitN, time.Parse, ParseLevel
+      		if err != nil {
+      			problems = append(problems, &ParseError{Line: number, Err: err})
+      			continue
+      		}
+      		entries = append(entries, entry)
+      	}
+      	if err := scanner.Err(); err != nil {
+      		return entries, fmt.Errorf("read logs: %w", err)
+      	}
+      	return entries, errors.Join(problems...)
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-go runner image
+    image: dojo-go
+    why: The Go 1.27 container with the race detector, go vet and gofmt that runs the grading tests.

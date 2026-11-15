@@ -366,6 +366,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::Kubernetes => {
                 "2. Edit the .yaml manifests in the kata folder. Lines marked \"todo\" are yours to write:"
             }
+            KataLanguage::Go => {
+                "2. Edit the .go files in the kata folder (not the _test.go ones). Each function that still calls panic(\"todo ...\") is yours to write:"
+            }
         }),
         Line::from(match language {
             KataLanguage::Rust => {
@@ -388,6 +391,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             }
             KataLanguage::Kubernetes => {
                 "   no cluster needed: the dojo renders them, validates them against the Kubernetes 1.36 schemas and checks them with bats."
+            }
+            KataLanguage::Go => {
+                "   that panic is a placeholder; go test runs the tests with the race detector, and go vet and gofmt must be happy."
             }
         }),
         Line::from("3. Save the file. The tests run by themselves and the result appears below."),

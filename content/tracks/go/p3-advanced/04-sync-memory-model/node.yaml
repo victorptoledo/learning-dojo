@@ -1,0 +1,24 @@
+id: go.p3.sync-memory-model
+kind: lesson
+status: draft
+title: "sync, Atomics, the Memory Model and the Race Detector"
+summary: "What a data race is, happens-before and the DRF-SC guarantee of the Go memory model, Mutex and RWMutex, atomic types, Once and OnceValue, sync.Map and sync.Pool, and finding races with the race detector."
+objectives:
+  - { id: o1, text: "Define a data race and explain happens-before and the DRF-SC guarantee of the Go memory model", skills: [go.sync-memory-model] }
+  - { id: o2, text: "Protect shared state with Mutex, RWMutex, atomic types, Once and OnceValue, and pick between them", skills: [go.sync-memory-model] }
+  - { id: o3, text: "Find and read data races with -race, and know what the detector cannot see", skills: [go.sync-memory-model] }
+prerequisites: [go.p3.worker-pool]
+difficulty: 4
+estimated_minutes: 50
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A rate limiter stores `map[string]int` of requests per client and a `lastReset time.Time`, updated by every HTTP handler goroutine with no locking. It "works on my laptop", but production sometimes crashes with `fatal error: concurrent map writes` and counts look wrong. Explain why, how you would prove it before fixing it, and write the struct with the synchronisation you would add. Say whether atomics, a Mutex, an RWMutex or sync.Map fits best, and why.'
+  criteria:
+    - 'Explains the data race: concurrent writes to a map and to lastReset with no happens-before ordering, so behaviour is undefined and the runtime may abort'
+    - 'Proves it with go test -race (or a -race build) on a test that calls the limiter from many goroutines, and reads the two stacks in the report'
+    - 'Adds a sync.Mutex next to the map and lastReset, locked with defer Unlock in pointer-receiver methods, because two fields change together'
+    - 'Explains why atomics alone do not fit (several variables), why RWMutex gains little for write-heavy work and why sync.Map is not the right case'
+    - 'Mentions not copying the mutex (go vet copylocks) or keeping the critical section short'

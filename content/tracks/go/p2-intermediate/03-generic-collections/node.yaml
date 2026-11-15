@@ -1,0 +1,57 @@
+id: go.p2.generic-collections
+kind: kata
+status: draft
+title: "Generic Collections: a Set and Lazy Iterators"
+summary: "A generic Set[T comparable] with a usable zero value and an iter.Seq, lazy Map, Filter and Take that stop when yield returns false, GroupBy, and Sum over a type set with ~."
+objectives:
+  - { id: o1, text: "Write a generic type with a usable zero value and methods that return iter.Seq", skills: [go.generics] }
+  - { id: o2, text: "Write lazy iterator helpers that stop pulling when the consumer stops", skills: [go.generics] }
+  - { id: o3, text: "Use comparable, any and a type set with ~ as constraints", skills: [go.generics] }
+prerequisites: [go.p2.generics-iterators]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-go, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with the set: most tests build one. Which methods can run on a set whose map is still `nil`? Reading a nil map is fine, writing is not, so only `Add` needs to create it. For `All`, does the standard library already turn a map's keys into an `iter.Seq`?
+    - |-
+      `maps.Keys(s.items)` is already an `iter.Seq[T]`, and it stops when the loop breaks. `Union` and `Intersect` start from `NewSet[T]()` and add into it. An iterator helper returns `func(yield func(T) bool) { ... }`: inside, range over the source and `return` as soon as `yield(...)` returns false. `Take` also returns after the n-th value, before the source is asked for another one, and returns at once when `n <= 0`.
+    - |-
+      ```go
+      func (s *Set[T]) Add(items ...T) {
+      	if s.items == nil {
+      		s.items = make(map[T]struct{}, len(items))
+      	}
+      	for _, item := range items {
+      		s.items[item] = struct{}{}
+      	}
+      }
+
+      func Take[T any](seq iter.Seq[T], n int) iter.Seq[T] {
+      	return func(yield func(T) bool) {
+      		if n <= 0 {
+      			return
+      		}
+      		taken := 0
+      		for v := range seq {
+      			// yield v (return if it says stop), count it, return when taken == n
+      		}
+      	}
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-go runner image
+    image: dojo-go
+    why: The Go 1.27 container with the race detector, go vet and gofmt that runs the grading tests.

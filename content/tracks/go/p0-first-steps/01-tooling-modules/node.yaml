@@ -2,13 +2,24 @@ id: go.p0.tooling-modules
 legacy_id: go-01-tooling-modules
 kind: lesson
 status: draft
-title: "Go Toolchain and Modules"
-summary: "Dependency management with go.mod and the core commands (`go run`, `go build`, `go test`)."
+title: "Go 1.27, the go Command and Modules"
+summary: "Why Go exists and how it is released, installing Go 1.27, packages and modules, go.mod and go.sum, the go command (run, build, test, vet, fmt, fix, mod tidy), toolchain selection and how the dojo checks Go katas."
 objectives:
-  - { id: o1, text: "Dependency management with go.mod and the core commands (`go run`, `go build`, `go test`).", skills: [go.tooling-modules] }
+  - { id: o1, text: "Explain what Go was designed for, how its releases and compatibility promise work, and why the dojo teaches Go 1.27", skills: [go.tooling-modules] }
+  - { id: o2, text: "Create a module, write a package main, and use go run, go build, go test, go vet, gofmt and go fix", skills: [go.tooling-modules] }
+  - { id: o3, text: "Read a go.mod (module, go, toolchain, require, tool) and go.sum, and manage dependencies with go get and go mod tidy", skills: [go.tooling-modules] }
 prerequisites: []
 difficulty: 1
-estimated_minutes: 30
+estimated_minutes: 35
 xp: 100
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A new teammate clones your Go service and asks four things: why the repository has both `go.mod` and `go.sum`, what the `go 1.26.0` and `toolchain go1.27.4` lines mean, why `go build` downloaded a toolchain on their machine with Go 1.25 installed, and which commands they should run before opening a pull request. Answer them in a short message.'
+  criteria:
+    - 'Explains that go.mod declares the module path and the direct and indirect requirements, and go.sum holds the checksums that make downloads verifiable; both are committed'
+    - 'Explains that the go line is the minimum Go version (language and requirements), and the toolchain line is the preferred toolchain when the local one is older'
+    - 'Explains GOTOOLCHAIN=auto: an older go command downloads the toolchain the module needs (forward compatibility since Go 1.21)'
+    - 'Lists gofmt (or go fmt), go vet, go test (with -race), and go mod tidy so go.mod and go.sum match the imports'
+    - 'Mentions the Go 1 compatibility promise or go fix as the way old code keeps building and gets modernised'

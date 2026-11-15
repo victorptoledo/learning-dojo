@@ -87,6 +87,7 @@ impl App {
         files.extend(sql_files(dir));
         files.extend(python_modules(dir));
         files.extend(yaml_manifests(dir));
+        files.extend(go_sources(dir));
         let existing: Vec<_> = files.into_iter().filter(|file| file.is_file()).collect();
         match self.editor.open_folder(dir, &existing) {
             Ok(()) => format!("Opened {} in `{}`.", dir.display(), self.editor.command()),
@@ -322,6 +323,21 @@ fn yaml_manifests(dir: &Path) -> Vec<PathBuf> {
         .collect();
     manifests.sort();
     manifests
+}
+
+/// The code of a Go kata: the `.go` files at the top of its folder, tests left out.
+fn go_sources(dir: &Path) -> Vec<PathBuf> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut sources: Vec<PathBuf> = entries
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file() && path.extension().is_some_and(|ext| ext == "go"))
+        .filter(|path| !path.to_string_lossy().ends_with("_test.go"))
+        .collect();
+    sources.sort();
+    sources
 }
 
 fn java_sources(dir: &Path) -> Vec<PathBuf> {

@@ -1,0 +1,39 @@
+questions:
+  - id: constraint-ordered
+    prompt: "Which constraint lets a generic Max use the `<` operator on T?"
+    options: ["any", "comparable", "cmp.Ordered"]
+    answer: 2
+    explanation: "comparable only allows == and !=; cmp.Ordered lists the integer, float and string types that support <."
+  - id: tilde
+    prompt: "`type Cents int64` and a constraint `interface{ int64 }`. Is Cents allowed? What about `interface{ ~int64 }`?"
+    options:
+      - "Allowed by both"
+      - "Rejected by int64, allowed by ~int64 (any type whose underlying type is int64)"
+      - "Rejected by both"
+    answer: 1
+    explanation: "Without ~ the type set holds exactly int64; ~int64 includes every named type built on int64."
+  - id: zero
+    prompt: "How do you return \"nothing\" from a function that returns a type parameter T?"
+    options: ["return nil", "var zero T; return zero", "return T{}"]
+    answer: 1
+    explanation: "nil is only valid for some types and T{} only for composite ones; a declared variable always holds the zero value."
+  - id: generic-methods
+    prompt: "What did Go 1.27 add to generics?"
+    options:
+      - "Methods can declare their own type parameters (but interface methods still cannot)"
+      - "Interfaces can have generic methods"
+      - "Type parameters on packages"
+    answer: 0
+    explanation: "A method such as func (s *Stack[T]) Map[U any](...) is allowed; it cannot satisfy an interface method."
+  - id: yield-false
+    prompt: "Inside an iterator, `yield(v)` returned false. What must the iterator do?"
+    options:
+      - "Keep calling yield with the next values"
+      - "Stop and return: the loop body ended with break or return"
+      - "Call yield again with the same value"
+    answer: 1
+    explanation: "Calling yield after it returned false panics at run time."
+  - id: collect
+    prompt: "Which call turns `maps.Keys(m)` into a sorted slice in one step?"
+    answers: ["slices.Sorted(maps.Keys(m))", "slices.Sorted"]
+    explanation: "slices.Sorted collects any iter.Seq of an ordered type and sorts it."

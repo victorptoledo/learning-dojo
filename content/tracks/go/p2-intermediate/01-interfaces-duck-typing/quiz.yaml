@@ -1,0 +1,41 @@
+questions:
+  - id: implicit
+    prompt: "How does a type declare that it implements io.Writer?"
+    options:
+      - "With `implements io.Writer` after the type name"
+      - "It does not declare anything: having a Write([]byte) (int, error) method is enough"
+      - "By embedding io.Writer in the struct"
+    answer: 1
+    explanation: "Go interfaces are satisfied implicitly. `var _ io.Writer = (*T)(nil)` asks the compiler to confirm it."
+  - id: method-set
+    prompt: "`func (b *Buffer) Write(p []byte) (int, error)`. Which of these is an io.Writer?"
+    options: ["Buffer", "*Buffer", "Both", "Neither"]
+    answer: 1
+    explanation: "A method with a pointer receiver belongs to the method set of *Buffer only."
+  - id: typed-nil
+    prompt: "What does this print?"
+    code: |
+      var p *MyErr = nil
+      var err error = p
+      fmt.Println(err == nil)
+    options: ["true", "false", "It does not compile"]
+    answer: 1
+    explanation: "err holds the dynamic type *MyErr and a nil value; an interface is nil only when both parts are nil."
+  - id: comma-ok
+    prompt: "`v` is an `any` holding a string. What does `n, ok := v.(int)` do?"
+    options: ["Panics", "n = 0, ok = false", "Converts the string to an int"]
+    answer: 1
+    explanation: "The comma-ok form of a type assertion never panics; the one-value form does."
+  - id: accept-return
+    prompt: "Which signature follows the Go guideline for a constructor and a reader function?"
+    options:
+      - "func NewStore() StoreInterface; func Parse(f *os.File) error"
+      - "func NewStore() *Store; func Parse(r io.Reader) error"
+      - "func NewStore() any; func Parse(r any) error"
+    answer: 1
+    explanation: "Accept interfaces (as small as possible), return concrete types."
+  - id: switch
+    prompt: "In a type switch `switch x := v.(type)`, what is the type of x inside `case int, string:`?"
+    options: ["int", "string", "the type of v (an interface)"]
+    answer: 2
+    explanation: "With a single type in the case, x has that type; with several, x keeps the interface type."

@@ -1,0 +1,42 @@
+questions:
+  - id: error-vs-fatal
+    prompt: "What is the difference between t.Errorf and t.Fatalf?"
+    options:
+      - "Errorf records a failure and continues; Fatalf records it and stops the test"
+      - "Errorf only logs; Fatalf fails the test"
+      - "Fatalf stops the whole test binary"
+    answer: 0
+    explanation: "Use Fatalf when the rest of the test cannot run, such as after a failed setup."
+  - id: subtest-run
+    prompt: "How do you run only the subtest named \"rounds down\" of TestDiscount?"
+    options: ["go test -run TestDiscount/rounds_down", "go test -only \"rounds down\"", "go test TestDiscount.rounds_down"]
+    answer: 0
+    explanation: "Subtest names replace spaces with underscores, and -run takes slash-separated patterns."
+  - id: helper
+    prompt: "What does t.Helper() do in a function such as `func check(t *testing.T, got, want int)`?"
+    options:
+      - "Runs the function in parallel"
+      - "Reports failures at the line of the caller instead of the line inside check"
+      - "Marks the test as skipped"
+    answer: 1
+    explanation: "It makes failure messages point to the test that called the helper."
+  - id: fuzz-corpus
+    prompt: "Where does go test -fuzz keep an input that made the fuzz test fail?"
+    answers: ["testdata/fuzz", "testdata/fuzz/FuzzName", "in testdata/fuzz"]
+    explanation: "It writes the input under testdata/fuzz/<FuzzName>/, and every later go test replays it."
+  - id: b-loop
+    prompt: "Why is `for b.Loop() { ... }` preferred over `for i := 0; i < b.N; i++` since Go 1.24?"
+    options:
+      - "It runs the benchmark in parallel"
+      - "Setup outside the loop is not timed, and the compiler cannot optimise the body away"
+      - "It prints allocations automatically"
+    answer: 1
+    explanation: "b.Loop manages the timer and keeps the results alive; -benchmem still controls allocation reports."
+  - id: example
+    prompt: "What makes an ExampleXxx function a test?"
+    options:
+      - "Its name alone"
+      - "An `// Output:` comment, compared with what the example prints"
+      - "A call to t.Run"
+    answer: 1
+    explanation: "Without the Output comment the example is compiled but not run."

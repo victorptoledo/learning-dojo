@@ -1,0 +1,64 @@
+questions:
+  - id: func-type
+    skills: [go.interfaces-duck-typing]
+    prompt: "`type MatcherFunc func(Entry) bool` has a method `Match(e Entry) bool { return f(e) }`. What does that give you?"
+    options:
+      - "Nothing: function types cannot have methods"
+      - "Any plain function with the right signature can be converted to MatcherFunc and used as a Matcher"
+      - "It makes Matcher a generic interface"
+    answer: 1
+    explanation: "Methods on function types are how http.HandlerFunc turns functions into http.Handler values."
+  - id: reader
+    skills: [go.interfaces-duck-typing]
+    prompt: "Why should Parse take an io.Reader instead of a file name?"
+    options:
+      - "Readers are faster than files"
+      - "Any source works: files, HTTP bodies, gzip streams, and strings.NewReader in tests"
+      - "File names cannot contain spaces"
+    answer: 1
+    explanation: "Accepting the smallest interface you need makes code reusable and easy to test."
+  - id: interface-nil
+    skills: [go.interfaces-duck-typing]
+    prompt: "When is an interface value equal to nil?"
+    options: ["When its dynamic value is nil", "When both its dynamic type and value are nil", "Never"]
+    answer: 1
+    explanation: "An interface holding a nil pointer of some type is not nil: the typed nil trap."
+  - id: comparable-key
+    skills: [go.generics]
+    prompt: "Why is K constrained by `comparable` in `func CountBy[K comparable](...) map[K]int`?"
+    options: ["Map keys must support ==", "To allow < for sorting", "comparable is required for every type parameter"]
+    answer: 0
+    explanation: "Only comparable types can be map keys; cmp.Ordered would also allow < but is stricter than needed."
+  - id: lazy
+    skills: [go.generics]
+    prompt: "Select returns an iter.Seq. When does the matcher run?"
+    options:
+      - "When Select is called, for every entry"
+      - "Only while someone ranges over the sequence, and not after the loop breaks"
+      - "In a background goroutine"
+    answer: 1
+    explanation: "Iterators are lazy: the work happens inside the yield loop, as the consumer asks for values."
+  - id: generic-method-limit
+    skills: [go.generics]
+    prompt: "In Go 1.27, can an interface declare `Map[U any](func(T) U) U`?"
+    options: ["Yes, since Go 1.27", "No: methods of concrete types may have type parameters, interface methods may not"]
+    answer: 1
+    explanation: "Generic methods exist only on concrete types, so they never implement interface methods."
+  - id: table
+    skills: [go.testing]
+    prompt: "What is the main benefit of running each row of a table test with t.Run?"
+    options:
+      - "Rows run faster"
+      - "Each row is a named subtest that fails on its own and can be run alone with -run"
+      - "It hides failures of other rows"
+    answer: 1
+    explanation: "Subtests give names, isolation and selective runs, and can use t.Parallel."
+  - id: iotest
+    skills: [go.testing]
+    prompt: "How can a test check that Parse handles a failing reader, without a real broken disk?"
+    options:
+      - "It cannot"
+      - "Pass iotest.ErrReader(err), or any small type whose Read returns an error"
+      - "Delete the file while Parse runs"
+    answer: 1
+    explanation: "Because Parse accepts io.Reader, a fake reader is a one-liner; testing/iotest has ready-made ones."
