@@ -1,0 +1,207 @@
+# Technical interview questions for the spring-boot track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://hyring.com/jobseeker-toolkit/interview-questions/technical/spring-boot"
+  - "https://www.golinuxcloud.com/spring-boot-interview-questions-experienced/"
+  - "https://prachub.com/resources/spring-boot-interview-questions-for-java-engineers-dependency-injection-transactions-security-and-production"
+  - "https://docs.spring.io/spring-boot/"
+questions:
+  - id: auto-config
+    level: junior
+    skills: [spring.setup]
+    question: "What is Spring Boot auto-configuration, and how do you find out why a bean was or was not created?"
+    key_points:
+      - "Configuration classes applied conditionally (@ConditionalOnClass, OnMissingBean)"
+      - "Starters bring the dependencies that trigger them"
+      - "Your own beans make auto-configuration back off"
+      - "--debug or the actuator conditions endpoint show the report"
+    follow_up: "How would you write your own auto-configuration?"
+  - id: constructor-injection
+    level: junior
+    skills: [spring.dependency-injection]
+    question: "Why is constructor injection preferred over field injection?"
+    key_points:
+      - "Dependencies are explicit and final"
+      - "Objects are always complete; easy to test with new"
+      - "Reveals classes with too many dependencies"
+      - "No reflection needed in tests"
+    follow_up: "How does Spring choose between two beans of the same type?"
+  - id: bean-scopes
+    level: mid
+    skills: [spring.dependency-injection]
+    question: "What bean scopes exist, and what happens when you inject a prototype bean into a singleton?"
+    key_points:
+      - "singleton (default), prototype, request, session"
+      - "The prototype is created once, at injection time"
+      - "Use ObjectProvider, a scoped proxy or a factory to get new instances"
+    follow_up: "Why should singleton beans be stateless?"
+  - id: transactional-proxy
+    level: mid
+    skills: [spring.data-jpa]
+    question: "How does @Transactional work, and why does calling a @Transactional method from the same class not start a transaction?"
+    key_points:
+      - "Spring wraps the bean in a proxy that begins and commits or rolls back"
+      - "Self-invocation bypasses the proxy"
+      - "Rollback by default only on unchecked exceptions"
+      - "Fix: call through another bean or restructure"
+    follow_up: "What do propagation REQUIRES_NEW and readOnly change?"
+  - id: n-plus-one
+    level: mid
+    skills: [spring.jpa-queries]
+    question: "What is the N+1 query problem in JPA and how do you fix it?"
+    key_points:
+      - "Lazy associations loaded one query per row"
+      - "Fetch join, @EntityGraph or batch fetching"
+      - "DTO or record projections for read models"
+      - "Detect it with SQL logs or Hibernate statistics"
+    follow_up: "Why is FetchType.EAGER not the answer?"
+  - id: entity-states
+    level: mid
+    skills: [spring.data-jpa]
+    question: "Explain the persistence context and entity states in JPA. What is dirty checking?"
+    key_points:
+      - "Transient, managed, detached, removed"
+      - "Managed entities are tracked; changes are flushed at commit"
+      - "save() on a detached entity merges"
+      - "Keep transactions short"
+    follow_up: "What is the LazyInitializationException and how do you avoid it?"
+  - id: config-properties
+    level: junior
+    skills: [spring.configuration]
+    question: "How do you manage configuration across environments in Spring Boot?"
+    key_points:
+      - "application.yml plus profiles"
+      - "Environment variables override, relaxed binding"
+      - "@ConfigurationProperties records with validation"
+      - "Secrets outside the repository"
+    follow_up: "In which order are property sources applied?"
+  - id: rest-status
+    level: junior
+    skills: [spring.rest]
+    question: "Design a POST endpoint that creates a resource. Which status code and headers should it return, and how?"
+    key_points:
+      - "201 Created with a Location header"
+      - "ResponseEntity.created(uri).body(...)"
+      - "Separate request and response records"
+      - "Validation with @Valid"
+    follow_up: "How would you make the endpoint idempotent?"
+  - id: error-handling
+    level: mid
+    skills: [spring.validation-errors]
+    question: "How do you return consistent error responses from a Spring Boot API?"
+    key_points:
+      - "@RestControllerAdvice with @ExceptionHandler"
+      - "Problem Details (RFC 9457) with ProblemDetail"
+      - "Extend ResponseEntityExceptionHandler for framework exceptions"
+      - "Do not leak stack traces or internals"
+    follow_up: "How do you report several invalid fields at once?"
+  - id: testing-slices
+    level: mid
+    skills: [spring.testing]
+    question: "What is the difference between @SpringBootTest, @WebMvcTest and @DataJpaTest, and when do you use each?"
+    key_points:
+      - "@SpringBootTest loads the whole context"
+      - "@WebMvcTest only the web layer, with @MockitoBean for services"
+      - "@DataJpaTest only JPA, with an embedded database or Testcontainers"
+      - "Context caching makes consistent configuration faster"
+    follow_up: "Why are too many @MockitoBean variations slow?"
+  - id: security-chain
+    level: mid
+    skills: [spring.security]
+    question: "How do you configure Spring Security for a REST API in Spring Boot 3 or 4?"
+    key_points:
+      - "A SecurityFilterChain bean with authorizeHttpRequests rules in order"
+      - "Stateless sessions and JWT resource server, or sessions with CSRF"
+      - "PasswordEncoder (bcrypt)"
+      - "Method security with @PreAuthorize"
+    follow_up: "How do you make sure a user only sees their own resources?"
+  - id: csrf
+    level: mid
+    skills: [spring.security]
+    question: "When do you need CSRF protection and when can you disable it?"
+    key_points:
+      - "Needed for cookie-based sessions used by browsers"
+      - "Not needed for stateless APIs with bearer tokens in headers"
+      - "Disabling it for session cookies is a vulnerability"
+    follow_up: "How does SameSite on cookies change the picture?"
+  - id: actuator
+    level: junior
+    skills: [spring.observability]
+    question: "What does Spring Boot Actuator give you and how do you secure it?"
+    key_points:
+      - "Health (liveness, readiness), metrics, info, more"
+      - "Micrometer metrics exported to Prometheus and others"
+      - "Expose only what is needed; separate port or authentication"
+      - "Health groups for Kubernetes probes"
+    follow_up: "Which custom metrics would you add for an order service?"
+  - id: events-after-commit
+    level: senior
+    skills: [spring.async-caching]
+    question: "After an order is saved, you must send an email. How do you avoid sending it for orders that are rolled back?"
+    key_points:
+      - "Publish an application event"
+      - "@TransactionalEventListener(phase = AFTER_COMMIT)"
+      - "@Async to keep the request fast"
+      - "Outbox for guaranteed delivery"
+    follow_up: "What happens to the email if the application crashes right after commit?"
+  - id: cacheable
+    level: mid
+    skills: [spring.async-caching]
+    question: "How does @Cacheable work and what are its pitfalls?"
+    key_points:
+      - "Proxy-based like @Transactional (self-invocation)"
+      - "Key generation from parameters"
+      - "Eviction with @CacheEvict and TTLs in the provider"
+      - "Staleness and cache stampedes"
+    follow_up: "Local cache (Caffeine) or Redis: how do you choose?"
+  - id: http-client-timeouts
+    level: mid
+    skills: [spring.http-clients]
+    question: "Your service calls a slow partner API. How do you configure the client?"
+    key_points:
+      - "RestClient or an HTTP interface"
+      - "Connect and read timeouts within the caller's budget"
+      - "Retries only for idempotent, transient failures with backoff"
+      - "Circuit breaker, error mapping, tests with WireMock"
+    follow_up: "How do you avoid retry storms?"
+  - id: graceful-shutdown
+    level: senior
+    skills: [spring.production]
+    question: "How do you deploy a Spring Boot service to Kubernetes without dropping requests?"
+    key_points:
+      - "server.shutdown=graceful and a shutdown timeout"
+      - "Readiness probe goes down first; liveness separate"
+      - "Database migrations compatible with the old version (Flyway)"
+      - "Resource limits and JVM memory sizing"
+    follow_up: "What happens between SIGTERM and SIGKILL?"
+  - id: native-spring
+    level: senior
+    skills: [spring.native-aot]
+    question: "What does Spring AOT processing do, and what changes when you build a native image of a Spring Boot app?"
+    key_points:
+      - "Bean definitions are computed at build time"
+      - "Reflection and proxies need hints"
+      - "Profiles and conditions are fixed at build time"
+      - "Fast startup, lower memory, longer builds"
+    follow_up: "Which libraries cause trouble in native images?"
+  - id: modular-monolith
+    level: senior
+    skills: [spring.architecture]
+    question: "How would you structure a large Spring Boot application so it does not become a big ball of mud?"
+    key_points:
+      - "Modules by business capability with public APIs"
+      - "Events between modules"
+      - "Each module owns its data"
+      - "Verify boundaries with Spring Modulith or ArchUnit"
+    follow_up: "When would you extract a module into its own service?"
+  - id: jpa-locking
+    level: senior
+    skills: [spring.data-jpa]
+    question: "Two users update the same order at the same time. How do you stop one change from silently overwriting the other?"
+    key_points:
+      - "Optimistic locking with @Version"
+      - "OptimisticLockException mapped to 409 Conflict"
+      - "If-Match/ETag at the API level"
+      - "Pessimistic locks for short, contended updates"
+    follow_up: "How would you merge the changes instead of rejecting one?"

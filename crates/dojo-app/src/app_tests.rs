@@ -303,13 +303,20 @@ fn the_next_phase_stays_locked_until_the_current_one_is_finished() {
 
     h.app.start_lesson_quiz();
 
-    assert!(h.app.quiz.is_none(), "hello-dojo (P0) is not done yet");
+    // hello-dojo (P0) is not done yet: the quiz is practice and completes nothing.
+    assert!(h.app.quiz.as_ref().unwrap().practice);
+    take_quiz(&mut h.app, 0);
+    assert!(
+        !h.app
+            .profile
+            .is_completed("rust", "rust.p1.variables-mutability")
+    );
     assert!(
         h.app
             .status_message
             .as_deref()
             .unwrap()
-            .contains("prerequisites")
+            .contains("Nothing was recorded")
     );
 }
 
@@ -662,7 +669,12 @@ fn a_checkpoint_stays_locked_until_its_phase_is_done() {
 
     h.app.start_lesson_quiz();
 
-    assert!(h.app.quiz.is_none());
+    assert!(
+        h.app.quiz.as_ref().unwrap().practice,
+        "only practice before the phase is done"
+    );
+    take_quiz(&mut h.app, 0);
+    assert!(!h.app.profile.is_completed("rust", "rust.p1.checkpoint"));
 }
 
 /// Answers the open placement test, right while `right(phase)` says so, until it ends.
@@ -1025,4 +1037,120 @@ fn b_opens_a_language_list_and_enter_switches_the_bridge() {
         h.app.profile.settings.bridge_from, "python",
         "Esc changes nothing"
     );
+}
+
+#[test]
+fn slash_finds_a_topic_in_any_track_and_opens_a_locked_lesson_as_practice() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p0.setup");
+
+    h.app.open_topic_study();
+    assert_eq!(h.app.screen, Screen::TopicStudy);
+    "systemd".chars().for_each(|c| h.app.topic_type(c));
+    let first = h.app.topic_study.as_ref().unwrap().matches()[0].clone();
+    assert_eq!(first.track_id, "linux");
+    assert_eq!(first.skill_id, "linux.systemd-services");
+
+    h.app.topic_enter();
+    assert!(screen_text(&h.app).contains("study only"));
+    h.app.topic_enter();
+
+    assert_eq!(h.app.screen, Screen::TrackView);
+    assert_eq!(h.app.active_track().id, "linux");
+    assert_eq!(selected_ids(&h.app).1, "linux.p2.systemd-services");
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("Study mode")
+    );
+
+    h.app.start_lesson_quiz();
+    let session = h
+        .app
+        .quiz
+        .as_ref()
+        .expect("a practice quiz opens in a locked phase");
+    assert!(session.practice);
+    take_quiz(&mut h.app, 0);
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("Nothing was recorded")
+    );
+    assert!(
+        !h.app
+            .profile
+            .is_completed("linux", "linux.p2.systemd-services")
+    );
+}
+
+#[test]
+fn a_topic_practice_quiz_mixes_its_lessons_and_records_nothing() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    h.app.open_topic_study();
+    "permissions".chars().for_each(|c| h.app.topic_type(c));
+    h.app.topic_enter();
+    h.app.start_topic_quiz();
+
+    assert_eq!(h.app.screen, Screen::Quiz);
+    assert!(h.app.quiz.as_ref().unwrap().title.starts_with("Practice:"));
+    take_quiz(&mut h.app, 1);
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .starts_with("🎯 Practice")
+    );
+    let linux = h.app.catalog.track("linux").unwrap();
+    assert_eq!(h.app.profile.track_xp(linux), 0);
+}
+
+#[test]
+fn a_mock_interview_asks_reveals_rates_and_suggests_what_to_study() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p0.setup");
+
+    h.app.open_interview();
+    assert_eq!(h.app.screen, Screen::Interview);
+    assert!(screen_text(&h.app).contains("Which level"));
+    h.app.interview_down(); // Senior
+    h.app.interview_enter();
+    let total = h.app.interview.as_ref().unwrap().questions.len();
+    assert!(total >= 3);
+    assert!(
+        h.app
+            .interview
+            .as_ref()
+            .unwrap()
+            .questions
+            .iter()
+            .all(|q| q.level == dojo_core::InterviewLevel::Senior)
+    );
+
+    for index in 0..total {
+        assert!(!screen_text(&h.app).contains("A strong answer covers"));
+        h.app.interview_enter();
+        assert!(screen_text(&h.app).contains("A strong answer covers"));
+        h.app.interview_rate(if index == 0 {
+            crate::interview_sim::Rating::Missed
+        } else {
+            crate::interview_sim::Rating::Covered
+        });
+    }
+    let summary = screen_text(&h.app);
+    assert!(summary.contains("Interview finished"));
+    assert!(summary.contains("Study next"));
+
+    h.app.interview_prompt();
+    let prompt =
+        std::fs::read_to_string(h.workspace.path().join(".dojo/prompts/interview-rust.md"))
+            .unwrap();
+    assert!(prompt.contains("A strong answer covers"));
+    h.app.interview_enter();
+    assert_eq!(h.app.screen, Screen::TrackView);
 }

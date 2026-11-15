@@ -1,0 +1,204 @@
+# Technical interview questions for the backend track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://hyring.com/jobseeker-toolkit/interview-questions/role/backend-developer"
+  - "https://prachub.com/resources/backend-engineer-interview-guide-2026-apis-databases-caching-distributed-systems-and-debugging"
+  - "https://www.secondtalent.com/interview-guide/backend-developer/"
+  - "https://sre.google/books/"
+questions:
+  - id: request-journey
+    level: junior
+    skills: [backend.role]
+    question: "What happens, step by step, when a user's browser calls your API?"
+    key_points:
+      - "DNS, TCP and TLS, load balancer"
+      - "Application, database and other services"
+      - "Response, caching headers"
+      - "Where it can fail and how you would see it (logs, metrics, traces)"
+    follow_up: "Where would you add a cache in that path?"
+  - id: http-methods
+    level: junior
+    skills: [backend.protocols]
+    question: "Which HTTP methods are safe and which are idempotent, and why does it matter?"
+    key_points:
+      - "GET, HEAD, OPTIONS safe; PUT and DELETE idempotent; POST neither"
+      - "Retries, caches and proxies rely on these properties"
+      - "PATCH is not necessarily idempotent"
+    follow_up: "How do you make a POST safe to retry?"
+  - id: status-codes
+    level: junior
+    skills: [backend.protocols, backend.api-design]
+    question: "Which status codes would you return for: invalid input, not authenticated, not allowed, not found, conflict, and a dependency that is down?"
+    key_points:
+      - "400, 401, 403, 404, 409, 502/503/504"
+      - "401 means no or bad credentials; 403 means authenticated but not allowed"
+      - "Problem Details body"
+    follow_up: "When would you return 404 instead of 403?"
+  - id: etag
+    level: mid
+    skills: [backend.protocols]
+    question: "How do ETags help with caching and with concurrent updates?"
+    key_points:
+      - "If-None-Match with 304 Not Modified saves bandwidth"
+      - "If-Match with 412 Precondition Failed prevents lost updates"
+      - "Strong versus weak validators"
+    follow_up: "How would you generate an ETag for a database row?"
+  - id: pagination
+    level: mid
+    skills: [backend.api-design]
+    question: "Offset or cursor pagination: what are the trade-offs?"
+    key_points:
+      - "Offset is simple but slow for deep pages and unstable when data changes"
+      - "Cursor (keyset) is stable and fast with an index"
+      - "Limit the page size"
+    follow_up: "How would you build the cursor?"
+  - id: indexes
+    level: mid
+    skills: [backend.sql]
+    question: "A query filtering by status and ordering by created_at is slow. How do you investigate and fix it?"
+    key_points:
+      - "EXPLAIN (ANALYZE) to see the plan"
+      - "Composite index matching filter then sort columns"
+      - "Column order matters; selectivity"
+      - "Costs of indexes on writes"
+    follow_up: "When would the database ignore your index?"
+  - id: isolation
+    level: mid
+    skills: [backend.databases-sql-nosql]
+    question: "Two requests book the last seat at the same time. What can go wrong and how do you prevent it?"
+    key_points:
+      - "Read-modify-write race under read committed"
+      - "Atomic conditional UPDATE and check rows affected"
+      - "Unique constraints, optimistic or pessimistic locking"
+      - "Serializable isolation with retries"
+    follow_up: "How do you test that your fix works?"
+  - id: sql-vs-nosql
+    level: mid
+    skills: [backend.databases-sql-nosql]
+    question: "When would you choose a document database instead of a relational one?"
+    key_points:
+      - "Data accessed as whole aggregates, flexible schema"
+      - "Relational for relationships, constraints and transactions across entities"
+      - "Consistency and query patterns drive the choice"
+      - "Many systems use both"
+    follow_up: "What do you lose when you denormalise?"
+  - id: jwt-sessions
+    level: mid
+    skills: [backend.auth-security]
+    question: "Sessions or JWTs for a web application? What are the trade-offs?"
+    key_points:
+      - "Sessions: server state, easy revocation, cookies with CSRF protection"
+      - "JWT: stateless, hard to revoke, keep lifetimes short"
+      - "Verify signature, algorithm, exp, iss, aud"
+      - "Refresh tokens and rotation"
+    follow_up: "Where should a browser store tokens?"
+  - id: idempotency
+    level: senior
+    skills: [backend.reliability]
+    question: "Design an idempotent payment endpoint. What happens when the client retries after a timeout?"
+    key_points:
+      - "Idempotency-Key header stored with the result"
+      - "Same key returns the stored response; different body is rejected"
+      - "Unique constraint to handle concurrent duplicates"
+      - "Expiry of keys"
+    follow_up: "What if the first request is still running when the retry arrives?"
+  - id: cache-strategy
+    level: mid
+    skills: [backend.caching-queues]
+    question: "How would you cache an expensive product page, and how do you keep it fresh?"
+    key_points:
+      - "Cache-aside with TTL"
+      - "Invalidate or update on writes; accept bounded staleness"
+      - "Stampede protection: single flight, jittered TTL, refresh ahead"
+      - "What happens when the cache is down"
+    follow_up: "Write-through or cache-aside: when would you pick each?"
+  - id: rate-limiter
+    level: mid
+    skills: [backend.caching-queues, backend.api-security]
+    question: "How would you implement rate limiting for an API, and how does it change with many instances?"
+    key_points:
+      - "Token bucket or sliding window"
+      - "Per user, key or IP"
+      - "Shared store (Redis) for many instances, atomic operations"
+      - "429 with Retry-After"
+    follow_up: "What do you do when the rate limit store is unavailable?"
+  - id: outbox
+    level: senior
+    skills: [backend.messaging]
+    question: "How do you publish an event reliably when an order is saved, without losing or duplicating it?"
+    key_points:
+      - "Dual-write problem between database and broker"
+      - "Transactional outbox (or CDC) plus a relay"
+      - "At-least-once delivery; idempotent consumers"
+      - "Retries and dead-letter queue"
+    follow_up: "How do you keep events in order per order id?"
+  - id: retries-breaker
+    level: mid
+    skills: [backend.resilience]
+    question: "A dependency starts timing out. How do you stop it from taking your service down too?"
+    key_points:
+      - "Timeouts on every call"
+      - "Retries with backoff and jitter, only for idempotent calls"
+      - "Circuit breaker and bulkheads"
+      - "Fallbacks or degraded responses"
+    follow_up: "How do you avoid making the outage worse with retries?"
+  - id: scaling
+    level: senior
+    skills: [backend.scalability]
+    question: "Your API must go from 1,000 to 100,000 requests per second. What do you do, in order?"
+    key_points:
+      - "Measure and remove bottlenecks first"
+      - "Stateless instances behind a load balancer"
+      - "Caching and read replicas (replication lag)"
+      - "Queues for async work; sharding last"
+    follow_up: "How do you choose a shard key?"
+  - id: cap
+    level: senior
+    skills: [backend.scalability]
+    question: "Explain the CAP theorem in practical terms and give an example of choosing consistency or availability."
+    key_points:
+      - "During a partition you choose consistency or availability"
+      - "PACELC: latency versus consistency otherwise"
+      - "Examples: payments favour consistency, a feed favours availability"
+    follow_up: "What does eventual consistency mean for your users?"
+  - id: api-security
+    level: mid
+    skills: [backend.api-security]
+    question: "Name the API security risks you look for in a code review."
+    key_points:
+      - "Broken object level authorization (ownership checks)"
+      - "Mass assignment of request bodies"
+      - "Missing rate limits and resource limits"
+      - "Injection, excessive data exposure, secrets in logs"
+    follow_up: "How do you test for broken object level authorization?"
+  - id: slo
+    level: senior
+    skills: [backend.sre]
+    question: "Define an SLO for an API and explain how the error budget guides decisions."
+    key_points:
+      - "SLI as good events over total (availability, latency)"
+      - "Target and window, budget = 1 - target"
+      - "Alert on burn rate, not on every error"
+      - "Budget spent means focus on reliability"
+    follow_up: "Which SLI would you choose for a checkout endpoint?"
+  - id: microservices
+    level: senior
+    skills: [backend.architecture]
+    question: "When would you split a monolith into microservices, and how do you handle a business transaction across services?"
+    key_points:
+      - "Split by bounded context and data ownership"
+      - "Reasons: independent deployment, scaling, team autonomy"
+      - "Sagas with compensations instead of distributed transactions"
+      - "Costs: operations, latency, consistency"
+    follow_up: "What would you extract first?"
+  - id: zero-downtime-migration
+    level: senior
+    skills: [backend.delivery]
+    question: "How do you rename a column used by a running service without downtime?"
+    key_points:
+      - "Expand: add the new column, write both"
+      - "Backfill in batches"
+      - "Switch reads, then stop writing the old column"
+      - "Contract: drop it later; keep rollback possible"
+    follow_up: "How do feature flags help here?"

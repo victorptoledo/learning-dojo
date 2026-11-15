@@ -28,6 +28,8 @@ pub struct QuizSession {
     /// In a spaced review: the node each question comes from, by index. Empty for a
     /// lesson or checkpoint quiz.
     pub review_sources: Vec<String>,
+    /// A practice quiz (a topic, or a lesson in a locked phase): nothing is recorded.
+    pub practice: bool,
 }
 
 impl QuizSession {
@@ -43,6 +45,7 @@ impl QuizSession {
             stage: Stage::Asking,
             missed: Vec::new(),
             review_sources: Vec::new(),
+            practice: false,
         }
     }
 
@@ -51,6 +54,14 @@ impl QuizSession {
         Self {
             review_sources: sources,
             ..Self::new(track_id, "", &format!("Review: {track_name}"), quiz)
+        }
+    }
+
+    /// A quiz whose result is only shown, never recorded.
+    pub fn practice(title: &str, quiz: Quiz) -> Self {
+        Self {
+            practice: true,
+            ..Self::new("", "", title, quiz)
         }
     }
 

@@ -64,6 +64,7 @@ fn catalog() -> Catalog {
             belts: vec![],
             phases: vec![phase],
             placement: None,
+            interview: None,
             requirements: vec![],
         }],
         skills: BTreeMap::new(),

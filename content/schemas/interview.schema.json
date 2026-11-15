@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learning-dojo.local/schemas/interview.schema.json",
+  "title": "Technical interview questions of a track (interview.yaml)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sources", "questions"],
+  "properties": {
+    "sources": { "type": "array", "items": { "type": "string", "pattern": "^https?://" }, "minItems": 1 },
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "level", "skills", "question", "key_points"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "level": { "enum": ["junior", "mid", "senior"] },
+          "skills": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "question": { "type": "string", "minLength": 20 },
+          "key_points": { "type": "array", "items": { "type": "string", "minLength": 3 }, "minItems": 2, "maxItems": 8 },
+          "follow_up": { "type": "string" }
+        }
+      }
+    }
+  }
+}

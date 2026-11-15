@@ -120,6 +120,23 @@ pub struct QuestionManifest {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct InterviewManifest {
+    pub sources: Vec<String>,
+    pub questions: Vec<InterviewQuestionManifest>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct InterviewQuestionManifest {
+    pub id: String,
+    pub level: String,
+    pub skills: Vec<String>,
+    pub question: String,
+    pub key_points: Vec<String>,
+    #[serde(default)]
+    pub follow_up: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct PlacementManifest {
     pub entry_question: EntryQuestionManifest,
     pub phases: std::collections::BTreeMap<String, PhaseRuleManifest>,

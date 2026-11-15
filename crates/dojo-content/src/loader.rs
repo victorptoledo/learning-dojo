@@ -1,8 +1,8 @@
 use crate::front_matter;
 use crate::manifest::{
-    BeltManifest, BridgeFrontMatter, CareerManifest, CareerRequirementManifest, KataManifest,
-    NodeManifest, ObjectiveManifest, PhaseManifest, PlacementManifest, QuestionManifest,
-    QuizManifest, RequirementManifest, SkillsManifest, TrackManifest,
+    BeltManifest, BridgeFrontMatter, CareerManifest, CareerRequirementManifest, InterviewManifest,
+    KataManifest, NodeManifest, ObjectiveManifest, PhaseManifest, PlacementManifest,
+    QuestionManifest, QuizManifest, RequirementManifest, SkillsManifest, TrackManifest,
 };
 use crate::report::Report;
 use crate::schema::{self, Schemas};
@@ -31,6 +31,7 @@ enum FileKind {
     Bridge,
     Quiz,
     Placement,
+    Interview,
     Career,
 }
 
@@ -141,6 +142,12 @@ impl ContentReader<'_> {
         } else {
             None
         };
+        let interview_path = track_dir.join("interview.yaml");
+        let interview = if interview_path.is_file() {
+            self.load_interview(&interview_path)
+        } else {
+            None
+        };
         Some(Track {
             id: manifest.id,
             name: manifest.name,
@@ -157,6 +164,29 @@ impl ContentReader<'_> {
                 .map(to_requirement)
                 .collect(),
             placement,
+            interview,
+        })
+    }
+
+    fn load_interview(&mut self, path: &Path) -> Option<dojo_core::InterviewBank> {
+        let manifest = self.read_manifest::<InterviewManifest>(path, FileKind::Interview)?;
+        let questions = manifest
+            .questions
+            .into_iter()
+            .filter_map(|item| {
+                Some(dojo_core::InterviewQuestion {
+                    level: dojo_core::InterviewLevel::parse(&item.level)?,
+                    id: item.id,
+                    skills: item.skills,
+                    question: item.question,
+                    key_points: item.key_points,
+                    follow_up: item.follow_up,
+                })
+            })
+            .collect();
+        Some(dojo_core::InterviewBank {
+            sources: manifest.sources,
+            questions,
         })
     }
 
@@ -440,6 +470,7 @@ impl ContentReader<'_> {
             FileKind::Quiz => &self.schemas.quiz,
             FileKind::Placement => &self.schemas.placement,
             FileKind::Career => &self.schemas.career,
+            FileKind::Interview => &self.schemas.interview,
         }
     }
 

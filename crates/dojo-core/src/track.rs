@@ -203,6 +203,8 @@ pub struct Track {
     pub requirements: Vec<Requirement>,
     /// The placement test, when the track has one.
     pub placement: Option<PlacementConfig>,
+    /// Technical interview questions, when the track has them.
+    pub interview: Option<crate::InterviewBank>,
 }
 
 impl Track {
@@ -311,6 +313,7 @@ pub(crate) mod fixtures {
                 .collect(),
             requirements: vec![],
             placement: None,
+            interview: None,
         }
     }
 }

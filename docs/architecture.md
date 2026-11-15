@@ -320,6 +320,12 @@ Common rules:
 - `A` on a started kata builds a code-review prompt with the statement, the last check result and the source files to attach (`src/**/*.rs`, or `src/main/**/*.java`).
 - The prompt is saved to `<workspace>/.dojo/prompts/<node_id>.md` and copied to the clipboard with the platform command (`clip`, `pbcopy`, `wl-copy`/`xclip`). The learner pastes it into any AI chat. The dojo never calls an AI and the review never changes progress or XP.
 
+### 8.6 Studying a topic and mock interviews
+
+- **Study a topic** (`/`, `topic_study.rs`): every skill taught by a ready node is a topic, per track. The search matches skill titles and ids and the titles and summaries of the nodes. An open topic lists its lessons, katas and checkpoints (✓ done, ○ available, 📖 study only); Enter jumps to the node, switching track. A practice quiz (`Q`) mixes up to 12 questions of the topic's nodes. Nothing here changes progress (decision D025).
+- **Practice in locked phases:** the quiz of a lesson or checkpoint in a phase not reached yet opens as a practice quiz (`QuizSession::practice`): its result is shown and never recorded. Katas could already be done out of order; a check outside the unlocked phases still completes nothing.
+- **Mock interviews** (`I`, `interview_sim.rs`, `content/tracks/<track>/interview.yaml`, schema `interview.schema.json`): each complete track has 20 interview questions (junior, mid and senior) with the key points of a strong answer and a follow-up, written in our own words from the topics public interview guides report as common (the `sources` list). A session asks 8 questions of the chosen level, starting at a place that changes daily; the learner reveals the key points and rates the answer (covered, partly, missed); the summary lists the questions to study with a lesson for each. In a topic, `I` interviews on that topic, falling back to the lessons' written exercises when the bank has fewer than three questions. `P` copies the interview as a prompt for an AI interviewer that asks follow-ups and grades against the key points.
+
 ## 9. Careers and next steps
 
 - **Paths** in `content/careers/*.yaml`: stages with requirements such as "track X up to phase N" or "skill Y ≥ 0.8". Examples: *Backend → Microservices Architect*, *Backend → DevOps/Cloud*, *Developer → AI Engineer*.

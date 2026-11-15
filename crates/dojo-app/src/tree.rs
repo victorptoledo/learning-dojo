@@ -53,6 +53,18 @@ impl TrackTree {
         }
     }
 
+    /// Puts the cursor on `node_id`; false when the track has no such node.
+    pub fn select_node(&mut self, track: &Track, node_id: &str) -> bool {
+        let found = self.rows.iter().position(|row| match row {
+            TreeRow::Node { phase, node } => track.phases[*phase].nodes[*node].id == node_id,
+            TreeRow::Phase { .. } => false,
+        });
+        if found.is_some() {
+            self.cursor = found;
+        }
+        found.is_some()
+    }
+
     pub fn move_down(&mut self) {
         self.move_by(1);
     }
@@ -129,6 +141,7 @@ mod tests {
             phases,
             requirements: vec![],
             placement: None,
+            interview: None,
         }
     }
 

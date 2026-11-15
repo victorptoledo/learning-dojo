@@ -1,0 +1,206 @@
+# Technical interview questions for the java track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://www.techinterview.org/post/3233474451/java-interview-questions-2025-virtual-threads-records-sealed-classes-stream-api-garbage-collection-concurrency-spring-boot/"
+  - "https://www.datacamp.com/blog/java-interview-questions"
+  - "https://www.rabinarayanpatra.com/blogs/java-interview-2025"
+  - "https://docs.oracle.com/en/java/javase/25/"
+questions:
+  - id: equals-hashcode
+    level: junior
+    skills: [java.collections, java.records]
+    question: "Why must equals and hashCode be consistent, and what goes wrong in a HashMap when they are not?"
+    key_points:
+      - "Equal objects must have equal hash codes"
+      - "Otherwise lookups miss entries or duplicates appear"
+      - "Records generate both from their components"
+      - "Mutable keys break the map when they change"
+    follow_up: "Why are records good map keys?"
+  - id: records
+    level: junior
+    skills: [java.records]
+    question: "What is a record, what does the compiler generate, and when would you not use one?"
+    key_points:
+      - "Immutable data carrier with components"
+      - "Generates constructor, accessors, equals, hashCode, toString"
+      - "Validation in the compact constructor"
+      - "Not for entities with identity or mutable state (JPA entities)"
+    follow_up: "How do you keep a List component immutable?"
+  - id: sealed-switch
+    level: mid
+    skills: [java.pattern-matching]
+    question: "How do sealed interfaces and pattern matching for switch work together?"
+    key_points:
+      - "sealed permits a closed set of subtypes"
+      - "switch over it can be exhaustive without default"
+      - "Record patterns deconstruct components; guards with when"
+      - "Adding a subtype breaks incomplete switches at compile time"
+    follow_up: "Compare this with the visitor pattern."
+  - id: immutable-collections
+    level: junior
+    skills: [java.collections]
+    question: "What is the difference between List.of, Collections.unmodifiableList and new ArrayList?"
+    key_points:
+      - "List.of: unmodifiable, rejects null"
+      - "unmodifiableList: read-only view of a list that may still change"
+      - "ArrayList: mutable copy"
+      - "List.copyOf for defensive copies"
+    follow_up: "Which would you return from a public method?"
+  - id: streams-lazy
+    level: mid
+    skills: [java.streams]
+    question: "Explain intermediate and terminal stream operations, and when you would prefer a loop."
+    key_points:
+      - "Intermediate ops are lazy and return streams"
+      - "Terminal ops trigger the pipeline; a stream is used once"
+      - "Collectors such as groupingBy"
+      - "Loops for early exit, checked exceptions or several results"
+    follow_up: "When does a parallel stream help, and when does it hurt?"
+  - id: optional
+    level: junior
+    skills: [java.errors]
+    question: "How should Optional be used, and where should it not be used?"
+    key_points:
+      - "As a return type for a value that may be absent"
+      - "Consume with map, orElse, orElseThrow, not get()"
+      - "Not for fields, parameters or collections"
+    follow_up: "What is the difference between orElse and orElseGet?"
+  - id: checked-unchecked
+    level: mid
+    skills: [java.errors]
+    question: "Checked or unchecked exceptions: how do you choose, and how do you translate exceptions between layers?"
+    key_points:
+      - "Checked for conditions callers must handle, unchecked for bugs and invalid input"
+      - "Translate at boundaries, keep the cause"
+      - "Do not swallow exceptions; try-with-resources for cleanup"
+    follow_up: "How do you handle a checked exception inside a lambda?"
+  - id: generics-pecs
+    level: mid
+    skills: [java.generics-lambdas]
+    question: "Explain type erasure and the PECS rule with an example."
+    key_points:
+      - "Generic types are erased at runtime"
+      - "List<Integer> is not a List<Number>"
+      - "Producer extends, consumer super: ? extends T to read, ? super T to write"
+      - "Example: Collections.copy(List<? super T>, List<? extends T>)"
+    follow_up: "Why can't you create a new T() or a T[]?"
+  - id: virtual-threads
+    level: senior
+    skills: [java.virtual-threads]
+    question: "What are virtual threads, when do they help, and what are their pitfalls?"
+    key_points:
+      - "JVM-managed threads that unmount from carrier threads when they block"
+      - "Great for many blocking I/O tasks; no gain for CPU-bound work"
+      - "Limit scarce resources with semaphores, not pools"
+      - "Pinning (synchronized on older JDKs, native calls) and ThreadLocal abuse"
+    follow_up: "How would you migrate a service that uses a fixed thread pool for HTTP calls?"
+  - id: concurrent-map
+    level: mid
+    skills: [java.concurrency]
+    question: "Several threads update word counts in a shared map. Show a correct and an incorrect way."
+    key_points:
+      - "Incorrect: get then put on a HashMap (race, possible corruption)"
+      - "Correct: ConcurrentHashMap.merge or compute"
+      - "Or confine per thread and merge results"
+      - "Explain why check-then-act is not atomic"
+    follow_up: "What is the difference between synchronized and ReentrantLock?"
+  - id: completablefuture
+    level: mid
+    skills: [java.concurrency]
+    question: "How would you call three remote services in parallel and combine their results with a timeout?"
+    key_points:
+      - "CompletableFuture.supplyAsync or virtual threads per call"
+      - "allOf/thenCombine or join"
+      - "orTimeout/completeOnTimeout, handle failures"
+      - "Use a suitable executor, not the common pool for blocking I/O"
+    follow_up: "How would structured concurrency change this code?"
+  - id: memory-model
+    level: senior
+    skills: [java.concurrency]
+    question: "What does volatile guarantee, and why is double-checked locking broken without it?"
+    key_points:
+      - "Visibility and ordering (happens-before), not atomicity"
+      - "Without volatile a thread may see a partly constructed object"
+      - "Prefer holder idiom or atomics"
+    follow_up: "What does the happens-before relationship mean?"
+  - id: gc
+    level: senior
+    skills: [java.jvm]
+    question: "How do G1 and ZGC differ, and how would you investigate long GC pauses in production?"
+    key_points:
+      - "G1: region-based, pause-time goals, the default"
+      - "ZGC: concurrent, very short pauses, larger heaps"
+      - "Look at GC logs (-Xlog:gc), JFR, allocation rate"
+      - "Check heap sizing in containers (MaxRAMPercentage)"
+    follow_up: "What causes memory leaks in a garbage-collected language?"
+  - id: jvm-memory
+    level: mid
+    skills: [java.jvm]
+    question: "Name the main memory areas of the JVM and which errors each can produce."
+    key_points:
+      - "Heap (OutOfMemoryError: Java heap space)"
+      - "Metaspace (class metadata)"
+      - "Thread stacks (StackOverflowError)"
+      - "Direct buffers and native memory; the container limit includes all of them"
+    follow_up: "Why can a container kill a JVM whose heap is not full?"
+  - id: string-immutability
+    level: junior
+    skills: [java.modern-syntax]
+    question: "Why are Strings immutable in Java and what are text blocks and String.formatted for?"
+    key_points:
+      - "Immutability enables sharing, caching hash codes and safety"
+      - "String pool"
+      - "Text blocks for multi-line strings; formatted for templates"
+      - "StringBuilder for building in loops"
+    follow_up: "What does == compare for Strings?"
+  - id: junit
+    level: junior
+    skills: [java.build-testing]
+    question: "How would you test a method that converts temperatures and rejects invalid input with JUnit?"
+    key_points:
+      - "Parameterized tests with several cases"
+      - "assertThrows and checking the message"
+      - "Boundary values"
+      - "Tests named after behaviour, independent from each other"
+    follow_up: "When would you mock a dependency, and when would you not?"
+  - id: design-patterns
+    level: mid
+    skills: [java.design-patterns]
+    question: "Pick a classic design pattern and show how modern Java (lambdas, records, sealed types) changes its implementation."
+    key_points:
+      - "Strategy as a lambda or functional interface"
+      - "Builder versus records with factories"
+      - "Visitor replaced by sealed types plus switch"
+      - "Gains and limits of the modern form"
+    follow_up: "Which pattern do you think is overused, and why?"
+  - id: native-image
+    level: senior
+    skills: [java.graalvm-native]
+    question: "When would you compile a Java service with GraalVM native image, and what are the trade-offs?"
+    key_points:
+      - "Fast startup and low memory: serverless, CLIs, scale-to-zero"
+      - "Closed world: reflection and resources need metadata"
+      - "Longer builds; peak throughput may be lower than the JIT"
+      - "Alternatives: AOT cache, CRaC"
+    follow_up: "How do you test that the native build works?"
+  - id: solid
+    level: mid
+    skills: [java.design-patterns]
+    question: "Explain the single responsibility and dependency inversion principles with an example from code you wrote."
+    key_points:
+      - "One reason to change per class"
+      - "Depend on abstractions; inject dependencies"
+      - "Makes testing and change easier"
+      - "Pragmatism: avoid abstraction for its own sake"
+    follow_up: "How do you recognise that a class has too many responsibilities?"
+  - id: production-logging
+    level: mid
+    skills: [java.production]
+    question: "What makes logging in a production Java service good?"
+    key_points:
+      - "SLF4J API with placeholders, levels used consistently"
+      - "Structured (JSON) logs with request or trace ids"
+      - "No secrets or personal data"
+      - "Logs to stdout in containers"
+    follow_up: "How do you correlate logs across services?"

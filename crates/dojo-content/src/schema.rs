@@ -13,6 +13,7 @@ pub struct Schemas {
     pub quiz: Validator,
     pub placement: Validator,
     pub career: Validator,
+    pub interview: Validator,
 }
 
 impl Schemas {
@@ -25,6 +26,7 @@ impl Schemas {
             quiz: compile(schema_dir, "quiz.schema.json")?,
             placement: compile(schema_dir, "placement.schema.json")?,
             career: compile(schema_dir, "career.schema.json")?,
+            interview: compile(schema_dir, "interview.schema.json")?,
         })
     }
 }

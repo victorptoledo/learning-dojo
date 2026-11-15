@@ -33,6 +33,8 @@ pub fn render(frame: &mut Frame, app: &App) {
         }
         Screen::Placement => crate::placement_view::render_placement(frame, app, frame.area()),
         Screen::Career => crate::career_view::render_careers(frame, app, frame.area()),
+        Screen::TopicStudy => crate::topic_study::render_topic_study(frame, app, frame.area()),
+        Screen::Interview => crate::interview_sim::render_interview(frame, app, frame.area()),
         Screen::BridgePicker => {
             crate::bridge_picker::render_bridge_picker(frame, app, frame.area())
         }
@@ -525,7 +527,7 @@ fn render_footer(frame: &mut Frame, app: &App, area: Rect) {
         } else {
             String::new()
         };
-        format!("[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Quiz | [C] Check kata{hint} | [A] AI review | [B] Bridge{review} | [G] Career{placement} | [Esc] Quit")
+        format!("[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Quiz | [C] Check kata{hint} | [A] AI review | [/] Study a topic | [I] Interview | [B] Bridge{review} | [G] Career{placement} | [Esc] Quit")
     });
     let mode = match app.mode {
         Mode::Learner => "",

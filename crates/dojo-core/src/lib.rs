@@ -6,6 +6,7 @@
 pub mod career;
 pub mod catalog;
 pub mod check;
+pub mod interview;
 pub mod placement;
 pub mod ports;
 pub mod progress;
@@ -20,6 +21,7 @@ pub use career::{
 };
 pub use catalog::{Catalog, Skill, SkillId};
 pub use check::{CheckOutcome, CheckRecord, CheckReport, TestCase};
+pub use interview::{InterviewBank, InterviewLevel, InterviewQuestion};
 pub use placement::{
     EarlyStop, EntryOption, PhaseRule, PhaseVerdict, PlacementAnswer, PlacementConfig,
     PlacementItem, PlacementPlan, PlacementSession,

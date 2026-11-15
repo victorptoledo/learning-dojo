@@ -96,7 +96,7 @@ impl App {
     }
 
     /// Saves the prompt under <workspace>/.dojo/prompts and copies it to the clipboard.
-    fn deliver_prompt(&self, node_id: &str, prompt: &str, extra: &str) -> String {
+    pub(crate) fn deliver_prompt(&self, node_id: &str, prompt: &str, extra: &str) -> String {
         let path = self.prompt_path(node_id);
         if let Some(parent) = path.parent() {
             let _ = fs::create_dir_all(parent);

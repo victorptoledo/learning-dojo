@@ -22,6 +22,7 @@ pub fn check_catalog(catalog: &Catalog, report: &mut Report) {
         check_node_skills(track, catalog, report);
         check_completeness(track, report);
         check_placement(track, catalog, report);
+        check_interview(track, catalog, report);
         check_checkpoint_question_skills(track, catalog, report);
         check_kata_hints(track, report);
         check_lesson_exercises(track, report);
@@ -246,6 +247,31 @@ fn check_node_skills(track: &Track, catalog: &Catalog, report: &mut Report) {
                 report.error(
                     node_location(track, &node.id),
                     format!("unknown skill `{skill}`"),
+                );
+            }
+        }
+    }
+}
+
+/// Interview questions must have unique ids and point at real skills.
+fn check_interview(track: &Track, catalog: &Catalog, report: &mut Report) {
+    let Some(bank) = &track.interview else {
+        return;
+    };
+    let location = format!("tracks/{}/interview.yaml", track.id);
+    let mut seen = std::collections::HashSet::new();
+    for question in &bank.questions {
+        if !seen.insert(question.id.as_str()) {
+            report.error(
+                &location,
+                format!("duplicate interview question id `{}`", question.id),
+            );
+        }
+        for skill in &question.skills {
+            if !catalog.skills.contains_key(skill) {
+                report.error(
+                    &location,
+                    format!("question `{}` uses unknown skill `{skill}`", question.id),
                 );
             }
         }

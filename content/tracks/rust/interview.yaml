@@ -1,0 +1,198 @@
+# Technical interview questions for the rust track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://www.techinterview.org/post/3233474457/rust-interview-questions-2025-ownership-borrowing-lifetimes-traits-async-await-error-handling-smart-pointers-concurrency/"
+  - "https://hyring.com/jobseeker-toolkit/interview-questions/technical/rust"
+  - "https://coderpad.io/interview-questions/rust-interview-questions/"
+  - "https://doc.rust-lang.org/book/"
+questions:
+  - id: ownership-rules
+    level: junior
+    skills: [rust.ownership-basics]
+    question: "Explain Rust's ownership rules and what happens when you assign a String to another variable."
+    key_points:
+      - "Each value has one owner; it is dropped when the owner goes out of scope"
+      - "Assignment moves the String; the old variable can no longer be used"
+      - "Copy types (integers) are copied instead"
+      - "clone() makes an explicit deep copy"
+    follow_up: "Why doesn't Rust need a garbage collector?"
+  - id: borrow-rules
+    level: junior
+    skills: [rust.borrowing-references]
+    question: "What are the borrowing rules and which bugs do they prevent?"
+    key_points:
+      - "Many shared &T or one &mut T, never both at once"
+      - "References must not outlive the value"
+      - "Prevents data races, iterator invalidation and dangling pointers at compile time"
+    follow_up: "Show an example the borrow checker rejects and how you would fix it."
+  - id: string-str
+    level: junior
+    skills: [rust.collections]
+    question: "What is the difference between String and &str, and which should a function parameter usually take?"
+    key_points:
+      - "String is owned and growable; &str is a borrowed slice"
+      - "Take &str to accept both String (via deref) and literals"
+      - "Return String when you create new text"
+    follow_up: "When would you take impl AsRef<str> or Cow<str>?"
+  - id: option-result
+    level: junior
+    skills: [rust.option-result]
+    question: "How do Option and Result replace null and exceptions, and what does the ? operator do?"
+    key_points:
+      - "Option for absence, Result for recoverable errors, both in the type"
+      - "? returns early with the error, converting it with From"
+      - "unwrap/expect only for invariants or prototypes"
+    follow_up: "How would you design the error type of a library versus an application?"
+  - id: enums-match
+    level: junior
+    skills: [rust.structs-enums]
+    question: "Why are Rust enums more powerful than enums in Java or C, and what does exhaustive match give you?"
+    key_points:
+      - "Variants can carry data, like tagged unions"
+      - "match must handle every variant"
+      - "Adding a variant breaks the build where it is not handled"
+    follow_up: "When would you use a trait object instead of an enum?"
+  - id: traits-dispatch
+    level: mid
+    skills: [rust.traits-generics]
+    question: "What is the difference between `fn f<T: Shape>(s: &T)` and `fn f(s: &dyn Shape)`?"
+    key_points:
+      - "Generics are monomorphised: static dispatch, no runtime cost, bigger binaries"
+      - "dyn uses a vtable: dynamic dispatch, one function, heterogeneous collections"
+      - "Object safety restrictions for dyn"
+    follow_up: "Which would you use for a plugin system, and why?"
+  - id: iterators-lazy
+    level: mid
+    skills: [rust.iterators-closures]
+    question: "Explain iter(), iter_mut() and into_iter(), and why iterator adapters are lazy."
+    key_points:
+      - "iter borrows, iter_mut borrows mutably, into_iter consumes"
+      - "Adapters build a chain that runs only when consumed (collect, sum, for)"
+      - "The compiler fuses the chain into a loop"
+    follow_up: "What do Fn, FnMut and FnOnce mean for closures?"
+  - id: lifetimes
+    level: mid
+    skills: [rust.lifetimes]
+    question: "What does a lifetime annotation express? Explain `fn longest<'a>(a: &'a str, b: &'a str) -> &'a str`."
+    key_points:
+      - "Lifetimes describe relations between references, they do not change how long values live"
+      - "The result is valid as long as both inputs are"
+      - "Elision rules make most annotations unnecessary"
+    follow_up: "Why does a struct that holds a reference need a lifetime parameter?"
+  - id: smart-pointers
+    level: mid
+    skills: [rust.smart-pointers]
+    question: "When would you use Box, Rc, Arc and RefCell?"
+    key_points:
+      - "Box: heap allocation, recursive types, trait objects"
+      - "Rc: shared ownership in one thread; Arc across threads"
+      - "RefCell: interior mutability with runtime borrow checks (may panic)"
+      - "Reference cycles need Weak"
+    follow_up: "Why is Rc<RefCell<T>> often a design smell?"
+  - id: send-sync
+    level: senior
+    skills: [rust.concurrency]
+    question: "What do Send and Sync mean, and why is Rc not Send?"
+    key_points:
+      - "Send: safe to move to another thread; Sync: safe to share &T between threads"
+      - "&T is Send when T is Sync"
+      - "Rc's counter is not atomic, so moving it across threads could race"
+      - "Auto traits derived by the compiler"
+    follow_up: "How does this let Rust reject data races at compile time?"
+  - id: mutex-vs-channel
+    level: mid
+    skills: [rust.concurrency]
+    question: "Compare sharing state with Arc<Mutex<T>> and passing messages over channels."
+    key_points:
+      - "Mutex owns the data; lock to access it"
+      - "Channels move ownership of messages between threads"
+      - "Choose by data flow: shared state versus pipelines"
+      - "Mind lock contention and deadlocks"
+    follow_up: "How would you build a thread-safe in-memory cache?"
+  - id: async-blocking
+    level: senior
+    skills: [rust.async-tokio]
+    question: "What happens if you call blocking code (a synchronous file read or thread::sleep) inside an async function running on Tokio?"
+    key_points:
+      - "It blocks a worker thread, starving other tasks"
+      - "Futures make progress only when polled and yield at .await"
+      - "Use async equivalents or spawn_blocking"
+      - "Futures are lazy and cancelled when dropped"
+    follow_up: "How would you find which task is blocking the runtime?"
+  - id: error-crates
+    level: mid
+    skills: [rust.option-result, rust.production]
+    question: "thiserror or anyhow: which would you use where?"
+    key_points:
+      - "thiserror for libraries: typed error enums callers can match"
+      - "anyhow for applications: easy context and propagation"
+      - "Add context to errors at boundaries"
+    follow_up: "How do you log an error with its whole chain of causes?"
+  - id: testing
+    level: junior
+    skills: [rust.modules-testing]
+    question: "Where do unit tests and integration tests live in a Cargo project, and what can each access?"
+    key_points:
+      - "Unit tests in #[cfg(test)] modules beside the code, can test private items"
+      - "Integration tests in tests/, only the public API"
+      - "Doc tests in /// examples"
+      - "cargo test runs all"
+    follow_up: "How would you test code that reads the current time?"
+  - id: unsafe
+    level: senior
+    skills: [rust.smart-pointers]
+    question: "What does unsafe allow, and how do you use it responsibly?"
+    key_points:
+      - "Dereferencing raw pointers, calling unsafe functions, FFI, mutable statics, implementing unsafe traits"
+      - "The borrow checker still applies to safe parts"
+      - "Keep unsafe blocks small, behind safe APIs, with documented invariants"
+      - "Test with Miri"
+    follow_up: "Give an example where unsafe is unavoidable."
+  - id: cargo-features
+    level: junior
+    skills: [rust.setup]
+    question: "What are Cargo.lock and Cargo features, and should you commit Cargo.lock?"
+    key_points:
+      - "Cargo.lock pins exact dependency versions"
+      - "Commit it for applications (and nowadays usually for libraries too)"
+      - "Features enable optional code and dependencies at compile time"
+    follow_up: "How do you keep compile times reasonable in a large workspace?"
+  - id: mutability
+    level: junior
+    skills: [rust.variables-mutability]
+    question: "Why are variables immutable by default in Rust, and what is shadowing?"
+    key_points:
+      - "Fewer surprises, easier reasoning, safe sharing"
+      - "mut opts in to change"
+      - "Shadowing creates a new binding, possibly of another type"
+    follow_up: "How does immutability help with concurrency?"
+  - id: production
+    level: senior
+    skills: [rust.production]
+    question: "What would you put in place before running a Rust web service in production?"
+    key_points:
+      - "Structured logging with tracing"
+      - "Configuration from the environment, validated at startup"
+      - "Graceful shutdown on SIGTERM"
+      - "Metrics and health checks, a small reproducible image"
+    follow_up: "How do you handle panics in request handlers?"
+  - id: generics-bounds
+    level: mid
+    skills: [rust.traits-generics]
+    question: "What are associated types, and when would you use them instead of a generic parameter on a trait?"
+    key_points:
+      - "Associated types fix one type per implementation (Iterator::Item)"
+      - "Generic parameters allow several implementations for one type"
+      - "Associated types make signatures shorter"
+    follow_up: "How does the orphan rule limit trait implementations?"
+  - id: perf-clone
+    level: senior
+    skills: [rust.ownership-basics, rust.production]
+    question: "Your Rust service is slower than expected and profiling shows many allocations. What would you look for?"
+    key_points:
+      - "Unnecessary clone() and String allocations"
+      - "Borrowing instead of owning, &str and slices"
+      - "Reusing buffers, with_capacity"
+      - "Measure with a profiler (perf, flamegraph) before and after"
+    follow_up: "When is cloning the right choice anyway?"

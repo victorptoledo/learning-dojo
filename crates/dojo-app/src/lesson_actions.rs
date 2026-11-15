@@ -3,7 +3,7 @@
 use crate::app::{App, NodeKey, Screen, checkpoint_missing_part};
 use crate::quiz_session::QuizSession;
 use chrono::Utc;
-use dojo_core::{Evidence, Node, QuizAttempt, QuizScore, Refusal, Track};
+use dojo_core::{Evidence, Node, QuizAttempt, QuizScore, Refusal};
 
 impl App {
     /// Enter on a lesson: opens its document in the editor.
@@ -34,7 +34,7 @@ impl App {
         let Some((_, node)) = self.tree.selected(track) else {
             return;
         };
-        if let Some(message) = quiz_blocker(&self.profile, track, node) {
+        if let Some(message) = quiz_blocker(node) {
             self.status_message = Some(message);
             return;
         }
@@ -43,7 +43,12 @@ impl App {
                 Some("Only lessons have a quiz. Katas are checked with [C].".to_string());
             return;
         };
-        self.quiz = Some(QuizSession::new(&track.id, &node.id, &node.title, quiz));
+        // In a phase not reached yet the quiz is practice: it is shown, never recorded.
+        self.quiz = Some(if self.profile.is_unlocked(track, node) {
+            QuizSession::new(&track.id, &node.id, &node.title, quiz)
+        } else {
+            QuizSession::practice(&format!("Practice: {}", node.title), quiz)
+        });
         self.screen = Screen::Quiz;
         self.status_message = None;
     }
@@ -64,6 +69,13 @@ impl App {
         let Some(score) = session.score() else {
             return;
         };
+        if session.practice {
+            self.status_message = Some(format!(
+                "🎯 Practice: {}/{} correct. Nothing was recorded.",
+                score.correct, score.total
+            ));
+            return;
+        }
         if session.is_review() {
             self.status_message = Some(self.close_review(&session));
             return;
@@ -131,12 +143,7 @@ impl App {
 }
 
 /// Why the quiz of `node` cannot be taken right now, if it cannot.
-fn quiz_blocker(profile: &dojo_core::Profile, track: &Track, node: &Node) -> Option<String> {
-    if node.under_construction() {
-        return Some(crate::app::refusal_message(Refusal::UnderConstruction));
-    }
-    if !profile.is_unlocked(track, node) {
-        return Some(crate::app::refusal_message(Refusal::Locked));
-    }
-    None
+fn quiz_blocker(node: &Node) -> Option<String> {
+    node.under_construction()
+        .then(|| crate::app::refusal_message(Refusal::UnderConstruction))
 }

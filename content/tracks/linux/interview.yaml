@@ -1,0 +1,205 @@
+# Technical interview questions for the linux track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://www.tecmint.com/linux-interview-questions-with-answers/"
+  - "https://www.indeed.com/career-advice/interviewing/linux-admin-interview-questions"
+  - "https://www.testgorilla.com/blog/linux-admin-interview-questions/"
+  - "https://www.brendangregg.com/usemethod.html"
+questions:
+  - id: fhs
+    level: junior
+    skills: [linux.shell-navigation]
+    question: "Where would you look for a service's configuration, its logs and its installed binaries on a Debian server, and why are they split that way?"
+    key_points:
+      - "/etc for configuration, /var/log (or the journal) for logs, /usr/bin and /usr/lib for packaged software"
+      - "/var holds data that changes; /usr can be read-only and shared"
+      - "/opt or /usr/local for software outside the package manager"
+      - "Mentions the Filesystem Hierarchy Standard"
+    follow_up: "Where do systemd unit files from packages live, and where do your own go?"
+  - id: hard-soft-link
+    level: junior
+    skills: [linux.files]
+    question: "What is the difference between a hard link and a symbolic link? When would you use each?"
+    key_points:
+      - "A hard link is another name for the same inode; a symlink is a file containing a path"
+      - "Deleting the target breaks a symlink but not a hard link"
+      - "Hard links cannot cross filesystems or point to directories"
+      - "Symlinks are used for releases, alternatives and sites-enabled"
+    follow_up: "How do you switch a 'current' symlink to a new release atomically?"
+  - id: permissions-755
+    level: junior
+    skills: [linux.permissions-posix]
+    question: "Explain what chmod 750 does on a directory, and what read, write and execute mean for directories."
+    key_points:
+      - "Owner rwx, group r-x, others nothing"
+      - "r lists names, w creates/deletes entries, x enters and reaches entries"
+      - "Deleting a file needs write on the directory, not on the file"
+    follow_up: "What do the setgid and sticky bits change on a shared directory?"
+  - id: redirect-order
+    level: junior
+    skills: [linux.redirection]
+    question: "What is the difference between `cmd > out.log 2>&1` and `cmd 2>&1 > out.log`?"
+    key_points:
+      - "Redirections apply left to right"
+      - "First form sends both stdout and stderr to the file"
+      - "Second form duplicates stderr to the terminal before stdout is moved, so errors stay on screen"
+    follow_up: "How would you keep a copy of the output on screen and in a file at the same time?"
+  - id: exit-codes
+    level: junior
+    skills: [linux.redirection, linux.scripting]
+    question: "How does a shell script know a command failed, and how do you make a script stop at the first failure?"
+    key_points:
+      - "Exit status 0 means success, anything else failure; $? holds it"
+      - "&& and || act on it"
+      - "set -euo pipefail, and its exceptions (if, &&, ||, commands that may fail on purpose)"
+    follow_up: "Why does grep -c in a script with set -e sometimes stop it?"
+  - id: process-signals
+    level: mid
+    skills: [linux.processes]
+    question: "What is the difference between SIGTERM and SIGKILL, and how should a service react to SIGTERM?"
+    key_points:
+      - "SIGTERM asks the process to stop and can be caught; SIGKILL cannot be caught"
+      - "A service should finish in-flight work, release resources and exit"
+      - "Supervisors send TERM, wait a grace period, then KILL"
+      - "Exit codes 143 and 137 identify them"
+    follow_up: "How do you handle SIGTERM in a bash script that sleeps between jobs?"
+  - id: zombie
+    level: mid
+    skills: [linux.processes]
+    question: "What is a zombie process and how do you get rid of many of them?"
+    key_points:
+      - "A finished child whose parent has not called wait()"
+      - "It uses no memory, only a process table entry"
+      - "Fix or restart the parent; orphans are reaped by PID 1"
+      - "kill -9 on the zombie does nothing"
+    follow_up: "Why do containers sometimes need an init process like tini?"
+  - id: load-average
+    level: mid
+    skills: [linux.performance]
+    question: "A server shows a load average of 12 with 4 CPUs. What does it mean and what do you check next?"
+    key_points:
+      - "Load counts runnable tasks and tasks in uninterruptible sleep"
+      - "Compare with the CPU count and the trend over 1, 5, 15 minutes"
+      - "vmstat/mpstat to separate CPU saturation from I/O wait; iostat for disks"
+      - "Find the processes with top or pidstat"
+    follow_up: "What if the CPUs are mostly idle while the load is high?"
+  - id: disk-full
+    level: mid
+    skills: [linux.storage]
+    question: "df says a filesystem is full but du finds much less data. How do you explain and fix it?"
+    key_points:
+      - "A deleted file is still held open by a process"
+      - "Find it with lsof +L1 or /proc/*/fd"
+      - "Restart or signal the process, or truncate through /proc/PID/fd"
+      - "Also check df -i for inode exhaustion"
+    follow_up: "How would you prevent it from happening again with log rotation?"
+  - id: dns-debug
+    level: mid
+    skills: [linux.networking]
+    question: "An application on a server cannot reach api.partner.com. Walk me through how you debug it."
+    key_points:
+      - "Check local network: ip addr, ip route"
+      - "Check DNS separately: getent hosts or dig, /etc/resolv.conf"
+      - "Test the port: nc -zv or curl -v; tell timeout (dropped) from refused (nothing listening)"
+      - "Consider firewalls, security groups and proxies"
+    follow_up: "How would the result differ if the service only listened on 127.0.0.1?"
+  - id: ssh-hardening
+    level: mid
+    skills: [linux.security]
+    question: "How would you secure SSH on a new internet-facing server?"
+    key_points:
+      - "Keys only (PasswordAuthentication no), no root login"
+      - "Validate with sshd -t and keep a session open while testing"
+      - "Restrict users or groups, firewall the port, consider fail2ban"
+      - "Use a bastion or VPN for production access"
+    follow_up: "How do you avoid locking yourself out while doing it?"
+  - id: systemd-unit
+    level: mid
+    skills: [linux.systemd-services]
+    question: "Write, from memory, a systemd unit that runs an application as its own user and restarts it after a crash. Explain the directives."
+    key_points:
+      - "[Unit] Description/After, [Service] ExecStart with full path, User=, Restart=on-failure, [Install] WantedBy=multi-user.target"
+      - "daemon-reload, enable --now, status, journalctl -u"
+      - "The app stays in the foreground and logs to stdout"
+      - "TimeoutStopSec as the SIGTERM grace period"
+    follow_up: "How would you limit its memory and stop it from writing outside one directory?"
+  - id: cron-vs-timer
+    level: mid
+    skills: [linux.systemd-services, linux.operations]
+    question: "Cron or systemd timers for a nightly backup job? Justify your choice."
+    key_points:
+      - "Timers log to the journal, support Persistent= for missed runs and do not overlap"
+      - "Cron is everywhere and simple, but needs full paths and output redirection"
+      - "Either way: alerting on failure and a lock against overlaps"
+    follow_up: "How do you make sure someone notices when the job fails?"
+  - id: text-pipeline
+    level: junior
+    skills: [linux.text-processing]
+    question: "Given an access log, how would you find the 10 IP addresses with the most requests from the command line?"
+    key_points:
+      - "Extract the field (awk '{print $1}' or cut)"
+      - "sort | uniq -c | sort -rn | head -10"
+      - "uniq needs sorted input"
+      - "awk with an associative array is an alternative"
+    follow_up: "And the number of 5xx responses per hour?"
+  - id: inode
+    level: mid
+    skills: [linux.files, linux.storage]
+    question: "What is an inode, and what happens when a filesystem runs out of them?"
+    key_points:
+      - "Inode holds metadata and data locations; a name maps to an inode"
+      - "Running out means no new files even with free space"
+      - "Caused by many small files; check df -i"
+      - "Only deleting files or reformatting with more inodes helps"
+    follow_up: "Which kinds of applications typically cause it?"
+  - id: boot-process
+    level: senior
+    skills: [linux.boot-kernel]
+    question: "Describe the Linux boot process from power on to a login prompt, and what you would check if a server does not come back after a reboot."
+    key_points:
+      - "Firmware (UEFI), boot loader (GRUB), kernel and initramfs, systemd as PID 1, default target"
+      - "journalctl -b -1, the serial console"
+      - "Common causes: bad fstab entry, full /boot, missing driver in initramfs"
+      - "nofail for non-essential mounts"
+    follow_up: "How do you boot into a rescue shell?"
+  - id: containers-kernel
+    level: senior
+    skills: [linux.boot-kernel]
+    question: "What actually is a container on Linux? Explain namespaces and cgroups."
+    key_points:
+      - "A normal process sharing the host kernel"
+      - "Namespaces isolate what it sees (pid, net, mnt, uts, ipc, user)"
+      - "cgroups limit what it uses (memory, CPU, pids)"
+      - "Exceeding the memory limit triggers the OOM killer (exit 137)"
+    follow_up: "Why is a privileged container dangerous?"
+  - id: oom
+    level: senior
+    skills: [linux.performance]
+    question: "A Java service in a container is restarted every few hours with exit code 137 and no error in its logs. What is going on and how do you fix it?"
+    key_points:
+      - "137 = SIGKILL, typically the OOM killer enforcing the cgroup memory limit"
+      - "Confirm in the kernel log or container events"
+      - "JVM heap plus non-heap (metaspace, threads, direct buffers) exceeds the limit"
+      - "Size with MaxRAMPercentage, raise the limit, or fix a leak"
+    follow_up: "How would you tell a leak from a limit that is simply too small?"
+  - id: use-method
+    level: senior
+    skills: [linux.performance]
+    question: "How do you approach a server that 'is slow' without guessing?"
+    key_points:
+      - "A method such as USE: utilisation, saturation and errors per resource"
+      - "First-minute commands: uptime, dmesg/journal, vmstat, mpstat, iostat, free, sar"
+      - "Check what changed recently"
+      - "Then zoom into the process with strace, perf or language tools"
+    follow_up: "Which metrics would you add to monitoring so next time you know sooner?"
+  - id: backup-restore
+    level: senior
+    skills: [linux.operations]
+    question: "How would you design backups for a server running PostgreSQL and an application, and how do you know they work?"
+    key_points:
+      - "Consistent database backups (pg_dump or base backup with WAL), not copying live files"
+      - "Back up configuration and data, rebuild the OS from code"
+      - "3-2-1, one copy the server cannot delete"
+      - "Regular, timed restore tests"
+    follow_up: "What are your recovery point and recovery time objectives, and how do they change the design?"

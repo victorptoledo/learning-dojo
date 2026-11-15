@@ -46,6 +46,8 @@ pub enum Screen {
     Placement,
     Career,
     BridgePicker,
+    TopicStudy,
+    Interview,
 }
 
 /// Everything the TUI shows and the actions it can take. Rendering lives in `ui`.
@@ -60,6 +62,10 @@ pub struct App {
     pub career_cursor: usize,
     /// Highlighted language in the bridge picker.
     pub bridge_cursor: usize,
+    /// The study-a-topic screen while it is open.
+    pub topic_study: Option<crate::topic_study::TopicStudy>,
+    /// The mock interview while it runs.
+    pub interview: Option<crate::interview_sim::InterviewSession>,
     pub status_message: Option<String>,
     /// Lines scrolled in the detail panel (PageUp/PageDown).
     pub detail_scroll: u16,
@@ -125,6 +131,8 @@ impl App {
             selector_cursor: active_track,
             career_cursor: 0,
             bridge_cursor: 0,
+            topic_study: None,
+            interview: None,
             status_message: None,
             detail_scroll: 0,
             quiet_kata: None,

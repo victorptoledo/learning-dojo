@@ -133,6 +133,8 @@ fn handle_key(app: &mut App, key: KeyEvent) -> Flow {
         Screen::Placement => handle_placement_key(app, key.code),
         Screen::Career => handle_career_key(app, key.code),
         Screen::BridgePicker => handle_bridge_key(app, key.code),
+        Screen::TopicStudy => handle_topic_key(app, key.code),
+        Screen::Interview => handle_interview_key(app, key.code),
         Screen::TrackView => return handle_track_key(app, key.code),
     }
     Flow::Continue
@@ -159,6 +161,41 @@ fn handle_career_key(app: &mut App, code: KeyCode) {
         KeyCode::Down | KeyCode::Char('j') => app.career_down(),
         KeyCode::Up | KeyCode::Char('k') => app.career_up(),
         KeyCode::Enter | KeyCode::Char(' ') => app.toggle_target_career(),
+        _ => {}
+    }
+}
+
+fn handle_interview_key(app: &mut App, code: KeyCode) {
+    use crate::interview_sim::Rating;
+    match code {
+        KeyCode::Esc => app.close_interview(),
+        KeyCode::Up | KeyCode::Char('k') => app.interview_up(),
+        KeyCode::Down | KeyCode::Char('j') => app.interview_down(),
+        KeyCode::Enter | KeyCode::Char(' ') => app.interview_enter(),
+        KeyCode::Char('1') => app.interview_rate(Rating::Covered),
+        KeyCode::Char('2') => app.interview_rate(Rating::Partly),
+        KeyCode::Char('3') => app.interview_rate(Rating::Missed),
+        KeyCode::Char('p' | 'P') => app.interview_prompt(),
+        _ => {}
+    }
+}
+
+fn handle_topic_key(app: &mut App, code: KeyCode) {
+    let searching = app
+        .topic_study
+        .as_ref()
+        .is_some_and(|study| study.open.is_none());
+    match code {
+        KeyCode::Esc => app.topic_back(),
+        KeyCode::Down => app.topic_down(),
+        KeyCode::Up => app.topic_up(),
+        KeyCode::Enter => app.topic_enter(),
+        KeyCode::Backspace => app.topic_backspace(),
+        KeyCode::Char(character) if searching => app.topic_type(character),
+        KeyCode::Char('q' | 'Q') => app.start_topic_quiz(),
+        KeyCode::Char('i' | 'I') => app.start_topic_interview(),
+        KeyCode::Char('j') => app.topic_down(),
+        KeyCode::Char('k') => app.topic_up(),
         _ => {}
     }
 }
@@ -230,6 +267,8 @@ fn handle_track_key(app: &mut App, code: KeyCode) -> Flow {
         KeyCode::Char('q' | 'Q') => app.start_lesson_quiz(),
         KeyCode::Char('o' | 'O') => app.open_selected(),
         KeyCode::Char('b' | 'B') => app.open_bridge_picker(),
+        KeyCode::Char('/') => app.open_topic_study(),
+        KeyCode::Char('i' | 'I') => app.open_interview(),
         KeyCode::Char('p' | 'P') => app.start_placement(),
         KeyCode::Char('h' | 'H') => app.reveal_hint(),
         KeyCode::Char('r' | 'R') => app.start_review(),
