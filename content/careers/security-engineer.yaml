@@ -1,0 +1,26 @@
+id: security-engineer
+title: "Application Security Engineer"
+summary: "Find and fix weaknesses before attackers do: Linux, scripting, backend security, APIs and cloud controls."
+roles: [Application Security Engineer, Security Engineer]
+stages:
+  - id: s1
+    title: "Systems and scripting"
+    requires:
+      - { track: linux, phase: p2 }
+      - { track: python, phase: p2 }
+  - id: s2
+    title: "Secure backends"
+    requires:
+      - { track: backend, phase: p2 }
+      - { track: cyber-security, phase: p2 }
+  - id: s3
+    title: "APIs and defences"
+    requires:
+      - { track: cyber-security, phase: p3 }
+      - { track: api-design, phase: p3 }
+  - id: s4
+    title: "Security across the stack"
+    requires:
+      - { track: cyber-security, phase: p4 }
+      - { track: aws, phase: p3 }
+next_paths: [cloud-aws-engineer, software-architect-path]

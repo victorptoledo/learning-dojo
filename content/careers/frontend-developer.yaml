@@ -1,0 +1,28 @@
+id: frontend-developer
+title: "Frontend Developer"
+summary: "Build accessible, fast web interfaces: the web platform, TypeScript, React and the APIs behind them."
+roles: [Frontend Developer, UI Engineer]
+stages:
+  - id: s1
+    title: "The web platform and version control"
+    requires:
+      - { track: git, phase: p1 }
+      - { track: frontend, phase: p2 }
+  - id: s2
+    title: "Typed code and components"
+    requires:
+      - { track: typescript, phase: p2 }
+      - { track: react, phase: p2 }
+  - id: s3
+    title: "Performance, security and contracts"
+    requires:
+      - { track: frontend, phase: p3 }
+      - { track: react, phase: p3 }
+      - { track: api-design, phase: p2 }
+  - id: s4
+    title: "Frontend in production"
+    requires:
+      - { track: frontend, phase: p4 }
+      - { track: react, phase: p4 }
+      - { track: cyber-security, phase: p2 }
+next_paths: [full-stack-developer, node-typescript-backend]

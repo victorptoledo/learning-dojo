@@ -1,0 +1,28 @@
+id: data-engineer-path
+title: "Data Engineer"
+summary: "Move and model data reliably: Python, SQL, PostgreSQL, pipelines and the systems they run on."
+roles: [Data Engineer, Analytics Engineer]
+stages:
+  - id: s1
+    title: "Python and SQL"
+    requires:
+      - { track: python, phase: p2 }
+      - { track: sql, phase: p2 }
+  - id: s2
+    title: "Databases and first pipelines"
+    requires:
+      - { track: postgresql, phase: p2 }
+      - { track: data-engineer, phase: p2 }
+  - id: s3
+    title: "Pipelines that run unattended"
+    requires:
+      - { track: data-engineer, phase: p3 }
+      - { track: docker, phase: p2 }
+      - { track: sql, phase: p3 }
+  - id: s4
+    title: "Data platforms at scale"
+    requires:
+      - { track: data-engineer, phase: p4 }
+      - { track: system-design, phase: p3 }
+      - { track: postgresql, phase: p3 }
+next_paths: [developer-to-ai-engineer, database-engineer]

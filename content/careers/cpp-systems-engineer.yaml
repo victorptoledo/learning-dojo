@@ -1,0 +1,27 @@
+id: cpp-systems-engineer
+title: "C++ Systems Engineer"
+summary: "Write fast, safe native code: modern C++, algorithms, Linux and how computers really work."
+roles: [Systems Engineer, C++ Developer]
+stages:
+  - id: s1
+    title: "Modern C++ and algorithms"
+    requires:
+      - { track: cpp, phase: p2 }
+      - { track: datastructures-and-algorithms, phase: p2 }
+  - id: s2
+    title: "The machine underneath"
+    requires:
+      - { track: linux, phase: p2 }
+      - { track: computer-science, phase: p2 }
+  - id: s3
+    title: "Performance and concurrency"
+    requires:
+      - { track: cpp, phase: p3 }
+      - { track: computer-science, phase: p3 }
+      - { track: datastructures-and-algorithms, phase: p3 }
+  - id: s4
+    title: "Systems at scale"
+    requires:
+      - { track: cpp, phase: p4 }
+      - { track: system-design, phase: p3 }
+next_paths: [rust-systems-engineer, platform-sre]

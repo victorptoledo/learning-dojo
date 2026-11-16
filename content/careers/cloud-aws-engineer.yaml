@@ -1,0 +1,27 @@
+id: cloud-aws-engineer
+title: "Cloud Engineer (AWS)"
+summary: "Design and run workloads on AWS: Linux, containers, infrastructure as code, Kubernetes and cloud security."
+roles: [Cloud Engineer, Cloud Architect]
+stages:
+  - id: s1
+    title: "Linux and containers"
+    requires:
+      - { track: linux, phase: p2 }
+      - { track: docker, phase: p2 }
+  - id: s2
+    title: "AWS foundations"
+    requires:
+      - { track: aws, phase: p2 }
+      - { track: devops, phase: p2 }
+  - id: s3
+    title: "Infrastructure as code and orchestration"
+    requires:
+      - { track: aws, phase: p3 }
+      - { track: devops, phase: p3 }
+      - { track: kubernetes, phase: p2 }
+  - id: s4
+    title: "Secure, well-architected cloud"
+    requires:
+      - { track: aws, phase: p4 }
+      - { track: cyber-security, phase: p3 }
+next_paths: [platform-sre, security-engineer]

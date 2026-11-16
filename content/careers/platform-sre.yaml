@@ -1,0 +1,28 @@
+id: platform-sre
+title: "Platform Engineer / SRE"
+summary: "Keep systems reliable and teams fast: Linux, containers, Kubernetes, delivery, SLOs and databases in operation."
+roles: [Site Reliability Engineer, Platform Engineer]
+stages:
+  - id: s1
+    title: "Operating systems and version control"
+    requires:
+      - { track: linux, phase: p3 }
+      - { track: git, phase: p2 }
+  - id: s2
+    title: "Containers and orchestration"
+    requires:
+      - { track: docker, phase: p3 }
+      - { track: kubernetes, phase: p2 }
+  - id: s3
+    title: "Delivery and observability"
+    requires:
+      - { track: devops, phase: p3 }
+      - { track: kubernetes, phase: p3 }
+      - { track: postgresql, phase: p2 }
+  - id: s4
+    title: "Reliability at scale"
+    requires:
+      - { track: devops, phase: p4 }
+      - { track: system-design, phase: p3 }
+      - { track: kubernetes, phase: p4 }
+next_paths: [cloud-aws-engineer, software-architect-path]

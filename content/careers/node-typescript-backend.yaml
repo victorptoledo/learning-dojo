@@ -1,0 +1,26 @@
+id: node-typescript-backend
+title: "Node.js/TypeScript Backend Developer"
+summary: "Build backends in TypeScript on Node.js: SQL, API design, containers and system design."
+roles: [Backend Developer, Node.js Developer]
+stages:
+  - id: s1
+    title: "TypeScript and Node.js"
+    requires:
+      - { track: typescript, phase: p2 }
+      - { track: nodejs, phase: p2 }
+  - id: s2
+    title: "Data and contracts"
+    requires:
+      - { track: sql, phase: p2 }
+      - { track: api-design, phase: p2 }
+  - id: s3
+    title: "Production services"
+    requires:
+      - { track: nodejs, phase: p3 }
+      - { track: docker, phase: p2 }
+  - id: s4
+    title: "Services at scale"
+    requires:
+      - { track: nodejs, phase: p4 }
+      - { track: system-design, phase: p3 }
+next_paths: [full-stack-developer, backend-to-microservices]

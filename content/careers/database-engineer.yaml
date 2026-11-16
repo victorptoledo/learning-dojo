@@ -1,0 +1,26 @@
+id: database-engineer
+title: "Database Engineer / DBA"
+summary: "Model, tune and operate databases: SQL, PostgreSQL internals, Linux and the theory behind storage."
+roles: [Database Engineer, Database Administrator]
+stages:
+  - id: s1
+    title: "SQL and the relational model"
+    requires:
+      - { track: sql, phase: p2 }
+      - { track: postgresql, phase: p1 }
+  - id: s2
+    title: "PostgreSQL in depth"
+    requires:
+      - { track: postgresql, phase: p3 }
+      - { track: linux, phase: p2 }
+  - id: s3
+    title: "Internals and data platforms"
+    requires:
+      - { track: computer-science, phase: p2 }
+      - { track: data-engineer, phase: p2 }
+  - id: s4
+    title: "Operating databases at scale"
+    requires:
+      - { track: postgresql, phase: p4 }
+      - { track: sql, phase: p4 }
+next_paths: [data-engineer-path, platform-sre]

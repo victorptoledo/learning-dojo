@@ -1,0 +1,30 @@
+id: full-stack-developer
+title: "Full Stack Developer"
+summary: "Own a feature from the database to the screen: React, Node.js, SQL and shipping it in containers."
+roles: [Full Stack Developer, Product Engineer]
+stages:
+  - id: s1
+    title: "Web foundations"
+    requires:
+      - { track: git, phase: p1 }
+      - { track: frontend, phase: p2 }
+      - { track: typescript, phase: p2 }
+  - id: s2
+    title: "Client, server and data"
+    requires:
+      - { track: react, phase: p2 }
+      - { track: nodejs, phase: p2 }
+      - { track: sql, phase: p2 }
+  - id: s3
+    title: "The whole stack"
+    requires:
+      - { track: full-stack, phase: p2 }
+      - { track: api-design, phase: p2 }
+      - { track: docker, phase: p2 }
+  - id: s4
+    title: "Owning features in production"
+    requires:
+      - { track: full-stack, phase: p4 }
+      - { track: react, phase: p3 }
+      - { track: nodejs, phase: p3 }
+next_paths: [software-architect-path, platform-sre]

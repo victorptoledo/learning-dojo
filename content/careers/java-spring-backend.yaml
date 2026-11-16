@@ -1,0 +1,28 @@
+id: java-spring-backend
+title: "Backend Java/Spring Developer"
+summary: "Build and run Spring Boot services: modern Java, SQL, API design, patterns and containers."
+roles: [Backend Developer, Java Developer]
+stages:
+  - id: s1
+    title: "Modern Java and SQL"
+    requires:
+      - { track: java, phase: p2 }
+      - { track: sql, phase: p2 }
+  - id: s2
+    title: "Spring Boot services"
+    requires:
+      - { track: spring-boot, phase: p2 }
+      - { track: api-design, phase: p2 }
+  - id: s3
+    title: "Design and delivery"
+    requires:
+      - { track: spring-boot, phase: p3 }
+      - { track: design-patterns, phase: p2 }
+      - { track: docker, phase: p2 }
+  - id: s4
+    title: "Production backends"
+    requires:
+      - { track: spring-boot, phase: p4 }
+      - { track: backend, phase: p3 }
+      - { track: system-design, phase: p2 }
+next_paths: [backend-to-microservices, software-architect-path]

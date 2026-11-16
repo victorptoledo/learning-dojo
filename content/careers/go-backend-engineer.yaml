@@ -1,0 +1,26 @@
+id: go-backend-engineer
+title: "Go Backend Engineer"
+summary: "Build small, fast services in Go: SQL, API design, containers, Kubernetes and system design."
+roles: [Backend Developer, Go Developer]
+stages:
+  - id: s1
+    title: "Go and SQL"
+    requires:
+      - { track: go, phase: p2 }
+      - { track: sql, phase: p2 }
+  - id: s2
+    title: "Services and contracts"
+    requires:
+      - { track: go, phase: p3 }
+      - { track: api-design, phase: p2 }
+  - id: s3
+    title: "Containers and orchestration"
+    requires:
+      - { track: docker, phase: p2 }
+      - { track: kubernetes, phase: p2 }
+  - id: s4
+    title: "Services at scale"
+    requires:
+      - { track: go, phase: p4 }
+      - { track: system-design, phase: p3 }
+next_paths: [platform-sre, backend-to-microservices]

@@ -1,0 +1,27 @@
+id: software-architect-path
+title: "Software Architect"
+summary: "Shape systems that last: patterns, API design, system design, architecture and the fundamentals beneath them."
+roles: [Software Architect, Staff Engineer]
+stages:
+  - id: s1
+    title: "Design principles"
+    requires:
+      - { track: design-patterns, phase: p2 }
+      - { track: api-design, phase: p2 }
+  - id: s2
+    title: "Systems and architecture styles"
+    requires:
+      - { track: system-design, phase: p2 }
+      - { track: software-architect, phase: p2 }
+  - id: s3
+    title: "Distributed systems and evolution"
+    requires:
+      - { track: system-design, phase: p3 }
+      - { track: software-architect, phase: p3 }
+  - id: s4
+    title: "Architecture leadership"
+    requires:
+      - { track: software-architect, phase: p4 }
+      - { track: system-design, phase: p4 }
+      - { track: computer-science, phase: p2 }
+next_paths: [backend-to-microservices, platform-sre]
