@@ -250,6 +250,27 @@ fn check_node_skills(track: &Track, catalog: &Catalog, report: &mut Report) {
                 );
             }
         }
+        // Practice targets the node's own skills, so a stuck learner drills what the
+        // node teaches.
+        let own: Vec<&str> = node.skills().collect();
+        for remedial in &node.remedial {
+            for skill in &remedial.skills {
+                if !catalog.skills.contains_key(skill) {
+                    report.error(
+                        node_location(track, &node.id),
+                        format!("remedial `{}`: unknown skill `{skill}`", remedial.slug),
+                    );
+                } else if !own.contains(&skill.as_str()) {
+                    report.warning(
+                        node_location(track, &node.id),
+                        format!(
+                            "remedial `{}`: skill `{skill}` is not one of the node's skills",
+                            remedial.slug
+                        ),
+                    );
+                }
+            }
+        }
     }
 }
 

@@ -53,3 +53,14 @@ requirements:
     id: vadimcn.vscode-lldb
     required: false
     why: Breakpoints and step-by-step debugging of your tests.
+remedial:
+  - id: match-and-borrow
+    title: "Match and Borrow: Grades, Sums and Words"
+    summary: "A match on ranges, a loop that stops early, and a word borrowed from its text."
+    skills: [rust.structs-enums, rust.borrowing-references]
+    kata:
+      statement: remedial/match-and-borrow/README.md
+      starter: remedial/match-and-borrow/starter
+      tests: remedial/match-and-borrow/tests
+      reference: remedial/match-and-borrow/reference
+      runner: { image: dojo-rust, timeout_secs: 120 }

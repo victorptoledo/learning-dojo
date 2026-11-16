@@ -41,3 +41,14 @@ requirements:
     id: vadimcn.vscode-lldb
     required: false
     why: Breakpoints and step-by-step debugging of your tests.
+remedial:
+  - id: greeting-drill
+    title: "Greeting Drill: &str In, String Out"
+    summary: "Three small functions that read string slices and build owned Strings."
+    skills: [rust.setup]
+    kata:
+      statement: remedial/greeting-drill/README.md
+      starter: remedial/greeting-drill/starter
+      tests: remedial/greeting-drill/tests
+      reference: remedial/greeting-drill/reference
+      runner: { image: dojo-rust, timeout_secs: 120 }

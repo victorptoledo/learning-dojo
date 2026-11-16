@@ -58,3 +58,14 @@ requirements:
     id: vadimcn.vscode-lldb
     required: false
     why: Breakpoints and step-by-step debugging of your tests.
+remedial:
+  - id: readings-report
+    title: "Readings Report: ?, Iterators and a Trait"
+    summary: "Parse readings with ? and a line-numbered error, then summarise them through a trait."
+    skills: [rust.option-result, rust.iterators-closures, rust.traits-generics]
+    kata:
+      statement: remedial/readings-report/README.md
+      starter: remedial/readings-report/starter
+      tests: remedial/readings-report/tests
+      reference: remedial/readings-report/reference
+      runner: { image: dojo-rust, timeout_secs: 120 }

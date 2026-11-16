@@ -3,7 +3,7 @@
 
 use crate::app::{App, NodeKey, checkpoint_missing_part, refusal_message};
 use crate::checks::{CheckTarget, FinishedCheck};
-use crate::workspace::{CommitOutcome, Prepared, STATEMENT_FILE};
+use crate::workspace::{CommitOutcome, PRACTICE_FOLDER, Prepared, STATEMENT_FILE};
 use chrono::Utc;
 use dojo_core::{CheckRecord, CheckReport, Evidence, Kata, Node, Refusal, Track};
 use std::path::{Component, Path, PathBuf};
@@ -58,7 +58,7 @@ impl App {
             }
         };
         if prepared == Prepared::Created {
-            self.quiet_kata = Some((dir.to_path_buf(), Instant::now() + QUIET_AFTER_CREATE));
+            self.quiet_new_folder(dir);
             if let Some(code_workspace) = &self.code_workspace
                 && let Err(error) = code_workspace.write()
             {
@@ -79,7 +79,7 @@ impl App {
     }
 
     /// Opens the kata folder with its statement and code, and says what happened.
-    fn open_kata_folder(&self, dir: &Path) -> String {
+    pub(crate) fn open_kata_folder(&self, dir: &Path) -> String {
         let mut files = vec![dir.join(STATEMENT_FILE), dir.join("src").join("lib.rs")];
         files.extend(java_sources(&dir.join("src").join("main").join("java")));
         files.extend(shell_scripts(dir));
@@ -117,12 +117,13 @@ impl App {
             track_id: selected.track.id.clone(),
             node_id: selected.node.id.clone(),
             kata_dir: selected.dir.clone(),
+            practice: false,
         };
         let kata = selected.kata.clone();
         self.start_check(target, kata);
     }
 
-    fn start_check(&mut self, target: CheckTarget, kata: Kata) {
+    pub(crate) fn start_check(&mut self, target: CheckTarget, kata: Kata) {
         let label = target.node_id.clone();
         if self.checks.start(target, kata) {
             self.status_message = Some(format!("⏳ Checking {label} in Docker…"));
@@ -152,6 +153,12 @@ impl App {
         else {
             return;
         };
+        if phase_id == PRACTICE_FOLDER {
+            if let Some((target, kata)) = self.practice_target(&track_id, &slug) {
+                self.start_check(target, kata);
+            }
+            return;
+        }
         let node_id = format!("{track_id}.{phase_id}.{slug}");
         let Some(track) = self.catalog.track(&track_id) else {
             return;
@@ -170,9 +177,15 @@ impl App {
                 track_id,
                 node_id,
                 kata_dir,
+                practice: false,
             },
             kata,
         );
+    }
+
+    /// Ignores file events in a freshly created kata or practice folder for a moment.
+    pub(crate) fn quiet_new_folder(&mut self, dir: &Path) {
+        self.quiet_kata = Some((dir.to_path_buf(), Instant::now() + QUIET_AFTER_CREATE));
     }
 
     /// True while the dojo's own copy of a fresh starter is still settling.
@@ -217,7 +230,9 @@ impl App {
             .map_or(0, |(_, attempts)| *attempts)
             + 1;
         self.check_history.insert(key.clone(), (record, attempts));
-        self.status_message = Some(if report.is_pass() {
+        self.status_message = Some(if report.is_pass() && target.practice {
+            self.reward_practice(&target, &report)
+        } else if report.is_pass() {
             self.reward_pass(&target, &report)
         } else {
             format!(

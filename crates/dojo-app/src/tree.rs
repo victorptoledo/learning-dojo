@@ -115,6 +115,7 @@ mod tests {
             quiz: None,
             exercise: None,
             requirements: vec![],
+            remedial: vec![],
         }
     }
 

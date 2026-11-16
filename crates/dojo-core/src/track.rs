@@ -182,7 +182,25 @@ pub struct Node {
     pub exercise: Option<Exercise>,
     /// What this node needs on top of the track's requirements.
     pub requirements: Vec<Requirement>,
+    /// Short practice katas on the same skills, opened on request (`F`). They give
+    /// practice XP only and never count towards completion or unlocking.
+    pub remedial: Vec<Remedial>,
 }
+
+/// A hand-written practice kata attached to a kata or checkpoint node.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Remedial {
+    /// `<node id>.practice.<slug>`: unique in the catalogue, used for checks and events.
+    pub id: String,
+    pub slug: String,
+    pub title: String,
+    pub summary: String,
+    pub skills: Vec<String>,
+    pub kata: Kata,
+}
+
+/// Practice XP for passing a remedial kata the first time.
+pub const REMEDIAL_XP: u32 = 25;
 
 impl Node {
     /// Bridge for the learner's source language, falling back to the generic one.
@@ -301,6 +319,7 @@ pub(crate) mod fixtures {
             quiz: None,
             exercise: None,
             requirements: vec![],
+            remedial: vec![],
         }
     }
 

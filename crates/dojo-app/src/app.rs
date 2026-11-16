@@ -224,7 +224,8 @@ impl App {
             | ProgressEvent::BeltExamAssigned { .. }
             | ProgressEvent::PlacementRevoked { .. }
             | ProgressEvent::HintRevealed { .. }
-            | ProgressEvent::ReviewAnswered { .. } => return,
+            | ProgressEvent::ReviewAnswered { .. }
+            | ProgressEvent::PracticeCompleted { .. } => return,
         };
         self.status_message = Some(message);
     }

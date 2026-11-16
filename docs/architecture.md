@@ -322,7 +322,14 @@ Common rules:
 - Up to three hints per kata, opened one at a time with `H` and shown in the kata panel. Each hint opened before the kata is completed costs 10% of its XP (checkpoints included); after completion they are free. The XP stored with a completion is the XP actually earned, and belts use it.
 - Spaced review instead of remedial katas: every question of a completed lesson or checkpoint becomes a card due 1, 3, 7, 21 and 60 days later. A right answer moves it one step, a miss sends it back to the first step (due the next day). `R` opens up to 8 due questions of the active track, lowest step first. Each right answer gives 5 practice XP, kept apart from track XP; a review counts as training for the streak.
 - Events `hint_revealed` and `review_answered` (store schema v5). `Esc` leaves a review without recording it.
-- Not yet: authored `remedial` katas and AI-generated challenges.
+- Not yet: AI-generated challenges.
+
+**Practice katas, implemented on 2026-11-16** (`remedial` in `node.yaml`, `practice_actions.rs`; decision D029):
+- A kata or checkpoint node can list practice katas under `remedial`: each has an `id` (a slug), `title`, `summary`, `skills` (a subset of the node's skills, the validator warns otherwise) and a `kata` laid out like the node's own, under `remedial/<id>/`. Its full id is `<node id>.practice.<id>`.
+- They open **only on request**: `F` on the node creates `<workspace>/<track>/practice/<phase>-<node slug>-<id>/` from the starter and opens it; the next `F` opens the first one not passed yet. Saving a file there checks it like any kata. The trigger is the learner's, not a detector: checks run on every save, so failed checks say nothing about being stuck.
+- A pass gives 25 practice XP once (event `practice_completed`, store schema v6), counts for the streak and commits the folder. It never completes, unlocks or changes the node, and never counts towards belts.
+- `content verify-katas` checks practice katas too (reference passes, starter fails); the VS Code workspace hides `remedial/*/reference`, `tests` and `starter` like the kata ones.
+- Pilot: the Rust track has one practice kata for each of its seven katas (checkpoints included).
 
 **Review prompts without an AI integration** (`review_prompt.rs`, `ai_prompt_actions.rs`, `clipboard.rs`; decision D022):
 - Every ready lesson has one written `exercise` in `node.yaml`: a `task` and 2–6 `criteria` (the validator warns when it is missing).

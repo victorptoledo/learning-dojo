@@ -64,3 +64,14 @@ requirements:
     id: vadimcn.vscode-lldb
     required: false
     why: Breakpoints and step-by-step debugging of your tests.
+remedial:
+  - id: parallel-sum
+    title: "Parallel Sum: Balanced Chunks on Scoped Threads"
+    summary: "Split a slice into balanced chunks and reduce them on std::thread::scope threads."
+    skills: [rust.concurrency, rust.lifetimes]
+    kata:
+      statement: remedial/parallel-sum/README.md
+      starter: remedial/parallel-sum/starter
+      tests: remedial/parallel-sum/tests
+      reference: remedial/parallel-sum/reference
+      runner: { image: dojo-rust, timeout_secs: 120 }

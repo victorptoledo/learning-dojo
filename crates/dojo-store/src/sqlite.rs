@@ -284,6 +284,12 @@ impl EventRow {
                 correct: self.correct.ok_or("review_answered without correct")?,
                 on,
             }),
+            "practice_completed" => Ok(ProgressEvent::PracticeCompleted {
+                track_id,
+                practice_id: node_id,
+                xp,
+                on,
+            }),
             other => Err(format!("unknown event kind `{other}`").into()),
         }
     }
@@ -371,6 +377,12 @@ fn insert_event(connection: &Connection, event: &ProgressEvent) -> Result<(), St
             correct: Some(*correct),
             ..NewRow::plain("review_answered", track_id, node_id, 0, *on)
         },
+        ProgressEvent::PracticeCompleted {
+            track_id,
+            practice_id,
+            xp,
+            on,
+        } => NewRow::plain("practice_completed", track_id, practice_id, *xp, *on),
     };
     connection.execute(
         "INSERT INTO event (kind, track_id, node_id, xp, occurred_on, recorded_at,

@@ -273,6 +273,7 @@ fn handle_track_key(app: &mut App, code: KeyCode) -> Flow {
         KeyCode::Char('i' | 'I') => app.open_interview(),
         KeyCode::Char('p' | 'P') => app.start_placement(),
         KeyCode::Char('h' | 'H') => app.reveal_hint(),
+        KeyCode::Char('f' | 'F') => app.start_practice(),
         KeyCode::Char('r' | 'R') => app.start_review(),
         KeyCode::Char('g' | 'G') => app.open_careers(),
         KeyCode::Char('a' | 'A') => app.ai_review_prompt(),

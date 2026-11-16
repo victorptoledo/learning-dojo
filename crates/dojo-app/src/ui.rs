@@ -288,6 +288,7 @@ fn render_kata(
         lines.extend(report_lines(report));
     }
     lines.extend(hint_lines(app, track, node, kata));
+    lines.extend(practice_lines(app, node));
     lines.push(Line::from(""));
     lines.push(Line::from(
         "🤖 [A] copies a review prompt for an AI of your choice: attach your files and get a code review (feedback only)."
@@ -328,6 +329,42 @@ fn hint_lines(app: &App, track: &Track, node: &Node, kata: &Kata) -> Vec<Line<'s
     for (level, hint) in kata.hints.iter().take(usize::from(opened)).enumerate() {
         lines.push(Line::from(format!("Hint {}", level + 1).bold()));
         lines.extend(crate::lesson_view::markdown_lines(hint));
+    }
+    lines
+}
+
+/// The node's practice katas, which ones were passed, and how to open the next one.
+fn practice_lines(app: &App, node: &Node) -> Vec<Line<'static>> {
+    if node.remedial.is_empty() {
+        return Vec::new();
+    }
+    let passed = node
+        .remedial
+        .iter()
+        .filter(|practice| app.profile.practice_done(&practice.id))
+        .count();
+    let total = node.remedial.len();
+    let mut lines = vec![
+        Line::from(""),
+        Line::from(
+            format!(
+                "🔁 Practice: {passed} of {total} passed · [F] opens the next one (+{} practice XP each, the node is unchanged)",
+                dojo_core::REMEDIAL_XP
+            )
+            .bold()
+            .magenta(),
+        ),
+    ];
+    for practice in &node.remedial {
+        let mark = if app.profile.practice_done(&practice.id) {
+            "✓"
+        } else {
+            "·"
+        };
+        lines.push(Line::from(format!(
+            "  {mark} {} — {}",
+            practice.title, practice.summary
+        )));
     }
     lines
 }
@@ -588,13 +625,18 @@ fn render_footer(frame: &mut Frame, app: &App, area: Rect) {
                 )
             })
             .map_or(String::new(), |label| format!(" | {label}"));
+        let practice = app
+            .tree
+            .selected(track)
+            .filter(|(_, node)| !node.remedial.is_empty())
+            .map_or("", |_| " | [F] Practice");
         let due = app.profile.due_reviews(track, App::today()).len();
         let review = if due > 0 {
             format!(" | [R] Review ({due})")
         } else {
             String::new()
         };
-        format!("[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Quiz | [C] Check kata{hint} | [A] AI review | [/] Study a topic | [I] Interview | [B] Bridge{review} | [G] Career{placement} | [Esc] Quit")
+        format!("[M] Tracks | [↑/↓] Move | [Enter] Open in editor | [Q] Quiz | [C] Check kata{hint}{practice} | [A] AI review | [/] Study a topic | [I] Interview | [B] Bridge{review} | [G] Career{placement} | [Esc] Quit")
     });
     let mode = match app.mode {
         Mode::Learner => "",

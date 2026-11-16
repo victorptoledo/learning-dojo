@@ -20,6 +20,7 @@ mod lesson_view;
 mod mentor_actions;
 mod placement_flow;
 mod placement_view;
+mod practice_actions;
 mod quiz_session;
 mod review_prompt;
 mod setup;

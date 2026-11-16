@@ -60,6 +60,18 @@ pub struct NodeManifest {
     pub exercise: Option<ExerciseManifest>,
     #[serde(default)]
     pub requirements: Vec<RequirementManifest>,
+    #[serde(default)]
+    pub remedial: Vec<RemedialManifest>,
+}
+
+/// A practice kata attached to a node, laid out like `kata` but under `remedial/<id>/`.
+#[derive(Debug, Deserialize)]
+pub struct RemedialManifest {
+    pub id: String,
+    pub title: String,
+    pub summary: String,
+    pub skills: Vec<String>,
+    pub kata: KataManifest,
 }
 
 #[derive(Debug, Deserialize)]

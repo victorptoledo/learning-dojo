@@ -174,8 +174,41 @@
     },
     "remedial": {
       "type": "array",
+      "description": "Practice katas on the same skills, opened on request with F. They give practice XP and never count towards completion. Lay each one out under `remedial/<id>/`.",
       "items": {
-        "type": "string"
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "summary",
+          "skills",
+          "kata"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "skills": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "kata": {
+            "$ref": "#/properties/kata"
+          }
+        }
       }
     },
     "closes_phase": {

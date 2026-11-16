@@ -10,8 +10,11 @@ use std::thread;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CheckTarget {
     pub track_id: String,
+    /// The node id, or the practice kata id when `practice` is set.
     pub node_id: String,
     pub kata_dir: PathBuf,
+    /// A practice (remedial) kata: passing it gives practice XP, never a completion.
+    pub practice: bool,
 }
 
 pub struct FinishedCheck {

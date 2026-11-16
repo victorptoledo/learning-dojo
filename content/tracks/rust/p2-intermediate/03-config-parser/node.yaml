@@ -54,3 +54,14 @@ requirements:
     id: vadimcn.vscode-lldb
     required: false
     why: Breakpoints and step-by-step debugging of your tests.
+remedial:
+  - id: duration-errors
+    title: "Duration Errors: an Error Enum with Display"
+    summary: "Parse durations such as 90s or 5m and report every failure as a typed error."
+    skills: [rust.option-result]
+    kata:
+      statement: remedial/duration-errors/README.md
+      starter: remedial/duration-errors/starter
+      tests: remedial/duration-errors/tests
+      reference: remedial/duration-errors/reference
+      runner: { image: dojo-rust, timeout_secs: 120 }

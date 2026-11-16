@@ -11,10 +11,13 @@ use std::process::ExitCode;
 pub const FILE_NAME: &str = "dojo.code-workspace";
 
 /// Course files a learner should not see while studying: answers, grading tests and manifests.
-const HIDDEN_COURSE_FILES: [&str; 6] = [
+const HIDDEN_COURSE_FILES: [&str; 9] = [
     "**/kata/reference",
     "**/kata/tests",
     "**/kata/starter",
+    "**/remedial/*/reference",
+    "**/remedial/*/tests",
+    "**/remedial/*/starter",
     "**/quiz.yaml",
     "**/node.yaml",
     "**/track.yaml",
@@ -195,6 +198,10 @@ mod tests {
         );
         assert_eq!(json["folders"][1]["path"], display(&lessons));
         assert_eq!(json["settings"]["files.exclude"]["**/kata/reference"], true);
+        assert_eq!(
+            json["settings"]["files.exclude"]["**/remedial/*/reference"],
+            true
+        );
         assert_eq!(json["settings"]["files.exclude"]["**/quiz.yaml"], true);
         assert_eq!(
             json["settings"]["rust-analyzer.linkedProjects"],

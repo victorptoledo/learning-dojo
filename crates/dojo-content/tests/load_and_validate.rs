@@ -402,6 +402,35 @@ fn repository_content_has_no_errors() {
 }
 
 #[test]
+fn every_rust_kata_has_a_practice_kata_on_its_own_skills() {
+    let content = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../content");
+    let catalog = load(&content).unwrap().catalog;
+    let rust = catalog.track("rust").unwrap();
+
+    for node in rust.nodes().filter(|node| node.kata.is_some()) {
+        assert!(
+            !node.remedial.is_empty(),
+            "{} has no practice kata",
+            node.id
+        );
+        for practice in &node.remedial {
+            assert_eq!(
+                practice.id,
+                format!("{}.practice.{}", node.id, practice.slug)
+            );
+            assert!(practice.kata.starter_dir.is_dir());
+            let own: Vec<&str> = node.skills().collect();
+            assert!(
+                practice
+                    .skills
+                    .iter()
+                    .all(|skill| own.contains(&skill.as_str()))
+            );
+        }
+    }
+}
+
+#[test]
 fn every_rust_node_is_ready_for_learners() {
     let content = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../content");
     let catalog = load(&content).unwrap().catalog;

@@ -2,7 +2,8 @@ use crate::front_matter;
 use crate::manifest::{
     BeltManifest, BridgeFrontMatter, CareerManifest, CareerRequirementManifest, InterviewManifest,
     KataManifest, NodeManifest, ObjectiveManifest, PhaseManifest, PlacementManifest,
-    QuestionManifest, QuizManifest, RequirementManifest, SkillsManifest, TrackManifest,
+    QuestionManifest, QuizManifest, RemedialManifest, RequirementManifest, SkillsManifest,
+    TrackManifest,
 };
 use crate::report::Report;
 use crate::schema::{self, Schemas};
@@ -10,7 +11,8 @@ use anyhow::{Result, bail};
 use dojo_core::{
     Belt, Bridge, Career, CareerRequirement, Catalog, DEFAULT_PASS_PERCENT, EarlyStop, EntryOption,
     Exercise, Kata, Node, Objective, Phase, PhaseRule, PlacementConfig, PlacementItem, Question,
-    QuestionKind, Quiz, Requirement, RequirementKind, RunnerSpec, Skill, SkillId, Stage, Track,
+    QuestionKind, Quiz, Remedial, Requirement, RequirementKind, RunnerSpec, Skill, SkillId, Stage,
+    Track,
 };
 use regex::Regex;
 use serde::de::DeserializeOwned;
@@ -22,6 +24,8 @@ use std::sync::LazyLock;
 
 static NODE_FOLDER: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^\d{2}-([a-z0-9]+(?:-[a-z0-9]+)*)$").expect("valid regex"));
+static REMEDIAL_SLUG: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^[a-z0-9]+(?:-[a-z0-9]+)*$").expect("valid regex"));
 
 #[derive(Clone, Copy)]
 enum FileKind {
@@ -301,13 +305,54 @@ impl ContentReader<'_> {
             .as_ref()
             .and_then(|file| self.load_quiz(&node_dir.join(file)));
         let lesson_file = manifest.lesson.as_ref().map(|file| node_dir.join(file));
+        let remedial = self.load_remedial(node_dir, &manifest_path, &manifest);
         Some(to_node(
             manifest,
             (lesson, lesson_file),
             bridges,
-            kata,
+            (kata, remedial),
             quiz,
         ))
+    }
+
+    /// The node's practice katas. Each one needs a kata of its own, a unique slug, and a
+    /// parent that is itself a kata or a checkpoint (practice is for hands-on work).
+    fn load_remedial(
+        &mut self,
+        node_dir: &Path,
+        manifest_path: &Path,
+        manifest: &NodeManifest,
+    ) -> Vec<Remedial> {
+        if manifest.remedial.is_empty() {
+            return Vec::new();
+        }
+        let location = self.relative(manifest_path);
+        if manifest.kata.is_none() {
+            self.report.error(
+                &location,
+                "`remedial` needs a node with a kata (a kata or a checkpoint)",
+            );
+        }
+        let mut seen = std::collections::BTreeSet::new();
+        let mut remedial = Vec::new();
+        for item in &manifest.remedial {
+            if !REMEDIAL_SLUG.is_match(&item.id) {
+                self.report.error(
+                    &location,
+                    format!("remedial id `{}` must be a lower-case slug", item.id),
+                );
+                continue;
+            }
+            if !seen.insert(item.id.clone()) {
+                self.report
+                    .error(&location, format!("remedial id `{}` is repeated", item.id));
+                continue;
+            }
+            if let Some(kata) = self.load_kata(node_dir, &item.kata) {
+                remedial.push(to_remedial(&manifest.id, item, kata));
+            }
+        }
+        remedial
     }
 
     fn load_quiz(&mut self, path: &Path) -> Option<Quiz> {
@@ -609,7 +654,7 @@ fn to_node(
     manifest: NodeManifest,
     (lesson, lesson_file): (Option<String>, Option<PathBuf>),
     bridges: BTreeMap<String, Bridge>,
-    kata: Option<Kata>,
+    (kata, remedial): (Option<Kata>, Vec<Remedial>),
     quiz: Option<Quiz>,
 ) -> Node {
     let requirements = manifest
@@ -640,6 +685,18 @@ fn to_node(
         quiz,
         exercise,
         requirements,
+        remedial,
+    }
+}
+
+fn to_remedial(node_id: &str, item: &RemedialManifest, kata: Kata) -> Remedial {
+    Remedial {
+        id: format!("{node_id}.practice.{}", item.id),
+        slug: item.id.clone(),
+        title: item.title.clone(),
+        summary: item.summary.clone(),
+        skills: item.skills.clone(),
+        kata,
     }
 }
 

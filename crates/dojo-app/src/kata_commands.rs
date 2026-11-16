@@ -1,7 +1,7 @@
 //! `dojo runner build`, `dojo content verify-katas`: Docker-backed commands outside the TUI.
 
 use anyhow::{Result, anyhow};
-use dojo_core::{KataRunner, Node, Track};
+use dojo_core::{Kata, KataRunner, Track};
 use dojo_runner::{DockerRunner, build_images, stage_reference};
 use std::path::Path;
 use std::process::ExitCode;
@@ -13,8 +13,8 @@ pub fn build_runner_images(images_dir: &Path) -> Result<ExitCode> {
     Ok(ExitCode::SUCCESS)
 }
 
-/// Every kata must fail with its starter and pass with its reference solution.
-/// `only_track` limits the run to one track.
+/// Every kata, and every practice kata attached to a node, must fail with its starter
+/// and pass with its reference solution. `only_track` limits the run to one track.
 pub fn verify_katas(content_dir: &Path, only_track: Option<&str>) -> Result<ExitCode> {
     let catalog = dojo_content::load(content_dir)?.catalog;
     let runner = DockerRunner::default();
@@ -24,13 +24,18 @@ pub fn verify_katas(content_dir: &Path, only_track: Option<&str>) -> Result<Exit
         .iter()
         .filter(|track| only_track.is_none_or(|id| track.id == id));
     let katas = tracks.flat_map(|track| {
-        track
-            .nodes()
-            .filter(|node| node.kata.is_some())
-            .map(move |node| (track, node))
+        track.nodes().flat_map(move |node| {
+            let main = node.kata.iter().map(|kata| (node.id.as_str(), kata));
+            let practice = node
+                .remedial
+                .iter()
+                .map(|remedial| (remedial.id.as_str(), &remedial.kata));
+            main.chain(practice)
+                .map(move |(id, kata)| (track, id, kata))
+        })
     });
-    for (track, node) in katas {
-        problems += verify_kata(&runner, track, node)?;
+    for (track, id, kata) in katas {
+        problems += verify_kata(&runner, track, id, kata)?;
     }
     println!("\n{problems} problems");
     Ok(if problems == 0 {
@@ -40,8 +45,7 @@ pub fn verify_katas(content_dir: &Path, only_track: Option<&str>) -> Result<Exit
     })
 }
 
-fn verify_kata(runner: &DockerRunner, track: &Track, node: &Node) -> Result<usize> {
-    let kata = node.kata.as_ref().expect("filtered to katas");
+fn verify_kata(runner: &DockerRunner, track: &Track, id: &str, kata: &Kata) -> Result<usize> {
     let reference = stage_reference(kata)?;
     let with_reference = runner
         .check(kata, reference.path())
@@ -61,7 +65,7 @@ fn verify_kata(runner: &DockerRunner, track: &Track, node: &Node) -> Result<usiz
             "✗"
         },
         track.id,
-        node.id,
+        id,
         with_reference.summary(),
         with_starter.summary(),
     );

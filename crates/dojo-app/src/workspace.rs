@@ -8,6 +8,8 @@ use std::process::Command;
 
 /// The kata statement, copied into the kata folder so it opens next to the code.
 pub const STATEMENT_FILE: &str = "README.md";
+/// The folder of a track (next to its phases) that holds its practice katas.
+pub const PRACTICE_FOLDER: &str = "practice";
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Prepared {
@@ -42,6 +44,16 @@ impl Workspace {
     /// `<root>/<track>/<phase>/<slug>`, e.g. `rust/p1/control-flow-workout`.
     pub fn kata_dir(&self, track: &Track, phase: &Phase, node: &Node) -> PathBuf {
         self.root.join(relative_kata_path(track, phase, node))
+    }
+
+    /// `<root>/<track>/practice/<phase>-<node slug>-<practice slug>`: practice katas live
+    /// apart from the track's own katas, so their checks never touch the node's folder.
+    pub fn practice_dir(&self, track: &Track, phase: &Phase, node: &Node, slug: &str) -> PathBuf {
+        let node_slug = node.id.rsplit('.').next().unwrap_or(&node.id);
+        self.root
+            .join(&track.id)
+            .join(PRACTICE_FOLDER)
+            .join(format!("{}-{node_slug}-{slug}", phase.id))
     }
 
     /// Copies the starter the first time; never overwrites an existing solution.

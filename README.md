@@ -34,8 +34,9 @@ of your choice.
   Python, JavaScript/TypeScript, C# or Go.
 - **Placement test.** If you already know part of a track, a short adaptive test lets you skip
   ahead. A Belt Exam then confirms the skip.
-- **Mentoring without AI.** Kata hints that cost a little XP, spaced review of past quiz
-  questions, and career paths that recommend your next step.
+- **Mentoring without AI.** Kata hints that cost a little XP, practice katas on the same skills
+  when you want more drill (Rust for now), spaced review of past quiz questions, and career paths
+  that recommend your next step.
 - **Study a topic.** Search every track for a subject that came up at work, open its lessons and
   katas (even in phases you have not reached, as practice) and take a quiz on it.
 - **Mock technical interviews.** 20+ interview questions per track, from junior to senior. You
@@ -146,7 +147,8 @@ To update later, run `git pull` and start the dojo again; it rebuilds itself.
 3. **Solve the kata.** `Enter` on a kata creates its folder with the statement (`README.md`), the
    starter code and a visible test, then opens it. Write the code and save: the tests run by
    themselves and the result appears in the panel. `H` reveals a hint (each one costs 10% of the
-   kata's XP), and `C` re-runs the check.
+   kata's XP), and `C` re-runs the check. When a kata lists practice katas, `F` opens the next one:
+   a short kata on the same skills that gives practice XP and leaves the kata itself unchanged.
 4. **Pass the checkpoint.** At the end of a phase, the quiz and the integration kata together
    unlock the next phase.
 5. **Keep it fresh.** Questions from finished lessons come back after 1, 3, 7, 21 and 60 days:
@@ -240,6 +242,7 @@ The footer of each screen lists its keys. On the track screen:
 | `Q` | Take the quiz of the lesson or checkpoint (practice only in phases you have not reached) |
 | `C` | Check the kata now |
 | `H` | Reveal the next kata hint |
+| `F` | Open the next practice kata of a kata or checkpoint |
 | `A` | Copy an AI review prompt for the kata or the lesson exercise |
 | `R` | Spaced review of due questions |
 | `P` | Placement test (on a track you have not started) |

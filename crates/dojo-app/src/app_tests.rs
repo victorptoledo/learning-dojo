@@ -120,9 +120,10 @@ fn selected_ids(app: &App) -> (String, String) {
     (track.id.clone(), node.id.clone())
 }
 
-/// Opens the Rust track with the cursor on `node_id`.
+/// Opens the node's track (the id's first part) with the cursor on `node_id`.
 fn select(app: &mut App, node_id: &str) {
-    app.selector_cursor = app.catalog.track_index("rust").unwrap();
+    let track_id = node_id.split('.').next().unwrap();
+    app.selector_cursor = app.catalog.track_index(track_id).unwrap();
     app.confirm_selection();
     for _ in 0..200 {
         if selected_ids(app).1 == node_id {
@@ -427,6 +428,100 @@ fn failing_then_passing_check_completes_the_kata_and_commits_it() {
     );
     let key = ("rust".to_string(), "rust.p0.hello-dojo".to_string());
     assert_eq!(h.app.check_history[&key].1, 2);
+}
+
+#[test]
+fn f_opens_a_practice_kata_whose_pass_gives_practice_xp_once() {
+    let mut h = harness(
+        memory_store(),
+        Mode::Learner,
+        FakeRunner::returning(&[
+            CheckOutcome::TestsFailed,
+            CheckOutcome::Passed,
+            CheckOutcome::Passed,
+        ]),
+    );
+    init_repo(h.workspace.path());
+    select(&mut h.app, "rust.p1.control-flow-workout");
+    assert!(screen_text(&h.app).contains("Practice: 0 of 1 passed"));
+
+    h.app.start_practice();
+    let dir = h
+        .workspace
+        .path()
+        .join("rust/practice/p1-control-flow-workout-match-and-borrow");
+    assert!(dir.join("README.md").is_file(), "statement written");
+    assert!(dir.join("src/lib.rs").is_file(), "starter copied");
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("+25 practice XP"),
+        "{:?}",
+        h.app.status_message
+    );
+
+    let practice = "rust.p1.control-flow-workout.practice.match-and-borrow";
+    let save = |h: &mut Harness| {
+        h.app.quiet_kata = None;
+        h.app.on_workspace_change(&dir.join("src/lib.rs"));
+        assert!(h.app.is_checking("rust", practice));
+        let finished = h.app.checks.wait().unwrap();
+        h.app.finish_check(finished);
+    };
+    save(&mut h);
+    assert_eq!(h.app.profile.practice_xp, 0);
+
+    save(&mut h);
+    assert_eq!(h.app.profile.practice_xp, 25);
+    assert!(h.app.profile.practice_done(practice));
+    assert!(
+        !h.app
+            .profile
+            .is_completed("rust", "rust.p1.control-flow-workout"),
+        "practice never completes the node"
+    );
+    assert_eq!(h.app.profile.total_xp, 0);
+    assert!(
+        git(h.workspace.path(), &["log", "-1", "--format=%s"])
+            .starts_with("rust/practice/p1-control-flow-workout-match-and-borrow: passed")
+    );
+    assert!(screen_text(&h.app).contains("Practice: 1 of 1 passed"));
+
+    save(&mut h);
+    assert_eq!(h.app.profile.practice_xp, 25, "practice XP is given once");
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("Already passed")
+    );
+}
+
+#[test]
+fn f_explains_when_there_is_no_practice_kata() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p0.setup");
+    h.app.start_practice();
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("belong to katas")
+    );
+
+    select(&mut h.app, "go.p0.hello-dojo");
+    h.app.start_practice();
+    assert!(
+        h.app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("No practice kata")
+    );
 }
 
 #[test]

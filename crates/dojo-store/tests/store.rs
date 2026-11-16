@@ -40,6 +40,7 @@ fn catalog() -> Catalog {
         quiz: None,
         exercise: None,
         requirements: vec![],
+        remedial: vec![],
     };
     let phase = Phase {
         id: "p0".into(),
@@ -77,7 +78,7 @@ fn new_store_has_no_settings_and_no_events() {
 
     assert!(store.load_settings().unwrap().is_none());
     assert!(store.load_events().unwrap().is_empty());
-    assert_eq!(store.schema_version().unwrap(), 5);
+    assert_eq!(store.schema_version().unwrap(), 6);
 }
 
 #[test]
@@ -313,6 +314,12 @@ fn hint_and_review_events_round_trip() {
             node_id: "rust.p1.collections".into(),
             question_id: "hashmap-entry".into(),
             correct: false,
+            on,
+        },
+        ProgressEvent::PracticeCompleted {
+            track_id: "rust".into(),
+            practice_id: "rust.p1.word-counter.practice.letter-frequency".into(),
+            xp: 25,
             on,
         },
     ];

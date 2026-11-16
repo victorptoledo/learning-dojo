@@ -99,6 +99,14 @@ pub enum ProgressEvent {
         correct: bool,
         on: NaiveDate,
     },
+    /// A practice (remedial) kata passed for the first time. It gives practice XP and
+    /// changes nothing else: no completion, no unlocking, no belt.
+    PracticeCompleted {
+        track_id: String,
+        practice_id: String,
+        xp: u32,
+        on: NaiveDate,
+    },
 }
 
 /// Why a hint cannot be opened.
@@ -173,7 +181,7 @@ pub struct Profile {
     pub total_xp: u32,
     pub best_streak: u32,
     pub last_trained: Option<NaiveDate>,
-    /// XP from spaced reviews; it never counts towards belts.
+    /// XP from spaced reviews and practice katas; it never counts towards belts.
     pub practice_xp: u32,
     current_streak: u32,
     completed: HashMap<String, HashMap<String, Completion>>,
@@ -183,6 +191,8 @@ pub struct Profile {
     hints: HashMap<(String, String), u8>,
     /// Review cards per `(track, node, question)` that were answered at least once.
     cards: HashMap<CardKey, Card>,
+    /// Practice (remedial) katas passed at least once, by id.
+    practice_done: HashSet<String>,
 }
 
 impl Profile {
@@ -200,7 +210,28 @@ impl Profile {
             belt_exams: HashMap::new(),
             hints: HashMap::new(),
             cards: HashMap::new(),
+            practice_done: HashSet::new(),
         }
+    }
+
+    pub fn practice_done(&self, practice_id: &str) -> bool {
+        self.practice_done.contains(practice_id)
+    }
+
+    /// The event for passing practice kata `practice_id`, or `None` when it was already
+    /// passed (practice XP is given once per kata).
+    pub fn complete_practice(
+        &self,
+        track_id: &str,
+        practice_id: &str,
+        on: NaiveDate,
+    ) -> Option<ProgressEvent> {
+        (!self.practice_done(practice_id)).then(|| ProgressEvent::PracticeCompleted {
+            track_id: track_id.to_string(),
+            practice_id: practice_id.to_string(),
+            xp: crate::track::REMEDIAL_XP,
+            on,
+        })
     }
 
     pub fn replay(settings: Settings, events: &[ProgressEvent]) -> Self {
@@ -294,6 +325,17 @@ impl Profile {
                 self.cards.insert(key, card.answered(*correct, *on));
                 if *correct {
                     self.practice_xp += REVIEW_XP;
+                }
+                self.record_training(*on);
+            }
+            ProgressEvent::PracticeCompleted {
+                practice_id,
+                xp,
+                on,
+                ..
+            } => {
+                if self.practice_done.insert(practice_id.clone()) {
+                    self.practice_xp += xp;
                 }
                 self.record_training(*on);
             }
@@ -1046,6 +1088,31 @@ mod tests {
             correct,
             on,
         });
+    }
+
+    #[test]
+    fn a_practice_kata_gives_practice_xp_once_and_completes_nothing() {
+        let mut profile = fresh_profile();
+        let practice = "rust.p0.a.practice.drill";
+
+        let event = profile
+            .complete_practice("rust", practice, day(1))
+            .expect("first pass");
+        profile.apply(&event);
+        assert_eq!(profile.practice_xp, crate::track::REMEDIAL_XP);
+        assert!(profile.practice_done(practice));
+        assert_eq!(profile.total_xp, 0, "practice XP stays apart");
+        assert!(!profile.is_completed("rust", "rust.p0.a"));
+        assert_eq!(profile.streak_on(day(1)), 1, "practice counts as training");
+        assert!(
+            profile
+                .complete_practice("rust", practice, day(2))
+                .is_none()
+        );
+
+        // Replaying a duplicate event (two passes recorded) still gives the XP once.
+        profile.apply(&event);
+        assert_eq!(profile.practice_xp, crate::track::REMEDIAL_XP);
     }
 
     #[test]

@@ -52,3 +52,14 @@ requirements:
     id: vadimcn.vscode-lldb
     required: false
     why: Breakpoints and step-by-step debugging of your tests.
+remedial:
+  - id: letter-frequency
+    title: "Letter Frequency: HashMap, Sorting and Sets"
+    summary: "Count letters with HashMap::entry, sort by count, and collect the distinct words."
+    skills: [rust.collections]
+    kata:
+      statement: remedial/letter-frequency/README.md
+      starter: remedial/letter-frequency/starter
+      tests: remedial/letter-frequency/tests
+      reference: remedial/letter-frequency/reference
+      runner: { image: dojo-rust, timeout_secs: 120 }

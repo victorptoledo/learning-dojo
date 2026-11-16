@@ -63,3 +63,14 @@ requirements:
     id: vadimcn.vscode-lldb
     required: false
     why: Breakpoints and step-by-step debugging of your tests.
+remedial:
+  - id: inventory-ledger
+    title: "Inventory Ledger: Structs, Enums and a HashMap"
+    summary: "Apply stock changes modelled as an enum to a struct that owns a HashMap."
+    skills: [rust.structs-enums, rust.collections, rust.ownership-basics]
+    kata:
+      statement: remedial/inventory-ledger/README.md
+      starter: remedial/inventory-ledger/starter
+      tests: remedial/inventory-ledger/tests
+      reference: remedial/inventory-ledger/reference
+      runner: { image: dojo-rust, timeout_secs: 120 }
