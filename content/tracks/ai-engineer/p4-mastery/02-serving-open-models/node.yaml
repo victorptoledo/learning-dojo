@@ -1,0 +1,24 @@
+id: ai-engineer.p4.serving-open-models
+kind: lesson
+status: draft
+title: "Serving Open-Weight Models: Inference Engines, Quantization and GPUs"
+summary: "When to run open-weight models yourself, what limits inference (GPU memory, the KV cache, memory bandwidth), quantization, batching and paged attention in engines such as vLLM, local runners, OpenAI-compatible servers, and how to size and compare self-hosting with an API."
+objectives:
+  - { id: o1, text: "Decide between hosted APIs and self-hosted open-weight models with reasons of cost, privacy, control and effort", skills: [ai-engineer.serving] }
+  - { id: o2, text: "Estimate GPU memory for weights and KV cache, and explain what quantization trades", skills: [ai-engineer.serving] }
+  - { id: o3, text: "Explain continuous batching, paged attention and speculative decoding, and the throughput versus latency trade-off", skills: [ai-engineer.serving, ai-engineer.cost-latency] }
+prerequisites: [ai-engineer.p4.fine-tuning]
+difficulty: 5
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A hospital wants an assistant that summarises clinical notes, and the notes must not leave its data centre. Propose how to serve a model on its own hardware: model size and precision, the inference engine, a rough GPU memory estimate, how you would test throughput and latency, and what the team must now operate that an API would have handled.'
+  criteria:
+    - 'Chooses an open-weight model sized to the task and the hardware, with a precision (for example 8-bit or 4-bit) and its quality trade-off'
+    - 'Estimates memory: parameters x bytes per parameter for weights, plus KV cache per concurrent request and context length, plus overhead'
+    - 'Picks a serving engine with continuous batching and an OpenAI-compatible API (for example vLLM, SGLang or TGI)'
+    - 'Load-tests with realistic prompt and output lengths, measuring time to first token, tokens per second and concurrency'
+    - 'Lists operations work: GPU capacity, upgrades, security patches, monitoring, model updates and evaluation'

@@ -1,0 +1,52 @@
+id: ai-engineer.p2.eval-harness
+kind: kata
+status: draft
+title: "Eval Harness: Scorers, Judges and a Regression Gate"
+summary: "Run a golden set through a system, score it with exact-match, keyword and LLM-as-judge scorers (against a fake judge), report pass rates per tag, and compare a candidate with a baseline in a gate that blocks regressions."
+objectives:
+  - { id: o1, text: "Write code-based scorers and an LLM-as-judge scorer that parses the judge's structured verdict", skills: [ai-engineer.evaluation, ai-engineer.structured-output] }
+  - { id: o2, text: "Run a golden set with per-scorer thresholds and report pass rates overall and per tag", skills: [ai-engineer.evaluation] }
+  - { id: o3, text: "Compare a candidate with a baseline and gate on tolerance and critical-slice regressions", skills: [ai-engineer.evaluation, python.testing] }
+  - { id: o4, text: "Use closures and first-class functions to build configurable scorers", skills: [python.functions] }
+prerequisites: [ai-engineer.p2.evaluation]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Scorers are just functions `(output, case) -> Score`. `contains_all` and `judge` are **factories**: they take configuration and return such a function. Which values must the inner function remember from the outer call?
+    - |-
+      Normalise for `exact_match` with `" ".join(text.casefold().split()).rstrip(".!?")`, applied to both sides. The judge scorer sends one `Request` and parses `response.text` with `json.loads` inside `try`; a `score` that is not an integer from 1 to 5 is invalid too; the value is `(score - 1) / 4`. In `run_suite`, catch `Exception` around `system(case.input)` so one crash does not stop the run. `compare` works on the ids present in both reports, in the baseline's order.
+    - |-
+      ```python
+      def compare(baseline, candidate, tolerance=0.0, critical_tags=()):
+          before = {r.case_id: r for r in baseline.results}
+          after = {r.case_id: r for r in candidate.results}
+          common = [case_id for case_id in before if case_id in after]
+          regressions = [i for i in common if before[i].passed and not after[i].passed]
+          fixes = [i for i in common if not before[i].passed and after[i].passed]
+          delta = candidate.pass_rate() - baseline.pass_rate()
+          reasons = []
+          if delta < -tolerance:
+              reasons.append(f"pass rate dropped by {-delta:.3f}")
+          critical = [i for i in regressions if set(after[i].tags) & set(critical_tags)]
+          if critical:
+              reasons.append("critical regressions: " + ", ".join(critical))
+          return Comparison(regressions, fixes, delta, not reasons, reasons)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

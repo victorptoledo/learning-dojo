@@ -1,6 +1,16 @@
 namespace: ai-engineer
 skills:
-  - { id: ai-engineer.llm-foundations, title: "Foundation Models, Tokens and Context Windows" }
-  - { id: ai-engineer.embeddings-vector, title: "Embeddings and Vector Databases" }
-  - { id: ai-engineer.rag-architecture, title: "RAG Architecture (Retrieval-Augmented Generation)" }
-  - { id: ai-engineer.agents-tools, title: "AI Agents: Function Calling, ReAct and Tool Use" }
+  - { id: ai-engineer.role, title: "The AI Engineer Role and the Shape of an LLM Feature" }
+  - { id: ai-engineer.llm-foundations, title: "How LLMs Work: Tokens, Context Windows and Sampling" }
+  - { id: ai-engineer.model-apis, title: "Calling Model APIs: Messages, Streaming, Stop Reasons and Errors" }
+  - { id: ai-engineer.structured-output, title: "Structured Output: JSON Schemas, Validation and Repair" }
+  - { id: ai-engineer.embeddings-vector, title: "Embeddings, Similarity and Vector Search" }
+  - { id: ai-engineer.rag-architecture, title: "RAG: Chunking, Retrieval, Reranking and Grounded Answers" }
+  - { id: ai-engineer.agents-tools, title: "Tool Calling and Agents" }
+  - { id: ai-engineer.evaluation, title: "Evaluation: Golden Sets, LLM-as-Judge and Regression Testing" }
+  - { id: ai-engineer.guardrails, title: "Guardrails and Safety: Prompt Injection, PII and Least Privilege" }
+  - { id: ai-engineer.cost-latency, title: "Cost and Latency: Tokens, Caching, Routing, Retries and Rate Limits" }
+  - { id: ai-engineer.observability, title: "Observability for LLM Features: Traces, Metrics and Feedback" }
+  - { id: ai-engineer.fine-tuning, title: "Fine-Tuning Trade-offs: Prompting, RAG, LoRA and Distillation" }
+  - { id: ai-engineer.serving, title: "Serving Open-Weight Models: Inference Engines, Quantization and GPUs" }
+  - { id: ai-engineer.production, title: "AI Features in Production: Model Migrations, Governance and Ownership" }

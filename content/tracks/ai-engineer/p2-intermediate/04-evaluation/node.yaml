@@ -1,0 +1,25 @@
+id: ai-engineer.p2.evaluation
+kind: lesson
+status: draft
+title: "Evaluation: Golden Sets, LLM-as-Judge and Regression Testing"
+summary: "How to know whether an LLM feature works and whether a change made it better: golden sets, code-based metrics, LLM-as-judge with its biases, human review, regression gates in CI, and online evaluation."
+objectives:
+  - { id: o1, text: "Build a golden set from real data, with expected outcomes and tags for slices", skills: [ai-engineer.evaluation] }
+  - { id: o2, text: "Choose code-based metrics, LLM-as-judge or human review for each criterion, and calibrate a judge", skills: [ai-engineer.evaluation] }
+  - { id: o3, text: "Gate changes with regression tests that compare a candidate with a baseline", skills: [ai-engineer.evaluation, python.testing] }
+  - { id: o4, text: "Combine offline evaluation with online signals after launch", skills: [ai-engineer.evaluation, ai-engineer.observability] }
+prerequisites: [ai-engineer.p2.agent-loop]
+difficulty: 3
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team wants to replace the model behind a ticket-triage feature (category, urgency, a one-line summary) with a cheaper one. Describe the evaluation you would run before switching: the data set, the metric for each output, how you would use an LLM judge for the summary and check that it can be trusted, and the rule that decides whether the switch ships.'
+  criteria:
+    - 'Builds the golden set from real tickets with human-checked labels, covering slices (categories, languages, edge cases) and keeping a held-out part'
+    - 'Uses exact metrics for category and urgency (accuracy, per-class recall, confusion) and a judge or rubric for the summary'
+    - 'Calibrates the judge against human ratings and controls bias (rubric, scale, randomised order for pairwise)'
+    - 'Defines a gate: no drop beyond a tolerance overall, no regression on critical slices, compared with the current model on the same set'
+    - 'Plans online monitoring after the switch (user corrections, escalations) and keeps the old model as a fallback'

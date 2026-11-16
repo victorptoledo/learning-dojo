@@ -1,0 +1,57 @@
+id: ai-engineer.p3.resilient-gateway
+kind: kata
+status: draft
+title: "Resilient Gateway: Retries, Rate Limits, Caching and Fallback"
+summary: "A model gateway on a fake clock: full-jitter exponential backoff that honours retry-after, a token bucket for tokens per minute, no retries for request errors, a fallback model, an answer cache keyed by a stable request hash, and cost accounting per route."
+objectives:
+  - { id: o1, text: "Retry transient errors with capped exponential backoff, full jitter and retry-after, and never retry request errors", skills: [ai-engineer.cost-latency, ai-engineer.model-apis] }
+  - { id: o2, text: "Smooth traffic under a tokens-per-minute limit with a token bucket", skills: [ai-engineer.cost-latency] }
+  - { id: o3, text: "Fall back to a second model, cache complete answers by a stable key and account for cost per route", skills: [ai-engineer.cost-latency, ai-engineer.observability] }
+  - { id: o4, text: "Make time and randomness injectable so retry logic is testable", skills: [python.testing, python.protocols] }
+prerequisites: [ai-engineer.p3.cost-latency]
+difficulty: 4
+estimated_minutes: 90
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Nothing in this kata may call `time.sleep` or `random` directly: the clock and the random function are passed in. Start with `backoff_delay` and `TokenBucket`, and test the bucket by hand: a bucket of 100 tokens refilling 10 per second, emptied, needs how long to give 30 tokens?
+    - |-
+      The bucket refills lazily: on every call, add `elapsed * rate` (capped at the capacity) and remember the time. `take` computes the missing tokens divided by the rate, sleeps that long on the clock, refills, then takes. In `complete`, the outer loop is over the routes (primary, then the fallback if there is one) and the inner one over attempts; a `BadRequestError` (not `retryable`) is raised at once, and there is no sleep after the last attempt on a route.
+    - |-
+      ```python
+      for route in routes:
+          for attempt in range(self.max_retries + 1):
+              if self.bucket is not None:
+                  self.bucket.take(estimate_tokens(request))
+              attempts += 1
+              try:
+                  response = route.model.complete(request)
+              except ModelAPIError as error:
+                  if not error.retryable:
+                      raise
+                  last = error
+                  if attempt < self.max_retries:
+                      delay = backoff_delay(attempt, rng=self.rng)
+                      if getattr(error, "retry_after", None) is not None:
+                          delay = max(delay, error.retry_after)
+                      self.clock.sleep(delay)
+                  continue
+              ...  # cost, cache, return
+      raise GatewayError(f"all routes failed: {last}", attempts) from last
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

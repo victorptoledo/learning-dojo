@@ -1,0 +1,57 @@
+id: ai-engineer.p1.structured-extraction
+kind: kata
+status: draft
+title: "Structured Extraction: Find, Validate, Repair"
+summary: "Pull a JSON object out of a chatty model reply, validate it against a small JSON Schema subset with clear error paths, and run a bounded repair loop that sends the errors back to a fake model."
+objectives:
+  - { id: o1, text: "Extract a JSON object from prose, code fences or a bare reply, respecting strings when matching braces", skills: [ai-engineer.structured-output] }
+  - { id: o2, text: "Validate data against types, enums, ranges, required and unexpected properties, with error paths", skills: [ai-engineer.structured-output, python.modern-typing-pydantic] }
+  - { id: o3, text: "Repair invalid output by feeding validation errors back to the model, with an attempt limit, treating truncation and refusals correctly", skills: [ai-engineer.structured-output, ai-engineer.model-apis] }
+prerequisites: [ai-engineer.p1.structured-output]
+difficulty: 3
+estimated_minutes: 75
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      `find_json` tries three strategies in order. Which one needs care with a `}` that appears **inside a string** such as `"note": "use {braces}"`? And how do you know where a JSON string ends when it contains `\"`?
+    - |-
+      `json.JSONDecoder().raw_decode(text, index)` parses one JSON value starting at `index` and tells you where it ended, so scanning for each `{` and trying `raw_decode` there finds the first balanced object without writing a brace counter. For the fence, a regex like `` r"```(?:json)?\s*\n(.*?)```" `` with `re.DOTALL`. `validate` is recursive: check the type first (and stop there if it fails), then `enum`, `minimum`/`maximum`, then for objects `required`, unexpected keys and each property, and for arrays each item with `f"{path}[{i}]"`. Remember `isinstance(True, int)` is `True`.
+    - |-
+      ```python
+      def extract(model, text, schema, max_attempts=3):
+          messages = [Message("user", text)]
+          problems: list[str] = []
+          for attempt in range(1, max_attempts + 1):
+              response = model.complete(Request(tuple(messages), system=system_prompt(schema)))
+              if response.stop_reason == REFUSAL:
+                  raise ExtractionError("the model refused", [], attempt)
+              if response.stop_reason == MAX_TOKENS:
+                  problems = ["the reply was cut off (max_tokens)"]
+              else:
+                  try:
+                      data = find_json(response.text)
+                  except ExtractionError:
+                      problems = ["no JSON object found"]
+                  else:
+                      problems = validate(data, schema)
+                      if not problems:
+                          return data
+              messages += [Message("assistant", response.text), Message("user", repair_message(problems))]
+          raise ExtractionError(...)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

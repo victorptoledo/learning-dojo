@@ -1,0 +1,25 @@
+id: ai-engineer.p4.ai-in-production
+kind: lesson
+status: draft
+title: "AI Features in Production: Model Migrations, Governance and Ownership"
+summary: "Owning LLM features over years: versioning prompts and configs, model upgrades and deprecations as migrations, safe rollouts with shadow traffic and A/B tests, incident response, governance and regulation (the EU AI Act, NIST AI RMF), documentation, and how an AI engineering team works."
+objectives:
+  - { id: o1, text: "Treat prompts, model ids and retrieval settings as versioned, reviewed configuration", skills: [ai-engineer.production] }
+  - { id: o2, text: "Run a model upgrade or provider switch as a migration with evals, shadow traffic, staged rollout and rollback", skills: [ai-engineer.production, ai-engineer.evaluation] }
+  - { id: o3, text: "Prepare for incidents specific to AI features and write their runbooks", skills: [ai-engineer.production, ai-engineer.observability] }
+  - { id: o4, text: "Explain the governance duties of an AI feature: risk classification, transparency, documentation and human oversight", skills: [ai-engineer.production, ai-engineer.guardrails] }
+prerequisites: [ai-engineer.p4.serving-open-models]
+difficulty: 5
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your provider announces that the model behind your three AI features will be retired in four months. Write the migration plan: how you choose the replacement, how you test it for each feature, how you roll it out and roll back, what you tell stakeholders, and what you change so the next migration is easier.'
+  criteria:
+    - 'Shortlists replacements and runs every feature''s golden set and safety set on them, comparing quality per slice, cost and latency'
+    - 'Adapts prompts per feature where the new model behaves differently, as reviewed, versioned changes'
+    - 'Rolls out gradually (shadow traffic or a small percentage, then more) with monitoring and a tested rollback path before the deadline'
+    - 'Communicates timelines and risks to stakeholders and support teams'
+    - 'Improves for next time: model ids in configuration, a provider-neutral client, evals in CI, a calendar of deprecations'

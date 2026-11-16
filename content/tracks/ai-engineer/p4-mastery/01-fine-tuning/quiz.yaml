@@ -1,0 +1,43 @@
+questions:
+  - id: facts
+    prompt: "A model must answer from policies that change every month. Is fine-tuning a good fit?"
+    options: ["Yes, re-tune monthly", "No: use RAG; fine-tuning teaches facts poorly and makes them hard to update and cite", "Yes, facts are what fine-tuning is for"]
+    answer: 1
+    explanation: "Fine-tune for behaviour; retrieve for knowledge."
+  - id: distillation
+    prompt: "What is distillation?"
+    options:
+      - "Compressing a prompt"
+      - "Training a small student model on outputs of a large teacher model for a narrow task"
+      - "Removing layers from a model"
+    answer: 1
+    explanation: "The student learns to imitate the teacher on that task at a fraction of the cost."
+  - id: lora
+    prompt: "What does LoRA train?"
+    options: ["All the weights of the model", "Small low-rank matrices added to frozen layers", "Only the tokenizer"]
+    answer: 1
+    explanation: "The base stays frozen; the trained adapter is small and can be swapped."
+  - id: qlora
+    prompt: "What does QLoRA add to LoRA?"
+    answers: ["a quantized 4-bit frozen base model", "4-bit quantization of the base", "quantization"]
+    explanation: "Keeping the frozen base in 4-bit precision cuts the memory needed for training."
+  - id: dpo
+    prompt: "What kind of data does DPO learn from?"
+    options: ["Pairs of a preferred and a rejected answer for the same input", "Unlabelled documents", "Only correct answers"]
+    answer: 0
+    explanation: "Direct preference optimisation learns from preference pairs without a separate reward model."
+  - id: data-quality
+    prompt: "Which training set is likely to give the better fine-tune for a narrow task?"
+    options: ["800 clean, consistent, representative examples", "50,000 noisy examples scraped quickly", "10 perfect examples"]
+    answer: 0
+    explanation: "Consistent, representative labels matter more than raw volume."
+  - id: lock-in
+    prompt: "A much better base model is released. What happens to your fine-tuned model?"
+    options: ["It improves automatically", "Nothing: you must re-tune on the new base and re-evaluate to benefit", "It stops working"]
+    answer: 1
+    explanation: "Tuned models are tied to their base; prompts move over far more easily."
+  - id: regressions
+    prompt: "Besides the target task, what should the evaluation of a tuned model include?"
+    options: ["Nothing else", "General and safety cases, because tuning can degrade other behaviour", "Only latency"]
+    answer: 1
+    explanation: "Fine-tuning can cause regressions outside the task, including weaker safety behaviour."

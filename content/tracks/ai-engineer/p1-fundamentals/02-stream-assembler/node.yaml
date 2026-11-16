@@ -1,0 +1,59 @@
+id: ai-engineer.p1.stream-assembler
+kind: kata
+status: draft
+title: "Stream Assembler: Server-Sent Events to a Response"
+summary: "Parse a server-sent events stream from a model API, assemble text and tool-call blocks (with arguments that arrive as partial JSON), read the stop reason and usage, show text as it arrives, and fail clearly on errors mid-stream."
+objectives:
+  - { id: o1, text: "Parse server-sent events: data lines, comments, blank-line dispatch and incomplete events", skills: [ai-engineer.model-apis] }
+  - { id: o2, text: "Assemble streamed content blocks, tool-call arguments, the stop reason and usage into one response", skills: [ai-engineer.model-apis, ai-engineer.agents-tools] }
+  - { id: o3, text: "Write lazy generators that pass text on as it arrives and raise clear errors mid-stream", skills: [python.generators-memory, python.errors] }
+prerequisites: [ai-engineer.p1.model-apis]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Do `parse_sse` first and make it a generator: collect `data` values in a list and yield only when you meet an empty line. What should happen to the lines you have collected when the input ends without that empty line?
+    - |-
+      In `assemble`, keep a dict from block index to what you know about the block: its kind, and a list of text or JSON pieces. `"".join` the pieces at the end; for a tool call, `json.loads` the joined string (an empty string means `{}`) and check that it is a dict. Remember the input tokens from `message_start`; `message_stop` gives the stop reason and output tokens. If the loop ends without `message_stop`, raise `StreamError`. For `stream_text`, write an inner generator that yields every event to `assemble` and calls `on_text` on the way.
+    - |-
+      ```python
+      def parse_sse(lines):
+          data: list[str] = []
+          for raw in lines:
+              line = raw.rstrip("\r\n")
+              if line == "":
+                  if data:
+                      yield _decode("\n".join(data))
+                      data = []
+              elif line.startswith(":"):
+                  continue
+              elif line.startswith("data:"):
+                  value = line[len("data:"):]
+                  data.append(value[1:] if value.startswith(" ") else value)
+              # other fields (event:, id:, retry:) are ignored
+
+      def stream_text(events, on_text):
+          def tap():
+              for event in events:
+                  if event.get("type") == "text_delta":
+                      on_text(event["text"])
+                  yield event
+          return assemble(tap())
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

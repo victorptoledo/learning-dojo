@@ -1,0 +1,52 @@
+id: ai-engineer.p3.guardrail-filter
+kind: kata
+status: draft
+title: "Guardrail Filter: PII, Injections, Tool Policy and Output Checks"
+summary: "Redact emails, phone numbers and Luhn-valid card numbers with reversible placeholders, flag prompt-injection signs in untrusted content and wrap it safely, decide allow, confirm or deny for tool calls, and catch links and images to untrusted domains in model output."
+objectives:
+  - { id: o1, text: "Redact and restore personal data with validated detections and stable placeholders", skills: [ai-engineer.guardrails] }
+  - { id: o2, text: "Detect signs of prompt injection and hidden text, and delimit untrusted content so it cannot break out", skills: [ai-engineer.guardrails, ai-engineer.rag-architecture] }
+  - { id: o3, text: "Enforce least privilege on tool calls: ownership, limits and confirmation of side effects", skills: [ai-engineer.guardrails, ai-engineer.agents-tools] }
+  - { id: o4, text: "Check model output for exfiltration through links and images", skills: [ai-engineer.guardrails] }
+  - { id: o5, text: "Use regular expressions and small value types for text processing", skills: [python.data-model, python.classes] }
+prerequisites: [ai-engineer.p3.guardrails-safety]
+difficulty: 4
+estimated_minutes: 90
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Do `luhn_valid` first, then `redact` one kind at a time: cards, then emails, then phones. Why does the order matter, and what should happen to a 16-digit order number that fails the Luhn check?
+    - |-
+      `re.sub` accepts a function as the replacement: it receives the match and returns the text to put instead, so it can return the match unchanged for an invalid card. Keep a dict per kind from value to placeholder, so the same email gets the same `<EMAIL_1>` twice. For domains, `urllib.parse.urlsplit(url).hostname` gives the host; a host is allowed when it equals an allowed domain or ends with `"." + domain`.
+    - |-
+      ```python
+      def decide(self, call, session):
+          rule = self.rules.get(call.name)
+          if rule is None:
+              return Decision("deny", f"tool '{call.name}' is not allowed")
+          if rule.owner_argument and call.arguments.get(rule.owner_argument) != session.user_id:
+              return Decision("deny", "not the session user's data")
+          for argument, limit in rule.limits.items():
+              value = call.arguments.get(argument)
+              if value is not None and value > limit:
+                  return Decision("deny", f"{argument} {value} exceeds the limit {limit}")
+          if rule.side_effect:
+              ...
+          return Decision("allow")
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

@@ -1,0 +1,54 @@
+questions:
+  - id: what-is
+    prompt: "What does an embedding model return for a sentence?"
+    options:
+      - "A generated answer"
+      - "A fixed-length vector of numbers that represents its meaning"
+      - "A list of keywords"
+    answer: 1
+    explanation: "Embeddings are vectors; nearby vectors mean similar texts."
+  - id: normalised
+    prompt: "All vectors are normalised to length 1. Which operation equals cosine similarity?"
+    answers: ["dot product", "the dot product", "inner product", "a·b"]
+    explanation: "cos = a·b / (|a||b|), and with unit vectors the denominator is 1."
+  - id: same-model
+    prompt: "You switch to a better embedding model. What must you do with the stored document vectors?"
+    options:
+      - "Nothing, vectors are universal"
+      - "Re-embed every document with the new model"
+      - "Multiply them by a conversion factor"
+    answer: 1
+    explanation: "Vectors from different models live in different spaces; queries and documents must use the same model."
+  - id: ann
+    prompt: "What does an HNSW index trade to answer queries quickly?"
+    options:
+      - "It may miss a few true nearest neighbours (recall below 100%)"
+      - "It only works for keyword search"
+      - "It cannot store metadata"
+    answer: 0
+    explanation: "Approximate indexes trade a little recall for much lower query time; ef_search tunes the trade."
+  - id: hybrid
+    prompt: "Users search for the error code 'E4012' and vector search returns unrelated articles. What helps most?"
+    options:
+      - "A bigger embedding dimension"
+      - "Hybrid search: add BM25 keyword results and fuse the rankings"
+      - "Lower the temperature"
+    answer: 1
+    explanation: "Keyword search excels at exact tokens; RRF merges both lists by rank."
+  - id: rrf
+    prompt: "A document is ranked 1st by keyword search and 3rd by vector search. With RRF and k = 60, what is its fused score?"
+    options: ["1/61 + 1/63", "1 + 3", "1/1 + 1/3", "(1 + 3) / 60"]
+    answer: 0
+    explanation: "RRF adds 1 / (k + rank) for each list where the document appears."
+  - id: tenant
+    prompt: "In a multi-tenant RAG app, why is filtering by tenant at query time essential?"
+    options:
+      - "It makes search faster only"
+      - "Without it, one customer's documents could be retrieved into another customer's prompt"
+      - "Vector databases require it"
+    answer: 1
+    explanation: "Metadata filters (or separate collections) are an access-control boundary."
+  - id: recall
+    prompt: "Which metric tells you what fraction of the relevant documents appear in the top 5 results?"
+    answers: ["recall@5", "recall at 5", "recall@k", "recall"]
+    explanation: "recall@k counts the relevant documents found in the first k results."

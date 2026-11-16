@@ -1,0 +1,57 @@
+id: ai-engineer.p0.context-budget
+kind: kata
+status: draft
+title: "Context Budget: Fit the History, Price the Call"
+summary: "Count tokens with a given tokenizer, keep the newest messages that fit a context window with room for the answer, and price a request and a whole conversation that resends its history."
+objectives:
+  - { id: o1, text: "Fit a conversation into a context window, keeping the newest turns and reserving room for the answer", skills: [ai-engineer.llm-foundations] }
+  - { id: o2, text: "Compute the price of a request from input and output tokens, and show how resending history makes long chats expensive", skills: [ai-engineer.llm-foundations, ai-engineer.cost-latency] }
+  - { id: o3, text: "Use dataclasses, Decimal and custom exceptions for a small, typed module", skills: [python.classes, python.errors] }
+prerequisites: [ai-engineer.p0.how-llms-work]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Write `message_tokens` and `request_tokens` first: everything else uses them. For `fit_history`, which end of the list should you walk from, and when should you stop instead of skipping a message that does not fit?
+    - |-
+      Compute what is left after the system prompt and the reserve: `window - reserve - (count_tokens(system) + MESSAGE_OVERHEAD)`. Walk `reversed(messages)`, adding `message_tokens` while the total stays within that budget, and stop at the first message that does not fit. If nothing fits, raise `ContextOverflowError`. Reverse the kept list, then drop leading assistant messages. For money, multiply with `Decimal`, divide by one million and `quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)`.
+    - |-
+      ```python
+      def fit_history(system, messages, window, reserve):
+          if reserve < 0 or reserve >= window:
+              raise ValueError("reserve must be between 0 and the window")
+          if not messages:
+              return []
+          budget = window - reserve - (count_tokens(system) + MESSAGE_OVERHEAD)
+          kept: list[Message] = []
+          used = 0
+          for message in reversed(messages):
+              cost = message_tokens(message)
+              if used + cost > budget:
+                  break
+              kept.append(message)
+              used += cost
+          if not kept:
+              needed = message_tokens(messages[-1])
+              raise ContextOverflowError(needed, max(budget, 0))
+          kept.reverse()
+          # drop assistant messages at the start, then return
+          ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

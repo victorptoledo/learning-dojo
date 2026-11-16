@@ -1,0 +1,58 @@
+questions:
+  - id: why-rag
+    prompt: "Why is RAG usually preferred over fine-tuning to teach a model about your company's documents?"
+    options:
+      - "It updates as soon as the documents change, shows sources, and costs far less"
+      - "Fine-tuning cannot change a model's behaviour"
+      - "RAG makes the model larger"
+    answer: 0
+    explanation: "Retrieval brings current facts at request time; fine-tuning is better for style and behaviour than for changing facts."
+  - id: chunk-context
+    prompt: "Which cheap ingestion change often improves retrieval most?"
+    options:
+      - "Raising the model's temperature"
+      - "Prefixing each chunk with its document title and section path"
+      - "Removing all metadata"
+    answer: 1
+    explanation: "A chunk out of context ('the limit is 40 EUR') is ambiguous; the heading path restores meaning for both embeddings and the model."
+  - id: reranker
+    prompt: "What does a cross-encoder reranker do?"
+    options:
+      - "Embeds documents faster"
+      - "Reads the question and each candidate passage together and reorders the candidates more precisely"
+      - "Generates the final answer"
+    answer: 1
+    explanation: "Retrieve broadly with embeddings and BM25, then rerank the top candidates with a slower, more accurate model."
+  - id: permissions
+    prompt: "Some documents are for managers only. Where must that rule be enforced?"
+    options:
+      - "In the system prompt: 'do not reveal manager documents'"
+      - "In retrieval, with a metadata filter, so those chunks never reach the prompt"
+      - "In the user interface"
+    answer: 1
+    explanation: "Anything in the prompt can leak; access control belongs in the search, before the model."
+  - id: citations
+    prompt: "The model cites [4] but you sent only sources [1] to [3]. What should your code do?"
+    options:
+      - "Trust the model"
+      - "Treat the citation as invalid: flag or retry the answer, and never show a link to a source that was not sent"
+      - "Search the web for source 4"
+    answer: 1
+    explanation: "Citations are checked in code against the sources actually provided."
+  - id: diagnose
+    prompt: "Users get 'I could not find it' for documented facts. Where do you look first?"
+    options: ["The generation prompt's tone", "Retrieval: is the right chunk in the top k at all?", "The model's temperature"]
+    answer: 1
+    explanation: "Measure recall@k on labelled questions; if the chunk never comes back, no prompt change helps."
+  - id: structured-data
+    prompt: "Users ask 'How many orders did customer 42 place last month?'. What fits better than embedding order rows?"
+    answers: ["a tool or SQL query against the database", "tool calling", "a database query", "text-to-sql", "sql"]
+    explanation: "Structured, exact data is better served by a tool or a generated query than by similarity search."
+  - id: lost-middle
+    prompt: "You can fit 30 passages in the context. Why might 6 well-chosen ones give better answers?"
+    options:
+      - "Models use information in long, noisy contexts less reliably, and every token costs time and money"
+      - "Models cannot read more than 6 passages"
+      - "Fewer passages always mean more citations"
+    answer: 0
+    explanation: "More context is not free: relevance beats volume, and reranking helps pick the few that matter."

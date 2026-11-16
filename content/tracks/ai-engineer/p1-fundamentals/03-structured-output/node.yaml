@@ -1,0 +1,24 @@
+id: ai-engineer.p1.structured-output
+kind: lesson
+status: draft
+title: "Structured Output: JSON Schemas, Validation and Repair"
+summary: "Getting data, not prose, out of a model: JSON in the prompt, JSON mode, schema-constrained decoding, tool-based extraction, then parsing, validating and repairing what comes back."
+objectives:
+  - { id: o1, text: "Choose between prompting for JSON, JSON mode, schema-constrained output and tool-based extraction", skills: [ai-engineer.structured-output] }
+  - { id: o2, text: "Write a JSON Schema for an extraction and validate model output against it", skills: [ai-engineer.structured-output, python.modern-typing-pydantic] }
+  - { id: o3, text: "Recover from invalid output with a bounded repair loop that feeds the errors back to the model", skills: [ai-engineer.structured-output] }
+prerequisites: [ai-engineer.p1.stream-assembler]
+difficulty: 3
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You extract invoices (supplier, date, currency, line items with quantity and unit price, total) from emailed PDFs that were converted to text. Write the JSON Schema, explain which output mechanism you would use and why, list three things that can still be wrong even when the JSON validates, and describe how your code checks or repairs each.'
+  criteria:
+    - 'The schema has types, required fields, an enum or pattern for currency and a date format, and no extra properties'
+    - 'Chooses schema-constrained output or tool-based extraction when available and explains the fallback (validate and retry)'
+    - 'Names semantic errors a schema cannot catch: totals that do not add up, a wrong date, an invented supplier'
+    - 'Checks them in code (recompute the total, compare with the source text) and bounds retries'
+    - 'Allows null or a "not found" value instead of forcing the model to invent data'

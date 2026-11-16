@@ -1,0 +1,26 @@
+id: ai-engineer.p2.agents-tools
+legacy_id: ai-04-agents-tools
+kind: lesson
+status: draft
+title: "Tool Calling and Agents"
+summary: "How tool calling works (definitions, calls, results, parallel calls), the agent loop and its stopping rules, workflows versus agents, designing tools models use well, MCP, and keeping agents safe and affordable."
+objectives:
+  - { id: o1, text: "Define tools with schemas and run the call, execute, return-result cycle, including errors and parallel calls", skills: [ai-engineer.agents-tools] }
+  - { id: o2, text: "Write an agent loop with step limits, budgets and stopping rules", skills: [ai-engineer.agents-tools] }
+  - { id: o3, text: "Choose between a fixed workflow and an autonomous agent, and design tools that models use well", skills: [ai-engineer.agents-tools] }
+  - { id: o4, text: "Explain MCP and the risks of giving tools to a model", skills: [ai-engineer.agents-tools, ai-engineer.guardrails] }
+prerequisites: [ai-engineer.p2.rag-architecture]
+difficulty: 3
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the tools for an assistant that helps customers of an online shop track orders, change delivery addresses and request returns. For each tool give its name, description and parameters, say which ones need a confirmation from the customer or a human, and describe the loop: how it stops, what happens when a tool fails, and what limits you put on it.'
+  criteria:
+    - 'Tools are few, specific and well described (for example get_order, list_orders, change_address, request_return) with typed, validated parameters'
+    - 'Read-only tools run freely; tools with side effects require confirmation or are limited (only the customer''s own orders, before shipping)'
+    - 'Authorisation comes from the session, not from arguments the model supplies (the customer id is not a model parameter)'
+    - 'Tool errors are returned to the model as error results it can react to, not raised to the user'
+    - 'The loop has a step limit and a token or cost budget, and stops on a final answer'

@@ -1,0 +1,55 @@
+questions:
+  - id: who-runs
+    prompt: "In tool calling, who executes the tool?"
+    options: ["The model provider", "Your code, after the model proposes the call", "The model itself"]
+    answer: 1
+    explanation: "The model returns a call with arguments; your code validates, runs it and sends the result back."
+  - id: error-result
+    prompt: "A tool call asks for an order that does not exist. What should your code do?"
+    options:
+      - "Raise an exception and end the conversation"
+      - "Return a tool result marked as an error, with a message saying what went wrong and how to fix it"
+      - "Silently return an empty result"
+    answer: 1
+    explanation: "Error results let the model correct itself or tell the user."
+  - id: parallel
+    prompt: "A response contains three tool calls. How do you send the results back?"
+    options:
+      - "One result per request, three requests"
+      - "All three results together in the next message, each with its call id"
+      - "Only the first result"
+    answer: 1
+    explanation: "Parallel calls are answered together; the call ids match results to calls."
+  - id: step-limit
+    prompt: "Why must an agent loop have a step limit?"
+    options:
+      - "Models cannot make more than ten calls"
+      - "A confused model can loop forever, and every step resends a growing context, so cost and time explode"
+      - "APIs reject long conversations"
+    answer: 1
+    explanation: "Limits on steps, tokens and time turn a runaway loop into a graceful stop."
+  - id: workflow
+    prompt: "A support process always classifies the ticket, fetches the order, then drafts a reply. What fits best?"
+    options: ["An autonomous agent with all tools", "A fixed workflow of three steps", "A multi-agent system"]
+    answer: 1
+    explanation: "Known steps belong in code: cheaper, faster and easier to test."
+  - id: authz
+    prompt: "A tool cancel_order(customer_id, order_id) is exposed to the model. What is wrong?"
+    options:
+      - "Nothing"
+      - "The customer id should come from the authenticated session, not from the model's arguments"
+      - "Tools cannot have two parameters"
+    answer: 1
+    explanation: "Arguments can be influenced by users and injected text; authorisation must not depend on them."
+  - id: mcp
+    prompt: "What does the Model Context Protocol standardise?"
+    answers: ["how applications expose tools resources and prompts to AI clients", "tool servers", "a standard interface for tools", "connecting tools to models"]
+    explanation: "MCP is a client-server protocol for tools, resources and prompts, so one server works with many AI applications."
+  - id: tool-results
+    prompt: "A search tool returns 200 full records of 2 KB each. What is the main problem?"
+    options:
+      - "None, more context is better"
+      - "It floods the context: slow, expensive and harder for the model; return compact fields and paginate"
+      - "Tools must return plain text only"
+    answer: 1
+    explanation: "Tool results are tokens in the next request; keep them focused."

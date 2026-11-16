@@ -1,0 +1,50 @@
+questions:
+  - id: json-mode
+    prompt: "What does plain JSON mode guarantee?"
+    options:
+      - "Output that matches your schema"
+      - "Syntactically valid JSON, but not any particular shape"
+      - "Correct values"
+    answer: 1
+    explanation: "JSON mode only guarantees parseable JSON; schema-constrained output adds the shape."
+  - id: constrained
+    prompt: "How does schema-constrained decoding prevent invalid output?"
+    options:
+      - "It retries until the output validates"
+      - "At each step it only allows tokens that keep the output valid against the schema"
+      - "It asks a second model to fix the JSON"
+    answer: 1
+    explanation: "Tokens that would break the schema are masked out during generation."
+  - id: nullable
+    prompt: "An email may or may not contain an order number. How should the schema field look?"
+    options:
+      - "Required, type string"
+      - "Required, type string or null, with a description saying null when absent"
+      - "Omit the field from the schema"
+    answer: 1
+    explanation: "If the field must be a string, the model will invent one; null gives it an honest way out."
+  - id: fence
+    prompt: "A reply contains prose and then a ```json fenced block. What should a robust parser do?"
+    options:
+      - "Fail, because the whole text is not JSON"
+      - "Extract and parse the content of the fenced block, then validate it"
+      - "Remove every non-ASCII character"
+    answer: 1
+    explanation: "Try the whole text, then a fenced block, then the first balanced object."
+  - id: repair
+    prompt: "What should the second attempt of a repair loop send?"
+    options:
+      - "The identical original request"
+      - "The history plus the invalid reply and a message listing the validation errors"
+      - "A request with temperature 2"
+    answer: 1
+    explanation: "Feeding back the specific errors lets the model correct them."
+  - id: semantic
+    prompt: "The extracted invoice JSON validates, but the total differs from the sum of the lines. Which check catches it?"
+    options: ["The JSON Schema", "A semantic check in code that recomputes the total", "JSON mode"]
+    answer: 1
+    explanation: "Schemas check shape; business rules are checked in code."
+  - id: field-order
+    prompt: "Why put a short 'reasoning' field before the 'decision' field in a schema?"
+    answers: ["the model generates fields in order so it reasons before deciding", "it thinks first", "generation is sequential"]
+    explanation: "Output is produced left to right, so earlier fields can inform later ones."

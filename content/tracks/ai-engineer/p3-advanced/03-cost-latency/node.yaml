@@ -1,0 +1,25 @@
+id: ai-engineer.p3.cost-latency
+kind: lesson
+status: draft
+title: "Cost and Latency: Tokens, Caching, Routing, Retries and Rate Limits"
+summary: "Where the money and the waiting go in an LLM feature, and the levers in order: fewer tokens, prompt caching, the right model per task, batching, streaming and parallelism, plus retries with backoff and jitter, rate limits, timeouts and fallbacks."
+objectives:
+  - { id: o1, text: "Estimate the cost of a feature from token counts and traffic, and find the biggest cost drivers", skills: [ai-engineer.cost-latency] }
+  - { id: o2, text: "Apply the levers: trimming context, prompt caching, model routing, batch APIs, effort and output limits", skills: [ai-engineer.cost-latency] }
+  - { id: o3, text: "Reduce perceived and real latency with streaming, parallel calls and smaller models", skills: [ai-engineer.cost-latency, python.asyncio-gil] }
+  - { id: o4, text: "Handle rate limits and failures with backoff, jitter, retry-after, token buckets, timeouts and fallbacks", skills: [ai-engineer.cost-latency, ai-engineer.model-apis] }
+prerequisites: [ai-engineer.p3.guardrail-filter]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A RAG chatbot serves 50,000 questions a day. Each request has a 2,000-token system prompt, 3,000 tokens of retrieved passages, 300 tokens of history and question, and a 400-token answer, on a model priced at 3 USD per million input tokens and 15 USD per million output tokens. Compute the daily cost, then propose three changes that cut it substantially without hurting quality, estimate each saving, and say how you would check quality did not drop.'
+  criteria:
+    - 'Computes the baseline: 5,300 input tokens x 50,000 = 265M input (795 USD) and 400 x 50,000 = 20M output (300 USD), about 1,095 USD per day'
+    - 'Uses prompt caching for the stable system prompt and estimates the saving on those 2,000 tokens'
+    - 'Reduces retrieved context (fewer, reranked passages) or routes easy questions to a cheaper model, with an estimate'
+    - 'Mentions output limits, caching of identical answers, or batch processing where latency allows'
+    - 'Checks quality with the golden set and online signals before and after each change'

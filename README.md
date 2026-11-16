@@ -50,6 +50,7 @@ of your choice.
 16 tracks are complete, with 378 lessons and checkpoints and 132 katas between them:
 16 tracks are complete, with 376 lessons and checkpoints and 133 katas between them:
 16 tracks are complete, with 377 lessons and checkpoints and 133 katas between them:
+16 tracks are complete, with 377 lessons and checkpoints and 134 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
@@ -89,6 +90,11 @@ Node.js, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
 Frontend, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
+| AI Engineer | LLM features: APIs, RAG, tools, evals, guardrails | 24 | 10 | `dojo-python` (pytest against a fake, offline model) |
+
+Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
+languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
+Frontend, Full Stack, DevOps & Cloud, Data Engineer, Cyber Security, React, Modern C++,
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 
 ## Requirements
