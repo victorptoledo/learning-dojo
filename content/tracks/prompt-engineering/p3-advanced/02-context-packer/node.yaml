@@ -1,0 +1,49 @@
+id: prompt-engineering.p3.context-packer
+kind: kata
+status: draft
+title: "Context Packer: Documents in a Token Budget"
+summary: "Pack ranked documents into a long-context prompt: labelled and escaped documents first, the question last, whole documents while they fit, one marked truncation, a record of what was left out, and a check that quotes really occur in the documents."
+objectives:
+  - { id: o1, text: "Render a long-context prompt with labelled, escaped documents first and the question last", skills: [prompt-engineering.long-context] }
+  - { id: o2, text: "Fit documents into a token budget by relevance with a marked truncation", skills: [prompt-engineering.long-context, prompt-engineering.how-models-read] }
+  - { id: o3, text: "Check that quoted passages really occur in the documents", skills: [prompt-engineering.long-context] }
+prerequisites: [prompt-engineering.p3.long-context]
+difficulty: 4
+estimated_minutes: 70
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Write `render_prompt` first and make it match the README character for character; `pack` then only decides which `(document, text)` pairs to pass to it. How do you know whether one more document fits? Render the prompt with it and estimate the whole thing.
+    - |-
+      Sort with `key=lambda d: (-d.score, d.id)`. Keep a list of included `(doc, text)` pairs. For the first document that does not fit whole, look for the largest `k` such that the prompt with `" ".join(words[:k]) + " [truncated]"` still fits: a binary search between `0` and `len(words)` works because adding words never makes the prompt shorter. After that document, every remaining one is omitted.
+    - |-
+      ```python
+      def _fits(parts, question, instructions, budget):
+          return estimate_tokens(render_prompt(parts, question, instructions)) <= budget
+
+      low, high = 0, len(words)          # the largest k that fits is in [low, high]
+      while low < high:
+          middle = (low + high + 1) // 2
+          cut = " ".join(words[:middle]) + " [truncated]"
+          if _fits(parts + [(document, cut)], question, instructions, budget_tokens):
+              low = middle
+          else:
+              high = middle - 1
+      # low is the number of words to keep; check it against min_words
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

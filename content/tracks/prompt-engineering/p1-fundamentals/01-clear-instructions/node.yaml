@@ -1,0 +1,24 @@
+id: prompt-engineering.p1.clear-instructions
+kind: lesson
+status: draft
+title: "Clear Instructions and Context"
+summary: "Writing instructions a smart newcomer could follow: success criteria first, specific and positive instructions with reasons, the context the model lacks, length and style, and what to do when the input does not fit."
+objectives:
+  - { id: o1, text: "Define success criteria before writing a prompt and turn vague requests into specific, testable instructions", skills: [prompt-engineering.clear-instructions] }
+  - { id: o2, text: "Supply the context a model cannot know (audience, purpose, domain facts) and explain the reasons behind rules", skills: [prompt-engineering.clear-instructions] }
+  - { id: o3, text: "Give the model an explicit way out for inputs that do not fit, instead of forcing a guess", skills: [prompt-engineering.clear-instructions] }
+prerequisites: [prompt-engineering.p0.hello-prompt]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team''s prompt for release notes is: "Write good release notes for these commits. Make them nice and not too technical." Write down three success criteria that a reviewer could check, then rewrite the prompt so that it meets them. Include the audience, the purpose, a length limit, what to leave out, the reason for at least one rule, and what the model should do when a commit message is too vague to describe.'
+  criteria:
+    - 'Lists success criteria that can be checked (for example: grouped by Added/Fixed, one line per user-visible change, no internal refactors, under 150 words)'
+    - 'Names the audience and the purpose of the notes, and gives a concrete length and format'
+    - 'Gives a reason for at least one rule, so the model can generalise it'
+    - 'Says what to do with vague or internal commits (skip, or list them under a marker for a human) instead of inventing details'
+    - 'Uses positive, specific instructions rather than words like nice, good or not too technical'

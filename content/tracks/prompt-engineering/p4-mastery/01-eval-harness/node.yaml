@@ -1,0 +1,47 @@
+id: prompt-engineering.p4.eval-harness
+kind: kata
+status: draft
+title: "Eval Harness: Two Prompt Versions, One Verdict"
+summary: "Load an evaluation set from JSON Lines, grade recorded responses with code graders, report pass rates per tag, compare a candidate prompt version with the baseline case by case, and apply a ship rule."
+objectives:
+  - { id: o1, text: "Load and validate an evaluation set, and grade responses with exact, contains, regex and JSON-structure graders", skills: [prompt-engineering.evaluation] }
+  - { id: o2, text: "Report results per tag and compare two versions case by case: regressions, fixes and the change in pass rate", skills: [prompt-engineering.evaluation, prompt-engineering.versioning] }
+  - { id: o3, text: "Decide whether a version may ship with a rule on critical cases, overall rate and per-tag drops", skills: [prompt-engineering.evaluation, prompt-engineering.versioning] }
+prerequisites: [prompt-engineering.p3.evaluating-prompts]
+difficulty: 4
+estimated_minutes: 75
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Split it into three layers and test each: loading (`load_cases`), grading (`grade` and `run`), deciding (`compare` and `may_ship`). In `load_cases`, which line number do you report, and how do you count lines when some are blank?
+    - |-
+      `enumerate(text.splitlines(), start=1)` keeps the real line numbers; skip lines that are blank after `strip()`. For `run`, build `by_tag` with a dict of tag to `[passed, total]` and sort the keys at the end. In `compare`, turn `baseline.passed` into a set and walk `candidate.failed` in order to find regressions, and the other way round for fixes.
+    - |-
+      ```python
+      def may_ship(baseline, candidate, *, critical=(), max_tag_drop=0.0):
+          comparison = compare(baseline, candidate)
+          reasons = [f"critical case '{case_id}' regressed"
+                     for case_id in comparison.regressions if case_id in set(critical)]
+          if comparison.delta < 0:
+              reasons.append(f"pass rate dropped by {-comparison.delta * 100:.1f} points")
+          for tag in sorted(set(baseline.by_tag) & set(candidate.by_tag)):
+              before, after = _rate(baseline.by_tag[tag]), _rate(candidate.by_tag[tag])
+              ...
+          return reasons
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

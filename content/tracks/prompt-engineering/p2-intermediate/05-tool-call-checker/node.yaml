@@ -1,0 +1,49 @@
+id: prompt-engineering.p2.tool-call-checker
+kind: kata
+status: draft
+title: "Tool Call Checker: Definitions, Arguments and Error Results"
+summary: "Lint tool definitions, validate a model's tool-call arguments against a small JSON Schema subset, and dispatch calls with error results the model can recover from."
+objectives:
+  - { id: o1, text: "Check that tool definitions have usable names, descriptions and documented, typed parameters", skills: [prompt-engineering.tool-use] }
+  - { id: o2, text: "Validate tool-call arguments (required, unknown, types, enums, ranges, array items) and report every problem", skills: [prompt-engineering.tool-use] }
+  - { id: o3, text: "Dispatch calls safely and turn validation problems and tool failures into error results", skills: [prompt-engineering.tool-use, prompt-engineering.structured-output] }
+prerequisites: [prompt-engineering.p2.prompts-for-tools]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Write a helper `_has_type(value, type_name) -> bool` first; both `validate_arguments` and the array-item check use it. Watch out for one Python surprise: is `True` an `int`? What should `{"type": "integer"}` say about `True`?
+    - |-
+      `isinstance(True, int)` is true, so check `bool` first: a bool is only a `boolean`. `number` accepts int and float (but not bool). In `validate_arguments`, first the required loop, then one loop over `args.items()` that reports unknown keys, then the type, then (only if the type is right) the enum, the range and the items. `error_result` and `dispatch` build plain dicts.
+    - |-
+      ```python
+      def dispatch(call, registry):
+          name, call_id = call["name"], call["id"]
+          if name not in registry:
+              return error_result(call_id, [f"unknown tool '{name}'"])
+          tool, function = registry[name]
+          problems = validate_arguments(tool["input_schema"], call["input"])
+          if problems:
+              return error_result(call_id, problems)
+          try:
+              result = function(**call["input"])
+          except Exception as error:
+              ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

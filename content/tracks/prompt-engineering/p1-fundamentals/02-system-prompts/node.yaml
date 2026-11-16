@@ -1,0 +1,24 @@
+id: prompt-engineering.p1.system-prompts
+kind: lesson
+status: draft
+title: "Roles, Messages and System Prompts"
+summary: "System, developer, user and assistant messages, what belongs in a system prompt, role prompting, the instruction hierarchy, multi-turn conversations and prefilling."
+objectives:
+  - { id: o1, text: "Explain the roles of chat messages and the instruction hierarchy between operator and user", skills: [prompt-engineering.system-prompts] }
+  - { id: o2, text: "Decide what belongs in the system prompt and what belongs in the user turn", skills: [prompt-engineering.system-prompts] }
+  - { id: o3, text: "Use role prompting and conversation history deliberately, and know the limits of each", skills: [prompt-engineering.system-prompts] }
+prerequisites: [prompt-engineering.p1.clear-instructions]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You are building a support assistant for a bank''s mobile app. Write its system prompt (about 150 to 250 words): the role and audience, what it may and may not help with, how to answer (length, tone, format for a mobile screen), how to handle requests outside its scope, and what it must never reveal or do. Then explain which information you deliberately kept out of the system prompt and sent in the user turn instead, and why.'
+  criteria:
+    - 'States a specific role, audience and purpose rather than a generic persona'
+    - 'Defines the scope and an explicit behaviour for out-of-scope or risky requests (for example, hand off to a human agent)'
+    - 'Gives concrete formatting rules suited to a mobile chat (short paragraphs, no tables)'
+    - 'Keeps per-request data (the user''s message, account details fetched for this turn) out of the system prompt and explains why (it changes per call, it is untrusted, it would break caching)'
+    - 'Does not rely on the system prompt to keep secrets: says that credentials or internal data must not be put in it at all'

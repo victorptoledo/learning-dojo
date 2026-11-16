@@ -1,0 +1,40 @@
+questions:
+  - id: why
+    prompt: "Why does asking for reasoning before the answer help on multi-step problems?"
+    options:
+      - "The written steps become context that the final answer can use"
+      - "It makes the model use a bigger network"
+      - "It lowers the temperature"
+    answer: 0
+    explanation: "Each generated token conditions the next; reasoning first gives the answer more to build on."
+  - id: order
+    prompt: "\"Give the answer, then explain your reasoning.\" What is the problem?"
+    options: ["None", "The explanation is written after the answer is chosen, so it can only justify it", "It uses more tokens"]
+    answer: 1
+    explanation: "Reasoning has to come before the answer to influence it."
+  - id: extract
+    prompt: "How should code read the final answer of a CoT prompt?"
+    options:
+      - "Take the last sentence of the output"
+      - "Extract it from a dedicated tag or field, such as <answer>, and handle its absence explicitly"
+      - "Show the whole output to the user"
+    answer: 1
+    explanation: "A named place for the answer makes it parseable; reasoning stays separate."
+  - id: self-consistency
+    prompt: "What does self-consistency do?"
+    options:
+      - "Asks the model to check its own grammar"
+      - "Samples several reasoning paths and takes the majority final answer"
+      - "Keeps the temperature at 0"
+    answer: 1
+    explanation: "Different paths make different mistakes; the majority answer is more often right."
+  - id: faithful
+    prompt: "Is a model's written chain-of-thought a reliable record of how it reached its answer?"
+    options: ["Yes, always", "No: it can look plausible without reflecting the actual process"]
+    answer: 1
+    explanation: "Use reasoning to debug prompts, not as proof."
+  - id: reasoning-model
+    prompt: "With a reasoning model, which instruction style usually works best?"
+    options: ["A rigid numbered procedure for every step", "Clear goals and constraints, letting the model plan", "\"Think step by step\" in capitals"]
+    answer: 1
+    explanation: "Reasoning models plan by themselves; give them goals, constraints and success criteria."

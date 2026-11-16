@@ -1,0 +1,38 @@
+questions:
+  - id: system-holds
+    prompt: "Which content belongs in the system prompt?"
+    options:
+      - "The user's message of this turn"
+      - "The search results for this request"
+      - "The assistant's role, scope, rules and output format"
+    answer: 2
+    explanation: "The system prompt holds the stable operator instructions; per-call data goes in the user turn."
+  - id: secret
+    prompt: "Is a system prompt a safe place for an internal API key, if it says \"never reveal this\"?"
+    options: ["Yes", "No: assume users can make the model reveal anything in its context"]
+    answer: 1
+    explanation: "The instruction hierarchy is a tendency, not a security boundary. Keep secrets out of the context."
+  - id: role-knowledge
+    prompt: "What does \"You are a world-class tax lawyer\" add to a prompt?"
+    options:
+      - "Accurate, up-to-date tax law"
+      - "Expectations about tone, focus and level of detail, but no new facts"
+      - "Nothing at all"
+    answer: 1
+    explanation: "A role shapes how the model answers; facts must come from the context."
+  - id: history
+    prompt: "Why does a long chat get more expensive on every turn?"
+    options:
+      - "The provider charges more for older users"
+      - "The whole history is sent again as input tokens on every call"
+      - "The model has to retrain on the conversation"
+    answer: 1
+    explanation: "Chat APIs are stateless, so every call pays for the full message list."
+  - id: enforce
+    prompt: "The assistant must never refund more than 50 euros. Where must that rule be enforced?"
+    options:
+      - "In the system prompt, in capital letters"
+      - "In the code of the refund tool, and also stated in the prompt"
+      - "In the user turn"
+    answer: 1
+    explanation: "Prompts guide behaviour; permissions must be enforced in code where the action happens."

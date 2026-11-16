@@ -1,0 +1,47 @@
+id: prompt-engineering.p0.hello-prompt
+kind: kata
+status: draft
+title: "Hello, Prompt: Templates, Sections and a Token Budget"
+summary: "Render a prompt template with named variables, assemble a prompt from delimited sections in a fixed order, and check it against a token budget."
+objectives:
+  - { id: o1, text: "Render a template that fails on missing or unused variables and inserts values literally", skills: [prompt-engineering.prompt-anatomy] }
+  - { id: o2, text: "Assemble a prompt from XML-delimited sections in a deliberate order", skills: [prompt-engineering.prompt-anatomy] }
+  - { id: o3, text: "Estimate tokens and check that a prompt leaves room for the answer", skills: [prompt-engineering.how-models-read] }
+prerequisites: [prompt-engineering.p0.prompt-anatomy]
+difficulty: 1
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with `estimate_tokens`: what is `ceil(len(text) / 4)` in integer arithmetic? Then `render`: a regular expression can find every `{{ name }}` placeholder. Which names does the template use, and which values were given? Compare the two sets before you replace anything.
+    - |-
+      `re.compile(r"\{\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}\}")` finds the placeholders. Collect the names with `findall`, check missing (`KeyError`) and unused (`ValueError`), then replace with `pattern.sub(lambda m: values[m.group(1)], template)`: one pass, so a value that contains `{{x}}` is never rendered again. For `build_prompt`, build a list of sections and join them with `"\n\n"`.
+    - |-
+      ```python
+      def build_prompt(task, *, context="", rules=(), output_format=""):
+          if not task.strip():
+              raise ValueError("task must not be blank")
+          sections = []
+          if context.strip():
+              sections.append(f"<context>\n{context.strip()}\n</context>")
+          sections.append(f"<task>\n{task.strip()}\n</task>")
+          # rules: one "- rule" line per non-blank rule, inside <rules>
+          # output_format: inside <output_format>
+          return "\n\n".join(sections)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

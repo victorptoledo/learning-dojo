@@ -48,6 +48,7 @@ of your choice.
 
 16 tracks are complete, with 378 lessons and checkpoints and 133 katas between them:
 16 tracks are complete, with 378 lessons and checkpoints and 132 katas between them:
+16 tracks are complete, with 376 lessons and checkpoints and 133 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
@@ -71,6 +72,7 @@ of your choice.
 | Cyber Security | defensive application and infrastructure security | 25 | 10 | `dojo-python`, `dojo-java` (JCA) and `dojo-linux` (bash, awk); defensive and offline |
 | API Design | HTTP, REST, errors, evolution, contracts | 25 | 8 | `dojo-java` (Spring Boot and MockMvc, plus an OpenAPI linter) |
 | Computer Science | from bits and caches to compilers, computability and database internals | 25 | 9 | `dojo-python`, `dojo-rust` and `dojo-java` |
+| Prompt Engineering | prompts for LLMs, from instructions to evals | 23 | 9 | `dojo-python` (prompt builders, parsers and eval harnesses; no model calls) |
 
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
@@ -78,6 +80,7 @@ Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security
 Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 Node.js, Software Architecture, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL and AWS.
+Node.js, Software Architecture, API Design, PostgreSQL, AWS and Computer Science.
 
 ## Requirements
 

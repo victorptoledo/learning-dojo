@@ -1,0 +1,32 @@
+questions:
+  - id: contents
+    prompt: "Which list best describes what a prompt version should pin?"
+    options:
+      - "Only the template text"
+      - "The template and examples, the model snapshot, the parameters, the tools and the output schema"
+      - "The model name alias"
+    answer: 1
+    explanation: "All of these change behaviour, so all of them belong to the version."
+  - id: alias
+    prompt: "Why pin a dated model snapshot instead of an alias such as \"latest\"?"
+    options:
+      - "Snapshots are cheaper"
+      - "So the provider cannot change your product's behaviour without a change on your side"
+      - "Aliases are not allowed in production"
+    answer: 1
+    explanation: "An alias can move to a new model at any time; a snapshot stays put until you change it."
+  - id: major
+    prompt: "A prompt adds a new allowed category to its JSON output. Which version bump fits?"
+    options: ["Patch", "Minor", "Major: the output contract changed"]
+    answer: 2
+    explanation: "Code that parses the output must change too, so it is a breaking change."
+  - id: log
+    prompt: "What should be logged with every model call to trace a bad answer?"
+    options: ["Only the answer", "The prompt id and version, the model snapshot, parameters, tokens, stop reason and latency", "Nothing; logs cost money"]
+    answer: 1
+    explanation: "Without the version you cannot tell which prompt produced the answer."
+  - id: rollback
+    prompt: "What makes rolling back a prompt version fast?"
+    options: ["Selecting the version with a feature flag at run time", "Rewriting the prompt", "Waiting for the next deploy"]
+    answer: 0
+    explanation: "A flag turns rollback into a configuration change."

@@ -1,0 +1,56 @@
+id: prompt-engineering.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz over chaining, reasoning and tool use, and an integration kata, a prompt chain with escaped hand-offs, gates, bounded retries, a token budget and a trace, run against recorded model answers."
+objectives:
+  - { id: o1, text: "Explain decomposition, reasoning prompts and tool-use prompts and their trade-offs in your own words", skills: [prompt-engineering.decomposition, prompt-engineering.reasoning, prompt-engineering.tool-use] }
+  - { id: o2, text: "Build a prompt chain that renders each step, checks each answer, retries with the error, respects a budget and records a trace", skills: [prompt-engineering.decomposition, prompt-engineering.structured-output, prompt-engineering.how-models-read] }
+prerequisites: [prompt-engineering.p2.tool-call-checker]
+difficulty: 4
+estimated_minutes: 90
+xp: 350
+closes_phase: p2
+covers_skills: [prompt-engineering.decomposition, prompt-engineering.reasoning, prompt-engineering.tool-use]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Write `render_step` first and test it alone. Then write `run_chain` for the happy path (one attempt per step, no budget), and add the retry and the budget afterwards. Remember that the model API is stateless: on a retry, what does the model need to see, and what does that cost?
+    - |-
+      Keep a `messages` list per step. Before every call, the cost is the sum of `estimate_tokens(m["content"])` over the whole list, because the whole list is sent again. If `used + cost > budget_tokens`, raise `BudgetExceeded` before calling. After the call add the reply's estimate. On `ValueError` from `step.parse`, append the assistant reply and the retry user turn and loop; `for attempt in range(1, step.max_attempts + 1)` with an `else` clause handles "ran out of attempts".
+    - |-
+      ```python
+      for step in steps:
+          messages = [{"role": "user", "content": render_step(step, value)}]
+          for attempt in range(1, step.max_attempts + 1):
+              cost = sum(estimate_tokens(m["content"]) for m in messages)
+              if used + cost > budget_tokens:
+                  raise BudgetExceeded(step.name, f"budget of {budget_tokens} tokens exceeded")
+              used += cost
+              reply = model(list(messages))
+              used += estimate_tokens(reply)
+              try:
+                  value = step.parse(reply)
+                  break
+              except ValueError as error:
+                  ...  # remember the problem, append the two turns
+          else:
+              raise ChainError(step.name, problem)
+          trace.append(StepTrace(step.name, attempt, value))
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

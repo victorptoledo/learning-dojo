@@ -1,0 +1,24 @@
+id: prompt-engineering.p3.evaluating-prompts
+kind: lesson
+status: draft
+title: "Evaluating and Iterating on Prompts"
+summary: "From success criteria to a test set, code graders, model graders with rubrics and their biases, human review, slicing results, run-to-run variance, error analysis and a disciplined iteration loop."
+objectives:
+  - { id: o1, text: "Build a test set that covers typical, edge, adversarial and regression cases, kept apart from the prompt's examples", skills: [prompt-engineering.evaluation] }
+  - { id: o2, text: "Choose graders (exact, pattern, structure, model-graded with a rubric, human) and know the biases of model graders", skills: [prompt-engineering.evaluation] }
+  - { id: o3, text: "Iterate with error analysis, one change at a time, results by slice and several runs per case", skills: [prompt-engineering.evaluation] }
+prerequisites: [prompt-engineering.p3.injection-guard]
+difficulty: 4
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team changes prompts by trying them on two or three inputs in a playground and shipping when "it looks better". Last month a change improved English summaries but silently broke Portuguese ones. Write a one-page evaluation plan for the summarisation prompt: the success criteria, how you would build the test set (size, sources, slices), which graders you would use for which criteria, how you would validate a model grader, how many runs per case, and the rule that decides whether a new prompt version may ship.'
+  criteria:
+    - 'States checkable success criteria and maps each to a grader (code checks for length and format, a rubric-based model grader or humans for faithfulness and tone)'
+    - 'Builds a test set from real inputs with slices (languages, lengths, edge cases, adversarial inputs) and keeps it separate from the prompt''s examples'
+    - 'Validates the model grader against human labels and mentions at least one known bias (position, verbosity, self-preference)'
+    - 'Accounts for variance with several runs per case or confidence intervals, and reports results per slice, not only overall'
+    - 'Defines a ship rule that includes regressions (for example no slice may drop, no previously passing critical case may fail)'

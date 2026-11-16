@@ -1,0 +1,46 @@
+id: prompt-engineering.p3.injection-guard
+kind: kata
+status: draft
+title: "Injection Guard: Wrap, Flag and Check"
+summary: "Neutralise untrusted text (hidden characters, tags), wrap it with its source, flag common injection patterns, check model output for links to domains outside an allow-list, and build messages that keep rules and data apart."
+objectives:
+  - { id: o1, text: "Neutralise and wrap untrusted text so it cannot hide instructions or escape its tags", skills: [prompt-engineering.injection] }
+  - { id: o2, text: "Flag suspicious content with simple heuristics for logging and review", skills: [prompt-engineering.injection] }
+  - { id: o3, text: "Check model output for exfiltration links and keep operator rules separate from untrusted data", skills: [prompt-engineering.injection, prompt-engineering.system-prompts] }
+prerequisites: [prompt-engineering.p3.prompt-injection]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      `neutralise` comes first: every other function uses it or tests the same characters. Which characters must go before escaping, and why must `\n` and `\t` stay? For `check_output`, the hard part is the host comparison: why is `"evilexample.com".endswith("example.com")` a trap?
+    - |-
+      Remove the zero-width set and every character with `unicodedata.category(ch) == "Cc"` except `\n` and `\t`, then `html.escape(..., quote=False)`. For the host, `urlsplit(url).hostname` is already lower case; allow it when it equals a domain or ends with `"." + domain`. Each heuristic in `find_suspicious` is one `re.search` with `re.IGNORECASE`; build the list in the fixed order.
+    - |-
+      ```python
+      def check_output(text, allowed_domains):
+          allowed = [domain.lower().strip(".") for domain in allowed_domains]
+          bad = []
+          for url in URL.findall(text):
+              host = urlsplit(url).hostname or ""
+              ok = any(host == domain or host.endswith("." + domain) for domain in allowed)
+              if not ok and url not in bad:
+                  bad.append(url)
+          return bad
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

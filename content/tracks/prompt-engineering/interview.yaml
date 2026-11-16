@@ -1,0 +1,231 @@
+# Technical interview questions for the prompt-engineering track, written for the dojo.
+# The topics follow what public guides and provider documentation treat as core
+# (see sources); the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/prompt-engineering"
+  - "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview"
+  - "https://platform.openai.com/docs/guides/prompt-engineering"
+  - "https://ai.google.dev/gemini-api/docs/prompting-strategies"
+  - "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
+  - "https://www.promptingguide.ai/"
+questions:
+  - id: tokens
+    level: junior
+    skills: [prompt-engineering.how-models-read]
+    question: "What is a token, and why do tokens matter when you write prompts?"
+    key_points:
+      - "Text is split by a tokenizer into pieces; the model reads and writes tokens"
+      - "Cost is per input and output token; output is usually more expensive"
+      - "Latency grows with output length, because tokens are produced one at a time"
+      - "The context window limits prompt plus answer, counted in tokens"
+    follow_up: "How would you estimate the monthly cost of a prompt that runs 50,000 times a day?"
+  - id: nondeterminism
+    level: junior
+    skills: [prompt-engineering.how-models-read]
+    question: "Why can the same prompt give different answers, and what does that mean for testing?"
+    key_points:
+      - "The next token is sampled from a probability distribution"
+      - "Temperature and top_p shape the distribution; lower means less variation"
+      - "Even temperature 0 is not a strict guarantee of identical output"
+      - "Test on many inputs and several runs; treat output as a distribution"
+    follow_up: "When would you want a higher temperature?"
+  - id: good-prompt
+    level: junior
+    skills: [prompt-engineering.prompt-anatomy, prompt-engineering.clear-instructions]
+    question: "Take a vague prompt such as \"summarise this\". How would you improve it?"
+    key_points:
+      - "State the audience and purpose of the summary"
+      - "Give concrete limits (length, format) and required contents"
+      - "Delimit the input with tags and put instructions where they are fresh"
+      - "Define what to do with input that does not fit"
+    follow_up: "How would you know your version is actually better?"
+  - id: system-prompt
+    level: junior
+    skills: [prompt-engineering.system-prompts]
+    question: "What goes in a system prompt, and what does not?"
+    key_points:
+      - "Stable operator instructions: role, audience, scope, rules, format, tools"
+      - "Per-request data and the user's message go in the user turn"
+      - "No secrets: assume the system prompt can be extracted"
+      - "Rules that matter are also enforced in code"
+    follow_up: "What is the instruction hierarchy, and what are its limits?"
+  - id: few-shot
+    level: junior
+    skills: [prompt-engineering.few-shot]
+    question: "What is few-shot prompting, and how do you choose the examples?"
+    key_points:
+      - "Examples of input and ideal output in the prompt"
+      - "Relevant, diverse, correct, and in exactly the desired format"
+      - "Balanced and interleaved labels to avoid majority and recency bias"
+      - "Never reuse evaluation cases as examples"
+    follow_up: "When can examples make results worse?"
+  - id: json-output
+    level: mid
+    skills: [prompt-engineering.structured-output]
+    question: "Your application needs JSON from the model. How do you make that reliable?"
+    key_points:
+      - "A precise schema with enums, required fields and an explicit null for missing values"
+      - "Provider structured outputs or a forced tool call where available"
+      - "Defensive parsing (fences, preambles) and validation of every field"
+      - "Bounded retries with the specific validation errors, then a visible failure"
+    follow_up: "Why does field order matter in a JSON answer?"
+  - id: chaining
+    level: mid
+    skills: [prompt-engineering.decomposition]
+    question: "When would you split a task into a chain of prompts, and what does it cost?"
+    key_points:
+      - "Distinct stages, different formats, or intermediate results worth checking"
+      - "Gates between steps catch errors where they happen"
+      - "Routing and parallel sections as variants"
+      - "Costs: latency, tokens, code, and compounding errors without gates"
+    follow_up: "How do you pass one step's output into the next safely?"
+  - id: cot
+    level: mid
+    skills: [prompt-engineering.reasoning]
+    question: "Explain chain-of-thought prompting. When does it help, and how do you use its output?"
+    key_points:
+      - "Reasoning before the answer gives the answer more context to build on"
+      - "Helps multi-step and rule-based tasks; little gain on simple lookups"
+      - "Reasoning and answer in separate tags or fields; code extracts the answer"
+      - "Written reasoning is not a faithful log; do not show it raw to users"
+    follow_up: "How is prompting a reasoning model different?"
+  - id: self-consistency
+    level: mid
+    skills: [prompt-engineering.reasoning]
+    question: "What is self-consistency, and how can you use it as a confidence signal?"
+    key_points:
+      - "Sample several reasoning paths and take the majority final answer"
+      - "Normalise answers before counting"
+      - "The share of agreement indicates confidence"
+      - "Cost grows linearly with the number of samples"
+    follow_up: "How would you use the agreement share to route requests?"
+  - id: tools
+    level: mid
+    skills: [prompt-engineering.tool-use]
+    question: "How do you design tools for a model to use well?"
+    key_points:
+      - "Few, distinct tools with descriptive names"
+      - "Descriptions say what, when, when not, and what is returned"
+      - "Typed parameters with descriptions, formats and enums"
+      - "Validation in code and error results that let the model recover"
+    follow_up: "Which tool calls need human confirmation, and why?"
+  - id: tool-safety
+    level: mid
+    skills: [prompt-engineering.tool-use, prompt-engineering.injection]
+    question: "A model can call tools that change data. How do you keep that safe?"
+    key_points:
+      - "Permissions enforced in the tool's code, based on the real user"
+      - "Confirmation for irreversible actions"
+      - "Idempotent tools and limits on the call loop"
+      - "Tool results with outside text are untrusted"
+    follow_up: "What is the lethal trifecta?"
+  - id: long-context
+    level: mid
+    skills: [prompt-engineering.long-context]
+    question: "How do you write a prompt over a very long set of documents?"
+    key_points:
+      - "Documents first, each labelled with metadata; question last"
+      - "Ask for quotes first and verify them in code"
+      - "Relevance order; avoid padding; information in the middle is easier to miss"
+      - "Cache the stable prefix; retrieve passages when the corpus is large"
+    follow_up: "How would you fit documents into a fixed token budget?"
+  - id: caching
+    level: mid
+    skills: [prompt-engineering.long-context, prompt-engineering.production]
+    question: "How does prompt caching influence the way you structure prompts?"
+    key_points:
+      - "Caching reuses identical prefixes"
+      - "Stable content first: system prompt, tools, documents"
+      - "Varying data last; no timestamps or ids near the start"
+      - "Deterministic ordering of documents and examples"
+    follow_up: "How would you measure whether caching is working?"
+  - id: injection
+    level: senior
+    skills: [prompt-engineering.injection]
+    question: "What is prompt injection, and why can it not be solved with better prompt wording?"
+    key_points:
+      - "Instructions arriving in data the model reads: direct and indirect"
+      - "The model has no reliable separation of instructions and data"
+      - "Defences in the prompt are text in the same context as the attack"
+      - "So limit impact: least privilege, output checks, human confirmation"
+    follow_up: "Which prompt-level defences are still worth applying?"
+  - id: injection-design
+    level: senior
+    skills: [prompt-engineering.injection, prompt-engineering.tool-use]
+    question: "Design the defences for an agent that reads emails and can send emails."
+    key_points:
+      - "Identify the trifecta: private data, untrusted content, outbound channel"
+      - "Escape and delimit emails, mark them as data, flag suspicious content"
+      - "Separate reading from sending, allow-list recipients, confirm sends"
+      - "Check outputs for links and exfiltration; add attacks to the evaluation set"
+    follow_up: "How would a planner and quarantined-reader split help?"
+  - id: evals
+    level: senior
+    skills: [prompt-engineering.evaluation]
+    question: "How do you evaluate a prompt before shipping a change?"
+    key_points:
+      - "Success criteria first, then a test set with typical, edge, adversarial and regression cases"
+      - "Cheapest reliable grader per criterion: code, model with rubric, humans"
+      - "Results per slice and several runs per case for variance"
+      - "Case-by-case comparison with the baseline and a ship rule"
+    follow_up: "How do you validate an LLM-as-judge grader?"
+  - id: judge-bias
+    level: senior
+    skills: [prompt-engineering.evaluation]
+    question: "What biases do model graders have, and how do you counter them?"
+    key_points:
+      - "Position bias in pairwise comparisons: swap and grade twice"
+      - "Verbosity bias: rubrics, length control"
+      - "Self-preference for the same model family"
+      - "Calibrate against human labels, use binary criteria"
+    follow_up: "When would you not use a model grader at all?"
+  - id: error-analysis
+    level: senior
+    skills: [prompt-engineering.evaluation]
+    question: "Your prompt passes 78% of cases. Walk me through how you would improve it."
+    key_points:
+      - "Read the failures and write a short note per failure"
+      - "Group failures into categories and fix the largest first"
+      - "Consider missing facts, examples, decomposition or a wrong grader, not only wording"
+      - "One change at a time, full re-run, check for regressions"
+    follow_up: "How do you avoid overfitting the prompt to the test set?"
+  - id: versioning
+    level: senior
+    skills: [prompt-engineering.versioning]
+    question: "How do you version and deploy prompts in a team?"
+    key_points:
+      - "Prompts as files or a registry, reviewed like code"
+      - "A version pins template, model snapshot, parameters, tools and schema"
+      - "Semantic versions with a changelog that records evaluation results"
+      - "Version logged per call; shadow, canary and flag-based rollback"
+    follow_up: "What is a breaking change for a prompt?"
+  - id: model-upgrade
+    level: senior
+    skills: [prompt-engineering.versioning, prompt-engineering.evaluation]
+    question: "The provider deprecates the model your prompts use. What is your plan?"
+    key_points:
+      - "Read the migration notes"
+      - "Run the evaluation set on the new snapshot with the prompt unchanged"
+      - "Analyse regressions and adapt the prompt as a new version"
+      - "Gradual rollout before the deprecation date, with rollback"
+    follow_up: "Why should you not use a moving alias in production?"
+  - id: production-signals
+    level: senior
+    skills: [prompt-engineering.production]
+    question: "Which signals would you monitor for a prompt in production, and why?"
+    key_points:
+      - "Parse and validation failure rate per prompt version and model"
+      - "Stop reasons (max tokens, refusals) and token counts"
+      - "Latency (p95, time to first token) and cost per request"
+      - "Sampled quality review and user feedback, because many failures are silent"
+    follow_up: "Which of these would you alert on?"
+  - id: cost
+    level: senior
+    skills: [prompt-engineering.production]
+    question: "A feature's model bill doubled. How would you reduce cost without hurting quality?"
+    key_points:
+      - "Measure tokens per request and find where they go"
+      - "Shorter prompts, fewer examples, caching of stable prefixes and repeated answers"
+      - "Routing easy requests to a smaller model; batch APIs for offline work"
+      - "Verify every change on the evaluation set"
+    follow_up: "How would you decide which requests are easy?"

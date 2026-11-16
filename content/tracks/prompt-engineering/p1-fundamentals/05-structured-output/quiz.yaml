@@ -1,0 +1,33 @@
+questions:
+  - id: enum
+    prompt: "A `category` field comes back as \"Billing\", \"billing issue\" and \"payments\". What fixes it best?"
+    options: ["A longer description", "An enum of the allowed values in the schema", "A higher temperature"]
+    answer: 1
+    explanation: "Closed sets belong in an enum; free text invites variants."
+  - id: missing
+    prompt: "How should a schema handle a value the input does not contain?"
+    options: ["Let the model write N/A", "Define one explicit value, usually null, and say so", "Leave the field out of the schema"]
+    answer: 1
+    explanation: "One explicit representation makes missing data easy to detect in code."
+  - id: json-mode
+    prompt: "What does \"JSON mode\" guarantee?"
+    options: ["The output matches your schema", "The output is syntactically valid JSON", "The values are correct"]
+    answer: 1
+    explanation: "JSON mode guarantees syntax only; strict schemas constrain the shape; neither guarantees correctness."
+  - id: order
+    prompt: "You want the model's answer to use its reasoning. Where does the `reasoning` field go?"
+    options: ["After `answer`", "Before `answer`", "It does not matter"]
+    answer: 1
+    explanation: "Fields are generated in order; later fields are conditioned on earlier ones."
+  - id: still-validate
+    prompt: "With schema-constrained structured outputs, do you still need validation in code?"
+    options:
+      - "No, the schema guarantees correctness"
+      - "Yes: values can still be wrong, business rules are not in the schema, and refusals can replace the object"
+    answer: 1
+    explanation: "Constrained decoding removes syntax errors, not semantic ones."
+  - id: retry
+    prompt: "What is the most effective retry message after a validation failure?"
+    options: ["\"Try again.\"", "The list of specific problems, then a request to reply with only the object", "The same prompt, unchanged"]
+    answer: 1
+    explanation: "Specific errors tell the model exactly what to fix."

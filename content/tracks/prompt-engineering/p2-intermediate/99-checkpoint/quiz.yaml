@@ -1,0 +1,58 @@
+questions:
+  - id: split
+    skills: [prompt-engineering.decomposition]
+    prompt: "A single prompt extracts data, analyses it and writes an email, and you cannot tell which part fails. What helps most?"
+    options: ["A longer prompt", "A chain with one job per step and a check after each step", "A higher temperature"]
+    answer: 1
+    explanation: "Steps with gates make failures visible where they happen."
+  - id: parallel
+    skills: [prompt-engineering.decomposition]
+    prompt: "A security review and a performance review of the same code do not depend on each other. How should they run?"
+    options: ["Sequentially", "In parallel, then merged", "In one prompt"]
+    answer: 1
+    explanation: "Independent sections can run in parallel to save latency."
+  - id: budget
+    skills: [prompt-engineering.decomposition, prompt-engineering.how-models-read]
+    prompt: "Why does a retry inside a chain step cost more than the first attempt?"
+    options:
+      - "Providers charge extra for retries"
+      - "The whole message list, now with the bad answer and the error, is sent again"
+      - "It does not"
+    answer: 1
+    explanation: "APIs are stateless: every call pays for the full context."
+  - id: cot-place
+    skills: [prompt-engineering.reasoning]
+    prompt: "In a JSON answer, where should a `reasoning` field go?"
+    options: ["After `answer`", "Before `answer`", "In a separate call only"]
+    answer: 1
+    explanation: "Fields are generated in order, so reasoning must come before the answer it supports."
+  - id: vote
+    skills: [prompt-engineering.reasoning]
+    prompt: "Five samples give 12, 12, 13, 12 and 15. What does self-consistency return, and with what share?"
+    options: ["12 with 0.6", "12.8 (the mean)", "15 (the last)"]
+    answer: 0
+    explanation: "The majority answer is 12, with 3 of 5 votes."
+  - id: tool-desc
+    skills: [prompt-engineering.tool-use]
+    prompt: "Which tool description is best?"
+    options:
+      - "Gets data."
+      - "Returns the order's shipping status by order id. Use when the customer asks where an order is; not for refunds."
+      - "IMPORTANT TOOL. ALWAYS USE."
+    answer: 1
+    explanation: "Say what it does, its input, when to use it and when not to."
+  - id: tool-error
+    skills: [prompt-engineering.tool-use]
+    prompt: "What should your code do with a tool call whose arguments fail validation?"
+    options:
+      - "Run it anyway with defaults"
+      - "Not run it, and return an error result that lists each problem"
+      - "End the conversation"
+    answer: 1
+    explanation: "Specific error results let the model fix the call; invalid calls must not run."
+  - id: tool-trust
+    skills: [prompt-engineering.tool-use]
+    prompt: "A tool returns the text of a web page. How should it be treated?"
+    options: ["As trusted instructions", "As untrusted data that may contain injected instructions", "As the system prompt"]
+    answer: 1
+    explanation: "Outside text in tool results can carry prompt injection."

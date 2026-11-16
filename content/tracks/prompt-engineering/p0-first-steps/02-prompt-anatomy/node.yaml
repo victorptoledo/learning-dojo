@@ -1,0 +1,23 @@
+id: prompt-engineering.p0.prompt-anatomy
+kind: lesson
+status: draft
+title: "The Anatomy of a Prompt"
+summary: "The parts of a good prompt (role, task, context, rules, examples, input, output format), delimiting them with XML tags, ordering them, and turning a prompt into a template."
+objectives:
+  - { id: o1, text: "Name the parts of a prompt and say what each one contributes", skills: [prompt-engineering.prompt-anatomy] }
+  - { id: o2, text: "Separate instructions from data with delimiters such as XML tags, and order the parts on purpose", skills: [prompt-engineering.prompt-anatomy] }
+  - { id: o3, text: "Turn a one-off prompt into a template with named variables", skills: [prompt-engineering.prompt-anatomy] }
+prerequisites: [prompt-engineering.p0.how-models-read]
+difficulty: 1
+estimated_minutes: 35
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A teammate uses this prompt in production: "summarize this email and tell me if its urgent " followed directly by the email body. Rewrite it as a template with clearly delimited parts: say who the summary is for, what "urgent" means, how long the summary may be, where the email goes and the exact output format. Then explain in a few sentences why each change makes the output more reliable.'
+  criteria:
+    - 'The rewrite separates the instructions from the email with delimiters (for example <email> tags) and puts the email in a named variable'
+    - 'States the audience and the purpose of the summary, and defines urgency with concrete criteria'
+    - 'Gives a length limit and an exact output format (for example labelled fields or JSON) that code can read'
+    - 'Explains that delimiting stops the email text from being read as instructions and that defined criteria make answers consistent across runs'

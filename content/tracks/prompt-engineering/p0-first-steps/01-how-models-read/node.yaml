@@ -1,0 +1,23 @@
+id: prompt-engineering.p0.how-models-read
+kind: lesson
+status: draft
+title: "How Language Models Read a Prompt"
+summary: "Tokens, next-token prediction, the context window, sampling and temperature, chat messages, and why the same prompt can give different answers."
+objectives:
+  - { id: o1, text: "Explain that a model turns text into tokens and predicts one token at a time from everything in its context window", skills: [prompt-engineering.how-models-read] }
+  - { id: o2, text: "Explain what temperature and sampling change, and why outputs vary between runs", skills: [prompt-engineering.how-models-read] }
+  - { id: o3, text: "Estimate token counts and costs, and explain why the context window is a budget shared by the prompt and the answer", skills: [prompt-engineering.how-models-read] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 35
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A product manager says: "The model is a database of facts; if it answered wrongly once, the prompt is broken, and if we send exactly the same prompt it will always give exactly the same answer." Write a short reply (about 200 words) that corrects each part of this, using the words token, context window, next-token prediction, sampling and temperature. End with two practical consequences for how the team should write and test prompts.'
+  criteria:
+    - 'Explains that the model predicts the next token from the tokens in its context and does not look facts up, so it can produce fluent but wrong text'
+    - 'Explains that sampling with a temperature above 0 makes outputs vary, and that even temperature 0 is not a strict guarantee of identical output'
+    - 'Explains that the context window holds the whole conversation plus the answer, and that the model only knows what is in it (plus its training)'
+    - 'Draws practical consequences such as putting the needed facts in the prompt, testing each prompt on several runs and inputs, and reserving tokens for the output'

@@ -1,0 +1,24 @@
+id: prompt-engineering.p2.prompts-for-tools
+kind: lesson
+status: draft
+title: "Prompts for Tool Use"
+summary: "How tool calling works, writing tool names, descriptions and parameter schemas the model can use, tool choice, error results that help the model recover, and keeping side effects safe."
+objectives:
+  - { id: o1, text: "Explain the tool-calling loop: definitions, a structured call from the model, execution in your code and the result sent back", skills: [prompt-engineering.tool-use] }
+  - { id: o2, text: "Write tool definitions with clear names, descriptions that say when to use them, and precise parameter schemas", skills: [prompt-engineering.tool-use] }
+  - { id: o3, text: "Validate tool arguments, return error results that let the model recover, and keep permissions and side effects in code", skills: [prompt-engineering.tool-use] }
+prerequisites: [prompt-engineering.p2.answer-extractor]
+difficulty: 3
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A travel assistant has one tool, defined as name "api", description "calls the API", and one string parameter "q". The model often calls it with free text, books flights the user only asked about, and gives up after an error. Redesign the tools: write the definitions (names, descriptions, parameter schemas) of the two or three tools you would offer instead, and describe how your code should validate the calls, what an error result should say, and which actions need a confirmation step and why.'
+  criteria:
+    - 'Splits the generic tool into specific tools with descriptive names (for example search_flights and book_flight)'
+    - 'Descriptions say what each tool does, when to use it and when not to (for example: only book after the user has confirmed the flight and price)'
+    - 'Parameters have types, descriptions, formats (ISO dates, IATA codes) and enums where values are closed, with required fields'
+    - 'Validates arguments in code and returns an error result that names each problem so the model can correct the call'
+    - 'Keeps a confirmation step or a permission check in code for actions with side effects such as booking or paying'

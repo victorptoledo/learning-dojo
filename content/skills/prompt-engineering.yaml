@@ -1,3 +1,16 @@
 namespace: prompt-engineering
 skills:
-  - { id: prompt-engineering.cot-few-shot, title: "Few-Shot Prompting and Chain-of-Thought" }
+  - { id: prompt-engineering.how-models-read, title: "How Language Models Read a Prompt" }
+  - { id: prompt-engineering.prompt-anatomy, title: "The Anatomy of a Prompt" }
+  - { id: prompt-engineering.clear-instructions, title: "Clear Instructions and Context" }
+  - { id: prompt-engineering.system-prompts, title: "Roles, Messages and System Prompts" }
+  - { id: prompt-engineering.few-shot, title: "Examples and Few-Shot Prompting" }
+  - { id: prompt-engineering.structured-output, title: "Structured Output and Schemas" }
+  - { id: prompt-engineering.decomposition, title: "Decomposition and Prompt Chaining" }
+  - { id: prompt-engineering.reasoning, title: "Reasoning Prompts and Chain-of-Thought" }
+  - { id: prompt-engineering.tool-use, title: "Prompts for Tool Use" }
+  - { id: prompt-engineering.long-context, title: "Long Context" }
+  - { id: prompt-engineering.injection, title: "Prompt Injection and Defence" }
+  - { id: prompt-engineering.evaluation, title: "Evaluating and Iterating on Prompts" }
+  - { id: prompt-engineering.versioning, title: "Versioning Prompts" }
+  - { id: prompt-engineering.production, title: "Prompts in Production" }

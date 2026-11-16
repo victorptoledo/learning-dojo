@@ -1,0 +1,24 @@
+id: prompt-engineering.p2.reasoning-prompts
+kind: lesson
+status: draft
+title: "Reasoning Prompts and Chain-of-Thought"
+summary: "Chain-of-thought, zero-shot and few-shot, separating reasoning from the answer with tags, self-consistency, reasoning models and thinking budgets, when reasoning helps and when it only costs."
+objectives:
+  - { id: o1, text: "Explain why letting a model reason before answering improves multi-step tasks, and when it does not help", skills: [prompt-engineering.reasoning] }
+  - { id: o2, text: "Separate reasoning from the final answer so code can extract the answer and hide the reasoning", skills: [prompt-engineering.reasoning] }
+  - { id: o3, text: "Use self-consistency and reasoning models deliberately, with their costs in tokens and latency", skills: [prompt-engineering.reasoning] }
+prerequisites: [prompt-engineering.p2.decomposition-chaining]
+difficulty: 3
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A shipping-cost assistant must compute a price from a table of rules (weight bands, zones, a surcharge for oversized parcels, a discount for business customers). It answers instantly but is wrong about one time in eight. Write the prompt you would use: how the model should reason, where the reasoning goes, and how your code reads the final price. Then explain how you would decide between this prompt, the same prompt with self-consistency, and a reasoning model, and what you would show to the user.'
+  criteria:
+    - 'Asks for step-by-step reasoning before the answer, applied to the specific rules (band, zone, surcharge, discount), not only "think step by step"'
+    - 'Puts the reasoning and the final answer in separate tags (or fields) and extracts only the answer in code'
+    - 'Explains self-consistency (several samples, majority answer) and its cost'
+    - 'Compares with a reasoning model in terms of accuracy, latency and cost, and proposes measuring the options on a labelled test set'
+    - 'Shows the user the answer (and perhaps a short explanation), not the raw reasoning'
