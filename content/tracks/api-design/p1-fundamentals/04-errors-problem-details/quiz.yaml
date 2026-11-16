@@ -1,0 +1,31 @@
+questions:
+  - id: media-type
+    prompt: "Which Content-Type does a problem details response use?"
+    options: ["application/json", "application/problem+json", "text/plain", "application/error"]
+    answer: 1
+    explanation: "RFC 9457 registers application/problem+json (and application/problem+xml)."
+  - id: switch-on
+    prompt: "Which member should client code switch on to decide how to react?"
+    options: ["detail", "type", "title", "instance"]
+    answer: 1
+    explanation: "type identifies the problem type; detail and title are for humans."
+  - id: detail-vs-title
+    prompt: "What is the difference between title and detail?"
+    options: ["None", "title summarises the problem type and stays the same; detail explains this occurrence", "detail is optional, title is not", "title is for logs only"]
+    answer: 1
+    explanation: "Every insufficient-funds problem has the same title; the detail names the amounts of this one."
+  - id: extensions
+    prompt: "A client receives a problem with an extension member it does not know. What must it do?"
+    options: ["Fail", "Ignore it", "Retry", "Treat the problem as a 500"]
+    answer: 1
+    explanation: "Ignoring unknown members is what makes adding extensions a compatible change."
+  - id: pointer
+    prompt: "In an errors list, how does a problem point at the sku of the second line of the request?"
+    options: ["\"field\": \"lines[1].sku\" is required by the RFC", "A JSON Pointer such as \"#/lines/1/sku\"", "\"line\": 2", "It cannot"]
+    answer: 1
+    explanation: "JSON Pointer (RFC 6901) indexes arrays from 0 and is the format RFC 9457 suggests."
+  - id: leak
+    prompt: "What should a 500 problem contain?"
+    options: ["The stack trace, to help debugging", "A generic detail and an instance or correlation id that support can look up in the logs", "The SQL that failed", "Nothing at all, not even a body"]
+    answer: 1
+    explanation: "Internals help attackers; a correlation id helps support."

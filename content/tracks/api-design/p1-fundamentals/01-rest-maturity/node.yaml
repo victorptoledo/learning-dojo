@@ -2,13 +2,24 @@ id: api-design.p1.rest-maturity
 legacy_id: api-01-rest-maturity
 kind: lesson
 status: draft
-title: "Richardson Maturity Model and Resource Design"
-summary: "Noun-based URIs, the right HTTP methods and hypermedia."
+title: "Resources and REST: the Richardson Maturity Model"
+summary: "The four levels from one POST endpoint to hypermedia, how to model collections, items, sub-resources and non-CRUD actions as resources, and when to use PUT, PATCH or POST."
 objectives:
-  - { id: o1, text: "Noun-based URIs, the right HTTP methods and hypermedia.", skills: [api-design.rest-maturity] }
-prerequisites: []
+  - { id: o1, text: "Place an API on the Richardson maturity model and explain what each level adds", skills: [api-design.rest-maturity] }
+  - { id: o2, text: "Model a domain as collections, items, sub-resources and action resources instead of procedures", skills: [api-design.rest-maturity] }
+  - { id: o3, text: "Choose PUT, PATCH (JSON Merge Patch) or POST for an update and explain the consequences", skills: [api-design.rest-maturity, api-design.http-semantics] }
+prerequisites: [api-design.p0.status-codes]
 difficulty: 2
-estimated_minutes: 30
+estimated_minutes: 40
 xp: 150
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the resources of a small library-loan API: members, books, copies of a book, loans, returns, reservations and late fees. List each resource with its URL, which methods it supports and the status codes of the main outcomes. Model "borrow a copy", "return a copy" and "renew a loan" explicitly and justify each choice (state field, action resource or custom method). Say where you would stop nesting.'
+  criteria:
+    - 'Uses plural nouns and collection/item URLs, with at most two levels of nesting'
+    - 'Models borrowing, returning and renewing as resources or explicit state changes, not verbs in URLs called with GET'
+    - 'Chooses PUT or PATCH deliberately and explains the difference'
+    - 'Gives status codes for creation (201 + Location), conflicts (409) and missing resources (404)'
+    - 'Keeps database details (foreign keys, join tables) out of the representations'

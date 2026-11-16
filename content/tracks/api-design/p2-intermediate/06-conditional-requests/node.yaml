@@ -1,0 +1,46 @@
+id: api-design.p2.conditional-requests
+kind: kata
+status: draft
+title: "Conditional Requests"
+summary: "Give a documents API strong ETags and Last-Modified, answer 304 to conditional reads, and stop lost updates with If-Match, 428 and 412."
+objectives:
+  - { id: o1, text: "Send validators with every representation and answer If-None-Match and If-Modified-Since with 304", skills: [api-design.caching] }
+  - { id: o2, text: "Require If-Match on writes and answer 428 and 412 so concurrent editors cannot overwrite each other", skills: [api-design.caching, api-design.status-codes] }
+prerequisites: [api-design.p2.caching-conditional]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Every answer needs a validator the client can send back: what in `Document` changes exactly when the content changes? Reads and writes use that validator in opposite ways: a read asks "send it only if it changed", a write says "change it only if it did not". Which header carries each question, and which comparison (weak or strong) does each use?
+    - |-
+      The ETag is the quoted version: `"\"" + version + "\""`. For `GET`, if `headers.getIfNoneMatch()` is not empty, answer 304 when any tag is `*` or equals the ETag after dropping a `W/` prefix; otherwise compare `headers.getIfModifiedSince()` with `updatedAt`. For `PUT` and `DELETE`, an empty `getIfMatch()` throws `PreconditionRequiredException`; no tag equal to the current ETag (or `*`) throws `PreconditionFailedException`.
+    - |-
+      ```java
+      private void requireMatch(String id, HttpHeaders headers) {
+          String current = etag(store.get(id));
+          List<String> ifMatch = headers.getIfMatch();
+          if (ifMatch.isEmpty()) {
+              throw new PreconditionRequiredException();
+          }
+          if (ifMatch.stream().noneMatch(tag -> tag.equals("*") || tag.equals(current))) {
+              throw new PreconditionFailedException(id);
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, JUnit 6 and Spring Boot 4 that runs the grading tests.

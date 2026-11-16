@@ -1,0 +1,23 @@
+id: api-design.p1.naming-urls
+kind: lesson
+status: draft
+title: "Naming, URL Design and Representation Conventions"
+summary: "URL rules (plural nouns, kebab-case, no verbs, short nesting), path versus query, opaque ids, JSON field conventions for case, dates, money, enums and collections, and a glossary for consistent names."
+objectives:
+  - { id: o1, text: "Design URLs with plural nouns, kebab-case segments, no verbs and the right split between path and query", skills: [api-design.naming-urls] }
+  - { id: o2, text: "Apply consistent conventions for field names, ids, dates, money, enums and collection envelopes", skills: [api-design.naming-urls] }
+prerequisites: [api-design.p1.rest-maturity]
+difficulty: 2
+estimated_minutes: 35
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this response of `GET /api/getUserOrders?userID=17` and rewrite both the request and the body to follow the conventions of this lesson: `[{"OrderID": 1042, "cust_name": "Ada", "total": 29.99, "created": "03/01/2026 10:00", "is_not_shipped": true, "state": 2}]`. Explain each change in one line, and add three entries to a team glossary that this example shows you need.'
+  criteria:
+    - 'Rewrites the URL as a resource (for example /customers/{id}/orders or /orders?customerId=...) without verbs'
+    - 'Uses one field case consistently and positive boolean names'
+    - 'Uses RFC 3339 timestamps, integer minor units or decimal strings plus currency for money, and named enum values instead of numbers'
+    - 'Wraps the list in an object so pagination metadata can be added'
+    - 'Proposes sensible glossary entries (for example customer vs user, order id format, status values)'

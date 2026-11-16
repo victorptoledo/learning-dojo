@@ -1,0 +1,24 @@
+id: api-design.p4.production-failures
+kind: lesson
+status: draft
+title: "API Failure Modes in Production"
+summary: "Nine recurring API incidents (accidental breaking changes, retry storms, duplicate side effects, unbounded queries, pagination drift, thundering herds, leaky errors and broken object-level authorisation, unnoticed deprecations, time and money bugs), their prevention, and how to operate an API."
+objectives:
+  - { id: o1, text: "Recognise the common API failure modes from their symptoms and name their root causes", skills: [api-design.production] }
+  - { id: o2, text: "Map each failure mode to the design decision that prevents it and turn post-mortem lessons into guide rules", skills: [api-design.production, api-design.governance] }
+  - { id: o3, text: "Define observability, SLOs and communication (status page, changelog) for an API", skills: [api-design.production] }
+prerequisites: [api-design.p4.openapi-lint]
+difficulty: 4
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write a blameless post-mortem (one page) for this incident: on Monday at 09:00 a payment API''s database failed over for 40 seconds; the API returned 503s; the mobile SDK retried immediately up to 5 times, the gateway retried 3 times per request, and partner batch jobs scheduled at 09:00 sharp kept running; the API stayed unavailable for 35 minutes, and afterwards 212 customers had been charged twice. Include the timeline, the root causes (more than one), what went well, and at least six action items, each mapped to a design rule from this track.'
+  criteria:
+    - 'Explains the retry storm (multiplied retries, no backoff or jitter, synchronised batch jobs) as the reason a 40-second failover became 35 minutes'
+    - 'Explains the double charges (non-idempotent POST retried after timeouts) and proposes idempotency keys with atomic checks'
+    - 'Proposes backoff with jitter, a single retrying layer or retry budgets, Retry-After, load shedding and jittered schedules'
+    - 'Includes monitoring and communication actions (per-client metrics, status page)'
+    - 'Keeps the tone blameless and each action item concrete with an owner or rule'

@@ -1,0 +1,50 @@
+id: api-design.p1.catalog-resources
+kind: kata
+status: draft
+title: "Catalog Resources"
+summary: "Turn an RPC-style catalog (POST /getProducts, always 200 with an ok flag) into resources with the right methods, status codes and a Location for what you create."
+objectives:
+  - { id: o1, text: "Model a collection and its items as resources, with GET, POST, PUT and DELETE on the right URLs", skills: [api-design.rest-maturity, api-design.naming-urls] }
+  - { id: o2, text: "Answer 200, 201 with Location, 204, 400, 404 and 405 where HTTP says they belong", skills: [api-design.status-codes, api-design.http-semantics] }
+prerequisites: [api-design.p1.naming-urls]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Every legacy endpoint puts the action in the URL and the outcome in the body. Move the action into the HTTP method and the outcome into the status code. Which two URLs are left once the verbs are gone? Which method on which URL replaces each of the five legacy endpoints?
+    - |-
+      `@GetMapping` with an optional `@RequestParam String category` serves the collection, `@GetMapping("/{id}")` one item. `ResponseEntity.of(optional)` answers 200 or 404 by itself. `ResponseEntity.created(uri).body(product)` is the 201; `ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(id).toUri()` builds the absolute URL. Put `@Valid` before `@RequestBody` so the record's constraints run. Spring answers 405 by itself for a method no mapping declares.
+    - |-
+      ```java
+      @PostMapping
+      public ResponseEntity<Product> create(@Valid @RequestBody ProductRequest request) {
+          Product product = store.create(request);
+          URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                  .path("/{id}")
+                  .buildAndExpand(product.id())
+                  .toUri();
+          return ResponseEntity.created(location).body(product);
+      }
+
+      @DeleteMapping("/{id}")
+      public ResponseEntity<Void> delete(@PathVariable long id) {
+          return store.delete(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, JUnit 6 and Spring Boot 4 that runs the grading tests.

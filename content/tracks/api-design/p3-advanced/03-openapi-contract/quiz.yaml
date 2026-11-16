@@ -1,0 +1,31 @@
+questions:
+  - id: what-for
+    prompt: "Which is NOT something an OpenAPI document is commonly used for?"
+    options: ["Generating client SDKs", "Choosing the database engine", "Running a mock server", "Detecting breaking changes between versions"]
+    answer: 1
+    explanation: "The document describes the HTTP contract; storage is an implementation detail."
+  - id: json-schema
+    prompt: "What is the main schema change of OpenAPI 3.1 over 3.0?"
+    options: ["XML only", "Schemas are full JSON Schema 2020-12 (for example type: [string, \"null\"] instead of nullable)", "No more components", "Paths became optional"]
+    answer: 1
+    explanation: "3.1 aligned its schema object with JSON Schema, so standard validators and tools apply."
+  - id: operation-id
+    prompt: "Why keep operationId unique and stable?"
+    options: ["The spec forbids changing it", "SDK generators use it as the method name, so changing it breaks generated clients", "It sets the URL", "It is the cache key"]
+    answer: 1
+    explanation: "An operationId is part of the developer-facing contract once SDKs exist."
+  - id: ref
+    prompt: "Why define the problem response once under components and $ref it everywhere?"
+    options: ["It is required", "Every operation then documents errors the same way, and a change happens in one place", "It makes responses faster", "YAML cannot repeat keys"]
+    answer: 1
+    explanation: "Reuse in the contract produces consistency in the API."
+  - id: design-first-ci
+    prompt: "In a design-first workflow, what does oasdiff (or a similar tool) do in CI?"
+    options: ["Formats YAML", "Compares the new document with the released one and fails on breaking changes", "Deploys the API", "Generates load"]
+    answer: 1
+    explanation: "Breaking-change detection turns versioning rules into a red build."
+  - id: version-field
+    prompt: "What does info.version in an OpenAPI document mean?"
+    options: ["The OpenAPI specification version", "The version of this API document, independent of any /v2 in URLs", "The server's build number", "The JSON Schema draft"]
+    answer: 1
+    explanation: "The spec version is the top-level openapi field; info.version versions your contract."

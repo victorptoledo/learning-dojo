@@ -1,0 +1,271 @@
+# Placement test of the API Design track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How much API design have you done?
+  options:
+    - { label: "None yet: I call APIs but have not designed one", start_phase: p0, test: false }
+    - { label: "I build REST endpoints and know status codes, errors and pagination", start_phase: p1, test: true }
+    - { label: "I design APIs that evolve: versioning, idempotency, caching, auth and contracts", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-approve-action
+    phase: p1
+    skills: [api-design.rest-maturity]
+    difficulty: 2
+    prompt: "An expense report must be approved by a manager, who adds a comment. Which design is the most resource-oriented?"
+    options: ["GET /reports/12/approve?comment=ok", "POST /reports/12/approvals with the comment", "POST /approveReport", "DELETE /reports/12/pending"]
+    answer: 1
+    explanation: "The approval is a thing with its own data; creating it is a POST to its collection."
+  - id: p1-put-semantics
+    phase: p1
+    skills: [api-design.rest-maturity, api-design.http-semantics]
+    difficulty: 2
+    prompt: "A client sends the same PUT /devices/7 body three times because of retries. What is the final state?"
+    options: ["Three devices", "The same as after one PUT: PUT is idempotent", "Undefined", "The device is deleted"]
+    answer: 1
+    explanation: "A full replacement repeated gives the same state."
+  - id: p1-query-or-path
+    phase: p1
+    skills: [api-design.naming-urls]
+    difficulty: 2
+    prompt: "Which URL best lists the open tickets of project 4?"
+    options: ["/getOpenTickets?project=4", "/projects/4/tickets?status=OPEN", "/projects/4/open-tickets/list", "/tickets/4/OPEN"]
+    answer: 1
+    explanation: "The collection is a sub-resource; the status narrows it, so it is a query parameter."
+  - id: p1-float-money
+    phase: p1
+    skills: [api-design.naming-urls]
+    difficulty: 2
+    prompt: "A refund of 0.10 + 0.20 arrives as 0.30000000000000004. Which convention prevents this?"
+    options: ["Rounding on the client", "Money as integer minor units (or decimal strings) plus a currency", "Using XML", "Sending money as a header"]
+    answer: 1
+    explanation: "Binary floating point cannot represent most decimal fractions exactly."
+  - id: p1-status-delete
+    phase: p1
+    skills: [api-design.status-codes]
+    difficulty: 1
+    prompt: "A DELETE succeeds and there is nothing to return. Which status?"
+    options: ["200 with {}", "204 No Content", "202 Accepted", "410 Gone"]
+    answer: 1
+    explanation: "204 says success with no body."
+  - id: p1-status-401-403
+    phase: p1
+    skills: [api-design.status-codes]
+    difficulty: 2
+    prompt: "A logged-in user without the admin role calls an admin-only endpoint. Which status?"
+    options: ["401 Unauthorized", "403 Forbidden", "400 Bad Request", "405 Method Not Allowed"]
+    answer: 1
+    explanation: "The caller is authenticated but not allowed."
+  - id: p1-problem-extension
+    phase: p1
+    skills: [api-design.errors]
+    difficulty: 2
+    prompt: "A quota problem should tell the client how much quota is left. Where does that number go?"
+    options: ["In the detail text, for the client to parse", "In an extension member such as \"remaining\": 0", "In the title", "In the type URI"]
+    answer: 1
+    explanation: "Machine-readable data goes in extension members; detail is for humans."
+  - id: p1-problem-500
+    phase: p1
+    skills: [api-design.errors]
+    difficulty: 2
+    prompt: "What belongs in the body of a 500 problem detail?"
+    options: ["The exception class and stack trace", "A generic detail and an instance or correlation id", "The SQL statement", "The server's host name"]
+    answer: 1
+    explanation: "Internals stay in the logs, found through the correlation id."
+  - id: p1-offset-cost
+    phase: p1
+    skills: [api-design.pagination]
+    difficulty: 3
+    prompt: "A sync job pages through 5 million rows with ?offset=. Why does it get slower with every page?"
+    options: ["The network gets congested", "Each page makes the database skip all earlier rows again", "JSON gets bigger", "The cursor expires"]
+    answer: 1
+    explanation: "Offsets are read and thrown away; keyset cursors seek directly."
+  - id: p1-sort-tiebreak
+    phase: p1
+    skills: [api-design.pagination]
+    difficulty: 3
+    prompt: "Orders are sorted by totalCents and paged with a keyset cursor on totalCents. Many orders cost exactly 1000. What happens?"
+    options: ["Nothing special", "Orders with the same total are skipped or repeated across pages; add a unique tie-breaker such as id", "The sort becomes random", "The API must use offsets"]
+    answer: 1
+    explanation: "A cursor position must be unique."
+  # ---- P2 Intermediate -------------------------------------------------------------
+  - id: p2-cursor-delete
+    phase: p2
+    skills: [api-design.pagination]
+    difficulty: 3
+    prompt: "While a client pages through a feed with an opaque keyset cursor, an item on an earlier page is deleted. What happens to the next page?"
+    options: ["It skips one item", "Nothing: it continues after the last item the client saw", "It repeats an item", "It fails with 409"]
+    answer: 1
+    explanation: "The cursor is a position in the order, not a count of items."
+  - id: p2-null-vs-absent
+    phase: p2
+    skills: [api-design.versioning]
+    difficulty: 3
+    prompt: "A serializer upgrade starts sending \"nickname\": null where the field used to be absent. Why might that be a breaking change?"
+    options: ["It cannot be", "Clients that distinguish absent from null, or strict schema validators, may now fail", "It changes the status code", "It invalidates ETags only"]
+    answer: 1
+    explanation: "Observable behaviour changed; contract tests catch this."
+  - id: p2-version-placement
+    phase: p2
+    skills: [api-design.versioning]
+    difficulty: 2
+    prompt: "You add an optional filter parameter to GET /v1/orders. What version should it get?"
+    options: ["/v2/orders", "None: an additive, optional change stays in v1", "/v1.1/orders", "A new media type"]
+    answer: 1
+    explanation: "Compatible changes do not need a new version."
+  - id: p2-sunset-final
+    phase: p2
+    skills: [api-design.versioning]
+    difficulty: 3
+    prompt: "After the sunset date, what should a retired endpoint answer?"
+    options: ["404 with an empty body", "410 Gone with a problem detail linking to the migration guide", "200 with old data", "301 to the home page"]
+    answer: 1
+    explanation: "410 says it is gone on purpose; the problem detail tells clients where to go."
+  - id: p2-key-generation
+    phase: p2
+    skills: [api-design.idempotency]
+    difficulty: 2
+    prompt: "A mobile app retries POST /transfers after a timeout. Which Idempotency-Key should the retry send?"
+    options: ["A new UUID", "The same key as the first attempt", "No key", "The user's id"]
+    answer: 1
+    explanation: "Only the same key lets the server recognise the retry."
+  - id: p2-key-atomic
+    phase: p2
+    skills: [api-design.idempotency]
+    difficulty: 4
+    prompt: "Two servers receive the same idempotency key at the same millisecond. What prevents both from charging?"
+    options: ["A SELECT before the INSERT", "An atomic \"insert if absent\": a unique constraint, SET NX or putIfAbsent, so only one wins", "Logging", "Short timeouts"]
+    answer: 1
+    explanation: "Check-then-insert races; the database or store must decide atomically."
+  - id: p2-etag-vary
+    phase: p2
+    skills: [api-design.caching]
+    difficulty: 3
+    prompt: "GET /products/3 returns English or German depending on Accept-Language. What must the response include for shared caches?"
+    options: ["Cache-Control: no-store", "Vary: Accept-Language (and a different ETag per language)", "Content-Length", "Expires: 0"]
+    answer: 1
+    explanation: "Vary keys the cache on the header; each representation has its own validator."
+  - id: p2-if-none-match-star
+    phase: p2
+    skills: [api-design.caching]
+    difficulty: 4
+    prompt: "PUT /usernames/ada with If-None-Match: * — what does the client ask for?"
+    options: ["Overwrite in any case", "Create only if the resource does not exist yet; otherwise answer 412", "Return 304", "Delete it"]
+    answer: 1
+    explanation: "A conditional create: two clients cannot both claim the same name."
+  # ---- P3 Advanced ---------------------------------------------------------------
+  - id: p3-pkce
+    phase: p3
+    skills: [api-design.auth]
+    difficulty: 3
+    prompt: "What does PKCE protect against in the Authorization Code flow?"
+    options: ["Slow token endpoints", "An attacker who intercepts the authorization code exchanging it for a token", "Expired refresh tokens", "Rate limiting"]
+    answer: 1
+    explanation: "Only the client that created the code verifier can redeem the code."
+  - id: p3-scope-design
+    phase: p3
+    skills: [api-design.auth]
+    difficulty: 3
+    prompt: "Which scope set follows least privilege best for an invoicing API?"
+    options: ["full_access", "invoices:read, invoices:write, invoices:void", "admin, user", "One scope per endpoint, 60 in total"]
+    answer: 1
+    explanation: "Resource:action scopes, with the dangerous action separate, at a granularity users can understand."
+  - id: p3-ratelimit-concurrency
+    phase: p3
+    skills: [api-design.rate-limiting]
+    difficulty: 3
+    prompt: "A report endpoint takes 20 s per call. Which limit protects it best?"
+    options: ["1,000 requests per hour", "A concurrency limit, for example at most 2 in flight per client", "A daily quota only", "No limit"]
+    answer: 1
+    explanation: "Slow endpoints are protected by bounding work in progress, not only arrivals."
+  - id: p3-retry-after
+    phase: p3
+    skills: [api-design.rate-limiting]
+    difficulty: 2
+    prompt: "A 429 carries Retry-After: 30. What should a well-behaved client do?"
+    options: ["Retry immediately", "Wait at least 30 seconds before retrying", "Switch to another API key", "Give up forever"]
+    answer: 1
+    explanation: "Retry-After is the server telling you when it can take the request."
+  - id: p3-openapi-deprecated
+    phase: p3
+    skills: [api-design.openapi]
+    difficulty: 2
+    prompt: "How do you mark a response property as going away in an OpenAPI 3.1 document?"
+    options: ["Delete it", "deprecated: true on the property schema", "A comment in the YAML", "x-remove: soon"]
+    answer: 1
+    explanation: "Tools and generated SDKs show deprecation warnings from it."
+  - id: p3-openapi-ci
+    phase: p3
+    skills: [api-design.openapi, api-design.versioning]
+    difficulty: 3
+    prompt: "A pull request removes a required response field from openapi.yaml. Which CI step should fail?"
+    options: ["The unit tests", "The breaking-change diff against the released document", "The YAML formatter", "The Docker build"]
+    answer: 1
+    explanation: "Tools like oasdiff compare contracts and flag removals."
+  - id: p3-proto-evolve
+    phase: p3
+    skills: [api-design.api-styles]
+    difficulty: 3
+    prompt: "Which Protocol Buffers change is safe for existing clients?"
+    options: ["Changing field 3 from int32 to string", "Adding a new field with an unused number", "Reusing the number of a removed field", "Renumbering all fields"]
+    answer: 1
+    explanation: "New numbers are ignored by old clients; types and numbers of existing fields must not change."
+  - id: p3-webhook-dedupe
+    phase: p3
+    skills: [api-design.webhooks-async]
+    difficulty: 3
+    prompt: "A receiver processed webhook evt_9, but its 200 was lost; the provider sends evt_9 again. What should the receiver do?"
+    options: ["Process it again", "Recognise the event id, skip the work and answer 200", "Answer 409", "Answer 500 so it stops"]
+    answer: 1
+    explanation: "At-least-once delivery requires idempotent receivers."
+  # ---- P4 Mastery ------------------------------------------------------------------
+  - id: p4-guide-rules
+    phase: p4
+    skills: [api-design.governance]
+    difficulty: 3
+    prompt: "Your style guide has 300 rules and nobody follows it. What usually helps most?"
+    options: ["Adding more rules", "Fewer, clearer MUST/SHOULD rules, most of them checked automatically in CI", "A monthly meeting", "Removing all rules"]
+    answer: 1
+    explanation: "A guide works when it is short and enforced by tools, leaving humans the judgement calls."
+  - id: p4-review-scope
+    phase: p4
+    skills: [api-design.governance]
+    difficulty: 3
+    prompt: "What is the best moment for an API design review?"
+    options: ["After the release, from customer feedback", "When the contract change is proposed, before implementation", "During the load test", "Never: linters are enough"]
+    answer: 1
+    explanation: "Changing a contract on paper is cheap; changing a released one is not."
+  - id: p4-lint-pointer
+    phase: p4
+    skills: [api-design.openapi, api-design.governance]
+    difficulty: 3
+    prompt: "A linter reports a problem at /paths/~1orders~1{id}/get. Which operation is it?"
+    options: ["GET /orders/~1{id}", "GET /orders/{id}", "The orders schema", "POST /orders"]
+    answer: 1
+    explanation: "In a JSON Pointer, ~1 stands for / inside one reference token."
+  - id: p4-retry-budget
+    phase: p4
+    skills: [api-design.production]
+    difficulty: 4
+    prompt: "SDK, gateway and service mesh each retry 3 times. A downstream outage starts. How many attempts can one user action cause?"
+    options: ["3", "Up to 4 × 4 × 4 = 64", "9", "1"]
+    answer: 1
+    explanation: "Retries multiply across layers; retry in one place, with a budget."
+  - id: p4-per-client
+    phase: p4
+    skills: [api-design.production]
+    difficulty: 3
+    prompt: "After a deploy, global error rates rise from 0.1 % to 0.2 %. Why look at errors per API key?"
+    options: ["To bill clients", "One integration may be failing completely while the average barely moves", "Global rates are always wrong", "Keys expire after deploys"]
+    answer: 1
+    explanation: "Averages hide the partner that is fully down."

@@ -4,20 +4,20 @@ name: "API Design"
 archetype: concept
 category: "Architecture & Engineering"
 icon: "🔌"
-description: "Designing programming interfaces: REST, gRPC, versioning, idempotency and error handling."
-status: draft
-bridges_available: [java]
+description: "Design HTTP APIs that clients can trust: HTTP semantics and status codes, resources and URLs, problem details (RFC 9457), pagination, versioning without breaking clients, idempotency keys, ETags and conditional requests, API keys and OAuth scopes, rate limits, OpenAPI as a contract, gRPC and GraphQL trade-offs, webhooks and API governance. Practised as Spring Boot katas checked with MockMvc."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Endpoint Maker" }
   - { name: "Yellow Belt", required_xp: 300, title: "Status Code Purist" }
-  - { name: "Green Belt", required_xp: 800, title: "OpenAPI Documenter" }
-  - { name: "Purple Belt", required_xp: 1500, title: "gRPC & Protobuf Pro" }
+  - { name: "Green Belt", required_xp: 800, title: "Problem Detailer" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Contract Keeper" }
   - { name: "Brown Belt", required_xp: 2500, title: "API Governance Architect" }
   - { name: "Black Belt", required_xp: 4000, title: "Contract Design Titan" }
   - { name: "Sensei", required_xp: 6000, title: "API Mastermind" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Why the discipline exists and the vocabulary to talk about it" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core concepts and mental models" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Trade-offs, combining concepts and common practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Advanced techniques and architecture at scale" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Real production cases, failure modes and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What an API contract is, and the HTTP semantics every design builds on" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Resources, URLs, errors as problem details and paginated collections" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Cursors, versioning, idempotency and conditional requests: APIs that survive change and retries" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Auth and scopes, rate limits, OpenAPI contracts, other API styles and async APIs" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Governance, design review and what breaks APIs in production" }

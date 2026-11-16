@@ -1,0 +1,31 @@
+questions:
+  - id: lro
+    prompt: "An export takes ten minutes. How should POST /exports answer?"
+    options: ["Hold the connection for ten minutes", "202 Accepted with a Location to an export resource the client can poll", "201 with the CSV", "204 No Content"]
+    answer: 1
+    explanation: "The operation becomes a resource with a status and, later, a result."
+  - id: at-least-once
+    prompt: "Webhooks are delivered at least once. What does that require from receivers?"
+    options: ["Nothing", "Idempotent processing: deduplicate by event id", "Answering 500 to duplicates", "Polling as well"]
+    answer: 1
+    explanation: "A retry after a lost acknowledgement delivers the same event again."
+  - id: signature
+    prompt: "Why include a timestamp in the signed content of a webhook?"
+    options: ["For logging only", "So receivers can reject old deliveries and an attacker cannot replay a captured request later", "To sort events", "HTTP requires it"]
+    answer: 1
+    explanation: "Without it, a valid signed request could be replayed forever."
+  - id: ordering
+    prompt: "payment.updated events can arrive out of order. Which design is robust?"
+    options: ["Assume order", "Thin events that make the receiver fetch the current state, or a version to discard stale events", "Send all events twice", "Use a smaller payload"]
+    answer: 1
+    explanation: "Either the receiver reads the truth from the API, or it can tell which event is newer."
+  - id: fast-ack
+    prompt: "What should a webhook receiver do before heavy processing?"
+    options: ["Process everything, then answer", "Verify the signature, store or enqueue the event and answer 2xx quickly", "Answer 202 and drop it", "Call the provider back"]
+    answer: 1
+    explanation: "Slow receivers cause timeouts, which cause retries and duplicates."
+  - id: ssrf
+    prompt: "What risk does sending webhooks to customer-chosen URLs create for the provider?"
+    options: ["None", "Server-side request forgery: URLs pointing at internal services or cloud metadata endpoints", "Higher database load", "Cache poisoning"]
+    answer: 1
+    explanation: "Filter internal addresses and pin the resolved IP before connecting."

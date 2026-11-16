@@ -1,0 +1,23 @@
+id: api-design.p0.status-codes
+kind: lesson
+status: draft
+title: "Choosing HTTP Status Codes"
+summary: "What each status class tells generic clients, the twenty codes an API really uses, how to choose between 400, 401, 403, 404, 409 and 422, and why 200 with an error body is the worst answer."
+objectives:
+  - { id: o1, text: "Pick the status class from who must act (client or server) and what generic clients will do with it", skills: [api-design.status-codes] }
+  - { id: o2, text: "Choose between 201, 202 and 204 and between 400, 401, 403, 404, 405, 409, 422 and 429 for concrete situations", skills: [api-design.status-codes] }
+prerequisites: [api-design.p0.http-semantics]
+difficulty: 2
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Pick the status code (and any header that should go with it) for each situation of a ticket-booking API, with one sentence of justification each: (1) a booking is created; (2) a report export is queued and will be ready in a few minutes; (3) the seat was already taken by someone else a second ago; (4) the request JSON is cut in half; (5) the user is logged in but tries to cancel someone else''s booking; (6) the user sends 300 requests in a minute; (7) the database is down; (8) DELETE on a booking that was already deleted. Then write the one rule you would put in a style guide about 400 versus 422.'
+  criteria:
+    - 'Uses 201 with Location, 202 with a status URL, 409 for the taken seat, 400 for broken JSON'
+    - 'Distinguishes 403 from 404 for someone else''s booking and justifies the choice (information leak)'
+    - 'Uses 429 with Retry-After and 503 (with Retry-After) for the database outage'
+    - 'Handles the repeated DELETE consistently (404 or 204) and knows DELETE stays idempotent'
+    - 'States one clear, consistent 400 versus 422 rule'

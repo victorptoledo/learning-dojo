@@ -1,0 +1,23 @@
+id: api-design.p1.pagination-filtering
+kind: lesson
+status: draft
+title: "Pagination, Filtering and Sorting"
+summary: "Offset versus cursor (keyset) pagination and their failure modes, opaque cursors bound to their query, Link headers, filter and sort parameters, and default and maximum page sizes."
+objectives:
+  - { id: o1, text: "Choose offset or cursor pagination for a collection and explain the instability and cost of offsets", skills: [api-design.pagination] }
+  - { id: o2, text: "Design filter, sort and page-size parameters with validation, tie-breakers and Link headers", skills: [api-design.pagination, api-design.naming-urls] }
+prerequisites: [api-design.p1.problem-responses]
+difficulty: 3
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the list endpoint for the transactions of a bank account: millions of rows per account, new transactions arrive every second, the mobile app shows an infinite scroll newest first, and the web app needs filters by date range, type and minimum amount. Specify the request parameters (with defaults and limits), the response body, the next-page mechanism and the database query or index behind it. Explain what would go wrong with page/size here and how your design handles two transactions with the same timestamp.'
+  criteria:
+    - 'Chooses cursor (keyset) pagination and explains why offsets repeat or skip items and get slow at depth'
+    - 'Uses a unique sort key (timestamp plus id) and an index that matches it'
+    - 'Makes the cursor opaque and bound to the filters; invalid cursors get a 400 problem'
+    - 'Defines a default and a maximum limit and validated filter parameters'
+    - 'Describes how the client learns about the next page (next cursor and/or Link header)'

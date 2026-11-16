@@ -1,0 +1,31 @@
+questions:
+  - id: proto-identity
+    prompt: "In Protocol Buffers, what identifies a field on the wire?"
+    options: ["Its name", "Its number", "Its position in the file", "Its type"]
+    answer: 1
+    explanation: "That is why numbers must never be reused or retyped; names can even be changed."
+  - id: reserved
+    prompt: "You remove field 4 from a message. What should you do?"
+    options: ["Reuse 4 for the next new field", "Mark 4 (and the old name) as reserved so nobody reuses it", "Renumber the remaining fields", "Nothing"]
+    answer: 1
+    explanation: "Reusing the number would make old clients read new data as the old field."
+  - id: grpc-browser
+    prompt: "What is a practical limitation of gRPC for public web clients?"
+    options: ["No typing", "Browsers cannot speak it directly; you need gRPC-Web or a gateway", "No streaming", "No code generation"]
+    answer: 1
+    explanation: "gRPC relies on HTTP/2 features browsers do not expose to JavaScript."
+  - id: graphql-cost
+    prompt: "What must a public GraphQL API limit that a REST API usually does not need to?"
+    options: ["The number of endpoints", "Query depth and complexity, because one query can ask for enormous nested data", "JSON size", "The number of types"]
+    answer: 1
+    explanation: "Clients shape the query, so the server must bound what one query may cost."
+  - id: n-plus-1
+    prompt: "A GraphQL list of 100 orders resolves customer for each order with one database query. What is this and the usual fix?"
+    options: ["Fine as is", "The N+1 problem; batch the lookups with a DataLoader-style loader", "A caching bug; add ETags", "A versioning issue"]
+    answer: 1
+    explanation: "Batching turns 100 queries into one."
+  - id: choose
+    prompt: "Which client is the best fit for GraphQL?"
+    options: ["A partner's nightly CSV export", "Your own mobile app whose screens each need different slices of a connected domain", "A low-latency internal stream between two services", "A webhook receiver"]
+    answer: 1
+    explanation: "GraphQL shines when you control the clients and they need flexible reads."

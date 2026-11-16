@@ -1,0 +1,49 @@
+questions:
+  - id: cp1-resource
+    skills: [api-design.rest-maturity]
+    prompt: "A support team needs to \"reopen\" a closed ticket, recording who reopened it and why. Which design fits a resource-oriented API best?"
+    options: ["GET /tickets/9/reopen", "POST /tickets/9/reopenings with the reason, creating a record of the reopening", "POST /reopenTicket", "PUT /tickets with all tickets"]
+    answer: 1
+    explanation: "An action with its own data and history is a resource of its own."
+  - id: cp1-patch
+    skills: [api-design.rest-maturity]
+    prompt: "A profile has forty fields and clients usually change one. Which update is the better default?"
+    options: ["PUT with all forty fields", "PATCH with a JSON Merge Patch of the changed fields", "POST /profiles/7/update", "DELETE and recreate"]
+    answer: 1
+    explanation: "PATCH sends only what changes; PUT would force clients to send (and not lose) every field."
+  - id: cp1-naming
+    skills: [api-design.naming-urls]
+    prompt: "One endpoint returns customerId, another clientId, a third customer_id, all for the same thing. What is the main problem?"
+    options: ["Performance", "Inconsistency: clients cannot guess names and must special-case each endpoint", "Security", "Nothing, JSON allows it"]
+    answer: 1
+    explanation: "One concept, one name, everywhere; a glossary in the style guide prevents this."
+  - id: cp1-status-create
+    skills: [api-design.status-codes]
+    prompt: "What should POST /orders answer when it creates order ord_7?"
+    options: ["200 and the order", "201, Location: .../orders/ord_7, and the order", "204", "302 to /orders/ord_7"]
+    answer: 1
+    explanation: "201 with Location is the standard answer for a created resource."
+  - id: cp1-status-state
+    skills: [api-design.status-codes, api-design.errors]
+    prompt: "Cancelling an order that has already shipped should answer..."
+    options: ["200 with {\"ok\": false}", "409 Conflict with a problem detail whose type says the order cannot be cancelled", "500", "404"]
+    answer: 1
+    explanation: "The request conflicts with the resource's state; the problem type tells the client exactly why."
+  - id: cp1-problem-type
+    skills: [api-design.errors]
+    prompt: "A mobile app must show a special screen when a card is declined. What should its code check?"
+    options: ["That detail contains the word \"declined\"", "The problem's type URI", "The title text", "Only the status code 402"]
+    answer: 1
+    explanation: "type is stable and meant for code; detail and title are human text and may change or be translated."
+  - id: cp1-cursor
+    skills: [api-design.pagination]
+    prompt: "Why does cursor pagination stay correct when new items arrive between two page requests?"
+    options: ["It caches the whole result", "The next page is defined by the last item's sort key, not by a position that shifts", "It locks the table", "It does not"]
+    answer: 1
+    explanation: "\"After (time, id)\" means the same thing however many items were added before it."
+  - id: cp1-links
+    skills: [api-design.pagination]
+    prompt: "GET /orders?status=PAID&size=10&page=2 answers with a Link rel=\"next\". What must that link contain?"
+    options: ["Only page=3", "page=3 and every other parameter of the request (status=PAID, size=10)", "A session id", "Nothing: the client builds it"]
+    answer: 1
+    explanation: "Clients follow links blindly; dropping the filter would silently change the collection."

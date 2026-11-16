@@ -1,0 +1,31 @@
+questions:
+  - id: add-field
+    prompt: "When is adding a field to a response a compatible change?"
+    options: ["Never", "When clients are tolerant readers that ignore unknown fields", "Only in XML", "Only with a new version"]
+    answer: 1
+    explanation: "Document from day one that clients must ignore fields they do not know."
+  - id: required
+    prompt: "Making an optional request field required is..."
+    options: ["Compatible", "Breaking: old clients that do not send it start failing", "Compatible if the field is a string", "Only a documentation change"]
+    answer: 1
+    explanation: "Requests that worked yesterday fail today."
+  - id: rename
+    prompt: "What is the expand-then-contract way to rename phone to phoneNumber?"
+    options: ["Rename it in one release", "Add phoneNumber, keep phone filled and deprecated, measure usage, remove phone only after the deprecation period", "Create /v2 at once", "Send both and let clients guess"]
+    answer: 1
+    explanation: "The overlap period lets every client move at its own pace."
+  - id: sunset
+    prompt: "Which header tells clients the date after which an endpoint may stop answering?"
+    options: ["Expires", "Sunset (RFC 8594)", "Retry-After", "Deprecation"]
+    answer: 1
+    explanation: "Deprecation (RFC 9745) says since when it is deprecated; Sunset says when it may go away."
+  - id: enum
+    prompt: "Why can a new enum value in a response break clients?"
+    options: ["JSON limits enum size", "Clients with closed enums or exhaustive switches fail on a value they do not know", "It changes the status code", "It never can"]
+    answer: 1
+    explanation: "Either document enums as open from the start or map new values for old versions."
+  - id: contract-tests
+    prompt: "What does a consumer-driven contract test check?"
+    options: ["That the server is fast", "That the provider still satisfies the expectations a specific client recorded", "That the OpenAPI file is valid YAML", "That the client has no bugs"]
+    answer: 1
+    explanation: "Each consumer's real expectations run in the provider's build, so breaking them fails CI."

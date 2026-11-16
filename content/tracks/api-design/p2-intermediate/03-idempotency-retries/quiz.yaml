@@ -1,0 +1,31 @@
+questions:
+  - id: unknown-outcome
+    prompt: "A POST /payments times out on the client. What does the client know?"
+    options: ["The payment failed", "Nothing: the server may or may not have charged", "The payment succeeded", "The server is down"]
+    answer: 1
+    explanation: "A timeout can happen after the work was done; that is why retries must be made safe."
+  - id: key-per
+    prompt: "How often should a client generate a new Idempotency-Key?"
+    options: ["For every attempt", "Once per logical operation, reused for all its retries", "Once per day", "Once per app install"]
+    answer: 1
+    explanation: "A new key per attempt would make every retry a new payment."
+  - id: mismatch
+    prompt: "A request arrives with a key already used for a different body. What should the server answer?"
+    options: ["Run it", "422: the key was reused for another request", "Replay the old response", "500"]
+    answer: 1
+    explanation: "Replaying the old response for a different request would hide a client bug."
+  - id: in-progress
+    prompt: "Two requests with the same key arrive at the same time. What should the second one get while the first runs?"
+    options: ["A second charge", "409 Conflict with Retry-After", "200 with an empty body", "A queue position"]
+    answer: 1
+    explanation: "Only one may run; the other should retry shortly and will then get the replay."
+  - id: store-503
+    prompt: "The payment processor was unreachable and the API answered 503 without charging. Should the server keep the key with that answer?"
+    options: ["Yes, always store every answer", "No: nothing happened, so release the key and let the client retry with it", "Store it forever", "Delete the client's account"]
+    answer: 1
+    explanation: "Storing a failure that changed nothing would make the retry useless."
+  - id: backoff
+    prompt: "Why add jitter to exponential backoff?"
+    options: ["It makes retries faster", "So thousands of clients that failed at the same moment do not retry at the same moment again", "HTTP requires it", "To hide errors"]
+    answer: 1
+    explanation: "Synchronised retries hit a recovering service like a second outage."

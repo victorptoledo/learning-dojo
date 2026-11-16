@@ -1,0 +1,242 @@
+# Technical interview questions for the api-design track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/api-design"
+  - "https://google.aip.dev/"
+  - "https://github.com/microsoft/api-guidelines"
+  - "https://opensource.zalando.com/restful-api-guidelines/"
+  - "https://www.rfc-editor.org/rfc/rfc9110"
+  - "https://www.rfc-editor.org/rfc/rfc9457"
+  - "https://docs.stripe.com/api/idempotent_requests"
+  - "https://owasp.org/API-Security/editions/2023/en/0x11-t10/"
+questions:
+  - id: put-vs-patch
+    level: junior
+    skills: [api-design.rest-maturity, api-design.http-semantics]
+    question: "What is the difference between PUT, PATCH and POST for changing a resource, and which of them are idempotent?"
+    key_points:
+      - "PUT replaces the whole representation and is idempotent"
+      - "PATCH applies a partial change; idempotent only for formats like JSON Merge Patch"
+      - "POST processes the body by the resource's own rules and is not idempotent"
+      - "Idempotency matters because clients and proxies may retry"
+    follow_up: "A client sends PUT with only one of ten fields. What should happen to the other nine?"
+  - id: safe-get
+    level: junior
+    skills: [api-design.http-semantics]
+    question: "Why must GET never change state? Give a concrete way it could go wrong."
+    key_points:
+      - "GET is safe by contract: crawlers, prefetchers, link previews and caches call it freely"
+      - "A GET /orders/42/cancel could be triggered by a chat link preview"
+      - "Caches and retries assume GET has no side effects"
+    follow_up: "Is it acceptable for a GET to write an access log or update a 'last seen' timestamp?"
+  - id: status-choice
+    level: junior
+    skills: [api-design.status-codes]
+    question: "Which status codes would you return for: a created resource, invalid input, a missing resource, a wrong state transition, a rate-limited client and a database outage?"
+    key_points:
+      - "201 with Location; 400 (or 422) with field errors; 404; 409"
+      - "429 with Retry-After; 503 with Retry-After"
+      - "Explains 4xx means the client must change something, 5xx that the server failed"
+      - "Never 200 with an error body"
+    follow_up: "When would you answer 404 instead of 403?"
+  - id: url-design
+    level: junior
+    skills: [api-design.naming-urls]
+    question: "Review these URLs and fix them: /getUsers, /user/5/delete, /Users/5/Orders/, /orders?action=cancel&id=9."
+    key_points:
+      - "Plural nouns, lowercase kebab-case, no verbs, no trailing slash"
+      - "The HTTP method carries the action (DELETE /users/5)"
+      - "Cancellation as a sub-resource (POST /orders/9/cancellation) or a state change"
+      - "Mentions consistency across the whole API"
+    follow_up: "When is a query parameter better than a path segment?"
+  - id: problem-details
+    level: mid
+    skills: [api-design.errors]
+    question: "How would you design error responses for a public API? Show an example for a validation error with two fields."
+    key_points:
+      - "RFC 9457 problem details with application/problem+json"
+      - "type URI for code, title and detail for humans, instance, extension members"
+      - "An errors list with JSON Pointers to each invalid field, all reported at once"
+      - "No stack traces or internals; correlation id for support"
+    follow_up: "How do clients stay compatible when you add a new problem type?"
+  - id: pagination-choice
+    level: mid
+    skills: [api-design.pagination]
+    question: "Offset or cursor pagination: how do you decide, and how do you implement a cursor correctly?"
+    key_points:
+      - "Offsets are simple and allow page jumps but are slow at depth and shift under inserts and deletes"
+      - "Keyset cursors are stable and fast; no random access"
+      - "Unique sort key with a tie-breaker; fetch limit + 1 to detect the next page"
+      - "Opaque, versioned cursor bound to the query; default and maximum page sizes"
+    follow_up: "How would you let a partner sync all changes since yesterday reliably?"
+  - id: breaking-changes
+    level: mid
+    skills: [api-design.versioning]
+    question: "Which changes to an HTTP API are breaking? Give at least two non-obvious ones."
+    key_points:
+      - "Removing or renaming fields, changing types, making optional inputs required"
+      - "Non-obvious: new enum values for closed-enum clients, changed defaults, stricter validation, null instead of absent"
+      - "Tolerant readers make additive response fields safe"
+      - "Contract tests or an OpenAPI diff in CI to catch them"
+    follow_up: "How would you rename a field without a new version?"
+  - id: versioning-strategy
+    level: mid
+    skills: [api-design.versioning]
+    question: "Compare URL versioning, header or media-type versioning and date-based versions. Which would you choose for a public API and why?"
+    key_points:
+      - "URL major versions are visible and easy to route and cache"
+      - "Headers keep URLs stable but are invisible in links and need Vary"
+      - "Date-based versions (Stripe) pin clients and transform responses step by step"
+      - "Most changes should be compatible and need no version at all"
+    follow_up: "How do you retire v1? Which headers do you send?"
+  - id: idempotency-key
+    level: mid
+    skills: [api-design.idempotency]
+    question: "A client times out on POST /payments and retries. How do you make sure the customer is charged once?"
+    key_points:
+      - "Idempotency-Key generated per operation and reused for retries"
+      - "Server stores key, request fingerprint and response, scoped per client"
+      - "Replay on same key and same request; 422 on different request; 409 while in progress"
+      - "Atomic new-key check (unique constraint) and the effect committed with the stored response"
+    follow_up: "Which failures should not be stored, so the client can retry?"
+  - id: retries-client
+    level: mid
+    skills: [api-design.idempotency, api-design.production]
+    question: "Describe a good retry policy for an API client."
+    key_points:
+      - "Retry only idempotent requests or requests with an idempotency key"
+      - "Retry network errors, 408, 429 and 5xx; not other 4xx"
+      - "Exponential backoff with jitter, Retry-After honoured, attempt limit and overall deadline"
+      - "Retry in one layer only to avoid multiplication"
+    follow_up: "What is a retry budget?"
+  - id: etag-lost-update
+    level: mid
+    skills: [api-design.caching]
+    question: "Two administrators edit the same product at the same time. How does HTTP let you avoid the lost update?"
+    key_points:
+      - "ETag on reads; If-Match on writes with the ETag the client last read"
+      - "412 when it no longer matches, 428 when If-Match is required but missing"
+      - "Strong comparison for If-Match"
+      - "ETag from a version column also gives optimistic locking in the database"
+    follow_up: "How does If-None-Match save bandwidth on reads?"
+  - id: cache-control
+    level: mid
+    skills: [api-design.caching]
+    question: "Which Cache-Control would you use for a public product page, a user's cart and a page showing a credit card's last digits?"
+    key_points:
+      - "Public: max-age or s-maxage with ETag revalidation, maybe stale-while-revalidate"
+      - "Cart: private, no-cache or a short max-age"
+      - "Sensitive: no-store"
+      - "Vary for headers that change the representation"
+    follow_up: "Why does a response to a request with Authorization usually not get stored by a CDN?"
+  - id: oauth-flows
+    level: mid
+    skills: [api-design.auth]
+    question: "Which OAuth 2 flow fits a single-page app, a mobile app, a backend job and a smart TV? What does OAuth 2.1 change?"
+    key_points:
+      - "Authorization Code with PKCE for SPA and mobile"
+      - "Client Credentials for the job; Device Authorization for the TV"
+      - "OAuth 2.1 removes implicit and password grants and requires PKCE"
+      - "Scopes for least privilege; check aud, iss, exp on tokens"
+    follow_up: "Where would you still use API keys?"
+  - id: authz-object
+    level: senior
+    skills: [api-design.auth, api-design.production]
+    question: "Your API checks scopes on every endpoint. A researcher still reads other tenants' data. What did you miss and how do you prevent it systematically?"
+    key_points:
+      - "Broken object-level authorisation (OWASP API1)"
+      - "Every lookup checks ownership or tenancy, ideally in one place (repository filters, policies)"
+      - "Tests that try other tenants' ids; opaque ids as defence in depth"
+      - "404 versus 403 decision written in the style guide"
+    follow_up: "How would you detect this in production?"
+  - id: rate-limit-design
+    level: mid
+    skills: [api-design.rate-limiting]
+    question: "Design rate limiting for a public API with free and paid plans."
+    key_points:
+      - "Limits per API key, per plan; token bucket for bursts"
+      - "Separate or cost-based limits for expensive endpoints; concurrency limits for slow ones"
+      - "429 with Retry-After and RateLimit headers, also on successful responses"
+      - "Shared counters across instances"
+    follow_up: "When do you answer 503 instead of 429?"
+  - id: openapi-workflow
+    level: mid
+    skills: [api-design.openapi, api-design.governance]
+    question: "How do you use OpenAPI in a team so that it is the contract and not decoration?"
+    key_points:
+      - "Design-first or reviewed code-first; the YAML is committed and diffed"
+      - "Linting with a shared ruleset and breaking-change detection in CI"
+      - "Mocks for early clients, generated SDKs or interfaces, contract tests against schemas"
+      - "Precise schemas: required, enums, formats, examples, documented errors and security"
+    follow_up: "What would your first five lint rules be?"
+  - id: grpc-graphql-rest
+    level: senior
+    skills: [api-design.api-styles]
+    question: "When would you choose gRPC or GraphQL over REST? What does each cost you?"
+    key_points:
+      - "gRPC: typed contracts, HTTP/2, streaming, deadlines; internal services; costs browser support and HTTP caching"
+      - "GraphQL: client-shaped reads for your own apps; costs query-cost control, N+1, caching, 200-with-errors"
+      - "REST: public APIs, caching, tooling, curl-friendliness"
+      - "Evolution rules of each (field numbers, field deprecation, compatible JSON)"
+    follow_up: "How do you evolve a .proto message without breaking clients?"
+  - id: webhooks
+    level: senior
+    skills: [api-design.webhooks-async]
+    question: "Design webhooks for a payments platform. What do providers and receivers each have to get right?"
+    key_points:
+      - "Signed deliveries (HMAC over id, timestamp and body), timestamp tolerance, secret rotation"
+      - "At-least-once with backoff; receivers deduplicate by event id"
+      - "No ordering guarantee: versions or thin events; fast 2xx and async processing"
+      - "Provider: outbox, SSRF protection, disabling failing endpoints, replay tools"
+    follow_up: "When would you offer a message broker or event stream instead?"
+  - id: long-running
+    level: mid
+    skills: [api-design.webhooks-async, api-design.status-codes]
+    question: "How do you design an endpoint that starts a job taking twenty minutes?"
+    key_points:
+      - "202 Accepted with Location of an operation resource"
+      - "Status, progress, result or problem detail on the resource"
+      - "Polling with Retry-After, or a webhook on completion"
+      - "Cancellation and idempotent creation"
+    follow_up: "How long do you keep finished operations?"
+  - id: governance
+    level: senior
+    skills: [api-design.governance]
+    question: "You join a company with 100 inconsistent APIs. How do you introduce API governance without slowing teams down?"
+    key_points:
+      - "Short style guide based on a public one, with MUST/SHOULD rules"
+      - "Automate checks (linting, breaking-change diff) in CI"
+      - "Lightweight, time-boxed design review by a guild, not a central board"
+      - "Catalogue with owners and maturity; gradual adoption without breaking existing clients; metrics"
+    follow_up: "Which metrics would show it works?"
+  - id: retry-storm
+    level: senior
+    skills: [api-design.production]
+    question: "A 30-second database failover caused a 30-minute outage and duplicate charges. Walk me through likely causes and fixes."
+    key_points:
+      - "Retry storm: retries multiplied across layers without backoff or jitter, synchronised batch jobs"
+      - "Duplicate charges from retried non-idempotent POSTs"
+      - "Fixes: one retry layer with budgets and jitter, Retry-After, load shedding, circuit breakers, idempotency keys"
+      - "Observability per client and a blameless post-mortem with action items"
+    follow_up: "How would you test that the fixes work before the next incident?"
+  - id: api-first
+    level: junior
+    skills: [api-design.foundations]
+    question: "What does 'the API is a contract' mean for how you build and change a service?"
+    key_points:
+      - "Everything observable becomes something clients depend on (Hyrum's law)"
+      - "Separate representations from internal models"
+      - "Design from the consumer side, ideally contract first"
+      - "Changes go through compatibility rules"
+    follow_up: "What is the risk of returning your ORM entities directly?"
+  - id: evolve-consumer-contract
+    level: senior
+    skills: [api-design.versioning, api-design.caching]
+    question: "Your domain model changed (split names, several emails, a new status). An old mobile app must keep working for a year. How do you serve both?"
+    key_points:
+      - "One domain model, one representation per version computed from it"
+      - "Map new values (statuses) for old clients; defaults for new required data"
+      - "Deprecation and Sunset headers with successor links; usage measured per client"
+      - "Different ETags per representation; consumer contract tests in the provider build"
+    follow_up: "When is it time to switch v1 off?"

@@ -1,0 +1,31 @@
+questions:
+  - id: from-day-one
+    prompt: "Why paginate a collection from the first release, even when it is small?"
+    options: ["It looks professional", "Adding pagination later silently changes what existing clients get, which breaks them", "JSON arrays have a size limit", "Databases require it"]
+    answer: 1
+    explanation: "Clients that expected the full list would suddenly get only the first page."
+  - id: offset-shift
+    prompt: "A client reads page 1 (items 1–20) with offset pagination, newest first; then 3 new items arrive. What does page 2 show?"
+    options: ["Items 21–40", "Items 18–37: three items of page 1 appear again", "Nothing", "An error"]
+    answer: 1
+    explanation: "Everything shifted by three positions; a keyset cursor would continue after item 20."
+  - id: tie-breaker
+    prompt: "A feed is sorted by createdAt only and paginated with a cursor on createdAt. What can go wrong?"
+    options: ["Nothing", "Items sharing the boundary timestamp are skipped or repeated; add the id as a tie-breaker", "The cursor gets too long", "Sorting becomes ascending"]
+    answer: 1
+    explanation: "A cursor needs a unique position; (createdAt, id) is unique."
+  - id: opaque
+    prompt: "Why make cursors opaque instead of ?afterId=41?"
+    options: ["To save bytes", "So the provider can change what the cursor contains and clients cannot build or tamper with positions", "Because ids are secret", "HTTP forbids numbers in queries"]
+    answer: 1
+    explanation: "An opaque token is a promise about behaviour, not about format."
+  - id: deep-offset
+    prompt: "Why does ?offset=500000&limit=20 get slow?"
+    options: ["The network is slower", "The database must read and discard 500,000 rows before returning 20", "JSON parsing", "It does not"]
+    answer: 1
+    explanation: "Keyset queries jump straight to the position with an index."
+  - id: max-size
+    prompt: "A client asks for limit=100000 on a collection with a documented maximum of 100. What is a good answer?"
+    options: ["Return 100,000 items", "400 with a problem detail naming the limit parameter (or clamp to 100 and say so)", "500", "Return nothing"]
+    answer: 1
+    explanation: "Limits protect the service; say clearly how they apply."

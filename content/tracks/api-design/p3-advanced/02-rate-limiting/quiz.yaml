@@ -1,0 +1,31 @@
+questions:
+  - id: status
+    prompt: "A client exceeded its own request budget. Which answer?"
+    options: ["503 Service Unavailable", "429 Too Many Requests with Retry-After", "403 Forbidden", "400 Bad Request"]
+    answer: 1
+    explanation: "429 says this client must slow down; 503 says the service is struggling for everybody."
+  - id: token-bucket
+    prompt: "What does a token bucket with capacity 50 and refill 10 per second allow?"
+    options: ["Exactly 10 requests every second, never more", "Bursts of up to 50 requests, with an average of 10 per second", "50 requests per minute", "Unlimited requests"]
+    answer: 1
+    explanation: "Saved-up tokens allow bursts; the refill rate bounds the average."
+  - id: fixed-window
+    prompt: "What is the weakness of a fixed window of 100 requests per calendar minute?"
+    options: ["It needs Redis", "A client can send 100 at 10:00:59 and 100 at 10:01:00: 200 in two seconds", "It never resets", "It counts errors"]
+    answer: 1
+    explanation: "Sliding windows or buckets smooth out the edge."
+  - id: headers-on-success
+    prompt: "Why send rate-limit headers on successful responses too?"
+    options: ["To make responses bigger", "So clients see their remaining budget and slow down before they are rejected", "HTTP requires it", "To disable caching"]
+    answer: 1
+    explanation: "Well-behaved clients can pace themselves only if they can see the budget."
+  - id: key
+    prompt: "Which key is weakest for limiting authenticated API traffic?"
+    options: ["The API key", "The client IP address, because many users share one IP behind NAT and one attacker can use many", "The OAuth client id", "The token subject"]
+    answer: 1
+    explanation: "IP limits are a fallback for unauthenticated endpoints."
+  - id: fleet
+    prompt: "An API runs on 10 servers, each counting 100 requests per minute locally. What is the real limit per client?"
+    options: ["100 per minute", "Up to 1,000 per minute, depending on load balancing", "10 per minute", "Unlimited"]
+    answer: 1
+    explanation: "Counters must be shared (gateway, Redis) for the limit to mean what it says."

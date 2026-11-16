@@ -1,0 +1,46 @@
+id: api-design.p1.problem-responses
+kind: kata
+status: draft
+title: "Problem Responses"
+summary: "Give a bank API the right status codes and turn every error into an RFC 9457 problem detail, with typed problems, extension members, JSON pointers for invalid fields and a 500 that leaks nothing."
+objectives:
+  - { id: o1, text: "Choose 400, 404, 409, 422 and 500 for each failure and 201 with Location for a created withdrawal", skills: [api-design.status-codes] }
+  - { id: o2, text: "Answer every error as application/problem+json with type, title, detail, instance and extension members", skills: [api-design.errors] }
+prerequisites: [api-design.p1.errors-problem-details]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      The controller should not catch anything: let `Bank` throw, and let one `@RestControllerAdvice` decide what each exception means on the wire. Which status says "this account does not exist", which says "the account is in a state that forbids this", and which says "I understood you, but the rule says no"?
+    - |-
+      One `@ExceptionHandler` per domain exception, each returning a `ProblemDetail` built by a small helper that sets type, title and instance (`request.getRequestURI()`). A handler for `Exception.class` catches the rest: log the exception, answer a fixed detail. For validation, override `handleMethodArgumentNotValid`: map each `FieldError` to `Map.of("pointer", "#/" + field, "detail", message)`, sort by pointer, and return `handleExceptionInternal(e, problem, headers, status, request)`.
+    - |-
+      ```java
+      @ExceptionHandler(InsufficientFundsException.class)
+      ProblemDetail insufficientFunds(InsufficientFundsException e, HttpServletRequest request) {
+          ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, e.getMessage());
+          problem.setType(URI.create(TYPES + "insufficient-funds"));
+          problem.setTitle("Insufficient funds");
+          problem.setInstance(URI.create(request.getRequestURI()));
+          problem.setProperty("balance", e.balanceCents());
+          problem.setProperty("requested", e.requestedCents());
+          return problem;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, JUnit 6 and Spring Boot 4 that runs the grading tests.

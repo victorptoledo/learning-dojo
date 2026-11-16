@@ -1,0 +1,46 @@
+id: api-design.p2.cursor-feed
+kind: kata
+status: draft
+title: "Cursor Feed"
+summary: "Replace offset paging in a growing event feed with an opaque keyset cursor that survives new events, splits ties correctly and is bound to its filter."
+objectives:
+  - { id: o1, text: "Page a feed with a keyset cursor on (time, id) so inserts between requests neither repeat nor hide events", skills: [api-design.pagination] }
+  - { id: o2, text: "Make the cursor opaque, bound to its query, and rejected as a problem detail when invalid", skills: [api-design.pagination, api-design.errors] }
+prerequisites: [api-design.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      An offset says "skip the first N", and N means something else as soon as an event is added. What could the second request say instead, that stays true however many events arrive? Which two fields of the last event you returned identify its position in newest-first order, even when two events share a time?
+    - |-
+      A `record Cursor(Instant occurredAt, long id, String type)` with `encode()` (join the fields and a version with `|`, then base64url) and a static `decode(text, expectedType)` that throws `InvalidCursorException` for anything it cannot parse or for a different type. An event comes after the cursor when its time is earlier, or equal with a smaller id. Filter, keep those after the cursor, sort with `Comparator.comparing(Event::occurredAt).thenComparingLong(Event::id).reversed()`, and take `limit + 1`.
+    - |-
+      ```java
+      Cursor after = cursor == null ? null : Cursor.decode(cursor, type);
+      List<Event> window = store.all().stream()
+              .filter(event -> type == null || event.type().equals(type))
+              .filter(event -> after == null || after.isBefore(event))
+              .sorted(NEWEST_FIRST)
+              .limit(limit + 1L)
+              .toList();
+      boolean more = window.size() > limit;
+      List<Event> data = more ? window.subList(0, limit) : window;
+      String next = more ? Cursor.after(data.getLast(), type).encode() : null;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, JUnit 6 and Spring Boot 4 that runs the grading tests.

@@ -1,0 +1,24 @@
+id: api-design.p3.rate-limiting
+kind: lesson
+status: draft
+title: "Rate Limiting and Quotas"
+summary: "What to limit and by which key, fixed windows, sliding windows and token buckets, 429 with Retry-After and the RateLimit headers, 429 versus 503, and how good clients and good policies behave."
+objectives:
+  - { id: o1, text: "Choose limit keys and layers (per key, per user, per endpoint, concurrency) for an API", skills: [api-design.rate-limiting] }
+  - { id: o2, text: "Compare fixed window, sliding window and token bucket and explain bursts", skills: [api-design.rate-limiting] }
+  - { id: o3, text: "Communicate limits with 429, Retry-After and RateLimit headers and tell 429 from 503", skills: [api-design.rate-limiting, api-design.status-codes] }
+prerequisites: [api-design.p3.auth-scopes]
+difficulty: 3
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write the rate-limiting policy of a public weather API with a free plan (1,000 requests per day), a pro plan (100 requests per minute, bursts allowed) and an expensive `GET /forecasts/history` endpoint that scans years of data. Specify the keys, the algorithm for each plan, the response headers on success and on rejection (with an example), and what the documentation tells clients to do. Add one sentence on how the limits are enforced across 12 API servers.'
+  criteria:
+    - 'Limits per API key with a daily quota for free and a token bucket (or equivalent) allowing bursts for pro'
+    - 'Gives the expensive endpoint its own, stricter or cost-based limit'
+    - 'Answers 429 with Retry-After and a problem detail, and sends RateLimit (or X-RateLimit) headers on successful responses too'
+    - 'Tells clients to honour Retry-After, back off with jitter and use conditional requests or webhooks'
+    - 'Shares counters across servers (gateway or Redis) instead of per-instance limits'

@@ -1,0 +1,31 @@
+questions:
+  - id: safe
+    prompt: "What does it mean that GET is a safe method?"
+    options: ["It is encrypted", "The client does not request any state change, so crawlers and prefetchers may call it", "It never fails", "It needs no authentication"]
+    answer: 1
+    explanation: "Safe methods are read-only by contract, which is why a GET that deletes is dangerous."
+  - id: idempotent-delete
+    prompt: "A client sends DELETE /orders/42 twice. The first answers 204, the second 404. Is DELETE idempotent here?"
+    options: ["No, the responses differ", "Yes: the effect on the server is the same as one DELETE", "Only if both answer 204", "DELETE is never idempotent"]
+    answer: 1
+    explanation: "Idempotency is about the intended effect on server state, not about identical responses."
+  - id: retry-post
+    prompt: "Why may an HTTP library retry a PUT after a timeout but not a POST?"
+    options: ["POST bodies are bigger", "PUT is idempotent by definition; a repeated POST may create a second resource or charge twice", "POST is not allowed through proxies", "PUT is faster"]
+    answer: 1
+    explanation: "Only idempotent requests can be repeated without changing the outcome; POST needs an idempotency key for that."
+  - id: patch
+    prompt: "Which PATCH body is idempotent?"
+    options: ["A JSON Patch that adds an element to an array", "A JSON Merge Patch {\"status\": \"PAID\"}", "Any PATCH", "None: PATCH can never be idempotent"]
+    answer: 1
+    explanation: "Setting a field to a value twice gives the same state; appending twice does not."
+  - id: status-415
+    prompt: "A client sends XML to an endpoint that only reads JSON. Which status fits?"
+    options: ["406 Not Acceptable", "415 Unsupported Media Type", "400 Bad Request", "501 Not Implemented"]
+    answer: 1
+    explanation: "415 is about the request's Content-Type; 406 is about what the client accepts in the response."
+  - id: vary
+    prompt: "A response's language depends on Accept-Language. What must it send so shared caches do not serve Portuguese to an English user?"
+    options: ["Cache-Control: public", "Vary: Accept-Language", "Content-Language only", "ETag"]
+    answer: 1
+    explanation: "Vary tells caches which request headers are part of the cache key."

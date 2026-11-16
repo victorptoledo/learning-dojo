@@ -1,0 +1,53 @@
+id: api-design.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz on resources, URLs, status codes, problem details and pagination, and an orders API with a paginated, filtered, sorted collection, a cancellation and problem details for every error."
+objectives:
+  - { id: o1, text: "Explain resource design, URL conventions, status codes, problem details and pagination choices in your own words", skills: [api-design.rest-maturity, api-design.naming-urls, api-design.status-codes, api-design.errors, api-design.pagination] }
+  - { id: o2, text: "Build a collection with filters, multi-key sorting, page links and problem details for invalid queries", skills: [api-design.pagination, api-design.errors, api-design.rest-maturity] }
+prerequisites: [api-design.p1.pagination-filtering]
+difficulty: 3
+estimated_minutes: 90
+xp: 400
+closes_phase: p1
+covers_skills: [api-design.rest-maturity, api-design.naming-urls, api-design.status-codes, api-design.errors, api-design.pagination]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Split the collection request into steps that each can fail on their own: validate the parameters, filter, sort, cut out one page, then describe where the neighbouring pages are. Which steps produce a 400, and which parameter should each 400 name? Why must the sort end with a unique key?
+    - |-
+      Keep a `Map<String, Comparator<Order>>` of sortable fields; for each comma-separated key, look it up (unknown → `InvalidParameterException("sort", ...)`), reverse it on a leading `-`, and chain with `thenComparing`; finish with `id`. A page is `skip((page - 1) * size).limit(size)`. For links, `ServletUriComponentsBuilder.fromCurrentRequest().replaceQueryParam("page", n).toUriString()` keeps every other parameter. The cancellation is `@PostMapping("/{id}/cancellation")` returning `store.cancel(id)`.
+    - |-
+      ```java
+      private static String links(int page, int totalPages) {
+          List<String> links = new ArrayList<>();
+          int last = Math.max(totalPages, 1);
+          links.add(link(1, "first"));
+          if (page > 1) links.add(link(Math.min(page - 1, last), "prev"));
+          if (page < totalPages) links.add(link(page + 1, "next"));
+          links.add(link(last, "last"));
+          return String.join(", ", links);
+      }
+
+      private static String link(int page, String rel) {
+          String url = ServletUriComponentsBuilder.fromCurrentRequest().replaceQueryParam("page", page).toUriString();
+          return "<" + url + ">; rel=\"" + rel + "\"";
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, JUnit 6 and Spring Boot 4 that runs the grading tests.

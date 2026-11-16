@@ -1,0 +1,31 @@
+questions:
+  - id: level-0
+    prompt: "An API has a single URL, POST /api, and an \"action\" field in every body. Which Richardson level is it?"
+    options: ["Level 0", "Level 1", "Level 2", "Level 3"]
+    answer: 0
+    explanation: "One endpoint and one method is the swamp of POX: HTTP is only a tunnel."
+  - id: level-2
+    prompt: "What does level 2 add over level 1?"
+    options: ["Hypermedia links", "HTTP methods carry the action and status codes the outcome", "Plural URLs", "JSON instead of XML"]
+    answer: 1
+    explanation: "Level 1 has resources; level 2 uses the uniform interface on them."
+  - id: action-resource
+    prompt: "How would you model \"refund part of a payment\" in a resource-oriented API?"
+    options: ["GET /payments/7/refund?amount=500", "POST /refunds (or /payments/7/refunds) with the amount, creating a refund resource", "PUT /refund", "DELETE /payments/7"]
+    answer: 1
+    explanation: "A refund is a thing with its own id, amount and status; creating it is a POST to its collection."
+  - id: put-missing
+    prompt: "A client sends PUT /settings/42 with only {\"theme\": \"dark\"}. What should happen to the other settings?"
+    options: ["They stay unchanged", "PUT replaces the whole representation, so they become absent or defaults (or the API rejects the incomplete body)", "The server merges them", "It depends on the HTTP version"]
+    answer: 1
+    explanation: "Partial updates are PATCH; PUT is a full replacement."
+  - id: nesting
+    prompt: "Which URL is the better design?"
+    options: ["/companies/3/departments/9/teams/14/members/88/addresses/2", "/members/88/addresses/2 (or /addresses/2 if ids are global)", "/getAddress?member=88", "/companies-departments-teams/3-9-14"]
+    answer: 1
+    explanation: "Nest one or two levels for ownership; deep paths force clients to carry ids they do not need."
+  - id: hateoas
+    prompt: "Which level-3 idea do most level-2 APIs still use?"
+    options: ["None", "Links such as Location for created resources and Link headers for pagination", "XML namespaces", "SOAP envelopes"]
+    answer: 1
+    explanation: "Selected hypermedia controls are cheap and useful even without full HATEOAS."
