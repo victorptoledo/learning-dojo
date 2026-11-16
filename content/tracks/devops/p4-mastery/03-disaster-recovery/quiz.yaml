@@ -1,0 +1,54 @@
+questions:
+  - id: rpo
+    prompt: "Which objective limits how much data may be lost in a disaster?"
+    answers: ["RPO", "recovery point objective", "the RPO"]
+    explanation: "RPO is measured in time back from the disaster to the last good copy; RTO limits downtime."
+  - id: rto-meaning
+    prompt: "A service has an RTO of 1 hour. What does that mean?"
+    options:
+      - "Backups are taken every hour"
+      - "After a disaster, the service must be serving again within one hour"
+      - "One hour of data may be lost"
+      - "The service restarts every hour"
+    answer: 1
+    explanation: "Your real RTO is what a measured restore or failover test shows."
+  - id: strategy
+    prompt: "Data is replicated to a second region and core infrastructure exists there scaled to zero. Which strategy is that?"
+    answers: ["pilot light", "pilot-light", "a pilot light"]
+    explanation: "Warm standby runs a smaller live copy; active-active serves from both."
+  - id: untested-backup
+    prompt: "Why must backups be restored regularly in tests?"
+    options:
+      - "To free storage"
+      - "An untested backup may be incomplete, corrupt or too slow to restore; only a restore proves it and measures the real RTO"
+      - "Restores make backups faster"
+      - "Auditors like it"
+    answer: 1
+    explanation: "A backup you have not restored is a hope."
+  - id: immutable-copy
+    prompt: "Which backup property protects against ransomware that has stolen administrator credentials?"
+    options:
+      - "Compression"
+      - "An immutable copy (object lock or a vault in a separate account) that cannot be deleted before its retention ends"
+      - "Daily schedules"
+      - "Encryption alone"
+    answer: 1
+    explanation: "Attackers delete backups first; immutability and separate accounts stop that."
+  - id: chaos-first-step
+    prompt: "What is the first step of a chaos experiment?"
+    options:
+      - "Kill random production servers"
+      - "Define the steady state with user-facing metrics and a hypothesis about it"
+      - "Buy a chaos tool"
+      - "Turn off monitoring"
+    answer: 1
+    explanation: "Then inject the event with a small blast radius and an abort condition, and learn from the result."
+  - id: multi-zone-first
+    prompt: "Where should a team start improving resilience?"
+    options:
+      - "Active-active in three regions"
+      - "Multi-zone deployment of every tier, then multi-region for the services that need it"
+      - "A second cloud provider"
+      - "Bigger instances"
+    answer: 1
+    explanation: "Most outages are local; multi-region adds cost and consistency problems."

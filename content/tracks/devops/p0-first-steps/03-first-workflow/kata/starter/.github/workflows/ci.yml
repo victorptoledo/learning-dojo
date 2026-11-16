@@ -1,0 +1,12 @@
+# The continuous integration workflow of the greeter service (see README.md).
+name: todo # todo: name the workflow ci
+
+on: {} # todo: run on pushes to main and on every pull request
+
+# todo: let the GITHUB_TOKEN only read the repository
+
+jobs:
+  test:
+    runs-on: todo # todo: GitHub's Ubuntu 24.04 runner
+    steps:
+      - run: echo "todo - check out the code, set up Go from go.mod, then go vet and go test"

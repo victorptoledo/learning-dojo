@@ -96,6 +96,7 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
                 .filter(|file| kata_dir.join(file).is_file())
                 .collect();
         }
+        KataLanguage::DevOps => return devops_files(kata_dir),
         KataLanguage::Sql => (kata_dir.to_path_buf(), "sql"),
         KataLanguage::Python => (kata_dir.to_path_buf(), "py"),
         KataLanguage::Kubernetes => (kata_dir.to_path_buf(), "yaml"),
@@ -110,6 +111,23 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         .filter(|path| !path.starts_with("tests") && !path.starts_with("fixture"))
         .filter(|path| !in_tool_folder(path))
         .filter(|path| !path.to_string_lossy().ends_with("_test.go"))
+        .collect();
+    files.sort();
+    files
+}
+
+/// What the learner writes in a DevOps kata: workflows under `.github/workflows`, and the
+/// Terraform, YAML (rules, configuration) and shell files elsewhere, tests left out.
+fn devops_files(kata_dir: &Path) -> Vec<PathBuf> {
+    let mut found = Vec::new();
+    for extension in ["tf", "tfvars", "yml", "yaml", "sh"] {
+        collect(kata_dir, extension, &mut found);
+    }
+    let mut files: Vec<PathBuf> = found
+        .into_iter()
+        .filter_map(|path| path.strip_prefix(kata_dir).ok().map(Path::to_path_buf))
+        .filter(|path| !path.starts_with("tests"))
+        .filter(|path| path.starts_with(".github/workflows") || !in_tool_folder(path))
         .collect();
     files.sort();
     files
@@ -158,6 +176,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Sql => "SQL (PostgreSQL 17)",
         KataLanguage::Python => "Python",
         KataLanguage::Kubernetes => "Kubernetes manifests, Kustomize and Helm",
+        KataLanguage::DevOps => "GitHub Actions, Terraform and Prometheus rules",
         KataLanguage::Go => "Go",
         KataLanguage::TypeScript => "TypeScript",
     };
@@ -331,6 +350,38 @@ mod tests {
         assert_eq!(
             files,
             ["base/deployment.yaml", "overlays/prod/kustomization.yaml"].map(PathBuf::from)
+        );
+    }
+
+    #[test]
+    fn kata_files_lists_devops_workflows_terraform_and_rules_but_not_tests() {
+        let dir = tempfile::TempDir::new().unwrap();
+        for folder in [
+            "tests",
+            ".github/workflows",
+            ".terraform/modules",
+            "modules/naming",
+        ] {
+            std::fs::create_dir_all(dir.path().join(folder)).unwrap();
+        }
+        std::fs::write(dir.path().join(".github/workflows/ci.yml"), "on: push").unwrap();
+        std::fs::write(dir.path().join("main.tf"), "x").unwrap();
+        std::fs::write(dir.path().join("modules/naming/main.tf"), "x").unwrap();
+        std::fs::write(dir.path().join("alerts.rules.yml"), "x").unwrap();
+        std::fs::write(dir.path().join(".terraform/modules/modules.json"), "x").unwrap();
+        std::fs::write(dir.path().join(".terraform/modules/x.tf"), "x").unwrap();
+        std::fs::write(dir.path().join("tests/main.tftest.hcl"), "x").unwrap();
+        std::fs::write(dir.path().join("tests/alerts.test.yml"), "x").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::DevOps);
+        assert_eq!(
+            files,
+            [
+                ".github/workflows/ci.yml",
+                "alerts.rules.yml",
+                "main.tf",
+                "modules/naming/main.tf"
+            ]
+            .map(PathBuf::from)
         );
     }
 

@@ -1,0 +1,24 @@
+id: devops.p3.slos-alerting
+kind: lesson
+status: draft
+title: "SLIs, SLOs, Error Budgets and Burn-Rate Alerting"
+summary: "Defining reliability from the user's side, turning it into SLOs and error budgets, alerting on symptoms with burn rates, and keeping on-call humane."
+objectives:
+  - { id: o1, text: "Define SLIs as good events over valid events and choose SLO targets and windows", skills: [devops.slo-alerting] }
+  - { id: o2, text: "Compute error budgets and use an error budget policy to balance features and reliability", skills: [devops.slo-alerting] }
+  - { id: o3, text: "Design multiwindow, multi-burn-rate alerts on symptoms, with severities and runbooks", skills: [devops.slo-alerting, devops.observability-sre] }
+prerequisites: [devops.p3.observability-sre]
+difficulty: 4
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'The on-call engineer of a search service gets 40 pages a week, mostly "CPU above 80%" and "a Pod restarted", and real outages are still found by customers. Define two SLIs and SLOs for the service, compute the monthly error budget, design the alerts that replace the current ones, and write the error budget policy you would propose to the product owner.'
+  criteria:
+    - 'SLIs are user-facing ratios (successful searches over valid searches; searches under a latency threshold), measured where users see them'
+    - 'SLO targets and a window are justified (for example 99.9% over 28 or 30 days), with the budget computed in requests or minutes'
+    - 'Alerts are on symptoms with burn rates over two windows (page for fast burn, ticket for slow burn); cause alerts such as CPU become dashboards or tickets'
+    - 'Every paging alert has a runbook and is actionable'
+    - 'The policy says what happens when the budget is spent (freeze risky releases, prioritise reliability work) and who decides'

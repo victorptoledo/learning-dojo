@@ -1,0 +1,48 @@
+id: devops.p2.terraform-module
+kind: kata
+status: draft
+title: "A Terraform Module with Guard Rails"
+summary: "Variables with validation, locals, for_each and outputs in a reusable module, checked by terraform validate and terraform test."
+objectives:
+  - { id: o1, text: "Declare typed variables whose validations reject bad input, including a rule across two variables", skills: [devops.iac-terraform] }
+  - { id: o2, text: "Create one resource per item with for_each and expose results through outputs", skills: [devops.iac-terraform] }
+prerequisites: [devops.p2.iac-terraform]
+difficulty: 3
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-devops, timeout_secs: 120 }
+  hints:
+    - |-
+      Work from the inputs to the outputs: first make each variable reject what the table says (a `validation` block per rule), then build `name` and `tags` in `locals`, then the resource, then the outputs that read it. Run `terraform plan -var service=checkout -var environment=dev` after each step.
+    - |-
+      `can(regex("^...$", var.service))` is true when the name matches. Since Terraform 1.9 a validation may read another variable: `var.environment != "prod" || var.replicas >= 3`. `merge(a, b)` keeps the value from `b` when both have a key, so put the standard tags last. With `for_each = var.regions`, `each.key` is the region and `local_file.config` becomes a map keyed by region.
+    - |-
+      ```hcl
+      resource "local_file" "config" {
+        for_each        = var.regions
+        filename        = "out/${each.key}/${local.name}.json"
+        file_permission = "0644"
+        content = jsonencode({
+          name = local.name, region = each.key, replicas = var.replicas, tags = local.tags
+        })
+      }
+
+      output "config_files" {
+        value = { for region, file in local_file.config : region => file.filename }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your module is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-devops runner image
+    image: dojo-devops
+    why: The container with actionlint, Terraform, promtool and bats that checks DevOps katas offline.

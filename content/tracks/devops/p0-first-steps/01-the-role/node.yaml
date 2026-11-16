@@ -1,0 +1,24 @@
+id: devops.p0.the-role
+kind: lesson
+status: draft
+title: "The DevOps Role: Culture, Ownership and the Toolchain"
+summary: "What DevOps is (and is not), what a DevOps, platform or SRE engineer does all day, and the map of tools this track walks through."
+objectives:
+  - { id: o1, text: "Explain DevOps as a way of working that joins building and running software, not a team or a tool", skills: [devops.role] }
+  - { id: o2, text: "Describe the daily work of DevOps, platform and site reliability engineers and how they differ", skills: [devops.role] }
+  - { id: o3, text: "Place the main tools (Linux, Git, containers, Kubernetes, CI/CD, IaC, observability) on the path from commit to production", skills: [devops.role] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 25
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A company has a development team that hands releases to an operations team every two months, through a ticket and a 40-page runbook. Releases often fail and both teams blame each other. Write a one-page proposal for the first three changes you would make, using the ideas of this lesson, and say how you would know after six months that they worked.'
+  criteria:
+    - 'Names the core problem: a wall between building and running, big infrequent batches, and no shared ownership'
+    - 'Proposes concrete first steps such as automating the build and deploy, smaller and more frequent releases, and putting developers on call with ops'
+    - 'Treats culture as part of the fix (blameless reviews, shared goals), not only tools'
+    - 'Measures the result with delivery metrics (deployment frequency, lead time, change failure rate, time to restore)'
+    - 'Keeps it realistic: starts small, with one service or team, and iterates'

@@ -87,6 +87,7 @@ impl App {
         files.extend(sql_files(dir));
         files.extend(python_modules(dir));
         files.extend(yaml_manifests(dir));
+        files.extend(devops_files(dir));
         files.extend(go_sources(dir));
         files.extend(typescript_modules(dir));
         let existing: Vec<_> = files.into_iter().filter(|file| file.is_file()).collect();
@@ -324,6 +325,33 @@ fn yaml_manifests(dir: &Path) -> Vec<PathBuf> {
         .collect();
     manifests.sort();
     manifests
+}
+
+/// The files of a DevOps kata that `yaml_manifests` does not open: its workflows and the
+/// `.tf` files at the top of its folder.
+fn devops_files(dir: &Path) -> Vec<PathBuf> {
+    let mut files = Vec::new();
+    for (folder, extensions) in [
+        (dir.join(".github").join("workflows"), &["yml", "yaml"][..]),
+        (dir.to_path_buf(), &["tf"][..]),
+    ] {
+        let Ok(entries) = std::fs::read_dir(&folder) else {
+            continue;
+        };
+        let mut found: Vec<PathBuf> = entries
+            .flatten()
+            .map(|entry| entry.path())
+            .filter(|path| {
+                path.is_file()
+                    && path
+                        .extension()
+                        .is_some_and(|ext| extensions.iter().any(|wanted| ext == *wanted))
+            })
+            .collect();
+        found.sort();
+        files.extend(found);
+    }
+    files
 }
 
 /// The code of a Go kata: the `.go` files at the top of its folder, tests left out.

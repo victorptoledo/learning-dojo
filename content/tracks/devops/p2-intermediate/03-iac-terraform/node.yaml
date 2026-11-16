@@ -1,0 +1,25 @@
+id: devops.p2.iac-terraform
+legacy_id: devops-05-iac-terraform
+kind: lesson
+status: draft
+title: "Infrastructure as Code: Terraform Modules, State and Plans"
+summary: "Why infrastructure belongs in code, Terraform's language and workflow, state and locking, modules, and how teams run plan and apply safely."
+objectives:
+  - { id: o1, text: "Write Terraform with providers, resources, variables, locals, outputs, for_each and data sources", skills: [devops.iac-terraform] }
+  - { id: o2, text: "Explain state, remote backends, locking, plan and apply, drift and refactoring with moved blocks", skills: [devops.iac-terraform] }
+  - { id: o3, text: "Structure modules and environments and run Terraform from a pipeline with reviewed plans", skills: [devops.iac-terraform, devops.cicd-pipelines] }
+prerequisites: [devops.p2.cicd-gitops]
+difficulty: 3
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your company has three AWS accounts (dev, staging, prod) built by hand in the console, and wants them in Terraform. Describe how you would structure the code (modules, environments, state), how you would bring the existing resources under management without recreating them, and the workflow by which a change reaches production.'
+  criteria:
+    - 'Separates reusable modules from per-environment root modules, with one state per environment (and per large component)'
+    - 'Uses a remote backend with locking and encryption, and restricts who can read state (it may hold secrets)'
+    - 'Brings existing resources in with import blocks or terraform import, then plans until there is no diff'
+    - 'Pins Terraform and provider versions and commits the lock file'
+    - 'Runs fmt, validate and plan in CI on pull requests, reviews the plan, and applies from the pipeline after merge, not from laptops'

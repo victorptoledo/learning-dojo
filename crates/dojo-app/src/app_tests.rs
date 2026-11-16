@@ -1047,9 +1047,15 @@ fn slash_finds_a_topic_in_any_track_and_opens_a_locked_lesson_as_practice() {
     h.app.open_topic_study();
     assert_eq!(h.app.screen, Screen::TopicStudy);
     "systemd".chars().for_each(|c| h.app.topic_type(c));
-    let first = h.app.topic_study.as_ref().unwrap().matches()[0].clone();
-    assert_eq!(first.track_id, "linux");
-    assert_eq!(first.skill_id, "linux.systemd-services");
+    // Role tracks such as DevOps teach the same skill, so pick the Linux track's topic.
+    let study = h.app.topic_study.as_mut().unwrap();
+    let linux = study
+        .matches()
+        .iter()
+        .position(|topic| topic.track_id == "linux")
+        .expect("the Linux track teaches systemd");
+    assert_eq!(study.matches()[linux].skill_id, "linux.systemd-services");
+    study.cursor = linux;
 
     h.app.topic_enter();
     assert!(screen_text(&h.app).contains("study only"));

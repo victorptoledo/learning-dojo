@@ -1,0 +1,21 @@
+# SLO: 99.9% of checkout requests succeed (not 5xx) over 30 days (see README.md).
+groups:
+  - name: checkout-slo-recordings
+    rules:
+      - record: job:slo_errors_per_request:ratio_rate5m
+        expr: vector(0) # todo: the share of checkout requests that failed, over 5 minutes, by job
+      - record: job:slo_errors_per_request:ratio_rate30m
+        expr: vector(0) # todo: the same over 30 minutes
+      - record: job:slo_errors_per_request:ratio_rate1h
+        expr: vector(0) # todo: the same over 1 hour
+      - record: job:slo_errors_per_request:ratio_rate6h
+        expr: vector(0) # todo: the same over 6 hours
+
+  - name: checkout-slo-alerts
+    rules:
+      - alert: CheckoutErrorBudgetBurnFast
+        expr: vector(0) # todo: 1h and 5m burn rates above 14.4
+        # todo: for, labels and annotations
+      - alert: CheckoutErrorBudgetBurnSlow
+        expr: vector(0) # todo: 6h and 30m burn rates above 6
+        # todo: for, labels and annotations

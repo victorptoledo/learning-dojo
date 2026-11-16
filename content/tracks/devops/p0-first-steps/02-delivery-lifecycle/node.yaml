@@ -1,0 +1,24 @@
+id: devops.p0.delivery-lifecycle
+kind: lesson
+status: draft
+title: "The Delivery Lifecycle and DORA Metrics"
+summary: "The stages a change goes through, why small batches are faster and safer, and the four DORA metrics that measure delivery performance."
+objectives:
+  - { id: o1, text: "Describe the stages from commit to production and what continuous integration, delivery and deployment each automate", skills: [devops.delivery-metrics] }
+  - { id: o2, text: "Explain why small batches reduce both lead time and risk", skills: [devops.delivery-metrics] }
+  - { id: o3, text: "Define and compute the four DORA metrics and use them without turning them into targets", skills: [devops.delivery-metrics] }
+prerequisites: [devops.p0.the-role]
+difficulty: 1
+estimated_minutes: 30
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Over the last month a team deployed 6 times. Two deployments caused an incident (one fixed in 3 hours, one in 9 hours). The median time from a commit being merged to it running in production was 6 days. Compute the four DORA metrics, say which performance band each one roughly falls in, and propose the two changes that would improve them most.'
+  criteria:
+    - 'Deployment frequency about 1.5 per week; change failure rate 2/6, about 33%; median time to restore 6 hours (or mean 6 hours); lead time 6 days'
+    - 'Places them in the right rough bands (medium or low) and admits the sample is small'
+    - 'Proposes changes that shrink batch size and automate the path (trunk-based development, automated tests and deploys)'
+    - 'Proposes a way to lower failure rate or restore time (smaller changes, canaries, fast rollback, better alerts)'
+    - 'Warns against gaming the metrics or using them to rank individuals'

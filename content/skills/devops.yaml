@@ -1,8 +1,19 @@
 namespace: devops
 skills:
-  - { id: devops.linux-internals, title: "Linux: Processes, Signals and Networking" }
-  - { id: devops.docker-containers, title: "Docker: Multi-stage Builds and Layer Optimisation" }
-  - { id: devops.kubernetes-core, title: "Kubernetes: Pods, Deployments and Services" }
-  - { id: devops.cicd-gitops, title: "CI/CD Pipelines and GitOps" }
-  - { id: devops.iac-terraform, title: "Terraform: Declarative Cloud and State Management" }
+  - { id: devops.role, title: "The DevOps Role: Culture, Ownership and the Toolchain" }
+  - { id: devops.delivery-metrics, title: "The Delivery Lifecycle and DORA Metrics" }
+  - { id: devops.linux-internals, title: "Linux for Operations: Processes, Services, Networking and Triage" }
+  - { id: devops.docker-containers, title: "Containers for Operations: Images, Registries and Runtime" }
+  - { id: devops.cicd-pipelines, title: "CI Pipelines: Triggers, Jobs, Caches, Artefacts and Branching" }
+  - { id: devops.config-management, title: "Configuration Management: Idempotence, Drift and Immutable Servers" }
+  - { id: devops.kubernetes-core, title: "Kubernetes for Operations: Workloads, Networking and Day-2 Work" }
+  - { id: devops.cicd-gitops, title: "Continuous Delivery and GitOps: Environments, Promotion and Argo CD" }
+  - { id: devops.iac-terraform, title: "Infrastructure as Code: Terraform Modules, State and Plans" }
+  - { id: devops.release-strategies, title: "Release Strategies: Rolling, Blue-Green, Canary and Feature Flags" }
   - { id: devops.observability-sre, title: "Observability: Metrics, Logs and Distributed Tracing" }
+  - { id: devops.slo-alerting, title: "SLIs, SLOs, Error Budgets and Burn-Rate Alerting" }
+  - { id: devops.devsecops, title: "DevSecOps: Supply Chain, Secrets and Pipeline Security" }
+  - { id: devops.cloud-networking-cost, title: "Cloud Networking and Cost: VPCs, Load Balancers, DNS and FinOps" }
+  - { id: devops.incident-response, title: "Incident Response: On-call, Roles, Communication and Postmortems" }
+  - { id: devops.platform-engineering, title: "Platform Engineering: Golden Paths and Internal Platforms" }
+  - { id: devops.disaster-recovery, title: "Disaster Recovery and Chaos Engineering: RTO, RPO and Game Days" }

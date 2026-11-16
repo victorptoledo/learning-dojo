@@ -2,13 +2,24 @@ id: devops.p2.cicd-gitops
 legacy_id: devops-04-cicd-gitops
 kind: lesson
 status: draft
-title: "CI/CD Pipelines and GitOps"
-summary: "Automated tests, security checks, artefact builds and declarative deploys (Argo CD)."
+title: "Continuous Delivery and GitOps: Environments, Promotion and Argo CD"
+summary: "How a built artefact travels through environments, push versus pull deployments, GitOps with Argo CD or Flux, and where approvals, secrets and rollbacks fit."
 objectives:
-  - { id: o1, text: "Automated tests, security checks, artefact builds and declarative deploys (Argo CD).", skills: [devops.cicd-gitops] }
+  - { id: o1, text: "Design a promotion path through environments with one artefact and per-environment configuration", skills: [devops.cicd-gitops] }
+  - { id: o2, text: "Compare push-based deployments from CI with pull-based GitOps controllers", skills: [devops.cicd-gitops] }
+  - { id: o3, text: "Set up GitOps with Argo CD: applications, sync policies, drift and rollbacks by revert", skills: [devops.cicd-gitops, kubernetes.kustomize-helm] }
 prerequisites: [devops.p2.kubernetes-core]
 difficulty: 3
-estimated_minutes: 30
-xp: 350
+estimated_minutes: 45
+xp: 250
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the delivery for a service that runs in dev, staging and production on Kubernetes, with GitOps. Describe the repositories, what CI does after a merge, how a version moves from dev to production, who approves what, how secrets reach the cluster, and how you roll back a bad release at 2 a.m.'
+  criteria:
+    - 'Separates the application repository (code, CI) from the environment configuration (a config repo or folder per environment)'
+    - 'CI builds and pushes an immutable image once, then updates the image tag for dev by commit or pull request; promotion is a change in Git'
+    - 'A GitOps controller (Argo CD or Flux) pulls and syncs each environment, with self-heal and pruning, and reports drift'
+    - 'Approvals are pull request reviews on the production configuration (plus environment protection), not manual kubectl'
+    - 'Secrets are encrypted (Sealed Secrets, SOPS) or synced from a vault by an operator; rollback is a git revert that the controller syncs'

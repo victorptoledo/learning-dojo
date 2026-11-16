@@ -1,0 +1,46 @@
+id: devops.p3.slo-alerts
+kind: kata
+status: draft
+title: "SLO Alerts: Multiwindow, Multi-Burn-Rate Rules"
+summary: "Recording rules for an error ratio and burn-rate alerts that page only when the error budget is in danger, tested with promtool."
+objectives:
+  - { id: o1, text: "Record an SLI as an error ratio over several windows with PromQL", skills: [devops.slo-alerting, devops.observability-sre] }
+  - { id: o2, text: "Write multiwindow, multi-burn-rate alerts with the right severities and runbooks", skills: [devops.slo-alerting] }
+prerequisites: [devops.p3.slos-alerting]
+difficulty: 4
+estimated_minutes: 60
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-devops, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with one recording rule and get it right, then copy it for the other windows. An error ratio is "bad events per second divided by all events per second", both summed over the same labels so the division matches series one to one.
+    - |-
+      `sum by (job) (rate(http_requests_total{job="checkout", code=~"5.."}[5m])) / sum by (job) (rate(http_requests_total{job="checkout"}[5m]))`. An alert's `expr` can combine two conditions with `and`: the result keeps the left side's series where the right side has a matching one. Threshold: `> (14.4 * 0.001)`.
+    - |-
+      ```yaml
+      - alert: CheckoutErrorBudgetBurnFast
+        expr: |
+          job:slo_errors_per_request:ratio_rate1h{job="checkout"} > (14.4 * 0.001)
+            and
+          job:slo_errors_per_request:ratio_rate5m{job="checkout"} > (14.4 * 0.001)
+        for: 2m
+        labels: { severity: page, slo: checkout-availability }
+        annotations:
+          summary: checkout is burning its error budget fast
+          runbook_url: https://runbooks.example.com/checkout-slo
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your rules are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-devops runner image
+    image: dojo-devops
+    why: The container with actionlint, Terraform, promtool and bats that checks DevOps katas offline.

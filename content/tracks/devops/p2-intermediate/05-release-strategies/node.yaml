@@ -1,0 +1,24 @@
+id: devops.p2.release-strategies
+kind: lesson
+status: draft
+title: "Release Strategies: Rolling, Blue-Green, Canary and Feature Flags"
+summary: "Separating deploy from release, the main strategies and their trade-offs, automated canary analysis, feature flags, and keeping database changes compatible."
+objectives:
+  - { id: o1, text: "Separate deploying code from releasing features, and compare recreate, rolling, blue-green and canary releases", skills: [devops.release-strategies] }
+  - { id: o2, text: "Run a canary with traffic weights and decide promotion or rollback from metrics", skills: [devops.release-strategies, kubernetes.ingress-gateway] }
+  - { id: o3, text: "Use feature flags and expand-and-contract migrations so releases and rollbacks stay safe", skills: [devops.release-strategies] }
+prerequisites: [devops.p2.terraform-module]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A payments service must release a new version that also renames a database column (customer_name to holder_name). Downtime is not acceptable and a rollback must be possible at any point. Choose a release strategy, write the sequence of deployments and migrations, and say which metrics decide whether each step goes ahead.'
+  criteria:
+    - 'Picks canary or blue-green with reasons tied to the risk and cost'
+    - 'Uses expand and contract: add the new column, write both, backfill, read the new one, and drop the old column only in a later release'
+    - 'Shows that every step can be rolled back because old and new versions work with the schema at that moment'
+    - 'Names promotion criteria from metrics (error rate, latency percentiles, business metrics such as payment success) compared with the stable version, and an automatic abort'
+    - 'Mentions a feature flag to separate switching the behaviour from deploying the code'

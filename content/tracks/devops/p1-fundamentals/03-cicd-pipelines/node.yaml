@@ -1,0 +1,24 @@
+id: devops.p1.cicd-pipelines
+kind: lesson
+status: draft
+title: "CI Pipelines: Triggers, Jobs, Caches, Artefacts and Branching"
+summary: "How a CI pipeline is put together (GitHub Actions as the example), how to make it fast and trustworthy, and the branching model that keeps it green."
+objectives:
+  - { id: o1, text: "Structure a pipeline with triggers, jobs, steps, dependencies, matrices and least-privilege tokens", skills: [devops.cicd-pipelines] }
+  - { id: o2, text: "Make a pipeline fast and repeatable with caches, artefacts, concurrency and pinned tools", skills: [devops.cicd-pipelines] }
+  - { id: o3, text: "Choose a branching model that keeps main releasable and integrates daily", skills: [devops.cicd-pipelines, git.workflows] }
+prerequisites: [devops.p1.docker-containers]
+difficulty: 2
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A monorepo''s CI takes 45 minutes on every pull request: one job installs every dependency from scratch, runs every test of every service in sequence, builds every image and pushes them all. Developers batch changes to avoid waiting. Design a faster pipeline: what runs on pull requests and what on main, what is cached, what runs in parallel, and how you keep it trustworthy.'
+  criteria:
+    - 'Splits the work into parallel jobs (lint, unit tests per service, image builds) with needs only where there is a real dependency'
+    - 'Caches dependencies and build layers with keys based on lock files, and uploads artefacts instead of rebuilding them'
+    - 'Runs only what a change affects (path filters or affected-project detection) without skipping required checks'
+    - 'Pushes images and deploys only from main, and cancels superseded runs with concurrency'
+    - 'Keeps trust: pinned actions and tools, least-privilege tokens, flaky tests quarantined and fixed rather than retried forever'

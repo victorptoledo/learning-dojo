@@ -1,0 +1,27 @@
+# 0.8% of requests fail: 8 times the budget. No page, but a ticket once it lasts 15 minutes.
+rule_files: [../slo.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'http_requests_total{job="checkout", code="200"}'
+        values: '0+992x120'
+      - series: 'http_requests_total{job="checkout", code="502"}'
+        values: '0+8x120'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: CheckoutErrorBudgetBurnSlow
+        exp_alerts: []
+      - eval_time: 40m
+        alertname: CheckoutErrorBudgetBurnSlow
+        exp_alerts:
+          - exp_labels:
+              job: checkout
+              severity: ticket
+              slo: checkout-availability
+            exp_annotations:
+              summary: checkout is burning its error budget
+              runbook_url: https://runbooks.example.com/checkout-slo
+      - eval_time: 40m
+        alertname: CheckoutErrorBudgetBurnFast
+        exp_alerts: []

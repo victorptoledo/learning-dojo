@@ -1,0 +1,45 @@
+questions:
+  - id: deploy-vs-release
+    prompt: "What is the difference between deploying and releasing?"
+    options:
+      - "None"
+      - "Deploying puts new code in production; releasing exposes users to its behaviour"
+      - "Releasing happens before deploying"
+      - "Deploying is for databases only"
+    answer: 1
+    explanation: "Traffic weights and feature flags let you release (and unrelease) without deploying."
+  - id: blue-green-rollback
+    prompt: "What makes blue-green rollbacks fast?"
+    options:
+      - "Smaller images"
+      - "The old version is still running, so rolling back is switching traffic back"
+      - "It skips tests"
+      - "It uses feature flags"
+    answer: 1
+    explanation: "The price is running two full environments during the switch."
+  - id: canary-weight
+    prompt: "In a Gateway API HTTPRoute, backendRefs stable with weight 95 and canary with weight 5. What share reaches the canary?"
+    answers: ["5%", "5", "5 %", "five percent"]
+    explanation: "Traffic is split in proportion to the weights: 5 / (95 + 5)."
+  - id: canary-metrics
+    prompt: "Which comparison should decide whether a canary is promoted?"
+    options:
+      - "The canary's CPU usage alone"
+      - "Error rate and latency percentiles (and key business metrics) of the canary against the stable version over the same period"
+      - "Whether the Pods are Running"
+      - "The number of log lines"
+    answer: 1
+    explanation: "Compare like with like; tools such as Argo Rollouts and Flagger automate it."
+  - id: kill-switch
+    prompt: "A new feature misbehaves in production. Which mechanism turns it off in seconds without a deploy?"
+    answers: ["feature flag", "a feature flag", "feature flags", "kill switch", "feature toggle"]
+    explanation: "Flags change behaviour at run time; remove them when the release is complete."
+  - id: expand-contract
+    prompt: "Why must a column rename be split into expand and contract steps over several releases?"
+    options:
+      - "Databases cannot rename columns"
+      - "Old and new code run side by side and a rollback runs old code on the new schema, so every step must work for both"
+      - "To save disk space"
+      - "Because ORMs require it"
+    answer: 1
+    explanation: "Add the new column, write both, backfill, switch reads, and drop the old column in a later release."

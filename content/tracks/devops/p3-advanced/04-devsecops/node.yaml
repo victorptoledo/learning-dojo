@@ -1,0 +1,24 @@
+id: devops.p3.devsecops
+kind: lesson
+status: draft
+title: "DevSecOps: Supply Chain, Secrets and Pipeline Security"
+summary: "Security built into the delivery path: scanning in CI, secrets management, the software supply chain (SBOMs, signing, SLSA), pipeline hardening and policy as code."
+objectives:
+  - { id: o1, text: "Place security checks in the pipeline: secret scanning, dependency and image scanning, static analysis and IaC scanning", skills: [devops.devsecops] }
+  - { id: o2, text: "Protect the software supply chain with pinned dependencies, SBOMs, signatures and provenance", skills: [devops.devsecops, docker.supply-chain] }
+  - { id: o3, text: "Harden CI/CD itself and manage secrets with short-lived credentials and policy as code", skills: [devops.devsecops, devops.cicd-pipelines] }
+prerequisites: [devops.p3.slo-alerts]
+difficulty: 4
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An attacker compromised a popular open-source GitHub Action and moved its v3 tag to a commit that sends environment variables to their server. Your organisation uses that action in 200 repositories. Describe what you do in the first hour, what you check to know whether you were affected, and which controls you put in place so the next compromise cannot hurt you.'
+  criteria:
+    - 'Immediate response: find every workflow using the action (code search), disable or pin it, and rotate every secret those workflows could reach'
+    - 'Checks exposure: workflow run logs and times since the tag moved, which secrets and token permissions those jobs had, cloud audit logs for use of the credentials'
+    - 'Prevention: pin actions to commit SHAs with automated updates, an allow list of actions, least-privilege tokens'
+    - 'Removes long-lived secrets: OIDC to the cloud with tightly scoped trust policies, short-lived tokens'
+    - 'Adds supply-chain practices: SBOMs, signed artefacts with provenance, and monitoring of egress from runners'

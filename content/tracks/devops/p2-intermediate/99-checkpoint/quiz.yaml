@@ -1,0 +1,92 @@
+pass_percent: 80
+questions:
+  - id: crashloop-first
+    skills: [devops.kubernetes-core]
+    prompt: "Right after a deploy, new Pods crash and users see errors. What do you do first?"
+    options:
+      - "Read every log line before acting"
+      - "Restore service (roll back, or revert in Git), then investigate the crashed containers' logs and events"
+      - "Delete the namespace"
+      - "Scale to zero"
+    answer: 1
+    explanation: "Mitigate first; kubectl logs --previous and describe keep the evidence for afterwards."
+  - id: probes-roles
+    skills: [devops.kubernetes-core]
+    prompt: "Which probe decides whether a Pod receives traffic from its Service?"
+    answers: ["readiness", "readinessProbe", "the readiness probe", "readiness probe"]
+    explanation: "Liveness restarts containers; readiness gates traffic."
+  - id: gitops-drift
+    skills: [devops.cicd-gitops]
+    prompt: "Someone scaled a Deployment by hand; Argo CD shows OutOfSync. With selfHeal on, what happens?"
+    options:
+      - "Nothing until the next commit"
+      - "Argo CD reverts the change to match Git"
+      - "Argo CD commits the change to Git"
+      - "The Deployment is deleted"
+    answer: 1
+    explanation: "Git is the source of truth; change the replicas there."
+  - id: promote-artefact
+    skills: [devops.cicd-gitops]
+    prompt: "In a GitOps setup, how is a tested version promoted to production?"
+    options:
+      - "kubectl apply from a laptop"
+      - "A reviewed change in the production configuration that sets the same image tag or digest"
+      - "Rebuilding from the release branch"
+      - "Copying the staging namespace"
+    answer: 1
+    explanation: "The review is the approval and the commit is the audit trail."
+  - id: state-secret
+    skills: [devops.iac-terraform]
+    prompt: "Why must Terraform state be kept out of Git and access to it restricted?"
+    options:
+      - "It is too large"
+      - "It can contain secrets in plain text, and concurrent writes need a lock that Git cannot give"
+      - "Git cannot store JSON"
+      - "Terraform refuses to read it from Git"
+    answer: 1
+    explanation: "Use a remote backend with locking and encryption, readable only by the pipeline and a few people."
+  - id: moved-vs-destroy
+    skills: [devops.iac-terraform]
+    prompt: "You change module \"web\" into module \"service\" with for_each. Without a moved block, what does the plan show for the web service?"
+    options:
+      - "No changes"
+      - "Destroy module.web's resources and create module.service[\"web\"]'s"
+      - "An error"
+      - "An in-place update"
+    answer: 1
+    explanation: "The address changed, so Terraform thinks one resource left and another arrived."
+  - id: plan-in-pr
+    skills: [devops.iac-terraform, devops.cicd-gitops]
+    prompt: "Why run terraform plan in the pull request and apply only after merge?"
+    options:
+      - "Plans are free"
+      - "Reviewers see exactly what will change before it happens, and production changes have one audited path"
+      - "Apply cannot run on pull requests"
+      - "To use more runner minutes"
+    answer: 1
+    explanation: "The plan is the diff of the infrastructure; review it like code."
+  - id: oidc
+    skills: [devops.iac-terraform, devops.cicd-gitops]
+    prompt: "What does the id-token: write permission give a job that assumes a cloud role?"
+    options:
+      - "Write access to the repository"
+      - "A short-lived OIDC token from GitHub that the cloud exchanges for temporary credentials, so no long-lived keys are stored"
+      - "Access to all secrets"
+      - "Admin rights in the cloud"
+    answer: 1
+    explanation: "The cloud's trust policy decides which repository, branch or environment may assume the role."
+  - id: canary-vs-bluegreen
+    skills: [devops.release-strategies]
+    prompt: "Which strategy exposes a new version to a small share of real users first and grows on evidence?"
+    answers: ["canary", "a canary", "canary release", "canary deployment"]
+    explanation: "Blue-green switches all traffic at once; a canary moves it in steps."
+  - id: expand-contract-order
+    skills: [devops.release-strategies]
+    prompt: "In expand and contract, when is the old column dropped?"
+    options:
+      - "In the same release that adds the new column"
+      - "In a later release, once no running or rollback-target version uses it"
+      - "Before deploying the new code"
+      - "Never"
+    answer: 1
+    explanation: "Each step must work with both the current and the previous version of the code."

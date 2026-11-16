@@ -1,0 +1,25 @@
+id: devops.p3.observability-sre
+legacy_id: devops-06-observability-sre
+kind: lesson
+status: draft
+title: "Observability: Metrics, Logs and Distributed Tracing"
+summary: "The three signals and when to use each, Prometheus and PromQL, structured logs, distributed tracing with OpenTelemetry, and dashboards that answer questions."
+objectives:
+  - { id: o1, text: "Choose between metrics, logs and traces for a question, and instrument a service with all three", skills: [devops.observability-sre] }
+  - { id: o2, text: "Read and write PromQL for rates, ratios and latency percentiles from histograms, avoiding high-cardinality labels", skills: [devops.observability-sre] }
+  - { id: o3, text: "Explain trace context propagation with OpenTelemetry and correlate traces, logs and metrics", skills: [devops.observability-sre] }
+prerequisites: [devops.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Users report that checkout is "sometimes slow". The checkout service calls a cart service, a payment provider and a database. Describe what telemetry you would add to each service, the dashboard you would build, and how you would go from "sometimes slow" to the cause using metrics, traces and logs together.'
+  criteria:
+    - 'Instruments RED metrics (rate, errors, duration as a histogram) per service and endpoint, with bounded labels'
+    - 'Uses latency percentiles (p95, p99) from histograms rather than averages, and splits by dependency'
+    - 'Adds distributed tracing with OpenTelemetry and propagated trace context across all calls, with sampling that keeps slow and failed traces'
+    - 'Writes structured logs that carry the trace ID, so a slow trace leads to its logs'
+    - 'Walks the path: a latency panel shows when, exemplars or trace search show which requests, the trace shows which span, logs show why'

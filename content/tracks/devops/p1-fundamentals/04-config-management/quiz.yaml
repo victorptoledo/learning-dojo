@@ -1,0 +1,50 @@
+questions:
+  - id: idempotent
+    prompt: "A configuration is applied twice in a row. What should the second run report if it is idempotent?"
+    options:
+      - "The same changes as the first run"
+      - "No changes"
+      - "An error, because things already exist"
+      - "Half the changes"
+    answer: 1
+    explanation: "Idempotent resources check first and change only what differs, so repeated runs converge and then do nothing."
+  - id: shell-module
+    prompt: "Which Ansible module is not idempotent on its own?"
+    options:
+      - "ansible.builtin.apt"
+      - "ansible.builtin.shell"
+      - "ansible.builtin.template"
+      - "ansible.builtin.service"
+    answer: 1
+    explanation: "shell and command run every time; make them idempotent with creates:, removes: or changed_when:."
+  - id: handlers
+    prompt: "When does an Ansible handler run?"
+    options:
+      - "Before every task"
+      - "Once, at the end of the play, and only if a task that notifies it reported a change"
+      - "Every time it is notified, immediately"
+      - "Only in check mode"
+    answer: 1
+    explanation: "That is how nginx is reloaded only when its configuration actually changed."
+  - id: check-mode
+    prompt: "Which ansible-playbook flags show what would change without changing anything?"
+    answers: ["--check --diff", "--check", "-C --diff", "-C -D", "--diff --check"]
+    explanation: "Check mode is a dry run; diff mode shows the file changes it would make."
+  - id: drift
+    prompt: "Someone fixed an outage by editing a config file over SSH. What is the risk?"
+    options:
+      - "None, the outage is over"
+      - "The server drifted from the declared state: the next run reverts the fix, or a rebuild loses it"
+      - "SSH logs fill the disk"
+      - "Ansible stops working"
+    answer: 1
+    explanation: "Put the fix in code (or revert it) so code and reality match again."
+  - id: immutable
+    prompt: "What is immutable infrastructure?"
+    options:
+      - "Servers that never fail"
+      - "Building a new image for every change and replacing servers instead of changing them"
+      - "Read-only file systems only"
+      - "Infrastructure that cannot be deleted"
+    answer: 1
+    explanation: "Nobody changes a running server, so drift cannot happen; rollback means deploying the previous image."

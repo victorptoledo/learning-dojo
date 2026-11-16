@@ -1,0 +1,54 @@
+questions:
+  - id: sli-shape
+    prompt: "What is the usual shape of an SLI?"
+    options:
+      - "Average CPU usage"
+      - "Good events divided by valid events, measured as users experience them"
+      - "The number of deploys"
+      - "Uptime of one server"
+    answer: 1
+    explanation: "For example successful requests over all requests, or requests under 300 ms over all requests."
+  - id: budget-minutes
+    prompt: "An SLO of 99.9% over 30 days allows roughly how many minutes of total unavailability?"
+    answers: ["43", "43 minutes", "43.2", "43 min", "about 43"]
+    explanation: "30 days × 24 h × 60 min × 0.001 = 43.2 minutes."
+  - id: sla-vs-slo
+    prompt: "How should an SLA relate to the internal SLO?"
+    options:
+      - "The SLA should be stricter"
+      - "The SLA should be looser, so the team reacts to SLO breaches before contractual penalties"
+      - "They must be identical"
+      - "SLAs replace SLOs"
+    answer: 1
+    explanation: "The gap is a safety margin."
+  - id: burn-rate
+    prompt: "With a 99.9% SLO, the current error ratio is 1.44%. What is the burn rate?"
+    answers: ["14.4", "14,4"]
+    explanation: "0.0144 / 0.001 = 14.4: at that pace, 2% of a 30-day budget goes in one hour."
+  - id: symptom-alert
+    prompt: "Which alert should page a human?"
+    options:
+      - "A node's CPU is above 80%"
+      - "The checkout error budget is burning 14 times too fast over 1 hour and still over the last 5 minutes"
+      - "A Pod restarted once"
+      - "Disk usage is 60%"
+    answer: 1
+    explanation: "Page on user-facing symptoms; causes go to dashboards or tickets."
+  - id: two-windows
+    prompt: "Why does a burn-rate alert check a short window as well as a long one?"
+    options:
+      - "To use more memory"
+      - "So it stops firing soon after the problem is fixed and does not page for a spike that is already over"
+      - "Because Prometheus requires two windows"
+      - "To lower the threshold"
+    answer: 1
+    explanation: "The long window proves significance, the short one proves the burn is still happening."
+  - id: budget-policy
+    prompt: "The error budget for the month is spent. What does a typical error budget policy say?"
+    options:
+      - "Nothing changes"
+      - "Freeze risky releases and prioritise reliability work until the budget recovers"
+      - "Lower the SLO"
+      - "Turn off the alerts"
+    answer: 1
+    explanation: "Agree the policy with the product owner before you need it."

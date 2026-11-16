@@ -1,0 +1,230 @@
+# Technical interview questions for the devops track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/devops"
+  - "https://github.com/bregman-arie/devops-exercises"
+  - "https://www.geeksforgeeks.org/devops/devops-interview-questions/"
+  - "https://sre.google/sre-book/table-of-contents/"
+  - "https://dora.dev/"
+questions:
+  - id: what-is-devops
+    level: junior
+    skills: [devops.role]
+    question: "What is DevOps, in your own words, and what is it not?"
+    key_points:
+      - "A way of working where the people who build a service share in running it"
+      - "Automation of build, test, deploy and infrastructure; small batches; measurement; sharing"
+      - "Not a tool, and not a separate team that becomes a new wall between dev and ops"
+      - "Feedback from production flows back to developers quickly"
+    follow_up: "How would you tell whether a company's DevOps transformation is working?"
+  - id: dora-metrics
+    level: junior
+    skills: [devops.delivery-metrics]
+    question: "What are the four DORA metrics, and why are they measured together?"
+    key_points:
+      - "Deployment frequency and lead time for changes (throughput)"
+      - "Change failure rate and time to restore service (stability)"
+      - "The research shows speed and stability improve together"
+      - "Measure teams and systems, never rank individuals; avoid turning them into targets"
+    follow_up: "Your deployment frequency doubled and the change failure rate tripled. What do you conclude?"
+  - id: ci-vs-cd
+    level: junior
+    skills: [devops.cicd-pipelines, devops.delivery-metrics]
+    question: "Explain continuous integration, continuous delivery and continuous deployment."
+    key_points:
+      - "CI: every change merged to main frequently, built and tested automatically"
+      - "Continuous delivery: main is always releasable; production is a decision"
+      - "Continuous deployment: every passing change goes to production automatically"
+      - "Short-lived branches or trunk-based development make CI real"
+    follow_up: "When would you not choose continuous deployment?"
+  - id: linux-triage
+    level: junior
+    skills: [devops.linux-internals]
+    question: "A Linux server is slow. Which commands do you run first, and what do they tell you?"
+    key_points:
+      - "uptime and nproc for load against CPUs; top or htop for the heavy processes"
+      - "free -h for available memory and swap; dmesg for OOM kills and disk errors"
+      - "df -h and df -i for space and inodes; iostat or vmstat for I/O wait"
+      - "ss for sockets; journalctl and application logs; work from broad to narrow (USE method)"
+    follow_up: "Load is 20 on 4 CPUs but CPU usage is low. What is going on?"
+  - id: container-vs-vm
+    level: junior
+    skills: [devops.docker-containers]
+    question: "How is a container different from a virtual machine?"
+    key_points:
+      - "A container is a process isolated by namespaces and limited by cgroups; it shares the host kernel"
+      - "A VM runs its own kernel on a hypervisor: stronger isolation, heavier, slower to start"
+      - "Images are layered file systems; containers start in milliseconds"
+      - "Kernel sharing means a kernel vulnerability can cross containers; sandboxed runtimes exist"
+    follow_up: "When would you still choose VMs, or VM-isolated containers?"
+  - id: dockerfile-review
+    level: junior
+    skills: [devops.docker-containers]
+    question: "What do you look for when reviewing a Dockerfile for production?"
+    key_points:
+      - "A pinned, small base image; multi-stage build so build tools stay out"
+      - "Layer order that keeps dependency layers cached"
+      - "A non-root user, no secrets in layers, a .dockerignore"
+      - "One process, exec-form ENTRYPOINT so signals arrive; health checks where useful"
+    follow_up: "How do you pass a private package token to a build without leaving it in the image?"
+  - id: pipeline-design
+    level: mid
+    skills: [devops.cicd-pipelines]
+    question: "Design the CI pipeline for a service: what runs on pull requests, what on main, and how do you keep it fast?"
+    key_points:
+      - "Pull requests: lint, unit tests, build, security scans; main: also build and push the image, deploy"
+      - "Parallel jobs, needs only for real dependencies, caches keyed on lock files"
+      - "Concurrency cancels superseded runs; artefacts pass outputs between jobs"
+      - "Least-privilege tokens, pinned actions, timeouts; flaky tests quarantined"
+    follow_up: "The pipeline takes 40 minutes. Where do you start?"
+  - id: idempotence
+    level: mid
+    skills: [devops.config-management]
+    question: "What does idempotent mean for configuration management, and why does it matter?"
+    key_points:
+      - "Applying the same configuration repeatedly converges to the same state; later runs change nothing"
+      - "Declare desired state; tools check first and change only differences"
+      - "Allows frequent runs that repair drift; check mode shows drift"
+      - "shell or command tasks need guards (creates, changed_when) to be idempotent"
+    follow_up: "Compare managing servers in place with immutable images."
+  - id: k8s-crashloop
+    level: mid
+    skills: [devops.kubernetes-core]
+    question: "Pods of a Deployment are in CrashLoopBackOff after a release. Walk through what you do."
+    key_points:
+      - "Mitigate first: kubectl rollout undo, or revert in Git with GitOps"
+      - "kubectl describe pod for events (OOMKilled, probe failures, missing config)"
+      - "kubectl logs --previous for the crashed container's output"
+      - "Check the diff of the release: image, config, secrets, resources, probes"
+    follow_up: "Which manifest settings would have kept users from noticing?"
+  - id: gitops
+    level: mid
+    skills: [devops.cicd-gitops]
+    question: "What is GitOps, and how does it differ from deploying with kubectl from a pipeline?"
+    key_points:
+      - "Desired state declared and versioned in Git, pulled and continuously reconciled by an agent in the cluster"
+      - "CI needs no cluster credentials; drift is detected and can be reverted (self-heal)"
+      - "Promotion and approvals are pull requests; rollback is a git revert"
+      - "Secrets need Sealed Secrets, SOPS or an external secrets operator"
+    follow_up: "How do you promote a version from staging to production in GitOps?"
+  - id: terraform-state
+    level: mid
+    skills: [devops.iac-terraform]
+    question: "What is Terraform state, and how do you manage it in a team?"
+    key_points:
+      - "Maps resource addresses to real objects; plan compares configuration, state and reality"
+      - "Remote backend with locking and encryption; never in Git, it may hold secrets"
+      - "Split state by environment and component to limit blast radius"
+      - "Refactor with moved and import blocks, not manual state edits"
+    follow_up: "Two engineers apply at the same time without locking. What can happen?"
+  - id: terraform-workflow
+    level: mid
+    skills: [devops.iac-terraform, devops.cicd-pipelines]
+    question: "How should infrastructure changes reach production with Terraform?"
+    key_points:
+      - "fmt, validate, lint and security scans in CI"
+      - "Plan on every pull request, shown to reviewers"
+      - "Apply only from the pipeline after merge, with an environment approval for production"
+      - "Short-lived OIDC credentials with separate plan and apply roles; pinned versions and committed lock file"
+    follow_up: "How do you detect drift between applies?"
+  - id: release-strategies
+    level: mid
+    skills: [devops.release-strategies]
+    question: "Compare rolling updates, blue-green and canary releases."
+    key_points:
+      - "Rolling replaces instances gradually; both versions serve during it"
+      - "Blue-green runs a full new copy and switches all traffic, with instant rollback, at double capacity"
+      - "Canary sends a small share of traffic first and grows it based on compared metrics"
+      - "All need backwards-compatible schemas (expand and contract); feature flags separate release from deploy"
+    follow_up: "Which metrics would you use to decide to promote a canary?"
+  - id: observability-signals
+    level: mid
+    skills: [devops.observability-sre]
+    question: "Explain metrics, logs and traces, and when you use each."
+    key_points:
+      - "Metrics: aggregated numbers with labels, cheap, for dashboards and alerts; watch cardinality"
+      - "Logs: detail of single events, structured, with a trace ID; expensive by volume"
+      - "Traces: a request's path across services as timed spans; sampled"
+      - "Correlate them: dashboard to exemplar or trace, to span, to logs"
+    follow_up: "Why should a user ID never be a metric label?"
+  - id: slo-design
+    level: mid
+    skills: [devops.slo-alerting]
+    question: "How would you define an SLO for an API, and what is an error budget?"
+    key_points:
+      - "SLI as good events over valid events, measured near the user (availability, latency under a threshold)"
+      - "A target over a rolling window, justified by user needs and cost"
+      - "Error budget = 1 - SLO; spent on change; a policy says what happens when it runs out"
+      - "SLA is looser than the SLO"
+    follow_up: "How many minutes of downtime does 99.95% over 30 days allow?"
+  - id: burn-rate-alerts
+    level: senior
+    skills: [devops.slo-alerting]
+    question: "Why alert on error budget burn rates over two windows instead of a static error threshold?"
+    key_points:
+      - "Burn rate = error ratio / (1 - SLO); 14.4 over an hour spends 2% of a 30-day budget"
+      - "The long window proves significance, the short window proves it is still happening"
+      - "Fast burns page, slow burns open tickets"
+      - "Fewer false pages, faster reset after fixes, alerts tied to user impact"
+    follow_up: "How do you handle a low-traffic service where one error is 5% of requests?"
+  - id: secrets-pipeline
+    level: senior
+    skills: [devops.devsecops]
+    question: "How do you handle secrets and cloud credentials in CI/CD?"
+    key_points:
+      - "No secrets in Git or images; a secrets manager, fetched at run time, audited"
+      - "OIDC federation for short-lived cloud credentials, with trust limited to a repository and branch or environment"
+      - "Least-privilege tokens per job; no secrets for untrusted pull request code"
+      - "Rotate on exposure; scan for leaked secrets with push protection"
+    follow_up: "A secret was printed in a public CI log. What do you do?"
+  - id: supply-chain
+    level: senior
+    skills: [devops.devsecops]
+    question: "How do you protect the software supply chain of your services?"
+    key_points:
+      - "Pin dependencies, base images by digest and actions by commit SHA; automated update PRs"
+      - "Scan dependencies and images; SBOMs for every artefact"
+      - "Sign artefacts with provenance (Sigstore, SLSA) and verify at admission"
+      - "Harden the build system: protected workflows, ephemeral runners, no script injection"
+    follow_up: "A popular action you use was compromised yesterday. Walk through your response."
+  - id: incident-command
+    level: senior
+    skills: [devops.incident-response]
+    question: "You are paged for a major outage. How do you run the incident?"
+    key_points:
+      - "Declare it with a severity; open a channel; assign incident commander, operations, communications, scribe"
+      - "Mitigate first: roll back recent changes, fail over, shed load"
+      - "Regular stakeholder updates and a status page"
+      - "Keep a timeline and evidence; hand over roles when tired"
+    follow_up: "What goes into the postmortem, and what makes it blameless?"
+  - id: dr-design
+    level: senior
+    skills: [devops.disaster-recovery]
+    question: "How do you design disaster recovery for a critical service?"
+    key_points:
+      - "RTO and RPO agreed with the business per service tier"
+      - "A strategy that fits: backup and restore, pilot light, warm standby or active-active"
+      - "Backups 3-2-1 with an immutable copy in a separate account; point-in-time recovery for short RPO"
+      - "Prove it with restore tests and failover game days, measuring the real times"
+    follow_up: "What dependencies are commonly forgotten in a regional failover?"
+  - id: platform-team
+    level: senior
+    skills: [devops.platform-engineering]
+    question: "When should a company create a platform team, and how do you make it succeed?"
+    key_points:
+      - "When many teams repeat the same infrastructure work and cognitive load slows them"
+      - "Treat the platform as a product: user research, thin start, self-service, voluntary adoption"
+      - "Golden paths with security, observability and delivery built in; a portal as the front door"
+      - "Measure adoption, time to first deploy, DORA metrics and developer satisfaction"
+    follow_up: "How do you stop the platform team from becoming a ticket queue?"
+  - id: cloud-cost
+    level: senior
+    skills: [devops.cloud-networking-cost]
+    question: "The cloud bill grew 40% in a quarter. How do you investigate and control it?"
+    key_points:
+      - "Allocate spend with enforced tags; find the services and line items that grew"
+      - "Compare unit costs (per order, per user) to separate growth from waste"
+      - "Common levers: right-sizing, autoscaling, commitments for the base, Spot, storage lifecycle, private endpoints instead of NAT, less cross-zone traffic and log volume"
+      - "Budgets and anomaly alerts per team; regular reviews with the owners"
+    follow_up: "Where does data transfer cost hide in a Kubernetes cluster spread over three zones?"

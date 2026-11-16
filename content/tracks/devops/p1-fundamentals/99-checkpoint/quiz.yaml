@@ -1,0 +1,97 @@
+pass_percent: 80
+questions:
+  - id: triage-order
+    skills: [devops.linux-internals]
+    prompt: "A host is slow. What should you look at first?"
+    options:
+      - "The source code of the slowest endpoint"
+      - "The whole machine: load against CPU count, the kernel log, memory, disk and network, before one process"
+      - "Restart the database"
+      - "Upgrade the kernel"
+    answer: 1
+    explanation: "Working from broad to narrow (the USE method) stops you tunnelling into the wrong problem."
+  - id: deleted-open-file
+    skills: [devops.linux-internals]
+    prompt: "You deleted a 40 GB log file but df still shows the disk full. Why?"
+    options:
+      - "df caches its numbers for an hour"
+      - "A process still holds the file open, so its blocks are not freed until it closes it"
+      - "Deleted files go to a trash folder"
+      - "The disk needs a reboot to recount"
+    answer: 1
+    explanation: "lsof +L1 finds such files; restart or signal the process, or truncate the file instead of deleting it."
+  - id: container-kernel
+    skills: [devops.docker-containers]
+    prompt: "What do all containers on one host share?"
+    options:
+      - "Their root file systems"
+      - "The host's kernel"
+      - "Their process IDs"
+      - "Their network namespace"
+    answer: 1
+    explanation: "Namespaces and cgroups isolate processes, but the kernel is one; that is why containers start fast and isolate less than VMs."
+  - id: build-once
+    skills: [devops.docker-containers]
+    prompt: "Which practice makes a production deploy match exactly what was tested?"
+    options:
+      - "Rebuilding the image from the release tag before production"
+      - "Promoting the same image digest through every environment, changing only configuration"
+      - "Using :latest everywhere"
+      - "Building on the production host"
+    answer: 1
+    explanation: "Build once, promote many; a rebuild may pick up different bases or dependencies."
+  - id: needs
+    skills: [devops.cicd-pipelines]
+    prompt: "In GitHub Actions, which key makes a job wait for others to succeed?"
+    answers: ["needs", "needs:", "jobs.<id>.needs"]
+    explanation: "needs: [lint, test] runs the job only after both succeed (unless an if: says otherwise)."
+  - id: concurrency
+    skills: [devops.cicd-pipelines]
+    prompt: "What does concurrency with cancel-in-progress: true do for a CI workflow?"
+    options:
+      - "Runs jobs in parallel"
+      - "Cancels an older run in the same group when a newer one starts, for example after a new push to the same branch"
+      - "Limits the number of matrix jobs"
+      - "Retries failed jobs"
+    answer: 1
+    explanation: "It saves runner time on superseded commits. For deploys and applies you want cancel-in-progress: false."
+  - id: token-scope
+    skills: [devops.cicd-pipelines]
+    prompt: "Only the job that pushes images needs packages: write. Where should that permission go?"
+    options:
+      - "At the top level, so every job has it"
+      - "In that job's permissions, with contents: read at the top level"
+      - "In a secret"
+      - "Nowhere, write-all is simpler"
+    answer: 1
+    explanation: "Least privilege: each job gets only what it needs."
+  - id: idempotence-check
+    skills: [devops.config-management]
+    prompt: "Which change is idempotent?"
+    options:
+      - "echo 'export PATH=$PATH:/opt/bin' >> ~/.profile"
+      - "Ensure the line export PATH=$PATH:/opt/bin is present in ~/.profile"
+      - "useradd deploy"
+      - "systemctl restart nginx on every run"
+    answer: 1
+    explanation: "Declaring presence checks before changing; appending adds a duplicate each run."
+  - id: dry-run-exit
+    skills: [devops.config-management]
+    prompt: "Why should a dry run return a non-zero exit status when something would change?"
+    options:
+      - "To save disk space"
+      - "So a scheduled job or pipeline can detect drift and alert without reading the output"
+      - "Because changes are errors"
+      - "To make the real run faster"
+    answer: 1
+    explanation: "terraform plan -detailed-exitcode returns 2 for the same reason."
+  - id: immutable-vs-mutable
+    skills: [devops.config-management, devops.docker-containers]
+    prompt: "Why can drift not happen on immutable servers?"
+    options:
+      - "Their disks are encrypted"
+      - "Nobody changes them after they start: every change is a new image and new servers"
+      - "They run configuration management every minute"
+      - "They have no network"
+    answer: 1
+    explanation: "Rollback is deploying the previous image; there is no in-place state to diverge."

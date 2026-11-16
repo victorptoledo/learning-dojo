@@ -1,0 +1,59 @@
+questions:
+  - id: sigterm-first
+    prompt: "A process must be stopped. Which signal should you send first?"
+    options:
+      - "SIGKILL, it is guaranteed"
+      - "SIGTERM, so it can finish work and clean up; SIGKILL only if it does not exit"
+      - "SIGHUP"
+      - "SIGSTOP"
+    answer: 1
+    explanation: "SIGKILL cannot be caught, so no cleanup runs. systemd, Docker and Kubernetes all send SIGTERM first, then SIGKILL after a timeout."
+  - id: d-state
+    prompt: "Many processes are in state D. What does that usually point to?"
+    options:
+      - "A CPU-bound loop"
+      - "Processes blocked in uninterruptible sleep, usually waiting on disk or network storage"
+      - "Zombies"
+      - "Too many open files"
+    answer: 1
+    explanation: "D processes cannot be interrupted while they wait for I/O; they also count towards the load average."
+  - id: journal-unit
+    prompt: "Which command shows the logs of the systemd service api from the last 15 minutes?"
+    answers: ['journalctl -u api --since "15 min ago"', "journalctl -u api --since '15 min ago'", 'journalctl -u api --since "15 minutes ago"', "journalctl --since '15 min ago' -u api"]
+    explanation: "-u picks the unit, --since takes a time or a relative expression."
+  - id: listening
+    prompt: "Which command lists listening TCP ports with the process that owns each one?"
+    options:
+      - "netstat -r"
+      - "ss -tlnp"
+      - "ip route"
+      - "dig +short"
+    answer: 1
+    explanation: "-t TCP, -l listening, -n numeric, -p process (needs root to see other users' processes)."
+  - id: disk-full-free
+    prompt: "df -h shows free space, but writes fail with 'No space left on device'. What should you check next?"
+    options:
+      - "The CPU temperature"
+      - "Inodes, with df -i: the file system may have run out of them"
+      - "The DNS resolver"
+      - "The swap size"
+    answer: 1
+    explanation: "Millions of small files can exhaust inodes while blocks remain free."
+  - id: oom-exit
+    prompt: "A container exits with code 137. What is the most likely cause?"
+    options:
+      - "A syntax error"
+      - "It was killed with SIGKILL, typically by the OOM killer for exceeding its memory limit"
+      - "A failed health check"
+      - "A network timeout"
+    answer: 1
+    explanation: "137 = 128 + 9 (SIGKILL). Check the kernel log or the container's OOMKilled state."
+  - id: use-method
+    prompt: "What does the USE method check for each resource?"
+    options:
+      - "Users, Sessions, Events"
+      - "Utilisation, Saturation and Errors"
+      - "Uptime, Swap, Entropy"
+      - "Updates, Security, Encryption"
+    answer: 1
+    explanation: "Brendan Gregg's checklist: for CPU, memory, disks and network, check utilisation, saturation (queues) and errors."

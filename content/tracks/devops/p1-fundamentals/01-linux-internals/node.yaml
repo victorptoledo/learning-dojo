@@ -2,13 +2,24 @@ id: devops.p1.linux-internals
 legacy_id: devops-01-linux-internals
 kind: lesson
 status: draft
-title: "Linux: Processes, Signals and Networking"
-summary: "Essential commands, POSIX permissions, systemd, ports and TCP networking."
+title: "Linux for Operations: Processes, Services, Networking and Triage"
+summary: "The Linux an operator needs every day: processes and signals, systemd services and journald, ports and DNS, disks, and a first-five-minutes triage routine."
 objectives:
-  - { id: o1, text: "Essential commands, POSIX permissions, systemd, ports and TCP networking.", skills: [devops.linux-internals] }
-prerequisites: []
+  - { id: o1, text: "Inspect and control processes and services with ps, signals, systemctl and journalctl", skills: [devops.linux-internals, linux.processes, linux.systemd-services] }
+  - { id: o2, text: "Check listening ports, connectivity and name resolution with ss, curl and dig", skills: [devops.linux-internals, linux.networking] }
+  - { id: o3, text: "Triage a slow or broken host in a fixed order: load, memory, disk, network, logs", skills: [devops.linux-internals, linux.performance] }
+prerequisites: [devops.p0.first-workflow]
 difficulty: 2
-estimated_minutes: 30
-xp: 100
+estimated_minutes: 45
+xp: 200
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You are paged: "api-02 is slow and some requests return 502". You have SSH access to the host, which runs the API as a systemd service behind nginx. Write the commands you would run in the first ten minutes, in order, what each one tells you, and how you would decide between a CPU, memory, disk, network or application problem.'
+  criteria:
+    - 'Starts broad (uptime or load, top, free, df) before diving into one area'
+    - 'Checks the service and its logs: systemctl status, journalctl -u with a time range, nginx error log for upstream errors'
+    - 'Checks the network side: ss -tlnp for the listening port, curl to the local backend, DNS if it calls other services'
+    - 'Names the signs that separate the causes (high iowait, OOM kills in dmesg, a full disk, swap use, many connections in TIME_WAIT or CLOSE_WAIT)'
+    - 'Mitigates before root-causing when users are hurt (restart, take the host out of the load balancer) and records what was done'

@@ -1,0 +1,54 @@
+questions:
+  - id: signal-choice
+    prompt: "Which signal shows best that a request spent 1.1 s waiting for a payment provider, three services away?"
+    options:
+      - "A CPU metric"
+      - "A distributed trace"
+      - "A daily report"
+      - "The load balancer's access log only"
+    answer: 1
+    explanation: "Traces show the timed spans of one request across every service it touched."
+  - id: counter-rate
+    prompt: "http_requests_total is a counter. Which function turns it into requests per second?"
+    answers: ["rate", "rate()", "irate"]
+    explanation: "rate(http_requests_total[5m]) is the per-second average increase over five minutes, and copes with counter resets."
+  - id: cardinality
+    prompt: "Which label would cause a cardinality explosion?"
+    options:
+      - "route=\"/orders/{id}\""
+      - "user_id with a value per customer"
+      - "code=\"500\""
+      - "method=\"POST\""
+    answer: 1
+    explanation: "Each distinct label set is a new series; unbounded values such as IDs belong in logs or traces."
+  - id: percentiles
+    prompt: "Why alert on p99 latency rather than average latency?"
+    options:
+      - "Averages are harder to compute"
+      - "An average hides the slow tail that a few percent of users experience"
+      - "p99 is always lower"
+      - "Prometheus has no average"
+    answer: 1
+    explanation: "Compute it from a histogram with histogram_quantile, aggregated over instances by le."
+  - id: trace-context
+    prompt: "What joins spans from different services into one trace?"
+    options:
+      - "Matching timestamps"
+      - "The trace context (trace ID and parent span ID) propagated on each call, for example in the W3C traceparent header"
+      - "The same host name"
+      - "Log levels"
+    answer: 1
+    explanation: "Every service must forward the context; OpenTelemetry instrumentation does it for common libraries."
+  - id: tail-sampling
+    prompt: "Which sampling can keep every failed or slow trace while dropping most normal ones?"
+    options:
+      - "Head sampling at 1%"
+      - "Tail sampling, deciding after the trace is complete (for example in the OpenTelemetry Collector)"
+      - "No sampling is possible"
+      - "Log sampling"
+    answer: 1
+    explanation: "Head sampling decides before anyone knows whether the request will be interesting."
+  - id: log-correlation
+    prompt: "What should every log line carry so you can jump from a slow trace to its logs?"
+    answers: ["trace_id", "the trace ID", "trace id", "traceId"]
+    explanation: "With the same service names across signals, the trace ID links traces and logs."

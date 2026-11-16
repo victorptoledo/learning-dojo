@@ -1,0 +1,24 @@
+id: devops.p3.cloud-networking-cost
+kind: lesson
+status: draft
+title: "Cloud Networking and Cost: VPCs, Load Balancers, DNS and FinOps"
+summary: "The networking every cloud shares (VPCs, subnets, routes, NAT, security groups, load balancers, DNS, private endpoints) and how cloud bills are built and kept under control."
+objectives:
+  - { id: o1, text: "Design a VPC with public and private subnets across zones, routes, NAT and security rules", skills: [devops.cloud-networking-cost] }
+  - { id: o2, text: "Choose load balancers and DNS records, and connect networks privately", skills: [devops.cloud-networking-cost] }
+  - { id: o3, text: "Explain the main cost drivers and the FinOps practices that control them", skills: [devops.cloud-networking-cost] }
+prerequisites: [devops.p3.secure-pipeline]
+difficulty: 3
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the network for a web application with a public API, background workers and a managed PostgreSQL database, in one region with three availability zones. Then the monthly bill arrives 40% higher than expected, with "NAT gateway" and "data transfer" as the largest growth items. Explain your design and how you would investigate and reduce the cost.'
+  criteria:
+    - 'Public subnets only for load balancers (and NAT), private subnets for workloads and the database, spread over the three zones'
+    - 'Security groups allow only the needed flows (load balancer to API, API and workers to the database on 5432), no database exposed to the internet'
+    - 'Explains NAT and transfer costs: traffic to cloud services through NAT, cross-zone traffic, egress to the internet'
+    - 'Reduces them with private endpoints for cloud services (S3, ECR and the like), zone-aware routing, caching or a CDN, and checking chatty services'
+    - 'Puts FinOps practices in place: tags for cost allocation, budgets and anomaly alerts, a regular review with the teams that own the spend'

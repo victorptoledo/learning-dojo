@@ -3,3 +3,4 @@
 runner-images/** text eol=lf
 *.bats text eol=lf
 *.go text eol=lf
+content/tracks/devops/** text eol=lf

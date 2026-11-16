@@ -1,0 +1,51 @@
+id: devops.p3.secure-pipeline
+kind: kata
+status: draft
+title: "Secure the Pipeline: Harden Two GitHub Actions Workflows"
+summary: "Fix pull_request_target misuse, script injection, write-all tokens, unpinned actions, piped installers, leaked secrets and static cloud keys."
+objectives:
+  - { id: o1, text: "Recognise and fix the common GitHub Actions attacks: poisoned pull requests, script injection, mutable action tags", skills: [devops.devsecops, devops.cicd-pipelines] }
+  - { id: o2, text: "Give a release job short-lived cloud credentials through OIDC and keep secrets out of logs", skills: [devops.devsecops] }
+prerequisites: [devops.p3.devsecops]
+difficulty: 4
+estimated_minutes: 50
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-devops, timeout_secs: 90 }
+  hints:
+    - |-
+      Take the table row by row and ask for each line of YAML: who controls this value, and what can this step do with the token and secrets it has? A pull request from a fork is written by a stranger: its title, its branch name and its code are all untrusted.
+    - |-
+      Moving an expression out of the script looks like `env: { PR_TITLE: ${{ github.event.pull_request.title }} }` plus `run: echo "Testing $PR_TITLE"`: the shell then sees a variable, never code. For OIDC, the job needs `permissions: { contents: read, id-token: write }` and `configure-aws-credentials` gets `role-to-assume` instead of the two key inputs.
+    - |-
+      ```yaml
+      publish:
+        runs-on: ubuntu-24.04
+        timeout-minutes: 20
+        environment: release
+        permissions: { contents: read, id-token: write }
+        steps:
+          - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+            with: { persist-credentials: false }
+          - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+            with: { role-to-assume: ..., aws-region: eu-west-1 }
+          - name: Publish
+            env:
+              DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+              VERSION: ${{ github.ref_name }}
+            run: ./scripts/publish.sh "$VERSION"
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your workflows are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-devops runner image
+    image: dojo-devops
+    why: The container with actionlint, Terraform, promtool and bats that checks DevOps katas offline.

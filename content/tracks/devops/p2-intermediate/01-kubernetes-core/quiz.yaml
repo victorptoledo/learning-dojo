@@ -1,0 +1,54 @@
+questions:
+  - id: reconcile
+    prompt: "A node with one of three replicas dies. What brings the Deployment back to three?"
+    options:
+      - "An operator runs kubectl scale"
+      - "The ReplicaSet controller sees two Pods where three are desired and creates one"
+      - "The kubelet on the dead node"
+      - "etcd restarts the Pod"
+    answer: 1
+    explanation: "Controllers continuously compare spec and status and act on the difference."
+  - id: readiness
+    prompt: "What happens to a Pod whose readiness probe fails?"
+    options:
+      - "It is restarted"
+      - "It is removed from its Services' endpoints until the probe passes again"
+      - "It is deleted"
+      - "Nothing"
+    answer: 1
+    explanation: "Readiness controls traffic; liveness controls restarts."
+  - id: max-unavailable
+    prompt: "Which rollingUpdate settings keep all 3 replicas serving during a rollout?"
+    options:
+      - "maxUnavailable: 1, maxSurge: 0"
+      - "maxUnavailable: 0, maxSurge: 1"
+      - "maxUnavailable: 3"
+      - "strategy: Recreate"
+    answer: 1
+    explanation: "A new Pod must become ready before an old one is removed."
+  - id: memory-limit
+    prompt: "What happens when a container uses more memory than its limit?"
+    options:
+      - "It is throttled"
+      - "It is OOM-killed and restarted"
+      - "It is moved to another node"
+      - "Nothing, limits are advisory"
+    answer: 1
+    explanation: "Memory cannot be throttled; CPU over its limit is throttled instead."
+  - id: previous-logs
+    prompt: "A Pod is in CrashLoopBackOff. Which kubectl logs flag shows the output of the container that crashed?"
+    answers: ["--previous", "-p"]
+    explanation: "The current container may have just started; --previous shows the last terminated one."
+  - id: undo
+    prompt: "Which command rolls a Deployment back to its previous version?"
+    answers: ["kubectl rollout undo deploy/orders", "kubectl rollout undo deployment/orders", "kubectl rollout undo", "rollout undo"]
+    explanation: "It switches back to the previous ReplicaSet. With GitOps, also revert the change in Git."
+  - id: secrets-encoding
+    prompt: "Are Kubernetes Secrets encrypted by default?"
+    options:
+      - "Yes, with AES"
+      - "No: they are base64-encoded; enable encryption at rest and restrict access, or sync them from a vault"
+      - "Only in the default namespace"
+      - "Only if the Pod runs as root"
+    answer: 1
+    explanation: "base64 is an encoding, not encryption; anyone who can read the object can read the secret."

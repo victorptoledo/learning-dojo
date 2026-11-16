@@ -1,0 +1,54 @@
+questions:
+  - id: state-purpose
+    prompt: "What does the Terraform state record?"
+    options:
+      - "The source code of the providers"
+      - "The mapping from each resource address in the configuration to the real object it manages, with its attributes"
+      - "The plan of the last pull request"
+      - "The cloud bill"
+    answer: 1
+    explanation: "Without state Terraform cannot tell which real objects it owns; protect it, it may hold secrets."
+  - id: state-locking
+    prompt: "Why must a remote backend support locking?"
+    options:
+      - "To make plans faster"
+      - "So two applies cannot write the state at the same time and corrupt it"
+      - "To encrypt the state"
+      - "To keep old versions"
+    answer: 1
+    explanation: "S3 (native lock files), Azure Storage, GCS and HCP Terraform all lock during operations."
+  - id: for-each-vs-count
+    prompt: "Why is for_each over a map usually better than count over a list?"
+    options:
+      - "It is faster"
+      - "Instances are keyed by stable names, so removing one item does not shift and recreate the others"
+      - "count is deprecated"
+      - "for_each works without providers"
+    answer: 1
+    explanation: "With count, deleting element 0 renumbers every later instance."
+  - id: replace-symbol
+    prompt: "In a plan, what does -/+ next to a database mean?"
+    options:
+      - "An in-place update"
+      - "The resource will be destroyed and recreated, which may lose its data"
+      - "Nothing will change"
+      - "It will be imported"
+    answer: 1
+    explanation: "Some attribute changes force replacement; read the plan for the line that says so."
+  - id: moved-block
+    prompt: "Which block renames a resource address in the state without destroying the resource?"
+    answers: ["moved", "moved {}", "a moved block"]
+    explanation: "moved { from = ... to = ... } is reviewed like code, unlike terraform state mv."
+  - id: detailed-exitcode
+    prompt: "Which plan flag makes the exit status 2 when there are changes, for drift detection?"
+    answers: ["-detailed-exitcode", "--detailed-exitcode"]
+    explanation: "0 means no changes, 1 an error, 2 changes present."
+  - id: team-apply
+    prompt: "How should a team apply Terraform to production?"
+    options:
+      - "Each engineer applies from their laptop"
+      - "From a pipeline after the pull request with its plan is reviewed and merged, using short-lived credentials"
+      - "In the cloud console"
+      - "Once a year"
+    answer: 1
+    explanation: "Reviewed plans, one way in, an audit trail and no long-lived keys on laptops."

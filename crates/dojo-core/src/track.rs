@@ -109,6 +109,9 @@ pub enum KataLanguage {
     Go,
     /// TypeScript modules type-checked by tsc and tested with node:test in `dojo-node`.
     TypeScript,
+    /// GitHub Actions workflows, Terraform modules and Prometheus rules checked offline by
+    /// `dojo-devops` with actionlint, terraform, promtool and bats.
+    DevOps,
 }
 
 impl Kata {
@@ -122,6 +125,7 @@ impl Kata {
             "dojo-k8s" => KataLanguage::Kubernetes,
             "dojo-go" => KataLanguage::Go,
             "dojo-node" => KataLanguage::TypeScript,
+            "dojo-devops" => KataLanguage::DevOps,
             _ => KataLanguage::Rust,
         }
     }
@@ -359,6 +363,7 @@ mod tests {
 
         assert_eq!(kata("dojo-docker").language(), KataLanguage::Docker);
         assert_eq!(kata("dojo-k8s").language(), KataLanguage::Kubernetes);
+        assert_eq!(kata("dojo-devops").language(), KataLanguage::DevOps);
         assert_eq!(kata("dojo-linux").language(), KataLanguage::Bash);
         assert_eq!(kata("dojo-rust").language(), KataLanguage::Rust);
     }

@@ -1,0 +1,6 @@
+# The desired state of an app server, one resource per line (see README.md).
+# kind    path                    arguments
+dir       /etc/app                0750
+file      /etc/app/app.conf       templates/app.conf 0640
+line      /etc/hosts              10.0.0.5 db.internal
+absent    /etc/app/legacy.conf

@@ -46,7 +46,7 @@ of your choice.
 
 ### Tracks
 
-15 tracks are complete, with 353 lessons and checkpoints and 124 katas between them:
+16 tracks are complete, with 378 lessons and checkpoints and 132 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
@@ -63,12 +63,13 @@ of your choice.
 | Go | Go 1.27 | 23 | 8 | `dojo-go` (go test -race, go vet, gofmt) |
 | TypeScript | TypeScript 7 on Node.js 26 | 23 | 9 | `dojo-node` (tsc, node:test) |
 | Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |
+| DevOps & Cloud | CI/CD, Terraform, GitOps, releases, SLOs, DevSecOps | 25 | 8 | `dojo-devops` (actionlint, Terraform 1.17, promtool, bats), `dojo-linux`, `dojo-k8s` |
 | Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
 | Design Patterns | principles and patterns in modern Java | 24 | 10 | `dojo-java` (refactoring katas) |
 
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
-Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
+Frontend, Full Stack, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 
 ## Requirements
@@ -155,6 +156,12 @@ the `dojo-k8s` image renders them (`kustomize build`, `helm template`), validate
 kubeconform against the Kubernetes 1.36 schemas and checks them with bats policies (selectors match
 labels, Services reach a declared port, probes and resources, restricted Pod security, least-privilege
 RBAC), all offline.
+
+**DevOps katas** need no cloud account either: you write GitHub Actions workflows, Terraform modules
+or Prometheus rules, and the `dojo-devops` image checks them offline with actionlint (and
+ShellCheck for every `run:` script), `terraform fmt`, `validate` and `terraform test` (with the
+`random`, `null` and `local` providers baked in), `promtool check rules` and `promtool test rules`,
+plus bats tests that read the files.
 
 **SQL katas** run against a throwaway PostgreSQL 17. To try your queries on a kata's tables, run
 this from the kata folder:
