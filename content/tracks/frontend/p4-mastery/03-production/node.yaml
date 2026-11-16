@@ -1,0 +1,24 @@
+id: frontend.p4.production
+kind: lesson
+status: draft
+title: "Frontend in Production: Monitoring, Errors, Browser Support and Delivery"
+summary: "Error monitoring with source maps, real user monitoring of Core Web Vitals and synthetic checks, browser support policies with Baseline and feature detection, resilience to network and script failures, service workers, safe delivery with atomic deploys, feature flags and staged rollouts, and internationalization basics."
+objectives:
+  - { id: o1, text: "Monitor errors and real-user performance, and set a browser support policy with feature detection", skills: [frontend.production] }
+  - { id: o2, text: "Design a frontend that degrades gracefully when the network, scripts or third parties fail", skills: [frontend.production, frontend.web-components] }
+  - { id: o3, text: "Release safely with atomic deploys, feature flags, staged rollouts and CI gates", skills: [frontend.production, frontend.build-tools] }
+prerequisites: [frontend.p4.web-components]
+difficulty: 5
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "You become the owner of a checkout frontend used in 30 countries. Last month a release broke the payment button on Safari for six hours, nobody noticed until support tickets arrived, and a rollback took a full new build. Write the operational plan: what you monitor and how (errors, Web Vitals, journeys), your browser support policy and how you enforce it, how releases go out and get rolled back, how the page behaves when a payment provider script fails to load, and one internationalization issue checkout pages commonly get wrong."
+  criteria:
+    - "Sets up error monitoring with source maps and release tags, plus RUM of Web Vitals and alerts on error rate and p75 metrics"
+    - "Adds synthetic checkout journeys and cross-browser end-to-end tests (including WebKit) in CI"
+    - "Defines a support policy from analytics and Baseline, enforced with browserslist and feature detection"
+    - "Releases with atomic, immutable deploys, feature flags and staged or canary rollouts with one-step rollback"
+    - "Handles a failed third-party script with timeouts and a visible fallback, and uses Intl for prices, dates and plurals"

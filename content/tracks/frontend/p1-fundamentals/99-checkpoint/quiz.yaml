@@ -1,0 +1,82 @@
+pass_percent: 85
+questions:
+  - id: landmark
+    skills: [frontend.html-semantics]
+    prompt: "A page has a site header with the logo and main navigation. Which element and landmark is it?"
+    options:
+      - "<div class=\"header\">: no landmark"
+      - "<header> at the top level: banner"
+      - "<section>: region"
+      - "<nav>: navigation, around everything"
+    answer: 1
+    explanation: "A top-level header maps to the banner landmark; the navigation inside it is a separate nav."
+  - id: outline
+    skills: [frontend.html-semantics]
+    prompt: "The page's h1 is followed by a section heading styled smaller. Which level should that heading be?"
+    options:
+      - "h2"
+      - "h3"
+      - "h4"
+      - "Whatever matches the font size"
+    answer: 0
+    explanation: "Levels follow the outline; CSS sets the size."
+  - id: name
+    skills: [frontend.accessibility]
+    prompt: "An icon-only button shows a magnifying glass. What gives it an accessible name?"
+    options:
+      - "title=\"search\" only"
+      - "aria-label=\"Search\" (or visually hidden text)"
+      - "role=\"button\""
+      - "alt=\"Search\" on the button"
+    answer: 1
+    explanation: "Without text content, aria-label (or hidden text) supplies the name; title is unreliable."
+  - id: radio-group
+    skills: [frontend.accessibility, frontend.html-semantics]
+    prompt: "How do you give a set of radio buttons a group label that screen readers announce?"
+    options:
+      - "A <p> above them"
+      - "<fieldset> with <legend>"
+      - "aria-label on each radio"
+      - "A <h3> above them"
+    answer: 1
+    explanation: "fieldset/legend makes a named group; each radio still gets its own label."
+  - id: cascade
+    skills: [frontend.css-cascade]
+    prompt: "Two rules set `color` on the same link: `.nav a` (in the file's second half) and `header a` (in the first half). Which wins?"
+    options:
+      - "header a: type selectors win"
+      - ".nav a: higher specificity (0,1,1) vs (0,0,2)"
+      - "The first one in the file"
+      - "Neither: the link keeps the browser default"
+    answer: 1
+    explanation: "A class beats two type selectors before source order is even considered."
+  - id: tokens
+    skills: [frontend.css-cascade]
+    prompt: "What makes custom properties good for a dark theme?"
+    options:
+      - "They are faster than normal properties"
+      - "They cascade, so redefining them on :root inside a media query updates every use"
+      - "They only work in dark mode"
+      - "They replace media queries"
+    answer: 1
+    explanation: "Components read var(--token); the theme only changes the token values."
+  - id: layout-choice
+    skills: [frontend.css-layout]
+    prompt: "Photo and details sit side by side from 56rem and stack below. What is the simplest CSS?"
+    options:
+      - "Floats with a clearfix"
+      - "A grid with one column, and grid-template-columns: 1fr 1fr in a min-width: 56rem query"
+      - "position: absolute on the details"
+      - "A table"
+    answer: 1
+    explanation: "Mobile first: the stacked grid is the default; the query adds the second column."
+  - id: reflow
+    skills: [frontend.css-layout, frontend.accessibility]
+    prompt: "A test finds a horizontal scrollbar at 375px. Which is a likely cause?"
+    options:
+      - "An image without max-width: 100%"
+      - "Too many media queries"
+      - "Using rem units"
+      - "A missing lang attribute"
+    answer: 0
+    explanation: "Wide images, fixed widths and long unbreakable text are the usual overflow culprits."

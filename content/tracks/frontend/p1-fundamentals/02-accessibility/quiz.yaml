@@ -1,0 +1,59 @@
+questions:
+  - id: pour
+    prompt: "Captions on a video serve which WCAG principle first?"
+    options:
+      - "Perceivable"
+      - "Operable"
+      - "Understandable"
+      - "Robust"
+    answer: 0
+    explanation: "Content must be perceivable by at least one sense: captions make audio perceivable by reading."
+  - id: first-rule
+    prompt: "What is the first rule of ARIA?"
+    options:
+      - "Always add a role"
+      - "Use a native HTML element when one does the job"
+      - "Put aria-label on every element"
+      - "Use role=\"application\" for complex pages"
+    answer: 1
+    explanation: "Native elements bring roles, states and keyboard behavior; ARIA only changes what is announced."
+  - id: label-in-name
+    prompt: "A button shows the text \"Remove\". Which aria-label respects WCAG's label in name?"
+    options:
+      - "aria-label=\"Delete item\""
+      - "aria-label=\"Remove Buy milk\""
+      - "aria-label=\"Trash\""
+      - "aria-label=\"Click to delete\""
+    answer: 1
+    explanation: "The accessible name must contain the visible text, so voice-control users can say what they see."
+  - id: focus-visible
+    prompt: "Why use `:focus-visible` instead of removing the outline?"
+    options:
+      - "It is faster"
+      - "It shows the focus ring for keyboard users and hides it on mouse clicks"
+      - "It removes focus from buttons"
+      - "It only works in Chrome"
+    answer: 1
+    explanation: "Keyboard users need to see where they are (WCAG 2.4.7); :focus-visible uses the browser's heuristics."
+  - id: tabindex
+    prompt: "What does `tabindex=\"-1\"` do on a `<main>`?"
+    options:
+      - "Removes it from the page"
+      - "Makes it focusable from script or a link target, without adding it to the Tab order"
+      - "Puts it first in the Tab order"
+      - "Disables it"
+    answer: 1
+    explanation: "That is how a skip link can move the focus to main."
+  - id: live
+    prompt: "After a save, a message \"Saved\" appears. How does a screen-reader user learn about it?"
+    options:
+      - "They cannot"
+      - "Put it in an element with role=\"status\" (a polite live region)"
+      - "Make it red"
+      - "Use alert()"
+    answer: 1
+    explanation: "Live regions announce text changes without moving the focus."
+  - id: contrast
+    prompt: "What minimum contrast ratio does WCAG AA ask for normal body text?"
+    answers: ["4.5:1", "4.5", "4.5 to 1"]
+    explanation: "4.5:1 for normal text, 3:1 for large text and for non-text elements such as icons and focus rings."

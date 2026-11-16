@@ -1,0 +1,56 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #111827;
+  background: #fff;
+}
+
+.comments-page {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+#comments {
+  list-style: none;
+  padding: 0;
+}
+
+.comment {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.comment .author {
+  margin: 0;
+  font-weight: 700;
+}
+
+.comment .body {
+  margin: 0.25rem 0 0;
+  white-space: pre-wrap;
+}
+
+#new-comment {
+  display: grid;
+  gap: 0.25rem;
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+  padding: 0.4rem;
+}
+
+:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}

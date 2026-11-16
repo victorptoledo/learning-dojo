@@ -1,0 +1,64 @@
+questions:
+  - id: email-type
+    prompt: "What does `type=\"email\"` give you over `type=\"text\"`?"
+    options:
+      - "Encryption"
+      - "An email keyboard on phones, a format check and better autofill"
+      - "Server-side validation"
+      - "Nothing"
+    answer: 1
+    explanation: "Input types change the keyboard, the validation and how autofill treats the field."
+  - id: placeholder
+    prompt: "Why is a placeholder not a replacement for a label?"
+    options:
+      - "Placeholders are invalid HTML"
+      - "It disappears when typing, often has low contrast and is not reliably announced"
+      - "It is slower"
+      - "It cannot hold text"
+    answer: 1
+    explanation: "Use a visible <label>; a placeholder can show an example format."
+  - id: validity
+    prompt: "A required field is empty. Which `validity` flag is true?"
+    options:
+      - "typeMismatch"
+      - "valueMissing"
+      - "customError"
+      - "tooShort"
+    answer: 1
+    explanation: "Each constraint has its own flag; valid is true only when all are false."
+  - id: custom-validity
+    prompt: "After `input.setCustomValidity(\"Taken\")`, how does the field become valid again?"
+    options:
+      - "It resets itself after submit"
+      - "Call setCustomValidity(\"\") when the value changes"
+      - "Call checkValidity()"
+      - "Remove the required attribute"
+    answer: 1
+    explanation: "A custom error stays until you clear it with an empty string."
+  - id: novalidate
+    prompt: "What does `<form novalidate>` change?"
+    options:
+      - "Constraints are ignored entirely"
+      - "The browser does not block submission or show its bubbles, but validity is still computed"
+      - "The form cannot be submitted"
+      - "Fields lose their types"
+    answer: 1
+    explanation: "That lets your script show custom messages while still using ValidityState."
+  - id: formdata-checkbox
+    prompt: "An unchecked checkbox `name=\"news\"` is in the form. What does `new FormData(form).get(\"news\")` return?"
+    options:
+      - "\"off\""
+      - "false"
+      - "null"
+      - "\"\""
+    answer: 2
+    explanation: "Unchecked checkboxes and radios are not part of the form data at all."
+  - id: server
+    prompt: "The client validates every field. Does the server still need to validate?"
+    options:
+      - "No, the browser guarantees it"
+      - "Yes: any request can be sent without your page"
+      - "Only for passwords"
+      - "Only in development"
+    answer: 1
+    explanation: "Client-side validation is a convenience for the user, not a security control."

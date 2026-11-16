@@ -1,0 +1,128 @@
+/* The look is done; the layout is yours. Work mobile first: write the one-column layout with
+   no media query, then add min-width queries for wider screens. See README.md. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #1c1917;
+  background: #fafaf9;
+}
+
+.site-header,
+.site-footer {
+  background: #292524;
+  color: #fafaf9;
+}
+
+.site-header a,
+.site-footer a {
+  color: inherit;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-decoration: none;
+}
+
+.site-nav ul,
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.card {
+  padding: 1rem;
+  border: 1px solid #d6d3d1;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.card h2 {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 1.125rem;
+}
+
+aside {
+  padding: 1rem;
+  border-left: 4px solid #f97316;
+  background: #fff7ed;
+}
+
+.page {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+.site-header .page {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+  padding-block: 0.75rem;
+}
+
+.site-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+.site-nav a {
+  display: inline-block;
+  padding-block: 0.25rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-link {
+  margin-top: auto;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.layout {
+  display: grid;
+  gap: 2rem;
+  padding-block: 1rem;
+}
+
+@media (min-width: 40rem) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 64rem) {
+  .cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 16rem;
+    align-items: start;
+  }
+}

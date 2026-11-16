@@ -1,0 +1,24 @@
+id: frontend.p2.dom-events
+kind: lesson
+status: draft
+title: "The DOM and Events: Bubbling, Delegation and Safe Updates"
+summary: "Querying and building the DOM with textContent instead of innerHTML, listeners and their options, capture and bubbling, preventDefault, event delegation with closest(), focus management, custom events and when scripts run."
+objectives:
+  - { id: o1, text: "Find, create and update elements with the DOM API, safely, without innerHTML for data", skills: [frontend.dom-events] }
+  - { id: o2, text: "Explain capture, target and bubbling, and use event delegation with closest()", skills: [frontend.dom-events] }
+  - { id: o3, text: "Keep the focus in a sensible place when the DOM changes", skills: [frontend.dom-events, frontend.accessibility] }
+prerequisites: [frontend.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A product list adds one click listener to every \"Add to cart\" button when the page loads. Products loaded later by \"Show more\" do not respond, memory grows on long sessions, and clicking the icon inside a button sometimes passes the <svg> to the handler instead of the button. Rewrite the event handling with delegation, show the code, and explain why each of the three problems disappears. Then say what should happen to the keyboard focus after a product is removed from the cart list."
+  criteria:
+    - "Puts one listener on a stable ancestor (the list or the page) instead of each button"
+    - "Finds the button with event.target.closest(...) and checks it belongs to the list"
+    - "Explains that bubbling makes new items work and that removed items leave no listeners behind"
+    - "Explains event.target versus event.currentTarget, and why closest() fixes the <svg> case"
+    - "Moves the focus to a neighbouring item, the list heading or a status message instead of letting it fall to <body>"

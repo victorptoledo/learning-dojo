@@ -1,0 +1,64 @@
+questions:
+  - id: specificity
+    prompt: "Which selector has the highest specificity?"
+    options:
+      - ".nav .item a"
+      - "#menu a"
+      - "a:hover"
+      - "nav ul li a"
+    answer: 1
+    explanation: "One id (1,0,1) beats any number of classes: .nav .item a is (0,2,1)."
+  - id: layers
+    prompt: "With `@layer base, components;`, a rule in `base` uses `#id .class`, a rule in `components` uses `.btn`. Which wins?"
+    options:
+      - "The base rule: higher specificity"
+      - "The components rule: later layer"
+      - "Whichever comes last in the file"
+      - "Neither: it is an error"
+    answer: 1
+    explanation: "Layer order is decided before specificity; specificity only breaks ties inside a layer."
+  - id: where
+    prompt: "What is the specificity of `:where(#main, .content) p`?"
+    options:
+      - "(1,0,1)"
+      - "(0,1,1)"
+      - "(0,0,1)"
+      - "(0,0,0)"
+    answer: 2
+    explanation: ":where() always contributes zero, so only the p counts. :is() takes the highest of its arguments."
+  - id: border-box
+    prompt: "With `box-sizing: border-box; width: 200px; padding: 20px; border: 2px solid`, how wide is the content area?"
+    options:
+      - "200px"
+      - "156px"
+      - "244px"
+      - "160px"
+    answer: 1
+    explanation: "200 − 2×20 padding − 2×2 border = 156px; the border box stays 200px."
+  - id: inherit
+    prompt: "Which property is inherited by default?"
+    options:
+      - "margin"
+      - "border"
+      - "color"
+      - "width"
+    answer: 2
+    explanation: "Text properties such as color, font and line-height inherit; box and layout properties do not."
+  - id: collapse
+    prompt: "A block with `margin-bottom: 2rem` is followed by one with `margin-top: 1rem` in normal flow. How much space is between them?"
+    options:
+      - "3rem"
+      - "2rem"
+      - "1rem"
+      - "0"
+    answer: 1
+    explanation: "Adjacent vertical margins collapse to the larger one; this does not happen in flex or grid containers."
+  - id: rem
+    prompt: "Why prefer `rem` over `px` for font sizes and spacing?"
+    options:
+      - "rem is faster to render"
+      - "rem follows the user's browser font-size setting"
+      - "px is deprecated"
+      - "rem works without a stylesheet"
+    answer: 1
+    explanation: "A user who sets a larger default font gets a proportionally larger layout."

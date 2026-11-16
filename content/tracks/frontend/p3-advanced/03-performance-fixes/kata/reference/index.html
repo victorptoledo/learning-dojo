@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>The Daily Kata</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <aside id="banner-slot" aria-label="Promotion"></aside>
+    <header class="masthead">
+      <h1>The Daily Kata</h1>
+    </header>
+    <main class="paper">
+      <article class="lead">
+        <img class="hero" src="hero.svg" alt="Mountains under a yellow sun at dusk" width="1200" height="600" fetchpriority="high">
+        <h2>Learners climb the five phases of the dojo</h2>
+        <p>Every phase ends with a checkpoint, and nobody skips ahead without evidence.</p>
+      </article>
+
+      <section class="stories" aria-labelledby="stories-heading">
+        <h2 id="stories-heading">Most read</h2>
+        <button type="button" id="sort">Sort by popularity</button>
+        <p id="sort-status" role="status"></p>
+        <ol id="stories">
+          <li>Story number 1</li>
+          <li>Story number 2</li>
+          <li>Story number 3</li>
+          <li>Story number 4</li>
+          <li>Story number 5</li>
+          <li>Story number 6</li>
+          <li>Story number 7</li>
+          <li>Story number 8</li>
+          <li>Story number 9</li>
+          <li>Story number 10</li>
+        </ol>
+      </section>
+
+      <section class="features" aria-labelledby="features-heading">
+        <h2 id="features-heading">Features</h2>
+        <article class="feature">
+          <img src="story-1.svg" alt="A red plate" width="400" height="300" loading="lazy">
+          <h3>What a red test teaches</h3>
+        </article>
+        <article class="feature">
+          <img src="story-2.svg" alt="A green plate" width="400" height="300" loading="lazy">
+          <h3>Green, then refactor</h3>
+        </article>
+        <article class="feature">
+          <img src="story-3.svg" alt="A blue plate" width="400" height="300" loading="lazy">
+          <h3>Blue belts and their habits</h3>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

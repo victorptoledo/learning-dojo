@@ -1,0 +1,24 @@
+id: frontend.p3.core-web-vitals
+kind: lesson
+status: draft
+title: "Core Web Vitals: LCP, INP and CLS"
+summary: "The three Core Web Vitals and their thresholds at the 75th percentile, the parts of LCP and how to speed it up, the phases of INP and long tasks, the causes and fixes of layout shifts, lab versus field data, and performance budgets."
+objectives:
+  - { id: o1, text: "Define LCP, INP and CLS with their thresholds and how they are judged", skills: [frontend.web-vitals] }
+  - { id: o2, text: "Diagnose and fix slow LCP, slow interactions and layout shifts", skills: [frontend.web-vitals, frontend.rendering] }
+  - { id: o3, text: "Measure in the lab and in the field and set performance budgets", skills: [frontend.web-vitals] }
+prerequisites: [frontend.p3.rendering-pipeline]
+difficulty: 4
+estimated_minutes: 55
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A store's field data shows LCP 4.1 s, INP 380 ms and CLS 0.27 at the 75th percentile on phones; Lighthouse on a developer laptop says everything is green. The product page has a client-rendered image carousel as the hero, a cookie banner injected at the top after 1 s, web fonts that swap late, and an \"Add to cart\" handler that recomputes recommendations synchronously. Explain the gap between lab and field, then give a prioritized plan to bring each metric into the good range, saying how you would confirm each fix."
+  criteria:
+    - "Explains that lab runs use one fast device while field data is the 75th percentile of real devices and networks"
+    - "Fixes LCP by making the hero image discoverable in the HTML with fetchpriority=high, not lazy, well-sized, and rendering it server-side"
+    - "Fixes CLS by reserving space for the banner (or overlaying it) and handling font swaps (preload, font-display, size-adjust)"
+    - "Fixes INP by giving immediate feedback and moving or chunking the recommendation work (yield, worker, after paint)"
+    - "Confirms with RUM (web-vitals library, CrUX or Search Console) and sets budgets in CI"

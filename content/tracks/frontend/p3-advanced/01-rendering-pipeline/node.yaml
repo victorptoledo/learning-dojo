@@ -1,0 +1,24 @@
+id: frontend.p3.rendering-pipeline
+kind: lesson
+status: draft
+title: "The Rendering Pipeline: Parse, Style, Layout, Paint, Composite"
+summary: "The critical rendering path, render-blocking CSS and parser-blocking scripts, what each kind of change costs, frames and the main thread, layout thrashing, workers, and loading resources in the right order."
+objectives:
+  - { id: o1, text: "Describe the critical rendering path and how CSS and scripts block rendering or parsing", skills: [frontend.rendering] }
+  - { id: o2, text: "Predict whether a change triggers layout, paint or only compositing, and animate cheaply", skills: [frontend.rendering] }
+  - { id: o3, text: "Avoid layout thrashing and long tasks by batching reads and writes, yielding and using workers", skills: [frontend.rendering] }
+prerequisites: [frontend.p2.checkpoint]
+difficulty: 4
+estimated_minutes: 55
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A dashboard takes 3 seconds before anything appears, its sidebar animation stutters, and resizing the window freezes it. The `<head>` loads four classic scripts and two stylesheets; the sidebar animates `left` from -300px to 0; a resize handler loops over 500 widgets setting each one's height from its own offsetHeight. Explain, with the rendering pipeline, why each problem happens, and give the fixes with code where it helps."
+  criteria:
+    - "Explains that classic scripts in <head> block the parser and fixes them with defer or type=module (or async when order does not matter)"
+    - "Explains that CSS is render blocking and keeps it small, maybe inlining critical CSS"
+    - "Explains that animating left triggers layout each frame and switches to transform (and opacity)"
+    - "Identifies layout thrashing from interleaved reads and writes and batches the reads before the writes"
+    - "Throttles or schedules the resize work (requestAnimationFrame, ResizeObserver, debounce) and mentions keeping tasks under 50 ms"

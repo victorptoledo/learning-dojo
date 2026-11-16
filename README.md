@@ -108,6 +108,11 @@ Every complete track has two checkpoints, a placement test, an interview bank an
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
 Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React,
 Frontend, Full Stack, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
+| Frontend Developer | HTML, CSS, the DOM and browser APIs, no framework | 25 | 9 | `dojo-web` (headless Chromium, axe-core, html-validate) |
+
+Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
+languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
+Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL and Computer Science.
 
@@ -123,6 +128,9 @@ Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL and C
 You do **not** need a JDK, Maven, Python, Go, Node.js, a C++ compiler, PostgreSQL, kubectl or bash
 on your machine: every kata runs in the dojo's own images, and Docker katas build your Dockerfile on
 your own Docker engine. The dojo is developed on Windows 11. It also builds on macOS and Linux, but those platforms
+You do **not** need a JDK, Maven, Python, Go, Node.js, a test browser, PostgreSQL, kubectl or bash on your machine:
+every kata runs in the dojo's own images, and Docker katas build your Dockerfile on your own Docker
+engine. The dojo is developed on Windows 11. It also builds on macOS and Linux, but those platforms
 get less testing.
 
 ## Quick start
@@ -223,6 +231,16 @@ this from the kata folder:
 
 ```bash
 docker run -it --rm --network none -v "${PWD}:/work" dojo-sql play
+```
+
+**Frontend katas** are plain HTML, CSS and JavaScript. The `dojo-web` image serves the kata
+folder inside the container, opens it in a headless Chromium and runs tests that click, type,
+resize the window and measure where boxes land; axe-core checks accessibility and html-validate
+checks the HTML. To look at a kata in your own browser, run this from its folder and open
+<http://localhost:8080/>:
+
+```bash
+docker run --rm -p 8080:8080 -v "${PWD}:/work" dojo-web serve
 ```
 
 **Data Structures & Algorithms katas** also time some hidden tests on large inputs, so a correct

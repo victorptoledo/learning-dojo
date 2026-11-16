@@ -1,0 +1,250 @@
+# Technical interview questions for the frontend track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/frontend"
+  - "https://roadmap.sh/questions/frontend"
+  - "https://developer.mozilla.org/en-US/docs/Learn_web_development"
+  - "https://web.dev/learn"
+  - "https://www.w3.org/WAI/standards-guidelines/wcag/"
+  - "https://github.com/h5bp/Front-end-Developer-Interview-Questions"
+questions:
+  - id: url-to-pixels
+    level: junior
+    skills: [frontend.web-platform, frontend.rendering]
+    question: "What happens between typing a URL in the address bar and seeing the page?"
+    key_points:
+      - "DNS lookup, TCP and TLS (or QUIC), then the HTTP request and response"
+      - "The HTML is parsed into the DOM as it arrives; CSS becomes the CSSOM"
+      - "Subresources are requested as they are discovered (the preload scanner helps)"
+      - "Style, layout, paint and composite produce the pixels"
+      - "Scripts can block parsing unless deferred, and can change the DOM afterwards"
+    follow_up: "Which of these steps would you look at first if the page takes 4 seconds to show anything?"
+  - id: semantic-html
+    level: junior
+    skills: [frontend.html-semantics]
+    question: "Why does semantic HTML matter? Give examples of elements you choose by meaning."
+    key_points:
+      - "Assistive technology, search engines and browsers read the meaning of elements"
+      - "Landmarks (header, nav, main, footer) and a heading outline make pages navigable"
+      - "button acts, a navigates; native controls come with keyboard support and roles"
+      - "time, data, dl, figure and table carry machine-readable structure"
+      - "Valid HTML avoids each browser repairing it differently"
+    follow_up: "When is a div the right choice?"
+  - id: box-model
+    level: junior
+    skills: [frontend.css-cascade]
+    question: "Explain the CSS box model and what box-sizing: border-box changes."
+    key_points:
+      - "Content, padding, border and margin"
+      - "content-box adds padding and border to the width; border-box includes them"
+      - "Vertical margins collapse in normal flow, not in flex or grid"
+      - "display decides how the box takes part in layout"
+    follow_up: "Two adjacent paragraphs have margin-bottom 20px and margin-top 30px. How much space is between them?"
+  - id: specificity
+    level: junior
+    skills: [frontend.css-cascade]
+    question: "How does the browser decide which CSS declaration wins when several apply?"
+    key_points:
+      - "Origin and importance first, then cascade layers"
+      - "Then specificity: ids, then classes, attributes and pseudo-classes, then types"
+      - "Then order of appearance"
+      - "Inline styles beat selectors; !important reverses origins"
+      - "Keep specificity low and use @layer instead of fighting with !important"
+    follow_up: "What is the specificity of :where(#main) p, and why would you use :where?"
+  - id: flex-vs-grid
+    level: junior
+    skills: [frontend.css-layout]
+    question: "When do you use flexbox and when grid? How do you make a layout responsive?"
+    key_points:
+      - "Flexbox for one dimension and content-sized items; grid for rows and columns together"
+      - "gap, fr units and minmax(0, 1fr)"
+      - "Mobile first: base layout without queries, min-width media queries in rem"
+      - "Fluid values with clamp(), images with max-width: 100% and srcset"
+      - "Container queries for components that adapt to their container"
+    follow_up: "How would you build a card grid that fits as many 15rem cards as possible without media queries?"
+  - id: accessibility-basics
+    level: junior
+    skills: [frontend.accessibility]
+    question: "How do you make sure a page is accessible? What do you check first?"
+    key_points:
+      - "WCAG 2.2 AA as the target; POUR principles"
+      - "Native elements, labels and accessible names that contain the visible text"
+      - "Everything works by keyboard, with visible focus and logical order"
+      - "Contrast of 4.5:1 for text, and color never the only cue"
+      - "Automated checks (axe, Lighthouse) plus keyboard and screen-reader testing"
+    follow_up: "A designer wants to remove the focus outline because it looks ugly. What do you propose?"
+  - id: event-delegation
+    level: mid
+    skills: [frontend.dom-events]
+    question: "Explain event propagation and event delegation. When is delegation the better choice?"
+    key_points:
+      - "Capture phase down, target, bubble phase up"
+      - "event.target versus event.currentTarget"
+      - "Delegation: one listener on an ancestor, closest() to find the item"
+      - "Works for items added later and saves memory and cleanup"
+      - "Some events do not bubble (focus, blur); use focusin and focusout"
+    follow_up: "How would you stop a click inside a dropdown from closing it, without stopPropagation everywhere?"
+  - id: aria
+    level: mid
+    skills: [frontend.accessibility]
+    question: "When should you use ARIA, and what are the risks?"
+    key_points:
+      - "First rule: use a native element when one exists"
+      - "ARIA changes the accessibility tree only, not behavior or keyboard support"
+      - "States (aria-expanded, aria-pressed, aria-invalid) must stay in sync with the UI"
+      - "Live regions (role=status, alert) announce changes"
+      - "Wrong ARIA is worse than none; follow the ARIA Authoring Practices patterns"
+    follow_up: "Walk through building an accessible disclosure (show/hide) widget."
+  - id: forms-validation
+    level: mid
+    skills: [frontend.forms, frontend.accessibility]
+    question: "How do you build a form with good validation and error messages?"
+    key_points:
+      - "Right input types and autocomplete tokens; labels for every field"
+      - "Constraint attributes and the ValidityState API; setCustomValidity for extra rules"
+      - "Validate on submit, then re-check as the user corrects"
+      - "Messages next to fields, tied with aria-describedby and aria-invalid; focus the first invalid field"
+      - "The server validates again; the client is a convenience"
+    follow_up: "Why might you add novalidate to a form that still uses required attributes?"
+  - id: fetch-errors-races
+    level: mid
+    skills: [frontend.fetch-async]
+    question: "A search box calls an API as the user types. What can go wrong and how do you handle it?"
+    key_points:
+      - "Debounce the input to avoid a request per keystroke"
+      - "fetch resolves on HTTP errors: check response.ok"
+      - "Responses can arrive out of order: abort the previous request with AbortController and ignore stale results"
+      - "Loading, empty and error states, announced in a live region"
+      - "Cache answers and encode queries with URLSearchParams"
+    follow_up: "How would you add a 5-second timeout on top of the user's cancellation?"
+  - id: event-loop
+    level: mid
+    skills: [frontend.fetch-async, frontend.rendering]
+    question: "Explain the browser's event loop. Why does a long loop freeze the page while await does not?"
+    key_points:
+      - "One main thread runs tasks, then microtasks, then may render a frame"
+      - "await ends the current task and resumes in a microtask when the promise settles"
+      - "Long synchronous work blocks input, rendering and timers"
+      - "Split work and yield (scheduler.yield, setTimeout) or move it to a Web Worker"
+    follow_up: "In which order do a setTimeout(0) callback and a resolved promise's then callback run?"
+  - id: storage-choice
+    level: mid
+    skills: [frontend.browser-storage, frontend.security]
+    question: "Compare cookies, localStorage, sessionStorage and IndexedDB. Where would you keep an auth token?"
+    key_points:
+      - "Lifetimes, scope (per tab or per origin) and sizes"
+      - "Web Storage is synchronous and strings only; IndexedDB is asynchronous and large"
+      - "Cookies are sent with requests; HttpOnly hides them from scripts"
+      - "Tokens in Web Storage are readable by any XSS; prefer Secure, HttpOnly, SameSite cookies"
+      - "The URL is the place for shareable state"
+    follow_up: "What breaks if you put the session in an HttpOnly cookie and the API is on another origin?"
+  - id: rendering-cost
+    level: mid
+    skills: [frontend.rendering]
+    question: "What are reflow and repaint, and how do you avoid making the browser do them too often?"
+    key_points:
+      - "Layout recomputes geometry; paint redraws pixels; composite assembles layers"
+      - "Geometry changes cost layout; color changes cost paint; transform and opacity can skip both"
+      - "Layout thrashing from interleaved reads and writes; batch reads then writes"
+      - "requestAnimationFrame for visual updates, content-visibility and containment for large pages"
+    follow_up: "How would you find a forced synchronous layout in DevTools?"
+  - id: web-vitals
+    level: mid
+    skills: [frontend.web-vitals]
+    question: "What are the Core Web Vitals, and how would you improve each one?"
+    key_points:
+      - "LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1, judged at the 75th percentile"
+      - "LCP: discoverable, high-priority, well-sized hero; fast HTML; little render blocking"
+      - "INP: short tasks, feedback first, yield, workers, fewer third parties"
+      - "CLS: dimensions on media, reserved space for late content, font handling"
+      - "Lab data to debug, field data (RUM, CrUX) to judge"
+    follow_up: "Lighthouse is green but field LCP is 4 seconds. What do you look at?"
+  - id: xss-csp
+    level: senior
+    skills: [frontend.security]
+    question: "How do you prevent XSS in a large frontend, and what role does Content-Security-Policy play?"
+    key_points:
+      - "Stored, reflected and DOM-based XSS; sources and sinks"
+      - "Text APIs and framework escaping; review escape hatches (innerHTML, dangerouslySetInnerHTML, v-html)"
+      - "Validate URLs (no javascript:), sanitize rich HTML with a real sanitizer"
+      - "Strict CSP with nonces or 'self', object-src 'none', base-uri, frame-ancestors; Report-Only rollout"
+      - "Trusted Types to lock DOM sinks"
+    follow_up: "How do you roll out a strict CSP on an app with dozens of inline scripts?"
+  - id: cors-csrf
+    level: senior
+    skills: [frontend.security]
+    question: "Explain the same-origin policy, CORS and CSRF, and how they relate."
+    key_points:
+      - "SOP stops reading cross-origin data, not sending requests"
+      - "CORS lets a server allow reads with Access-Control-Allow-* headers; preflights for non-simple requests"
+      - "Credentials need an exact origin and Allow-Credentials"
+      - "CSRF abuses ambient cookies; SameSite, CSRF tokens and Origin checks stop it"
+      - "CORS errors are fixed on the server; no-cors only gives opaque responses"
+    follow_up: "Does a permissive CORS policy make your API vulnerable to CSRF? Why or why not?"
+  - id: build-pipeline
+    level: senior
+    skills: [frontend.build-tools]
+    question: "Walk me through what your build does to the code before it reaches users, and how you keep the bundle small."
+    key_points:
+      - "Module resolution, transforms (TypeScript, JSX), targets for supported browsers"
+      - "Tree shaking with ES modules and side-effect-free code"
+      - "Code splitting with dynamic import() by route and feature"
+      - "Minification, content-hashed names with immutable caching, no-cache HTML"
+      - "Bundle analysis and size budgets in CI; build-time variables are public"
+    follow_up: "Users get a blank page after deploys. What is the likely cause?"
+  - id: testing-strategy
+    level: senior
+    skills: [frontend.testing]
+    question: "How would you design the test strategy of a frontend application?"
+    key_points:
+      - "Static checks, unit, integration, end-to-end and visual tests with different jobs"
+      - "Most effort in integration tests that act like users (role and label queries)"
+      - "No sleeps: web-first assertions, fake clocks and network mocking"
+      - "Real browsers for layout and focus; jsdom for logic"
+      - "Accessibility checks and keyboard tests; cross-browser runs in CI"
+    follow_up: "How do you deal with a flaky end-to-end test that blocks merges?"
+  - id: rendering-strategy
+    level: senior
+    skills: [frontend.web-components, frontend.web-vitals]
+    question: "Compare client-side rendering, server-side rendering, static generation and islands. How do you choose?"
+    key_points:
+      - "Where and when HTML is produced, and the effect on TTFB, LCP and SEO"
+      - "SSR and hydration cost; CSR's JavaScript cost and slow first load"
+      - "Static generation for content that changes on publish"
+      - "Islands or partial hydration to ship less JavaScript"
+      - "Choose per page by content, personalization and interactivity"
+    follow_up: "Where would you draw the line between server and client in an e-commerce product page?"
+  - id: web-components
+    level: senior
+    skills: [frontend.web-components]
+    question: "When would you build components as web components instead of framework components?"
+    key_points:
+      - "Framework independence: one design system for several stacks"
+      - "Custom elements lifecycle, shadow DOM encapsulation, slots and parts"
+      - "Theming through custom properties"
+      - "Caveats: SSR (declarative shadow DOM), forms (ElementInternals), ARIA references across shadow roots"
+      - "Progressive enhancement with light-DOM fallbacks"
+    follow_up: "How would a label in the page point to an input inside your custom element's shadow root?"
+  - id: production-ownership
+    level: senior
+    skills: [frontend.production]
+    question: "You own a frontend in production. How do you know it works for users, and how do you ship changes safely?"
+    key_points:
+      - "Error monitoring with source maps and releases; RUM of Web Vitals at p75"
+      - "Synthetic journeys and alerts"
+      - "Browser support policy with Baseline, browserslist and feature detection"
+      - "Atomic immutable deploys, feature flags, staged rollouts, quick rollback"
+      - "Resilience: timeouts, retries, progressive enhancement, careful service workers and third parties"
+    follow_up: "A release breaks one button on Safari only. Walk me through detection, mitigation and prevention."
+  - id: state-architecture
+    level: senior
+    skills: [frontend.browser-storage, frontend.web-components]
+    question: "How do you structure state in a large frontend application?"
+    key_points:
+      - "Classify state: server cache, URL, UI, form and persisted preferences"
+      - "One source of truth; derive the rest"
+      - "Server state with a query cache (staleness, refetching, invalidation)"
+      - "Immutable updates and render from state"
+      - "Keep global state small; colocate state with the components that use it"
+    follow_up: "Which of your current app's state would move into the URL, and why?"

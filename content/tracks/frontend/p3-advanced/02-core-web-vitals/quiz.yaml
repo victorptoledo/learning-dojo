@@ -1,0 +1,64 @@
+questions:
+  - id: lcp-threshold
+    prompt: "What is a good LCP?"
+    options:
+      - "≤ 1 s"
+      - "≤ 2.5 s"
+      - "≤ 4 s"
+      - "≤ 10 s"
+    answer: 1
+    explanation: "Good is 2.5 s or less, poor is over 4 s, at the 75th percentile."
+  - id: inp
+    prompt: "What does INP measure?"
+    options:
+      - "Only the first interaction's input delay"
+      - "The latency from an interaction to the next frame, near the worst interaction of the visit"
+      - "Time to first byte"
+      - "How many interactions happen"
+    answer: 1
+    explanation: "INP replaced FID in 2024 because FID ignored processing and later interactions."
+  - id: cls-cause
+    prompt: "Which change removes a layout shift caused by images?"
+    options:
+      - "Lazy-loading every image"
+      - "Adding width and height attributes (or aspect-ratio)"
+      - "Using PNG instead of JPEG"
+      - "Moving images to CSS backgrounds"
+    answer: 1
+    explanation: "With dimensions, the browser reserves the right space before the image arrives."
+  - id: percentile
+    prompt: "At which percentile are Core Web Vitals assessed?"
+    options:
+      - "50th"
+      - "75th"
+      - "95th"
+      - "99th"
+    answer: 1
+    explanation: "Three quarters of page loads must meet the threshold."
+  - id: long-task
+    prompt: "What is a long task?"
+    options:
+      - "A request over 1 s"
+      - "A main-thread task of 50 ms or more"
+      - "An animation over 300 ms"
+      - "A task in a worker"
+    answer: 1
+    explanation: "Long tasks delay input handling and rendering, hurting INP."
+  - id: field
+    prompt: "Which source gives field data?"
+    options:
+      - "A Lighthouse run in DevTools"
+      - "The Chrome UX Report or RUM with the web-vitals library"
+      - "WebPageTest on a fast connection"
+      - "A unit test"
+    answer: 1
+    explanation: "Field data comes from real users; lab tools simulate one device."
+  - id: input-shift
+    prompt: "A menu opens and pushes content down right after the user clicks. Does it count toward CLS?"
+    options:
+      - "Yes, always"
+      - "No: shifts within 500 ms of user input are excluded"
+      - "Only on phones"
+      - "Only if it is larger than 50px"
+    answer: 1
+    explanation: "Expected shifts caused by the user's own action do not count."

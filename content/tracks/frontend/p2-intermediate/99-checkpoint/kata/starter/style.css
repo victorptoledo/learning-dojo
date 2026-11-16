@@ -1,0 +1,70 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #18181b;
+  background: #fafafa;
+}
+
+.feedback-page {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0 0 1rem;
+}
+
+.rating {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border: 1px solid #a1a1aa;
+}
+
+.rating .error {
+  flex-basis: 100%;
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+  padding: 0.5rem;
+}
+
+[aria-invalid="true"] {
+  border: 2px solid #b91c1c;
+}
+
+.error {
+  margin: 0;
+  color: #b91c1c;
+}
+
+.error:empty {
+  display: none;
+}
+
+.hint {
+  margin: 0;
+  color: #52525b;
+}
+
+button[disabled] {
+  opacity: 0.6;
+}
+
+:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}

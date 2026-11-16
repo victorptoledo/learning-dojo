@@ -1,0 +1,24 @@
+id: frontend.p4.testing
+kind: lesson
+status: draft
+title: "Testing Frontends: Unit, DOM, Accessibility and End-to-End"
+summary: "The testing trophy from static checks to end-to-end and visual tests, testing like a user with role and label queries, avoiding flaky tests by waiting for conditions and controlling time and network, jsdom versus a real browser, automated accessibility and keyboard tests, and tests in CI."
+objectives:
+  - { id: o1, text: "Choose the right kind of test for each behavior and balance the test suite", skills: [frontend.testing] }
+  - { id: o2, text: "Write user-centric tests with role and label queries that do not flake", skills: [frontend.testing, frontend.accessibility] }
+  - { id: o3, text: "Automate accessibility and cross-browser checks in CI", skills: [frontend.testing] }
+prerequisites: [frontend.p3.build-tools]
+difficulty: 4
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Write a test plan for the live search from Phase 2 (debounced input, fetch with abort, cache, URL and localStorage, loading and error states). For each behavior, choose the kind of test and the tool, and write two of the tests in full with Playwright (or Testing Library): one that checks the debounce and the request, and one that checks the error state. Explain how your tests avoid flakiness and what you would not test."
+  criteria:
+    - "Uses unit tests for pure helpers (debounce, searchUrl) and browser integration or end-to-end tests for the page behavior"
+    - "Queries by role and label (getByRole, getByLabel) and asserts what the user sees"
+    - "Controls time with a fake clock and the network with route mocking instead of sleeps and a real backend"
+    - "Covers the error and stale-response cases and an axe-core accessibility check"
+    - "Names things not worth testing (the browser, third-party code, implementation details) and how the tests run in CI"

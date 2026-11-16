@@ -1,0 +1,280 @@
+# Placement test of the Frontend track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with frontend development?
+  options:
+    - { label: "New to it (or I only used page builders)", start_phase: p0, test: false }
+    - { label: "I write HTML and CSS and some JavaScript", start_phase: p1, test: true }
+    - { label: "I build interactive pages: DOM, events, forms, fetch", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-article
+    phase: p1
+    skills: [frontend.html-semantics]
+    difficulty: 2
+    prompt: "Which element fits a blog comment that makes sense on its own?"
+    options: ["<div class=\"comment\">", "<article>", "<aside>", "<span>"]
+    answer: 1
+    explanation: "article is for self-contained content: posts, comments, product cards."
+  - id: p1-nav-label
+    phase: p1
+    skills: [frontend.html-semantics, frontend.accessibility]
+    difficulty: 2
+    prompt: "A page has two <nav> elements (main menu and footer links). What helps screen-reader users tell them apart?"
+    options: ["Different CSS classes", "aria-label on each nav, such as \"Main\" and \"Footer\"", "Putting them in tables", "Nothing is needed"]
+    answer: 1
+    explanation: "Landmarks of the same type need distinct names."
+  - id: p1-alt-chart
+    phase: p1
+    skills: [frontend.html-semantics, frontend.accessibility]
+    difficulty: 2
+    prompt: "A chart image shows that sales doubled from May to June. Which alt is best?"
+    options: ["alt=\"chart.png\"", "alt=\"chart\"", "alt=\"Sales doubled from May to June\"", "alt=\"\""]
+    answer: 2
+    explanation: "alt conveys what the image says in its context."
+  - id: p1-div-button
+    phase: p1
+    skills: [frontend.accessibility]
+    difficulty: 2
+    prompt: "What does a <div> with a click listener lack compared with a <button>?"
+    options: ["Nothing", "Focusability, Enter and Space activation and the button role", "Only the default styling", "It cannot receive clicks"]
+    answer: 1
+    explanation: "Native buttons bring keyboard support and semantics for free."
+  - id: p1-aria-hidden
+    phase: p1
+    skills: [frontend.accessibility]
+    difficulty: 3
+    prompt: "Why must aria-hidden=\"true\" never be put on a focusable element?"
+    options: ["It makes the element invisible", "Keyboard users can still focus it, but screen readers announce nothing", "It is invalid HTML", "It disables the element"]
+    answer: 1
+    explanation: "aria-hidden removes the element from the accessibility tree but not from the Tab order."
+  - id: p1-specificity
+    phase: p1
+    skills: [frontend.css-cascade]
+    difficulty: 2
+    prompt: "Which rule sets the color of <p class=\"note\" id=\"intro\">?"
+    code: |
+      #intro { color: blue; }
+      p.note { color: green; }
+      .note { color: red; }
+    options: ["blue", "green", "red", "the browser default"]
+    answer: 0
+    explanation: "An id selector (1,0,0) beats p.note (0,1,1) and .note (0,1,0), whatever the order."
+  - id: p1-content-box
+    phase: p1
+    skills: [frontend.css-cascade]
+    difficulty: 2
+    prompt: "With the default box-sizing, how wide is `width: 200px; padding: 10px; border: 5px solid` on screen?"
+    options: ["200px", "220px", "230px", "210px"]
+    answer: 2
+    explanation: "content-box adds padding and border: 200 + 2×10 + 2×5."
+  - id: p1-flex-grow
+    phase: p1
+    skills: [frontend.css-layout]
+    difficulty: 2
+    prompt: "In a flex row, how do you make the search field take all the space left by the logo and the buttons?"
+    options: ["width: 100% on the field", "flex: 1 on the field", "float: left on the others", "display: block on the field"]
+    answer: 1
+    explanation: "flex: 1 lets the item grow into the free space."
+  - id: p1-grid-auto
+    phase: p1
+    skills: [frontend.css-layout]
+    difficulty: 3
+    prompt: "Which declaration gives as many columns of at least 15rem as fit, with no media query?"
+    options: ["grid-template-columns: repeat(3, 15rem)", "grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr))", "columns: 15rem", "flex-basis: 15rem"]
+    answer: 1
+    explanation: "auto-fit or auto-fill with minmax builds a responsive grid."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-bubble
+    phase: p2
+    skills: [frontend.dom-events]
+    difficulty: 2
+    prompt: "A listener on <ul id=\"list\"> receives a click from a <button> inside an <li>. Why?"
+    options: ["The browser copies listeners", "The click event bubbles from the button up through its ancestors", "Lists capture all clicks", "It does not"]
+    answer: 1
+    explanation: "Bubbling is what makes event delegation work."
+  - id: p2-closest
+    phase: p2
+    skills: [frontend.dom-events]
+    difficulty: 3
+    prompt: "In a delegated click listener, the target may be an <svg> inside the button. How do you get the button?"
+    options: ["event.target.parentNode", "event.target.closest(\"button\")", "event.currentTarget", "document.activeElement"]
+    answer: 1
+    explanation: "closest() walks up from the target to the nearest match, or returns null."
+  - id: p2-inner
+    phase: p2
+    skills: [frontend.dom-events]
+    difficulty: 2
+    prompt: "What does `el.innerHTML = userName` risk when userName comes from a user?"
+    options: ["Nothing", "The name is parsed as HTML, so markup in it can run script (XSS)", "It is slower than textContent", "The text is uppercased"]
+    answer: 1
+    explanation: "Use textContent for text."
+  - id: p2-autocomplete
+    phase: p2
+    skills: [frontend.forms]
+    difficulty: 2
+    prompt: "Which attribute helps password managers fill a sign-up form's password field correctly?"
+    options: ["name=\"password\"", "autocomplete=\"new-password\"", "type=\"secret\"", "required"]
+    answer: 1
+    explanation: "autocomplete tokens say what a field is: new-password, current-password, email, tel..."
+  - id: p2-pattern
+    phase: p2
+    skills: [frontend.forms]
+    difficulty: 3
+    prompt: "`<input pattern=\"[A-Z]{3}\">` contains \"ab\". Which validity flag is true?"
+    options: ["typeMismatch", "patternMismatch", "tooShort", "valueMissing"]
+    answer: 1
+    explanation: "pattern sets patternMismatch; the field is not required, so it is not valueMissing."
+  - id: p2-response-ok
+    phase: p2
+    skills: [frontend.fetch-async]
+    difficulty: 2
+    prompt: "What does this code do when the server answers 500?"
+    code: |
+      try {
+        const data = await (await fetch("/api/items")).json();
+        render(data);
+      } catch { showError(); }
+    options: ["Always shows the error", "Tries to render or parse the error body: fetch does not reject on 500", "Retries the request", "Reloads the page"]
+    answer: 1
+    explanation: "Check response.ok before using the body."
+  - id: p2-abort
+    phase: p2
+    skills: [frontend.fetch-async]
+    difficulty: 3
+    prompt: "Which API cancels an in-flight fetch?"
+    options: ["clearTimeout", "AbortController with its signal", "Promise.reject", "fetch.cancel()"]
+    answer: 1
+    explanation: "Pass controller.signal to fetch and call controller.abort()."
+  - id: p2-sessionstorage
+    phase: p2
+    skills: [frontend.browser-storage]
+    difficulty: 2
+    prompt: "A user opens your app in two tabs. What do they share?"
+    options: ["sessionStorage", "localStorage", "Variables in memory", "Nothing"]
+    answer: 1
+    explanation: "localStorage is per origin; sessionStorage and memory are per tab."
+  - id: p2-url-state
+    phase: p2
+    skills: [frontend.browser-storage]
+    difficulty: 3
+    prompt: "A filtered product list must be shareable by link. Where do the filters go?"
+    options: ["localStorage", "The URL query string, updated with history.replaceState", "A cookie", "sessionStorage"]
+    answer: 1
+    explanation: "URL state can be bookmarked and shared, and Back restores it."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-async-script
+    phase: p3
+    skills: [frontend.rendering]
+    difficulty: 3
+    prompt: "Two scripts must run in order after the HTML is parsed. Which attribute?"
+    options: ["async", "defer", "none", "nomodule"]
+    answer: 1
+    explanation: "defer keeps document order and waits for parsing; async runs whenever it arrives."
+  - id: p3-compositor
+    phase: p3
+    skills: [frontend.rendering]
+    difficulty: 3
+    prompt: "Which animation is cheapest for the browser?"
+    options: ["Animating top", "Animating height", "Animating transform: translateY()", "Animating margin-top"]
+    answer: 2
+    explanation: "transform can be handled by the compositor without layout or paint."
+  - id: p3-cls-banner
+    phase: p3
+    skills: [frontend.web-vitals]
+    difficulty: 3
+    prompt: "A promotion bar is inserted at the top 1 s after load. Which metric suffers, and how do you fix it?"
+    options: ["LCP: preload it", "CLS: reserve its space from the start or overlay it", "INP: debounce it", "TTFB: cache it"]
+    answer: 1
+    explanation: "Late content that pushes visible content down is a layout shift."
+  - id: p3-inp
+    phase: p3
+    skills: [frontend.web-vitals]
+    difficulty: 4
+    prompt: "A click handler runs 400 ms of synchronous work. What lowers INP the most?"
+    options: ["Lazy-loading images", "Showing feedback first, then splitting the work and yielding (or a worker)", "Adding a CDN", "Minifying CSS"]
+    answer: 1
+    explanation: "Long tasks delay the next paint; yielding lets the browser render the feedback."
+  - id: p3-csp
+    phase: p3
+    skills: [frontend.security]
+    difficulty: 4
+    prompt: "Which CSP directive stops other sites from framing your page (clickjacking)?"
+    options: ["default-src 'self'", "frame-ancestors 'none'", "frame-src 'none'", "child-src 'none'"]
+    answer: 1
+    explanation: "frame-ancestors controls who may embed you; frame-src controls what you may embed."
+  - id: p3-cors
+    phase: p3
+    skills: [frontend.security]
+    difficulty: 3
+    prompt: "Why does `fetch` with `content-type: application/json` to another origin send an OPTIONS request first?"
+    options: ["To warm the cache", "It is a CORS preflight for a non-simple request", "To check authentication", "It is a bug"]
+    answer: 1
+    explanation: "The server must allow the method and headers before the browser sends the real request."
+  - id: p3-split
+    phase: p3
+    skills: [frontend.build-tools]
+    difficulty: 3
+    prompt: "Which code creates a separate chunk that loads on demand?"
+    options: ["import { chart } from \"./chart.js\"", "const { chart } = await import(\"./chart.js\")", "require(\"./chart.js\")", "<link rel=\"preload\" href=\"chart.js\">"]
+    answer: 1
+    explanation: "Dynamic import() is a split point for bundlers."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-query
+    phase: p4
+    skills: [frontend.testing]
+    difficulty: 3
+    prompt: "Which query should a UI test prefer to find a submit button?"
+    options: ["page.locator(\"#submit-btn\")", "page.getByRole(\"button\", { name: \"Place order\" })", "page.locator(\"form > button:last-child\")", "page.getByTestId(\"submit\")"]
+    answer: 1
+    explanation: "Role and name queries mirror how users and assistive technology find it."
+  - id: p4-flaky
+    phase: p4
+    skills: [frontend.testing]
+    difficulty: 4
+    prompt: "A test passes locally and fails on CI one time in ten. Which change most likely fixes it?"
+    options: ["Add a 2-second sleep", "Replace fixed waits with web-first assertions and mock the network", "Run it three times", "Disable it on CI"]
+    answer: 1
+    explanation: "Wait for conditions and control time and network instead of guessing durations."
+  - id: p4-custom-element
+    phase: p4
+    skills: [frontend.web-components]
+    difficulty: 4
+    prompt: "How does a theme color reach inside a component's shadow DOM?"
+    options: ["A global class selector", "A custom property (var(--color-accent)) set outside and used inside", "!important on the page's CSS", "It cannot"]
+    answer: 1
+    explanation: "Custom properties and inherited properties cross the shadow boundary; selectors do not."
+  - id: p4-render-strategy
+    phase: p4
+    skills: [frontend.web-components]
+    difficulty: 4
+    prompt: "A public product catalog needs a good LCP and SEO, with an interactive cart. Which strategy fits?"
+    options: ["Client-side rendering only", "Server-rendered or static HTML with an interactive island for the cart", "An iframe per product", "Rendering in a service worker"]
+    answer: 1
+    explanation: "HTML first for the content, JavaScript only where interaction is needed."
+  - id: p4-feature-detect
+    phase: p4
+    skills: [frontend.production]
+    difficulty: 3
+    prompt: "How should code decide whether to use a newer browser API?"
+    options: ["Parse the user agent string", "Detect the feature and provide a fallback", "Show a banner to upgrade", "Assume it exists"]
+    answer: 1
+    explanation: "Feature detection works for every browser, including ones you never tested."
+  - id: p4-release
+    phase: p4
+    skills: [frontend.production]
+    difficulty: 4
+    prompt: "A new checkout flow should reach 5% of users, then everyone, and be switchable off instantly. What do you use?"
+    options: ["A new branch per percentage", "A feature flag with a staged rollout and monitoring", "Two separate domains", "A service worker"]
+    answer: 1
+    explanation: "Flags separate deploying from releasing and allow instant rollback."

@@ -1,0 +1,66 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* todo: this removes the focus ring for everyone, including keyboard users. */
+*:focus {
+  outline: none;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #fff;
+}
+
+.header,
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f2f2f2;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav a {
+  display: inline-block;
+  padding-block: 0.25rem;
+}
+
+.content {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* todo: this grey is too light to read on white (it needs a 4.5:1 contrast ratio). */
+.muted {
+  color: #aaa;
+}
+
+.details-toggle,
+.submit {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  color: #fff;
+  background: #1d4ed8;
+  cursor: pointer;
+}
+
+.divider {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* todo: a skip link, hidden until it receives focus */

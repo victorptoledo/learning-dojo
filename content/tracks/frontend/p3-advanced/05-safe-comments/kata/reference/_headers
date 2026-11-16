@@ -1,0 +1,6 @@
+# Response headers for the site, in the format Netlify and Cloudflare Pages read:
+# a path pattern, then indented "Name: value" lines. The dojo's server applies them.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'

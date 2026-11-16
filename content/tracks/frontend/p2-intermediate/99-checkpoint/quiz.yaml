@@ -1,0 +1,82 @@
+pass_percent: 85
+questions:
+  - id: delegation
+    skills: [frontend.dom-events]
+    prompt: "A table gets rows from the server after load, each with a Delete button. Where do you listen for clicks?"
+    options:
+      - "On each button, after each row is added"
+      - "Once on the table (or tbody), finding the button with closest()"
+      - "On window, with capture"
+      - "On each row's mouseover"
+    answer: 1
+    explanation: "Delegation: one listener on a stable ancestor serves current and future rows."
+  - id: xss-dom
+    skills: [frontend.dom-events]
+    prompt: "Rendering a server-provided name, which code is safe?"
+    options:
+      - "cell.innerHTML = name"
+      - "cell.textContent = name"
+      - "cell.insertAdjacentHTML(\"beforeend\", name)"
+      - "cell.outerHTML = `<td>${name}</td>`"
+    answer: 1
+    explanation: "Only textContent treats the value as text; the others parse it as HTML."
+  - id: validity
+    skills: [frontend.forms]
+    prompt: "`<input type=\"email\" required>` contains \"ada.example.com\". Which flag is true?"
+    options:
+      - "valueMissing"
+      - "typeMismatch"
+      - "tooShort"
+      - "patternMismatch"
+    answer: 1
+    explanation: "A value is present but not a valid email address."
+  - id: error-a11y
+    skills: [frontend.forms, frontend.accessibility]
+    prompt: "How does a screen reader learn about an error message under a field?"
+    options:
+      - "It reads red text automatically"
+      - "aria-describedby on the field points at the message, and aria-invalid=\"true\" marks the field"
+      - "A title attribute"
+      - "An alert() for each error"
+    answer: 1
+    explanation: "The description is read when the field gets focus; aria-invalid announces that it is invalid."
+  - id: fetch-errors
+    skills: [frontend.fetch-async]
+    prompt: "`await fetch(\"/api/feedback\", ...)` receives a 503. What does your code have to do?"
+    options:
+      - "Nothing: fetch throws"
+      - "Check response.ok and treat it as a failure"
+      - "Retry forever"
+      - "Parse the body as JSON and assume success"
+    answer: 1
+    explanation: "fetch resolves for HTTP errors; only network errors and aborts reject."
+  - id: abort
+    skills: [frontend.fetch-async]
+    prompt: "A newer search starts while an older one is in flight. What is the best combination?"
+    options:
+      - "Let both finish and show whichever is last"
+      - "Abort the older request and ignore any result that is not from the latest search"
+      - "Disable typing until it finishes"
+      - "Reload the page"
+    answer: 1
+    explanation: "Aborting saves work; the latest-only check guards against races."
+  - id: draft
+    skills: [frontend.browser-storage]
+    prompt: "Where should an unsent message draft live so it survives a reload and a closed tab?"
+    options:
+      - "A variable"
+      - "sessionStorage"
+      - "localStorage (as JSON, parsed defensively)"
+      - "The URL"
+    answer: 2
+    explanation: "localStorage persists per origin; sessionStorage ends with the tab; a long text does not belong in the URL."
+  - id: url
+    skills: [frontend.browser-storage]
+    prompt: "Which piece of state should be in the URL?"
+    options:
+      - "A message draft"
+      - "The current search query, so the page can be shared"
+      - "The session token"
+      - "Whether a button is hovered"
+    answer: 1
+    explanation: "Shareable, bookmarkable state goes in the URL."

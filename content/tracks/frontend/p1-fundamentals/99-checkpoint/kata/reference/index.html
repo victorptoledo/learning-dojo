@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trail Jacket · Dojo Outdoor</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">Dojo Outdoor</a>
+      <nav aria-label="Main">
+        <ul>
+          <li><a href="/men">Men</a></li>
+          <li><a href="/women">Women</a></li>
+          <li><a href="/sale">Sale</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <nav aria-label="Breadcrumb" class="breadcrumb">
+        <ol>
+          <li><a href="/">Home</a></li>
+          <li><a href="/jackets">Jackets</a></li>
+          <li><a href="/jackets/trail" aria-current="page">Trail Jacket</a></li>
+        </ol>
+      </nav>
+
+      <article class="product">
+        <img class="product-photo" src="product.svg" alt="The green Trail Jacket, front view with the zip closed" width="800" height="800">
+        <div class="product-details">
+          <h1>Trail Jacket</h1>
+          <p class="price"><data value="49.90">€49.90</data></p>
+          <p>A light, windproof jacket that packs into its own pocket.</p>
+          <dl class="specs">
+            <dt>Weight</dt>
+            <dd>180 g</dd>
+            <dt>Material</dt>
+            <dd>Recycled polyamide</dd>
+            <dt>Care</dt>
+            <dd>Machine wash at 30 °C</dd>
+          </dl>
+
+          <form class="buy" action="/cart" method="post">
+            <fieldset class="sizes">
+              <legend>Size</legend>
+              <label><input type="radio" name="size" value="S" required> S</label>
+              <label><input type="radio" name="size" value="M"> M</label>
+              <label><input type="radio" name="size" value="L"> L</label>
+              <label><input type="radio" name="size" value="XL"> XL</label>
+            </fieldset>
+            <label for="quantity">Quantity</label>
+            <input id="quantity" name="quantity" type="number" min="1" max="10" value="1" inputmode="numeric">
+            <button type="submit">Add to cart</button>
+          </form>
+        </div>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <p>Dojo Outdoor is a kata of the Learning Dojo.</p>
+    </footer>
+  </body>
+</html>

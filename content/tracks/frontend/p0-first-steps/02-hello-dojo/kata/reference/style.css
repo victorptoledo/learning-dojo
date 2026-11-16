@@ -1,0 +1,44 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  font-family: system-ui, sans-serif;
+  color: #1a1a1a;
+  background: #f4f4f0;
+}
+
+.card {
+  max-width: 24rem;
+  margin: 1rem;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+}
+
+.role {
+  color: #4a4a4a;
+}
+
+button {
+  font: inherit;
+  padding: 0.5rem 1rem;
+}
+
+output {
+  display: block;
+  margin-top: 1rem;
+}
+
+/* Links alone on a line are touch targets: at least 24px tall (WCAG 2.2, target size). */
+.links a {
+  display: inline-block;
+  padding-block: 0.25rem;
+}

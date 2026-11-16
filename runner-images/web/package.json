@@ -1,0 +1,11 @@
+{
+  "name": "dojo-web-runner",
+  "private": true,
+  "description": "What the dojo-web image preinstalls for Frontend katas.",
+  "type": "module",
+  "dependencies": {
+    "axe-core": "4.14.0",
+    "html-validate": "11.21.1",
+    "playwright-core": "1.65.1"
+  }
+}

@@ -1,0 +1,64 @@
+questions:
+  - id: strings
+    prompt: "What does `localStorage.setItem(\"n\", 5); localStorage.getItem(\"n\")` return?"
+    options:
+      - "5"
+      - "\"5\""
+      - "null"
+      - "It throws"
+    answer: 1
+    explanation: "Web Storage stores strings only; use JSON for structured data."
+  - id: session-vs-local
+    prompt: "Which storage is shared by every tab of the same origin and survives closing the browser?"
+    options:
+      - "sessionStorage"
+      - "localStorage"
+      - "A JavaScript variable"
+      - "history.state"
+    answer: 1
+    explanation: "sessionStorage is per tab and ends with it; localStorage persists per origin."
+  - id: token
+    prompt: "Where should a session token live?"
+    options:
+      - "localStorage"
+      - "sessionStorage"
+      - "An HttpOnly, Secure cookie"
+      - "A global variable"
+    answer: 2
+    explanation: "Scripts cannot read HttpOnly cookies, so an XSS bug cannot steal the token from storage."
+  - id: url-state
+    prompt: "Which state belongs in the URL?"
+    options:
+      - "Whether a tooltip is open"
+      - "The search query and filters of a results page"
+      - "The user's password"
+      - "A 2 MB cache"
+    answer: 1
+    explanation: "State someone would bookmark or share, and that Back should restore."
+  - id: replace-push
+    prompt: "You update `?q=` on every keystroke. Which History API call keeps Back useful?"
+    options:
+      - "history.pushState"
+      - "history.replaceState"
+      - "location.assign"
+      - "location.reload"
+    answer: 1
+    explanation: "replaceState updates the current entry; pushState would add one entry per keystroke."
+  - id: defensive
+    prompt: "Why wrap `JSON.parse(localStorage.getItem(\"draft\"))` in try/catch?"
+    options:
+      - "JSON.parse is slow"
+      - "The stored value can be broken, old or edited, and parse throws on invalid JSON"
+      - "localStorage is asynchronous"
+      - "It is required by the spec"
+    answer: 1
+    explanation: "Stored data comes from an older version of your app, or from someone poking at DevTools."
+  - id: server-state
+    prompt: "What is special about server state (data fetched from an API) compared with UI state?"
+    options:
+      - "Nothing"
+      - "It is a cache of data you do not own: it can be stale and needs loading, errors and refetching"
+      - "It never changes"
+      - "It must live in localStorage"
+    answer: 1
+    explanation: "That is why libraries such as TanStack Query handle it separately from UI state."

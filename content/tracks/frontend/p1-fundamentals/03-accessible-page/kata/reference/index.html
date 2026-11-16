@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Frontend Meetup #12</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="header">
+      <img class="logo" src="logo.svg" alt="Frontend Meetup" width="48" height="48">
+      <nav class="nav" aria-label="Main">
+        <a href="#schedule">Schedule</a>
+        <a href="#venue">Venue</a>
+        <a href="#newsletter">Newsletter</a>
+      </nav>
+    </header>
+
+    <main id="main" class="content" tabindex="-1">
+      <h1>Frontend Meetup #12</h1>
+      <p class="muted">Thursday, 3 December, 18:30. Free entry.</p>
+
+      <section aria-labelledby="schedule">
+        <h2 id="schedule">Tonight's talk</h2>
+        <img class="speaker" src="speaker.svg" alt="Portrait of the speaker, Grace Hopper" width="160" height="160">
+        <p>Grace Hopper explains why every button on the web should be a real button.</p>
+        <button type="button" class="details-toggle" aria-expanded="false" aria-controls="talk-details">Show details</button>
+        <div id="talk-details" hidden>
+          <p>Forty minutes of talk, twenty of questions. Bring your own laptop if you want to follow along.</p>
+        </div>
+      </section>
+      <img class="divider" src="divider.svg" alt="" width="600" height="8">
+
+      <section aria-labelledby="venue">
+        <h2 id="venue">Venue</h2>
+        <p>The library, second floor. The building has a lift and step-free access.
+          See <a href="https://www.openstreetmap.org/">the map of the library on OpenStreetMap</a>.</p>
+      </section>
+
+      <section aria-labelledby="newsletter">
+        <h2 id="newsletter">Newsletter</h2>
+        <form class="newsletter">
+          <label for="email">Email</label>
+          <input id="email" type="email" name="email" autocomplete="email" required>
+          <button type="submit" class="submit">Subscribe</button>
+        </form>
+        <p class="newsletter-status" role="status"></p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p class="muted">Organised by volunteers. Questions: <a href="mailto:hello@example.com">hello@example.com</a></p>
+    </footer>
+  </body>
+</html>

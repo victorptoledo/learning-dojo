@@ -1,0 +1,49 @@
+id: frontend.p2.task-board
+kind: kata
+status: draft
+title: "Task Board: DOM, Events and a Form"
+summary: "Write a task board in plain JavaScript: a form that adds trimmed tasks and reports blank ones with setCustomValidity, items built with createElement and textContent, one delegated click listener that moves and deletes tasks, accessible button names and deliberate focus management."
+objectives:
+  - { id: o1, text: "Build list items with createElement and textContent, and handle a form submit with validation", skills: [frontend.dom-events, frontend.forms] }
+  - { id: o2, text: "Handle every task's buttons with one delegated listener and manage the focus", skills: [frontend.dom-events, frontend.accessibility] }
+prerequisites: [frontend.p2.forms]
+difficulty: 3
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-web, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with `countLabel` and `taskElement`: they are pure and the tests call them directly. Then the submit handler, then the board's click listener. In the click listener, `event.target` may be the board itself, a title or a button: how do you find the button, if any, and its task?
+    - |-
+      `taskElement` creates an `li` (`className = "task"`, `dataset.id`), a `span.task-title` with `textContent`, and two `button`s with `type = "button"`, `dataset.action`, a text and an `aria-label` (`Done: TITLE` or `Undo: TITLE`, and `Delete TITLE`). In the click listener: `const button = event.target.closest("button[data-action]")`, then `button.closest("li.task")`. To move a task, build a new element with `done` flipped, append it to the other list, remove the old one, and focus the new toggle button.
+    - |-
+      ```js
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const title = input.value.trim();
+        if (title === "") {
+          input.setCustomValidity("Write a task first.");
+          input.reportValidity();
+          return;
+        }
+        todo.append(taskElement({ id: nextId++, title, done: false }));
+        form.reset();
+        input.focus();
+        count.textContent = countLabel(todo.children.length);
+      });
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-web runner image
+    image: dojo-web
+    why: The Node.js 26 container with headless Chromium, axe-core and html-validate that loads your page and runs the tests.

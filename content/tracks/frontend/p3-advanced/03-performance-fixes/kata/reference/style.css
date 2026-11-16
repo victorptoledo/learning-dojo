@@ -1,0 +1,70 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Georgia, serif;
+  line-height: 1.5;
+  color: #111;
+  background: #fff;
+}
+
+.masthead {
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 3px double #111;
+}
+
+.masthead h1 {
+  margin: 0;
+}
+
+.paper {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* The banner app.js shows, in a slot that keeps its height from the start. */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  margin: 0;
+  color: #fff;
+  background: #7c2d12;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+
+.features h2 {
+  grid-column: 1 / -1;
+}
+
+button {
+  font: inherit;
+  padding: 0.4rem 0.8rem;
+}
+
+:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+#banner-slot {
+  min-height: 3rem;
+}

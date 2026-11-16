@@ -4,20 +4,20 @@ name: "Frontend Developer"
 archetype: role
 category: "Careers & Roles"
 icon: "🎨"
-description: "Interfaces and user experience: the DOM, browsers, accessibility and modern frameworks."
-status: draft
-bridges_available: [java]
+description: "The web platform without a framework: semantic HTML and accessibility, the CSS cascade and modern layout, the DOM and events, forms, fetch and browser storage, rendering and Core Web Vitals, browser security (XSS, CSP, CORS), build tools, testing, web components and running a frontend in production."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "HTML Styler" }
   - { name: "Yellow Belt", required_xp: 300, title: "DOM Manipulator" }
-  - { name: "Green Belt", required_xp: 800, title: "Component Craftsman" }
-  - { name: "Purple Belt", required_xp: 1500, title: "State Architect" }
+  - { name: "Green Belt", required_xp: 800, title: "Layout Craftsman" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Event Wrangler" }
   - { name: "Brown Belt", required_xp: 2500, title: "Web Performance Ninja" }
-  - { name: "Black Belt", required_xp: 4000, title: "Design System Titan" }
-  - { name: "Sensei", required_xp: 6000, title: "Frontend Grandmaster" }
+  - { name: "Black Belt", required_xp: 3500, title: "Platform Guardian" }
+  - { name: "Sensei", required_xp: 4500, title: "Frontend Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does and the tools of the trade" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The minimum of each pillar of the role" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Integrating the pillars into working features" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Scale, performance and architecture decisions" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production ownership, reliability and leadership topics" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "How a page gets from a URL to the screen, the DevTools, and the dojo's browser-checked katas" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Semantic HTML, accessibility, the cascade and box model, flexbox, grid and responsive design" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "The DOM and events, forms and validation, fetch and async code, browser storage and client state" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "The rendering pipeline, Core Web Vitals, browser security (XSS, CSP, CORS, cookies) and build tools" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Testing frontends, web components and architecture, and running a frontend in production" }

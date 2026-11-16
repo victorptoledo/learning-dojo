@@ -1,0 +1,24 @@
+id: frontend.p1.html-semantics
+kind: lesson
+status: draft
+title: "Semantic HTML: Structure That Means Something"
+summary: "The document skeleton, landmarks, the heading outline, text-level elements, links versus buttons, images and alt text, and why valid HTML matters."
+objectives:
+  - { id: o1, text: "Structure a page with landmarks and a heading outline that never skips a level", skills: [frontend.html-semantics] }
+  - { id: o2, text: "Choose elements by meaning: lists, description lists, time, data, links versus buttons", skills: [frontend.html-semantics] }
+  - { id: o3, text: "Write useful alt text and mark decorative images as such", skills: [frontend.html-semantics, frontend.accessibility] }
+prerequisites: [frontend.p0.hello-dojo]
+difficulty: 2
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A colleague's blog post page is built only from `div` and `span` with classes like `.top`, `.menu`, `.title`, `.big-title`, `.content`, `.sidebar`, `.post-date`, `.btn-share` (a div with a click handler) and `.bottom`. The date is the text \"3 Dec\". The post has a photo of the author and a decorative wave image. Rewrite the page's structure in semantic HTML (no CSS needed) and explain each choice: landmarks, heading levels, the date, the share control, both images and the related-posts sidebar."
+  criteria:
+    - "Uses header, nav, main, article, aside and footer in the right places, with one h1 and h2/h3 below it"
+    - "Marks the date with <time datetime=\"YYYY-MM-DD\">"
+    - "Turns the share control into a <button type=\"button\"> (or a link if it navigates) and explains why a div is not enough"
+    - "Gives the author photo a meaningful alt and the decorative wave alt=\"\""
+    - "Explains that headings are chosen by structure and sized with CSS"

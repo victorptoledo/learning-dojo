@@ -1,6 +1,18 @@
 namespace: frontend
 skills:
-  - { id: frontend.dom-rendering, title: "How the Browser Renders: DOM, CSSOM and the Critical Rendering Path" }
-  - { id: frontend.modern-css, title: "Modern CSS: Flexbox, Grid, Variables and Tailwind" }
-  - { id: frontend.state-management, title: "State Management and Reactivity" }
+  - { id: frontend.web-platform, title: "How the Web Works: URLs, HTTP, Documents and Browser DevTools" }
+  - { id: frontend.html-semantics, title: "Semantic HTML: Document Structure, Landmarks, Text and Media" }
+  - { id: frontend.accessibility, title: "Accessibility: Accessible Names, Keyboard, Focus, ARIA and WCAG" }
+  - { id: frontend.css-cascade, title: "CSS Cascade, Specificity, Inheritance, Layers and the Box Model" }
+  - { id: frontend.css-layout, title: "Flexbox, Grid, Responsive Design and Container Queries" }
+  - { id: frontend.dom-events, title: "The DOM API, Events, Bubbling and Delegation" }
+  - { id: frontend.forms, title: "Forms, Constraint Validation and FormData" }
+  - { id: frontend.fetch-async, title: "fetch, Promises, async/await and AbortController in the Browser" }
+  - { id: frontend.browser-storage, title: "Web Storage, IndexedDB, URL State and Client-Side State" }
+  - { id: frontend.rendering, title: "The Rendering Pipeline: Parsing, Style, Layout, Paint and Compositing" }
   - { id: frontend.web-vitals, title: "Core Web Vitals: LCP, INP and CLS" }
+  - { id: frontend.security, title: "Browser Security: Same-Origin Policy, XSS, CSP, CORS and Cookies" }
+  - { id: frontend.build-tools, title: "ES Modules, Bundlers, Vite and Production Builds" }
+  - { id: frontend.testing, title: "Testing Frontends: Unit, DOM, Accessibility and End-to-End Tests" }
+  - { id: frontend.web-components, title: "Web Components, Progressive Enhancement and Frontend Architecture" }
+  - { id: frontend.production, title: "Frontend in Production: Monitoring, Errors, Browser Support and Delivery" }

@@ -119,6 +119,9 @@ pub enum KataLanguage {
     /// GitHub Actions workflows, Terraform modules and Prometheus rules checked offline by
     /// `dojo-devops` with actionlint, terraform, promtool and bats.
     DevOps,
+    /// HTML, CSS and JavaScript pages loaded in headless Chromium and tested with node:test,
+    /// axe-core and html-validate in `dojo-web`.
+    Web,
 }
 
 impl Kata {
@@ -135,6 +138,7 @@ impl Kata {
             "dojo-cpp" => KataLanguage::Cpp,
             "dojo-aws" => KataLanguage::Aws,
             "dojo-devops" => KataLanguage::DevOps,
+            "dojo-web" => KataLanguage::Web,
             _ => KataLanguage::Rust,
         }
     }
@@ -377,6 +381,7 @@ mod tests {
         assert_eq!(kata("dojo-linux").language(), KataLanguage::Bash);
         assert_eq!(kata("dojo-rust").language(), KataLanguage::Rust);
         assert_eq!(kata("dojo-data").language(), KataLanguage::Python);
+        assert_eq!(kata("dojo-web").language(), KataLanguage::Web);
     }
 
     #[test]

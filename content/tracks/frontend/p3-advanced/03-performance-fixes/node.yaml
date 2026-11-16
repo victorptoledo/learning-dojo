@@ -1,0 +1,47 @@
+id: frontend.p3.performance-fixes
+kind: kata
+status: draft
+title: "Performance Fixes: CLS, LCP and Long Tasks"
+summary: "Fix a news page's Core Web Vitals: give images dimensions and reserve the banner's space so CLS stays below 0.01, load the LCP image eagerly with high priority and the rest lazily, and make a 300 ms sort async with chunks and yielding so no long task remains."
+objectives:
+  - { id: o1, text: "Remove layout shifts with image dimensions and reserved space, and prioritize the LCP image", skills: [frontend.web-vitals] }
+  - { id: o2, text: "Break a long task into chunks that yield to the main thread", skills: [frontend.web-vitals, frontend.rendering] }
+prerequisites: [frontend.p3.core-web-vitals]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-web, timeout_secs: 120 }
+  hints:
+    - |-
+      Take the three problems one at a time and rerun the checks after each. For CLS: what does the browser need to know about an image before it arrives? And how can the banner appear without moving anything? For the long task: what can the browser do between two chunks of work if your code gives it the chance?
+    - |-
+      Add `width`/`height` to the four `<img>` tags (1200 × 600, 400 × 300), `fetchpriority="high"` and no `loading="lazy"` on the hero, `loading="lazy"` on the feature images, and `#banner-slot { min-height: 3rem; }` in style.css. In app.js, `yieldToMain` returns `scheduler.yield()` when it exists, else `new Promise((resolve) => setTimeout(resolve, 0))`; `rankStories` becomes `async` and awaits it every 10 stories; the click handler becomes `async` and awaits the ranking.
+    - |-
+      ```js
+      export async function rankStories(stories) {
+        const scored = [];
+        for (let i = 0; i < stories.length; i += 10) {
+          for (const story of stories.slice(i, i + 10)) {
+            scored.push({ story, score: scoreStory(story) });
+          }
+          await yieldToMain();
+        }
+        scored.sort((a, b) => b.score - a.score || a.story.id - b.story.id);
+        return scored.map(({ story }) => story);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-web runner image
+    image: dojo-web
+    why: The Node.js 26 container with headless Chromium, axe-core and html-validate that loads your page and runs the tests.

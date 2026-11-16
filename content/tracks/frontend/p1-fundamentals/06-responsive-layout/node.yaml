@@ -1,0 +1,55 @@
+id: frontend.p1.responsive-layout
+kind: kata
+status: draft
+title: "Responsive Layout: a Recipe Site in Three Sizes"
+summary: "Write the CSS of a recipe site mobile first: a centered page column, a card grid of one, two and three columns, flex-column cards with links aligned at the bottom, a wrapping nav, and main and aside side by side on desktops. The tests measure the boxes at five widths."
+objectives:
+  - { id: o1, text: "Lay out a page with grid and flexbox, with gaps, equal-height cards and items pushed to the bottom", skills: [frontend.css-layout] }
+  - { id: o2, text: "Make the layout responsive mobile first with rem breakpoints and no horizontal scroll", skills: [frontend.css-layout, frontend.css-cascade] }
+prerequisites: [frontend.p1.layout-responsive]
+difficulty: 2
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-web, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with what every size shares: `box-sizing`, `body { margin: 0 }`, the `.page` column (`max-width`, `margin-inline: auto`, `padding-inline`) and `.cards` as a grid with `gap: 1rem`. Then the 40rem query, then the 64rem one. Which property puts the card's link at the bottom of a flex column?
+    - |-
+      `.cards { display: grid; gap: 1rem; }`, then `grid-template-columns: repeat(2, 1fr)` in `@media (min-width: 40rem)` and `repeat(3, 1fr)` in `@media (min-width: 64rem)`. Cards: `display: flex; flex-direction: column;` and `.card-link { margin-top: auto; }`. Nav: `.site-nav ul { display: flex; flex-wrap: wrap; gap: ... }`. Header: `.site-header .page { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; }`.
+    - |-
+      ```css
+      .layout {
+        display: grid;
+        gap: 2rem;
+      }
+
+      @media (min-width: 64rem) {
+        .layout {
+          grid-template-columns: minmax(0, 1fr) 16rem;
+          align-items: start;
+        }
+      }
+
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+      ```
+
+      `align-items: start` keeps the aside from stretching to the height of main.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-web runner image
+    image: dojo-web
+    why: The Node.js 26 container with headless Chromium, axe-core and html-validate that loads your page and runs the tests.
