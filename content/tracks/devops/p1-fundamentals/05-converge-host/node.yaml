@@ -1,0 +1,51 @@
+id: devops.p1.converge-host
+kind: kata
+status: draft
+title: "Converge a Host: Idempotent Configuration in Bash"
+summary: "A tiny configuration management tool: desired state in, only the differences changed, a dry-run mode that detects drift."
+objectives:
+  - { id: o1, text: "Apply a desired state idempotently: check first, change only what differs", skills: [devops.config-management] }
+  - { id: o2, text: "Detect drift with a dry run whose exit status a pipeline can read", skills: [devops.config-management, linux.scripting] }
+prerequisites: [devops.p1.config-management]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Give each kind its own function that does two things: decide whether the resource differs, and only then (and only without `--check`) change it. Both paths end in one `report` function that prints the line and counts it, so the summary is free.
+    - |-
+      A directory differs when `[ ! -d "$path" ]` or `stat -c %a "$path"` is not the mode without its leading 0 (`${mode#0}`). A file differs when it is missing, its content is not the rendered template (`[ "$(cat "$path")" != "$wanted" ]`) or its mode is wrong. A line differs when `grep -qxF -- "$line" "$path"` fails. Read `desired.txt` with `while read -r kind path rest` and count lines yourself for the error message.
+    - |-
+      ```bash
+      ensure_dir() {
+          local path=$root$1 mode=$2 differs=0
+          if [ ! -d "$path" ] || [ "$(stat -c %a "$path")" != "${mode#0}" ]; then
+              differs=1
+              if [ "$check" -eq 0 ]; then mkdir -p "$path"; chmod "$mode" "$path"; fi
+          fi
+          report "$differs" "dir $1"
+      }
+      # file PATH TEMPLATE MODE: "${rest% *}" is the template, "${rest##* }" the mode
+      render() {   # every ${KEY} from vars.env
+          local content key value
+          content=$(cat "$here/$1")
+          while IFS='=' read -r key value; do content=${content//"\${$key}"/$value}; done < "$here/vars.env"
+          printf '%s\n' "$content"
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your script is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The container with bash, bats and ShellCheck that runs the grading tests.

@@ -1,0 +1,59 @@
+questions:
+  - id: committed-secret
+    prompt: "An API key was committed and pushed, then removed in the next commit. What must you do?"
+    options:
+      - "Nothing, it is gone"
+      - "Revoke and rotate the key: it stays in the Git history and may already be copied"
+      - "Force-push to hide it and keep the key"
+      - "Make the repository private"
+    answer: 1
+    explanation: "Rewriting history does not reach forks, clones and caches; rotation does."
+  - id: sca
+    prompt: "Which kind of check finds known vulnerabilities in your third-party dependencies?"
+    answers: ["SCA", "software composition analysis", "dependency scanning"]
+    explanation: "Dependabot, Renovate, OSV-Scanner and Snyk compare your lock files with vulnerability databases."
+  - id: script-injection
+    prompt: "Why is run: echo \"${{ github.event.pull_request.title }}\" dangerous?"
+    options:
+      - "Titles can be long"
+      - "The expression is pasted into the script before the shell runs it, so a crafted title becomes shell code"
+      - "echo is slow"
+      - "Titles are secrets"
+    answer: 1
+    explanation: "Pass it through env: and use \"$PR_TITLE\"; the shell then treats it as data."
+  - id: oidc-trust
+    prompt: "A cloud role trusts GitHub OIDC tokens. What should its trust policy restrict?"
+    options:
+      - "Nothing, OIDC is secure"
+      - "The repository and the branch or environment allowed to assume it"
+      - "Only the time of day"
+      - "The runner's IP address only"
+    answer: 1
+    explanation: "Otherwise any repository on GitHub, or any branch of yours, could assume the role."
+  - id: sbom
+    prompt: "What does an SBOM let you answer quickly?"
+    options:
+      - "How fast the build was"
+      - "Which components and versions are inside an artefact, so whether a new CVE affects you"
+      - "Who wrote the code"
+      - "How much the image costs"
+    answer: 1
+    explanation: "SPDX and CycloneDX are the common formats; Syft and BuildKit generate them."
+  - id: signing
+    prompt: "How can a cluster make sure it runs only images built by your pipeline?"
+    options:
+      - "Use private registries only"
+      - "Sign images in the pipeline (for example with Cosign) and verify signatures and provenance in an admission policy"
+      - "Scan them once a month"
+      - "Use the latest tag"
+    answer: 1
+    explanation: "Kyverno or the Sigstore policy-controller reject unsigned images at admission."
+  - id: prt
+    prompt: "Why is pull_request_target with a checkout of the pull request's head dangerous?"
+    options:
+      - "It is slower"
+      - "It runs the fork's code with the base repository's secrets and a write token"
+      - "It cannot run tests"
+      - "It is deprecated"
+    answer: 1
+    explanation: "Use pull_request for untrusted code; it gets a read-only token and no secrets."

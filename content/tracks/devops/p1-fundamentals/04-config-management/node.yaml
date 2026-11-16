@@ -1,0 +1,24 @@
+id: devops.p1.config-management
+kind: lesson
+status: draft
+title: "Configuration Management: Idempotence, Drift and Immutable Servers"
+summary: "Desired state versus scripts, idempotent changes, Ansible's model, configuration drift, and why containers and images replaced much of it."
+objectives:
+  - { id: o1, text: "Explain desired-state configuration and why every change must be idempotent", skills: [devops.config-management] }
+  - { id: o2, text: "Read an Ansible playbook: inventory, tasks, modules, handlers, variables and check mode", skills: [devops.config-management] }
+  - { id: o3, text: "Compare mutable servers managed in place with immutable images, and detect drift", skills: [devops.config-management] }
+prerequisites: [devops.p1.cicd-pipelines]
+difficulty: 2
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Twenty servers were configured by hand over five years. No two are quite the same, and nobody dares to reboot the oldest one. Describe how you would bring them under control: first with configuration management on the existing servers, then by moving to immutable images. Include how you would detect drift and what you would do with secrets.'
+  criteria:
+    - 'Captures the current state first (inventory, packages, services, config files) before changing anything'
+    - 'Writes idempotent desired state (playbooks or similar), runs it in check mode first and rolls out gradually'
+    - 'Detects drift on a schedule (check mode or a comparison job) and treats drift as a bug to fix in code'
+    - 'Then builds versioned images (Packer or containers) and replaces servers instead of patching them'
+    - 'Keeps secrets out of the repository (a vault or secrets manager, Ansible Vault at minimum)'

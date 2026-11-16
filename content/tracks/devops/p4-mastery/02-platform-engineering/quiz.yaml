@@ -1,0 +1,45 @@
+questions:
+  - id: cognitive-load
+    prompt: "Which problem does an internal developer platform mainly address?"
+    options:
+      - "Too few servers"
+      - "The cognitive load of every product team having to master every tool to ship"
+      - "Slow laptops"
+      - "Licence costs"
+    answer: 1
+    explanation: "Team Topologies frames it as removing extraneous load so teams focus on their domain."
+  - id: self-service
+    prompt: "A platform's only interface is a ticket queue. What is wrong?"
+    options:
+      - "Nothing"
+      - "It is not self-service: teams wait on another team, which recreates the wall DevOps removed"
+      - "Tickets are too fast"
+      - "It needs more tickets"
+    answer: 1
+    explanation: "Capabilities should be consumable through APIs, templates and code, without waiting for people."
+  - id: golden-path
+    prompt: "What is a golden path?"
+    options:
+      - "The only allowed way, enforced by policy"
+      - "A supported, opinionated way to do a common task, with best practices built in, that teams choose because it is easiest"
+      - "A network route"
+      - "A promotion for engineers"
+    answer: 1
+    explanation: "Teams can leave it with a good reason, but then they own the consequences."
+  - id: portal
+    prompt: "Which open source project is the best-known developer portal, with a service catalogue and software templates?"
+    answers: ["Backstage", "backstage"]
+    explanation: "Created at Spotify and donated to the CNCF."
+  - id: team-types
+    prompt: "In Team Topologies, which team type delivers a product or service end to end?"
+    answers: ["stream-aligned", "stream aligned", "a stream-aligned team"]
+    explanation: "Platform, enabling and complicated-subsystem teams exist to support stream-aligned teams."
+  - id: platform-metrics
+    prompt: "Which is the best sign that the platform is succeeding?"
+    options:
+      - "The number of tools it runs"
+      - "Teams adopt it voluntarily, and their time to first deploy and DORA metrics improve"
+      - "The platform team's headcount"
+      - "Every team is forced onto it"
+    answer: 1
+    explanation: "Measure outcomes for its users, not the platform's size."

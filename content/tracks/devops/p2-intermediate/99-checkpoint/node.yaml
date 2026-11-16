@@ -1,0 +1,56 @@
+id: devops.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz on Kubernetes operations, continuous delivery, Terraform and release strategies, and an integration kata that refactors Terraform with for_each and moved and plans and applies it from a pipeline with OIDC."
+objectives:
+  - { id: o1, text: "Explain Kubernetes operations, GitOps, Terraform state and plans, and release strategies in your own words", skills: [devops.kubernetes-core, devops.cicd-gitops, devops.iac-terraform, devops.release-strategies] }
+  - { id: o2, text: "Refactor a Terraform root module without destroying resources and run it through a reviewed plan/apply pipeline with short-lived credentials", skills: [devops.iac-terraform, devops.cicd-gitops, devops.cicd-pipelines] }
+prerequisites: [devops.p2.canary-release]
+difficulty: 4
+estimated_minutes: 90
+xp: 450
+closes_phase: p2
+covers_skills: [devops.kubernetes-core, devops.cicd-gitops, devops.iac-terraform, devops.release-strategies]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-devops, timeout_secs: 120 }
+  hints:
+    - |-
+      Do the Terraform first and run `terraform plan -var-file=prod.tfvars` (with `terraform init -backend=false`) until it plans the three services. Then write the workflow one job at a time; most rules are a key or a step. Remember that the moved block's `to` must match the new address exactly, key included.
+    - |-
+      `type = map(object({ replicas = optional(number, 2), public = optional(bool, false) }))` gives the defaults. A validation over every key: `alltrue([for name in keys(var.services) : can(regex("^...$", name))])`. In the module call, `for_each = var.services`, `name = each.key`, `replicas = each.value.replicas`. Outputs: `{ for name, s in module.service : name => s.endpoint }` and `sort([for name, s in var.services : name if s.public])`.
+    - |-
+      ```yaml
+      concurrency: { group: terraform, cancel-in-progress: false }
+      jobs:
+        plan:
+          if: github.event_name == 'pull_request'
+          permissions: { contents: read, id-token: write }
+          steps:
+            - uses: actions/checkout@... # v7.0.1
+              with: { persist-credentials: false }
+            - uses: hashicorp/setup-terraform@... # v4.0.1
+              with: { terraform_version: 1.17.2 }
+            - uses: aws-actions/configure-aws-credentials@... # v6.3.0
+              with: { role-to-assume: arn:aws:iam::123456789012:role/terraform-plan, aws-region: eu-west-1 }
+            - run: terraform fmt -check -recursive
+            # init, validate, plan -out=tfplan, upload-artifact
+        apply:
+          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+          environment: production
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your Terraform and workflow are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-devops runner image
+    image: dojo-devops
+    why: The container with actionlint, Terraform, promtool and bats that checks DevOps katas offline.

@@ -1,0 +1,73 @@
+# Plans every infrastructure change in its pull request and applies it once it is merged.
+name: terraform
+
+on:
+  pull_request:
+    paths: ["**.tf", ".github/workflows/terraform.yml"]
+  push:
+    branches: [main]
+    paths: ["**.tf", ".github/workflows/terraform.yml"]
+
+permissions:
+  contents: read
+
+# One run at a time touches the state, and a running apply is never cancelled.
+concurrency:
+  group: terraform
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.17.2
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/terraform-plan
+          aws-region: eu-west-1
+      - name: Format
+        run: terraform fmt -check -recursive
+      - name: Init
+        run: terraform init -input=false -backend-config=backend.hcl
+      - name: Validate
+        run: terraform validate
+      - name: Plan
+        run: terraform plan -input=false -var-file=prod.tfvars -out=tfplan
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: tfplan
+          path: tfplan
+
+  apply:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.17.2
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/terraform-apply
+          aws-region: eu-west-1
+      - name: Init
+        run: terraform init -input=false -backend-config=backend.hcl
+      - name: Apply
+        run: terraform apply -input=false -auto-approve -var-file=prod.tfvars

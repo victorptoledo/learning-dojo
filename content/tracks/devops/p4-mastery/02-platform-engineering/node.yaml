@@ -1,0 +1,24 @@
+id: devops.p4.platform-engineering
+kind: lesson
+status: draft
+title: "Platform Engineering: Golden Paths and Internal Platforms"
+summary: "Why DevOps at scale becomes a platform, how to treat it as a product, golden paths, self-service, developer portals, team topologies and how to measure the platform's success."
+objectives:
+  - { id: o1, text: "Explain cognitive load and why many teams converge on an internal developer platform", skills: [devops.platform-engineering] }
+  - { id: o2, text: "Design golden paths and self-service capabilities with templates, a portal and paved defaults", skills: [devops.platform-engineering] }
+  - { id: o3, text: "Run the platform as a product with user research, team topologies and adoption and DORA metrics", skills: [devops.platform-engineering, devops.delivery-metrics] }
+prerequisites: [devops.p4.incident-response]
+difficulty: 4
+estimated_minutes: 40
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A company has 30 product teams. Each writes its own pipelines, Terraform and Kubernetes manifests; creating a new service takes three weeks and five tickets, and security finds the same mistakes again and again. You lead a new platform team of five people. Write your plan for the first six months: who your users are, what you build first and why, what you will not build, and how you will know it works.'
+  criteria:
+    - 'Starts with user research: talks to product teams and measures where time goes before building'
+    - 'Picks a thin first golden path with high value (for example a service template with CI/CD, observability and security defaults) rather than a big portal'
+    - 'Makes it self-service and optional but attractive; does not force adoption or block teams with tickets'
+    - 'Names what it will not do (become a ticket queue, rebuild every tool, own the product teams'' services)'
+    - 'Measures success with adoption, time to first deploy, DORA metrics of teams using it, and developer satisfaction'

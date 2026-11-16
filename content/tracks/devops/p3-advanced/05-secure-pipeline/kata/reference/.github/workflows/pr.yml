@@ -1,0 +1,25 @@
+# Tests every pull request, including those from forks. pull_request (not
+# pull_request_target) runs the fork's code with a read-only token and no secrets.
+name: pr
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Announce
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: echo "Testing $PR_TITLE"
+      - name: Test
+        run: make test

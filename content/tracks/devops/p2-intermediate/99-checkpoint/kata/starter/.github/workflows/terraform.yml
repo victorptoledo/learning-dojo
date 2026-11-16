@@ -1,0 +1,11 @@
+# Plans every infrastructure change in its pull request and applies it once it is merged.
+name: terraform
+
+on: {} # todo: pull requests and pushes to main that touch .tf files or this workflow
+
+# todo: permissions, concurrency, and the jobs plan and apply (see README.md)
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "todo"

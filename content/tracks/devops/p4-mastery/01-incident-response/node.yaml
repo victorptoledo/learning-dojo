@@ -1,0 +1,24 @@
+id: devops.p4.incident-response
+kind: lesson
+status: draft
+title: "Incident Response: On-call, Roles, Communication and Postmortems"
+summary: "How a team detects, coordinates, mitigates and learns from incidents: severities, the incident commander, status updates, mitigation before diagnosis, and blameless postmortems."
+objectives:
+  - { id: o1, text: "Run an incident with clear severities, roles (incident commander, operations, communications) and a timeline", skills: [devops.incident-response] }
+  - { id: o2, text: "Prioritise mitigation over root cause and communicate status to stakeholders on a schedule", skills: [devops.incident-response] }
+  - { id: o3, text: "Write a blameless postmortem with contributing factors and tracked action items", skills: [devops.incident-response] }
+prerequisites: [devops.p3.cloud-networking-cost]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'At 14:05 a configuration change disabled the cache in front of the product catalogue. At 14:12 the database CPU reached 100% and the shop started returning errors. The on-call engineer was paged at 14:15, spent 25 minutes reading database logs, and at 14:58 a colleague reverted the change; errors stopped at 15:03. Write the postmortem: summary, impact, timeline, contributing factors, what went well, and action items with owners.'
+  criteria:
+    - 'Blameless: describes systems and decisions, not people at fault'
+    - 'States impact in user terms (duration, share of requests failed, orders lost) and the detection and mitigation times'
+    - 'Finds several contributing factors (an unreviewed or untested config change, no alert on cache hit rate, no fast rollback for config, diagnosis before mitigation)'
+    - 'Action items are specific, owned, prioritised and tracked (canary for config, alert on symptom, a runbook step "roll back recent changes first")'
+    - 'Includes what went well and lessons that apply to other teams'

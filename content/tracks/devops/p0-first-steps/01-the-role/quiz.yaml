@@ -1,0 +1,45 @@
+questions:
+  - id: devops-definition
+    prompt: "Which statement describes DevOps best?"
+    options:
+      - "A team that takes over deployments from developers"
+      - "A way of working where the people who build a service share in running it, with an automated, measured path to production"
+      - "A brand of CI server"
+      - "Giving developers root access to production"
+    answer: 1
+    explanation: "DevOps is culture plus practice: shared ownership, automation, small batches and measurement. A separate 'DevOps team' can become a new wall."
+  - id: calms
+    prompt: "In CALMS, what does the L stand for?"
+    answers: ["Lean", "lean"]
+    explanation: "Culture, Automation, Lean, Measurement, Sharing. Lean means small batches, short queues and limited work in progress."
+  - id: three-ways
+    prompt: "Which of these is one of the Three Ways of DevOps?"
+    options:
+      - "Fast feedback from production back to development"
+      - "Approval boards for every change"
+      - "Quarterly release trains"
+      - "Separate budgets for dev and ops"
+    answer: 0
+    explanation: "The Three Ways are flow, feedback and continual learning and experimentation."
+  - id: sre-focus
+    prompt: "What sets an SRE apart from other operations roles?"
+    options:
+      - "They only write documentation"
+      - "They treat reliability as an engineering problem, with SLOs, error budgets and automation that removes toil"
+      - "They never go on call"
+      - "They only manage hardware"
+    answer: 1
+    explanation: "SRE, as Google describes it, is what happens when you ask software engineers to design an operations function."
+  - id: platform-engineer
+    prompt: "A team builds self-service templates, environments and a developer portal for the product teams. What is that work usually called?"
+    answers: ["platform engineering", "Platform engineering", "platform"]
+    explanation: "Platform engineering treats the internal platform as a product whose users are developers."
+  - id: lasting-skills
+    prompt: "Which skill is the most durable for a DevOps engineer?"
+    options:
+      - "Memorising one CI vendor's YAML"
+      - "Linux and networking fundamentals"
+      - "A particular cloud console's menus"
+      - "One configuration management tool's syntax"
+    answer: 1
+    explanation: "Every container, node and VM is a Linux machine on a network; tools on top change every few years."

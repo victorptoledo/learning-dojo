@@ -1,0 +1,37 @@
+# The canary of version 1.9.0: one replica next to the four stable ones.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-canary
+  labels: { app: checkout, track: canary }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: checkout, track: canary }
+  template:
+    metadata:
+      labels: { app: checkout, track: canary }
+    spec:
+      containers:
+        - name: checkout
+          image: ghcr.io/acme/checkout:1.9.0
+          ports:
+            - { name: http, containerPort: 8080 }
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+          livenessProbe:
+            httpGet: { path: /live, port: http }
+          resources:
+            requests: { cpu: 250m, memory: 256Mi }
+            limits: { memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkout-canary
+spec:
+  selector:
+    app: checkout
+    track: canary
+  ports:
+    - { name: http, port: 80, targetPort: http }

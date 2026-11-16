@@ -1,0 +1,64 @@
+questions:
+  - id: declare-early
+    prompt: "You are not sure whether a degradation is serious enough to be an incident. What should you do?"
+    options:
+      - "Wait an hour to see"
+      - "Declare it: closing a small incident is cheap, coordinating an undeclared one is not"
+      - "Fix it quietly"
+      - "Open a ticket for next week"
+    answer: 1
+    explanation: "Early declaration gets the right people and roles in place."
+  - id: ic-role
+    prompt: "What should the incident commander avoid doing?"
+    options:
+      - "Assigning work"
+      - "Debugging and typing commands themselves, which takes their attention off coordination"
+      - "Deciding on mitigations"
+      - "Calling for help"
+    answer: 1
+    explanation: "The IC coordinates; the operations lead and helpers investigate."
+  - id: mitigate-first
+    prompt: "Errors started ten minutes after a deploy. What is usually the best first action?"
+    options:
+      - "Read the code of the change line by line"
+      - "Roll back the deploy, then investigate"
+      - "Restart the database"
+      - "Wait for more data"
+    answer: 1
+    explanation: "Stop user impact first; most incidents follow a change."
+  - id: updates
+    prompt: "During a SEV1 there is no news. What should the communications lead post?"
+    options:
+      - "Nothing until it is fixed"
+      - "An update on schedule anyway: what users see, what is being done, and when the next update comes"
+      - "A guess at the root cause"
+      - "Internal log excerpts"
+    answer: 1
+    explanation: "Regular updates prevent a flood of questions and keep trust."
+  - id: blameless
+    prompt: "What does blameless mean in a postmortem?"
+    options:
+      - "Nobody is responsible for action items"
+      - "People are not punished for honest mistakes, so the full story comes out and the system is fixed"
+      - "No names or times are recorded"
+      - "Only managers write it"
+    answer: 1
+    explanation: "Ask how the decision made sense at the time; fix the conditions, not the person."
+  - id: action-items
+    prompt: "Which postmortem action item is best?"
+    options:
+      - "Be more careful with configuration"
+      - "Add a canary stage for catalogue configuration changes, owned by the platform team, due in two weeks"
+      - "Never change the cache again"
+      - "Hold a meeting"
+    answer: 1
+    explanation: "Specific, owned, dated and tracked."
+  - id: time-metrics
+    prompt: "Which two times does a team track to see whether its incident response improves?"
+    options:
+      - "Lines of code and commits"
+      - "Time to detect and time to mitigate (restore)"
+      - "Meeting length and number of attendees"
+      - "Deploy duration and build time"
+    answer: 1
+    explanation: "Detection depends on alerting; mitigation on rollbacks, runbooks and practice."

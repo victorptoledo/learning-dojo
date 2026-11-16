@@ -69,6 +69,7 @@ of your choice.
 | TypeScript | TypeScript 7 on Node.js 26 | 23 | 9 | `dojo-node` (tsc, node:test) |
 | Node.js | Node.js 26 backends in TypeScript | 25 | 9 | `dojo-node` (tsc, node:test; real servers, workers and child processes) |
 | Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |
+| DevOps & Cloud | CI/CD, Terraform, GitOps, releases, SLOs, DevSecOps | 25 | 8 | `dojo-devops` (actionlint, Terraform 1.17, promtool, bats), `dojo-linux`, `dojo-k8s` |
 | Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
 | Design Patterns | principles and patterns in modern Java | 24 | 10 | `dojo-java` (refactoring katas) |
 | Cyber Security | defensive application and infrastructure security | 25 | 10 | `dojo-python`, `dojo-java` (JCA) and `dojo-linux` (bash, awk); defensive and offline |
@@ -106,6 +107,7 @@ Frontend, Full Stack, DevOps & Cloud, AI Engineer, Cyber Security, React, Modern
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
 Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React,
+Frontend, Full Stack, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL and Computer Science.
 
@@ -210,6 +212,11 @@ trust, bucket, SCP, boundary) are sent a matrix of requests through the dojo's o
 which follows AWS's documented evaluation logic and is self-tested when the image is built; Python
 code that calls AWS with boto3 runs against moto, an in-memory DynamoDB, SQS and S3. In one kata you
 write the cfn-guard rules yourself and they are tested against compliant and broken templates.
+**DevOps katas** need no cloud account either: you write GitHub Actions workflows, Terraform modules
+or Prometheus rules, and the `dojo-devops` image checks them offline with actionlint (and
+ShellCheck for every `run:` script), `terraform fmt`, `validate` and `terraform test` (with the
+`random`, `null` and `local` providers baked in), `promtool check rules` and `promtool test rules`,
+plus bats tests that read the files.
 
 **SQL katas** run against a throwaway PostgreSQL 17. To try your queries on a kata's tables, run
 this from the kata folder:

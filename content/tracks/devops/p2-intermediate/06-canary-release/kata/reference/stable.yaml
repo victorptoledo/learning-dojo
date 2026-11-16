@@ -1,0 +1,40 @@
+# The checkout service as it runs today: version 1.8.0, four replicas.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-stable
+  labels: { app: checkout, track: stable }
+spec:
+  replicas: 4
+  selector:
+    matchLabels: { app: checkout, track: stable }
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  template:
+    metadata:
+      labels: { app: checkout, track: stable }
+    spec:
+      containers:
+        - name: checkout
+          image: ghcr.io/acme/checkout:1.8.0
+          ports:
+            - { name: http, containerPort: 8080 }
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+          livenessProbe:
+            httpGet: { path: /live, port: http }
+          resources:
+            requests: { cpu: 250m, memory: 256Mi }
+            limits: { memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkout-stable
+spec:
+  selector:
+    app: checkout
+    track: stable
+  ports:
+    - { name: http, port: 80, targetPort: http }

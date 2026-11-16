@@ -1,0 +1,25 @@
+# Tests every pull request, including those from forks. Read README.md: this workflow lets
+# any outsider run code with a write token and the repository's secrets.
+name: pr
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+permissions: write-all
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Announce
+        run: echo "Testing ${{ github.event.pull_request.title }}"
+      - name: Install the linter
+        run: curl -fsSL https://get.example.com/lint/install.sh | bash
+      - name: Test
+        run: make test
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

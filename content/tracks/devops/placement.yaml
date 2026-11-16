@@ -1,0 +1,255 @@
+# Placement test of the DevOps & Cloud track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with DevOps work?
+  options:
+    - { label: "I write code, but others build, deploy and run it", start_phase: p0, test: false }
+    - { label: "I use Linux and Docker daily and have written CI pipelines", start_phase: p1, test: true }
+    - { label: "I run services on Kubernetes, write Terraform and have been on call", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-load-average
+    phase: p1
+    skills: [devops.linux-internals]
+    difficulty: 2
+    prompt: "A 4-CPU host shows a load average of 12 with low CPU usage and high iowait. What is the likely bottleneck?"
+    options: ["Too many CPU-bound threads", "Processes waiting on disk or network storage I/O", "Not enough swap", "A DNS outage"]
+    answer: 1
+    explanation: "Processes in uninterruptible I/O wait (state D) count towards the load average without using CPU."
+  - id: p1-systemd-restart
+    phase: p1
+    skills: [devops.linux-internals]
+    difficulty: 2
+    prompt: "Which systemd unit setting restarts a service automatically when it exits with an error?"
+    options: ["WantedBy=multi-user.target", "Restart=on-failure", "After=network.target", "Type=oneshot"]
+    answer: 1
+    explanation: "RestartSec sets the delay; WantedBy only decides when the unit is started at boot."
+  - id: p1-layer-cache
+    phase: p1
+    skills: [devops.docker-containers]
+    difficulty: 2
+    prompt: "Every image build reinstalls all dependencies even when only one source file changed. What is the likely cause?"
+    options: ["The base image is too small", "The source is copied before the dependency install step, so that layer's cache is invalidated", "BuildKit is enabled", "The image runs as non-root"]
+    answer: 1
+    explanation: "Copy the lock file, install, then copy the source."
+  - id: p1-image-identity
+    phase: p1
+    skills: [devops.docker-containers]
+    difficulty: 3
+    prompt: "Which reference always names exactly the same image content?"
+    options: ["orders:latest", "orders:1.4", "orders@sha256:<digest>", "orders:stable"]
+    answer: 2
+    explanation: "Tags can be moved; a digest is the hash of the content."
+  - id: p1-artifact
+    phase: p1
+    skills: [devops.cicd-pipelines]
+    difficulty: 2
+    prompt: "How do you pass a built binary from a build job to a later test job in GitHub Actions?"
+    options: ["They share the runner's disk", "Upload it as an artefact in one job and download it in the other", "Commit it to the repository", "Use a global variable"]
+    answer: 1
+    explanation: "Every job starts on a fresh runner."
+  - id: p1-pr-token
+    phase: p1
+    skills: [devops.cicd-pipelines]
+    difficulty: 3
+    prompt: "What is the safest default for the GITHUB_TOKEN in a workflow?"
+    options: ["permissions: write-all", "permissions: { contents: read } at the top, widened per job only where needed", "No permissions key at all", "A personal access token instead"]
+    answer: 1
+    explanation: "Least privilege limits what a compromised step can do."
+  - id: p1-idempotent
+    phase: p1
+    skills: [devops.config-management]
+    difficulty: 2
+    prompt: "An Ansible play reports changes on every single run although nothing differs. Which task is most likely responsible?"
+    options: ["An apt task with state: present", "A shell task without creates: or changed_when:", "A template task", "A service task with state: started"]
+    answer: 1
+    explanation: "shell and command run every time and report a change unless told how to check."
+  - id: p1-drift
+    phase: p1
+    skills: [devops.config-management]
+    difficulty: 3
+    prompt: "How do you detect configuration drift on servers managed by Ansible?"
+    options: ["Read the shell history", "Run the playbook in check mode on a schedule and alert when it would change something", "Reboot them weekly", "Compare uptime"]
+    answer: 1
+    explanation: "A dry run with --check --diff shows the gap between code and reality."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-rollout-safe
+    phase: p2
+    skills: [devops.kubernetes-core]
+    difficulty: 3
+    prompt: "During a rolling update users see errors from Pods that are still starting. What is missing?"
+    options: ["A livenessProbe", "A readinessProbe, so Pods get traffic only when ready", "A bigger memory limit", "A NodePort"]
+    answer: 1
+    explanation: "Without readiness, a Pod is added to the Service as soon as its container starts."
+  - id: p2-pending
+    phase: p2
+    skills: [devops.kubernetes-core]
+    difficulty: 3
+    prompt: "A new Pod stays Pending with 'Insufficient cpu'. What does that mean?"
+    options: ["The container is throttled", "No node has enough unrequested CPU for the Pod's requests", "The image is too large", "The liveness probe fails"]
+    answer: 1
+    explanation: "The scheduler places Pods by requests; lower them, add nodes or let the cluster autoscaler do it."
+  - id: p2-gitops-change
+    phase: p2
+    skills: [devops.cicd-gitops]
+    difficulty: 3
+    prompt: "With Argo CD and self-heal enabled, how should an engineer change the replicas of a production Deployment?"
+    options: ["kubectl scale", "A reviewed commit to the production configuration in Git", "Edit it in the Argo CD UI", "Delete the Pods"]
+    answer: 1
+    explanation: "Git is the source of truth; changes made in the cluster are reverted."
+  - id: p2-promotion
+    phase: p2
+    skills: [devops.cicd-gitops]
+    difficulty: 2
+    prompt: "What should change when a version is promoted from staging to production?"
+    options: ["The image is rebuilt", "Only the production configuration, which now references the same image digest", "The source branch", "Nothing at all"]
+    answer: 1
+    explanation: "Build once, promote many."
+  - id: p2-count-shift
+    phase: p2
+    skills: [devops.iac-terraform]
+    difficulty: 3
+    prompt: "Three buckets are created with count over a list. Removing the first item from the list plans what?"
+    options: ["Deleting only the first bucket", "Replacing or renaming the later buckets, because their indexes shift", "No changes", "An error"]
+    answer: 1
+    explanation: "for_each over a map or set keys instances by name and avoids the shift."
+  - id: p2-import
+    phase: p2
+    skills: [devops.iac-terraform]
+    difficulty: 3
+    prompt: "A database was created by hand and must now be managed by Terraform without recreating it. What do you use?"
+    options: ["terraform taint", "An import block (or terraform import), then plan until there is no diff", "terraform destroy and apply", "A moved block"]
+    answer: 1
+    explanation: "moved renames addresses Terraform already manages; import adopts existing objects."
+  - id: p2-bluegreen
+    phase: p2
+    skills: [devops.release-strategies]
+    difficulty: 2
+    prompt: "Which strategy runs the full new version next to the old one and switches all traffic at once, with an instant way back?"
+    options: ["Recreate", "Blue-green", "Rolling", "Shadow"]
+    answer: 1
+    explanation: "A canary moves traffic in steps instead."
+  - id: p2-column-drop
+    phase: p2
+    skills: [devops.release-strategies]
+    difficulty: 4
+    prompt: "A release removes a column the previous version still reads. What goes wrong during a rollback?"
+    options: ["Nothing", "The old code runs against a schema without the column and fails", "The database restores it automatically", "Only the cache breaks"]
+    answer: 1
+    explanation: "Drop columns only in a later release (expand and contract)."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-histogram
+    phase: p3
+    skills: [devops.observability-sre]
+    difficulty: 3
+    prompt: "Which metric type lets you compute a p99 latency aggregated across all instances of a service?"
+    options: ["A gauge", "A histogram (buckets), with histogram_quantile over the summed bucket rates", "A counter of requests", "A summary per instance averaged"]
+    answer: 1
+    explanation: "Summary quantiles cannot be averaged meaningfully; histogram buckets can be summed."
+  - id: p3-trace-gap
+    phase: p3
+    skills: [devops.observability-sre]
+    difficulty: 3
+    prompt: "A trace shows spans from the gateway and from the database, but the orders service in between appears as a separate trace. What is wrong?"
+    options: ["Sampling is too high", "The orders service does not propagate the incoming trace context to its outgoing calls", "The clocks differ", "Logs are missing"]
+    answer: 1
+    explanation: "Every hop must forward traceparent; instrumented HTTP clients do it automatically."
+  - id: p3-burn
+    phase: p3
+    skills: [devops.slo-alerting]
+    difficulty: 3
+    prompt: "With a 99.5% availability SLO, the error ratio over the last hour is 3%. What is the burn rate?"
+    options: ["0.6", "3", "6", "15"]
+    answer: 2
+    explanation: "0.03 / 0.005 = 6."
+  - id: p3-cause-alert
+    phase: p3
+    skills: [devops.slo-alerting]
+    difficulty: 2
+    prompt: "What should happen to an alert 'CPU above 85% on a node' that pages several times a week without user impact?"
+    options: ["Lower the threshold", "Demote it to a dashboard or ticket and page on user-facing symptoms instead", "Page two people", "Keep it, CPU matters"]
+    answer: 1
+    explanation: "Pages must be actionable and tied to user impact."
+  - id: p3-oidc
+    phase: p3
+    skills: [devops.devsecops]
+    difficulty: 3
+    prompt: "What replaces long-lived cloud access keys stored as CI secrets?"
+    options: ["Keys rotated yearly", "OIDC federation: the job exchanges a short-lived identity token for temporary credentials of a narrowly trusted role", "Keys in the repository, encrypted", "A shared admin user"]
+    answer: 1
+    explanation: "Nothing long-lived is stored, and the trust policy limits which repository and branch may assume the role."
+  - id: p3-injection
+    phase: p3
+    skills: [devops.devsecops]
+    difficulty: 4
+    prompt: "A workflow on issues runs: run: echo \"${{ github.event.issue.title }}\". What can an attacker do?"
+    options: ["Nothing, it only echoes", "Inject shell commands through the issue title, which run with the job's token", "Read other issues", "Delete the repository directly"]
+    answer: 1
+    explanation: "Pass the value through env: and reference it as a quoted shell variable."
+  - id: p3-nat
+    phase: p3
+    skills: [devops.cloud-networking-cost]
+    difficulty: 3
+    prompt: "Instances in a private subnet cannot reach the internet for package updates. What is usually missing?"
+    options: ["An internet gateway route in the private subnet", "A NAT gateway and a route to it from the private subnet's route table", "A public IP on the database", "A DNS record"]
+    answer: 1
+    explanation: "Private subnets send 0.0.0.0/0 to a NAT gateway placed in a public subnet."
+  - id: p3-unit-cost
+    phase: p3
+    skills: [devops.cloud-networking-cost]
+    difficulty: 3
+    prompt: "The bill grew 30% this quarter. Which number tells you whether that is waste or growth?"
+    options: ["The total bill", "A unit cost such as cost per order or per active user", "The number of instances", "The number of engineers"]
+    answer: 1
+    explanation: "If the unit cost is flat, spending grew with the business."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-ic
+    phase: p4
+    skills: [devops.incident-response]
+    difficulty: 3
+    prompt: "In a large incident, who decides priorities and assigns work?"
+    options: ["Whoever is most senior on the call", "The incident commander, who coordinates and does not debug", "The person who caused it", "The communications lead"]
+    answer: 1
+    explanation: "Separating coordination from hands-on work keeps the response focused."
+  - id: p4-postmortem
+    phase: p4
+    skills: [devops.incident-response]
+    difficulty: 3
+    prompt: "Which postmortem finding is most useful?"
+    options: ["The engineer made a mistake", "Config changes skipped the canary stage and no alert watched the cache hit rate", "The incident was bad luck", "More care is needed"]
+    answer: 1
+    explanation: "Contributing factors in the system lead to concrete action items."
+  - id: p4-golden-path
+    phase: p4
+    skills: [devops.platform-engineering]
+    difficulty: 3
+    prompt: "Teams keep building their own pipelines instead of using the platform's. What should the platform team do first?"
+    options: ["Forbid custom pipelines", "Find out from those teams why the golden path does not serve them, and make it the easiest option", "Ignore them", "Rewrite their pipelines for them"]
+    answer: 1
+    explanation: "A platform is a product: adoption is earned, not mandated."
+  - id: p4-restore-test
+    phase: p4
+    skills: [devops.disaster-recovery]
+    difficulty: 3
+    prompt: "How do you know your real RTO for a database?"
+    options: ["From the vendor's documentation", "By timing a full restore or failover in a regular test", "From the backup schedule", "From the SLA"]
+    answer: 1
+    explanation: "A backup you have not restored is a hope."
+  - id: p4-chaos
+    phase: p4
+    skills: [devops.disaster-recovery]
+    difficulty: 4
+    prompt: "What makes a chaos experiment an experiment rather than an outage?"
+    options: ["Running it at night", "A steady-state hypothesis, a small blast radius, an abort condition and someone watching", "Using a commercial tool", "Not telling anyone"]
+    answer: 1
+    explanation: "Start small, in staging or on a slice of traffic, and stop when the steady state breaks."

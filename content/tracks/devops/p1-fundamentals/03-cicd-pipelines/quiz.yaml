@@ -1,0 +1,59 @@
+questions:
+  - id: job-isolation
+    prompt: "Job build creates dist/; job deploy runs after it with needs: [build]. Why can deploy not find dist/?"
+    options:
+      - "needs is ignored"
+      - "Each job runs on a fresh runner; files must be passed as an artefact"
+      - "dist/ is in .gitignore"
+      - "Jobs share a disk only on Windows"
+    answer: 1
+    explanation: "Upload it with actions/upload-artifact in build and download it in deploy."
+  - id: matrix
+    prompt: "What does a strategy.matrix with go: [\"1.26\", \"1.27\"] do?"
+    options:
+      - "Runs the steps twice in one job"
+      - "Creates one job per value, run in parallel"
+      - "Picks one version at random"
+      - "Installs both versions on one runner"
+    answer: 1
+    explanation: "Each combination of matrix values becomes its own job; fail-fast decides whether one failure cancels the rest."
+  - id: least-privilege
+    prompt: "Which top-level setting gives the GITHUB_TOKEN only read access to the code?"
+    answers: ["permissions: { contents: read }", "permissions: {contents: read}", "contents: read", "permissions:\n  contents: read"]
+    explanation: "Widen it per job only where needed, for example packages: write in the job that pushes images."
+  - id: cache-key
+    prompt: "What should a dependency cache key be based on?"
+    options:
+      - "The date"
+      - "A hash of the lock file (and the OS and tool version)"
+      - "The branch name only"
+      - "A random value"
+    answer: 1
+    explanation: "When the lock file changes the key changes and the cache is rebuilt; otherwise it is reused."
+  - id: pin-sha
+    prompt: "Why pin a third-party action to a commit SHA instead of @v4?"
+    options:
+      - "SHAs are faster"
+      - "A tag can be moved to different code by its owner or an attacker; a SHA cannot"
+      - "GitHub requires it"
+      - "Tags do not work with matrices"
+    answer: 1
+    explanation: "Keep the version in a comment and let Dependabot or Renovate update the pins."
+  - id: trunk-based
+    prompt: "Which branching model does the DORA research associate with high delivery performance?"
+    options:
+      - "GitFlow with long release branches"
+      - "Trunk-based development with short-lived branches merged at least daily"
+      - "One branch per developer"
+      - "No branches and no reviews"
+    answer: 1
+    explanation: "Short-lived branches keep integration continuous; feature flags hide unfinished work."
+  - id: flaky
+    prompt: "A test fails one run in ten for no reason. What is the best response?"
+    options:
+      - "Retry the whole pipeline automatically up to five times"
+      - "Quarantine it in a non-blocking job, open an issue and fix the cause"
+      - "Delete the test"
+      - "Ignore red builds"
+    answer: 1
+    explanation: "Automatic retries hide real races; a red build must mean something."

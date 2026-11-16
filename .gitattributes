@@ -9,3 +9,4 @@ runner-images/** text eol=lf
 .clang-format text eol=lf
 .clang-tidy text eol=lf
 CMakeLists.txt text eol=lf
+content/tracks/devops/** text eol=lf

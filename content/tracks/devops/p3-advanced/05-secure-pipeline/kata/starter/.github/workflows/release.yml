@@ -1,0 +1,23 @@
+# Publishes a release when a version tag is pushed.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions: write-all
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@main
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+      - name: Publish
+        run: |
+          echo "deploying with token ${{ secrets.DEPLOY_TOKEN }}"
+          ./scripts/publish.sh "${{ github.ref_name }}"

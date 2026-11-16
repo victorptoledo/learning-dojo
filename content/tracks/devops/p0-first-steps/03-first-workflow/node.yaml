@@ -1,0 +1,51 @@
+id: devops.p0.first-workflow
+kind: kata
+status: draft
+title: "Your First CI Workflow"
+summary: "A GitHub Actions workflow that vets and tests a Go service on every push and pull request, checked by actionlint."
+objectives:
+  - { id: o1, text: "Write a workflow with triggers, a job, a runner and ordered steps", skills: [devops.cicd-pipelines] }
+  - { id: o2, text: "Limit the GITHUB_TOKEN to reading the repository", skills: [devops.cicd-pipelines] }
+prerequisites: [devops.p0.delivery-lifecycle]
+difficulty: 1
+estimated_minutes: 25
+xp: 150
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-devops, timeout_secs: 90 }
+  hints:
+    - |-
+      A workflow has three parts: when it runs (`on`), what the token may do (`permissions`) and the jobs. A job runs its `steps` in order on a fresh machine, so it must first get the code, then the tools, then run the checks.
+    - |-
+      `on` takes a map: `push:` with `branches: [main]`, and `pull_request:` with nothing under it (all branches). `permissions: { contents: read }` goes at the top level. Steps are either `uses: owner/action@version` (with inputs under `with:`) or `run: a shell command`.
+    - |-
+      ```yaml
+      on:
+        push:
+          branches: [main]
+        pull_request:
+      permissions:
+        contents: read
+      jobs:
+        test:
+          runs-on: ubuntu-24.04
+          steps:
+            - uses: actions/checkout@v7
+            - uses: actions/setup-go@v7
+              with: { go-version-file: ... }
+            - run: go vet ./...
+            - run: ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your workflow is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-devops runner image
+    image: dojo-devops
+    why: The container with actionlint, Terraform, promtool and bats that checks DevOps katas offline.

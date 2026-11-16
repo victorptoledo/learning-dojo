@@ -116,6 +116,9 @@ pub enum KataLanguage {
     /// CloudFormation templates, IAM policies, Guard rules and boto3 code checked offline
     /// by `dojo-aws` with cfn-lint, cfn-guard, an IAM policy evaluator and moto.
     Aws,
+    /// GitHub Actions workflows, Terraform modules and Prometheus rules checked offline by
+    /// `dojo-devops` with actionlint, terraform, promtool and bats.
+    DevOps,
 }
 
 impl Kata {
@@ -131,6 +134,7 @@ impl Kata {
             "dojo-node" => KataLanguage::TypeScript,
             "dojo-cpp" => KataLanguage::Cpp,
             "dojo-aws" => KataLanguage::Aws,
+            "dojo-devops" => KataLanguage::DevOps,
             _ => KataLanguage::Rust,
         }
     }
@@ -369,6 +373,7 @@ mod tests {
         assert_eq!(kata("dojo-docker").language(), KataLanguage::Docker);
         assert_eq!(kata("dojo-k8s").language(), KataLanguage::Kubernetes);
         assert_eq!(kata("dojo-aws").language(), KataLanguage::Aws);
+        assert_eq!(kata("dojo-devops").language(), KataLanguage::DevOps);
         assert_eq!(kata("dojo-linux").language(), KataLanguage::Bash);
         assert_eq!(kata("dojo-rust").language(), KataLanguage::Rust);
         assert_eq!(kata("dojo-data").language(), KataLanguage::Python);

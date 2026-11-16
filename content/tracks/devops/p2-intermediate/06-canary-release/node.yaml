@@ -1,0 +1,47 @@
+id: devops.p2.canary-release
+kind: kata
+status: draft
+title: "A Canary Release with the Gateway API"
+summary: "A canary Deployment beside the stable one, one Service per track and an HTTPRoute that splits traffic 90/10 with a header override."
+objectives:
+  - { id: o1, text: "Run two versions side by side with labels and Services that never overlap", skills: [devops.release-strategies, kubernetes.services-dns] }
+  - { id: o2, text: "Shift a share of traffic with weighted backends and a header match", skills: [devops.release-strategies, kubernetes.ingress-gateway] }
+prerequisites: [devops.p2.release-strategies]
+difficulty: 3
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-k8s, timeout_secs: 90 }
+  hints:
+    - |-
+      A Service sends traffic to every Pod whose labels contain all of its selector. Both Deployments' Pods carry `app: checkout`, so a selector with only that label catches both. What label tells them apart?
+    - |-
+      Copy the stable Deployment into `canary.yaml` and change the name, the replicas, the image and `track` (in the selector, the Pod template and the metadata). In the HTTPRoute, rules are matched in order: put the header rule first. A rule may list several `backendRefs`, each with a `weight`; traffic is split in proportion to the weights.
+    - |-
+      ```yaml
+      rules:
+        - matches:
+            - headers:
+                - { type: Exact, name: x-canary, value: always }
+          backendRefs:
+            - { name: checkout-canary, port: 80 }
+        - matches:
+            - path: { type: PathPrefix, value: / }
+          backendRefs:
+            - { name: checkout-stable, port: 80, weight: ... }
+            - { name: checkout-canary, port: 80, weight: ... }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your manifests are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-k8s runner image
+    image: dojo-k8s
+    why: The container with kubeconform, kustomize, helm, yq and bats that checks your manifests offline.

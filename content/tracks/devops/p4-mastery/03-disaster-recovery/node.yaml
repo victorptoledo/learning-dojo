@@ -1,0 +1,24 @@
+id: devops.p4.disaster-recovery
+kind: lesson
+status: draft
+title: "Disaster Recovery and Chaos Engineering: RTO, RPO and Game Days"
+summary: "Planning for the worst: recovery objectives, backup strategies and restores that are tested, multi-zone and multi-region designs, and chaos engineering that proves resilience before a real failure does."
+objectives:
+  - { id: o1, text: "Define RTO and RPO per service and choose a recovery strategy from backup and restore to active-active", skills: [devops.disaster-recovery] }
+  - { id: o2, text: "Design backups that survive ransomware and mistakes, and prove them with restore tests", skills: [devops.disaster-recovery] }
+  - { id: o3, text: "Run chaos experiments and game days with a hypothesis, a limited blast radius and an abort plan", skills: [devops.disaster-recovery, devops.incident-response] }
+prerequisites: [devops.p4.platform-engineering]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An online shop runs in one cloud region: Kubernetes for the services, a managed PostgreSQL database with daily snapshots kept for 7 days in the same account, and object storage for product images. The business says it can lose at most 15 minutes of orders and must be back within 2 hours if the region fails. Assess the current design against these objectives and propose the changes, including how you would prove they work.'
+  criteria:
+    - 'States RPO 15 minutes and RTO 2 hours and shows the current design misses both (daily snapshots, same region, same account)'
+    - 'Proposes continuous backups or cross-region replication for the database and replicated object storage, with copies in a separate account and immutable retention'
+    - 'Chooses a strategy that fits (pilot light or warm standby in a second region) with infrastructure as code to rebuild and DNS failover'
+    - 'Proves it: scheduled restore tests, a measured failover game day, and a runbook'
+    - 'Considers cost and dependencies (secrets, DNS, container images, third parties also available in the second region)'

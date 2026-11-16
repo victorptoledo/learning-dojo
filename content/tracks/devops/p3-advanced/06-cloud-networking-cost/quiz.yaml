@@ -1,0 +1,54 @@
+questions:
+  - id: public-subnet
+    prompt: "What makes a subnet public?"
+    options:
+      - "Its name"
+      - "A route table that sends 0.0.0.0/0 to an internet gateway"
+      - "Its CIDR size"
+      - "A security group"
+    answer: 1
+    explanation: "Private subnets route outbound traffic through a NAT gateway or not at all."
+  - id: nat-direction
+    prompt: "What does a NAT gateway allow for hosts in private subnets?"
+    options:
+      - "Inbound connections from the internet"
+      - "Outbound connections to the internet, with replies, but no inbound connections"
+      - "Nothing"
+      - "Peering with other VPCs"
+    answer: 1
+    explanation: "It translates private source addresses to its public one for outgoing traffic."
+  - id: sg-reference
+    prompt: "How should the database's security group allow the API to connect?"
+    options:
+      - "Allow 0.0.0.0/0 on 5432"
+      - "Allow port 5432 from the API's security group"
+      - "Allow all ports from the VPC"
+      - "Disable the security group"
+    answer: 1
+    explanation: "Referencing groups follows instances as they scale; IP ranges do not."
+  - id: dns-ttl
+    prompt: "You will move a service to a new IP address tomorrow. What should you do with the DNS record's TTL today?"
+    answers: ["lower it", "lower", "reduce it", "decrease it", "lower the TTL"]
+    explanation: "Resolvers cache answers for the TTL; a short TTL makes the switch take effect quickly."
+  - id: nat-cost
+    prompt: "Private nodes pull gigabytes of images from the cloud registry every day and the NAT bill is high. What helps most?"
+    options:
+      - "A bigger NAT gateway"
+      - "A private endpoint to the registry (and object storage), so the traffic skips NAT"
+      - "Public subnets for the nodes"
+      - "More zones"
+    answer: 1
+    explanation: "Private endpoints are safer and avoid NAT's per-gigabyte processing charge."
+  - id: l7
+    prompt: "Which kind of load balancer routes by HTTP host and path and terminates TLS?"
+    answers: ["layer 7", "L7", "application load balancer", "an application load balancer", "layer 7 load balancer"]
+    explanation: "Layer 4 load balancers see only connections, not requests."
+  - id: finops-tags
+    prompt: "What is the first FinOps step for a bill nobody can explain?"
+    options:
+      - "Cancel the account"
+      - "Tag resources with owner, team, service and environment, so spend can be allocated and shown to the teams that own it"
+      - "Buy reserved instances for everything"
+      - "Turn off monitoring"
+    answer: 1
+    explanation: "Inform, then optimise: you cannot optimise what nobody owns."

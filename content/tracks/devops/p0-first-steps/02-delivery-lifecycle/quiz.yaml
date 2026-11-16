@@ -1,0 +1,50 @@
+questions:
+  - id: cd-vs-deployment
+    prompt: "What separates continuous delivery from continuous deployment?"
+    options:
+      - "Continuous delivery has no tests"
+      - "In continuous delivery every passing change can go to production on a decision; in continuous deployment it goes automatically"
+      - "Continuous deployment needs a manual approval"
+      - "They are the same"
+    answer: 1
+    explanation: "Both keep main releasable; continuous deployment removes the last manual step."
+  - id: small-batches
+    prompt: "Why are small batches safer?"
+    options:
+      - "They skip review"
+      - "Each change is easier to review, its failures are easier to diagnose and cheaper to roll back"
+      - "They deploy less often"
+      - "They need no tests"
+    answer: 1
+    explanation: "Less change per deployment means less risk per deployment and faster feedback."
+  - id: dora-stability
+    prompt: "Which two DORA metrics measure stability?"
+    options:
+      - "Deployment frequency and lead time"
+      - "Change failure rate and time to restore service"
+      - "Lines of code and test coverage"
+      - "Uptime and CPU usage"
+    answer: 1
+    explanation: "Deployment frequency and lead time measure throughput; failure rate and restore time measure stability."
+  - id: failure-rate
+    prompt: "A team made 20 deployments; 3 needed a rollback or hotfix. What is the change failure rate, in percent?"
+    answers: ["15", "15%", "15 %"]
+    explanation: "3 / 20 = 15%."
+  - id: speed-stability
+    prompt: "What did the DORA research find about speed and stability?"
+    options:
+      - "Teams must trade one for the other"
+      - "The best performers are both faster and more stable"
+      - "Stability only comes from release freezes"
+      - "Speed only matters for start-ups"
+    answer: 1
+    explanation: "High performers deploy more often and fail less, because the same capabilities (automation, small batches) drive both."
+  - id: goodhart
+    prompt: "A manager wants to rank engineers by their personal deployment frequency. What is the problem?"
+    options:
+      - "Nothing, it is fair"
+      - "DORA metrics describe teams and systems; as individual targets they get gamed and destroy trust"
+      - "Deployment frequency cannot be measured"
+      - "Only lead time may be used for people"
+    answer: 1
+    explanation: "Goodhart's law: a measure that becomes a target stops measuring. Use the metrics to improve the system."

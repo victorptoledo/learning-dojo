@@ -2,13 +2,24 @@ id: devops.p2.kubernetes-core
 legacy_id: devops-03-kubernetes-core
 kind: lesson
 status: draft
-title: "Kubernetes: Pods, Deployments and Services"
-summary: "Automated deploys, self-healing, rolling updates and service discovery."
+title: "Kubernetes for Operations: Workloads, Networking and Day-2 Work"
+summary: "The Kubernetes an operator relies on: the reconcile loop, Deployments and rollouts, Services and Gateways, configuration, probes and resources, and the commands for day-2 work."
 objectives:
-  - { id: o1, text: "Automated deploys, self-healing, rolling updates and service discovery.", skills: [devops.kubernetes-core] }
-prerequisites: [devops.p1.docker-containers]
+  - { id: o1, text: "Explain the declarative reconcile loop and the objects that run a stateless service", skills: [devops.kubernetes-core, kubernetes.control-plane, kubernetes.deployments] }
+  - { id: o2, text: "Expose a service with a Service and a Gateway API route, and configure it with ConfigMaps and Secrets", skills: [devops.kubernetes-core, kubernetes.services-dns, kubernetes.config-secrets] }
+  - { id: o3, text: "Keep workloads healthy with probes, requests and limits, and operate them with kubectl rollout, logs, describe and events", skills: [devops.kubernetes-core, kubernetes.probes-resources, kubernetes.debugging] }
+prerequisites: [devops.p1.checkpoint]
 difficulty: 3
-estimated_minutes: 30
-xp: 300
+estimated_minutes: 50
+xp: 250
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'After a deploy, half of the Pods of the orders Deployment are in CrashLoopBackOff and the rest are Running, and users see intermittent 503 errors. Describe, command by command, how you would find the cause and restore service, and which manifest settings would have prevented users from noticing.'
+  criteria:
+    - 'Uses kubectl get pods, describe (events), logs --previous and rollout status/history to find the cause'
+    - 'Restores service fast with kubectl rollout undo (or a revert in Git for GitOps) before debugging deeply'
+    - 'Explains the 503s: Pods without passing readiness still receiving traffic, or too few ready Pods'
+    - 'Names prevention: readiness probes, maxUnavailable 0 with maxSurge, minReadySeconds or progressDeadlineSeconds, enough replicas and a PodDisruptionBudget'
+    - 'Mentions resource requests and limits and checking for OOMKilled or a missing ConfigMap key or Secret'

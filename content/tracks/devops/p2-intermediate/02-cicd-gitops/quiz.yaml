@@ -1,0 +1,50 @@
+questions:
+  - id: build-once-promote
+    prompt: "How should a version move from staging to production?"
+    options:
+      - "Rebuild the image from the same commit"
+      - "Change the production configuration to the same image tag or digest staging runs"
+      - "Copy the staging cluster"
+      - "Retag latest"
+    answer: 1
+    explanation: "Promotion is a configuration change; the artefact stays the same."
+  - id: pull-advantage
+    prompt: "Which is an advantage of pull-based GitOps over CI pushing with kubectl?"
+    options:
+      - "It needs no Git"
+      - "CI needs no cluster credentials, and the controller detects and reverts drift"
+      - "It is always faster"
+      - "It works without containers"
+    answer: 1
+    explanation: "The agent in the cluster pulls desired state, so the cluster's keys never leave it."
+  - id: self-heal
+    prompt: "In Argo CD, what does selfHeal: true do?"
+    options:
+      - "Restarts crashed Pods"
+      - "Reverts changes made directly in the cluster so it matches Git again"
+      - "Rolls back failed syncs"
+      - "Heals broken nodes"
+    answer: 1
+    explanation: "Manual kubectl edits are undone; change Git instead."
+  - id: prune
+    prompt: "Which automated sync option makes Argo CD delete objects that were removed from Git?"
+    answers: ["prune", "prune: true"]
+    explanation: "Without prune, removed objects stay in the cluster as orphans."
+  - id: gitops-rollback
+    prompt: "With GitOps and self-heal, what is the right way to roll back a bad release?"
+    options:
+      - "kubectl rollout undo"
+      - "git revert the commit that changed the version, and let the controller sync"
+      - "Delete the namespace"
+      - "Edit the Deployment in the cluster"
+    answer: 1
+    explanation: "The controller would put the bad version back after a rollout undo."
+  - id: secrets-git
+    prompt: "Which is a sound way to deliver secrets with GitOps?"
+    options:
+      - "Plain Secret manifests in the config repository"
+      - "Sealed Secrets, SOPS-encrypted files, or the External Secrets Operator syncing from a vault"
+      - "Secrets in the image"
+      - "Base64-encoding them in Git"
+    answer: 1
+    explanation: "Base64 is not encryption; Git history keeps every value forever."

@@ -1,0 +1,17 @@
+# 0.05% of requests fail: within the budget, so nobody is disturbed.
+rule_files: [../slo.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'http_requests_total{job="checkout", code="200"}'
+        values: '0+1999x420'
+      - series: 'http_requests_total{job="checkout", code="500"}'
+        values: '0+1x420'
+    alert_rule_test:
+      - eval_time: 1h
+        alertname: CheckoutErrorBudgetBurnFast
+        exp_alerts: []
+      - eval_time: 6h30m
+        alertname: CheckoutErrorBudgetBurnSlow
+        exp_alerts: []

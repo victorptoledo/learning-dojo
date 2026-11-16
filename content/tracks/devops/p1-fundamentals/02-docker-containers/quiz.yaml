@@ -1,0 +1,59 @@
+questions:
+  - id: container-is
+    prompt: "What is a container, from the kernel's point of view?"
+    options:
+      - "A lightweight virtual machine with its own kernel"
+      - "An ordinary process with its own namespaces and cgroup limits, running on the host kernel"
+      - "A ZIP file"
+      - "A Docker daemon thread"
+    answer: 1
+    explanation: "Namespaces isolate what it sees, cgroups limit what it uses; the kernel is shared."
+  - id: cgroups
+    prompt: "Which kernel feature enforces a container's memory limit?"
+    answers: ["cgroups", "cgroup", "control groups", "cgroups v2"]
+    explanation: "Control groups account and limit CPU, memory, I/O and process counts."
+  - id: multi-stage
+    prompt: "Why use a multi-stage build?"
+    options:
+      - "To run several containers in one image"
+      - "To keep compilers and build tools out of the runtime image, which then holds only the artefact"
+      - "To build faster without a cache"
+      - "To run as root"
+    answer: 1
+    explanation: "The final stage copies only what it needs from earlier stages: smaller, with less to attack."
+  - id: tag-vs-digest
+    prompt: "Why deploy by commit SHA tag or digest rather than :latest?"
+    options:
+      - "latest is slower to pull"
+      - "A tag like latest moves, so you cannot tell or reproduce what runs; an immutable tag or digest names exact content"
+      - "Registries reject latest"
+      - "Digests are shorter"
+    answer: 1
+    explanation: "Rollbacks, audits and debugging all need to know exactly which image runs."
+  - id: promote
+    prompt: "Staging tested image orders@sha256:ab12... What should production run?"
+    options:
+      - "A fresh build of the same commit"
+      - "The same digest, with production configuration"
+      - "The latest tag"
+      - "A build from the release branch"
+    answer: 1
+    explanation: "Build once, promote many: a rebuild could pull different dependencies or bases."
+  - id: layer-order
+    prompt: "In a Dockerfile, why copy the dependency manifest and install dependencies before copying the source?"
+    options:
+      - "Docker requires that order"
+      - "So the dependency layer stays cached when only the source changes"
+      - "To make the image smaller"
+      - "To run tests first"
+    answer: 1
+    explanation: "A layer is rebuilt when its inputs change, and every layer after it too."
+  - id: distroless-debug
+    prompt: "How do you get a shell next to a distroless container that has none?"
+    options:
+      - "You cannot"
+      - "Start a debug container that shares its PID and network namespaces (docker run --pid container:X, or kubectl debug)"
+      - "Install bash with exec"
+      - "Rebuild with ubuntu"
+    answer: 1
+    explanation: "The debug container brings the tools; the namespaces give it the target's view."

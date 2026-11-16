@@ -1,0 +1,5 @@
+# Terraform providers baked into dojo-devops as a filesystem mirror: name version sha256
+# (of terraform-provider-<name>_<version>_linux_amd64.zip from releases.hashicorp.com).
+random 3.9.1 60b4f8a8ef18f52bf8e19215229dae408bee732825964092db7c989fd2de4097
+null 3.3.2 d2855b922ea345dbd89ea287e4c6c4757e38bc0aaffeb2b79aa0b8004f9c53ff
+local 2.9.1 a8ea1c155bd5e0d695a28d3c0e2f542de8844e1791ea021f015a3f08e1c059e1

@@ -1,0 +1,15 @@
+# A one-minute burst of errors after an hour of clean traffic: the 5m window spikes but the
+# 1h one stays low, so the fast alert must not page.
+rule_files: [../slo.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'http_requests_total{job="checkout", code="200"}'
+        values: '0+1000x120'
+      - series: 'http_requests_total{job="checkout", code="500"}'
+        values: '0x60 500 500x60'
+    alert_rule_test:
+      - eval_time: 64m
+        alertname: CheckoutErrorBudgetBurnFast
+        exp_alerts: []

@@ -1,8 +1,15 @@
 ---
 from: java
 status: draft
-concept: "Deployment automation"
-from_way: "An old CI server with manual build scripts and someone clicking a button to release."
-native_way: "GitOps: the Git repository is the single source of truth. A change to `main` runs lint and tests, tags a release and the cluster syncs itself."
-sensei_tip: "Fail fast: run formatting and unit tests in the first minute, before any heavy container build."
+concept: "Promote one artefact; let the environment pull its state"
+from_way: "A release manager deploys a version from Nexus to each environment with a Jenkins job and a properties file per environment."
+native_way: "CI pushes one image; each environment's configuration in Git names its version, and Argo CD applies it."
+sensei_tip: "Spring profiles per environment become Kustomize overlays or Helm values files, reviewed in pull requests."
 ---
+
+| Java world | GitOps |
+| --- | --- |
+| a version in Nexus | an image tag in the registry |
+| `application-prod.properties` | the prod overlay in the config repo |
+| a Jenkins deploy job | an Argo CD Application |
+| redeploying the old WAR | `git revert` |

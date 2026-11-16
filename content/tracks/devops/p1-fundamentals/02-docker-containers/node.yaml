@@ -2,13 +2,24 @@ id: devops.p1.docker-containers
 legacy_id: devops-02-docker-containers
 kind: lesson
 status: draft
-title: "Docker: Multi-stage Builds and Layer Optimisation"
-summary: "How containers isolate processes using Linux cgroups and namespaces."
+title: "Containers for Operations: Images, Registries and Runtime"
+summary: "What a container really is, how to build small, reproducible images, how images are tagged, stored and promoted, and how to run and debug containers safely."
 objectives:
-  - { id: o1, text: "How containers isolate processes using Linux cgroups and namespaces.", skills: [devops.docker-containers] }
+  - { id: o1, text: "Explain containers as processes isolated by namespaces and limited by cgroups, and images as stacked layers", skills: [devops.docker-containers, docker.namespaces-cgroups, docker.images-layers] }
+  - { id: o2, text: "Build small, reproducible images with multi-stage builds, pinned bases and a non-root user", skills: [devops.docker-containers, docker.multi-stage, docker.dockerfile-best-practices] }
+  - { id: o3, text: "Tag, push and promote images through a registry, and debug a running container", skills: [devops.docker-containers, docker.logs-debugging] }
 prerequisites: [devops.p1.linux-internals]
 difficulty: 2
-estimated_minutes: 30
+estimated_minutes: 45
 xp: 200
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A team ships a 1.4 GB image built FROM ubuntu:latest that installs compilers, copies the whole repository, runs as root and is tagged :latest for every environment. Explain the problems this causes for operations (security, speed, reproducibility, rollbacks) and describe the image and tagging scheme you would replace it with.'
+  criteria:
+    - 'Identifies the problems: an unpinned base, a large attack surface, build tools in production, root, cache-unfriendly layer order, :latest hiding what runs'
+    - 'Proposes a multi-stage build with a small pinned runtime base (distroless, alpine or slim, by digest or exact tag)'
+    - 'Runs as a non-root user and copies only the built artefact; adds a .dockerignore'
+    - 'Tags with an immutable version (commit SHA or semver) and promotes the same image between environments rather than rebuilding'
+    - 'Mentions scanning and signing or an SBOM in the pipeline'
