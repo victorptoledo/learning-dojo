@@ -6,7 +6,7 @@ summary: "What data engineers build and for whom, the lifecycle from source syst
 objectives:
   - { id: o1, text: "Describe what a data engineer owns and how the role differs from analysts, analytics engineers and data scientists", skills: [data-engineer.role] }
   - { id: o2, text: "Walk through the data lifecycle: generation, ingestion, storage, transformation and serving", skills: [data-engineer.role] }
-  - { id: o3, text: "Tell OLTP from OLAP and batch from streaming, and name the tool for each job", skills: [data-engineer.role, sql.select-basics, python.tooling-uv, docker.setup] }
+  - { id: o3, text: "Tell OLTP from OLAP and batch from streaming, and name the tool for each job", skills: [data-engineer.role] }
 prerequisites: []
 difficulty: 1
 estimated_minutes: 30

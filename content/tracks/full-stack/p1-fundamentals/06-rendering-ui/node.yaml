@@ -4,7 +4,7 @@ status: reviewed
 title: "Rendering UI: Server Pages, SPAs, Forms and Escaping"
 summary: "Two ways to put data on a screen, server-rendered pages and client-rendered SPAs; forms with Post/Redirect/Get and errors under fields; UI state; escaping and Content-Security-Policy."
 objectives:
-  - { id: o1, text: "Compare server-rendered pages and single-page apps, and choose per screen", skills: [full-stack.rendering, react.jsx-components] }
+  - { id: o1, text: "Compare server-rendered pages and single-page apps, and choose per screen", skills: [full-stack.rendering, frontend.web-components] }
   - { id: o2, text: "Handle forms end to end: Post/Redirect/Get, errors under fields, keeping what the user typed", skills: [full-stack.rendering, full-stack.web-platform, frontend.forms, react.forms] }
   - { id: o3, text: "Render user data safely with contextual escaping and a Content-Security-Policy", skills: [full-stack.rendering, frontend.security] }
 prerequisites: [full-stack.p1.page-query]

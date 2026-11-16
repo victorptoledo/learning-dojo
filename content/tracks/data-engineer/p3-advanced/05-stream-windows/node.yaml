@@ -6,7 +6,7 @@ summary: "Aggregate a Kafka-like stream in event-time tumbling windows: a waterm
 objectives:
   - { id: o1, text: "Assign events to tumbling windows by event time and close them with a watermark", skills: [data-engineer.streaming-kafka] }
   - { id: o2, text: "Handle out-of-order and late events with allowed lateness and a side output", skills: [data-engineer.streaming-kafka] }
-  - { id: o3, text: "Make a consumer effectively-once with per-partition offsets", skills: [data-engineer.streaming-kafka, python.classes] }
+  - { id: o3, text: "Make a consumer effectively-once with per-partition offsets", skills: [data-engineer.streaming-kafka, backend.messaging] }
 prerequisites: [data-engineer.p3.streaming-kafka]
 difficulty: 4
 estimated_minutes: 70

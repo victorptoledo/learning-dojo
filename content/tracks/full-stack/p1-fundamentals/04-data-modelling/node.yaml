@@ -6,7 +6,7 @@ summary: "Derive tables from what the screens show and the rules they enforce, k
 objectives:
   - { id: o1, text: "Derive entities, keys and constraints from screens and business rules", skills: [full-stack.data-modelling, sql.constraints-keys, sql.normalisation] }
   - { id: o2, text: "Change a schema with versioned, reviewable migrations", skills: [full-stack.data-modelling] }
-  - { id: o3, text: "Load a page of data without N+1 queries, with keyset pagination and the index that serves it", skills: [full-stack.data-modelling, sql.indexes-plans, sql.json] }
+  - { id: o3, text: "Load a page of data without N+1 queries, with keyset pagination and the index that serves it", skills: [full-stack.data-modelling, sql.indexes-plans, sql.applications] }
 prerequisites: [full-stack.p1.typed-contract]
 difficulty: 3
 estimated_minutes: 55

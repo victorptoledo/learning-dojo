@@ -5,8 +5,8 @@ title: "Production Ownership: Safe Migrations, Feature Flags and Incidents"
 summary: "Owning a product in production: zero-downtime schema changes with expand and contract, feature flags and progressive delivery, incident response from the first alert to the postmortem, and the habits that make a team trustworthy."
 objectives:
   - { id: o1, text: "Plan a breaking schema change as a sequence of zero-downtime deploys", skills: [full-stack.ownership, backend.delivery] }
-  - { id: o2, text: "Release features progressively with flags, and retire the flags afterwards", skills: [full-stack.ownership] }
-  - { id: o3, text: "Lead an incident from detection to a blameless postmortem with follow-up actions", skills: [full-stack.ownership, git.workflows] }
+  - { id: o2, text: "Release features progressively with flags, and retire the flags afterwards", skills: [full-stack.ownership, devops.release-strategies] }
+  - { id: o3, text: "Lead an incident from detection to a blameless postmortem with follow-up actions", skills: [full-stack.ownership, devops.incident-response] }
 prerequisites: [full-stack.p4.testing]
 difficulty: 5
 estimated_minutes: 55
