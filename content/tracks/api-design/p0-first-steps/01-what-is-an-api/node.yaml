@@ -1,0 +1,24 @@
+id: api-design.p0.what-is-an-api
+kind: lesson
+status: draft
+title: "What an API Is: a Contract With People You Will Never Meet"
+summary: "Why an API is a contract and not an implementation detail, who its consumers are, design-first versus code-first, the main API styles and what makes an API good."
+objectives:
+  - { id: o1, text: "Tell the contract of an API from its implementation and explain why changing the contract is expensive", skills: [api-design.foundations] }
+  - { id: o2, text: "Compare REST, RPC, GraphQL and event-driven styles at a high level", skills: [api-design.foundations] }
+  - { id: o3, text: "Explain design-first development and the qualities of a good API", skills: [api-design.foundations] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 25
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team exposes the internal `OrderEntity` of a Java service directly as JSON, including the fields `internalNotes`, `db_version` and `customerFk`, and is about to give the API to three partner companies. Write a short memo (half a page) to the team: which parts of this response are part of the contract once partners use it, what could go wrong in a year, and what you would do before the launch. Mention at least one concrete client that would break.'
+  criteria:
+    - 'Explains that every observable field and behaviour becomes part of the contract (Hyrum''s law)'
+    - 'Names concrete risks: leaking internals, renaming or removing a field breaks partners, database changes become API changes'
+    - 'Proposes a separate representation (DTO) designed from the consumer side, ideally written down as a contract first'
+    - 'Gives a concrete example of a broken client'
+    - 'Keeps it short and readable for the team'

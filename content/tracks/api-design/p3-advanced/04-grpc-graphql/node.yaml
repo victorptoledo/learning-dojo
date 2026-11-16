@@ -1,0 +1,25 @@
+id: api-design.p3.grpc-graphql
+legacy_id: api-02-grpc-protobuf
+kind: lesson
+status: draft
+title: "gRPC, GraphQL and REST: Choosing a Style"
+summary: "gRPC with Protocol Buffers (field numbers, streaming, status codes, evolution rules), GraphQL (schemas, query cost, N+1, caching and errors), and how to choose between them and REST."
+objectives:
+  - { id: o1, text: "Evolve a Protocol Buffers contract safely with field numbers and reserved fields, and map errors to gRPC status codes", skills: [api-design.api-styles] }
+  - { id: o2, text: "Explain GraphQL's strengths and the costs it brings: query cost, N+1 resolvers, caching, errors and per-field authorisation", skills: [api-design.api-styles] }
+  - { id: o3, text: "Choose REST, gRPC or GraphQL for a given set of clients and justify the trade-off", skills: [api-design.api-styles, api-design.foundations] }
+prerequisites: [api-design.p3.openapi-contract]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A ride-hailing company has: a public API for corporate travel partners, 40 internal microservices that call each other thousands of times per second (including a live driver-location stream), and its own rider app whose home screen combines the rider, upcoming trips, saved places and promotions. Recommend an API style for each of the three, with two reasons and one risk you would mitigate for each. For the internal style, write the message for a trip with five fields and show how you would later remove one field and add two safely.'
+  criteria:
+    - 'Recommends REST (with OpenAPI) for partners, gRPC for internal calls and streams, and GraphQL or a BFF for the rider app, with sound reasons'
+    - 'Names realistic risks and mitigations (query cost limits or persisted queries, gRPC-Web or gateways, caching)'
+    - 'Writes a valid proto3 message with numbered fields'
+    - 'Removes a field by reserving its number (and name) and adds new fields with new numbers'
+    - 'Mentions that old clients ignore unknown fields, which keeps the change compatible'

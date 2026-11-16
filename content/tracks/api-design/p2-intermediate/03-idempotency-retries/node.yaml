@@ -1,0 +1,24 @@
+id: api-design.p2.idempotency-retries
+kind: lesson
+status: draft
+title: "Idempotency Keys and Safe Retries"
+summary: "Why every request may arrive twice, a safe client retry policy with backoff and jitter, the Idempotency-Key header (scoping, fingerprints, replays, 409 and 422), what to store and for how long, and atomicity under concurrency."
+objectives:
+  - { id: o1, text: "Describe a client retry policy that only repeats safe requests, with backoff, jitter and Retry-After", skills: [api-design.idempotency] }
+  - { id: o2, text: "Specify server behaviour for Idempotency-Key: new, replayed, reused, in-progress and missing keys", skills: [api-design.idempotency] }
+  - { id: o3, text: "Decide which outcomes to store, how long to keep keys and how to make the check atomic", skills: [api-design.idempotency] }
+prerequisites: [api-design.p2.versioning-evolution]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A food-delivery app''s `POST /orders` sometimes creates duplicate orders: the mobile network drops after the server committed the order, the app retries, and the restaurant receives two orders. Write a design note that fixes this: the header and its rules, the server-side storage (table or key-value layout), what is stored for success, for a payment decline and for a 503, how long keys live, what happens with two simultaneous retries, and what the app must change in its retry logic.'
+  criteria:
+    - 'Introduces an Idempotency-Key generated per operation and reused across retries'
+    - 'Scopes keys per client or user and compares a request fingerprint, answering 422 on mismatch'
+    - 'Stores successes and business failures but releases the key after failures where nothing happened'
+    - 'Makes the new-key check atomic (unique constraint or equivalent) and answers concurrent duplicates with 409 and Retry-After'
+    - 'Describes the client policy: retry only on network errors, 408, 429 and 5xx, with backoff, jitter and a limit'

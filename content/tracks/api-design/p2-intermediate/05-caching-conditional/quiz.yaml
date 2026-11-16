@@ -1,0 +1,31 @@
+questions:
+  - id: no-cache
+    prompt: "What does Cache-Control: no-cache mean?"
+    options: ["Never store the response", "The response may be stored but must be revalidated before every use", "Cache for one hour", "Only proxies may cache"]
+    answer: 1
+    explanation: "no-store forbids storing; no-cache forces revalidation."
+  - id: not-modified
+    prompt: "A client sends If-None-Match: \"v7\" and the document is still version 7. What is the answer?"
+    options: ["200 with the document", "304 Not Modified without a body", "412 Precondition Failed", "204 No Content"]
+    answer: 1
+    explanation: "The client already has the current representation."
+  - id: lost-update
+    prompt: "Which header prevents a client from overwriting a change it has not seen?"
+    options: ["If-None-Match on GET", "If-Match on PUT with the ETag it last read", "Cache-Control: no-store", "Vary"]
+    answer: 1
+    explanation: "If the ETag no longer matches, the server answers 412 and nothing is overwritten."
+  - id: strong
+    prompt: "A PUT arrives with If-Match: W/\"v7\" and the current ETag is \"v7\". What should happen?"
+    options: ["Apply the change", "412: If-Match uses the strong comparison, so a weak tag never matches", "304", "428"]
+    answer: 1
+    explanation: "Writes need exact equality; weak tags only say \"roughly the same\"."
+  - id: precondition-required
+    prompt: "An API requires conditional writes and receives a PUT without If-Match. Which status?"
+    options: ["400", "428 Precondition Required", "412 Precondition Failed", "409 Conflict"]
+    answer: 1
+    explanation: "RFC 6585 defines 428 for a missing precondition the server requires."
+  - id: private
+    prompt: "GET /me/cart returns the current user's cart. Which directive keeps CDNs from storing it?"
+    options: ["public", "private", "immutable", "s-maxage=60"]
+    answer: 1
+    explanation: "private restricts storage to the user's own cache."

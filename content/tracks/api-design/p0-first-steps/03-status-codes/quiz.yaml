@@ -1,0 +1,31 @@
+questions:
+  - id: error-200
+    prompt: "Why is 200 OK with {\"error\": \"not found\"} harmful?"
+    options: ["JSON cannot hold errors", "Monitoring, caches, retry logic and SDKs treat it as success; every client must parse bodies to detect failure", "It is slower", "Browsers reject it"]
+    answer: 1
+    explanation: "Generic HTTP code reads the status, not your body."
+  - id: created
+    prompt: "A POST creates a new order. What is the best answer?"
+    options: ["200 with the order", "201 Created with a Location header and the order", "204 No Content", "202 Accepted"]
+    answer: 1
+    explanation: "201 plus Location tells the client the new resource's URL."
+  - id: conflict
+    prompt: "A client tries to ship an order that was already cancelled. Which code fits?"
+    options: ["400", "409 Conflict", "404", "500"]
+    answer: 1
+    explanation: "The request is valid, but it conflicts with the resource's current state."
+  - id: unauth
+    prompt: "A request has no Authorization header at all. Which code?"
+    options: ["403 Forbidden", "401 Unauthorized, with WWW-Authenticate", "404 Not Found", "400 Bad Request"]
+    answer: 1
+    explanation: "401 means unauthenticated; 403 means authenticated but not allowed."
+  - id: retry-class
+    prompt: "Which responses may a client retry later without changing the request?"
+    options: ["Any 4xx", "503 and 429 (after Retry-After), and other 5xx for idempotent requests", "Only 200", "400 and 422"]
+    answer: 1
+    explanation: "4xx means the request must change, except 408 and 429; 5xx may succeed later."
+  - id: accepted
+    prompt: "An endpoint starts a video transcoding that takes ten minutes. What should it answer?"
+    options: ["200 after ten minutes", "202 Accepted with a URL where the client can check the job", "201 with an empty body", "504"]
+    answer: 1
+    explanation: "202 says the work was accepted but not finished; give the client something to poll."

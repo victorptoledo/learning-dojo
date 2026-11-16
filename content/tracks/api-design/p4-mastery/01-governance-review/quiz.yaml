@@ -1,0 +1,31 @@
+questions:
+  - id: why
+    prompt: "What is the main goal of API governance in a large company?"
+    options: ["To approve every endpoint centrally", "That many teams' APIs feel like one consistent product without slowing teams down", "To choose one programming language", "To write more documentation"]
+    answer: 1
+    explanation: "Consistency for consumers, with the least friction for producers."
+  - id: automate
+    prompt: "Which check belongs in a linter rather than in a human review?"
+    options: ["Whether the resource model matches the business", "Whether every operation has an operationId and problem+json errors", "Whether a name is meaningful to consumers", "Whether the change is worth its cost"]
+    answer: 1
+    explanation: "Mechanical rules go to CI; humans judge modelling and value."
+  - id: rfc2119
+    prompt: "Why write style-guide rules with MUST, SHOULD and MAY?"
+    options: ["It is a legal requirement", "It makes clear which rules block a release and which leave room for justified exceptions", "To make the guide longer", "Linters only read capital letters"]
+    answer: 1
+    explanation: "Requirement levels make the guide precise and reviews predictable."
+  - id: review-input
+    prompt: "What should a design review mainly look at?"
+    options: ["The Java code of the controllers", "The contract change (OpenAPI diff), its consumers and use cases, and the lint and breaking-change results", "The test coverage number", "The database schema"]
+    answer: 1
+    explanation: "Review the promise before the implementation exists."
+  - id: catalogue
+    prompt: "What does an API catalogue add?"
+    options: ["Faster servers", "Discoverability: every API with its owner, contract, maturity and consumers", "Automatic versioning", "Encryption"]
+    answer: 1
+    explanation: "Teams reuse what they can find, and deprecations need to know who the consumers are."
+  - id: maturity
+    prompt: "What does labelling an API \"experimental\" communicate?"
+    options: ["It is faster", "It may change without the usual compatibility guarantees, so consumers depend on it at their own risk", "It is deprecated", "It is internal only"]
+    answer: 1
+    explanation: "Maturity labels set expectations about stability."

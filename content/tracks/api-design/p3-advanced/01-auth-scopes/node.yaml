@@ -1,0 +1,24 @@
+id: api-design.p3.auth-scopes
+kind: lesson
+status: draft
+title: "API Keys, OAuth 2.x and Scopes"
+summary: "API keys done right (headers, prefixes, hashing, rotation), OAuth 2.x grants and what OAuth 2.1 removes, designing scopes, object-level authorisation, and 401 versus 403 with WWW-Authenticate."
+objectives:
+  - { id: o1, text: "Decide between API keys, Client Credentials and Authorization Code with PKCE for a given client", skills: [api-design.auth] }
+  - { id: o2, text: "Design a scope scheme with least privilege and combine it with object-level authorisation", skills: [api-design.auth] }
+  - { id: o3, text: "Answer missing, invalid and insufficient credentials with 401 or 403 and the right WWW-Authenticate", skills: [api-design.auth, api-design.status-codes] }
+prerequisites: [api-design.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A project-management SaaS opens its API to three kinds of clients: customers'' own back-end scripts that sync tasks nightly, a third-party mobile app that users install to see their tasks, and a CLI tool for developers. Choose the credential and OAuth flow for each, design the scopes for projects, tasks, comments, members and billing, and write the exact status code and WWW-Authenticate header for: an expired token, a token without the scope to delete a task, and a valid token reading a project of another company.'
+  criteria:
+    - 'Uses API keys or Client Credentials for the scripts, Authorization Code with PKCE for the mobile app and the device flow or PKCE with a loopback redirect for the CLI'
+    - 'Proposes consistent resource:action scopes, separates read from write and isolates dangerous actions such as billing and deletion'
+    - 'Answers 401 with error="invalid_token" for the expired token and 403 with error="insufficient_scope" for the missing scope'
+    - 'Treats the other company''s project as an object-level authorisation failure (404 or 403) and justifies the choice'
+    - 'Keeps keys out of URLs and out of apps distributed to users'

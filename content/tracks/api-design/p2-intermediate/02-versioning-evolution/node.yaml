@@ -1,0 +1,24 @@
+id: api-design.p2.versioning-evolution
+kind: lesson
+status: draft
+title: "Versioning and Evolving an API Without Breaking Clients"
+summary: "Compatible versus breaking changes, tolerant readers, expand-then-contract, where to put a version (path, header, date), deprecating with Deprecation and Sunset headers, and contract tests that prove compatibility."
+objectives:
+  - { id: o1, text: "Classify API changes as compatible or breaking, including the tricky cases (new enum values, defaults, validation)", skills: [api-design.versioning] }
+  - { id: o2, text: "Evolve a contract with expand-then-contract, defaults and mappings instead of a new version", skills: [api-design.versioning] }
+  - { id: o3, text: "Choose a versioning scheme and plan a deprecation with Deprecation, Sunset, successor links and contract tests", skills: [api-design.versioning] }
+prerequisites: [api-design.p2.cursor-feed]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Product wants three changes to a public `/v1/invoices` API used by 400 integrations: (1) `amount` (a number in euros) must become an object with `value` and `currency` because invoices can now be in other currencies; (2) a new status `DISPUTED`; (3) a new required field `taxId` when creating invoices. For each change, say whether it is breaking, how you would make it with the least pain (without or with a v2), what old clients see during the transition, and write the timeline and the HTTP headers of the deprecation if you retire anything.'
+  criteria:
+    - 'Classifies all three correctly (the type change and the new required field are breaking; the enum value is risky for closed enums)'
+    - 'Uses expand-then-contract or a new field (for example amountMoney) instead of changing amount in place'
+    - 'Handles DISPUTED for old clients (mapping or documented open enum) and taxId with a default or only in the new version'
+    - 'Plans deprecation with Deprecation, Sunset and successor links, usage measurement and a final 410'
+    - 'Mentions contract tests or an OpenAPI diff in CI to catch breaking changes'

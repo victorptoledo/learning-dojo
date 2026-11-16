@@ -1,0 +1,24 @@
+id: api-design.p0.http-semantics
+kind: lesson
+status: draft
+title: "HTTP Semantics: Methods, Safety, Idempotency and Headers"
+summary: "What each HTTP method promises (safe, idempotent), representations and content negotiation, the headers an API designer uses every day, and why requests must be stateless."
+objectives:
+  - { id: o1, text: "Classify GET, HEAD, POST, PUT, PATCH and DELETE as safe and/or idempotent and explain what that allows", skills: [api-design.http-semantics] }
+  - { id: o2, text: "Use Content-Type, Accept and Vary for content negotiation and answer 406 and 415 correctly", skills: [api-design.http-semantics] }
+  - { id: o3, text: "Explain why stateless requests make retries, caching and load balancing possible", skills: [api-design.http-semantics] }
+prerequisites: [api-design.p0.what-is-an-api]
+difficulty: 2
+estimated_minutes: 35
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A legacy API has these endpoints: `GET /users/7/delete`, `POST /users/7/getProfile`, `POST /users/7` (replaces the whole user), `GET /search` with a JSON body, and `POST /users/7/email` with `{"email": "x@y.z"}` (sets the email). For each, say which HTTP semantics it violates or wastes, propose the method and URL you would use instead, and say whether a client could safely retry your version after a timeout.'
+  criteria:
+    - 'Identifies the unsafe GET (delete) and the risk from crawlers or prefetchers'
+    - 'Moves the read to GET and the full replacement to PUT, the email change to PATCH or PUT on a sub-resource'
+    - 'Explains that a GET body has no defined semantics and proposes query parameters (or POST to a search resource) instead'
+    - 'States correctly which of the new requests are idempotent and therefore safe to retry'
+    - 'Uses nouns for resources and lets the method carry the action'

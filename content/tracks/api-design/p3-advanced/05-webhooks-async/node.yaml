@@ -1,0 +1,24 @@
+id: api-design.p3.webhooks-async
+kind: lesson
+status: draft
+title: "Webhooks and Asynchronous APIs"
+summary: "Long-running operations with 202 and a status resource, webhook design (signatures, timestamps, at-least-once retries, idempotent receivers, ordering, fast acknowledgements, SSRF), and when to use brokers, SSE or CloudEvents instead."
+objectives:
+  - { id: o1, text: "Model a long-running operation as a resource with 202, Location, status and cancellation", skills: [api-design.webhooks-async, api-design.status-codes] }
+  - { id: o2, text: "Design webhooks that are signed, replay-protected, retried at least once and safe for receivers to deduplicate", skills: [api-design.webhooks-async, api-design.idempotency] }
+  - { id: o3, text: "Choose between webhooks, brokers with AsyncAPI, Server-Sent Events and CloudEvents envelopes", skills: [api-design.webhooks-async, api-design.api-styles] }
+prerequisites: [api-design.p3.grpc-graphql]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the webhooks of an e-signature platform: customers want to know when an envelope is sent, viewed, signed by each signer, completed or expired. Specify the event types and one full delivery (headers and body), the signing scheme and how receivers verify it, the retry schedule and when an endpoint is disabled, what receivers must do about duplicates and out-of-order events, and two protections on the provider side. Also say how a customer would wait for a 200-page envelope to be generated.'
+  criteria:
+    - 'Names events consistently (for example envelope.signed) with ids, timestamps and a versioned payload'
+    - 'Signs deliveries with HMAC over id, timestamp and body, with timestamp tolerance and secret rotation'
+    - 'Retries with backoff and explains at-least-once delivery, so receivers deduplicate by event id'
+    - 'Handles ordering (timestamps, versions or thin events that trigger a fetch)'
+    - 'Includes provider protections (SSRF filtering, HTTPS, timeouts, disabling failing endpoints) and models generation as a 202 long-running operation'

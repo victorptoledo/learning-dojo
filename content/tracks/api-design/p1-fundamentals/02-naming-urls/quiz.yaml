@@ -1,0 +1,31 @@
+questions:
+  - id: url-style
+    prompt: "Which URL follows the usual conventions?"
+    options: ["/Orders/42/LineItems", "/orders/42/line-items", "/order/42/getLineItems", "/orders/42/line_items.json"]
+    answer: 1
+    explanation: "Plural nouns, lowercase kebab-case segments, no verbs, no extensions."
+  - id: path-or-query
+    prompt: "Where does a status filter on the orders collection belong?"
+    options: ["/orders/status/PAID", "/orders?status=PAID", "/paid-orders", "In a request header"]
+    answer: 1
+    explanation: "It narrows the same collection, so it is a query parameter."
+  - id: money
+    prompt: "How should an API represent 29.99 euros?"
+    options: ["29.99 as a JSON number", "{\"amount\": 2999, \"currency\": \"EUR\"} or a decimal string with a currency", "\"29,99€\"", "2999 without a currency"]
+    answer: 1
+    explanation: "Binary floats round; integer minor units or decimal strings are exact, and the currency is part of the value."
+  - id: ids
+    prompt: "Why do many APIs prefer opaque ids like ord_8f2kq over 1, 2, 3?"
+    options: ["They are shorter", "Sequential ids leak volume and invite enumeration, and opaque ids leave the provider free to change how ids are made", "JSON cannot store numbers", "Databases require it"]
+    answer: 1
+    explanation: "Opaque ids hide internals; a type prefix also helps in logs."
+  - id: envelope
+    prompt: "Why return {\"items\": [...]} instead of a top-level JSON array?"
+    options: ["Arrays are invalid JSON", "An object can gain metadata (next cursor, totals) later without breaking clients", "It is smaller", "Browsers cache objects better"]
+    answer: 1
+    explanation: "A top-level array cannot grow new fields."
+  - id: enums
+    prompt: "What should the docs say about an enum field such as status?"
+    options: ["Nothing", "That it is open: clients must tolerate values they do not know yet", "That it will never change", "Its database ordinal"]
+    answer: 1
+    explanation: "New enum values are common; clients that crash on them make every addition a breaking change."

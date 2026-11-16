@@ -1,0 +1,31 @@
+questions:
+  - id: contract
+    prompt: "Which of these is part of a web API's contract?"
+    options: ["The name of the Java class that handles the request", "The JSON field names, status codes and headers a client can observe", "The database index on the orders table", "The logging framework"]
+    answer: 1
+    explanation: "The contract is what clients can observe and rely on; everything behind it is implementation."
+  - id: hyrum
+    prompt: "An API always returned orders sorted by id, although the docs never said so. You switch to a hash map and the order changes. What does Hyrum's law predict?"
+    options: ["Nobody notices because it was undocumented", "Some client relied on the order and breaks", "The compiler catches it", "Only internal clients are affected"]
+    answer: 1
+    explanation: "With enough users, every observable behaviour is depended on by somebody."
+  - id: design-first
+    prompt: "What is the main benefit of design-first (API-first) development?"
+    options: ["No code needs to be written", "The contract is reviewed from the consumer side before implementation details leak into it", "It makes the server faster", "It removes the need for versioning"]
+    answer: 1
+    explanation: "Writing and reviewing the contract first keeps internal names and quirks out of the public surface."
+  - id: styles
+    prompt: "Which style fits best when many UI screens each need a different subset of fields from a rich data graph?"
+    options: ["Webhooks", "GraphQL", "FTP", "A single RPC per screen with fixed fields"]
+    answer: 1
+    explanation: "GraphQL lets each client ask for exactly the fields it needs; phase 3 discusses its costs."
+  - id: why-hard
+    prompt: "Why is changing a public API harder than changing an internal method?"
+    options: ["HTTP is slower than method calls", "You do not control the callers, so you cannot update them in the same change", "JSON has no types", "APIs cannot be tested"]
+    answer: 1
+    explanation: "Internal callers are fixed in one commit; external clients deploy on their own schedule, or never."
+  - id: consistency
+    prompt: "A developer learns how pagination works on /orders and correctly guesses how it works on /customers. Which quality is that?"
+    options: ["Performance", "Consistency", "Security", "Idempotency"]
+    answer: 1
+    explanation: "Consistent naming, shapes and behaviour make an API guessable."

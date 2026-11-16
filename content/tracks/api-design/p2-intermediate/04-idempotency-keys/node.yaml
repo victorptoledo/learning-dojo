@@ -1,0 +1,51 @@
+id: api-design.p2.idempotency-keys
+kind: kata
+status: draft
+title: "Idempotency Keys"
+summary: "Write the Idempotency-Key layer for payments and refunds: per-client keys, request fingerprints, replays, 422 and 409 problems, keys released after 5xx, a 24-hour window and exactly one charge under concurrency."
+objectives:
+  - { id: o1, text: "Make POST safe to retry with an Idempotency-Key: store and replay the first answer, reject reuse with a different request", skills: [api-design.idempotency] }
+  - { id: o2, text: "Decide which failures release a key, how long keys live and how concurrent duplicates are answered", skills: [api-design.idempotency, api-design.status-codes] }
+prerequisites: [api-design.p2.idempotency-retries]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      For every request, the layer must answer one question before anything else: "have I seen this client's key before, and if so, in which state?" There are four answers: never, expired, still running, finished. What must happen in each, and what if the stored request is not the same as this one?
+    - |-
+      Keep a `ConcurrentHashMap<String, Slot>` keyed by `client + "\n" + key`, where a `Slot` holds the fingerprint (`operation + "\n" + request`), the time of first use, and the stored answer (null while running). `putIfAbsent` a new slot: if it returns null you own the key and run the action; otherwise check expiry (remove and retry), then the fingerprint (422), then the answer (null → 409, else replay with the extra header).
+    - |-
+      ```java
+      private ResponseEntity<?> run(String id, Slot mine, Supplier<ResponseEntity<?>> action) {
+          ResponseEntity<?> response;
+          try {
+              response = action.get();
+          } catch (RuntimeException e) {
+              slots.remove(id, mine);
+              throw e;
+          }
+          if (response.getStatusCode().is5xxServerError()) {
+              slots.remove(id, mine);
+          } else {
+              slots.replace(id, mine, mine.done(response));
+          }
+          return response;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, JUnit 6 and Spring Boot 4 that runs the grading tests.

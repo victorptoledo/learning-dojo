@@ -1,0 +1,24 @@
+id: api-design.p2.caching-conditional
+kind: lesson
+status: draft
+title: "HTTP Caching and Conditional Requests (ETag)"
+summary: "Cache-Control directives for private and shared caches, strong and weak ETags and Last-Modified, 304 on conditional reads, and If-Match with 412 and 428 to prevent lost updates."
+objectives:
+  - { id: o1, text: "Choose Cache-Control directives and Vary for public, personalised and sensitive responses", skills: [api-design.caching] }
+  - { id: o2, text: "Use ETag and Last-Modified with If-None-Match and If-Modified-Since to answer 304", skills: [api-design.caching] }
+  - { id: o3, text: "Prevent lost updates with If-Match, 412 and 428 and explain strong versus weak comparison", skills: [api-design.caching, api-design.status-codes] }
+prerequisites: [api-design.p2.idempotency-keys]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Define the caching and concurrency rules for four endpoints of a product-catalogue API: (1) `GET /products/{id}`, the same for everyone, changes a few times a day; (2) `GET /me/cart`, personal; (3) `GET /me/payment-methods`, sensitive; (4) `PUT /products/{id}` used by several back-office editors at once. For each, give the response headers (Cache-Control, ETag or Last-Modified, Vary) and, for the PUT, the full request/response exchange when two editors collide. Explain how you compute the ETag.'
+  criteria:
+    - 'Lets shared caches store the public product for a reasonable time and revalidate with ETag'
+    - 'Uses private (and no-cache or a short max-age) for the cart and no-store for payment methods'
+    - 'Requires If-Match on PUT and shows 412 for the second editor (and 428 without If-Match)'
+    - 'Explains the ETag source (version or hash) and that it changes with every change of the representation'
+    - 'Mentions Vary where the representation depends on request headers'

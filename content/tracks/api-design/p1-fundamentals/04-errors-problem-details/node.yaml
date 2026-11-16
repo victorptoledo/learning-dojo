@@ -1,0 +1,24 @@
+id: api-design.p1.errors-problem-details
+kind: lesson
+status: draft
+title: "Errors as Problem Details (RFC 9457)"
+summary: "The problem details format (type, title, status, detail, instance, extensions), validation errors with JSON Pointers, designing a catalogue of problem types, and what an error must never reveal."
+objectives:
+  - { id: o1, text: "Write problem details with the right type, title, detail, instance and extension members", skills: [api-design.errors] }
+  - { id: o2, text: "Report several validation errors at once with JSON Pointers to the offending fields", skills: [api-design.errors] }
+  - { id: o3, text: "Design a catalogue of problem types and keep internal details out of error responses", skills: [api-design.errors] }
+prerequisites: [api-design.p1.catalog-resources]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the problem type catalogue for a flight-booking API. Give at least five problem types (for example seat taken, fare expired, passenger name invalid, payment declined, booking window closed), each with its type URI, HTTP status, title, the extension members a client needs to react, and what a client should do. Then show the full problem+json response for one validation error with two invalid fields, and explain what your 500 response contains and what it deliberately leaves out.'
+  criteria:
+    - 'Each problem type has a stable type URI, a status consistent with the lesson and a title that does not vary per occurrence'
+    - 'Extension members carry machine-readable data a client can act on (for example the new fare, seconds until the window opens)'
+    - 'The validation example uses an errors list with JSON Pointers and reports both fields'
+    - 'The 500 response leaks no stack trace, class names or hosts and offers a correlation id or instance'
+    - 'Says clients switch on type and must ignore unknown extension members'

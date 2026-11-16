@@ -1,0 +1,31 @@
+questions:
+  - id: key-in-url
+    prompt: "Why must an API key never travel in the query string?"
+    options: ["Query strings are limited to 100 characters", "URLs end up in server logs, proxies, browser history and Referer headers", "HTTP forbids it", "It is slower"]
+    answer: 1
+    explanation: "Headers are not logged by default and are not leaked by links."
+  - id: mobile-flow
+    prompt: "Which OAuth flow should a mobile app use to call an API on behalf of its user?"
+    options: ["Password grant", "Authorization Code with PKCE", "Implicit grant", "Client Credentials with a secret embedded in the app"]
+    answer: 1
+    explanation: "Apps cannot keep secrets; PKCE protects the code exchange, and OAuth 2.1 removes the other two user flows."
+  - id: machine
+    prompt: "A nightly job of a partner's server calls your API as itself. Which grant fits?"
+    options: ["Authorization Code", "Client Credentials", "Device Authorization", "None: use the admin's password"]
+    answer: 1
+    explanation: "No user is involved, so the client authenticates as itself."
+  - id: insufficient-scope
+    prompt: "A valid token with orders:read calls DELETE /orders/42. What should the API answer?"
+    options: ["401 Unauthorized", "403 Forbidden with WWW-Authenticate: Bearer error=\"insufficient_scope\"", "404", "400"]
+    answer: 1
+    explanation: "The caller is known but not allowed; tell it which scope is missing."
+  - id: bola
+    prompt: "A token with orders:read for tenant A requests /orders/77, which belongs to tenant B. What is missing if the API returns it?"
+    options: ["A scope", "An object-level authorisation check", "TLS", "An ETag"]
+    answer: 1
+    explanation: "Scopes limit actions; every request must also check ownership of the object (OWASP API1)."
+  - id: aud
+    prompt: "Why must a resource server check the aud claim of a JWT access token?"
+    options: ["To know the user's language", "So a token issued for another API cannot be replayed against this one", "To compute the ETag", "It does not need to"]
+    answer: 1
+    explanation: "Audience restriction stops tokens from being used outside the API they were meant for."

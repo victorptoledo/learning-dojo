@@ -1,4 +1,19 @@
 namespace: api-design
 skills:
+  - { id: api-design.foundations, title: "What an API Is: Contracts, Consumers and API Styles" }
+  - { id: api-design.http-semantics, title: "HTTP Semantics: Methods, Safety, Idempotency and Headers" }
+  - { id: api-design.status-codes, title: "Choosing HTTP Status Codes" }
   - { id: api-design.rest-maturity, title: "Richardson Maturity Model and Resource Design" }
-  - { id: api-design.grpc-protobuf, title: "gRPC and Protocol Buffers" }
+  - { id: api-design.naming-urls, title: "Naming, URL Design and Representation Conventions" }
+  - { id: api-design.errors, title: "Errors as Problem Details (RFC 9457)" }
+  - { id: api-design.pagination, title: "Pagination, Filtering and Sorting" }
+  - { id: api-design.versioning, title: "Versioning and Evolving an API Without Breaking Clients" }
+  - { id: api-design.idempotency, title: "Idempotency Keys and Safe Retries" }
+  - { id: api-design.caching, title: "HTTP Caching and Conditional Requests (ETag)" }
+  - { id: api-design.auth, title: "API Keys, OAuth 2.x and Scopes" }
+  - { id: api-design.rate-limiting, title: "Rate Limiting and Quotas" }
+  - { id: api-design.openapi, title: "OpenAPI as a Contract" }
+  - { id: api-design.api-styles, title: "gRPC, GraphQL and REST: Choosing a Style" }
+  - { id: api-design.webhooks-async, title: "Webhooks and Asynchronous APIs" }
+  - { id: api-design.governance, title: "API Governance, Style Guides and Design Review" }
+  - { id: api-design.production, title: "API Failure Modes in Production and API Lifecycle" }

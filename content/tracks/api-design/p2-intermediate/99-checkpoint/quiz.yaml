@@ -1,0 +1,49 @@
+questions:
+  - id: cp2-cursor-filter
+    skills: [api-design.pagination]
+    prompt: "A client takes the nextCursor of GET /events?type=paid and sends it with ?type=shipped. What should the API do?"
+    options: ["Return shipped events after that position", "Reject it with a 400 problem: the cursor belongs to another query", "Ignore the cursor", "Return an empty page"]
+    answer: 1
+    explanation: "A cursor describes a position in one specific ordered result; in another query it means nothing."
+  - id: cp2-compatible
+    skills: [api-design.versioning]
+    prompt: "Which change is compatible for tolerant-reader clients?"
+    options: ["Renaming total to amount", "Adding an optional discountCents field to responses", "Making note required on create", "Changing the default page size from 20 to 50"]
+    answer: 1
+    explanation: "Additive response fields are safe when clients ignore unknown fields; the others change behaviour clients rely on."
+  - id: cp2-mapping
+    skills: [api-design.versioning]
+    prompt: "Version 2 adds a status SUSPENDED. Version 1 clients have a closed enum with ACTIVE and INACTIVE. What keeps them working?"
+    options: ["Send SUSPENDED anyway", "Map SUSPENDED to the closest value they know (INACTIVE) in the v1 representation", "Remove those customers from v1", "Answer 500 for them"]
+    answer: 1
+    explanation: "The v1 representation is computed from the new model; mapping is part of keeping its contract."
+  - id: cp2-deprecation
+    skills: [api-design.versioning]
+    prompt: "Which pair of headers says \"deprecated since this date\" and \"may stop working after that date\"?"
+    options: ["Expires and Age", "Deprecation (RFC 9745) and Sunset (RFC 8594)", "Retry-After and Date", "Warning and Via"]
+    answer: 1
+    explanation: "Add a successor-version link so clients know where to go."
+  - id: cp2-key-scope
+    skills: [api-design.idempotency]
+    prompt: "Why scope idempotency keys to the API client?"
+    options: ["To save memory", "Two clients may send the same key, and one must never receive the other's stored response", "HTTP requires it", "To make keys shorter"]
+    answer: 1
+    explanation: "A replay across clients would leak data and skip a real operation."
+  - id: cp2-decline
+    skills: [api-design.idempotency]
+    prompt: "A payment with an idempotency key was declined (402). The client retries with the same key. What should happen?"
+    options: ["Charge the card again", "Replay the stored 402 without contacting the processor again", "Answer 409", "Answer 200"]
+    answer: 1
+    explanation: "A decline is a real outcome; only failures where nothing happened release the key."
+  - id: cp2-etag-representation
+    skills: [api-design.caching, api-design.versioning]
+    prompt: "Customer 7 is served as v1 JSON and v2 JSON. Should both representations have the same ETag?"
+    options: ["Yes, it is the same customer", "No: they are different representations, so a v1 tag must not validate a v2 copy", "ETags are only for files", "Only weak ETags may differ"]
+    answer: 1
+    explanation: "An ETag identifies a representation, not the abstract resource."
+  - id: cp2-lost-update
+    skills: [api-design.caching]
+    prompt: "Two editors read ETag \"5\". The first PUT with If-Match: \"5\" succeeds. What does the second get?"
+    options: ["200, overwriting the first change", "412 Precondition Failed", "304 Not Modified", "428 Precondition Required"]
+    answer: 1
+    explanation: "The current ETag is now \"6\"; the precondition fails and nothing is lost."

@@ -1,0 +1,23 @@
+id: api-design.p3.openapi-contract
+kind: lesson
+status: draft
+title: "OpenAPI as a Contract"
+summary: "The OpenAPI 3.1 and 3.2 document (paths, operations, components, security), reuse with $ref, a design-first workflow with linting, breaking-change checks, mocks and contract tests, and how to make a contract precise."
+objectives:
+  - { id: o1, text: "Read and write an OpenAPI 3.1/3.2 document with paths, parameters, schemas, responses, components and security", skills: [api-design.openapi] }
+  - { id: o2, text: "Run a design-first workflow where the contract is reviewed, linted and diffed for breaking changes in CI", skills: [api-design.openapi, api-design.versioning] }
+prerequisites: [api-design.p3.rate-limiting]
+difficulty: 3
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write the OpenAPI 3.1 fragment (YAML) for two operations of a support-ticket API: `GET /tickets` (cursor pagination with `limit` and `cursor`, a `status` filter) and `POST /tickets` (requires an `Idempotency-Key` header and the scope `tickets:write`, answers 201 with a Location header). Include the Ticket schema with constraints, reusable components for the problem response and the pagination parameters, and every error response. Then list the three CI checks you would run on this document and what each one catches.'
+  criteria:
+    - 'Valid OpenAPI 3.1 structure with operationIds, parameters with in/required/schema and typed responses'
+    - 'Reuses components ($ref) for the problem schema, error responses and pagination parameters'
+    - 'Documents the Idempotency-Key header, the Location header and the security requirement with the scope'
+    - 'Puts constraints (required, enum, limits, formats) in the schema'
+    - 'Names sensible CI checks: style linting, breaking-change diff, validation of responses or examples against the schema'

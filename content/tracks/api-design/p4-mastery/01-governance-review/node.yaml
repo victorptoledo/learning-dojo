@@ -1,0 +1,24 @@
+id: api-design.p4.governance-review
+kind: lesson
+status: draft
+title: "API Governance, Style Guides and Design Review"
+summary: "Writing a style guide with MUST/SHOULD rules, automating what tools can check, a lightweight design review with a checklist, the API lifecycle and catalogue, and how to measure whether governance works."
+objectives:
+  - { id: o1, text: "Write style-guide rules with requirement levels for naming, errors, collections, evolution, reliability and security", skills: [api-design.governance] }
+  - { id: o2, text: "Run a design review of an API contract with automated checks and a checklist for the human judgement", skills: [api-design.governance, api-design.openapi] }
+  - { id: o3, text: "Describe the API lifecycle from design to retirement and the role of a catalogue, ownership and usage data", skills: [api-design.governance, api-design.versioning] }
+prerequisites: [api-design.p3.webhooks-async]
+difficulty: 4
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You are asked to set up API governance in a company with 25 teams and 120 APIs, where every API paginates, versions and reports errors differently and the last attempt (a central review board) was abolished because it took six weeks per API. Write a one-page proposal: the first ten rules of the style guide (with MUST/SHOULD), what is enforced in CI and with which tools, how a design review works and how long it may take, how the existing 120 APIs are brought in line without breaking clients, and three metrics that will show it works.'
+  criteria:
+    - 'Proposes concrete rules with requirement levels covering naming, errors, pagination, versioning and security'
+    - 'Automates checkable rules (linter, breaking-change diff) and keeps humans for judgement'
+    - 'Designs a fast, distributed review (guild reviewers, time limit, async pull requests) instead of a central gate'
+    - 'Plans gradual adoption for existing APIs: new changes follow the guide, old surfaces evolve compatibly or get new versions'
+    - 'Chooses meaningful metrics (time to first call, violations per API, accidental breaking changes)'

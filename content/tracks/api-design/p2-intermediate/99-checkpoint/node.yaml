@@ -1,0 +1,50 @@
+id: api-design.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz on cursors, versioning, idempotency and conditional requests, and a customers API that serves a new model as v2 while v1 keeps an old client's contract, announces its sunset and caches each representation."
+objectives:
+  - { id: o1, text: "Explain cursor pagination, compatible and breaking changes, idempotency keys and conditional requests in your own words", skills: [api-design.pagination, api-design.versioning, api-design.idempotency, api-design.caching] }
+  - { id: o2, text: "Evolve an API without breaking a consumer contract: a frozen v1 computed from the new model, a v2, deprecation and sunset headers, and per-representation ETags", skills: [api-design.versioning, api-design.caching] }
+prerequisites: [api-design.p2.conditional-requests]
+difficulty: 4
+estimated_minutes: 90
+xp: 450
+closes_phase: p2
+covers_skills: [api-design.pagination, api-design.versioning, api-design.idempotency, api-design.caching]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      The mistake was not the new model; it was letting the new model **be** the wire format. Keep one domain `Customer` and give each API version its own representation computed from it. For every v1 field the app reads, where does its value come from now, and what does a v1 client do with a value it has never seen (`SUSPENDED`)?
+    - |-
+      `CustomerController` keeps `/customers` with a `record CustomerV1(long id, String name, String email, String phone, String status)` and a validated `SignupV1`; a new `CustomerV2Controller` at `/v2/customers` has `CustomerV2` and `SignupV2` (`@NotEmpty List<@NotBlank @Email String> emails`, `@Pattern(regexp = "[A-Z]{2}")` country). Add the three v1 headers in one helper. ETags like `"v1-" + version` and `"v2-" + version` keep the representations apart.
+    - |-
+      ```java
+      @GetMapping("/{id}")
+      public ResponseEntity<CustomerV1> get(@PathVariable long id) {
+          Customer customer = store.get(id);
+          return ResponseEntity.ok()
+                  .header("Deprecation", "@1793491200")
+                  .header("Sunset", "Tue, 01 Jun 2027 00:00:00 GMT")
+                  .header(HttpHeaders.LINK, "</v2/customers/" + id + ">; rel=\"successor-version\", "
+                          + "<https://api.dojo.example/docs/migrate-to-v2>; rel=\"deprecation\"")
+                  .eTag("\"v1-" + customer.version() + "\"")
+                  .body(CustomerV1.of(customer));
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, JUnit 6 and Spring Boot 4 that runs the grading tests.

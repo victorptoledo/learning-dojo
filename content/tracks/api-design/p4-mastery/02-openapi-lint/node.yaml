@@ -1,0 +1,47 @@
+id: api-design.p4.openapi-lint
+kind: kata
+status: draft
+title: "OpenAPI Linter"
+summary: "Turn an API style guide into code: a linter that walks an OpenAPI document and reports versions, ownership, URL style, path parameters, operation ids, security, success and problem responses, and schema naming as JSON-pointed findings."
+objectives:
+  - { id: o1, text: "Walk an OpenAPI 3.x document (paths, path items, operations, responses, schemas) and locate each element with a JSON Pointer", skills: [api-design.openapi] }
+  - { id: o2, text: "Express style-guide rules as automated checks that design review and CI can run", skills: [api-design.governance, api-design.naming-urls, api-design.errors] }
+prerequisites: [api-design.p4.governance-review]
+difficulty: 4
+estimated_minutes: 75
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      The rules belong to four levels of the document: the root (version, contact), each path (its text), each operation (id, parameters, body, security, responses), and the component schemas. Walk the document once, level by level, and let each level add findings with the pointer it knows. What does an operation need from its parent levels? (The path text, the path item's parameters, the root security.)
+    - |-
+      Write two helpers first: `map(Object)` returns a `Map<String, Object>` with keys turned into strings (empty when the value is not a map) and `list(Object)` an empty list when absent; they remove every null check and the numeric `404` keys. `escape(token)` replaces `~` with `~0`, then `/` with `~1`. Keep a `Set<String>` of operation ids seen so far: `add` returns false for a duplicate. Sort at the end with `Comparator.comparing(Finding::pointer).thenComparing(Finding::rule).thenComparing(Finding::message)`.
+    - |-
+      ```java
+      Matcher template = Pattern.compile("\\{([^}]+)}").matcher(path);
+      while (template.find()) {
+          String name = template.group(1);
+          boolean declared = parameters.stream().map(Linter::map).anyMatch(parameter ->
+                  name.equals(parameter.get("name")) && "path".equals(parameter.get("in"))
+                          && Boolean.TRUE.equals(parameter.get("required")));
+          if (!declared) {
+              findings.add(new Finding("path-params-defined", pointer,
+                      "path parameter " + name + " is not declared as a required path parameter"));
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, JUnit 6 and SnakeYAML that runs the grading tests.

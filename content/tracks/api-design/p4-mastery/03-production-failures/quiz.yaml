@@ -1,0 +1,31 @@
+questions:
+  - id: retry-storm
+    prompt: "A 30-second database blip turns into a long outage while traffic triples. What is the most likely cause?"
+    options: ["Too little logging", "A retry storm: several layers retrying immediately and without jitter", "HTTP/2", "Too many ETags"]
+    answer: 1
+    explanation: "Retries multiply across layers; backoff, jitter and retry budgets stop the amplification."
+  - id: drift
+    prompt: "A partner's nightly sync with ?page=N misses some records and imports others twice. What fixes it?"
+    options: ["Bigger pages", "Keyset cursors on a unique key, or a change feed with updatedSince plus a cursor", "Running the sync more often", "Gzip"]
+    answer: 1
+    explanation: "Offsets over a changing collection drift; cursors do not."
+  - id: herd
+    prompt: "Traffic spikes at every full hour. Which client-side change helps most?"
+    options: ["Shorter timeouts", "Adding random jitter to scheduled jobs", "More retries", "Using PUT"]
+    answer: 1
+    explanation: "Spreading schedules removes the synchronised peak."
+  - id: break-null
+    prompt: "A refactoring makes the API send \"middleName\": null instead of omitting it. A partner breaks. Which practice would have caught it before release?"
+    options: ["Code review of the SQL", "Consumer contract tests and explicit serialisation settings checked in CI", "A load test", "More logging"]
+    answer: 1
+    explanation: "Contract tests check the observable output that clients depend on."
+  - id: bola
+    prompt: "A security researcher reads other customers' invoices by changing /invoices/1001 to /invoices/1002. What failed?"
+    options: ["Rate limiting", "Object-level authorisation (and sequential ids made it easy)", "TLS", "Caching"]
+    answer: 1
+    explanation: "Every lookup must check ownership; opaque ids make enumeration harder but are not a fix on their own."
+  - id: per-client
+    prompt: "Why break down API metrics per consumer (API key)?"
+    options: ["For billing only", "A change can break one client while global error rates barely move, and deprecations need to know who still calls", "It is required by HTTP", "To reduce log size"]
+    answer: 1
+    explanation: "Aggregates hide the one partner that is completely down."
