@@ -1,0 +1,24 @@
+id: react.p2.custom-hooks
+kind: lesson
+status: draft
+title: "Custom Hooks and the Rules of Hooks"
+summary: "The rules of hooks and why they exist, extracting stateful logic into custom hooks, what a hook shares (logic, not state), naming and return shapes, typing hooks, and testing them with renderHook."
+objectives:
+  - { id: o1, text: "State the rules of hooks and explain why hooks depend on call order", skills: [react.custom-hooks] }
+  - { id: o2, text: "Extract repeated stateful logic into a typed custom hook with a clear interface", skills: [react.custom-hooks] }
+  - { id: o3, text: "Explain that each call of a custom hook has its own state, and test a hook with renderHook", skills: [react.custom-hooks, react.testing-a11y] }
+prerequisites: [react.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 50
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Three components of your app each subscribe to `navigator.onLine` with the same `useState` + `useEffect` + two `window` listeners, and one of them forgot the cleanup. Design a `useOnlineStatus()` hook: write it, say what it returns and why, and show one component using it. Then answer a colleague who asks: "If two components call useOnlineStatus, do they share the same state?" Finally, explain why `if (user) { useOnlineStatus(); }` breaks, even though it compiles.'
+  criteria:
+    - "Writes a hook whose name starts with use, with useState initialised from navigator.onLine and an effect adding online and offline listeners"
+    - "Removes both listeners in the effect cleanup"
+    - "Explains that custom hooks share logic, not state: each call has its own state"
+    - "Explains the rules of hooks: call them at the top level, unconditionally, from components or other hooks"
+    - "Explains that React identifies hooks by their call order, so a conditional call shifts every later hook"

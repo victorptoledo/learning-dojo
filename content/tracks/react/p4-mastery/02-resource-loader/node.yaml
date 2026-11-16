@@ -1,0 +1,50 @@
+id: react.p4.resource-loader
+kind: kata
+status: draft
+title: "Resource Loader: Suspense, use, Error Boundaries and Transitions"
+summary: "A promise cache for use, an error boundary with reset, and a profile page that suspends while loading, contains and retries failures, and keeps the old profile visible while switching users in a transition."
+objectives:
+  - { id: o1, text: "Cache promises so use reads a stable promise per key, and evict failed ones", skills: [react.suspense-transitions, react.data-fetching] }
+  - { id: o2, text: "Write an error boundary with a fallback and a reset, and retry a failed request", skills: [react.suspense-transitions] }
+  - { id: o3, text: "Switch content in a transition so revealed content stays on screen with a pending state", skills: [react.suspense-transitions] }
+prerequisites: [react.p4.suspense-transitions]
+difficulty: 4
+estimated_minutes: 80
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-react, timeout_secs: 90 }
+  hints:
+    - |-
+      Three pieces, in order: the cache (pure TypeScript), the error boundary (a class), then the page. For the cache: what must `read("a")` return the second time so that `use` does not suspend forever? For the page: which component calls `use`, and where do the Suspense and error boundaries go around it?
+    - |-
+      The cache is a `Map<string, Promise<T>>`: `read` returns the stored promise or stores a new one; `evict` deletes the key. The boundary keeps `{ error }` in state, sets it in `static getDerivedStateFromError`, and renders `fallback(error, reset)` where `reset` sets the error back to `null`. In the page, keep `userId` in state and change it inside `startTransition`; render `<ErrorBoundary resetKey={userId}>` around `<Suspense fallback>` around `<UserCard userPromise={cache.read(userId)} />`. Retry is `cache.evict(userId)`, then a state change in the page (an attempt counter) so it renders again and reads a fresh promise, then `reset()`: resetting alone re-renders the same element with the old rejected promise. Do not use `key={userId}` on the boundary: a remounted Suspense boundary shows its fallback even in a transition; compare `resetKey` in `static getDerivedStateFromProps` instead.
+    - |-
+      ```tsx
+      export class ErrorBoundary extends Component<ErrorBoundaryProps, { error: Error | null }> {
+        override state: ErrorBoundaryState = { error: null, resetKey: this.props.resetKey };
+
+        static getDerivedStateFromError(error: unknown) {
+          return { error: error instanceof Error ? error : new Error(String(error)) };
+        }
+
+        reset = () => this.setState({ error: null });
+
+        override render() {
+          return this.state.error ? this.props.fallback(this.state.error, this.reset) : this.props.children;
+        }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-react runner image
+    image: dojo-react
+    why: The Node.js 26 container with TypeScript 7, React 19, jsdom and Testing Library that checks your components.

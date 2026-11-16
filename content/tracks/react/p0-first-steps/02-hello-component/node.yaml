@@ -1,0 +1,48 @@
+id: react.p0.hello-component
+kind: kata
+status: draft
+title: "Hello, Components: Your First React Kata"
+summary: "Write three small components (a badge, a user card and a team list) with typed props, conditional parts and a list with keys, and meet Testing Library."
+objectives:
+  - { id: o1, text: "Write function components with typed props, default values and conditional parts", skills: [react.toolchain, react.jsx-components] }
+  - { id: o2, text: "Render a list with stable keys without mutating the props", skills: [react.jsx-components, react.events-lists] }
+  - { id: o3, text: "Run the visible tests with npm test and read a Testing Library failure", skills: [react.toolchain] }
+prerequisites: [react.p0.toolchain]
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-react, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with `Badge`: what does it return for `label="Admin"`? A component is a function from props to JSX. How do you give `tone` a default value right in the parameter list? Then `UserCard`: which parts appear only sometimes?
+    - |-
+      Destructure props with a default: `function Badge({ label, tone = "neutral" }: BadgeProps)`. A template literal builds the class: `` className={`badge badge-${tone}`} ``. For optional parts use `{user.email && <a ...>}` or a ternary; for the list, `user.skills.map((skill) => <li key={skill}>{skill}</li>)`. In `TeamList`, sort a **copy**: `users.toSorted(...)` or `[...users].sort(...)`, because props are read-only.
+    - |-
+      ```tsx
+      export function TeamList({ title, users }: TeamListProps) {
+        const sorted = users.toSorted((a, b) => a.name.localeCompare(b.name));
+        const count = users.length === 1 ? "1 member" : `${users.length} members`;
+        return (
+          <section aria-label={title}>
+            <h1>{title}</h1>
+            <p>{count}</p>
+            {/* "No members yet" when empty, otherwise <ul> with one <li key={user.id}> per user */}
+          </section>
+        );
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-react runner image
+    image: dojo-react
+    why: The Node.js 26 container with TypeScript 7, React 19, jsdom and Testing Library that checks your components.

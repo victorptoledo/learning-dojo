@@ -1,0 +1,24 @@
+id: react.p2.routing
+kind: lesson
+status: draft
+title: "Client-Side Routing with React Router"
+summary: "What a single-page app router does, routes and nested routes with outlets, links and navigation, URL parameters and search parameters as state, loaders and actions, code splitting per route, and protecting routes."
+objectives:
+  - { id: o1, text: "Explain client-side routing and describe an app as nested routes with layouts and outlets", skills: [react.routing] }
+  - { id: o2, text: "Read route params and search params, and keep shareable UI state in the URL", skills: [react.routing] }
+  - { id: o3, text: "Explain loaders, actions, lazy routes and route protection, and what a framework adds", skills: [react.routing, react.data-fetching] }
+prerequisites: [react.p2.data-fetching]
+difficulty: 2
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the routes of a small shop: a home page, a product list with filters (category, sort, page), a product page, a cart, a checkout that requires login, an account area with "orders" and "settings" tabs sharing one layout, and a 404 page. Write the route tree (paths, layouts, index routes), say which state lives in the URL (path or search params) and which in React state, how the checkout is protected, and where data is loaded.'
+  criteria:
+    - "Gives a nested route tree with a root layout, an account layout with an outlet for orders and settings, and a catch-all 404"
+    - "Uses a path parameter for the product (/products/:productId)"
+    - "Keeps the filters in search params (?category=...&sort=...&page=...) so the view can be shared and survives reload"
+    - "Protects checkout with a redirect to login (in a loader or a wrapper route), and notes that the server must still check authorisation"
+    - "Loads data per route (loaders or queries keyed by params) and mentions lazy-loading route code"

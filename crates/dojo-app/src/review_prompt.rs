@@ -114,6 +114,7 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
             }
             return learner_files(kata_dir, found);
         }
+        KataLanguage::React => (kata_dir.to_path_buf(), "tsx"),
     };
     let mut found = Vec::new();
     if language == KataLanguage::Aws {
@@ -122,6 +123,10 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         }
     } else {
         collect(&root, extension, &mut found);
+    }
+    if language == KataLanguage::React {
+        // Hooks and helpers live in .ts files next to the components.
+        collect(&root, "ts", &mut found);
     }
     learner_files(kata_dir, found)
 }
@@ -227,6 +232,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Cpp => "modern C++ (C++23)",
         KataLanguage::Aws => "AWS (CloudFormation, IAM policies, cfn-guard rules and boto3)",
         KataLanguage::Web => "HTML, CSS and JavaScript in the browser",
+        KataLanguage::React => "React with TypeScript",
     };
     let files = kata
         .files
@@ -535,6 +541,23 @@ mod tests {
                 PathBuf::from("js").join("app.js"),
                 PathBuf::from("style.css"),
             ]
+        );
+    }
+
+    #[test]
+    fn kata_files_lists_react_components_and_hooks_but_not_tests() {
+        let dir = tempfile::TempDir::new().unwrap();
+        for folder in ["tests", "node_modules/react"] {
+            std::fs::create_dir_all(dir.path().join(folder)).unwrap();
+        }
+        std::fs::write(dir.path().join("Tabs.tsx"), "export {}").unwrap();
+        std::fs::write(dir.path().join("useTabs.ts"), "export {}").unwrap();
+        std::fs::write(dir.path().join("tests/visible.test.tsx"), "x").unwrap();
+        std::fs::write(dir.path().join("node_modules/react/index.d.ts"), "x").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::React);
+        assert_eq!(
+            files,
+            vec![PathBuf::from("Tabs.tsx"), PathBuf::from("useTabs.ts")]
         );
     }
 }

@@ -68,6 +68,7 @@ of your choice.
 | Go | Go 1.27 | 23 | 8 | `dojo-go` (go test -race, go vet, gofmt) |
 | TypeScript | TypeScript 7 on Node.js 26 | 23 | 9 | `dojo-node` (tsc, node:test) |
 | Node.js | Node.js 26 backends in TypeScript | 25 | 9 | `dojo-node` (tsc, node:test; real servers, workers and child processes) |
+| React Developer | React 19 with TypeScript | 25 | 8 | `dojo-react` (tsc, Testing Library in jsdom) |
 | Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |
 | DevOps & Cloud | CI/CD, Terraform, GitOps, releases, SLOs, DevSecOps | 25 | 8 | `dojo-devops` (actionlint, Terraform 1.17, promtool, bats), `dojo-linux`, `dojo-k8s` |
 | Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
@@ -113,6 +114,7 @@ Frontend, Full Stack, AI Engineer, Data Engineer, Cyber Security, React, Modern 
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
 Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
+Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, Modern C++,
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL and Computer Science.
 
@@ -242,6 +244,11 @@ checks the HTML. To look at a kata in your own browser, run this from its folder
 ```bash
 docker run --rm -p 8080:8080 -v "${PWD}:/work" dojo-web serve
 ```
+**React katas** are TypeScript projects with `.tsx` components and `.ts` hooks. `tsc` type-checks
+them with the React 19 types and compiles them, then the tests render your components into a jsdom
+page with Testing Library and drive them with `user-event`, finding elements by role and label as a
+user would. React, jsdom and Testing Library are baked into the `dojo-react` image, so checks run
+offline.
 
 **Data Structures & Algorithms katas** also time some hidden tests on large inputs, so a correct
 but quadratic answer can still fail.
@@ -350,6 +357,8 @@ runner-images/    one image per kata runtime: rust/, java/ (JUnit 6, Spring Boot
                   go/ (go test -race, go vet, gofmt), node/ (TypeScript 7, node:test),
                   k8s/ (kubeconform, kustomize, helm, bats),
                   aws/ (cfn-lint, cfn-guard, IAM policy evaluator, boto3 + moto)
+                  react/ (React 19, jsdom, Testing Library),
+                  k8s/ (kubeconform, kustomize, helm, bats)
 docs/
   architecture.md the full design and its decisions; examples/ shows every file format
 ```

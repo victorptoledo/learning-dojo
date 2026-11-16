@@ -1,0 +1,53 @@
+questions:
+  - id: suspense-fallback
+    prompt: "When does a Suspense boundary show its fallback?"
+    options:
+      - "On every render"
+      - "While a component inside it is suspended, waiting for data or code"
+      - "When an error is thrown"
+    answer: 1
+    explanation: "Errors go to error boundaries; Suspense handles waiting."
+  - id: stable-promise
+    prompt: "Why does `use(fetch(url).then(r => r.json()))` inside a component never finish loading?"
+    options:
+      - "use does not accept fetch promises"
+      - "Every render creates a new promise, so React suspends again each time"
+      - "JSON is not supported"
+    answer: 1
+    explanation: "Create the promise in a cache, loader or parent so it is stable."
+  - id: boundary-catches
+    prompt: "Which error does an error boundary NOT catch?"
+    options:
+      - "An error thrown while rendering a child"
+      - "A rejected promise read with use"
+      - "An error thrown in an onClick handler"
+    answer: 2
+    explanation: "Event handlers run outside rendering; use try/catch and state there."
+  - id: retry
+    prompt: "A boundary's Retry button resets it, but the same error appears at once. What was forgotten?"
+    options:
+      - "To evict the failed promise from the cache so the request runs again"
+      - "To add a key to the Suspense boundary"
+      - "To call useEffect"
+    answer: 0
+    explanation: "Reading the same rejected promise fails again."
+  - id: transition
+    prompt: "Switching tabs inside startTransition, what happens to already visible content while the new tab suspends?"
+    options:
+      - "It is replaced by the fallback"
+      - "It stays visible, and isPending is true until the new content is ready"
+      - "The page reloads"
+    answer: 1
+    explanation: "Transitions avoid hiding revealed content again."
+  - id: deferred
+    prompt: "Which hook gives a lagging copy of a value so an input stays responsive while a heavy list renders?"
+    answers: ["useDeferredValue"]
+    explanation: "React renders the list with the old value first and catches up when it has time."
+  - id: optimistic
+    prompt: "What does useOptimistic do?"
+    options:
+      - "Retries failed requests"
+      - "Shows an expected state immediately while an action runs, then the real state"
+      - "Caches promises"
+    answer: 1
+    explanation: "The optimistic value is used until the transition settles."

@@ -122,6 +122,9 @@ pub enum KataLanguage {
     /// HTML, CSS and JavaScript pages loaded in headless Chromium and tested with node:test,
     /// axe-core and html-validate in `dojo-web`.
     Web,
+    /// React components and hooks in TypeScript (.tsx), type-checked by tsc and tested with
+    /// Testing Library and node:test in a jsdom document in `dojo-react`.
+    React,
 }
 
 impl Kata {
@@ -139,6 +142,7 @@ impl Kata {
             "dojo-aws" => KataLanguage::Aws,
             "dojo-devops" => KataLanguage::DevOps,
             "dojo-web" => KataLanguage::Web,
+            "dojo-react" => KataLanguage::React,
             _ => KataLanguage::Rust,
         }
     }

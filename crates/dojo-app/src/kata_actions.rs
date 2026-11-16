@@ -372,7 +372,7 @@ fn go_sources(dir: &Path) -> Vec<PathBuf> {
     sources
 }
 
-/// The modules of a TypeScript kata: the `.ts` files at the top of its folder.
+/// The modules of a TypeScript or React kata: the `.ts` and `.tsx` files at the top of its folder.
 fn typescript_modules(dir: &Path) -> Vec<PathBuf> {
     let Ok(entries) = std::fs::read_dir(dir) else {
         return Vec::new();
@@ -380,7 +380,12 @@ fn typescript_modules(dir: &Path) -> Vec<PathBuf> {
     let mut modules: Vec<PathBuf> = entries
         .flatten()
         .map(|entry| entry.path())
-        .filter(|path| path.is_file() && path.extension().is_some_and(|ext| ext == "ts"))
+        .filter(|path| {
+            path.is_file()
+                && path
+                    .extension()
+                    .is_some_and(|ext| ext == "ts" || ext == "tsx")
+        })
         .collect();
     modules.sort();
     modules

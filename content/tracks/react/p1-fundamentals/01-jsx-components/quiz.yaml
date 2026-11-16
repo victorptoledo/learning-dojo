@@ -1,0 +1,51 @@
+questions:
+  - id: one-root
+    prompt: "A component returns `<h1>Title</h1><p>Text</p>`. What is wrong?"
+    options:
+      - "Nothing"
+      - "JSX needs one root: wrap both in a <div> or a fragment <>...</>"
+      - "<p> cannot follow <h1>"
+    answer: 1
+    explanation: "A component returns one element; a fragment groups siblings without adding a DOM node."
+  - id: class-name
+    prompt: "Which attribute sets the CSS class of a JSX element?"
+    answers: ["className"]
+    explanation: "JSX attributes are JavaScript keys, and class is a reserved word: className, htmlFor, onClick."
+  - id: braces
+    prompt: "Which line is valid JSX?"
+    options:
+      - "<p>{if (ok) { 'yes' }}</p>"
+      - "<p>{ok ? \"yes\" : \"no\"}</p>"
+      - "<p>{for (const x of xs) x}</p>"
+    answer: 1
+    explanation: "Braces hold expressions only; use ternaries, && and map instead of statements."
+  - id: capital
+    prompt: "Why does `<profile />` not render your `profile` component?"
+    options:
+      - "Lowercase tags are treated as HTML elements; components must start with a capital letter"
+      - "Components must be classes"
+      - "Self-closing tags are not allowed for components"
+    answer: 0
+    explanation: "React tells built-in tags and components apart by the first letter."
+  - id: children-type
+    prompt: "What type should a `children` prop that accepts any renderable content have?"
+    options: ["string", "JSX.Element", "ReactNode", "object"]
+    answer: 2
+    explanation: "ReactNode covers elements, strings, numbers, null, booleans and arrays of them."
+  - id: purity
+    prompt: "Which of these is fine inside a component's render?"
+    options:
+      - "Incrementing a variable declared outside the component"
+      - "Setting document.title"
+      - "Computing a total from props into a local const"
+      - "Sending an analytics request"
+    answer: 2
+    explanation: "Local calculations are pure; everything that changes the world belongs in event handlers or effects."
+  - id: nested-definition
+    prompt: "What goes wrong when you declare a component inside another component's body?"
+    options:
+      - "Nothing, it is a common pattern"
+      - "It is a new component on every render, so React remounts it and loses its state"
+      - "TypeScript cannot type it"
+    answer: 1
+    explanation: "Declare components at the top level so their identity stays the same between renders."

@@ -1,0 +1,24 @@
+id: react.p1.props-state
+kind: lesson
+status: draft
+title: "Props, State and One-Way Data Flow"
+summary: "useState, why state is a snapshot, updater functions, immutable updates of objects and arrays, lifting state up, derived values and a single source of truth."
+objectives:
+  - { id: o1, text: "Add state with useState and explain why a state variable is a snapshot for one render", skills: [react.props-state] }
+  - { id: o2, text: "Update objects and arrays in state immutably and use updater functions when the next state depends on the previous one", skills: [react.props-state] }
+  - { id: o3, text: "Lift shared state to the closest common parent and derive values instead of duplicating them", skills: [react.props-state] }
+prerequisites: [react.p1.jsx-components]
+difficulty: 2
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A shopping list component has `const [items, setItems] = useState<Item[]>([])` and `const [count, setCount] = useState(0)`. Adding does `items.push(item); setItems(items); setCount(count + 1)`, and a "+3" button calls `setCount(count + 1)` three times. Explain why the list does not update on screen, why "+3" adds only 1, and why the `count` state is a bad idea in the first place. Rewrite the three pieces correctly.'
+  criteria:
+    - "Explains that push mutates the same array, so React sees the same reference and skips the re-render"
+    - "Replaces push with a new array (setItems([...items, item]) or an updater)"
+    - "Explains that count is a snapshot of this render, so three setCount(count + 1) all set the same value"
+    - "Uses the updater form setCount((c) => c + 1) when the next value depends on the previous one"
+    - "Removes the count state and derives it from items.length (single source of truth)"

@@ -1,0 +1,53 @@
+questions:
+  - id: drilling
+    prompt: "What problem does context solve?"
+    options:
+      - "Slow renders"
+      - "Passing a value through many layers of components that do not use it (prop drilling)"
+      - "Fetching data"
+    answer: 1
+    explanation: "Context delivers a value to every component below the provider."
+  - id: nearest
+    prompt: "Which value does useContext(ThemeContext) return?"
+    options:
+      - "The value of the nearest provider above the component, or the default if there is none"
+      - "The value of the top-most provider"
+      - "Always the default passed to createContext"
+    answer: 0
+    explanation: "Providers can be nested; the closest one wins."
+  - id: guard
+    prompt: "Why create the cart context with `null` and wrap useContext in useCart() that throws?"
+    options:
+      - "To make it faster"
+      - "There is no sensible default cart; the hook gives callers a non-null type and a clear error when the provider is missing"
+      - "Because context cannot hold objects"
+    answer: 1
+    explanation: "Fail fast with a readable message instead of a mysterious undefined later."
+  - id: rerender
+    prompt: "A provider passes `value={{ user, logout }}`. What happens when the provider re-renders for an unrelated reason?"
+    options:
+      - "Nothing"
+      - "A new object is created, so every consumer re-renders"
+      - "React merges the objects"
+    answer: 1
+    explanation: "Context compares values with Object.is; memoise the value or split the context."
+  - id: reducer-pure
+    prompt: "Which of these may a reducer do?"
+    options:
+      - "Send a request to the server"
+      - "Return a new state computed from the old state and the action"
+      - "Mutate state.items with push"
+    answer: 1
+    explanation: "Reducers are pure: no side effects, no mutation."
+  - id: dispatch
+    prompt: "In `const [state, dispatch] = useReducer(reducer, initial)`, what do you pass to dispatch?"
+    answers: ["an action", "action", "the action"]
+    explanation: "dispatch({ type: \"add\", item }) says what happened; the reducer computes the next state."
+  - id: when-reducer
+    prompt: "When is useReducer a better fit than several useState calls?"
+    options:
+      - "Always"
+      - "When several fields change together or updates are spread over many handlers"
+      - "Only for numbers"
+    answer: 1
+    explanation: "A reducer puts all transitions in one tested place."

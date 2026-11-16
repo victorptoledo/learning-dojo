@@ -1,0 +1,50 @@
+questions:
+  - id: measure
+    prompt: "What should you do before adding memo to a slow screen?"
+    options:
+      - "Wrap every component in memo"
+      - "Record the interaction with the React Profiler to see what renders and why"
+      - "Rewrite it with classes"
+    answer: 1
+    explanation: "Optimise the measured cause, not a guess."
+  - id: memo-inline
+    prompt: "`const Row = memo(RowImpl)` still re-renders on every parent render. The parent passes `onSelect={(id) => select(id)}`. Why?"
+    options:
+      - "memo is broken"
+      - "The inline function is new on every render, so the props are not equal"
+      - "Rows cannot be memoised"
+    answer: 1
+    explanation: "memo compares props with Object.is; stabilise the function with useCallback."
+  - id: use-memo
+    prompt: "What does useMemo(() => sort(rows), [rows]) do?"
+    options:
+      - "Sorts rows in the background"
+      - "Returns the cached result until rows changes"
+      - "Memoises the component"
+    answer: 1
+    explanation: "useMemo caches a computed value between renders."
+  - id: colocate
+    prompt: "Typing in a search box re-renders the whole page because `query` lives in the page component. What is the simplest fix?"
+    options:
+      - "Move the query state into the search box component (or the part that uses it)"
+      - "Wrap the page in memo"
+      - "Use a ref for the query"
+    answer: 0
+    explanation: "Colocated state only re-renders the subtree that owns it."
+  - id: compiler
+    prompt: "What does the React Compiler do?"
+    options:
+      - "Compiles JSX to WebAssembly"
+      - "Adds memoisation automatically to components that follow the rules of React"
+      - "Removes the need for keys"
+    answer: 1
+    explanation: "It makes most hand-written memo, useMemo and useCallback unnecessary."
+  - id: virtualise
+    prompt: "A table renders 20,000 rows and is slow even with memo. What helps most?"
+    answers: ["virtualization", "virtualisation", "virtualize", "virtualise", "list virtualization", "windowing"]
+    explanation: "Render only the rows in view, with a library such as TanStack Virtual."
+  - id: lazy
+    prompt: "Which API loads a heavy component's code only when it is first rendered?"
+    options: ["memo", "lazy with Suspense", "useCallback"]
+    answer: 1
+    explanation: "lazy(() => import(...)) splits the bundle; Suspense shows a fallback while it loads."

@@ -1,0 +1,19 @@
+import { Component, type ReactNode } from "react";
+
+export type ErrorBoundaryProps = {
+  fallback: (error: Error, reset: () => void) => ReactNode;
+  /** When it changes, the boundary resets by itself. */
+  resetKey?: unknown;
+  children: ReactNode;
+};
+
+type ErrorBoundaryState = { error: Error | null; resetKey: unknown };
+
+/** Renders fallback(error, reset) when a child throws while rendering. */
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  override state: ErrorBoundaryState = { error: null, resetKey: this.props.resetKey };
+
+  override render(): ReactNode {
+    throw new Error("todo: write ErrorBoundary");
+  }
+}

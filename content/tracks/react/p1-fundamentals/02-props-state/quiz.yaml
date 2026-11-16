@@ -1,0 +1,53 @@
+questions:
+  - id: let-variable
+    prompt: "Why does `let count = 0; ... onClick={() => count++}` not update the screen?"
+    options:
+      - "count++ is not allowed in JSX"
+      - "A local variable is reset on every render and changing it does not trigger a re-render"
+      - "The button needs type=\"submit\""
+    answer: 1
+    explanation: "State persists between renders and its setter asks React to render again."
+  - id: snapshot
+    prompt: "count is 0. A handler calls `setCount(count + 1)` three times. What is count on the next render?"
+    answers: ["1"]
+    explanation: "count is a constant snapshot in this render, so all three calls ask for 0 + 1."
+  - id: updater
+    prompt: "Which call adds 1 correctly even when called several times in the same event?"
+    options:
+      - "setCount(count + 1)"
+      - "setCount((c) => c + 1)"
+      - "count = count + 1"
+    answer: 1
+    explanation: "Updater functions are queued and each receives the result of the previous one."
+  - id: mutate-array
+    prompt: "Why is `todos.push(todo); setTodos(todos)` a bug?"
+    options:
+      - "push is slow"
+      - "It mutates the same array, so the reference is unchanged and React may skip the update"
+      - "setTodos only accepts objects"
+    answer: 1
+    explanation: "React compares state with Object.is; build a new array with [...todos, todo]."
+  - id: lift
+    prompt: "Two sibling components must show the same selected item. Where should the selection state live?"
+    options:
+      - "In both siblings, kept in sync with effects"
+      - "In their closest common parent, passed down as props"
+      - "In a global variable"
+    answer: 1
+    explanation: "Lifting state up gives it one owner; data flows down and changes come up through callbacks."
+  - id: derived
+    prompt: "A component has items in state. How should it get the number of items?"
+    options:
+      - "Another state variable updated whenever items changes"
+      - "Compute items.length during render"
+      - "An effect that copies items.length into state"
+    answer: 1
+    explanation: "Derived values are computed, not stored, so they can never drift out of sync."
+  - id: key-reset
+    prompt: "How do you make `<Profile />` start with fresh state when the user changes?"
+    options:
+      - "Render <Profile key={userId} />"
+      - "Call useState again"
+      - "Mutate its props"
+    answer: 0
+    explanation: "A different key makes React treat it as a different component and reset its state."

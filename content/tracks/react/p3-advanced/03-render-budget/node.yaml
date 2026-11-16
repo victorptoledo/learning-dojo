@@ -1,0 +1,49 @@
+id: react.p3.render-budget
+kind: kata
+status: draft
+title: "Render Budget: Make a Slow List Fast"
+summary: "A contacts page that works but re-renders every row and re-sorts the list on every keystroke. Keep the behaviour and meet a render budget with memo, useMemo, useCallback or by moving state."
+objectives:
+  - { id: o1, text: "Find wasted renders from measured counts and explain where each one comes from", skills: [react.performance, react.reconciliation-fiber] }
+  - { id: o2, text: "Skip renders with memo and stable props from useCallback and useMemo, or by colocating state", skills: [react.performance] }
+  - { id: o3, text: "Refactor for performance without changing behaviour, guarded by behaviour tests", skills: [react.performance, react.testing-a11y] }
+prerequisites: [react.p3.performance]
+difficulty: 4
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-react, timeout_secs: 90 }
+  hints:
+    - |-
+      Read the failing budget tests one by one and ask, for each extra render: which state changed, which component owns it, and why did that make this row (or `sortContacts`) run? A row re-renders when its parent renders, unless something tells React that its props did not change.
+    - |-
+      Three causes. `sortContacts(contacts)` runs on every render of the page: cache it with `useMemo` on `[contacts]`. `ContactRow` re-renders with its parent: wrap it in `memo`. But memo compares props with `Object.is`, and `onSelect={(id) => setSelectedId(id)}` is a new function on every render: make it stable with `useCallback` (the setter itself is stable). Moving the note field into its own component also takes it out of the page's renders.
+    - |-
+      ```tsx
+      const ContactRow = memo(function ContactRow({ contact, selected, onSelect }: ContactRowProps) {
+        trackRender(`row:${contact.id}`);
+        return ( /* unchanged */ );
+      });
+
+      export function ContactsPage({ contacts }: ContactsPageProps) {
+        const [filter, setFilter] = useState("");
+        const [selectedId, setSelectedId] = useState<string | null>(null);
+        const sorted = useMemo(() => sortContacts(contacts), [contacts]);
+        const handleSelect = useCallback((id: string) => setSelectedId(id), []);
+        // the note input can move into a small <NoteField /> component with its own state
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-react runner image
+    image: dojo-react
+    why: The Node.js 26 container with TypeScript 7, React 19, jsdom and Testing Library that checks your components.

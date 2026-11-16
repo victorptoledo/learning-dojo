@@ -1,0 +1,47 @@
+questions:
+  - id: pass-function
+    prompt: "Which handler runs only when the button is clicked?"
+    options:
+      - "onClick={remove(item.id)}"
+      - "onClick={() => remove(item.id)}"
+      - "onClick=\"remove(item.id)\""
+    answer: 1
+    explanation: "The first calls remove during render; pass a function that React calls on click."
+  - id: prevent-default
+    prompt: "Which method stops a form submission from reloading the page?"
+    answers: ["preventDefault", "event.preventDefault()", "preventDefault()", "e.preventDefault()"]
+    explanation: "preventDefault cancels the browser's default action; stopPropagation only stops bubbling."
+  - id: zero-and
+    prompt: "What does `{items.length && <List items={items} />}` show when items is empty?"
+    options: ["Nothing", "0", "false", "An error"]
+    answer: 1
+    explanation: "0 && x is 0, and React renders numbers. Use items.length > 0 && ..."
+  - id: index-key
+    prompt: "Rows with their own input state use `key={index}`. A row is deleted from the top. What happens?"
+    options:
+      - "Nothing special"
+      - "State stays with the positions, so the typed text appears in the wrong rows"
+      - "React throws an error"
+    answer: 1
+    explanation: "Keys tell React which item is which; index keys follow positions, not items."
+  - id: random-key
+    prompt: "What does `key={Math.random()}` do?"
+    options:
+      - "Makes keys unique, so it is best practice"
+      - "Creates a new key on every render, so every item is remounted and loses its state"
+      - "Sorts the list randomly"
+    answer: 1
+    explanation: "Keys must be stable across renders; take them from the data."
+  - id: bubbling
+    prompt: "A Delete button sits inside a card with its own onClick. Clicking Delete also opens the card. What fixes it?"
+    options:
+      - "event.preventDefault() in the card"
+      - "event.stopPropagation() in the Delete handler"
+      - "Removing the key"
+    answer: 1
+    explanation: "Events bubble from child to parent; stopPropagation stops them at the button."
+  - id: hide
+    prompt: "What can a component return to render nothing?"
+    options: ["undefined is not allowed, so nothing", "null", "an empty object {}"]
+    answer: 1
+    explanation: "null (and booleans) render nothing; objects cannot be rendered."

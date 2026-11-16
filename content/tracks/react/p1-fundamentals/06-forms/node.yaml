@@ -1,0 +1,24 @@
+id: react.p1.forms
+kind: lesson
+status: draft
+title: "Forms: Controlled and Uncontrolled Inputs, Validation and Actions"
+summary: "Controlled inputs, uncontrolled inputs with FormData, checkboxes, selects and textareas, labels, validation and accessible error messages, and React 19 form actions with useActionState and useFormStatus."
+objectives:
+  - { id: o1, text: "Build controlled and uncontrolled forms and choose between them", skills: [react.forms] }
+  - { id: o2, text: "Validate input and show errors that screen readers announce (aria-invalid, aria-describedby)", skills: [react.forms, react.testing-a11y] }
+  - { id: o3, text: "Explain React 19 form actions, useActionState and useFormStatus", skills: [react.forms] }
+prerequisites: [react.p1.hooks-lifecycle]
+difficulty: 2
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the "change email" form of a settings page: one email field, a submit button, a server call that can fail with "email already in use". Write it once as a controlled form with useState and once with a React 19 form action and useActionState. For both, describe how you validate (before submit and on the server), how the error is shown so that a screen reader announces it, and how you prevent double submits. Say which version you would choose and why.'
+  criteria:
+    - "Controlled version: value plus onChange, preventDefault in onSubmit, an error state"
+    - "Action version: <form action={...}> with FormData, useActionState returning the error and a pending flag"
+    - "Error tied to the input with aria-invalid and aria-describedby (or role=\"alert\") and a visible label"
+    - "Disables the submit button while pending (isPending or useFormStatus)"
+    - "Gives a reasoned choice (for example actions for simple submit-and-show-result forms, controlled when the UI reacts to every keystroke)"

@@ -4,9 +4,9 @@ name: "React Developer"
 archetype: role
 category: "Careers & Roles"
 icon: "⚛️"
-description: "The most used UI library: hooks, Fiber, reconciliation, Suspense and Server Components."
-status: draft
-bridges_available: [java]
+description: "React 19 with TypeScript as it is written today: components and JSX, props and state, hooks, effects and refs, forms, custom hooks, context and reducers, data fetching, routing, reconciliation and performance, state management, testing with Testing Library, accessibility, Suspense and transitions, Server Components and frameworks."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "useState Novice" }
   - { name: "Yellow Belt", required_xp: 300, title: "Component Modularizer" }
@@ -16,8 +16,17 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "RSC & Server Component Architect" }
   - { name: "Sensei", required_xp: 6000, title: "React Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does and the tools of the trade" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The minimum of each pillar of the role" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Integrating the pillars into working features" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Scale, performance and architecture decisions" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production ownership, reliability and leadership topics" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Create a React 19 project with Vite and TypeScript, write a first component and meet the dojo's React katas" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "JSX and components, props and state, events and lists, effects and refs, and forms" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Custom hooks, context and reducers, data fetching without races, and routing" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Reconciliation, performance, state management at scale, testing and accessibility" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Suspense and transitions, Server Components and frameworks, and React in production" }
+requirements:
+  - kind: tool
+    name: Node.js 26 (node)
+    command: node
+    version_args: ["--version"]
+    min_version: "26"
+    required: false
+    why: Runs a Vite project and the katas' visible tests locally (npm test). The grading checks run in Docker and do not need it.
+    install_hint: "install Node.js 26 LTS: winget install OpenJS.NodeJS.LTS, then reopen the terminal"

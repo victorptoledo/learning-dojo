@@ -1,0 +1,24 @@
+id: react.p4.suspense-transitions
+kind: lesson
+status: draft
+title: "Suspense, use, Transitions and Error Boundaries"
+summary: "Suspense boundaries and fallbacks, reading promises and context with use, caching promises outside render, error boundaries and retry, useTransition and startTransition, useDeferredValue, useOptimistic, and designing loading states."
+objectives:
+  - { id: o1, text: "Place Suspense and error boundaries to design loading and failure states for a page", skills: [react.suspense-transitions] }
+  - { id: o2, text: "Read cached promises with use and explain why the promise must be stable", skills: [react.suspense-transitions, react.data-fetching] }
+  - { id: o3, text: "Keep the UI responsive with useTransition and useDeferredValue, and show optimistic updates", skills: [react.suspense-transitions, react.performance] }
+prerequisites: [react.p3.accessible-tabs]
+difficulty: 4
+estimated_minutes: 65
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A profile page shows a header, the user card, a posts list and a "recommended" sidebar, each loading its own data. Today one big spinner covers everything until all four have loaded, an error in the sidebar blanks the whole page, and switching between users flashes the spinner again even though the old profile was fine to keep on screen. Design the Suspense and error boundaries, say which parts reveal together, how a failure in the sidebar is contained and retried, and how a transition changes the user switch. Mention where the promises come from.'
+  criteria:
+    - "Places separate Suspense boundaries so the header and card reveal first and posts and sidebar can stream in later"
+    - "Wraps the sidebar in its own error boundary with a fallback and a retry that resets the boundary and the cached request"
+    - "Explains that switching users inside startTransition keeps the old content visible (with a pending indicator) instead of showing the fallback again"
+    - "Explains that the promises come from a cache, loader or framework, not created during render"
+    - "Notes that fallbacks should match the layout (skeletons) to avoid layout shift"

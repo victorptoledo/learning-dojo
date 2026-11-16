@@ -1,0 +1,24 @@
+id: react.p1.jsx-components
+kind: lesson
+status: draft
+title: "JSX and Function Components"
+summary: "JSX as JavaScript expressions, its rules (one root, closed tags, className, camelCase, curly braces), fragments, components as pure functions, composition with children, and typing components in TypeScript."
+objectives:
+  - { id: o1, text: "Write JSX that follows its rules and embed JavaScript expressions in it", skills: [react.jsx-components] }
+  - { id: o2, text: "Split a UI into small function components and compose them with props and children", skills: [react.jsx-components] }
+  - { id: o3, text: "Explain why a component must be pure and spot side effects in render", skills: [react.jsx-components] }
+prerequisites: [react.p0.hello-component]
+difficulty: 1
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Take this component and review it as you would in a pull request: `let rendered = 0; export function Price(props) { rendered++; document.title = props.name; const total = props.items.reduce((sum, i) => sum + i.price, 0); return <div class="price"><h3>{props.name}</h3><p>Total: {total} €</p></div><span>{rendered}</span>; }`. List every problem (JSX rules, purity, typing) and write a corrected, typed version. Explain why React needs render functions to be pure.'
+  criteria:
+    - "Spots that two sibling roots need a wrapper or a fragment"
+    - "Spots that class must be className in JSX"
+    - "Spots the impure render: the module-level counter and the document.title write"
+    - "Explains that React may call a component many times (StrictMode, re-renders, concurrent rendering), so render must only compute JSX from props and state"
+    - "Types the props with a type or interface instead of an implicit any, and moves the side effect out of render (an effect or an event handler)"

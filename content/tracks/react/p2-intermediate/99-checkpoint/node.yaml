@@ -1,0 +1,55 @@
+id: react.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz over the whole phase and an integration kata, a small shop with a typed cart reducer, a cart context with a guard hook, a product list that loads, fails and retries, and a cart summary."
+objectives:
+  - { id: o1, text: "Explain custom hooks, context and reducers, data fetching and routing in your own words", skills: [react.custom-hooks, react.context-reducer, react.data-fetching, react.routing] }
+  - { id: o2, text: "Build a feature from a pure reducer, a context provider with a guard hook and components that load data and dispatch actions", skills: [react.context-reducer, react.data-fetching, react.custom-hooks] }
+prerequisites: [react.p2.routing]
+difficulty: 3
+estimated_minutes: 100
+xp: 350
+closes_phase: p2
+covers_skills: [react.custom-hooks, react.context-reducer, react.data-fetching, react.routing]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-react, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with `cart.ts`: the reducer and the helpers are pure, and half the tests check them without React. Then `CartContext.tsx`: what should the context hold so that any component can both read the cart and change it? Only then the components. Which component owns the loading state of the products?
+    - |-
+      In the reducer, `switch (action.type)` and return new objects: `add` either maps the existing line to `{ ...line, quantity: line.quantity + 1 }` or appends `{ product, quantity: 1 }`; `setQuantity` with a quantity below 1 behaves like `remove`. The context holds `{ state, dispatch }` (memoise it with `useMemo`), created with `null` and read through `useCart`, which throws when it gets `null`. `ProductList` keeps a union state and an `attempt` counter in its effect's dependencies: Retry increments it, which re-runs the effect.
+    - |-
+      ```tsx
+      export function ProductList({ loadProducts }: ProductListProps) {
+        const { dispatch } = useCart();
+        const [state, setState] = useState<LoadState>({ status: "loading" });
+        const [attempt, setAttempt] = useState(0);
+
+        useEffect(() => {
+          const controller = new AbortController();
+          setState({ status: "loading" });
+          loadProducts(controller.signal).then(
+            (products) => { if (!controller.signal.aborted) setState({ status: "ready", products }); },
+            (error: unknown) => { /* error state with the message, unless aborted */ },
+          );
+          return () => controller.abort();
+        }, [attempt]); // and keep the latest loadProducts in a ref, as in the debounced search kata
+        // render the status, the alert with Retry, or the list with "Add <name> to cart" buttons
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-react runner image
+    image: dojo-react
+    why: The Node.js 26 container with TypeScript 7, React 19, jsdom and Testing Library that checks your components.

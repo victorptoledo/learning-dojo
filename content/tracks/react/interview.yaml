@@ -1,0 +1,230 @@
+# Technical interview questions for the react track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/react"
+  - "https://roadmap.sh/questions/react"
+  - "https://react.dev/learn"
+  - "https://www.greatfrontend.com/questions/react-interview-questions"
+  - "https://github.com/sudheerj/reactjs-interview-questions"
+questions:
+  - id: what-is-react
+    level: junior
+    skills: [react.toolchain, react.jsx-components]
+    question: "What is React, and what does it mean that the UI is a function of state?"
+    key_points:
+      - "A library for building UIs from components that return a description of the UI"
+      - "You change state; React re-renders and updates the DOM with the differences"
+      - "React is the view layer; routing, data and builds come from libraries or frameworks"
+      - "Declarative instead of imperative DOM updates"
+    follow_up: "Why does the React team recommend starting with a framework for new apps?"
+  - id: jsx
+    level: junior
+    skills: [react.jsx-components]
+    question: "What is JSX, and what does it compile to?"
+    key_points:
+      - "Syntax for creating React elements; tags become jsx() calls from react/jsx-runtime"
+      - "Braces hold JavaScript expressions; attributes are camelCase (className)"
+      - "Text is escaped, which protects against injection"
+      - "One root per return, or a fragment"
+    follow_up: "Why must component names start with a capital letter?"
+  - id: props-vs-state
+    level: junior
+    skills: [react.props-state]
+    question: "What is the difference between props and state?"
+    key_points:
+      - "Props are inputs from the parent and read-only"
+      - "State is a component's own memory that changes over time; setting it re-renders"
+      - "Data flows down as props, changes go up through callbacks"
+      - "Derive values instead of duplicating them in state"
+    follow_up: "When do you lift state up, and where to?"
+  - id: state-snapshot
+    level: junior
+    skills: [react.props-state]
+    question: "Why does `setCount(count + 1)` called three times in one click only add one?"
+    key_points:
+      - "count is a constant snapshot for the render in which the handler was created"
+      - "Each call asks for the same next value"
+      - "Updater functions setCount((c) => c + 1) are queued and chained"
+      - "Updates in one event are batched into one render"
+    follow_up: "What does batching mean since React 18?"
+  - id: keys
+    level: junior
+    skills: [react.events-lists]
+    question: "Why does React need keys in lists, and what makes a good key?"
+    key_points:
+      - "Keys identify items between renders so React matches, moves and keeps their state"
+      - "Use stable, unique ids from the data"
+      - "Index keys break when items are inserted, removed or reordered"
+      - "Random keys remount every item on every render"
+    follow_up: "How can you use a key to reset a component's state on purpose?"
+  - id: controlled
+    level: junior
+    skills: [react.forms]
+    question: "What are controlled and uncontrolled inputs, and when would you use each?"
+    key_points:
+      - "Controlled: value from state and onChange; React state is the source of truth"
+      - "Uncontrolled: the DOM keeps the value; read it with FormData or a ref, defaultValue for the start"
+      - "Controlled for live validation and dependent fields; uncontrolled or actions for submit-only forms"
+      - "Labels and accessible error messages either way"
+    follow_up: "What do React 19 form actions and useActionState add?"
+  - id: use-effect
+    level: mid
+    skills: [react.hooks-lifecycle]
+    question: "What is useEffect for, and how do dependencies and cleanup work?"
+    key_points:
+      - "Synchronising with systems outside React: subscriptions, timers, network, DOM APIs"
+      - "Runs after commit; re-runs when a dependency changes (Object.is); no array means every render"
+      - "The cleanup runs before the next run and on unmount"
+      - "StrictMode mounts twice in development to reveal missing cleanups"
+    follow_up: "Give three examples of code that should not be in an effect."
+  - id: refs
+    level: mid
+    skills: [react.hooks-lifecycle]
+    question: "When do you use useRef instead of useState?"
+    key_points:
+      - "For values that must persist without causing a re-render (timer ids, previous values)"
+      - "For DOM nodes: focus, measuring, integrating non-React widgets"
+      - "Do not read or write ref.current during render"
+      - "In React 19, ref is a regular prop for function components"
+    follow_up: "Why does changing ref.current not update what is shown?"
+  - id: rules-of-hooks
+    level: mid
+    skills: [react.custom-hooks]
+    question: "What are the rules of hooks, and why do they exist?"
+    key_points:
+      - "Call hooks at the top level, never in conditions, loops or after early returns"
+      - "Only from components and custom hooks"
+      - "React identifies hooks by call order to find their state"
+      - "The eslint plugin enforces them; use is the one hook that may be called conditionally"
+    follow_up: "Do two components calling the same custom hook share its state?"
+  - id: context
+    level: mid
+    skills: [react.context-reducer]
+    question: "When would you use context, and what are its downsides?"
+    key_points:
+      - "Avoids prop drilling for widely used, rarely changing values (theme, user, locale)"
+      - "Every consumer re-renders when the value changes"
+      - "Memoise the value, split contexts, keep fast-changing state local"
+      - "A typed context with a guard hook that throws outside the provider"
+    follow_up: "How is context different from a state management library?"
+  - id: use-reducer
+    level: mid
+    skills: [react.context-reducer]
+    question: "When do you choose useReducer over useState?"
+    key_points:
+      - "Several values change together or updates are scattered across handlers"
+      - "A pure reducer with typed actions (discriminated union) centralises transitions"
+      - "Testable without React"
+      - "Combine with context to share state and dispatch"
+    follow_up: "What must a reducer never do?"
+  - id: data-fetching
+    level: mid
+    skills: [react.data-fetching]
+    question: "How do you fetch data in React correctly, and what problems does a naive effect have?"
+    key_points:
+      - "Loading, error and success states, ideally as a union"
+      - "Check response.ok; fetch only rejects on network errors"
+      - "Abort or ignore stale requests in the cleanup to avoid races"
+      - "No cache, deduplication or refresh; waterfalls; use TanStack Query or framework loaders"
+    follow_up: "What does it mean that server state is a cache?"
+  - id: testing
+    level: mid
+    skills: [react.testing-a11y]
+    question: "How do you test React components?"
+    key_points:
+      - "Testing Library: render, query by role, label and text, interact with user-event"
+      - "Test behaviour, not implementation details or internal state"
+      - "findBy and waitFor for async UI; mock only at the edges (network, timers)"
+      - "A pyramid: pure logic unit tests, component integration tests, a few E2E tests"
+    follow_up: "Why prefer getByRole over getByTestId?"
+  - id: reconciliation
+    level: senior
+    skills: [react.reconciliation-fiber]
+    question: "Explain how React reconciles and when it keeps or resets component state."
+    key_points:
+      - "Render calls components and builds a new tree; commit applies minimal DOM changes"
+      - "Different element types replace the subtree; same type at the same position keeps state"
+      - "Keys identify children among siblings"
+      - "State lives at a position in the tree, so nested component definitions reset state"
+    follow_up: "What is Fiber, and what does concurrent rendering add?"
+  - id: performance
+    level: senior
+    skills: [react.performance]
+    question: "A screen is slow when typing. How do you investigate and fix it?"
+    key_points:
+      - "Profile with the React DevTools Profiler (what rendered and why), in a production build"
+      - "Colocate state and pass expensive parts as children"
+      - "memo with stable props from useCallback and useMemo where it pays off"
+      - "Virtualise long lists, transitions or useDeferredValue for heavy updates, the React Compiler"
+    follow_up: "Why can useMemo everywhere make things worse?"
+  - id: state-management
+    level: senior
+    skills: [react.state-management]
+    question: "How do you decide where state lives in a large React application?"
+    key_points:
+      - "Classify: local UI, shared client, server, URL, form state"
+      - "Server state in a query cache; shareable view state in the URL"
+      - "Context for rarely changing global values; a store with selectors for busy shared client state"
+      - "useSyncExternalStore connects external stores without tearing"
+    follow_up: "When would you pick Redux Toolkit over Zustand, or neither?"
+  - id: suspense
+    level: senior
+    skills: [react.suspense-transitions]
+    question: "Explain Suspense, use, error boundaries and transitions, and how they work together."
+    key_points:
+      - "Suspense shows a fallback while children wait for data or code, and reveals them together"
+      - "use reads a stable (cached) promise; error boundaries catch rejections and render errors"
+      - "Transitions keep revealed content visible during updates and are interruptible"
+      - "Boundaries placed to design loading and failure per region"
+    follow_up: "Why does a retry need to evict the failed promise?"
+  - id: rsc
+    level: senior
+    skills: [react.server-components]
+    question: "What are React Server Components, and how do they differ from server-side rendering?"
+    key_points:
+      - "Components that run only on the server, can be async and read data directly, ship no JS"
+      - "SSR renders any components to HTML and hydrates them; RSC changes where components run"
+      - "'use client' marks the interactive boundary; only serialisable props cross it"
+      - "Server functions are public endpoints: authenticate, authorise, validate"
+    follow_up: "What can leak to the browser through props, and how do you prevent it?"
+  - id: accessibility
+    level: senior
+    skills: [react.testing-a11y]
+    question: "How do you build an accessible custom widget such as tabs or a dialog in React?"
+    key_points:
+      - "Semantic HTML first; ARIA roles, states and relationships from the WAI-ARIA patterns"
+      - "Accessible names for every control"
+      - "Keyboard support: roving tabindex, arrows, Escape; focus management with refs"
+      - "Test with roles in Testing Library, a screen reader and axe"
+    follow_up: "Where does focus go when a dialog closes, and why?"
+  - id: architecture
+    level: senior
+    skills: [react.production]
+    question: "How would you structure and keep healthy a React codebase that many teams work on?"
+    key_points:
+      - "Feature folders with public entry points; a shared, accessible design system"
+      - "Guardrails: strict TypeScript, hooks and a11y lint rules, tests in CI"
+      - "Performance budgets and Core Web Vitals; error boundaries with monitoring and source maps"
+      - "Incremental upgrades with warnings fixed and codemods"
+    follow_up: "What would you measure first when you join a struggling React project?"
+  - id: security
+    level: senior
+    skills: [react.production, react.server-components]
+    question: "What security mistakes are specific to React applications?"
+    key_points:
+      - "dangerouslySetInnerHTML with untrusted HTML (sanitise, or render to elements)"
+      - "User-controlled URLs in href (javascript: URLs)"
+      - "Secrets in the client bundle or public environment variables"
+      - "Server functions and loaders without authorisation and validation; private fields in props"
+    follow_up: "Where would you store an authentication token, and why?"
+  - id: strict-mode
+    level: mid
+    skills: [react.toolchain, react.hooks-lifecycle]
+    question: "What does StrictMode do, and how do you respond when it makes something run twice?"
+    key_points:
+      - "Development only: double-invokes renders and effects (mount, cleanup, mount)"
+      - "Reveals impure renders and missing cleanups"
+      - "Fix the code (add the cleanup, move logic to the event handler) instead of disabling it"
+      - "No effect on production builds"
+    follow_up: "How would you make an analytics event fire once per page view?"
