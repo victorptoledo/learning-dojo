@@ -1,0 +1,24 @@
+id: data-engineer.p2.cdc
+kind: lesson
+status: draft
+title: "Change Data Capture"
+summary: "Capturing every insert, update and delete from a database: query-based versus log-based CDC, the PostgreSQL write-ahead log and logical replication, Debezium change events, snapshots, ordering, the outbox pattern and applying changes downstream."
+objectives:
+  - { id: o1, text: "Compare query-based and log-based CDC and what each can see", skills: [data-engineer.cdc] }
+  - { id: o2, text: "Read a Debezium change event and apply creates, updates and deletes idempotently", skills: [data-engineer.cdc, sql.dml] }
+  - { id: o3, text: "Use the outbox pattern to publish domain events without dual writes", skills: [data-engineer.cdc] }
+prerequisites: [data-engineer.p2.scd2-dimension]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'The orders table of a busy PostgreSQL database (about 2,000 changes per second, with hard deletes) must be replicated into the warehouse with less than 5 minutes of delay, and the analytics team also wants a history of every status change. Design the CDC pipeline from the database to the warehouse, including the first load, and explain how you keep it correct across restarts.'
+  criteria:
+    - 'Chooses log-based CDC (logical replication, Debezium) and explains why query-based CDC misses deletes and intermediate updates'
+    - 'Describes the initial snapshot followed by streaming from the log position'
+    - 'Applies events idempotently by primary key using the source position or LSN for ordering, handling deletes'
+    - 'Keeps the raw change events for the status history (a type 2 table or an append-only log)'
+    - 'Mentions the operational risk of replication slots retaining WAL when the consumer stops'

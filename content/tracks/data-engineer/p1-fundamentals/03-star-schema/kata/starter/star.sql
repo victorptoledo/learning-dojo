@@ -1,0 +1,2 @@
+-- todo: create dim_date, dim_customer, dim_product and fact_sales as the README describes,
+-- then fill them from customers, products, orders and order_items.

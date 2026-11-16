@@ -1,0 +1,62 @@
+pass_percent: 85
+questions:
+  - id: scd-correction
+    skills: [data-engineer.slowly-changing-dimensions]
+    prompt: "In a type 2 customer dimension, a typo in a name is fixed. What should the load do?"
+    options:
+      - "Close the current version and open a new one"
+      - "Overwrite the name (type 1), without a new version"
+      - "Delete the customer"
+      - "Add a previous_name column"
+    answer: 1
+    explanation: "Corrections are not history; type 2 is for changes reports must see as they were."
+  - id: scd-current
+    skills: [data-engineer.slowly-changing-dimensions]
+    prompt: "What guarantees at most one current version per customer in PostgreSQL?"
+    options:
+      - "A CHECK constraint on is_current"
+      - "A partial unique index: UNIQUE (customer_id) WHERE is_current"
+      - "A foreign key"
+      - "An index on valid_from"
+    answer: 1
+    explanation: "The partial index enforces uniqueness only among current rows."
+  - id: cdc-deletes
+    skills: [data-engineer.cdc]
+    prompt: "Why does a replica built from Debezium events handle deletes while an updated_at extract does not?"
+    options:
+      - "Debezium adds a deleted column to the source"
+      - "Log-based CDC reads delete operations from the transaction log and emits them as op = d events"
+      - "Deletes are not allowed in PostgreSQL"
+      - "The replica never deletes"
+    answer: 1
+    explanation: "The log records every change, including deletes."
+  - id: cdc-order
+    skills: [data-engineer.cdc]
+    prompt: "Two updates of the same row arrive out of order at the consumer. What lets it keep the newest?"
+    options: ["The consumer's arrival time", "The source log position (LSN) stored per row", "The message size", "The topic name"]
+    answer: 1
+    explanation: "The source position orders changes regardless of delivery order."
+  - id: dq-volume
+    skills: [data-engineer.data-quality]
+    prompt: "Today's batch has 40% fewer rows than the 4-week median, and every row passes its checks. Which check flags it?"
+    options: ["not_null", "A volume (row count) check against history", "accepted_values", "unique"]
+    answer: 1
+    explanation: "Row-level checks cannot see missing rows; volume checks can."
+  - id: dq-gate
+    skills: [data-engineer.data-quality]
+    prompt: "A quality gate fails at 03:00. What should consumers see at 08:00?"
+    options: ["The new, failing data", "Yesterday's good data, plus a notice that today's is delayed", "An empty table", "Random data"]
+    answer: 1
+    explanation: "The gate keeps bad data out; the previous publication stays."
+  - id: orch-retry
+    skills: [data-engineer.orchestration]
+    prompt: "A task timed out after its insert had committed, and the orchestrator retries it. What keeps the data right?"
+    options: ["A longer timeout", "The task being idempotent, for example overwriting its partition", "Disabling retries for every task", "Running it at night"]
+    answer: 1
+    explanation: "Retries are only safe for idempotent tasks."
+  - id: orch-backfill
+    skills: [data-engineer.orchestration]
+    prompt: "fct_sales was backfilled for the last year. What else must be backfilled?"
+    options: ["Nothing", "Every downstream task for the same dates, in dependency order", "Only the dashboard cache", "The source systems"]
+    answer: 1
+    explanation: "Downstream tables were built from the old data; lineage tells you which ones."

@@ -1,0 +1,52 @@
+id: data-engineer.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz over slowly changing dimensions, CDC, data quality and orchestration, and an integration kata where you build a tiny orchestrator with retries, quality gates, resumable runs and backfills, and run a daily pipeline on it."
+objectives:
+  - { id: o1, text: "Explain slowly changing dimensions, CDC, data quality checks and orchestration in your own words", skills: [data-engineer.slowly-changing-dimensions, data-engineer.cdc, data-engineer.data-quality, data-engineer.orchestration] }
+  - { id: o2, text: "Build a DAG runner with retries, a quality gate, resumable runs and backfills, and a daily pipeline of idempotent tasks", skills: [data-engineer.orchestration, data-engineer.data-quality, data-engineer.incremental-loads] }
+prerequisites: [data-engineer.p2.orchestration]
+difficulty: 4
+estimated_minutes: 100
+xp: 450
+closes_phase: p2
+covers_skills: [data-engineer.slowly-changing-dimensions, data-engineer.cdc, data-engineer.data-quality, data-engineer.orchestration]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with `DAG`: keep the tasks in a dict, check names and upstreams, then compute the order once. Which classic algorithm repeatedly takes a task whose upstream tasks are all done, and how do you know a cycle is left when it stops early? Which data structure always gives you the alphabetically first ready task?
+    - |-
+      Kahn's algorithm: count the unfinished upstream tasks of each task, put the tasks with zero in a `heapq`, pop one, decrement its children, push those that reach zero. If fewer tasks came out than went in, there is a cycle. In `run`, check upstream statuses first, then `state.is_done`, then try `retries + 1` times, catching `QualityGateFailed` separately before `Exception`. In `pipeline.py`, each task writes one key of the warehouse (`warehouse.fact_orders[ctx.ds] = ...`), which makes it idempotent.
+    - |-
+      ```python
+      def run(dag, ds, state):
+          statuses = {}
+          for name in dag.order():
+              task = dag.tasks[name]
+              if any(statuses[up] not in ("success", "already_done") for up in task.upstream):
+                  statuses[name] = "upstream_failed"
+              elif state.is_done(name, ds):
+                  statuses[name] = "already_done"
+              else:
+                  statuses[name] = attempt(task, ds)  # loop over attempts 1 .. retries + 1
+                  if statuses[name] == "success":
+                      state.mark_done(name, ds)
+          return statuses
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

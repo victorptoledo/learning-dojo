@@ -1,0 +1,239 @@
+# Technical interview questions for the data-engineer track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/data-engineer"
+  - "https://www.oreilly.com/library/view/fundamentals-of-data/9781098108298/"
+  - "https://dataintensive.net/"
+  - "https://docs.getdbt.com/"
+questions:
+  - id: etl-elt
+    level: junior
+    skills: [data-engineer.etl-vs-elt]
+    question: "What is the difference between ETL and ELT? When would you choose each?"
+    key_points:
+      - "Where the transformation runs: before loading in a separate tool, or in the warehouse after loading"
+      - "ELT keeps raw data, so models can be rebuilt after a fix"
+      - "Transformations as versioned, tested SQL (for example dbt)"
+      - "Transform before load for data that must never be stored, or for logic SQL cannot express"
+    follow_up: "How do you organise the layers of an ELT pipeline?"
+  - id: oltp-olap
+    level: junior
+    skills: [data-engineer.role]
+    question: "What is the difference between OLTP and OLAP systems, and why do companies keep them apart?"
+    key_points:
+      - "OLTP: many small transactional reads and writes; OLAP: large scans and aggregates"
+      - "Normalised versus denormalised (star) schemas"
+      - "Row versus column storage"
+      - "Analytics on production slows the application and lacks history and other sources"
+    follow_up: "What would you do if analysts already query the production replica?"
+  - id: star-schema
+    level: junior
+    skills: [data-engineer.dimensional-modelling]
+    question: "Explain a star schema. What are facts and dimensions, and what is the grain?"
+    key_points:
+      - "Fact table of events with measures and foreign keys; dimensions with descriptive attributes"
+      - "Grain: what one fact row means, declared first"
+      - "Surrogate keys and a date dimension"
+      - "Additive, semi-additive and non-additive measures"
+    follow_up: "Model check-ins and payments of a gym chain."
+  - id: window-dedup
+    level: junior
+    skills: [data-engineer.incremental-loads, sql.window-functions]
+    question: "A table has several versions of each order. Write a query that keeps only the latest version per order."
+    key_points:
+      - "row_number() OVER (PARTITION BY order_id ORDER BY updated_at DESC) and keep rn = 1"
+      - "A deterministic tie-break column"
+      - "Alternatives: DISTINCT ON in PostgreSQL, QUALIFY in some warehouses"
+      - "Why not GROUP BY with max(updated_at) and a join (ties, cost)"
+    follow_up: "What is the difference between row_number, rank and dense_rank here?"
+  - id: file-formats
+    level: junior
+    skills: [data-engineer.file-formats]
+    question: "Compare CSV, JSON, Avro and Parquet. Which would you use where?"
+    key_points:
+      - "CSV and JSON are text, untyped or loosely typed, easy to misread"
+      - "Avro is row-oriented with a schema: messages and ingestion"
+      - "Parquet is columnar with statistics and compression: analytics"
+      - "Splittability and schema evolution"
+    follow_up: "Why is a single large gzip CSV slow to process in parallel?"
+  - id: idempotency
+    level: junior
+    skills: [data-engineer.incremental-loads]
+    question: "What does it mean for a pipeline to be idempotent, and how do you achieve it?"
+    key_points:
+      - "Running twice with the same input gives the same result"
+      - "Upserts or MERGE on natural keys"
+      - "Overwriting the partition of the logical date"
+      - "Why plain INSERT is not idempotent and why retries make this essential"
+    follow_up: "How do you make an API extract idempotent?"
+  - id: incremental
+    level: mid
+    skills: [data-engineer.incremental-loads]
+    question: "How would you load a 2-billion-row source table incrementally every hour? What can go wrong?"
+    key_points:
+      - "A reliable watermark (updated_at or ingestion time), stored after success"
+      - "Late-committing rows and a lookback window"
+      - "Deduplication and an upsert that never goes back to older versions"
+      - "Deletes are invisible to timestamp watermarks: soft deletes, CDC or reconciliation"
+    follow_up: "How would you detect that rows were missed?"
+  - id: scd
+    level: mid
+    skills: [data-engineer.slowly-changing-dimensions]
+    question: "What are slowly changing dimensions? Explain types 1 and 2 and how you implement type 2."
+    key_points:
+      - "Type 1 overwrites, type 2 keeps versions"
+      - "Surrogate key per version, valid_from and valid_to as a half-open range, is_current"
+      - "Close then insert, NULL-safe comparison, idempotent reruns"
+      - "Point-in-time joins from facts"
+    follow_up: "How do you handle a fact that refers to a customer not yet in the dimension?"
+  - id: cdc
+    level: mid
+    skills: [data-engineer.cdc]
+    question: "What is change data capture? Compare query-based and log-based CDC."
+    key_points:
+      - "Capturing inserts, updates and deletes as they happen"
+      - "Polling misses deletes and intermediate states; log-based reads the WAL or binlog"
+      - "Debezium events (op, before, after, source position) and the initial snapshot"
+      - "Replication slots and their WAL retention risk"
+    follow_up: "When would you use the outbox pattern instead of CDC of internal tables?"
+  - id: data-quality
+    level: mid
+    skills: [data-engineer.data-quality]
+    question: "How do you make sure the data your pipelines publish is correct?"
+    key_points:
+      - "Checks: not null, unique at the grain, accepted values, relationships, ranges"
+      - "Volume and freshness checks for silent failures"
+      - "Severities and a quality gate (write-audit-publish)"
+      - "Unit tests of transformation code in CI; data contracts with producers"
+    follow_up: "A check fails at 03:00. What happens next, step by step?"
+  - id: orchestration
+    level: mid
+    skills: [data-engineer.orchestration]
+    question: "How do you design a DAG in an orchestrator such as Airflow so that it can be rerun and backfilled safely?"
+    key_points:
+      - "Tasks keyed by the logical date, never the current time"
+      - "Idempotent tasks: overwrite partitions or upsert"
+      - "Retries with backoff for transient errors; no retries for quality failures; timeouts"
+      - "Business logic outside the DAG file, in testable code"
+    follow_up: "How would you backfill three years of a table with two downstream dependencies?"
+  - id: parquet-internals
+    level: mid
+    skills: [data-engineer.columnar-storage]
+    question: "How does Parquet make analytical queries fast?"
+    key_points:
+      - "Row groups and column chunks; reading only the needed columns"
+      - "Encodings (dictionary, RLE) and compression"
+      - "Min/max statistics for predicate pushdown, effective when data is sorted or clustered"
+      - "Footer metadata read first"
+    follow_up: "Why might a filter still read every row group?"
+  - id: partitioning
+    level: mid
+    skills: [data-engineer.columnar-storage]
+    question: "How do you choose partition keys for a large table in a lake, and what is the small-files problem?"
+    key_points:
+      - "Partition by low-cardinality columns most queries filter on, usually a date"
+      - "High-cardinality keys create millions of tiny files"
+      - "Target file sizes of hundreds of megabytes; compaction"
+      - "Sorting or clustering within partitions for other columns"
+    follow_up: "How would you compact a partition safely while it is being read?"
+  - id: kafka-basics
+    level: mid
+    skills: [data-engineer.streaming-kafka]
+    question: "Explain Kafka topics, partitions, offsets and consumer groups. How is ordering guaranteed?"
+    key_points:
+      - "Partitioned append-only logs with offsets and retention"
+      - "Keys choose partitions; ordering only within a partition"
+      - "Consumer groups share partitions; parallelism capped by partition count"
+      - "Committed offsets and rebalances"
+    follow_up: "What happens when you add partitions to a keyed topic?"
+  - id: delivery
+    level: senior
+    skills: [data-engineer.streaming-kafka]
+    question: "How do you get effectively-once results from a Kafka consumer that writes to a database?"
+    key_points:
+      - "At-least-once by committing after processing, so redelivery happens"
+      - "Idempotent writes (upsert by key and window) or deduplication by offset or event id"
+      - "Storing offsets in the same transaction as the results"
+      - "Kafka transactions and idempotent producers for topic-to-topic exactly-once"
+    follow_up: "Where does this break if the consumer also calls an external API?"
+  - id: windows
+    level: senior
+    skills: [data-engineer.streaming-kafka]
+    question: "Explain event time versus processing time, watermarks and late data in stream processing."
+    key_points:
+      - "Event time gives correct, replayable results; processing time depends on delays"
+      - "Watermark as max event time minus allowed lateness; windows close when it passes"
+      - "Late data policies: drop, side output, update"
+      - "Trade-off between latency and completeness"
+    follow_up: "How would you choose the allowed lateness for mobile app events?"
+  - id: spark-skew
+    level: senior
+    skills: [data-engineer.spark-distributed]
+    question: "A Spark join stage has one task that runs for hours while the others finish in minutes. Diagnose and fix it."
+    key_points:
+      - "Data skew on the join key (nulls, bots, a giant customer)"
+      - "Check key frequencies; handle nulls and hot keys separately"
+      - "Adaptive query execution skew join handling; salting"
+      - "Broadcast the small side when possible"
+    follow_up: "How would you salt an aggregation rather than a join?"
+  - id: spark-shuffle
+    level: mid
+    skills: [data-engineer.spark-distributed]
+    question: "What are narrow and wide transformations in Spark, and why do shuffles matter?"
+    key_points:
+      - "Narrow: one input partition per output partition; wide: data redistributed by key"
+      - "Shuffles write intermediate data, cross the network and split stages"
+      - "Lazy evaluation and the optimiser"
+      - "Join strategies: broadcast versus sort-merge"
+    follow_up: "Why should you avoid collect() on large DataFrames?"
+  - id: lakehouse
+    level: senior
+    skills: [data-engineer.warehouses-lakehouses]
+    question: "What problems do table formats such as Apache Iceberg or Delta Lake solve compared with plain Parquet files in a lake?"
+    key_points:
+      - "Atomic commits via metadata, so readers never see partial writes"
+      - "Snapshots, time travel and rollback"
+      - "Schema and partition evolution, row-level updates and deletes"
+      - "Maintenance: compaction, snapshot expiry, orphan files"
+    follow_up: "Warehouse or lakehouse for a team of five analysts and no data scientists?"
+  - id: governance
+    level: senior
+    skills: [data-engineer.lineage-governance]
+    question: "How would you handle a GDPR erasure request across a data platform with raw files, warehouse tables, Kafka and backups?"
+    key_points:
+      - "Find copies with lineage and a catalog with PII classification"
+      - "Rewrite affected partitions or files; expire snapshots; Kafka retention or tombstones"
+      - "Crypto-shredding with per-person keys"
+      - "Keep anonymised facts so aggregates stay correct; record the erasure"
+    follow_up: "How would you design the platform so the next request is easy?"
+  - id: reliability
+    level: senior
+    skills: [data-engineer.data-reliability]
+    question: "How do you define and monitor service levels for a critical dataset?"
+    key_points:
+      - "SLIs and SLOs for freshness, completeness and correctness"
+      - "Alerting on symptoms consumers feel, with owners and runbooks"
+      - "Data observability: volume, schema and distribution anomalies"
+      - "Incident process: communicate early, contain, fix, backfill, blameless postmortem"
+    follow_up: "Describe a data incident you would expect a volume check to catch."
+  - id: platform-design
+    level: senior
+    skills: [data-engineer.platform-leadership]
+    question: "You join a company with no data platform. How do you design the first year?"
+    key_points:
+      - "Goals and non-goals tied to business needs; start with one valuable data product"
+      - "Buy undifferentiated parts (ingestion, warehouse, BI), build business-specific models"
+      - "Versioned transformations, orchestration, tests and basic governance from the start"
+      - "Ownership model and contracts with source teams; open formats to avoid lock-in"
+    follow_up: "When would you move towards a data mesh?"
+  - id: system-design-clicks
+    level: senior
+    skills: [data-engineer.streaming-kafka, data-engineer.warehouses-lakehouses, data-engineer.columnar-storage]
+    question: "Design a pipeline that ingests 50,000 click events per second and serves both a live dashboard and daily analytics."
+    key_points:
+      - "Kafka (or similar) as the buffer, keyed sensibly, with schemas in a registry"
+      - "Stream processing for the live view with event-time windows and an idempotent sink"
+      - "Landing to object storage as Parquet in a table format, partitioned by date, compacted"
+      - "Batch models for daily analytics, quality checks, freshness monitoring and cost control"
+    follow_up: "How do you reprocess a day of events after a bug in the streaming job?"

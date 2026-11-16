@@ -1,0 +1,56 @@
+questions:
+  - id: idempotent
+    prompt: "What does it mean for a load to be idempotent?"
+    options:
+      - "It runs in under a second"
+      - "Running it twice with the same input leaves the same result as running it once"
+      - "It never fails"
+      - "It loads every row"
+    answer: 1
+    explanation: "Retries and reruns are certain; idempotent loads make them harmless."
+  - id: plain-insert
+    prompt: "An hourly task does INSERT INTO fact SELECT * FROM batch. The orchestrator retries it after a timeout that happened after the commit. Result?"
+    options: ["Nothing changes", "The batch is loaded twice: duplicated rows", "The insert is rolled back", "The orchestrator deduplicates it"]
+    answer: 1
+    explanation: "Plain inserts are not idempotent; use an upsert, MERGE or a partition overwrite."
+  - id: watermark-value
+    prompt: "What should a job store as its watermark after a successful run?"
+    options:
+      - "The wall-clock time when the job started"
+      - "The largest change marker (updated_at or ingestion time) among the rows it actually read"
+      - "The number of rows loaded"
+      - "Nothing: watermarks are optional"
+    answer: 1
+    explanation: "The clock time can skip rows that changed but were not visible yet; the data tells you how far you read."
+  - id: tie-break
+    prompt: "Why add _ingested_at DESC after updated_at DESC in row_number() OVER (PARTITION BY order_id ORDER BY ...)?"
+    options:
+      - "To make the query faster"
+      - "So that versions with the same updated_at are ranked the same way on every run"
+      - "Because PARTITION BY needs two columns"
+      - "To remove NULLs"
+    answer: 1
+    explanation: "Without a deterministic tie-break, row_number() may pick a different row each time."
+  - id: deletes
+    prompt: "A source row is hard-deleted. What does an incremental load on updated_at see?"
+    options: ["A row with a NULL updated_at", "Nothing: the row just stops appearing", "An error", "A row with status deleted"]
+    answer: 1
+    explanation: "Timestamp watermarks cannot see deletes; use soft deletes, CDC or a periodic full comparison."
+  - id: lookback
+    prompt: "Why read updated_at > watermark - interval '1 hour' instead of > watermark?"
+    options:
+      - "To load more data for fun"
+      - "To catch rows from transactions that committed after the last run read past their timestamp; the merge absorbs the overlap"
+      - "Because time zones differ by one hour"
+      - "To avoid using indexes"
+    answer: 1
+    explanation: "A lookback window plus idempotent merging trades a little rework for not missing late rows."
+  - id: older-version
+    prompt: "An old version of order 7 is delivered again. Which upsert clause stops it from overwriting the newer row?"
+    options:
+      - "ON CONFLICT DO NOTHING on every row"
+      - "DO UPDATE ... WHERE excluded.updated_at > orders.updated_at"
+      - "ORDER BY order_id"
+      - "A UNIQUE index on status"
+    answer: 1
+    explanation: "The guard keeps the newest version whatever order the rows arrive in."

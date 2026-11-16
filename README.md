@@ -95,6 +95,11 @@ Frontend, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Mod
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
 Frontend, Full Stack, DevOps & Cloud, Data Engineer, Cyber Security, React, Modern C++,
+| Data Engineer | pipelines, modelling, lakes, streaming | 25 | 9 | `dojo-sql`, `dojo-python` and `dojo-data` (pyarrow, DuckDB) |
+
+Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
+languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
+Frontend, Full Stack, DevOps & Cloud, AI Engineer, Cyber Security, React, Modern C++,
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 
 ## Requirements

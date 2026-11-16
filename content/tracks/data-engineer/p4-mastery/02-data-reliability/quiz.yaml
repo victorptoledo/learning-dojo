@@ -1,0 +1,51 @@
+questions:
+  - id: green-but-wrong
+    prompt: "Every task succeeded, but the dashboard shows 30% less revenue than usual. Which kind of monitoring catches this?"
+    options: ["Task failure alerts", "Data observability: volume and distribution checks against history", "CPU alerts", "Disk usage alerts"]
+    answer: 1
+    explanation: "Data can be wrong while jobs are green; check the data itself."
+  - id: slo
+    prompt: "Which is a well-formed data SLO?"
+    options:
+      - "The data should be good"
+      - "Yesterday's revenue is published by 08:00 on 99% of days"
+      - "The pipeline never fails"
+      - "Queries are fast"
+    answer: 1
+    explanation: "An SLO names a measurable indicator, a threshold and a target over time."
+  - id: communicate
+    prompt: "At 07:00 you discover the revenue table is wrong; finance meets at 09:00. What comes first after confirming?"
+    options:
+      - "Silently fix it and hope"
+      - "Tell the consumers which data is affected, then contain and fix"
+      - "Write the postmortem"
+      - "Delete the table"
+    answer: 1
+    explanation: "Early communication prevents decisions on wrong numbers."
+  - id: compare
+    prompt: "You rewrote a core model. What is the safest way to release it?"
+    options:
+      - "Replace it in production and watch"
+      - "Build it next to the old one, compare outputs (counts, totals, samples), then switch"
+      - "Release on Friday evening"
+      - "Ask consumers to test"
+    answer: 1
+    explanation: "Diffing outputs before switching catches unintended changes."
+  - id: cost
+    prompt: "Warehouse costs doubled after a new dashboard. Which change usually helps most?"
+    options:
+      - "Bigger warehouses"
+      - "Make its queries prune: filter on partition or cluster columns, and serve it from an incremental aggregate"
+      - "More dashboards"
+      - "Disable caching"
+    answer: 1
+    explanation: "Cost follows data scanned; read less."
+  - id: postmortem
+    prompt: "What makes a postmortem useful?"
+    options:
+      - "Finding who to blame"
+      - "A timeline, impact, root cause, why detection was slow, and owned follow-up actions"
+      - "A long document nobody reads"
+      - "Skipping it when the fix was quick"
+    answer: 1
+    explanation: "Blameless postmortems turn incidents into concrete improvements."

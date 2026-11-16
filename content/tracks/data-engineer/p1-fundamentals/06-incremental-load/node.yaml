@@ -1,0 +1,55 @@
+id: data-engineer.p1.incremental-load
+kind: kata
+status: draft
+title: "An Idempotent Incremental Load"
+summary: "Load only what landed after a watermark, deduplicate versions with a window function, upsert without ever going back to an older version, and move the watermark so that a rerun changes nothing."
+objectives:
+  - { id: o1, text: "Read an incremental batch with a watermark and move it safely", skills: [data-engineer.incremental-loads] }
+  - { id: o2, text: "Deduplicate versions with row_number() and a deterministic tie-break", skills: [data-engineer.incremental-loads, sql.window-functions] }
+  - { id: o3, text: "Upsert idempotently with ON CONFLICT and a guard against older versions", skills: [data-engineer.incremental-loads, sql.dml] }
+prerequisites: [data-engineer.p1.incremental-loads]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 60 }
+  hints:
+    - |-
+      Write it as three steps: which rows form the batch (join `load_state`), which single row of the batch wins for each order, and how the winner gets into `orders`. Why does the second run of a naive `INSERT ... SELECT` fail, and why can a plain `ON CONFLICT DO UPDATE` still go back in time?
+    - |-
+      A CTE `batch` with `WHERE r._ingested_at > s.watermark`, then `row_number() OVER (PARTITION BY order_id ORDER BY updated_at DESC, _ingested_at DESC)` and keep `rn = 1`. The upsert's `DO UPDATE SET ... WHERE excluded.updated_at > orders.updated_at` refuses older versions. A second statement updates `load_state`: `coalesce(max of the new rows, the old watermark)` keeps it in place when nothing is new.
+    - |-
+      ```sql
+      WITH batch AS (
+          SELECT r.* FROM raw_orders AS r
+          JOIN load_state AS s ON s.table_name = 'orders'
+          WHERE r._ingested_at > s.watermark
+      ),
+      ranked AS (
+          SELECT order_id, status, amount, updated_at,
+                 row_number() OVER (PARTITION BY order_id
+                                    ORDER BY updated_at DESC, _ingested_at DESC) AS rn
+          FROM batch
+      )
+      INSERT INTO orders (order_id, status, amount, updated_at)
+      SELECT order_id, status, amount, updated_at FROM ranked WHERE rn = 1
+      ON CONFLICT (order_id) DO UPDATE SET ...
+      WHERE ...;
+
+      UPDATE load_state AS s SET watermark = coalesce(..., s.watermark)
+      WHERE s.table_name = 'orders';
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

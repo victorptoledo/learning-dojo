@@ -1,0 +1,25 @@
+id: data-engineer.p3.spark-distributed
+legacy_id: de-03-spark-distributed
+kind: lesson
+status: draft
+title: "Apache Spark: Partitions, Lazy Plans, Shuffles and Skew"
+summary: "How Spark processes data too big for one machine: the driver and executors, DataFrames and lazy evaluation, narrow and wide transformations, shuffles, join strategies, adaptive query execution, data skew and salting, and writing partitioned output."
+objectives:
+  - { id: o1, text: "Explain the driver, executors, partitions, tasks, stages and lazy evaluation", skills: [data-engineer.spark-distributed] }
+  - { id: o2, text: "Tell narrow from wide transformations and reduce shuffles with the right join strategy", skills: [data-engineer.spark-distributed] }
+  - { id: o3, text: "Diagnose skew, spills and small files, and fix them with salting, AQE and repartitioning", skills: [data-engineer.spark-distributed, data-engineer.columnar-storage] }
+prerequisites: [data-engineer.p3.stream-windows]
+difficulty: 4
+estimated_minutes: 50
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A nightly PySpark job joins 3 billion click events with a 20 million row users table and a 300 row countries table, aggregates clicks per user and day, and writes the result. It used to take 40 minutes; now it takes 4 hours, and the Spark UI shows one task of the join stage running for 3 hours while the others finish in a minute. Explain what is happening and how you would fix it.'
+  criteria:
+    - 'Identifies data skew: one key (for example a bot or a null user_id) with a huge share of rows in one shuffle partition'
+    - 'Proposes checking key frequencies and handling nulls or bots separately'
+    - 'Proposes salting the skewed key or enabling adaptive query execution skew join handling'
+    - 'Broadcasts the small countries table to avoid shuffling the large side for it'
+    - 'Mentions the output: repartition by date before writing to avoid many small files'

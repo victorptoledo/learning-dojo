@@ -1,0 +1,24 @@
+id: data-engineer.p2.orchestration
+kind: lesson
+status: draft
+title: "Orchestration: DAGs, Retries and Backfills"
+summary: "Why cron is not enough: DAGs of tasks, logical dates and data intervals, retries and timeouts, idempotent and deterministic tasks, sensors and data-aware scheduling, backfills and catch-up, and the orchestrators people use (Airflow, Dagster, Prefect)."
+objectives:
+  - { id: o1, text: "Model a pipeline as a DAG of tasks with dependencies, retries and timeouts", skills: [data-engineer.orchestration] }
+  - { id: o2, text: "Write tasks that are idempotent and deterministic for a logical date, so reruns and backfills are safe", skills: [data-engineer.orchestration, data-engineer.incremental-loads] }
+  - { id: o3, text: "Plan a backfill and choose between time-based and data-aware scheduling", skills: [data-engineer.orchestration] }
+prerequisites: [data-engineer.p2.quality-checks]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A bug in the currency conversion of `fct_sales` was fixed today. The table holds three years of daily partitions, and two downstream tables and a dashboard depend on it. Plan the backfill: which tasks run for which dates, in what order and with what parallelism, how you keep the dashboard consistent while it runs, and what in the task design makes it safe.'
+  criteria:
+    - 'Backfills fct_sales and every downstream task for the affected dates, in dependency order'
+    - 'Relies on tasks keyed by the logical date that overwrite their partition (idempotent), not on now()'
+    - 'Limits parallelism to protect the warehouse and the sources'
+    - 'Keeps consumers consistent: publish at the end, or write-audit-publish per partition, or communicate a window'
+    - 'Mentions validating results (row counts, totals before and after) before declaring it done'

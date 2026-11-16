@@ -1,0 +1,2 @@
+-- todo: load the rows of raw_orders that landed after the watermark into orders, one latest
+-- version per order, without ever going back to an older version; then move the watermark.

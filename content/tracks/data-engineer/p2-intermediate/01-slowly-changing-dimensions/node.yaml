@@ -1,0 +1,24 @@
+id: data-engineer.p2.slowly-changing-dimensions
+kind: lesson
+status: draft
+title: "Slowly Changing Dimensions"
+summary: "What to do when a customer moves or a product changes category: types 0, 1, 2, 3 and 6, valid-from and valid-to ranges, current flags, point-in-time joins, and how to choose per attribute."
+objectives:
+  - { id: o1, text: "Explain SCD types 0, 1, 2, 3 and 6 and what each does to history", skills: [data-engineer.slowly-changing-dimensions] }
+  - { id: o2, text: "Model a type 2 dimension with surrogate keys, validity ranges and a current flag", skills: [data-engineer.slowly-changing-dimensions, sql.constraints-keys] }
+  - { id: o3, text: "Join facts to the dimension version valid at the time of the fact", skills: [data-engineer.slowly-changing-dimensions, sql.joins] }
+prerequisites: [data-engineer.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A product dimension has name, category, list price, supplier and a "discontinued" flag. Sales managers want last year''s revenue by the category products had at the time, and also by today''s categories. Choose an SCD type for each attribute, design the table, and write (in SQL or pseudo-SQL) the two queries.'
+  criteria:
+    - 'Chooses type 2 for category and justifies it with the point-in-time report'
+    - 'Chooses type 1 (or 0) for corrections such as name typos, with a reason'
+    - 'Designs valid_from, valid_to (or end date), is_current and a surrogate key'
+    - 'Writes a point-in-time join on the fact date between valid_from and valid_to'
+    - 'Gets today''s category with a join on the natural key to the current row, or with a type 6 current column'

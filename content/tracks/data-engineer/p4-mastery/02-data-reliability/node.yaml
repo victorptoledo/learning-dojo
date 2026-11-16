@@ -1,0 +1,24 @@
+id: data-engineer.p4.data-reliability
+kind: lesson
+status: draft
+title: "Reliable Data Products: SLOs, Observability, Incidents and Cost"
+summary: "Running pipelines like production services: data products and their consumers, freshness, completeness and correctness SLOs, data observability and alerting, incident response and postmortems for data, safe changes with environments and CI, and controlling warehouse cost."
+objectives:
+  - { id: o1, text: "Define data SLOs (freshness, completeness, correctness) for a data product and alert on them", skills: [data-engineer.data-reliability] }
+  - { id: o2, text: "Run data incidents: detect, communicate, mitigate, backfill and write a postmortem", skills: [data-engineer.data-reliability, data-engineer.orchestration] }
+  - { id: o3, text: "Ship pipeline changes safely and keep compute and storage cost under control", skills: [data-engineer.data-reliability] }
+prerequisites: [data-engineer.p4.lineage-governance]
+difficulty: 4
+estimated_minutes: 45
+xp: 400
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write the reliability plan for a "daily revenue" data product that finance uses for its 9:00 meeting and that the CEO''s dashboard shows. Include its SLOs, what you monitor and alert on, the on-call runbook for "revenue looks 30% too low at 7:00", how changes to it are tested and released, and one cost control.'
+  criteria:
+    - 'States measurable SLOs: freshness by a time, completeness and a correctness check, with a target percentage'
+    - 'Alerts on symptoms consumers feel (late or anomalous data), not only on task failures'
+    - 'The runbook covers checking upstream sources and lineage, communicating to consumers early, and a fix plus backfill'
+    - 'Describes safe changes: version control, CI with tests on sample data, a staging environment or comparing outputs before switching'
+    - 'Names a cost control: partition pruning, incremental models, warehouse auto-suspend or budgets per team'

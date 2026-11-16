@@ -2,13 +2,24 @@ id: data-engineer.p1.etl-vs-elt
 legacy_id: de-01-etl-vs-elt
 kind: lesson
 status: draft
-title: "ETL vs ELT and Dimensional Modelling (Kimball)"
-summary: "Star and snowflake schemas, fact and dimension tables, and the move to modern ELT."
+title: "ETL vs ELT and the Layers of a Pipeline"
+summary: "Where the transformation happens and why the industry moved from ETL to ELT, the raw, staging and mart layers, reverse ETL, and the trade-offs of each choice."
 objectives:
-  - { id: o1, text: "Star and snowflake schemas, fact and dimension tables, and the move to modern ELT.", skills: [data-engineer.etl-vs-elt] }
-prerequisites: []
+  - { id: o1, text: "Explain ETL and ELT and when each fits", skills: [data-engineer.etl-vs-elt] }
+  - { id: o2, text: "Organise a pipeline in raw, staging and mart layers that can be rebuilt", skills: [data-engineer.etl-vs-elt] }
+  - { id: o3, text: "Write transformations as set-based SQL that the warehouse runs", skills: [data-engineer.etl-vs-elt, sql.cte-recursive] }
+prerequisites: [data-engineer.p0.first-pipeline]
 difficulty: 2
-estimated_minutes: 30
+estimated_minutes: 40
 xp: 150
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your company copies its CRM and billing data with a nightly ETL tool that cleans and joins the data in memory before loading one wide table into the warehouse. Analysts complain that they cannot get the original values back, and every new question needs a change to the tool. Propose an ELT design with layers, and list what you gain and what new risks you must manage.'
+  criteria:
+    - 'Lands the raw data unchanged (with load metadata) before transforming it'
+    - 'Names staging and mart layers with what each contains'
+    - 'Explains that transformations become SQL in the warehouse, versioned and testable'
+    - 'Mentions rebuilding marts from raw data when logic changes'
+    - 'Names at least one risk: storage cost, personal data in raw, compute cost or uncontrolled models'

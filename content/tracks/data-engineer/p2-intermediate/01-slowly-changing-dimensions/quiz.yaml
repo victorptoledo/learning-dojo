@@ -1,0 +1,48 @@
+questions:
+  - id: type1
+    prompt: "A customer's name was misspelled and is corrected. Old reports should show the corrected name too. Which type?"
+    options: ["Type 0", "Type 1", "Type 2", "Type 3"]
+    answer: 1
+    explanation: "Type 1 overwrites in place: corrections should not create history."
+  - id: type2
+    prompt: "Revenue by sales region must show the region a customer belonged to when each order was placed. Which type?"
+    options: ["Type 0", "Type 1", "Type 2", "None"]
+    answer: 2
+    explanation: "Type 2 keeps one row per version, so each fact points at the version of its time."
+  - id: surrogate-per-version
+    prompt: "In a type 2 dimension, why does each version need its own surrogate key?"
+    options:
+      - "So that facts can point at the exact version that was current when they happened"
+      - "Because natural keys are always strings"
+      - "To save storage"
+      - "Surrogate keys are optional in type 2"
+    answer: 0
+    explanation: "The natural key identifies the customer; the surrogate key identifies one version."
+  - id: null-compare
+    prompt: "segment goes from NULL to 'enterprise'. Which condition detects the change?"
+    options:
+      - "d.segment <> s.segment"
+      - "d.segment IS DISTINCT FROM s.segment"
+      - "d.segment = s.segment"
+      - "d.segment != NULL"
+    answer: 1
+    explanation: "<> with a NULL is NULL (not true); IS DISTINCT FROM treats NULL as a comparable value."
+  - id: half-open
+    prompt: "Versions use valid_from (inclusive) and valid_to (exclusive). Which join finds the version valid on order_date?"
+    options:
+      - "order_date BETWEEN valid_from AND valid_to"
+      - "order_date >= valid_from AND order_date < valid_to"
+      - "order_date = valid_from"
+      - "order_date > valid_to"
+    answer: 1
+    explanation: "BETWEEN is inclusive on both ends and matches two versions on the change date."
+  - id: type6
+    prompt: "Reports need both 'segment at the time' and 'segment today' without a second join. Which design?"
+    options: ["Type 1", "Type 3", "Type 6: type 2 rows with a type 1 current_segment column", "Type 0"]
+    answer: 2
+    explanation: "Type 6 combines 1, 2 and 3: full history plus the current value on every row."
+  - id: rerun
+    prompt: "The nightly SCD job runs twice on the same snapshot. What should happen the second time?"
+    options: ["Every customer gets a new version", "Nothing: no attribute differs from the current versions", "The dimension is truncated", "It fails"]
+    answer: 1
+    explanation: "Only real differences create versions, so the job is idempotent."

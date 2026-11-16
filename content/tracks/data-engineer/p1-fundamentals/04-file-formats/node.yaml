@@ -1,0 +1,24 @@
+id: data-engineer.p1.file-formats
+kind: lesson
+status: draft
+title: "File Formats: CSV, JSON Lines, Avro and Parquet"
+summary: "How the formats pipelines exchange really differ: text versus binary, row versus column, schemas, compression and splitting, and how each one survives a schema change."
+objectives:
+  - { id: o1, text: "Read and write CSV and JSON lines safely: encodings, quoting, types and big numbers", skills: [data-engineer.file-formats, python.collections] }
+  - { id: o2, text: "Explain row (Avro) and columnar (Parquet) binary formats and when each fits", skills: [data-engineer.file-formats] }
+  - { id: o3, text: "Plan for schema evolution: added, removed, renamed and retyped fields", skills: [data-engineer.file-formats] }
+prerequisites: [data-engineer.p1.star-schema]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A partner sends a daily 5 GB CSV of transactions by SFTP, and your team streams the same events through Kafka for a fraud model. Recommend a file format for the raw layer, for the Kafka messages and for the analytical tables, and explain how each choice handles a new optional field added next month.'
+  criteria:
+    - 'Keeps the partner CSV unchanged in raw and parses it with explicit encoding, delimiter and types'
+    - 'Chooses Avro (or Protobuf) with a schema registry for Kafka messages'
+    - 'Chooses Parquet (possibly in a table format) for analytical tables, citing column pruning and compression'
+    - 'Explains that an optional field with a default is a compatible change in Avro and a new nullable column in Parquet'
+    - 'Mentions a risk of CSV: no types, quoting, encodings or precision loss'

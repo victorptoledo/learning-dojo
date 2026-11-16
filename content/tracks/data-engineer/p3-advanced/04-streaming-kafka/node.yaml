@@ -1,0 +1,24 @@
+id: data-engineer.p3.streaming-kafka
+kind: lesson
+status: draft
+title: "Streaming with Kafka: Topics, Offsets, Delivery and Windows"
+summary: "Kafka as a distributed log: topics, partitions, keys and ordering, offsets and consumer groups, replication and acks, delivery guarantees and effectively-once processing, compaction and retention, and stream processing with event time, windows and watermarks."
+objectives:
+  - { id: o1, text: "Explain topics, partitions, keys, offsets, consumer groups and replication", skills: [data-engineer.streaming-kafka] }
+  - { id: o2, text: "Reason about at-most-once, at-least-once and effectively-once delivery and offset commits", skills: [data-engineer.streaming-kafka] }
+  - { id: o3, text: "Aggregate streams by event time with windows, watermarks and late data", skills: [data-engineer.streaming-kafka] }
+prerequisites: [data-engineer.p3.partitioned-lake]
+difficulty: 4
+estimated_minutes: 50
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design a streaming pipeline that counts payments per merchant every minute for a live fraud dashboard, from a Kafka topic produced by the payment service. Cover the topic design (partitions, key, retention), the consumer (group, offset commits, restarts), how you handle out-of-order and late payments, and how results reach the dashboard without double counting.'
+  criteria:
+    - 'Keys messages by merchant (or payment) id and explains per-partition ordering and the partition count'
+    - 'Describes a consumer group, committing offsets after processing, and the redelivery this implies'
+    - 'Uses event time with tumbling one-minute windows, a watermark and a policy for late events'
+    - 'Makes the output idempotent (upsert by merchant and window, or transactions) for effectively-once results'
+    - 'Mentions schemas (Avro or Protobuf with a registry) or monitoring consumer lag'

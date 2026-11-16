@@ -1,0 +1,47 @@
+questions:
+  - id: dimension
+    prompt: "The extract ran successfully but returned 0 rows because an API token expired. Which check catches it?"
+    options: ["A unique check", "A volume or freshness check", "An accepted values check", "A not-null check"]
+    answer: 1
+    explanation: "Empty or stale data passes row-level checks; volume and freshness checks catch silent failures."
+  - id: failing-rows
+    prompt: "Why write data checks as queries that return the failing rows?"
+    options:
+      - "Because counting is not allowed in SQL"
+      - "Zero rows means pass, and the rows themselves explain what is wrong"
+      - "It is faster than a count"
+      - "Tools cannot run any other kind"
+    answer: 1
+    explanation: "Failing rows make the investigation start immediately."
+  - id: relationship
+    prompt: "Which check finds payments whose customer_id is not in dim_customer?"
+    options: ["not_null(customer_id)", "unique(customer_id)", "relationships to dim_customer.customer_id", "accepted_values(customer_id)"]
+    answer: 2
+    explanation: "A relationships (referential integrity) check finds orphans."
+  - id: severity
+    prompt: "Duplicated payment_ids appear in today's batch of fct_payments. What should happen?"
+    options:
+      - "Publish and fix tomorrow"
+      - "It is an error: stop at the quality gate, keep yesterday's data published, alert"
+      - "Delete one of each pair at random"
+      - "Only log a warning"
+    answer: 1
+    explanation: "Duplicates at the grain corrupt every sum; that must block publication."
+  - id: wap
+    prompt: "What is write-audit-publish?"
+    options:
+      - "Writing logs, auditing them yearly, publishing a report"
+      - "Writing new data where consumers cannot see it, checking it, then publishing it by a swap"
+      - "A way to encrypt tables"
+      - "A git workflow"
+    answer: 1
+    explanation: "Consumers only ever see data that passed the audit."
+  - id: contract
+    prompt: "What makes a data contract effective rather than a document nobody reads?"
+    options:
+      - "A long PDF"
+      - "Checking it automatically in the producer's CI, so breaking changes fail their build"
+      - "Signing it every year"
+      - "Keeping it in the consumer's repository only"
+    answer: 1
+    explanation: "Automated checks at the producer stop breaking changes before they ship."

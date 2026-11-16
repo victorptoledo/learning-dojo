@@ -1,0 +1,24 @@
+id: data-engineer.p4.lineage-governance
+kind: lesson
+status: draft
+title: "Lineage, Catalogs and Governance"
+summary: "Knowing where data comes from and who may use it: table and column lineage, OpenLineage, data catalogs and ownership, access control and row and column security, personal data, retention and the right to erasure, and governance that helps instead of blocking."
+objectives:
+  - { id: o1, text: "Explain table and column lineage and use it for impact analysis and debugging", skills: [data-engineer.lineage-governance] }
+  - { id: o2, text: "Design access control for analytical data: roles, row filters, column masks and least privilege", skills: [data-engineer.lineage-governance] }
+  - { id: o3, text: "Handle personal data: classification, minimisation, retention and erasure across layers", skills: [data-engineer.lineage-governance] }
+prerequisites: [data-engineer.p3.spark-distributed]
+difficulty: 4
+estimated_minutes: 45
+xp: 400
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A customer asks the company to delete all their personal data (a GDPR erasure request). Their data is in the application database, in raw JSON files in the lake, in staging and mart tables, in a type 2 customer dimension with history, in Kafka topics and in last month''s backups. Describe how you find every copy and how you erase or anonymise it while keeping the warehouse''s aggregates correct.'
+  criteria:
+    - 'Uses lineage and a catalog with classified columns to find every table derived from the sources'
+    - 'Handles immutable layers: rewriting raw files or partitions, or crypto-shredding with per-person keys'
+    - 'Distinguishes deleting the person from keeping anonymised facts (replacing keys) so totals stay right'
+    - 'Covers Kafka retention or compacted tombstones, and backups expiring within a stated retention'
+    - 'Records the erasure and its deadline, with an owner'

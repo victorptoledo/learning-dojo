@@ -1,0 +1,51 @@
+questions:
+  - id: buy
+    prompt: "A five-person data team needs 40 SaaS connectors. What is usually the right call?"
+    options:
+      - "Write and maintain all 40 connectors in-house"
+      - "Use a managed ingestion tool and spend the team's time on models and data products"
+      - "Ask each SaaS vendor to send CSVs"
+      - "Skip ingestion"
+    answer: 1
+    explanation: "Connectors are undifferentiated and maintenance-heavy; buy them and build what is specific."
+  - id: mesh
+    prompt: "What must exist before a data mesh can work?"
+    options:
+      - "Only a new org chart"
+      - "Mature domain teams, a self-serve platform and federated standards for governance"
+      - "One central data team doing everything"
+      - "A single huge Spark cluster"
+    answer: 1
+    explanation: "Without the platform and shared standards, domain ownership leads to chaos."
+  - id: non-goals
+    prompt: "Why list non-goals in a design document?"
+    options:
+      - "To make it longer"
+      - "To make scope explicit, so reviewers and stakeholders know what will not be solved"
+      - "Because templates require it"
+      - "To blame other teams"
+    answer: 1
+    explanation: "Non-goals prevent scope creep and misunderstandings."
+  - id: open-formats
+    prompt: "Why prefer open formats such as Parquet and Iceberg when choosing a platform?"
+    options:
+      - "They are always faster"
+      - "Several engines can read the data, which keeps the option to change vendors"
+      - "They need no maintenance"
+      - "They are encrypted by default"
+    answer: 1
+    explanation: "Openness reduces lock-in and lets the right engine serve each workload."
+  - id: thin-slice
+    prompt: "How should a new data platform start delivering value?"
+    options:
+      - "Build every layer for a year, then onboard users"
+      - "One important data product end to end, with tests and an owner, then expand"
+      - "Copy every table from every source first"
+      - "Start with machine learning"
+    answer: 1
+    explanation: "Thin slices prove the platform and earn trust early."
+  - id: adr
+    prompt: "What does an architecture decision record preserve that code does not?"
+    options: ["The exact SQL", "The context, the decision and why alternatives were rejected", "Test coverage", "Passwords"]
+    answer: 1
+    explanation: "ADRs keep the reasoning for people who arrive later."

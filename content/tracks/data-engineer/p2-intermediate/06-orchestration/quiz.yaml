@@ -1,0 +1,47 @@
+questions:
+  - id: dag
+    prompt: "What does the 'acyclic' in DAG guarantee?"
+    options:
+      - "Tasks never fail"
+      - "There is an order in which every task runs after all its upstream tasks"
+      - "Tasks run in parallel"
+      - "Each task has one upstream"
+    answer: 1
+    explanation: "Without cycles a topological order exists; with a cycle no task in it could start."
+  - id: logical-date
+    prompt: "A daily task filters WHERE day = current_date - 1. What breaks?"
+    options:
+      - "Nothing"
+      - "Reruns and backfills: running it for 15 November next month processes the wrong day"
+      - "It cannot use indexes"
+      - "It needs a timeout"
+    answer: 1
+    explanation: "Tasks must use the logical date they are given, not the clock."
+  - id: upstream-failed
+    prompt: "extract_a fails after its retries; load_a depends on it; extract_b is independent. What should happen?"
+    options:
+      - "Everything stops"
+      - "load_a is marked upstream_failed and skipped; extract_b and its branch still run"
+      - "load_a runs with no data"
+      - "extract_b is retried"
+    answer: 1
+    explanation: "Only the tasks that depend on the failure are skipped."
+  - id: no-retry
+    prompt: "Which failure should not be retried automatically?"
+    options: ["A network timeout", "HTTP 429 rate limit", "A quality gate finding duplicated keys", "A database failover"]
+    answer: 2
+    explanation: "Retrying cannot fix bad data; fail fast and alert."
+  - id: backfill-order
+    prompt: "A task builds a running balance where each day starts from the previous day's result. How do you backfill it?"
+    options: ["All dates in parallel", "In date order, one day after another", "Newest first", "Only the last day"]
+    answer: 1
+    explanation: "Days that depend on earlier days must run in order; independent days can run in parallel."
+  - id: sensor
+    prompt: "The partner's file arrives at any time between 00:30 and 04:00. Which scheduling fits better than a fixed 01:00 run?"
+    options:
+      - "Run every minute"
+      - "A sensor waiting for the file (with a timeout), or a data-aware trigger when it lands"
+      - "Run at 05:00 and hope"
+      - "Ask the partner to stop sending it"
+    answer: 1
+    explanation: "Waiting on the data itself removes the race with upstream timing."

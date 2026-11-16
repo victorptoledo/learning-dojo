@@ -1,0 +1,51 @@
+questions:
+  - id: csv-types
+    prompt: "A CSV column of product codes like 007 and 012 ends up as 7 and 12. Why?"
+    options:
+      - "CSV files are compressed"
+      - "CSV has no types, and a tool guessed that the column was numeric"
+      - "The file was too big"
+      - "UTF-8 cannot store zeros"
+    answer: 1
+    explanation: "Type inference on untyped text is a classic source of silent corruption; read such columns as text."
+  - id: json-float
+    prompt: "Why read JSON amounts with parse_float=Decimal in a financial pipeline?"
+    options:
+      - "It is faster"
+      - "A binary float cannot represent most decimal amounts exactly, so cents drift"
+      - "JSON does not allow decimals"
+      - "Decimal uses less memory"
+    answer: 1
+    explanation: "0.1 has no exact binary representation; decimals keep the amounts exact."
+  - id: row-vs-column
+    prompt: "Which format fits Kafka messages written one record at a time with a schema?"
+    options: ["Parquet", "Avro", "CSV", "Excel"]
+    answer: 1
+    explanation: "Avro is row-oriented with an embedded or registered schema; Parquet is built for large columnar files."
+  - id: parquet-why
+    prompt: "SELECT avg(amount) FROM sales reads one column of a billion rows. Why is Parquet much faster than CSV here?"
+    options:
+      - "Parquet files are always smaller than 1 MB"
+      - "It reads only the amount column, already typed and compressed, instead of parsing every row"
+      - "Parquet keeps an average in the header"
+      - "CSV cannot hold a billion rows"
+    answer: 1
+    explanation: "Columnar layout lets readers skip unneeded columns and decode typed, compressed data."
+  - id: evolution
+    prompt: "Which schema change is backward compatible for Avro readers?"
+    options:
+      - "Renaming customer_id to client_id"
+      - "Changing amount from int to string"
+      - "Adding an optional field with a default value"
+      - "Adding a required field without a default"
+    answer: 2
+    explanation: "Old data gets the default, old readers ignore the new field."
+  - id: splittable
+    prompt: "Why is one 20 GB gzip-compressed CSV slow to process in parallel?"
+    options:
+      - "gzip is not splittable: one reader must decompress it from the start"
+      - "CSV files cannot be compressed"
+      - "Parallel readers need JSON"
+      - "20 GB exceeds every file system"
+    answer: 0
+    explanation: "Splittable formats (Parquet, Avro, or many smaller files) let many workers read at once."

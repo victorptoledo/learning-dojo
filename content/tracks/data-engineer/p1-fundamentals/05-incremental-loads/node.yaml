@@ -1,0 +1,24 @@
+id: data-engineer.p1.incremental-loads
+kind: lesson
+status: draft
+title: "Incremental Loads, Watermarks and Idempotency"
+summary: "Full reloads versus incremental loads, watermarks on update or ingestion time, late data and lookback windows, deduplication, upserts and MERGE, and why every load must be safe to run twice."
+objectives:
+  - { id: o1, text: "Choose between full and incremental loads and pick a reliable watermark column", skills: [data-engineer.incremental-loads] }
+  - { id: o2, text: "Make loads idempotent with upserts, MERGE or partition overwrites", skills: [data-engineer.incremental-loads, sql.dml] }
+  - { id: o3, text: "Deduplicate versions deterministically with window functions", skills: [data-engineer.incremental-loads, sql.window-functions] }
+prerequisites: [data-engineer.p1.file-formats]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An hourly job copies new rows from a source table `payments(id, status, amount, updated_at)` with `WHERE updated_at > :last_run_time` and appends them to the warehouse. Finance reports duplicated payments and some missing status changes. Explain every cause you can find and redesign the job so that it is correct and safe to rerun.'
+  criteria:
+    - 'Explains that appending versions creates duplicates and an upsert or merge on id is needed'
+    - 'Explains that using the job clock instead of the data watermark misses rows (clock skew, long transactions committing late)'
+    - 'Adds a lookback window or ingestion-time watermark and deduplication to cover late rows'
+    - 'Stores the watermark only after the load succeeds, in the same transaction if possible'
+    - 'Mentions deletes in the source, which a timestamp watermark cannot see (soft deletes, periodic full reconciliation or CDC)'

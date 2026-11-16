@@ -1,0 +1,2 @@
+-- todo: year, month, category and revenue from the star schema only,
+-- ordered by year, month, category.

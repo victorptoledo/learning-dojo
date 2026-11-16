@@ -1,0 +1,49 @@
+id: data-engineer.p2.scd2-dimension
+kind: kata
+status: draft
+title: "A Type 2 Customer Dimension"
+summary: "Apply nightly CRM snapshots to a customer dimension: close and open versions for type 2 attributes, overwrite type 1 corrections, compare NULLs correctly, stay idempotent, and report with a point-in-time join."
+objectives:
+  - { id: o1, text: "Close and open versions of a type 2 dimension with valid_from, valid_to and is_current", skills: [data-engineer.slowly-changing-dimensions, sql.dml] }
+  - { id: o2, text: "Combine type 1 and type 2 attributes and compare nullable columns with IS DISTINCT FROM", skills: [data-engineer.slowly-changing-dimensions, sql.nulls] }
+  - { id: o3, text: "Join facts to the version that was valid on the fact's date", skills: [data-engineer.slowly-changing-dimensions, sql.joins] }
+prerequisites: [data-engineer.p2.slowly-changing-dimensions]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 60 }
+  hints:
+    - |-
+      Handle the three kinds of change as three statements. Which one must run first so that a type 1 correction also lands on the version you are about to create? How do you find the customers whose current version differs in city or segment, and why does `d.segment <> s.segment` miss one of them?
+    - |-
+      Start with `UPDATE dim_customer AS d SET name = s.name FROM customer_snapshot AS s WHERE ... AND d.name IS DISTINCT FROM s.name`. Then close the changed current versions with `(d.city, d.segment) IS DISTINCT FROM (s.city, s.segment)` and insert the new versions from the same rows (a CTE with `RETURNING`). New customers come from `NOT EXISTS`. The report joins on `customer_id` and `order_date >= valid_from AND order_date < valid_to`.
+    - |-
+      ```sql
+      WITH closed AS (
+          UPDATE dim_customer AS d
+          SET valid_to = s.snapshot_date, is_current = false
+          FROM customer_snapshot AS s
+          WHERE d.customer_id = s.customer_id
+            AND d.is_current
+            AND ...
+          RETURNING s.customer_id, s.name, s.city, s.segment, s.snapshot_date
+      )
+      INSERT INTO dim_customer (customer_id, name, city, segment, valid_from, valid_to, is_current)
+      SELECT customer_id, name, city, segment, snapshot_date, DATE '9999-12-31', true
+      FROM closed;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

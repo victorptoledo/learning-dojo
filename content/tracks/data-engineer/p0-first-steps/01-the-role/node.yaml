@@ -1,0 +1,24 @@
+id: data-engineer.p0.the-role
+kind: lesson
+status: draft
+title: "The Data Engineer Role and the Data Lifecycle"
+summary: "What data engineers build and for whom, the lifecycle from source systems to dashboards and models, OLTP versus OLAP, batch versus streaming, and the toolbox this track uses: SQL, Python and Docker."
+objectives:
+  - { id: o1, text: "Describe what a data engineer owns and how the role differs from analysts, analytics engineers and data scientists", skills: [data-engineer.role] }
+  - { id: o2, text: "Walk through the data lifecycle: generation, ingestion, storage, transformation and serving", skills: [data-engineer.role] }
+  - { id: o3, text: "Tell OLTP from OLAP and batch from streaming, and name the tool for each job", skills: [data-engineer.role, sql.select-basics, python.tooling-uv, docker.setup] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A subscription business wants a daily dashboard of revenue, churn and active users, built from its PostgreSQL application database, Stripe payments and a product events stream. Describe the pipeline you would build through each stage of the data lifecycle, and say who the consumers are and what each needs from you.'
+  criteria:
+    - 'Names the sources and how each is ingested (database extract or CDC, an API, an event stream)'
+    - 'Separates the application database (OLTP) from an analytical store (OLAP) and says why'
+    - 'Describes transformation into modelled, tested tables and how the dashboard is served'
+    - 'Chooses batch or streaming per source with a reason (freshness needed versus cost)'
+    - 'Mentions at least one non-functional concern: data quality, reruns, access control or cost'

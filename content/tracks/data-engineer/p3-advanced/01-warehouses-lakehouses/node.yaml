@@ -1,0 +1,24 @@
+id: data-engineer.p3.warehouses-lakehouses
+kind: lesson
+status: draft
+title: "Warehouses, Lakes and Lakehouses"
+summary: "How analytical storage is built: MPP warehouses and the separation of storage and compute, data lakes on object storage, open table formats (Apache Iceberg, Delta Lake, Apache Hudi) with ACID commits and time travel, and the medallion layers."
+objectives:
+  - { id: o1, text: "Explain how cloud warehouses scale: columnar storage, MPP and separated storage and compute", skills: [data-engineer.warehouses-lakehouses] }
+  - { id: o2, text: "Explain what open table formats add to files in a lake: transactions, schema evolution, time travel", skills: [data-engineer.warehouses-lakehouses, data-engineer.columnar-storage] }
+  - { id: o3, text: "Choose between a warehouse, a lake and a lakehouse for a workload", skills: [data-engineer.warehouses-lakehouses] }
+prerequisites: [data-engineer.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A company has 40 TB of clickstream data in daily JSON files on object storage, a 2 TB sales warehouse in a cloud warehouse, and a data science team that trains models on Spark. Leadership asks whether to move everything into the warehouse or adopt a lakehouse. Write your recommendation with the trade-offs.'
+  criteria:
+    - 'Compares cost and openness: one engine''s storage versus open formats on object storage'
+    - 'Explains what a table format (Iceberg, Delta, Hudi) adds: ACID commits, schema evolution, time travel, multiple engines'
+    - 'Considers the workloads: BI SQL, data science on Spark, governance'
+    - 'Proposes converting raw JSON into partitioned Parquet tables (bronze, silver, gold)'
+    - 'Mentions a migration or operating risk: compaction, catalog choice, skills, vendor support'

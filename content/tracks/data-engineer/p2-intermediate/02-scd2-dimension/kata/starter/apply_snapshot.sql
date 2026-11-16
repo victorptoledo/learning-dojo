@@ -1,0 +1,3 @@
+-- todo: apply customer_snapshot to dim_customer: name is type 1 (overwrite every version),
+-- city and segment are type 2 (close the current version, open a new one), new customers
+-- get their first version. Applying the same snapshot twice must change nothing.
