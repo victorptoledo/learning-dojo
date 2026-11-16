@@ -1,0 +1,51 @@
+questions:
+  - id: stored
+    prompt: "A user sets their display name to <img src=x onerror=alert(1)> and every visitor of the members page runs the script. Which form of XSS is this?"
+    options: ["Reflected", "Stored", "DOM-based", "Self-XSS"]
+    answer: 1
+    explanation: "The payload is saved by the app and served to other users later."
+  - id: denylist
+    prompt: "Why is removing '<script>' from input not a fix for XSS?"
+    options:
+      - "It is too slow"
+      - "Event handlers like onerror, other tags like <svg>, case and encoding tricks all run script without that string"
+      - "Browsers ignore <script> tags anyway"
+      - "It breaks Unicode"
+    answer: 1
+    explanation: "Deny-lists miss variants; encode output for its context instead."
+  - id: fullmatch
+    prompt: "re.match(r'^[a-z]+$', value) accepts which of these unexpectedly?"
+    options: ["'ABC'", "'abc\\n' (with a trailing newline)", "'a b'", "''"]
+    answer: 1
+    explanation: "$ matches before a final newline; use re.fullmatch or \\Z."
+  - id: href
+    prompt: "html.escape(url, quote=True) is applied to a user's profile link in <a href=\"...\">. What can still go wrong?"
+    options:
+      - "Nothing, it is encoded"
+      - "A javascript: URL still runs when clicked; the scheme must be checked"
+      - "The quotes are removed"
+      - "Links cannot contain &"
+    answer: 1
+    explanation: "Encoding keeps the attribute well-formed, but javascript:alert(1) needs no special characters to run."
+  - id: rich-text
+    prompt: "Users may write formatted bios with bold, links and lists. What is the right approach?"
+    options:
+      - "html.escape the whole bio"
+      - "Remove tags with a regular expression"
+      - "Render to HTML and clean it with an allow-list HTML sanitiser library"
+      - "Trust it if the user is verified"
+    answer: 2
+    explanation: "Escaping destroys the formatting and regex filters get bypassed; a parsing allow-list sanitiser keeps only safe tags and attributes."
+  - id: csp
+    prompt: "Which CSP directive value gives away most of CSP's protection against XSS?"
+    answers: ["'unsafe-inline'", "unsafe-inline"]
+    explanation: "With 'unsafe-inline' in script-src, injected inline scripts and event handlers run again."
+  - id: httponly
+    prompt: "The session cookie is HttpOnly. An XSS bug is found. What does HttpOnly change?"
+    options:
+      - "Nothing at all"
+      - "The script cannot read the cookie, but it can still send requests as the user from the page"
+      - "The XSS cannot run"
+      - "The browser logs the user out"
+    answer: 1
+    explanation: "It stops cookie theft, not the attack: the script runs on your origin with the user's session."

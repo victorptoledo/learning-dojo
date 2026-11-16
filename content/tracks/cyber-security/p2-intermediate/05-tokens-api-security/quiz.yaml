@@ -1,0 +1,47 @@
+questions:
+  - id: jwt-encrypted
+    prompt: "Is the payload of a normal signed JWT secret?"
+    options: ["Yes, it is encrypted", "No: it is only Base64url-encoded and anyone holding the token can read it", "Only the sub claim is hidden", "Only over HTTPS"]
+    answer: 1
+    explanation: "A JWS proves integrity, not confidentiality. Do not put secrets or personal data you would not show the user in it."
+  - id: alg-confusion
+    prompt: "What stops the RS256-to-HS256 algorithm confusion attack?"
+    options:
+      - "A longer RSA key"
+      - "Pinning the expected algorithm for each key instead of reading it from the token header"
+      - "Encrypting the token"
+      - "Checking the exp claim"
+    answer: 1
+    explanation: "If the verifier decides the algorithm, the public key is never used as an HMAC secret."
+  - id: aud
+    prompt: "A token issued for the billing API is accepted by the admin API. Which claim check is missing?"
+    answers: ["aud", "audience"]
+    explanation: "The audience claim says which service the token is for; each API must require its own name."
+  - id: pkce
+    prompt: "Which OAuth flow should a mobile app use to sign users in?"
+    options: ["Resource owner password grant", "Implicit grant", "Authorization code with PKCE through the system browser", "Client credentials"]
+    answer: 2
+    explanation: "The app never sees the password, and PKCE makes an intercepted code useless."
+  - id: refresh
+    prompt: "Why pair short-lived access tokens with refresh tokens?"
+    options:
+      - "Refresh tokens are faster"
+      - "Access tokens cannot be revoked, so a short lifetime limits a leak; the revocable refresh token keeps the user logged in"
+      - "To avoid HTTPS"
+      - "Refresh tokens replace passwords"
+    answer: 1
+    explanation: "Revocation happens at the refresh step; rotation also detects a stolen refresh token when both copies are used."
+  - id: rotation-order
+    prompt: "What is the safe order for rotating a token signing key?"
+    options:
+      - "Sign with the new key, then tell the verifiers"
+      - "Publish the new key to all verifiers, start signing with it, remove the old key after the longest token lifetime"
+      - "Remove the old key, then create the new one"
+      - "Rotate only after a breach"
+    answer: 1
+    explanation: "Verifiers must know a key before any token signed with it arrives, and keep the old one while its tokens are alive."
+  - id: bola
+    prompt: "In the OWASP API Security Top 10, what is BOLA?"
+    options: ["A rate-limit problem", "Broken object level authorisation: accessing other users' objects by id", "A JWT flaw", "Bad logging"]
+    answer: 1
+    explanation: "It is the API name for IDOR, and the most common API vulnerability."

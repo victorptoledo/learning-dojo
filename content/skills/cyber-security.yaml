@@ -1,4 +1,17 @@
 namespace: cyber-security
 skills:
-  - { id: cyber-security.owasp-top-10, title: "OWASP Top 10: Injection, Broken Authentication and SSRF" }
-  - { id: cyber-security.cryptography-secrets, title: "Modern Cryptography: Password Hashing, AES-GCM and TLS" }
+  - { id: cyber-security.security-mindset, title: "The Security Mindset: CIA, Risk and the Defender's Role" }
+  - { id: cyber-security.owasp-top-10, title: "OWASP Top 10: the Most Common Web Application Risks" }
+  - { id: cyber-security.injection, title: "Injection: SQL, Commands and Paths" }
+  - { id: cyber-security.xss-validation, title: "Input Validation, Output Encoding and XSS" }
+  - { id: cyber-security.authn-access-control, title: "Authentication, Sessions and Access Control" }
+  - { id: cyber-security.cryptography-secrets, title: "Modern Cryptography: Password Hashing, AES-GCM and Secrets" }
+  - { id: cyber-security.signatures-pki, title: "MACs, Digital Signatures, Certificates and TLS" }
+  - { id: cyber-security.tokens-api-security, title: "Tokens and API Security: JWT, OAuth 2.0 and Key Rotation" }
+  - { id: cyber-security.logging-detection, title: "Security Logging, Monitoring and Detection" }
+  - { id: cyber-security.hardening, title: "Hardening Servers and Services" }
+  - { id: cyber-security.web-hardening, title: "Web Hardening: Security Headers, Cookies, CORS and TLS" }
+  - { id: cyber-security.cloud-supply-chain, title: "Cloud Security and the Software Supply Chain" }
+  - { id: cyber-security.threat-modeling, title: "Threat Modeling with STRIDE" }
+  - { id: cyber-security.incident-response, title: "Incident Response and Forensics Basics" }
+  - { id: cyber-security.security-program, title: "Secure SDLC, Vulnerability Management and Security Leadership" }

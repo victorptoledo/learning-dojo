@@ -1,0 +1,24 @@
+id: cyber-security.p2.signatures-pki
+kind: lesson
+status: draft
+title: "MACs, Digital Signatures, Certificates and TLS"
+summary: "How HMAC and digital signatures (Ed25519, ECDSA, RSA-PSS) prove integrity and origin, how certificates and the Web PKI bind keys to names, and what TLS 1.3 does with them."
+objectives:
+  - { id: o1, text: "Choose between a MAC and a digital signature and verify either correctly, including replay protection", skills: [cyber-security.signatures-pki] }
+  - { id: o2, text: "Explain certificates, chains of trust, revocation and certificate transparency", skills: [cyber-security.signatures-pki] }
+  - { id: o3, text: "Describe what TLS 1.3 protects and configure it safely, including mutual TLS", skills: [cyber-security.signatures-pki] }
+prerequisites: [cyber-security.p2.password-storage]
+difficulty: 3
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your company ships a desktop app that downloads updates from a CDN, and receives webhooks from a payment provider. Design how the app verifies that an update is genuine and how your server verifies that a webhook really comes from the provider and is not a replay. Say which keys exist, who holds each one, and what happens when one of them leaks.'
+  criteria:
+    - 'Uses a digital signature for updates: the private key stays with the release process (ideally in an HSM or KMS) and the app embeds only public keys'
+    - 'Uses an HMAC with a shared secret, or the provider''s signature, for webhooks, computed over the raw request body'
+    - 'Adds replay protection with a signed timestamp and a tolerance window, and optionally an event id seen-before check'
+    - 'Compares MACs in constant time and rejects on any parsing or verification error (fail closed)'
+    - 'Plans key rotation: several trusted keys or key ids, revocation of a leaked key, and how the app learns the new key'

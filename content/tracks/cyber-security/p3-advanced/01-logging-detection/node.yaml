@@ -1,0 +1,24 @@
+id: cyber-security.p3.logging-detection
+kind: lesson
+status: draft
+title: "Security Logging, Monitoring and Detection"
+summary: "What to log for security and what never to log, keeping logs trustworthy, turning them into detections (thresholds, sequences, MITRE ATT&CK), SIEM basics, and alerts that people act on."
+objectives:
+  - { id: o1, text: "Decide which security events to log, with which fields, and keep secrets and personal data out", skills: [cyber-security.logging-detection] }
+  - { id: o2, text: "Protect logs against injection, tampering and loss", skills: [cyber-security.logging-detection] }
+  - { id: o3, text: "Write detection rules for brute force, credential stuffing and suspicious sequences, and tune their alerts", skills: [cyber-security.logging-detection] }
+prerequisites: [cyber-security.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your login service logs only "login ok" and "login failed" lines with the username, and the logs stay on each server for three days. Design the security logging for it: the events and fields, what must never appear, where the logs go and for how long, and three detection rules with the threshold, the time window and what the on-call person does when each fires.'
+  criteria:
+    - 'Logs authentication successes and failures, MFA events, password and email changes, lockouts and access denials, with timestamp in UTC, source IP, user or account id, outcome, and a request or trace id'
+    - 'Excludes passwords, tokens, session ids, full card numbers and unnecessary personal data, and encodes or structures fields against log injection'
+    - 'Ships logs off the host to central, append-only or access-controlled storage with a retention period set by need or regulation'
+    - 'Gives detections such as failures per IP or per account in a window, many accounts from one IP (spraying), a success after many failures, or impossible travel, each with a threshold'
+    - 'Each alert has a response (runbook step) and the answer considers false positives and alert fatigue'

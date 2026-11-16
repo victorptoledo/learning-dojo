@@ -1,0 +1,51 @@
+questions:
+  - id: hsts
+    prompt: "What does Strict-Transport-Security: max-age=31536000; includeSubDomains do?"
+    options:
+      - "Encrypts cookies"
+      - "Makes the browser use only HTTPS for this host and its subdomains for a year"
+      - "Blocks iframes"
+      - "Enables HTTP/2"
+    answer: 1
+    explanation: "After the first HTTPS visit, the browser refuses plain HTTP, which stops SSL stripping."
+  - id: nonce
+    prompt: "In a nonce-based CSP, how often should the nonce change?"
+    options: ["Never", "Once per deploy", "On every response, from a CSPRNG", "Once per user"]
+    answer: 2
+    explanation: "A predictable or reused nonce can be copied into an injected script tag."
+  - id: frame
+    prompt: "Which CSP directive replaces X-Frame-Options against clickjacking?"
+    answers: ["frame-ancestors"]
+    explanation: "frame-ancestors 'none' or 'self' says which origins may embed the page."
+  - id: nosniff
+    prompt: "What does X-Content-Type-Options: nosniff prevent?"
+    options:
+      - "Caching"
+      - "The browser treating a response as a different type than declared, such as running an uploaded text file as a script"
+      - "Cookies being read"
+      - "Compression"
+    answer: 1
+    explanation: "Without it, MIME sniffing can turn user uploads into executable content."
+  - id: cors-reflect
+    prompt: "An API reflects any Origin into Access-Control-Allow-Origin and sends Allow-Credentials: true. What is the impact?"
+    options:
+      - "None, CORS is a browser feature"
+      - "Any website a logged-in user visits can read that user's API responses"
+      - "The API becomes slower"
+      - "Only GET requests work"
+    answer: 1
+    explanation: "Credentials plus a reflected origin give every site cross-origin read access with the victim's cookies."
+  - id: cors-not-authz
+    prompt: "Is a strict CORS policy enough to protect an API from unauthorised callers?"
+    options:
+      - "Yes"
+      - "No: CORS only controls what browsers expose to pages; other clients ignore it, so the API must still authenticate and authorise"
+      - "Yes, if the allow-list is short"
+      - "Only for POST"
+    answer: 1
+    explanation: "CORS relaxes the browser's same-origin policy; it is not an access control mechanism."
+  - id: samesite-none
+    prompt: "A cookie is set with SameSite=None but without Secure. What do modern browsers do?"
+    options: ["Accept it", "Reject the cookie", "Treat it as Strict", "Send it over HTTP only"]
+    answer: 1
+    explanation: "SameSite=None requires the Secure attribute."

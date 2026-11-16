@@ -1,0 +1,52 @@
+id: cyber-security.p1.sql-injection-fix
+kind: kata
+status: draft
+title: "Fix the SQL Injection: a Product Store on SQLite"
+summary: "A small data-access module builds every query with f-strings. Make it injection-proof with bound parameters, an allow-list for the sort order, one placeholder per IN value and escaped LIKE wildcards, without changing what it returns for honest input."
+objectives:
+  - { id: o1, text: "Replace string-built SQL with bound parameters", skills: [cyber-security.injection] }
+  - { id: o2, text: "Handle the parts of SQL that cannot be parameters with allow-lists and validated integers", skills: [cyber-security.injection] }
+  - { id: o3, text: "Escape LIKE wildcards and build IN lists with one placeholder per value", skills: [cyber-security.injection] }
+prerequisites: [cyber-security.p1.injection]
+difficulty: 2
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Look for every `f"..."` that reaches `conn.execute`. Each value from the caller becomes a `?` in the SQL and goes into the tuple of the second argument. Which parts of `search_products` can not be a `?`? Those need a dictionary of the SQL you allow.
+    - |-
+      For `LIKE`, escape the backslash first, then `%` and `_`: `term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")`, then bind `f"%{escaped}%"` and add `ESCAPE '\'` to the SQL. For the limit, check `type(limit) is int` (a `bool` is an `int` too) before clamping. For `products_by_ids`, build `", ".join("?" for _ in ids)`.
+    - |-
+      ```python
+      SORT_COLUMNS = {"name": "name", "price": "price_cents", "newest": "created_at"}
+
+
+      def search_products(conn, term, *, sort="name", descending=False, limit=20):
+          column = SORT_COLUMNS.get(sort)
+          if column is None:
+              raise ValueError(f"unknown sort: {sort!r}")
+          direction = "DESC" if descending else "ASC"
+          # validate limit, escape term, then:
+          rows = conn.execute(
+              f"SELECT id, name, price_cents FROM products WHERE name LIKE ? ESCAPE '\\' "
+              f"ORDER BY {column} {direction}, id LIMIT ?",
+              (pattern, limit),
+          ).fetchall()
+          ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

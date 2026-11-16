@@ -1,0 +1,43 @@
+questions:
+  - id: fast-hash
+    prompt: "Why is SHA-256 a bad choice for storing passwords, even with a salt?"
+    options: ["It is broken", "It is designed to be fast, so attackers can test billions of guesses per second", "It produces collisions", "It is too long"]
+    answer: 1
+    explanation: "SHA-256 is fine for fingerprints; passwords need a deliberately slow, memory-hard KDF."
+  - id: salt
+    prompt: "What does a per-user random salt achieve?"
+    options:
+      - "It makes each guess slower"
+      - "Equal passwords get different hashes and precomputed tables become useless"
+      - "It encrypts the password"
+      - "It replaces the need for a KDF"
+    answer: 1
+    explanation: "The salt stops batch attacks across users; the cost parameter makes each guess slow."
+  - id: first-choice
+    prompt: "Which password hashing algorithm does OWASP recommend first?"
+    answers: ["Argon2id", "argon2"]
+    explanation: "Argon2id, with at least 19 MiB of memory, 2 iterations and 1 lane; scrypt, bcrypt and PBKDF2 are fallbacks."
+  - id: nonce-reuse
+    prompt: "What happens if two messages are encrypted with AES-GCM using the same key and nonce?"
+    options:
+      - "Nothing, the nonce is public"
+      - "Confidentiality and integrity break: plaintexts leak through XOR and forgeries become possible"
+      - "Decryption is slower"
+      - "The second message fails to encrypt"
+    answer: 1
+    explanation: "A nonce must never repeat under one key; use a random 96-bit nonce per message or a counter."
+  - id: aead
+    prompt: "What does an AEAD mode like AES-GCM give that AES-CBC alone does not?"
+    options: ["Faster encryption", "Integrity: any change to the ciphertext is detected", "Shorter keys", "Compression"]
+    answer: 1
+    explanation: "Unauthenticated CBC can be modified by an attacker, which led to padding-oracle attacks."
+  - id: csprng
+    prompt: "Which Python call should generate a password reset token?"
+    options: ["random.randint(0, 10**6)", "uuid.uuid1()", "secrets.token_urlsafe(32)", "hash(time.time())"]
+    answer: 2
+    explanation: "secrets uses the operating system's CSPRNG; uuid1 is based on time and MAC address."
+  - id: envelope
+    prompt: "In envelope encryption, what does the KMS master key encrypt?"
+    options: ["Every document directly", "The data keys", "The database password only", "The TLS certificates"]
+    answer: 1
+    explanation: "Data keys encrypt the data; the master key, which never leaves the KMS, wraps the data keys."

@@ -46,7 +46,7 @@ of your choice.
 
 ### Tracks
 
-15 tracks are complete, with 353 lessons and checkpoints and 124 katas between them:
+16 tracks are complete, with 378 lessons and checkpoints and 134 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
@@ -65,10 +65,11 @@ of your choice.
 | Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |
 | Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
 | Design Patterns | principles and patterns in modern Java | 24 | 10 | `dojo-java` (refactoring katas) |
+| Cyber Security | defensive application and infrastructure security | 25 | 10 | `dojo-python`, `dojo-java` (JCA) and `dojo-linux` (bash, awk); defensive and offline |
 
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
-Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
+Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, React, Modern C++,
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 
 ## Requirements

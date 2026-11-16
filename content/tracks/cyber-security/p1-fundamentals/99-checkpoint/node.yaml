@@ -1,0 +1,52 @@
+id: cyber-security.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata that builds a secure sign-up flow with validation, bound SQL, a fixed role and encoded output."
+objectives:
+  - { id: o1, text: "Explain the OWASP Top 10, injection, XSS, authentication and access control in your own words", skills: [cyber-security.owasp-top-10, cyber-security.injection, cyber-security.xss-validation, cyber-security.authn-access-control] }
+  - { id: o2, text: "Build a sign-up flow that validates every field, rejects mass assignment, binds its SQL and encodes its output", skills: [cyber-security.injection, cyber-security.xss-validation, cyber-security.authn-access-control] }
+prerequisites: [cyber-security.p1.authn-access-control]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+closes_phase: p1
+covers_skills: [cyber-security.owasp-top-10, cyber-security.injection, cyber-security.xss-validation, cyber-security.authn-access-control]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 90 }
+  hints:
+    - |-
+      Do `validate_signup` first and test it on its own: it touches no database. Loop over the form's keys to find unexpected ones, then check each expected field. `policy.check_password` (already written) gives you the password codes; take the first one. Which regular expression function matches the whole username?
+    - |-
+      In `register`: return early when there are errors. Look up the username with `SELECT 1 FROM accounts WHERE username = ? COLLATE NOCASE`. Insert with a bound tuple and the role written in the SQL (`'member'`), never from the form; `cursor.lastrowid` is the new id. In `render_welcome`, read the row with a bound id and pass both values through `html.escape`.
+    - |-
+      ```python
+      FIELDS = ("username", "email", "display_name", "password")
+
+
+      def validate_signup(form):
+          errors = {key: "unexpected" for key in form if key not in FIELDS}
+          for field in FIELDS:
+              value = form.get(field)
+              if not isinstance(value, str) or value == "":
+                  errors[field] = "required"
+          if "username" not in errors and USERNAME.fullmatch(form["username"]) is None:
+              errors["username"] = "invalid"
+          # email, display_name, then the password with check_password(..., username=...)
+          return errors
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

@@ -1,0 +1,24 @@
+id: cyber-security.p1.injection
+kind: lesson
+status: draft
+title: "Injection: SQL, Commands and Paths"
+summary: "Why mixing code and data is the root of injection, and the fixes that work: parameterised queries, allow-lists for identifiers, argument lists instead of shells, and path checks after resolution."
+objectives:
+  - { id: o1, text: "Explain how SQL injection works, including blind and second-order injection", skills: [cyber-security.injection] }
+  - { id: o2, text: "Prevent it with parameterised queries and allow-lists for the parts that cannot be parameters", skills: [cyber-security.injection] }
+  - { id: o3, text: "Prevent OS command injection and path traversal in file and process APIs", skills: [cyber-security.injection] }
+prerequisites: [cyber-security.p1.owasp-top-10]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A report endpoint takes `?customer=...&sort=...&format=pdf` and runs `cursor.execute(f"SELECT * FROM orders WHERE customer = ''{customer}'' ORDER BY {sort}")`, then `os.system(f"wkhtmltopdf /tmp/{customer}.html /tmp/out.pdf")`. List every injection in this code, show one input that exploits each, and rewrite both lines safely.'
+  criteria:
+    - 'Finds the SQL injection in customer and fixes it with a bound parameter'
+    - 'Recognises that ORDER BY cannot take a bound parameter and fixes sort with an allow-list mapping to column names'
+    - 'Finds the command injection in os.system and fixes it with subprocess.run([...]) without a shell'
+    - 'Finds the path traversal in the file name (for example ../../etc/x) and fixes it with a generated file name or a resolved-path check'
+    - 'Mentions a defence in depth layer: a least-privilege database account or input validation'

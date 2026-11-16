@@ -1,0 +1,24 @@
+id: cyber-security.p4.threat-modeling
+kind: lesson
+status: draft
+title: "Threat Modeling with STRIDE"
+summary: "Finding design flaws before code exists: data flow diagrams with trust boundaries, STRIDE per element, attack trees, rating and tracking threats, and making threat modeling a lightweight team habit."
+objectives:
+  - { id: o1, text: "Draw a data flow diagram with trust boundaries for a feature", skills: [cyber-security.threat-modeling] }
+  - { id: o2, text: "Enumerate threats with STRIDE and map each to a mitigation", skills: [cyber-security.threat-modeling] }
+  - { id: o3, text: "Prioritise threats and run threat modeling as a recurring part of design", skills: [cyber-security.threat-modeling] }
+prerequisites: [cyber-security.p3.cloud-supply-chain]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Threat model a "share a document by link" feature: a user creates a link to a private document, anyone with the link can view it for 7 days, and the owner can revoke it. Draw (in words) the data flow diagram with its trust boundaries, then list at least one threat per STRIDE category with its mitigation, and name the two you would fix before launch.'
+  criteria:
+    - 'Names the elements (user, browser, API, link service, document store, audit log) and marks the trust boundary between the internet and the services'
+    - 'Gives a threat for each STRIDE letter, such as guessable link tokens (spoofing or information disclosure), tampering with the expiry, the owner denying having shared (repudiation), links leaking through Referer or logs, link enumeration load (denial of service), and a viewer gaining edit rights (elevation)'
+    - 'Mitigations are specific: 128-bit random tokens stored hashed, expiry enforced on the server, audit logging of create and revoke, Referrer-Policy and no tokens in logs, rate limits, view-only scope checked per request'
+    - 'Prioritises with likelihood and impact and explains the choice'
+    - 'Says when the model should be revisited (design changes, new data, incidents)'

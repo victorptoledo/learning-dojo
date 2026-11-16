@@ -2,13 +2,24 @@ id: cyber-security.p1.owasp-top-10
 legacy_id: sec-01-owasp-top-10
 kind: lesson
 status: draft
-title: "OWASP Top 10: Injection, Broken Authentication and SSRF"
-summary: "The most common web vulnerabilities and how to prevent them from the code's architecture up."
+title: "OWASP Top 10: the Most Common Web Application Risks"
+summary: "The ten risk categories of the OWASP Top 10:2025, what each looks like in code, and the controls that prevent them, with broken access control and SSRF in detail."
 objectives:
-  - { id: o1, text: "The most common web vulnerabilities and how to prevent them from the code's architecture up.", skills: [cyber-security.owasp-top-10] }
-prerequisites: []
+  - { id: o1, text: "Name the OWASP Top 10:2025 categories and give a code-level example of each", skills: [cyber-security.owasp-top-10] }
+  - { id: o2, text: "Prevent broken access control with deny-by-default, server-side ownership checks and indirect references", skills: [cyber-security.owasp-top-10] }
+  - { id: o3, text: "Explain SSRF and defend a URL-fetching feature with an allow-list and network egress controls", skills: [cyber-security.owasp-top-10] }
+prerequisites: [cyber-security.p0.password-policy]
 difficulty: 2
-estimated_minutes: 30
+estimated_minutes: 45
 xp: 150
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An API has `GET /api/invoices/{id}` (returns the invoice if the user is logged in) and `POST /api/avatar` with `{"url": "..."}` (the server downloads the image from that URL). Describe how an attacker abuses each endpoint, which OWASP Top 10 category each belongs to, and the code and infrastructure changes that fix them.'
+  criteria:
+    - 'Identifies the invoice endpoint as broken access control (IDOR): authentication is not authorisation'
+    - 'Fixes it with a server-side ownership check on every request (for example WHERE id = ? AND owner_id = ?) and deny by default, returning 404 or 403'
+    - 'Identifies the avatar endpoint as SSRF and names targets such as 169.254.169.254 metadata, localhost admin ports and internal hosts'
+    - 'Fixes SSRF with a scheme and host allow-list, checking the resolved IP against private ranges, no redirects, and network egress rules, not only a regex on the URL'
+    - 'Mentions logging and alerting on denied access as part of the answer'

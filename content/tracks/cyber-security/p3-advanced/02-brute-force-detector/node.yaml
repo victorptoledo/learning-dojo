@@ -1,0 +1,50 @@
+id: cyber-security.p3.brute-force-detector
+kind: kata
+status: draft
+title: "Brute-Force Detector: Reading auth.log with awk"
+summary: "A bash and awk script that reads an SSH authentication log, lists the sources with too many failed logins and raises an alert when one of them then logs in, parsing safely even when usernames are attacker-controlled."
+objectives:
+  - { id: o1, text: "Write a threshold and a sequence detection over SSH authentication logs", skills: [cyber-security.logging-detection] }
+  - { id: o2, text: "Parse log lines from the parts the attacker does not control", skills: [cyber-security.logging-detection] }
+  - { id: o3, text: "Report results and errors with exit statuses that automation can act on", skills: [cyber-security.logging-detection] }
+prerequisites: [cyber-security.p3.logging-detection]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 60 }
+  hints:
+    - |-
+      Do the argument checks in bash, then hand the whole log to one `awk` program with `-v threshold="$threshold"`. In awk, keep `fails[ip]` (a count) and `users[ip, user]` (a set). Which part of a `Failed password` line can the attacker not choose? Read the IP from the end of the line: `match($0, / from ([0-9A-Fa-f:.]+) port [0-9]+ ssh2$/, m)` (gawk) puts it in `m[1]`.
+    - |-
+      The username is what lies between `Failed password for ` (plus an optional `invalid user `) and the position where that final match starts: `substr($0, start, RSTART - start)`. Remember accepted logins in order (`accepted[++n] = ip SUBSEP user SUBSEP fails[ip]`) and print them in the `END` block after the SUSPECT lines. Sort the SUSPECT lines with `sort -t' ' -k3,3nr -k2,2` after printing the count as its own field, or sort inside awk with `asorti`.
+    - |-
+      ```bash
+      awk -v threshold="$threshold" '
+          !/ sshd\[[0-9]+\]: / { next }
+          /: Failed password for / && match($0, / from ([0-9A-Fa-f:.]+) port [0-9]+ ssh2$/, m) {
+              ip = m[1]; cut = RSTART
+              start = index($0, ": Failed password for ") + length(": Failed password for ")
+              if (substr($0, start, 13) == "invalid user ") start += 13
+              user = substr($0, start, cut - start)
+              fails[ip]++; users[ip, user] = 1
+              next
+          }
+          # Accepted password / publickey / keyboard-interactive/pam ... remember (ip, user, fails[ip])
+          END { ... }
+      ' "$log"
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, bats and shellcheck that runs the grading tests.

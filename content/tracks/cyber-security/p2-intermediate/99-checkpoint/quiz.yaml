@@ -1,0 +1,69 @@
+questions:
+  - id: kdf-params
+    skills: [cyber-security.cryptography-secrets]
+    prompt: "Why store the KDF's algorithm and cost parameters next to each password hash?"
+    options:
+      - "To make the hash longer"
+      - "So the cost can be raised later and old hashes still verify and get upgraded at login"
+      - "Because the salt needs them"
+      - "To encrypt the hash"
+    answer: 1
+    explanation: "A self-describing format (scrypt$n=..., $argon2id$...) lets several cost levels coexist during a migration."
+  - id: pepper
+    skills: [cyber-security.cryptography-secrets]
+    prompt: "What does a pepper add to salted password hashes?"
+    options:
+      - "Nothing, it is the same as a salt"
+      - "A secret key kept outside the database, so a database-only leak cannot be attacked offline"
+      - "Faster logins"
+      - "Unicode support"
+    answer: 1
+    explanation: "The salt is public and per user; the pepper is secret and shared, stored in a KMS or config."
+  - id: gcm-nonce
+    skills: [cyber-security.cryptography-secrets]
+    prompt: "How should nonces be chosen for AES-GCM with one key?"
+    options: ["A fixed nonce per application", "A fresh random 96-bit nonce (or a unique counter) for every message", "The user id", "The current date"]
+    answer: 1
+    explanation: "A repeated nonce under the same key breaks both confidentiality and integrity."
+  - id: webhook-time
+    skills: [cyber-security.signatures-pki]
+    prompt: "A webhook's HMAC covers only the body. What attack remains?"
+    options: ["None", "Replaying a captured valid webhook later", "Forging new bodies", "Reading the body"]
+    answer: 1
+    explanation: "Without a signed timestamp (and a window), an old valid message stays valid forever."
+  - id: chain
+    skills: [cyber-security.signatures-pki]
+    prompt: "A browser validates shop.example.com's certificate. Which is NOT part of that check?"
+    options: [
+      "Each certificate in the chain is signed by the next, up to a trusted root",
+      "The name matches the subjectAltName",
+      "The certificate is within its validity dates",
+      "The server's private key is sent to the browser for comparison"
+    ]
+    answer: 3
+    explanation: "The private key never leaves the server; the server proves possession by signing the handshake."
+  - id: hsm
+    skills: [cyber-security.signatures-pki]
+    prompt: "Where should the private key that signs your software releases live?"
+    answers: ["HSM", "an HSM", "KMS", "a KMS"]
+    explanation: "A hardware security module or cloud KMS signs without ever exposing the key."
+  - id: jwt-checks
+    skills: [cyber-security.tokens-api-security]
+    prompt: "Which set of checks is a complete validation of an incoming JWT?"
+    options:
+      - "The signature only"
+      - "exp only"
+      - "Pinned algorithm and known kid, signature, exp and nbf with small skew, iss and aud"
+      - "That it decodes as JSON"
+    answer: 2
+    explanation: "Each missing check maps to a known attack: alg none, confusion, replay across services, expired tokens."
+  - id: login-timing
+    skills: [cyber-security.tokens-api-security]
+    prompt: "Why run a password hash check even when the username does not exist?"
+    options:
+      - "To warm the cache"
+      - "So unknown and known users take the same time, and response timing does not reveal valid accounts"
+      - "To create the account"
+      - "It is required by OAuth"
+    answer: 1
+    explanation: "A fast 'no such user' path is a timing oracle for user enumeration."

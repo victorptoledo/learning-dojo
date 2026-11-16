@@ -1,0 +1,42 @@
+questions:
+  - id: first-wins
+    prompt: "sshd_config has 'PasswordAuthentication yes' near the top and 'PasswordAuthentication no' further down. Which applies?"
+    options: ["no, the last line wins", "yes, the first value found wins for most keywords", "Both, per connection", "sshd refuses to start"]
+    answer: 1
+    explanation: "For most sshd keywords the first obtained value is used; check with sshd -T."
+  - id: keys-only
+    prompt: "Which single SSH change removes online password guessing completely?"
+    options: ["MaxAuthTries 3", "PasswordAuthentication no (and keyboard-interactive off): keys only", "Changing the port", "PermitRootLogin no"]
+    answer: 1
+    explanation: "Moving the port only reduces noise; without password authentication there is nothing to guess."
+  - id: kev
+    prompt: "Which list helps you decide which CVEs to patch first because attackers already use them?"
+    answers: ["CISA KEV", "KEV", "Known Exploited Vulnerabilities"]
+    explanation: "CISA's Known Exploited Vulnerabilities catalogue lists CVEs with confirmed exploitation."
+  - id: service-user
+    prompt: "Why run each service as its own unprivileged user?"
+    options:
+      - "It is faster"
+      - "A compromised service can then only touch its own files, not the whole system or other services"
+      - "systemd requires it"
+      - "To save memory"
+    answer: 1
+    explanation: "Least privilege limits the blast radius of a vulnerability."
+  - id: egress
+    prompt: "What does egress filtering on a web server stop?"
+    options:
+      - "Users from reaching the site"
+      - "A compromised server from freely downloading tools or sending data to the attacker"
+      - "DNS from working"
+      - "SSH logins"
+    answer: 1
+    explanation: "Outbound restrictions make post-exploitation and exfiltration harder."
+  - id: drift
+    prompt: "How do you keep a hardened server from drifting back to unsafe settings?"
+    options:
+      - "Document the settings in a wiki"
+      - "Configuration as code plus automated audits that fail on risky settings"
+      - "Reboot it weekly"
+      - "Give fewer people the root password"
+    answer: 1
+    explanation: "Code makes the desired state repeatable and audits detect changes."

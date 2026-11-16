@@ -1,0 +1,34 @@
+questions:
+  - id: cia-tamper
+    prompt: "An attacker changes the price field of an order request from 100.00 to 1.00 and the shop accepts it. Which property is broken?"
+    options: ["Confidentiality", "Integrity", "Availability", "Non-repudiation"]
+    answer: 1
+    explanation: "Data changed in an unauthorised way: integrity. The server must recompute prices instead of trusting the client."
+  - id: threat-vs-vuln
+    prompt: "In 'a bot tries leaked passwords against our login, which has no rate limit', what is the vulnerability?"
+    options: ["The bot", "The leaked passwords", "The missing rate limit", "The login page"]
+    answer: 2
+    explanation: "The bot is the threat and the login is the entry point; the weakness it exploits is the missing rate limit."
+  - id: risk
+    prompt: "Risk is usually estimated as..."
+    options: ["The number of vulnerabilities", "Likelihood × impact", "The CVSS score of the newest CVE", "The cost of the fix"]
+    answer: 1
+    explanation: "A severe bug nobody can reach is a lower risk than a moderate one on the public login page."
+  - id: fail-closed
+    prompt: "The permission service times out while checking whether a user may delete a project. What should the code do?"
+    options: ["Allow it, the user is logged in", "Deny it and log the error", "Retry forever", "Allow it if the user created the project"]
+    answer: 1
+    explanation: "Fail closed: when a security check cannot be completed, the safe answer is no."
+  - id: least-privilege
+    prompt: "Which change best applies least privilege to a web app's database access?"
+    options:
+      - "Use the database superuser with a long password"
+      - "Give the app's user only SELECT, INSERT, UPDATE and DELETE on its own tables"
+      - "Put the database on the same server as the app"
+      - "Encrypt the connection"
+    answer: 1
+    explanation: "A low-privilege account limits what an injection or a stolen credential can do. Encryption is good too, but a different control."
+  - id: authorised
+    prompt: "In one word: what must you have, in writing, before you test a system you do not own?"
+    answers: ["authorization", "authorisation", "permission", "consent"]
+    explanation: "Explicit written authorisation from the owner, with a scope and rules of engagement. Without it, the same actions are a crime."

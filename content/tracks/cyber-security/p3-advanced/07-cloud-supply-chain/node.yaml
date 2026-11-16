@@ -1,0 +1,24 @@
+id: cyber-security.p3.cloud-supply-chain
+kind: lesson
+status: draft
+title: "Cloud Security and the Software Supply Chain"
+summary: "The shared responsibility model, identity as the cloud perimeter, the misconfigurations behind most cloud breaches, and securing what you build and ship: dependencies, SBOMs, signed artifacts, SLSA and CI/CD pipelines."
+objectives:
+  - { id: o1, text: "Explain the shared responsibility model and design least-privilege cloud IAM with short-lived credentials", skills: [cyber-security.cloud-supply-chain] }
+  - { id: o2, text: "Find and prevent common cloud misconfigurations with policy and posture tooling", skills: [cyber-security.cloud-supply-chain] }
+  - { id: o3, text: "Secure the software supply chain: dependency hygiene, SBOMs, signed provenance and hardened pipelines", skills: [cyber-security.cloud-supply-chain] }
+prerequisites: [cyber-security.p3.security-headers]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team deploys from GitHub Actions to a cloud account using a long-lived access key with administrator rights stored as a repository secret. Builds run `npm install` without a lockfile, pull base images by `latest` tag, and any pull request from a fork runs the same workflow. List the supply chain and cloud risks in this setup and the changes you would make, in priority order.'
+  criteria:
+    - 'Replaces the long-lived admin key with OIDC federation to a role with least privilege, scoped to the repository and branch'
+    - 'Pins dependencies with a lockfile and uses npm ci, adds dependency scanning and reviewed updates (Dependabot, Renovate)'
+    - 'Pins base images by digest and rebuilds regularly; generates an SBOM and signs the image (for example with Sigstore cosign) with provenance'
+    - 'Stops untrusted fork pull requests from reaching secrets and deploy jobs (no pull_request_target with checkout of untrusted code, environment protection rules, required reviews)'
+    - 'Pins third-party actions by commit SHA and sets minimal GITHUB_TOKEN permissions'

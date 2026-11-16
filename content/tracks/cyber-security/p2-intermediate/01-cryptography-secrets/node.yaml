@@ -2,13 +2,24 @@ id: cyber-security.p2.cryptography-secrets
 legacy_id: sec-02-cryptography-secrets
 kind: lesson
 status: draft
-title: "Modern Cryptography: Password Hashing, AES-GCM and TLS"
-summary: "Argon2 vs bcrypt, symmetric and asymmetric keys, and secret management."
+title: "Modern Cryptography: Password Hashing, AES-GCM and Secrets"
+summary: "Hashes, password KDFs (Argon2id, scrypt, bcrypt, PBKDF2), authenticated encryption with AES-GCM and ChaCha20-Poly1305, secure randomness, and how to keep keys and secrets out of code."
 objectives:
-  - { id: o1, text: "Argon2 vs bcrypt, symmetric and asymmetric keys, and secret management.", skills: [cyber-security.cryptography-secrets] }
-prerequisites: [cyber-security.p1.owasp-top-10]
+  - { id: o1, text: "Tell hashing, password hashing, MACs and encryption apart and pick the right one", skills: [cyber-security.cryptography-secrets] }
+  - { id: o2, text: "Store passwords with a salted, slow KDF and plan for raising its cost", skills: [cyber-security.cryptography-secrets] }
+  - { id: o3, text: "Use authenticated encryption with unique nonces, a CSPRNG, and a secrets manager with rotation", skills: [cyber-security.cryptography-secrets] }
+prerequisites: [cyber-security.p1.checkpoint]
 difficulty: 3
-estimated_minutes: 30
+estimated_minutes: 55
 xp: 250
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A legacy service stores passwords as unsalted SHA-256, encrypts customer documents with AES-CBC using a key written in the source code and a fixed IV, and generates password reset codes with a non-cryptographic random number generator. Write a migration plan that fixes all three without forcing every user to reset their password on day one.'
+  criteria:
+    - 'Moves to Argon2id, scrypt, bcrypt or PBKDF2 with a per-user salt, and explains why a fast hash is the problem'
+    - 'Upgrades existing hashes without plaintext, by wrapping the old hash in the new KDF or rehashing at the next successful login, and tracks the scheme per row'
+    - 'Replaces CBC with an AEAD (AES-GCM or ChaCha20-Poly1305) with a unique nonce per message, or explains why a fixed IV leaks information'
+    - 'Moves the key to a KMS or secrets manager, rotates it (the old key is compromised once it was in the code), and re-encrypts or uses envelope encryption'
+    - 'Uses a CSPRNG (secrets, SecureRandom, crypto.randomBytes) for reset tokens, stores only their hash, and gives them a short expiry'

@@ -1,0 +1,11 @@
+Nov 14 10:00:01 web1 sshd[811]: Failed password for root from 203.0.113.7 port 50122 ssh2
+Nov 14 10:00:04 web1 sshd[811]: Failed password for invalid user admin from 203.0.113.7 port 50130 ssh2
+Nov 14 10:00:06 web1 sshd[811]: Failed password for invalid user admin from 203.0.113.7 port 50134 ssh2
+Nov 14 10:00:09 web1 sshd[812]: Failed password for root from 203.0.113.7 port 50140 ssh2
+Nov 14 10:00:11 web1 CRON[700]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+Nov 14 10:00:13 web1 sshd[812]: Failed password for root from 203.0.113.7 port 50146 ssh2
+Nov 14 10:01:00 web1 sshd[820]: Failed password for ada from 198.51.100.20 port 60990 ssh2
+Nov 14 10:01:05 web1 sshd[820]: Accepted password for ada from 198.51.100.20 port 60990 ssh2
+Nov 14 10:05:40 web1 sshd[890]: Failed password for invalid user oracle from 203.0.113.7 port 50402 ssh2
+Nov 14 10:07:12 web1 sshd[902]: Accepted password for deploy from 203.0.113.7 port 50410 ssh2
+Nov 14 10:09:30 web1 sshd[940]: Accepted publickey for ada from 198.51.100.20 port 61000 ssh2: ED25519 SHA256:abc

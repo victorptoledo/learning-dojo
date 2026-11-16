@@ -1,0 +1,65 @@
+questions:
+  - id: authn-vs-authz
+    skills: [cyber-security.owasp-top-10]
+    prompt: "GET /api/accounts/{id} checks that the caller is logged in and returns the account. What is missing?"
+    options: ["Rate limiting", "An object-level check that the account belongs to the caller", "HTTPS", "A longer id"]
+    answer: 1
+    explanation: "Authentication alone lets any user read any account (IDOR, A01 Broken Access Control)."
+  - id: ssrf-redirect
+    skills: [cyber-security.owasp-top-10]
+    prompt: "An image proxy checks that the URL's host resolves to a public IP, then follows redirects. What is the risk?"
+    options:
+      - "None"
+      - "A public URL can redirect to an internal address, so each hop must be checked or redirects refused"
+      - "The images may be large"
+      - "Redirects break HTTPS"
+    answer: 1
+    explanation: "SSRF defences must apply to every request the server makes, including redirect targets."
+  - id: in-list
+    skills: [cyber-security.injection]
+    prompt: "How do you query WHERE id IN (...) for a user-supplied list of ids safely?"
+    options:
+      - "Join the ids with commas into the SQL"
+      - "Generate one ? placeholder per id and pass the ids as parameters"
+      - "Bind the whole list as one string"
+      - "Quote each id by hand"
+    answer: 1
+    explanation: "Each value must be a separate bound parameter; only the placeholders are generated."
+  - id: shell
+    skills: [cyber-security.injection]
+    prompt: "Which keeps a user-supplied file name from being interpreted by a shell?"
+    options: ["shell=True with quotes", "subprocess.run([...]) with an argument list and no shell", "os.system with escaping", "Removing semicolons"]
+    answer: 1
+    explanation: "Without a shell, metacharacters have no meaning; validate the value as well."
+  - id: attribute-context
+    skills: [cyber-security.xss-validation]
+    prompt: "User text goes into value=\"...\" of an input element. Which characters must be encoded at least?"
+    options: ["Only < and >", "&, <, > and the double quote (and the single quote for safety)", "Only spaces", "None if the input is validated"]
+    answer: 1
+    explanation: "An unencoded quote ends the attribute and lets the attacker add event handlers."
+  - id: script-json
+    skills: [cyber-security.xss-validation]
+    prompt: "Server data is embedded as JSON inside a <script> block. What extra step is needed beyond json.dumps?"
+    options:
+      - "None"
+      - "Escape < (and > and &) as \\u003c so a value cannot contain </script>"
+      - "Base64 the JSON"
+      - "html.escape the JSON"
+    answer: 1
+    explanation: "The HTML parser ends the script element at </script> no matter what the JSON means."
+  - id: cookie
+    skills: [cyber-security.authn-access-control]
+    prompt: "Which Set-Cookie attributes should a session cookie have?"
+    options: ["Domain=.example.com only", "Secure; HttpOnly; SameSite=Lax (or Strict)", "Expires in ten years", "None, HTTPS is enough"]
+    answer: 1
+    explanation: "Secure keeps it off HTTP, HttpOnly away from scripts, SameSite out of most cross-site requests."
+  - id: signup-role
+    skills: [cyber-security.authn-access-control]
+    prompt: "A sign-up endpoint receives {\"username\": \"eve\", \"role\": \"admin\", ...}. What should it do?"
+    options:
+      - "Create an admin, the client asked for it"
+      - "Ignore the role silently and create an admin anyway"
+      - "Reject or ignore unexpected fields and always create the account with the default role"
+      - "Create the user and log the role"
+    answer: 2
+    explanation: "Privilege must never come from client input; bind only an allow-list of fields."

@@ -1,0 +1,53 @@
+id: cyber-security.p1.escape-and-validate
+kind: kata
+status: draft
+title: "Escape and Validate: Rendering User Content Safely"
+summary: "Validate usernames with an allow-list and a full match, accept only http and https links, and render comments, a search box and embedded JSON with the encoding each HTML context needs."
+objectives:
+  - { id: o1, text: "Validate input with an allow-list regular expression that matches the whole value", skills: [cyber-security.xss-validation] }
+  - { id: o2, text: "Parse URLs and allow only safe schemes", skills: [cyber-security.xss-validation] }
+  - { id: o3, text: "Encode output for the HTML body, attribute and script contexts", skills: [cyber-security.xss-validation] }
+prerequisites: [cyber-security.p1.xss-output-encoding]
+difficulty: 2
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Every function has one job. `validate_username` only checks; `safe_link` only decides; the `render_*` functions only encode. Which standard library function encodes `&`, `<`, `>`, `"` and `'`? Which `re` function matches the whole string, so a trailing newline cannot slip through?
+    - |-
+      `safe_link`: reject anything with a character below `" "` or equal to `"\x7f"` first, then `urllib.parse.urlsplit(url.strip())`, then require `parts.scheme.lower() in {"http", "https"}` and a non-empty `parts.netloc`. `render_comment`: `html.escape(body).replace("\n", "<br>")`, and the link only when `safe_link` returns a value. `json_for_script`: `json.dumps(data)` and then replace `<`, `>`, `&`, `\u2028` and `\u2029` with their `\uXXXX` escapes.
+    - |-
+      ```python
+      USERNAME = re.compile(r"[A-Za-z0-9_.-]{3,30}")
+
+
+      def validate_username(value):
+          if not isinstance(value, str) or USERNAME.fullmatch(value) is None:
+              raise ValueError("invalid username")
+          return value
+
+
+      def render_comment(author, body, website=None):
+          link = ""
+          url = safe_link(website) if website is not None else None
+          if url is not None:
+              link = f'<a href="{html.escape(url)}" rel="nofollow noopener noreferrer">website</a>'
+          text = html.escape(body).replace("\n", "<br>")
+          return f'<article class="comment"><h3>{html.escape(author)}</h3><p>{text}</p>{link}</article>'
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

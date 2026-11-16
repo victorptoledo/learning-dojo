@@ -1,0 +1,42 @@
+questions:
+  - id: volatile
+    prompt: "A compromised server is still running. What do you collect first?"
+    options: ["The disk image", "Volatile data: memory, processes and network connections", "Last month's backups", "The source code"]
+    answer: 1
+    explanation: "Follow the order of volatility: memory and live state disappear first."
+  - id: isolate
+    prompt: "Why isolate a compromised VM with a network rule instead of shutting it down?"
+    options:
+      - "It is cheaper"
+      - "Shutting down loses memory and live attacker state needed for analysis"
+      - "Shutdown is not allowed in the cloud"
+      - "Isolation removes the malware"
+    answer: 1
+    explanation: "Isolation contains the threat while preserving evidence."
+  - id: rebuild
+    prompt: "After eradication, how should the compromised server return to service?"
+    options:
+      - "Delete the malware files found and reconnect it"
+      - "Rebuild it from a known-good image, patch the entry point, rotate credentials, and monitor closely"
+      - "Reboot it"
+      - "Change its IP address"
+    answer: 1
+    explanation: "You can rarely be sure you found every backdoor, so rebuild from trusted sources."
+  - id: gdpr
+    prompt: "Under GDPR, within how many hours of becoming aware must a personal data breach usually be reported to the authority?"
+    answers: ["72", "72 hours", "seventy-two"]
+    explanation: "Article 33 sets 72 hours, where feasible, unless the breach is unlikely to result in a risk."
+  - id: commander
+    prompt: "What is the incident commander's main job?"
+    options: ["Fix the servers personally", "Coordinate the response and make decisions while others do hands-on work", "Write the press release", "Find who to blame"]
+    answer: 1
+    explanation: "Separating coordination from investigation keeps the response organised."
+  - id: blameless
+    prompt: "What is the goal of a blameless post-incident review?"
+    options:
+      - "To avoid writing a report"
+      - "To understand the conditions that made the incident possible and fix them, so people share facts openly"
+      - "To decide who is fired"
+      - "To close the ticket quickly"
+    answer: 1
+    explanation: "Blame hides information; system fixes prevent recurrence."

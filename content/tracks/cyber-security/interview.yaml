@@ -1,0 +1,230 @@
+# Technical interview questions for the cyber-security track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://owasp.org/Top10/"
+  - "https://cheatsheetseries.owasp.org/"
+  - "https://www.indeed.com/career-advice/interviewing/cyber-security-interview-questions"
+  - "https://www.techtarget.com/searchsecurity/tip/Cybersecurity-interview-questions-and-answers"
+  - "https://github.com/tadwhitaker/Security-Interview-Questions"
+questions:
+  - id: cia
+    level: junior
+    skills: [cyber-security.security-mindset]
+    question: "What is the CIA triad? Give one example of an attack on each property and a control that protects it."
+    key_points:
+      - "Confidentiality, integrity, availability"
+      - "Examples such as a data leak, a tampered request or package, a DDoS or ransomware"
+      - "Controls such as access control and encryption, MACs and signatures, redundancy and rate limits"
+      - "Mentions risk as likelihood times impact when choosing controls"
+    follow_up: "Which property does ransomware attack, and why is it sometimes two of them?"
+  - id: authn-authz
+    level: junior
+    skills: [cyber-security.owasp-top-10, cyber-security.authn-access-control]
+    question: "What is the difference between authentication and authorisation? Describe an IDOR and how you would prevent it."
+    key_points:
+      - "Authentication proves identity; authorisation decides what an identity may do to which object"
+      - "IDOR: changing an id in a request reaches another user's object"
+      - "Server-side ownership check on every request, ideally in the query or a central policy"
+      - "Deny by default; random ids are not a control on their own"
+    follow_up: "How would you test a large API for this systematically?"
+  - id: sqli
+    level: junior
+    skills: [cyber-security.injection]
+    question: "How does SQL injection work and how do you prevent it? What about values that cannot be bound, like a sort column?"
+    key_points:
+      - "User data concatenated into SQL is parsed as code"
+      - "Bound parameters keep statement and data separate"
+      - "Identifiers and sort orders through an allow-list of fixed SQL"
+      - "Least-privilege database account as defence in depth; ORMs' raw query escape hatches"
+    follow_up: "Is hiding database errors enough to stop exploitation? Why not?"
+  - id: xss
+    level: junior
+    skills: [cyber-security.xss-validation]
+    question: "Explain stored, reflected and DOM-based XSS, and the main defences."
+    key_points:
+      - "Stored: saved and shown to others; reflected: echoed from the request; DOM: client code writes data into a sink"
+      - "Context-aware output encoding, template auto-escaping"
+      - "Sanitise user HTML with an allow-list library"
+      - "CSP with nonces as defence in depth; HttpOnly limits cookie theft"
+    follow_up: "Why does html.escape not protect a value placed inside an onclick attribute or a script block?"
+  - id: password-storage
+    level: junior
+    skills: [cyber-security.cryptography-secrets]
+    question: "How should a web application store user passwords, and why?"
+    key_points:
+      - "A slow, salted password hashing function: Argon2id, scrypt, bcrypt or PBKDF2"
+      - "Salt per user defeats precomputation and hides equal passwords"
+      - "Cost parameters stored with the hash and raised over time; rehash on login"
+      - "Constant-time comparison; optional pepper in a KMS"
+    follow_up: "How do you migrate millions of unsalted SHA-1 hashes without a mass reset?"
+  - id: hash-encrypt-encode
+    level: junior
+    skills: [cyber-security.cryptography-secrets]
+    question: "What is the difference between hashing, encryption and encoding? When do you use each?"
+    key_points:
+      - "Encoding (Base64, hex) is reversible by anyone and gives no security"
+      - "Encryption is reversible with a key and gives confidentiality"
+      - "Hashing is one-way: integrity checks and fingerprints; password hashing is a special slow kind"
+      - "MACs add a key to hashing for authenticity"
+    follow_up: "Why is MD5 still fine for some non-security checksums but not for signatures?"
+  - id: cookies
+    level: junior
+    skills: [cyber-security.authn-access-control]
+    question: "Which attributes should a session cookie have and what does each one prevent?"
+    key_points:
+      - "Secure: never sent over plain HTTP"
+      - "HttpOnly: not readable by JavaScript"
+      - "SameSite Lax or Strict: not sent on most cross-site requests (CSRF)"
+      - "__Host- prefix, no Domain, sensible expiry; rotate at login"
+    follow_up: "When do you need SameSite=None, and what else must you then do against CSRF?"
+  - id: tls
+    level: mid
+    skills: [cyber-security.signatures-pki]
+    question: "Walk me through what TLS 1.3 protects and how the client knows it is talking to the real server."
+    key_points:
+      - "Ephemeral key exchange gives forward secrecy"
+      - "The server signs the handshake with the key in its certificate"
+      - "The client validates the chain to a trusted root, the name and the dates"
+      - "AEAD ciphers protect confidentiality and integrity of records"
+    follow_up: "What breaks if a developer disables certificate verification, and how do you allow a private CA instead?"
+  - id: mac-signature
+    level: mid
+    skills: [cyber-security.signatures-pki]
+    question: "When would you use an HMAC and when a digital signature? How do you verify a webhook safely?"
+    key_points:
+      - "HMAC: one shared key between two parties; signature: private key signs, anyone with the public key verifies"
+      - "Signatures for releases and third-party verification; non-repudiation"
+      - "Webhook: HMAC over the raw body plus timestamp, constant-time compare, tolerance window, fail closed"
+      - "Support several keys during rotation"
+    follow_up: "How would you prevent a replay inside the tolerance window?"
+  - id: jwt
+    level: mid
+    skills: [cyber-security.tokens-api-security]
+    question: "What are the common pitfalls of JWT-based authentication, and how do you validate a JWT correctly?"
+    key_points:
+      - "alg none and algorithm confusion: pin algorithms per key"
+      - "Check exp, nbf, iss, aud; known kid from your own key set"
+      - "Tokens are readable: no secrets in the payload"
+      - "Hard to revoke: short lifetimes and rotating refresh tokens"
+    follow_up: "Would you use JWTs or opaque session ids for a classic server-rendered web app, and why?"
+  - id: oauth
+    level: mid
+    skills: [cyber-security.tokens-api-security]
+    question: "Explain the OAuth 2.0 authorization code flow with PKCE. Why did the implicit flow fall out of favour?"
+    key_points:
+      - "Client redirects to the authorization server, user authenticates, a code returns to the redirect URI"
+      - "Code exchanged for tokens with the PKCE verifier; state checked against CSRF"
+      - "Implicit put tokens in URLs and browser history with no binding"
+      - "OIDC adds an ID token for identity; exact redirect URIs and minimal scopes"
+    follow_up: "What is a backend-for-frontend and why do many teams use it for SPAs?"
+  - id: secrets
+    level: mid
+    skills: [cyber-security.cryptography-secrets, cyber-security.cloud-supply-chain]
+    question: "A developer finds an API key committed to a public repository last week. What do you do, in order?"
+    key_points:
+      - "Revoke and rotate the key immediately; deleting the commit is not enough"
+      - "Check the provider's logs for use of the key since the commit"
+      - "Treat it as an incident if it was used: scope, contain, notify"
+      - "Prevent recurrence: push protection, secret scanning, secrets manager, short-lived credentials"
+    follow_up: "How would you design CI so that no long-lived cloud keys exist at all?"
+  - id: csrf
+    level: mid
+    skills: [cyber-security.authn-access-control]
+    question: "What is CSRF, which applications are vulnerable, and what are today's defences?"
+    key_points:
+      - "Another site makes the victim's browser send an authenticated state-changing request"
+      - "Cookie-based sessions are vulnerable; bearer tokens in headers are not by default"
+      - "SameSite cookies, anti-CSRF tokens, Origin or Sec-Fetch-Site checks"
+      - "No state changes on GET"
+    follow_up: "Does a strict CORS policy protect against CSRF? Why not?"
+  - id: brute-force
+    level: mid
+    skills: [cyber-security.logging-detection, cyber-security.authn-access-control]
+    question: "Your login endpoint is under credential stuffing. How do you detect it and how do you defend without locking out real users?"
+    key_points:
+      - "Detection: failure rates per IP, per account, distinct accounts per IP, success after failures"
+      - "Rate limiting and backoff per account and source, bot detection or CAPTCHA after failures"
+      - "Breached-password checks, MFA, notification of new logins"
+      - "Avoid permanent lockouts that let attackers deny service"
+    follow_up: "The attack comes from 50 000 residential IPs, one request each. What changes?"
+  - id: hardening-ssh
+    level: mid
+    skills: [cyber-security.hardening]
+    question: "You get a new Linux server facing the internet. What do you harden first, and how do you keep it hardened?"
+    key_points:
+      - "SSH with keys only, no root login, limited users; ideally behind a VPN or bastion"
+      - "Default-deny firewall, only needed services, automatic security updates"
+      - "Services as unprivileged users with sandboxing"
+      - "Baseline such as CIS, configuration as code and automated audits, logs shipped centrally"
+    follow_up: "Why can editing a line at the bottom of sshd_config have no effect?"
+  - id: headers
+    level: mid
+    skills: [cyber-security.web-hardening]
+    question: "Which HTTP response headers would you add to a web application, and what does each do?"
+    key_points:
+      - "HSTS against downgrade, with a long max-age"
+      - "A strict nonce-based CSP, object-src none, frame-ancestors"
+      - "X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy"
+      - "Remove version-revealing Server and X-Powered-By headers; correct CORS"
+    follow_up: "How would you roll out a CSP on a large legacy app without breaking it?"
+  - id: threat-model
+    level: senior
+    skills: [cyber-security.threat-modeling]
+    question: "How do you run a threat model for a new feature? Walk me through one for a password reset flow."
+    key_points:
+      - "Four questions; a DFD with trust boundaries"
+      - "STRIDE per element: token guessing or leaking, enumeration, account takeover via email change, flooding"
+      - "Mitigations: random hashed single-use tokens, short expiry, generic responses, rate limits, notifications, re-authentication"
+      - "Prioritise, track as tickets and tests, revisit on design changes"
+    follow_up: "How do you make threat modeling scale across 30 teams without a big security team?"
+  - id: supply-chain
+    level: senior
+    skills: [cyber-security.cloud-supply-chain]
+    question: "How would you protect a company against software supply chain attacks?"
+    key_points:
+      - "Locked, scanned and reviewed dependencies; internal registry; dependency confusion protection"
+      - "SBOMs for every build, signed artifacts with provenance (SLSA, Sigstore)"
+      - "Hardened CI: minimal token permissions, actions pinned by SHA, no secrets for untrusted forks, OIDC"
+      - "Verification at deploy time and an inventory to answer 'are we affected?'"
+    follow_up: "What would you have done differently, as a consumer, about a backdoor like the one in xz utils?"
+  - id: cloud-breach
+    level: senior
+    skills: [cyber-security.cloud-supply-chain, cyber-security.incident-response]
+    question: "Cloud audit logs show an unknown principal listing all storage buckets at 03:00. What do you do in the first hour?"
+    key_points:
+      - "Declare an incident, assign roles, start a timeline"
+      - "Identify the credential, what it can do and what it already did, from audit logs"
+      - "Contain: disable the credential, rotate related secrets, restrict with policies, preserve logs"
+      - "Scope data access, involve legal and privacy for notification duties"
+    follow_up: "Which preventive controls would have made this impossible or detected it sooner?"
+  - id: incident
+    level: senior
+    skills: [cyber-security.incident-response]
+    question: "Describe how you would lead a security incident from detection to the post-incident review."
+    key_points:
+      - "Preparation: plan, roles, contacts, logs and access ready"
+      - "Detect and analyse, contain, eradicate, recover; evidence first, order of volatility"
+      - "Communication cadence, leadership, legal, regulators within deadlines such as 72 hours for GDPR"
+      - "Blameless review with root causes and tracked actions; update detections and playbooks"
+    follow_up: "When would you choose to watch an attacker instead of containing them at once?"
+  - id: vuln-management
+    level: senior
+    skills: [cyber-security.security-program]
+    question: "You inherit 5 000 open vulnerability findings across 200 services. How do you decide what to fix and show progress?"
+    key_points:
+      - "Inventory with owners and exposure; deduplicate"
+      - "Prioritise with KEV, EPSS, reachability, internet exposure and asset value, not CVSS alone"
+      - "SLAs by priority, exceptions with expiry, automation of dependency updates"
+      - "Outcome metrics: time to fix, KEV exposure, trend, coverage"
+    follow_up: "A team says it cannot meet the SLA because of a frozen legacy system. What do you do?"
+  - id: program
+    level: senior
+    skills: [cyber-security.security-program]
+    question: "How would you build security into the development life cycle of a fast-moving product company?"
+    key_points:
+      - "Practices per SDLC stage (SSDF, SAMM): requirements, threat models, review, SAST, SCA, secret scanning, DAST"
+      - "Few high-signal tools in pull requests; warn before blocking"
+      - "Security champions, paved roads and secure defaults in shared libraries"
+      - "Frameworks (CSF, ISO 27001, SOC 2) as structure, compliance as a by-product; risk in business language"
+    follow_up: "How do you measure whether the program is reducing risk rather than only producing activity?"

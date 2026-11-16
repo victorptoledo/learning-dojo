@@ -1,0 +1,39 @@
+questions:
+  - id: enumeration
+    prompt: "The login says 'no such user' for unknown names and 'wrong password' otherwise. What is the problem?"
+    options: ["None, it is helpful", "It reveals which accounts exist (user enumeration)", "It is slower", "It breaks MFA"]
+    answer: 1
+    explanation: "Attackers learn valid usernames for credential stuffing and phishing. Use one generic message and similar timing."
+  - id: phishing-resistant
+    prompt: "Which second factor resists phishing sites that relay the code in real time?"
+    options: ["SMS codes", "TOTP app codes", "Push approvals", "WebAuthn security keys and passkeys"]
+    answer: 3
+    explanation: "WebAuthn credentials are bound to the origin, so a look-alike site cannot get a valid signature."
+  - id: fixation
+    prompt: "What stops session fixation?"
+    options: ["HttpOnly cookies", "Issuing a new session id at login", "Longer passwords", "HTTPS"]
+    answer: 1
+    explanation: "If the id changes at login, an id the attacker planted beforehand is worthless."
+  - id: samesite
+    prompt: "Which cookie attribute stops the browser from sending the cookie on a cross-site form POST?"
+    answers: ["SameSite", "SameSite=Lax", "SameSite=Strict"]
+    explanation: "SameSite=Lax (the default in modern browsers) or Strict blocks the cookie on cross-site sub-requests and POSTs."
+  - id: stuffing
+    prompt: "Attackers try millions of username and password pairs leaked from other sites. What is this called?"
+    options: ["Password spraying", "Credential stuffing", "Brute force of one account", "Session hijacking"]
+    answer: 1
+    explanation: "Credential stuffing reuses breached pairs; spraying tries a few common passwords against many accounts."
+  - id: abac
+    prompt: "Support agents may refund orders up to 100 EUR in their own region. Which model expresses this best?"
+    options: ["RBAC with a 'support' role only", "Attribute-based access control", "A longer session timeout", "A CAPTCHA"]
+    answer: 1
+    explanation: "The decision depends on attributes of the user, the object and the action, not only on a role."
+  - id: mass-assignment
+    prompt: "PATCH /api/me binds the JSON body straight into the user model. What can go wrong?"
+    options:
+      - "Nothing, the user can only change their own record"
+      - "The user sends {\"role\": \"admin\"} and escalates privileges"
+      - "The request is too big"
+      - "It breaks caching"
+    answer: 1
+    explanation: "Bind only an allow-list of editable fields (a DTO) instead of the whole model."
