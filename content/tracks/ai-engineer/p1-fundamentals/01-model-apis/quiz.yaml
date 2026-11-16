@@ -1,0 +1,58 @@
+questions:
+  - id: stateless
+    prompt: "How does a chat model API know what was said three turns ago?"
+    options:
+      - "It remembers the session by your API key"
+      - "Your request includes the earlier messages"
+      - "It looks it up in the provider's database by user id"
+    answer: 1
+    explanation: "Chat APIs are stateless by default: the history is part of each request."
+  - id: truncated
+    prompt: "A JSON extraction response has stop reason max_tokens. What should your code do?"
+    options:
+      - "Parse what came back and use it"
+      - "Treat it as a failure: the output was cut off, so raise the limit or ask for less"
+      - "Retry the identical request until it succeeds"
+    answer: 1
+    explanation: "max_tokens means truncation; truncated JSON or text must never pass as a success."
+  - id: retry-400
+    prompt: "Which error should not be retried?"
+    options: ["429 rate limited", "529 overloaded", "400 invalid request", "A connection reset"]
+    answer: 2
+    explanation: "A 400 fails the same way every time: fix the request instead."
+  - id: retry-after
+    prompt: "A 429 response carries a retry-after header of 20 seconds. What is the best reaction?"
+    options:
+      - "Retry immediately in a tight loop"
+      - "Wait at least 20 seconds before retrying, and back off if it happens again"
+      - "Switch to a new API key"
+    answer: 1
+    explanation: "The provider tells you when capacity is back; retrying sooner only burns attempts."
+  - id: stream-benefit
+    prompt: "What does streaming improve?"
+    options:
+      - "The total time to generate the answer"
+      - "The time until the user sees the first words, and robustness for very long outputs"
+      - "The price per token"
+    answer: 1
+    explanation: "The model is not faster, but text appears after the time to first token instead of at the end."
+  - id: sse
+    prompt: "What separates two events in a server-sent events stream?"
+    answers: ["a blank line", "an empty line", "blank line", "two newlines", "\\n\\n"]
+    explanation: "Each SSE event is one or more field lines followed by an empty line."
+  - id: browser-key
+    prompt: "Where should the API key live for a web app that calls a model?"
+    options:
+      - "In the JavaScript bundle, obfuscated"
+      - "On your backend, read from the environment or a secret manager"
+      - "In the git repository, in a private file"
+    answer: 1
+    explanation: "Anything shipped to a browser is public; the backend calls the model on the user's behalf."
+  - id: refusal
+    prompt: "The model returns stop reason refusal. What is a good reaction?"
+    options:
+      - "Retry the same request in a loop until it answers"
+      - "Show the user a helpful message and log the case; do not loop on the same request"
+      - "Raise temperature and retry"
+    answer: 1
+    explanation: "A refusal is a decision, not a transient error; looping costs money and changes nothing."

@@ -1,0 +1,25 @@
+id: ai-engineer.p0.how-llms-work
+legacy_id: ai-01-llm-foundations
+kind: lesson
+status: draft
+title: "How LLMs Work: Tokens, Context Windows and Sampling"
+summary: "What an engineer needs to know about the inside of a language model: tokens, next-token prediction, the context window, temperature and top-p, why outputs vary, and why tokens are the unit of cost and latency."
+objectives:
+  - { id: o1, text: "Explain tokenization and next-token prediction, and estimate tokens for a text", skills: [ai-engineer.llm-foundations] }
+  - { id: o2, text: "Explain the context window, what fills it, and what happens when a conversation outgrows it", skills: [ai-engineer.llm-foundations] }
+  - { id: o3, text: "Explain temperature, top-p and top-k, and why outputs vary even at temperature 0", skills: [ai-engineer.llm-foundations] }
+  - { id: o4, text: "Relate tokens to price and latency (input versus output tokens, time to first token)", skills: [ai-engineer.llm-foundations, ai-engineer.cost-latency] }
+prerequisites: [ai-engineer.p0.the-role]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A chat assistant has a 32,000-token context window. Its system prompt is 1,500 tokens, each user turn averages 120 tokens and each answer 400 tokens, and you reserve 1,000 tokens for the next answer. Estimate after how many exchanges the conversation no longer fits, describe two strategies to keep it going, and explain the cost of one more exchange at turn 40 compared with turn 1 if the whole history is resent every time.'
+  criteria:
+    - 'Computes the budget correctly: (32,000 - 1,500 - 1,000) / 520 is about 56 full exchanges'
+    - 'Proposes dropping the oldest turns (keeping the system prompt) and summarising old turns, or retrieving relevant past turns'
+    - 'Explains that resending the history makes input tokens grow linearly per request, so total cost grows roughly quadratically with conversation length'
+    - 'Mentions that output tokens cost more than input tokens and that prompt caching can cut the cost of the repeated prefix'

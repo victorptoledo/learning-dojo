@@ -1,0 +1,25 @@
+id: ai-engineer.p3.observability
+kind: lesson
+status: draft
+title: "Observability for LLM Features: Traces, Metrics and Feedback"
+summary: "What to record for every model call and agent run (OpenTelemetry GenAI conventions), traces across retrieval, tools and model calls, the metrics that matter, prompt and model versions, user feedback, online evaluation and drift, and privacy in logs."
+objectives:
+  - { id: o1, text: "Instrument model calls, retrieval and tool calls as spans with the GenAI semantic conventions", skills: [ai-engineer.observability] }
+  - { id: o2, text: "Choose metrics and alerts for quality, cost, latency and errors of an LLM feature", skills: [ai-engineer.observability, ai-engineer.cost-latency] }
+  - { id: o3, text: "Version prompts and models, collect feedback and run online evaluation to detect drift", skills: [ai-engineer.observability, ai-engineer.evaluation] }
+  - { id: o4, text: "Log prompts and outputs with privacy controls", skills: [ai-engineer.observability, ai-engineer.guardrails, python.production] }
+prerequisites: [ai-engineer.p3.resilient-gateway]
+difficulty: 4
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Users of a RAG assistant say answers got worse "since last week", but nothing was deployed. Describe what your observability must already record so you can investigate, the dashboard and alerts you would want, and the steps of the investigation, including how you would tell retrieval problems from model problems.'
+  criteria:
+    - 'Each request is a trace with spans for retrieval, reranking, the model call and tools, carrying model id, prompt version, token counts, latency and retrieved document ids'
+    - 'Tracks quality signals over time: feedback rate, online judge scores, "not found" rate, citation failures'
+    - 'Considers silent changes: a provider model update, new or changed documents in the index, a shift in user questions'
+    - 'Separates retrieval (scores and documents retrieved, recall on the golden set) from generation (faithfulness on the same passages)'
+    - 'Handles personal data in traces (redaction, sampling, retention, access control)'

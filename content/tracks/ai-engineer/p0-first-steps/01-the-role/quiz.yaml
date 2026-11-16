@@ -1,0 +1,45 @@
+questions:
+  - id: starting-point
+    prompt: "What usually distinguishes an AI engineer from an ML engineer?"
+    options:
+      - "The AI engineer trains models from scratch on GPUs"
+      - "The AI engineer starts from a pre-trained foundation model and builds the product around it"
+      - "The AI engineer only writes prompts"
+    answer: 1
+    explanation: "ML engineers train and serve models; AI engineers mostly build context, tools, evals and operations around an existing model."
+  - id: context
+    prompt: "A model answers a customer about their order. Where does it learn the order's status?"
+    options:
+      - "From its training data"
+      - "From the context your code puts in the request, for example a tool result"
+      - "The provider looks it up automatically"
+    answer: 1
+    explanation: "The model only sees what is in the request. Your code must retrieve and include private, current data."
+  - id: fluent-failure
+    prompt: "Why are LLM bugs hard to catch with ordinary unit tests alone?"
+    options:
+      - "Because wrong answers are fluent and nothing throws, and outputs vary between runs"
+      - "Because models cannot be called from tests"
+      - "Because LLMs never make mistakes"
+    answer: 0
+    explanation: "You need sets of examples and measured rates to see quality, not a single assertion."
+  - id: wrong-tool
+    prompt: "Which task is the worst fit for a language model?"
+    options:
+      - "Summarising a long support thread"
+      - "Finding the sender's intent in a free-text email"
+      - "Computing VAT at a fixed rate on an invoice total"
+    answer: 2
+    explanation: "An exact, known rule belongs in code: it is faster, cheaper and always right."
+  - id: golden-set
+    prompt: "What do we call a set of real inputs with known good outcomes, used to measure every change to an LLM feature?"
+    answers: ["golden set", "a golden set", "golden dataset", "eval set", "evaluation set"]
+    explanation: "A golden set lets you measure every prompt or model change against the same real examples."
+  - id: first-version
+    prompt: "What is a sensible first launch for a new LLM feature that can take actions?"
+    options:
+      - "Let it act alone from day one and fix issues as users report them"
+      - "Suggestions or drafts that a human approves, while you measure real usage"
+      - "Wait until the model is 100% accurate"
+    answer: 1
+    explanation: "A human in the loop limits damage while you collect evidence about the real error rate."

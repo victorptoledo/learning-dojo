@@ -1,0 +1,51 @@
+id: ai-engineer.p1.chunk-index
+kind: kata
+status: draft
+title: "Chunks and a Vector Index"
+summary: "Split documents into chunks that respect paragraphs and overlap inside long ones, then build an exact in-memory vector index with cosine similarity, metadata filters, a score threshold and reciprocal rank fusion."
+objectives:
+  - { id: o1, text: "Chunk documents by paragraph with a size limit and overlapping windows for long paragraphs", skills: [ai-engineer.rag-architecture, ai-engineer.embeddings-vector] }
+  - { id: o2, text: "Implement cosine similarity, normalisation and an exact top-k search with metadata filters", skills: [ai-engineer.embeddings-vector] }
+  - { id: o3, text: "Fuse keyword and vector rankings with reciprocal rank fusion", skills: [ai-engineer.embeddings-vector] }
+  - { id: o4, text: "Keep a small class's invariants (dimension, unit vectors, unique ids) with clear errors", skills: [python.classes, python.collections] }
+prerequisites: [ai-engineer.p1.embeddings-vector]
+difficulty: 3
+estimated_minutes: 75
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with `split_paragraphs`: a regex split on lines that contain only whitespace, then `" ".join(p.split())` for each part. In `chunk_document`, what must happen to the paragraphs you are packing when a paragraph that is too long arrives?
+    - |-
+      Keep a list `pending` of paragraphs and a word count. Before adding a paragraph, if it would push the count over `max_words`, flush `pending` into a chunk. A paragraph longer than `max_words` flushes too, then becomes windows: `for start in range(0, len(words), max_words - overlap)`, take `words[start:start + max_words]`, and stop after the window that reaches the end. In the index, store **normalised** vectors so the score is a plain dot product, and sort hits with the key `(-score, id)`.
+    - |-
+      ```python
+      def search(self, query, k=5, where=None, min_score=None):
+          if k < 1:
+              raise ValueError("k must be at least 1")
+          q = normalize(self._check(query))
+          hits = []
+          for item_id, (vector, metadata) in self._items.items():
+              if where and any(metadata.get(key) != value for key, value in where.items()):
+                  continue
+              score = sum(a * b for a, b in zip(q, vector))
+              if min_score is None or score >= min_score:
+                  hits.append(Hit(item_id, score, metadata))
+          hits.sort(key=lambda hit: (-hit.score, hit.id))
+          return hits[:k]
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

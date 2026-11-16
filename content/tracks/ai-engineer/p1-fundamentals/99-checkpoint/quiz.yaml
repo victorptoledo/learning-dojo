@@ -1,0 +1,75 @@
+pass_percent: 85
+questions:
+  - id: tokens
+    skills: [ai-engineer.llm-foundations]
+    prompt: "A prompt of 3,000 English words, sent with max_tokens 1,000. Roughly how much of the context window does the request need?"
+    options: ["About 3,000 tokens", "About 5,000 tokens", "About 12,000 tokens"]
+    answer: 1
+    explanation: "3,000 words is about 4,000 tokens, plus the 1,000 reserved for the answer: the window holds input and output."
+  - id: history-cost
+    skills: [ai-engineer.llm-foundations, ai-engineer.cost-latency]
+    prompt: "Why does a long chat get more expensive per turn as it goes on?"
+    options:
+      - "Providers raise prices for long sessions"
+      - "Each request resends the whole history, so input tokens grow every turn"
+      - "The model's temperature rises"
+    answer: 1
+    explanation: "The API is stateless: turn 40 pays for the 39 turns before it again (prompt caching can reduce that)."
+  - id: temperature-zero
+    skills: [ai-engineer.llm-foundations]
+    prompt: "Your tests call the real model at temperature 0 and assert the exact answer text. What is wrong with that?"
+    options:
+      - "Nothing, temperature 0 is deterministic"
+      - "Outputs can still differ between calls and model versions; test with fakes and evaluate with example sets"
+      - "Temperature 0 is not allowed in tests"
+    answer: 1
+    explanation: "Even greedy decoding varies with batching and model updates; never depend on exact wording."
+  - id: stop-reasons
+    skills: [ai-engineer.model-apis]
+    prompt: "Which stop reason means the answer is complete and normal?"
+    options: ["max_tokens", "end_turn", "refusal", "tool_call"]
+    answer: 1
+    explanation: "end_turn (stop, STOP) is a finished answer; max_tokens is truncated and tool_call asks you to run a tool."
+  - id: retry
+    skills: [ai-engineer.model-apis]
+    prompt: "Which pair of errors is worth retrying with backoff?"
+    options: ["400 and 401", "429 and 503", "403 and 404", "400 and 529"]
+    answer: 1
+    explanation: "Rate limits and server or overload errors are transient; request and permission errors are not."
+  - id: stream-args
+    skills: [ai-engineer.model-apis, ai-engineer.agents-tools]
+    prompt: "In a stream, a tool call's arguments arrive as several JSON fragments. When can you parse them?"
+    options:
+      - "Each fragment as it arrives"
+      - "When the block is complete: join the fragments, then parse once"
+      - "Never: tool calls cannot be streamed"
+    answer: 1
+    explanation: "Fragments like '{\"city\": \"Lis' are not valid JSON on their own."
+  - id: schema
+    skills: [ai-engineer.structured-output]
+    prompt: "Which schema feature stops the model from inventing a category like 'Billing issue'?"
+    answers: ["enum", "an enum", "enums"]
+    explanation: "An enum lists the only allowed values."
+  - id: valid-not-right
+    skills: [ai-engineer.structured-output]
+    prompt: "An extraction validates against the schema. What can still be wrong?"
+    options:
+      - "Nothing: valid means correct"
+      - "The values: an invented order id, a wrong date, a total that does not add up"
+      - "Only the JSON syntax"
+    answer: 1
+    explanation: "Schemas check shape; semantic checks and evaluation check truth."
+  - id: cosine
+    skills: [ai-engineer.embeddings-vector]
+    prompt: "Two embeddings point in exactly the same direction but one is twice as long. What is their cosine similarity?"
+    answers: ["1", "1.0"]
+    explanation: "Cosine similarity ignores length; only the angle matters."
+  - id: exact-vs-ann
+    skills: [ai-engineer.embeddings-vector]
+    prompt: "You have 5,000 FAQ chunks. Which search is a sensible start?"
+    options:
+      - "Exact search over all vectors, in memory or in your existing database"
+      - "A sharded cluster of a dedicated vector database"
+      - "No search: put all 5,000 chunks in every prompt"
+    answer: 0
+    explanation: "Brute force is exact and fast at this size; approximate indexes pay off at much larger scales."

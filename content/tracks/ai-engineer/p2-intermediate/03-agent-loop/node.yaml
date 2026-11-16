@@ -1,0 +1,54 @@
+id: ai-engineer.p2.agent-loop
+kind: kata
+status: draft
+title: "Agent Loop: Tools, Errors and Limits"
+summary: "Run a tool-calling loop against a scripted fake model: validate arguments, turn unknown tools, bad arguments and exceptions into error results, answer parallel calls together, and stop on a final answer, a step limit, a token budget or repeated calls."
+objectives:
+  - { id: o1, text: "Validate tool arguments against their schema and return actionable error results", skills: [ai-engineer.agents-tools, ai-engineer.structured-output] }
+  - { id: o2, text: "Run the call, execute, return-results loop with parallel calls and the right message history", skills: [ai-engineer.agents-tools, ai-engineer.model-apis] }
+  - { id: o3, text: "Stop an agent safely with step limits, token budgets and loop detection", skills: [ai-engineer.agents-tools, ai-engineer.cost-latency] }
+  - { id: o4, text: "Design a small exception hierarchy that keeps the transcript for debugging", skills: [python.errors, python.classes] }
+prerequisites: [ai-engineer.p2.agents-tools]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Write `check_arguments` and `run_tool` first: the loop is short once a tool call always becomes a `ToolResult`, whatever goes wrong. Which three things can go wrong between a `ToolCall` and a successful result?
+    - |-
+      In `run_tool`: look the tool up (unknown → error result listing the available names), check the arguments (errors → `"invalid arguments: " + "; ".join(errors)`), then call `tool.run(**call.arguments)` inside `try/except Exception`. In `run_agent`, keep `messages`, a step counter, a running `Usage` and the previous step's calls as a list of `(name, arguments)` pairs to detect repeats. The budget check goes **before** every request except the first.
+    - |-
+      ```python
+      for step in range(1, max_steps + 1):
+          if step > 1 and max_total_tokens is not None and total(usage) >= max_total_tokens:
+              raise BudgetExceededError("token budget spent", messages)
+          response = model.complete(Request(tuple(messages), system=system, tools=specs))
+          usage = Usage(usage.input_tokens + response.usage.input_tokens,
+                        usage.output_tokens + response.usage.output_tokens)
+          messages.append(Message("assistant", response.content))
+          if response.stop_reason == TOOL_CALL and response.tool_calls:
+              calls = [(call.name, call.arguments) for call in response.tool_calls]
+              if calls == previous:
+                  raise RepeatedCallsError("the model repeated the same tool calls", messages)
+              previous = calls
+              results = tuple(run_tool(tools, call) for call in response.tool_calls)
+              messages.append(Message("user", results))
+              continue
+          ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

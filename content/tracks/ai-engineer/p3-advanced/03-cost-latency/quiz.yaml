@@ -1,0 +1,40 @@
+questions:
+  - id: biggest-driver
+    prompt: "A RAG request has a 2,000-token system prompt, 6,000 tokens of passages and a 300-token answer. What is usually the first thing to look at?"
+    options: ["The answer length", "The 6,000 tokens of passages: retrieve fewer, better ones", "The model's temperature"]
+    answer: 1
+    explanation: "Start with the biggest numbers; reranking to fewer passages often keeps quality and cuts cost and latency."
+  - id: cache-order
+    prompt: "How should a prompt be ordered to benefit from prompt caching?"
+    options: ["Question first, then instructions", "Stable content first (instructions, tools, documents), variable content last", "Order does not matter"]
+    answer: 1
+    explanation: "The cache matches the prefix; anything that changes early invalidates everything after it."
+  - id: cache-check
+    prompt: "How do you confirm prompt caching actually works?"
+    answers: ["check the cached tokens in the usage", "cache read tokens in usage", "look at usage cache_read_input_tokens", "usage"]
+    explanation: "The response usage reports cached input tokens; zero across repeated requests means something invalidates the prefix."
+  - id: routing
+    prompt: "Most questions to your assistant are simple FAQ lookups. What lever fits?"
+    options: ["Route simple requests to a smaller, cheaper model and keep the large one for hard cases", "Use the largest model for everything", "Raise max_tokens"]
+    answer: 0
+    explanation: "Model routing matches cost to difficulty; evaluate both routes."
+  - id: batch
+    prompt: "You must classify two million old tickets by next week. Which option is cheapest?"
+    options: ["Streaming requests", "The provider's batch API", "One request per ticket at peak time"]
+    answer: 1
+    explanation: "Batch APIs trade latency for roughly half the price."
+  - id: jitter
+    prompt: "Why add random jitter to exponential backoff?"
+    options: ["To make retries slower", "So that many clients that failed together do not retry at the same moment", "Providers require it"]
+    answer: 1
+    explanation: "Jitter spreads retries out and avoids synchronised waves of load."
+  - id: retry-after
+    prompt: "A 429 response says retry-after: 12. Your backoff would wait 2 seconds. How long should you wait?"
+    options: ["2 seconds", "At least 12 seconds", "0 seconds"]
+    answer: 1
+    explanation: "The server's hint wins over your own estimate."
+  - id: perceived
+    prompt: "Which change improves perceived latency without changing the model's speed?"
+    options: ["Streaming the answer", "A longer system prompt", "Retrying more"]
+    answer: 0
+    explanation: "Users start reading after the first token instead of waiting for the whole answer."

@@ -1,0 +1,61 @@
+pass_percent: 85
+questions:
+  - id: rag-vs-finetune
+    skills: [ai-engineer.rag-architecture]
+    prompt: "Policies change every month. How should the assistant learn the new ones?"
+    options: ["Fine-tune the model every month", "Re-index the changed documents for retrieval and remove the old versions", "Add them to the system prompt by hand"]
+    answer: 1
+    explanation: "Retrieval picks up changes as soon as the index does; removing old chunks prevents outdated answers."
+  - id: permissions
+    skills: [ai-engineer.rag-architecture, ai-engineer.guardrails]
+    prompt: "Where do you enforce that employees cannot see manager-only documents?"
+    options: ["In the system prompt", "In the retrieval filter, before anything reaches the model", "In the answer, by removing sentences"]
+    answer: 1
+    explanation: "A document that is in the prompt can leak; filter in the search."
+  - id: retrieval-first
+    skills: [ai-engineer.rag-architecture, ai-engineer.evaluation]
+    prompt: "Answers are wrong for a set of questions. What do you check first?"
+    options: ["Whether the right chunks are retrieved (recall@k)", "The temperature", "The length of the system prompt"]
+    answer: 0
+    explanation: "If the right passage never reaches the prompt, no prompt change can fix the answer."
+  - id: invalid-citation
+    skills: [ai-engineer.rag-architecture, ai-engineer.structured-output]
+    prompt: "The model cites a source number you did not send. What is a reasonable policy?"
+    options: ["Show the answer as it is", "Ask once for a corrected answer, then mark it as unverified if it is still wrong", "Retry until it is right"]
+    answer: 1
+    explanation: "Bounded repair, then an honest status: never show a citation that points nowhere."
+  - id: tool-error
+    skills: [ai-engineer.agents-tools]
+    prompt: "A tool raises an exception during an agent run. What should the loop send to the model?"
+    options: ["Nothing: stop the agent", "A tool result marked as an error with the message", "The stack trace as a new user question"]
+    answer: 1
+    explanation: "Error results let the model adapt; the loop stays in control."
+  - id: budget
+    skills: [ai-engineer.agents-tools, ai-engineer.cost-latency]
+    prompt: "Why does each step of an agent cost more than the previous one?"
+    answers: ["the whole growing history is resent every step", "the context grows", "it resends the conversation"]
+    explanation: "Every request includes all earlier messages and tool results."
+  - id: workflow-or-agent
+    skills: [ai-engineer.agents-tools]
+    prompt: "Which task most justifies an autonomous agent rather than a fixed workflow?"
+    options: ["Classifying tickets into eight queues", "Researching an unfamiliar bug across logs, code and docs", "Translating a product description"]
+    answer: 1
+    explanation: "Open-ended tasks whose steps are unknown in advance are where agents earn their cost."
+  - id: judge-trust
+    skills: [ai-engineer.evaluation]
+    prompt: "An LLM judge rates answers. What makes its scores trustworthy?"
+    options: ["A detailed reason in each verdict", "Agreement with human ratings on a calibration sample", "Using the same model as the system under test"]
+    answer: 1
+    explanation: "Calibration against people; using the same model family even adds self-preference bias."
+  - id: gate
+    skills: [ai-engineer.evaluation]
+    prompt: "A new prompt raises the overall score but fails two cases tagged critical that passed before. What should the gate do?"
+    options: ["Ship it", "Block it until the critical regressions are fixed or explicitly accepted", "Delete the two cases"]
+    answer: 1
+    explanation: "Critical slices are protected even when the average improves."
+  - id: golden-growth
+    skills: [ai-engineer.evaluation]
+    prompt: "A user reports a wrong answer in production. What should happen to it besides the fix?"
+    options: ["Nothing", "It becomes a new golden set case, so the bug cannot silently return", "It is added to the prompt as an example"]
+    answer: 1
+    explanation: "Production failures are the best source of new eval cases."

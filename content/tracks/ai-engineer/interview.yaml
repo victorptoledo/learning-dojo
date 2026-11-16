@@ -1,0 +1,257 @@
+# Technical interview questions for the ai-engineer track, written for the dojo.
+# The topics follow what public interview guides and provider documentation report as common
+# (see sources); the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/ai-engineer"
+  - "https://www.anthropic.com/engineering/building-effective-agents"
+  - "https://platform.claude.com/docs/en/build-with-claude/overview"
+  - "https://platform.openai.com/docs/guides/text"
+  - "https://genai.owasp.org/llm-top-10/"
+  - "https://hamel.dev/blog/posts/evals/"
+questions:
+  - id: tokens-context
+    level: junior
+    skills: [ai-engineer.llm-foundations]
+    question: "Explain tokens and the context window. Why does a long chat get slower and more expensive with every turn?"
+    key_points:
+      - "Models read and write tokens, roughly 4 characters of English each, counted by a model-specific tokenizer"
+      - "The context window holds input and output of one request"
+      - "APIs are stateless, so the whole history is resent each turn and input grows"
+      - "Cost and time to first token grow with input; strategies: trim, summarise, retrieve, prompt caching"
+    follow_up: "How would you decide which old turns to drop?"
+  - id: temperature
+    level: junior
+    skills: [ai-engineer.llm-foundations]
+    question: "What do temperature and top-p do, and which settings would you use for data extraction versus brainstorming?"
+    key_points:
+      - "Sampling picks the next token from a probability distribution"
+      - "Temperature sharpens or flattens it; top-p keeps the smallest set covering p of the probability"
+      - "Low temperature for extraction and classification, higher for creative variety"
+      - "Outputs vary even at temperature 0; some reasoning models fix sampling"
+    follow_up: "How do you test a feature whose outputs are not deterministic?"
+  - id: stop-reasons
+    level: junior
+    skills: [ai-engineer.model-apis]
+    question: "A model API returns HTTP 200. Why might that still be a failure, and what does your code check?"
+    key_points:
+      - "Check the stop reason before using the content"
+      - "max_tokens or length means truncated output"
+      - "refusal or content filter means the model declined"
+      - "tool_call means the model wants a tool run, not a final answer"
+      - "Validate structured output even on success"
+    follow_up: "What would you log for every call?"
+  - id: retries
+    level: junior
+    skills: [ai-engineer.model-apis, ai-engineer.cost-latency]
+    question: "Which model API errors would you retry, and how?"
+    key_points:
+      - "Retry 429, 5xx, overloaded and connection or timeout errors"
+      - "Never retry 400, 401, 403, 404: fix the request or configuration"
+      - "Exponential backoff with jitter, honour retry-after, cap attempts and total time"
+      - "Fallback model or graceful degradation when retries are exhausted"
+    follow_up: "Why is jitter important when many clients fail at once?"
+  - id: structured-output
+    level: junior
+    skills: [ai-engineer.structured-output]
+    question: "How do you get reliable JSON out of a model for code to consume?"
+    key_points:
+      - "Prefer schema-constrained output or tool-based extraction where supported"
+      - "Design the schema with enums, descriptions, nullable fields, no extra properties"
+      - "Parse robustly and validate with error paths"
+      - "Bounded repair loop that feeds errors back; truncation is a failure"
+      - "Semantic checks in code: a valid shape can hold wrong values"
+    follow_up: "What can still be wrong when the JSON validates?"
+  - id: embeddings
+    level: junior
+    skills: [ai-engineer.embeddings-vector]
+    question: "What are embeddings and how does vector search work? When would you add keyword search?"
+    key_points:
+      - "An embedding model maps text to vectors; similar meaning, similar direction"
+      - "Cosine similarity or dot product on normalised vectors"
+      - "Exact search for small sets, approximate indexes (HNSW, IVF) for large ones"
+      - "Hybrid with BM25 for exact terms like codes and names, fused with RRF"
+      - "Same model for queries and documents; metadata filters"
+    follow_up: "How do you measure whether search quality is good enough?"
+  - id: rag-design
+    level: mid
+    skills: [ai-engineer.rag-architecture]
+    question: "Walk me through the design of a RAG system for a company's internal documents."
+    key_points:
+      - "Ingestion: parsing, structural chunking with context and metadata, embedding, indexing, updates and deletions"
+      - "Query: rewriting, hybrid retrieval with permission filters, reranking"
+      - "Prompt: token budget, numbered sources, citations, an explicit not-found path"
+      - "Checks: citations verified in code"
+      - "Evaluation: recall@k for retrieval, faithfulness and correctness for answers"
+    follow_up: "Where do you enforce document permissions, and why there?"
+  - id: rag-debug
+    level: mid
+    skills: [ai-engineer.rag-architecture, ai-engineer.evaluation]
+    question: "Users say your RAG assistant gives wrong answers. How do you find out why?"
+    key_points:
+      - "Collect failing examples with traces: query, retrieved chunks, prompt, answer"
+      - "Separate retrieval failures (right chunk not retrieved) from generation failures"
+      - "Check ingestion: parsing, chunking, stale or duplicate versions"
+      - "Measure with a labelled set before and after each fix"
+    follow_up: "What would you change if the right chunk is retrieved but the answer is still wrong?"
+  - id: tool-calling
+    level: mid
+    skills: [ai-engineer.agents-tools]
+    question: "Explain how tool calling works, end to end, and what your code must do around it."
+    key_points:
+      - "Tool definitions with names, descriptions and JSON Schemas are sent with the request"
+      - "The model returns calls with ids and arguments; your code executes them"
+      - "Validate arguments and permissions; authorisation from the session"
+      - "Return results by call id, errors as error results, parallel calls together"
+    follow_up: "How do you design a tool so that a model uses it well?"
+  - id: agent-limits
+    level: mid
+    skills: [ai-engineer.agents-tools, ai-engineer.cost-latency]
+    question: "You are building an agent loop. What limits and safeguards do you put in it?"
+    key_points:
+      - "Step limit, token or cost budget, timeouts"
+      - "Detection of repeated identical calls"
+      - "Human approval for consequential actions"
+      - "Compact tool results and trimming old context"
+      - "Graceful stop with a partial answer and full traces"
+    follow_up: "When would you choose a fixed workflow instead of an agent?"
+  - id: eval-strategy
+    level: mid
+    skills: [ai-engineer.evaluation]
+    question: "How would you evaluate an LLM feature before launch and keep it from regressing afterwards?"
+    key_points:
+      - "Golden set from real, labelled data with tags for slices and a held-out part"
+      - "Code-based metrics where possible; LLM judge with rubric for fuzzy criteria"
+      - "Baseline versus candidate comparison in CI with a tolerance and critical slices"
+      - "Online signals and sampled judging after launch; production failures become cases"
+    follow_up: "How do you know an LLM judge can be trusted?"
+  - id: llm-judge
+    level: mid
+    skills: [ai-engineer.evaluation]
+    question: "What are the pitfalls of LLM-as-judge and how do you mitigate them?"
+    key_points:
+      - "Position bias: swap orders in pairwise comparisons"
+      - "Verbosity and self-preference bias: rubric, different judge model"
+      - "Vague scales: few levels with definitions or binary criteria"
+      - "Calibrate against human ratings and re-check when the judge changes"
+      - "Structured verdicts with reasons"
+    follow_up: "When would you not use a judge at all?"
+  - id: prompt-injection
+    level: mid
+    skills: [ai-engineer.guardrails]
+    question: "What is prompt injection, and how do you defend an assistant that reads emails and can send messages?"
+    key_points:
+      - "Direct versus indirect injection through content the model reads"
+      - "No complete fix at the prompt level"
+      - "Least privilege and confirmation for sending or other side effects"
+      - "Authorisation outside the model; delimit untrusted content"
+      - "Output checks for exfiltration (links, images, recipients), monitoring and red-team evals"
+    follow_up: "How would you test these defences?"
+  - id: pii
+    level: mid
+    skills: [ai-engineer.guardrails, ai-engineer.observability]
+    question: "How do you handle personal data in an LLM feature: prompts, logs and providers?"
+    key_points:
+      - "Minimise what is sent; redact with validated detections and placeholders"
+      - "Traces and logs: masking, sampling, short retention, access control"
+      - "Provider terms: retention, training use, region"
+      - "Data protection duties such as the GDPR; no secrets in prompts"
+    follow_up: "When would you restore redacted values, and where?"
+  - id: cost-reduction
+    level: mid
+    skills: [ai-engineer.cost-latency]
+    question: "The bill for an LLM feature doubled. How do you bring it down without hurting quality?"
+    key_points:
+      - "Measure tokens per call and calls per task; find the biggest drivers"
+      - "Fewer tokens: trimmed prompts, fewer reranked passages, compact tool results, output limits"
+      - "Prompt caching with a stable prefix; answer caching"
+      - "Cheaper models for easy steps, routing, batch APIs for offline work"
+      - "Check every change against the golden set; judge cost per completed task"
+    follow_up: "How do you verify prompt caching is actually working?"
+  - id: latency
+    level: mid
+    skills: [ai-engineer.cost-latency]
+    question: "A chat feature feels slow. What do you measure and what do you change?"
+    key_points:
+      - "Time to first token versus total time, per step"
+      - "Streaming for perceived latency"
+      - "Shorter input and output, smaller or faster models"
+      - "Parallel independent calls, fewer sequential steps"
+      - "Caching and timeouts with fallbacks"
+    follow_up: "What dominates time to first token?"
+  - id: observability
+    level: senior
+    skills: [ai-engineer.observability]
+    question: "What observability would you require before an LLM feature goes to production?"
+    key_points:
+      - "Traces with spans for retrieval, model calls and tools, using GenAI conventions"
+      - "Model id, prompt version, tokens, cost, latency, stop reasons on every call"
+      - "Dashboards and alerts: errors, p95 latency, cost per tenant, quality proxies"
+      - "Feedback tied to traces, online evaluation, drift detection"
+      - "Privacy controls on stored prompts"
+    follow_up: "Answers got worse with no deploy. What could have changed?"
+  - id: fine-tuning
+    level: senior
+    skills: [ai-engineer.fine-tuning]
+    question: "When would you fine-tune a model instead of improving the prompt or using RAG? What does it cost you?"
+    key_points:
+      - "Fine-tune for behaviour, format or a narrow task, not for facts"
+      - "Distillation to a small model for high-volume tasks"
+      - "LoRA or QLoRA adapters; clean representative data and a held-out set"
+      - "Evaluate against the current system, including safety and general regressions"
+      - "Costs: re-tuning, hosting, lock-in to the base model"
+    follow_up: "How would you build the training data for a distilled classifier?"
+  - id: self-hosting
+    level: senior
+    skills: [ai-engineer.serving]
+    question: "Should we self-host an open-weight model or use a hosted API? How would you decide and size it?"
+    key_points:
+      - "Drivers: data control, steady volume, customisation versus quality, features and operations effort"
+      - "Memory: weights by precision plus KV cache by context and concurrency"
+      - "Engines with continuous batching and paged attention, OpenAI-compatible APIs"
+      - "Quantization evaluated on the golden set"
+      - "Load tests and cost per token at real utilisation"
+    follow_up: "What limits how many concurrent users one GPU can serve?"
+  - id: model-migration
+    level: senior
+    skills: [ai-engineer.production, ai-engineer.evaluation]
+    question: "The model behind three production features is being retired. How do you run the migration?"
+    key_points:
+      - "Track deprecation dates; shortlist candidates"
+      - "Run each feature's golden and safety sets; compare per slice, cost and latency"
+      - "Adapt prompts as reviewed, versioned changes"
+      - "Shadow traffic, staged rollout, monitoring and rollback"
+      - "Reduce future lock-in: config-driven model ids, provider-neutral client, evals in CI"
+    follow_up: "What would you do if the new model is better overall but worse on one critical slice?"
+  - id: governance
+    level: senior
+    skills: [ai-engineer.production, ai-engineer.guardrails]
+    question: "What governance and regulatory questions do you raise before launching an AI feature?"
+    key_points:
+      - "Risk classification, for example under the EU AI Act (prohibited, high-risk, transparency duties)"
+      - "Transparency to users and marking of AI-generated content where required"
+      - "Documentation: purpose, data, evaluation, limitations"
+      - "Human oversight, appeal and switch-off"
+      - "Data protection and frameworks such as the NIST AI RMF or ISO/IEC 42001"
+    follow_up: "Which features in your product would you treat as high-risk, and why?"
+  - id: architecture
+    level: senior
+    skills: [ai-engineer.role, ai-engineer.production]
+    question: "Design the architecture for an AI support assistant used by 200 companies. What are the main components and the main risks?"
+    key_points:
+      - "Gateway with auth, per-tenant quotas, rate limits, retries, fallbacks and cost accounting"
+      - "Per-tenant retrieval with strict isolation; ingestion pipeline"
+      - "Tools with least privilege and approvals; guardrails before and after the model"
+      - "Evaluation in CI and online; observability with traces and feedback"
+      - "Risks: data leaks between tenants, injection, cost spikes, model changes"
+    follow_up: "How do you stop one tenant's traffic from degrading the others?"
+  - id: when-not
+    level: senior
+    skills: [ai-engineer.role]
+    question: "Tell me about a problem where you would advise against using an LLM. How do you make that case to a product team?"
+    key_points:
+      - "Exact, known rules belong in code"
+      - "Unacceptable, uncheckable errors; strict latency or volume limits"
+      - "A classic model or search already works"
+      - "Make the case with data: cost per task, error rates on a small eval, a simpler alternative"
+      - "Suggest the narrow place where a model does help"
+    follow_up: "How would you prototype quickly to settle the question?"

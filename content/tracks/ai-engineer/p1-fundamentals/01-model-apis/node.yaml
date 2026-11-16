@@ -1,0 +1,25 @@
+id: ai-engineer.p1.model-apis
+kind: lesson
+status: draft
+title: "Calling Model APIs: Messages, Streaming, Stop Reasons and Errors"
+summary: "The anatomy of a chat request and response across providers, streaming with server-sent events, stop reasons you must handle, which errors to retry, timeouts, and keeping API keys out of code."
+objectives:
+  - { id: o1, text: "Build a chat request (model, system, messages, max_tokens, sampling, tools) and read its response (content blocks, stop reason, usage)", skills: [ai-engineer.model-apis] }
+  - { id: o2, text: "Consume a streamed response and explain when streaming helps", skills: [ai-engineer.model-apis] }
+  - { id: o3, text: "Handle every stop reason and classify API errors as retryable or not", skills: [ai-engineer.model-apis, python.errors] }
+  - { id: o4, text: "Keep API keys and model names out of code and behind an interface you can fake in tests", skills: [ai-engineer.model-apis, python.protocols] }
+prerequisites: [ai-engineer.p0.context-budget]
+difficulty: 2
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the thin "model client" module your team will use for every model call. Describe its interface, what it logs, which stop reasons and errors it handles and how (retry, raise, return), how it is configured (model name, key, timeouts) and how tests use it without calling the real API.'
+  criteria:
+    - 'Defines a small interface (a function or Protocol) that takes a provider-neutral request and returns content, stop reason and usage'
+    - 'Treats max_tokens and refusal stop reasons explicitly instead of returning truncated or empty text as success'
+    - 'Retries only 429, 5xx/overloaded and connection errors, with backoff and a cap, and never retries 400/401/403'
+    - 'Reads the key from the environment or a secret manager and the model name from configuration'
+    - 'Provides a fake implementation for tests and logs usage (tokens, latency, model) without logging secrets'

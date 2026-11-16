@@ -1,0 +1,25 @@
+id: ai-engineer.p3.guardrails-safety
+kind: lesson
+status: draft
+title: "Guardrails and Safety: Prompt Injection, PII and Least Privilege"
+summary: "The threats specific to LLM features (direct and indirect prompt injection, data leaks, excessive agency, unsafe output handling) from the OWASP Top 10 for LLM applications, and the layered defences: least privilege, input and output checks, PII handling, human approval and red-teaming."
+objectives:
+  - { id: o1, text: "Explain direct and indirect prompt injection and why it cannot be fully prevented by prompting", skills: [ai-engineer.guardrails] }
+  - { id: o2, text: "Design layered defences: least-privilege tools, approvals, input and output checks, isolation of untrusted content", skills: [ai-engineer.guardrails, ai-engineer.agents-tools] }
+  - { id: o3, text: "Handle personal data in prompts, logs and outputs: minimise, redact, retain and comply", skills: [ai-engineer.guardrails] }
+  - { id: o4, text: "Treat model output as untrusted input to the rest of the system", skills: [ai-engineer.guardrails, ai-engineer.structured-output] }
+prerequisites: [ai-engineer.p2.checkpoint]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An email assistant reads a user''s inbox, summarises messages and can draft and send replies and create calendar events. Write a short threat model: three realistic attacks (at least one indirect prompt injection), what each could achieve, and the defences you would put in place, layer by layer. Say which risks remain after your defences.'
+  criteria:
+    - 'Describes an indirect injection through an incoming email or attachment that tries to make the assistant send data or messages'
+    - 'Limits the assistant''s power: sending requires the user''s confirmation, recipients or actions are constrained, tools run with the user''s permissions only'
+    - 'Separates and marks untrusted content, and checks outputs (links, recipients, data leaving the account) before acting'
+    - 'Handles personal data deliberately (what is logged, retention, redaction) and mentions monitoring and red-team testing'
+    - 'Admits residual risk: prompt-level defences reduce but do not remove injection'

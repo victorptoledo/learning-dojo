@@ -1,0 +1,40 @@
+questions:
+  - id: why-self-host
+    prompt: "Which is the strongest reason to self-host an open-weight model?"
+    options: ["It is always cheaper", "Data must stay inside your own infrastructure", "Open models are always better"]
+    answer: 1
+    explanation: "Data control is a hard requirement APIs may not meet; cost depends on utilisation."
+  - id: weights-memory
+    prompt: "Roughly how much GPU memory do the weights of a 70-billion-parameter model need in 16-bit precision?"
+    options: ["About 14 GB", "About 140 GB", "About 1.4 TB"]
+    answer: 1
+    explanation: "70 billion parameters × 2 bytes ≈ 140 GB, before the KV cache."
+  - id: kv-cache
+    prompt: "What grows with context length and the number of concurrent requests?"
+    answers: ["the kv cache", "kv cache", "key value cache"]
+    explanation: "Keys and values are kept for every token of every active sequence."
+  - id: quantization
+    prompt: "You move from 16-bit to 4-bit weights. What must you do?"
+    options: ["Nothing, quality is identical", "Evaluate quality on your golden set, since 4-bit can hurt hard tasks", "Retrain the model"]
+    answer: 1
+    explanation: "Quantization trades some quality for memory and speed; measure it."
+  - id: continuous-batching
+    prompt: "What does continuous batching do?"
+    options: ["Processes one request at a time", "Adds new requests to the running batch at every decoding step", "Batches requests overnight"]
+    answer: 1
+    explanation: "It keeps the GPU full and raises throughput without waiting for a batch to finish."
+  - id: paged-attention
+    prompt: "What problem does paged attention solve?"
+    options: ["Slow tokenization", "Wasted GPU memory in the KV cache, by storing it in fixed-size blocks", "Model licensing"]
+    answer: 1
+    explanation: "Like virtual memory pages, it avoids reserving large contiguous blocks per request."
+  - id: compatible-api
+    prompt: "Why do teams like serving engines with an OpenAI-compatible API?"
+    options: ["They are faster", "Existing clients can switch to the self-hosted model by changing the base URL and model name", "They need no GPU"]
+    answer: 1
+    explanation: "A compatible API keeps the rest of the code unchanged."
+  - id: utilisation
+    prompt: "When does self-hosting usually beat per-token API prices?"
+    options: ["When GPUs are busy most of the time with steady traffic", "When traffic is rare and bursty", "Always"]
+    answer: 0
+    explanation: "Idle GPUs still cost money; high utilisation spreads their cost over many tokens."

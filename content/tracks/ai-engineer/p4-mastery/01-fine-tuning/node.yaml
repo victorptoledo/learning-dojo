@@ -1,0 +1,24 @@
+id: ai-engineer.p4.fine-tuning
+kind: lesson
+status: draft
+title: "Fine-Tuning Trade-offs: Prompting, RAG, LoRA and Distillation"
+summary: "When to change the model instead of its context: what fine-tuning is good and bad at, supervised fine-tuning and preference tuning, parameter-efficient methods (LoRA, QLoRA), distillation into smaller models, data needs, evaluation and the costs of owning a tuned model."
+objectives:
+  - { id: o1, text: "Choose between prompting, RAG, fine-tuning and distillation for a requirement, and justify it", skills: [ai-engineer.fine-tuning] }
+  - { id: o2, text: "Explain supervised fine-tuning, preference tuning (RLHF, DPO), LoRA and QLoRA at an engineer's level", skills: [ai-engineer.fine-tuning] }
+  - { id: o3, text: "Plan the data, evaluation and operating costs of a fine-tuned model", skills: [ai-engineer.fine-tuning, ai-engineer.evaluation] }
+prerequisites: [ai-engineer.p3.observability]
+difficulty: 4
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A company classifies 3 million support messages a month into 40 intents with a large hosted model and a long prompt full of examples. It is accurate but costs too much and takes 2 seconds per message. Make the case for or against fine-tuning or distilling a smaller model: what data you would use, how you would compare the options, what you would gain and what new costs and risks you would take on.'
+  criteria:
+    - 'Identifies a good fit for distillation or fine-tuning: a narrow, stable task with high volume and an expensive prompt'
+    - 'Uses the large model''s labelled outputs, checked by humans where they disagree or are uncertain, plus real labelled data, with a held-out test set'
+    - 'Compares the tuned small model with the current setup on the same golden set, per intent, including cost and latency'
+    - 'Names new costs: training runs, hosting or tuned-model pricing, re-tuning when intents change, monitoring drift'
+    - 'Keeps a fallback (route low-confidence cases to the large model)'

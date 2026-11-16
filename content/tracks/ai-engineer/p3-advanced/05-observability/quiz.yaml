@@ -1,0 +1,35 @@
+questions:
+  - id: silent
+    prompt: "Why do LLM features need more observability than a classic CRUD endpoint?"
+    options: ["They throw more exceptions", "They degrade silently: worse, slower or costlier answers without errors", "They cannot be logged"]
+    answer: 1
+    explanation: "Quality, cost and latency drift without failures, so you must measure them."
+  - id: trace
+    prompt: "What does a distributed trace of one RAG request show?"
+    options: ["Only the model's answer", "A tree of timed spans: retrieval, reranking, model calls and tool calls with their attributes", "The GPU usage of the provider"]
+    answer: 1
+    explanation: "Spans show where the time and tokens went and what each step returned."
+  - id: genai-conventions
+    prompt: "What do the OpenTelemetry GenAI semantic conventions standardise?"
+    options: ["Prompt templates", "Attribute names for model calls, such as the model and token usage, so tools can read traces uniformly", "The price of tokens"]
+    answer: 1
+    explanation: "Shared gen_ai.* attributes make traces portable across tools."
+  - id: version
+    prompt: "Quality dropped on Tuesday. Which recorded fact helps most to explain it?"
+    options: ["The prompt template version and exact model id on every trace", "The server's CPU temperature", "The number of developers on the team"]
+    answer: 0
+    explanation: "Versions let you correlate changes with the drop and compare before and after."
+  - id: drift
+    prompt: "Which is a source of drift with no deploy on your side?"
+    options: ["A provider updating the model behind an alias", "A typo fix in your README", "Rotating log files"]
+    answer: 0
+    explanation: "Pin versions where you can and watch quality proxies over time."
+  - id: feedback
+    prompt: "Why tie a user's thumbs-down to the full trace?"
+    answers: ["so it becomes a reproducible eval case with the exact prompt passages and output", "to debug it", "to reproduce the failure"]
+    explanation: "Feedback with context can be replayed and added to the golden set."
+  - id: privacy
+    prompt: "What is a sound policy for storing full prompts and outputs?"
+    options: ["Store everything forever, everyone may read it", "Redact personal data, sample, keep a short retention and restrict access", "Never record anything about model calls"]
+    answer: 1
+    explanation: "Prompt logs are sensitive production data; balance debugging value and privacy."

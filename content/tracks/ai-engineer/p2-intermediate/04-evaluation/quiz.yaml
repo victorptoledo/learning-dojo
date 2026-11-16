@@ -1,0 +1,40 @@
+questions:
+  - id: source
+    prompt: "Where should the first golden set examples come from?"
+    options: ["Examples the team invents", "Real inputs from logs or tickets, cleaned of personal data and labelled carefully", "The model's own outputs"]
+    answer: 1
+    explanation: "Real data contains the messy cases that invented examples miss."
+  - id: code-first
+    prompt: "Which criterion should be checked with code rather than an LLM judge?"
+    options: ["Whether the reply is polite", "Whether the extracted category is one of the eight allowed and equals the label", "Whether the summary is helpful"]
+    answer: 1
+    explanation: "Exact, checkable criteria are cheaper and more reliable in code."
+  - id: position-bias
+    prompt: "In pairwise judging, how do you control position bias?"
+    options: ["Always put the candidate first", "Judge both orders and count a win only when the judge agrees in both", "Use a higher temperature"]
+    answer: 1
+    explanation: "Swapping the order and requiring consistency cancels the preference for the first (or second) position."
+  - id: calibrate
+    prompt: "How do you know an LLM judge can be trusted for a criterion?"
+    options: ["It explains its reasons", "Its scores agree with human ratings on a sample", "It is the biggest model available"]
+    answer: 1
+    explanation: "Calibration against people is the only evidence of a judge's validity."
+  - id: regression
+    prompt: "What is a regression in an eval comparison?"
+    answers: ["a case that passed with the baseline and fails with the candidate", "passed before fails now", "a case that got worse"]
+    explanation: "Regressions are inspected one by one even when the overall score improved."
+  - id: slices
+    prompt: "The overall pass rate rose from 88% to 90%, but German tickets dropped from 85% to 60%. What should the gate do?"
+    options: ["Ship: the overall score improved", "Block or review: a critical slice regressed", "Ignore slices smaller than 50%"]
+    answer: 1
+    explanation: "Per-slice checks catch losses hidden by an overall average."
+  - id: overfit
+    prompt: "Why keep part of the golden set out of prompt tuning?"
+    options: ["To save tokens", "Tuning on the test examples overfits, so the score stops predicting real performance", "Judges cannot read it"]
+    answer: 1
+    explanation: "A held-out set tells you whether improvements generalise."
+  - id: online
+    prompt: "Which is an implicit online quality signal?"
+    options: ["A thumbs-down click", "How often users edit or discard a suggested draft", "The golden set score"]
+    answer: 1
+    explanation: "Behaviour such as edits, retries and escalations shows quality without asking users."

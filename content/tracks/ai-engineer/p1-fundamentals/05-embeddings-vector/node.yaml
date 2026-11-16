@@ -1,0 +1,26 @@
+id: ai-engineer.p1.embeddings-vector
+legacy_id: ai-02-embeddings-vector
+kind: lesson
+status: draft
+title: "Embeddings, Similarity and Vector Search"
+summary: "What an embedding is, cosine similarity and normalisation, choosing an embedding model, exact versus approximate nearest-neighbour search (HNSW, IVF), vector databases, metadata filters and hybrid search with keywords."
+objectives:
+  - { id: o1, text: "Explain embeddings and compute cosine similarity and dot product on normalised vectors", skills: [ai-engineer.embeddings-vector] }
+  - { id: o2, text: "Choose an embedding model and dimension, and keep queries and documents in the same model", skills: [ai-engineer.embeddings-vector] }
+  - { id: o3, text: "Explain exact and approximate nearest-neighbour search, vector databases and metadata filtering", skills: [ai-engineer.embeddings-vector] }
+  - { id: o4, text: "Combine vector and keyword search with reciprocal rank fusion", skills: [ai-engineer.embeddings-vector, ai-engineer.rag-architecture] }
+prerequisites: [ai-engineer.p1.structured-extraction]
+difficulty: 3
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your company has 2 million support articles in six languages, updated daily, and wants "semantic search". Choose an embedding approach and a vector store, explain how you would index and re-index, how you would filter by product and language, why you might add keyword search, and how you would check that search quality is good enough.'
+  criteria:
+    - 'Picks a multilingual embedding model and embeds queries and documents with the same model and version'
+    - 'Chooses approximate search (HNSW or IVF) in a vector database or pgvector and justifies it for 2 million vectors'
+    - 'Stores product and language as metadata and filters at query time'
+    - 'Explains hybrid search (BM25 plus vectors, fused with RRF) for exact terms like error codes and product names'
+    - 'Measures quality with labelled queries (recall@k or MRR) and plans re-embedding when the model changes'

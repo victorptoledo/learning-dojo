@@ -1,0 +1,40 @@
+questions:
+  - id: config
+    prompt: "Which change should run the golden set in CI before it merges?"
+    options: ["Only model changes", "Any change to prompts, model ids, retrieval settings or tool definitions", "Only code changes"]
+    answer: 1
+    explanation: "Everything that shapes the output is configuration that needs evaluation."
+  - id: deprecation
+    prompt: "Your model will be retired in four months. What is the first step?"
+    options: ["Wait for the provider to switch you automatically", "Evaluate candidate replacements on each feature's golden and safety sets", "Rewrite the feature"]
+    answer: 1
+    explanation: "A retirement is a migration: start with evidence about the candidates."
+  - id: shadow
+    prompt: "What is shadow traffic in a model migration?"
+    answers: ["running the new model in parallel on real requests without showing its answers", "running both models and comparing", "parallel run without users seeing it"]
+    explanation: "It shows how the new model behaves on real inputs with no risk to users."
+  - id: prompts-move
+    prompt: "Why may prompts need changes when you upgrade the model?"
+    options: ["Prompts are tied to API keys", "New models can follow instructions differently, so prompts tuned for the old one may hurt", "They never need changes"]
+    answer: 1
+    explanation: "Re-evaluate and adapt prompts per feature during a migration."
+  - id: kill-switch
+    prompt: "A feature produces harmful output that is spreading online. What do you need ready?"
+    options: ["A press release", "A kill switch or flag to disable the feature or path quickly, with traces preserved", "A bigger model"]
+    answer: 1
+    explanation: "Stop the harm first, then investigate and add the case to the safety set."
+  - id: ai-act
+    prompt: "Under the EU AI Act, what duty applies to a chatbot that talks to the public?"
+    options: ["None", "Transparency: people must be told they are interacting with an AI", "It must be open source"]
+    answer: 1
+    explanation: "Limited-risk systems carry transparency obligations; high-risk uses carry much more."
+  - id: high-risk
+    prompt: "Which use is likely high-risk under the EU AI Act?"
+    options: ["Summarising internal meeting notes", "Ranking job applicants for hiring decisions", "Suggesting email subject lines"]
+    answer: 1
+    explanation: "Employment and hiring are listed high-risk areas with strict requirements."
+  - id: ab-test
+    prompt: "Offline evals pass. When do you still need an A/B test?"
+    options: ["Never", "When the value of the change shows only in user behaviour, such as acceptance or resolution rates", "Only for UI colour changes"]
+    answer: 1
+    explanation: "Evals show a change is safe; experiments show it is better for users."

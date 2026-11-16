@@ -1,0 +1,64 @@
+questions:
+  - id: tokens-per-word
+    prompt: "Roughly how many tokens is 750 words of ordinary English text?"
+    options: ["About 190", "About 1,000", "About 4,500"]
+    answer: 1
+    explanation: "One token is about 0.75 English words (about 4 characters), so 750 words is roughly 1,000 tokens."
+  - id: letters
+    prompt: "Why do language models often miscount the letters in a word?"
+    options:
+      - "Because they see token ids, not individual characters"
+      - "Because their temperature is too high"
+      - "Because the context window is too small"
+    answer: 0
+    explanation: "A word may be one or two tokens; the model never sees its letters one by one."
+  - id: memory
+    prompt: "A chat feels like the model remembers earlier turns. How does that work?"
+    options:
+      - "The provider keeps a memory of every user"
+      - "Your code sends the conversation history in every request"
+      - "The model updates its weights after each turn"
+    answer: 1
+    explanation: "Models are stateless between requests; the history is part of the input each time."
+  - id: window
+    prompt: "What does a 200,000-token context window limit?"
+    options:
+      - "Only the length of the prompt"
+      - "Only the length of the answer"
+      - "Input and output tokens together in one request"
+    answer: 2
+    explanation: "The window holds everything in one request, including the room reserved for the answer."
+  - id: output-price
+    prompt: "Why are output tokens usually priced higher than input tokens?"
+    options:
+      - "Output tokens are generated one at a time, while input is processed in parallel"
+      - "Output tokens are longer"
+      - "Providers charge for the network traffic"
+    answer: 0
+    explanation: "Decode is sequential and uses the hardware less efficiently than the parallel prefill."
+  - id: temperature
+    prompt: "You extract invoice fields into JSON. Which temperature fits best?"
+    options: ["0 or close to it", "1.0", "1.5"]
+    answer: 0
+    explanation: "Extraction wants the most likely, focused answer; high temperatures add variety and mistakes."
+  - id: determinism
+    prompt: "At temperature 0, are two calls with the same input guaranteed to return the same text?"
+    options:
+      - "Yes, always"
+      - "No: batching, floating-point order and model updates can still change the output"
+      - "Only for short prompts"
+    answer: 1
+    explanation: "Design for variation: validate and evaluate instead of depending on exact wording."
+  - id: top-p
+    prompt: "What does top-p = 0.9 do?"
+    options:
+      - "Samples only among the most likely tokens whose probabilities add up to 0.9"
+      - "Keeps the 90 most likely tokens"
+      - "Stops after 90% of max_tokens"
+    answer: 0
+    explanation: "Nucleus sampling cuts the unlikely tail and samples from the smallest set covering p of the probability."
+  - id: ttft
+    prompt: "Which change mostly improves time to first token?"
+    options: ["A shorter prompt", "A shorter answer", "A higher temperature"]
+    answer: 0
+    explanation: "TTFT is dominated by reading (prefilling) the input; output length affects total time instead."

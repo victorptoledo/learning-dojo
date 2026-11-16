@@ -1,0 +1,24 @@
+id: ai-engineer.p0.the-role
+kind: lesson
+status: draft
+title: "The AI Engineer Role and the Shape of an LLM Feature"
+summary: "What an AI engineer owns, how the role differs from ML engineering and data science, and the parts every feature built on a language model has."
+objectives:
+  - { id: o1, text: "Describe what an AI engineer owns and how the role differs from ML engineer and data scientist", skills: [ai-engineer.role] }
+  - { id: o2, text: "Name the parts of an LLM feature: model, context, output contract, tools, evaluation, guardrails and operations", skills: [ai-engineer.role] }
+  - { id: o3, text: "Decide when a language model is the wrong tool for a problem", skills: [ai-engineer.role] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A support team wants "an AI that answers customer emails". Describe the feature you would build first: what the model receives, what it may do on its own, what a human still does, how you would know it works before and after launch, and one thing you would deliberately not automate yet.'
+  criteria:
+    - 'Names the context the model gets (the email, account data, help-centre articles) and where it comes from'
+    - 'Keeps a human in the loop for risky actions (refunds, account changes) or starts with drafts only'
+    - 'Defines how success is measured before launch (real past emails with expected outcomes) and after (acceptance rate, escalations)'
+    - 'Mentions cost, latency or the privacy of customer data'
+    - 'Gives a reasoned example of something not to automate yet'

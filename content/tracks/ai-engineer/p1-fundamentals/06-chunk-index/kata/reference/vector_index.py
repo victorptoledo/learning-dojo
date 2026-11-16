@@ -1,0 +1,79 @@
+"""An exact, in-memory vector index with cosine similarity."""
+
+import math
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
+from typing import Any
+
+
+@dataclass(frozen=True)
+class Hit:
+    id: str
+    score: float
+    metadata: Mapping[str, Any] = field(default_factory=dict)
+
+
+def normalize(vector: Sequence[float]) -> tuple[float, ...]:
+    length = math.sqrt(sum(x * x for x in vector))
+    if length == 0:
+        raise ValueError("cannot normalise a zero vector")
+    return tuple(x / length for x in vector)
+
+
+def cosine(a: Sequence[float], b: Sequence[float]) -> float:
+    if len(a) != len(b):
+        raise ValueError(f"vectors have different lengths: {len(a)} and {len(b)}")
+    return sum(x * y for x, y in zip(normalize(a), normalize(b), strict=True))
+
+
+class VectorIndex:
+    def __init__(self, dimension: int) -> None:
+        if dimension < 1:
+            raise ValueError("dimension must be at least 1")
+        self.dimension = dimension
+        self._items: dict[str, tuple[tuple[float, ...], dict[str, Any]]] = {}
+
+    def _unit(self, vector: Sequence[float]) -> tuple[float, ...]:
+        if len(vector) != self.dimension:
+            raise ValueError(f"expected {self.dimension} numbers, got {len(vector)}")
+        return normalize(vector)
+
+    def add(self, item_id: str, vector: Sequence[float], metadata: Mapping[str, Any] | None = None) -> None:
+        self._items[item_id] = (self._unit(vector), dict(metadata or {}))
+
+    def remove(self, item_id: str) -> None:
+        del self._items[item_id]
+
+    def __len__(self) -> int:
+        return len(self._items)
+
+    def __contains__(self, item_id: object) -> bool:
+        return item_id in self._items
+
+    def search(
+        self,
+        query: Sequence[float],
+        k: int = 5,
+        where: Mapping[str, Any] | None = None,
+        min_score: float | None = None,
+    ) -> list[Hit]:
+        if k < 1:
+            raise ValueError("k must be at least 1")
+        unit = self._unit(query)
+        hits = []
+        for item_id, (vector, metadata) in self._items.items():
+            if where and any(metadata.get(key) != value for key, value in where.items()):
+                continue
+            score = sum(x * y for x, y in zip(unit, vector, strict=True))
+            if min_score is None or score >= min_score:
+                hits.append(Hit(item_id, score, metadata))
+        hits.sort(key=lambda hit: (-hit.score, hit.id))
+        return hits[:k]
+
+
+def rrf(rankings: Sequence[Sequence[str]], k: int = 60) -> list[tuple[str, float]]:
+    scores: dict[str, float] = {}
+    for ranking in rankings:
+        for rank, item_id in enumerate(ranking, start=1):
+            scores[item_id] = scores.get(item_id, 0.0) + 1 / (k + rank)
+    return sorted(scores.items(), key=lambda pair: (-pair[1], pair[0]))
