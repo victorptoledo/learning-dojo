@@ -110,6 +110,9 @@ pub enum KataLanguage {
     Go,
     /// TypeScript modules type-checked by tsc and tested with node:test in `dojo-node`.
     TypeScript,
+    /// C++23 sources compiled by GCC 16 and tested with GoogleTest under the sanitizers, plus
+    /// compiler warnings, clang-tidy and clang-format, in `dojo-cpp`.
+    Cpp,
 }
 
 impl Kata {
@@ -123,6 +126,7 @@ impl Kata {
             "dojo-k8s" => KataLanguage::Kubernetes,
             "dojo-go" => KataLanguage::Go,
             "dojo-node" => KataLanguage::TypeScript,
+            "dojo-cpp" => KataLanguage::Cpp,
             _ => KataLanguage::Rust,
         }
     }

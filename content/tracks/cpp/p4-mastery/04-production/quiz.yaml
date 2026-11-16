@@ -1,0 +1,46 @@
+questions:
+  - id: presets
+    prompt: "What do CMake presets (CMakePresets.json) give a team?"
+    options:
+      - "Faster compilers"
+      - "The same configure and build settings on every machine and in CI, selected by name"
+      - "A package registry"
+    answer: 1
+    explanation: "Presets pin the generator, compiler, build type and cache variables so builds are reproducible."
+  - id: fuzzing
+    prompt: "Which technique is best suited to finding memory bugs in a parser of untrusted files?"
+    options:
+      - "Code review only"
+      - "Fuzzing (libFuzzer, AFL++) with AddressSanitizer enabled"
+      - "Compiling with -O3"
+    answer: 1
+    explanation: "Fuzzers generate many unexpected inputs, and ASan turns silent memory corruption into a crash with a stack."
+  - id: hardening
+    prompt: "What does `-D_GLIBCXX_ASSERTIONS` do in a release build?"
+    options:
+      - "Enables cheap precondition checks in libstdc++, such as bounds checks on vector::operator[]"
+      - "Enables exceptions"
+      - "Disables optimisation"
+    answer: 0
+    explanation: "Library hardening turns some undefined behaviour into a clean abort, at a small cost."
+  - id: abi
+    prompt: "A library ships a binary and a header. Adding a private member to a public class breaks existing programs. Why, and what is a fix?"
+    options:
+      - "Private members are public in binaries; make them static"
+      - "The class layout (size and offsets) changed, which is part of the ABI; hide members behind a pimpl"
+      - "It does not break anything"
+    answer: 1
+    explanation: "Code compiled against the old header assumes the old layout. A pointer to an implementation keeps the layout fixed."
+  - id: extern-c
+    prompt: "Why should an `extern \"C\"` function exposed to Python never let a C++ exception escape?"
+    options:
+      - "Exceptions are slow"
+      - "C and the foreign caller cannot handle C++ exceptions; unwinding across the boundary is undefined or terminates"
+      - "extern C functions cannot contain try blocks"
+    answer: 1
+    explanation: "Catch everything at the boundary and return an error code."
+  - id: memory-safety
+    prompt: "Roughly what share of severe security bugs have Microsoft and Google attributed to memory-safety issues in their C and C++ code?"
+    options: ["About 10%", "About 70%", "Nearly 100%"]
+    answer: 1
+    explanation: "Both reported around 70%, which is why sanitizers, fuzzing, hardening and safer subsets matter."

@@ -1,0 +1,24 @@
+id: cpp.p4.performance
+kind: lesson
+status: draft
+title: "Performance: Memory Layout, Allocation, Measuring and Profiling"
+summary: "Measuring before optimising (release builds, profilers, benchmarks), complexity first, the memory hierarchy and cache lines, contiguous data and structure of arrays, false sharing, fewer allocations with reserve, inline storage and std::pmr arenas, what the optimiser does, and accidental costs to avoid."
+objectives:
+  - { id: o1, text: "Measure performance with release builds, a profiler and a benchmark before changing code", skills: [cpp.performance] }
+  - { id: o2, text: "Explain how caches and memory layout affect speed, and choose data structures accordingly", skills: [cpp.performance] }
+  - { id: o3, text: "Reduce allocations and accidental costs, and know what the optimiser can do", skills: [cpp.performance] }
+prerequisites: [cpp.p3.polymorphism]
+difficulty: 4
+estimated_minutes: 50
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A trading service spends 70% of its time in `double exposure(const std::list<Position>& positions, const std::string& symbol)`, which loops over every position (about 200,000, each a struct of 30 fields), compares `p.symbol == symbol` and sums `p.quantity * p.price`. It is called with string literals thousands of times per second. Explain how you would confirm where the time goes, list the likely causes, and propose changes in order of expected gain, with how you would measure each.'
+  criteria:
+    - 'Confirms with a profiler on a release build (perf, VTune, Visual Studio) and a repeatable benchmark before and after'
+    - 'Identifies the algorithmic cost (a full scan per call) and proposes an index or pre-aggregated totals by symbol (an unordered_map), the largest gain'
+    - 'Explains the cache cost of std::list (a pointer chase per node) and of large structs, and proposes a std::vector and/or a structure of arrays of the hot fields'
+    - 'Points out that a string literal passed as const std::string& builds a temporary string per call, and uses std::string_view or interned symbol ids'
+    - 'Mentions measuring each change separately, or compiler flags such as -O2/-O3 and LTO'

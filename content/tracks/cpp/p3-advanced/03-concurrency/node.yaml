@@ -1,0 +1,24 @@
+id: cpp.p3.concurrency
+kind: lesson
+status: draft
+title: "Threads, Mutexes, Condition Variables and the Memory Model"
+summary: "What a data race is, std::thread and std::jthread with stop tokens, mutexes and RAII locks, deadlocks and scoped_lock, condition variables with predicates, atomics and memory orders (happens-before, acquire and release), futures, latches and semaphores, and finding races with ThreadSanitizer."
+objectives:
+  - { id: o1, text: "Define a data race and protect shared state with mutexes and RAII locks", skills: [cpp.concurrency] }
+  - { id: o2, text: "Coordinate threads with condition variables, futures and stop tokens", skills: [cpp.concurrency] }
+  - { id: o3, text: "Explain atomics, happens-before and acquire/release, and find races with ThreadSanitizer", skills: [cpp.concurrency] }
+prerequisites: [cpp.p3.log-pipeline]
+difficulty: 4
+estimated_minutes: 60
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A metrics collector stores `std::unordered_map<std::string, long> counters_` and a `bool flushing_`, updated by request threads and read by a flusher thread every second with `while (!flushing_) {}` as a wait loop. It "works on my machine", but in production counts are wrong and the flusher sometimes never wakes. Explain every problem, how you would prove them before fixing, and write the synchronisation you would add (mutex, condition variable, atomics), saying why each fits.'
+  criteria:
+    - 'Explains the data race on the map and the flag: concurrent writes with no synchronisation are undefined behaviour, and the busy loop may never see the write (or be optimised into an infinite loop)'
+    - 'Proposes ThreadSanitizer on a test that runs several writer threads and the flusher, and reading its two stacks'
+    - 'Protects the map with a std::mutex locked through lock_guard in every access, keeping the critical section short (for example swapping the map out under the lock and flushing outside it)'
+    - 'Replaces the busy wait with a condition variable and predicate (or wait_for with a timeout), or a std::atomic flag with wait/notify'
+    - 'Mentions std::jthread and stop_token for stopping the flusher, or explains why atomics alone do not fit the map'

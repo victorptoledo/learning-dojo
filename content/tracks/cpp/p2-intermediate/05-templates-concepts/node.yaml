@@ -1,0 +1,24 @@
+id: cpp.p2.templates-concepts
+kind: lesson
+status: draft
+title: "Templates and Concepts"
+summary: "Function and class templates, abbreviated templates with auto, non-type parameters and CTAD, concepts and requires-expressions, the standard concepts, generic range algorithms with projections, if constexpr, variadic templates and fold expressions, and the costs of templates."
+objectives:
+  - { id: o1, text: "Write function and class templates and explain why their definitions live in headers", skills: [cpp.templates-concepts] }
+  - { id: o2, text: "Constrain templates with standard concepts and your own, and read the errors they produce", skills: [cpp.templates-concepts] }
+  - { id: o3, text: "Use if constexpr, projections and parameter packs in generic code", skills: [cpp.templates-concepts] }
+prerequisites: [cpp.p2.error-handling]
+difficulty: 3
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A teammate wrote `template <typename T> double average(const std::vector<T>& v) { double s = 0; for (auto& x : v) s += x; return s / v.size(); }` in `stats.cpp`, declared it in `stats.hpp`, and calls it from `main.cpp` with `std::vector<int>`. The link fails with an undefined reference, and calling it with `std::vector<std::string>` once produced 80 lines of errors. Explain both problems, then rewrite it: accept any range of numbers (not only vectors), reject non-numbers with a concept, and decide what to return for an empty input.'
+  criteria:
+    - 'Explains that a template is instantiated where it is used, so its definition must be visible in the header; the .cpp never instantiated average<int>'
+    - 'Explains that without a constraint the error appears inside the body; a concept moves it to the call site with a short message'
+    - 'Writes a constrained template over std::ranges::input_range with a Number-like concept on range_value_t'
+    - 'Handles the empty range explicitly (std::optional<double>, or a documented precondition), avoiding a division by zero'
+    - 'Mentions the cost of templates (code per instantiation, compile time) or the abbreviated auto syntax'

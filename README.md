@@ -100,6 +100,11 @@ Frontend, Full Stack, DevOps & Cloud, Data Engineer, Cyber Security, React, Mode
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
 Frontend, Full Stack, DevOps & Cloud, AI Engineer, Cyber Security, React, Modern C++,
+| Modern C++ | C++23 on GCC 16 | 24 | 9 | `dojo-cpp` (GoogleTest under the sanitizers, clang-tidy, clang-format) |
+
+Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
+languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
+Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React,
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 
 ## Requirements
@@ -111,9 +116,9 @@ Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS 
 | [Docker Desktop](https://www.docker.com/products/docker-desktop/) (running) | every kata is checked in a container |
 | [VS Code](https://code.visualstudio.com/) (optional) | the dojo opens lessons and katas in it; any editor works |
 
-You do **not** need a JDK, Maven, Python, Go, Node.js, PostgreSQL, kubectl or bash on your machine:
-every kata runs in the dojo's own images, and Docker katas build your Dockerfile on your own Docker
-engine. The dojo is developed on Windows 11. It also builds on macOS and Linux, but those platforms
+You do **not** need a JDK, Maven, Python, Go, Node.js, a C++ compiler, PostgreSQL, kubectl or bash
+on your machine: every kata runs in the dojo's own images, and Docker katas build your Dockerfile on
+your own Docker engine. The dojo is developed on Windows 11. It also builds on macOS and Linux, but those platforms
 get less testing.
 
 ## Quick start
@@ -174,7 +179,8 @@ Nothing is ticked by hand: a lesson is completed by its quiz and a kata by its t
 Each kata runs in a container with no network, no capabilities and a time limit, using the image
 of its language (see the table of tracks). A function or file you still have to write is marked
 `todo` (`todo!()` in Rust, `raise NotImplementedError("todo ...")` in Python, `panic("todo ...")`
-in Go, and so on), and the panel shows it as "not written yet" instead of a failure.
+in Go, `throw std::logic_error("todo ...")` in C++, and so on), and the panel shows it as "not
+written yet" instead of a failure.
 
 **Docker katas** are different: you write a `Dockerfile` (and sometimes a `compose.yaml`). The dojo
 builds it on your Docker engine with no network and a throwaway tag, runs it once with no network,
@@ -186,6 +192,15 @@ the `dojo-k8s` image renders them (`kustomize build`, `helm template`), validate
 kubeconform against the Kubernetes 1.36 schemas and checks them with bats policies (selectors match
 labels, Services reach a declared port, probes and resources, restricted Pod security, least-privilege
 RBAC), all offline.
+
+**C++ katas** are compiled by GCC 16 in C++23 mode with warnings on (`-Wall -Wextra -Wpedantic
+-Wshadow`), and their GoogleTest tests run under AddressSanitizer and UndefinedBehaviorSanitizer
+(ThreadSanitizer for the concurrency kata), with libstdc++ assertions on. A use after free, a leak,
+a signed overflow, an index out of range or a data race fails the test that caused it, with the file
+and line; a crash does not stop the other tests. Each of your files also gets a clang-format and a
+clang-tidy result, and the compiler warnings in your files are one more test. Every kata is a CMake
+project, so `cmake -B build && cmake --build build && ctest --test-dir build` runs the visible tests
+on your machine if you have a compiler (optional).
 
 **SQL katas** run against a throwaway PostgreSQL 17. To try your queries on a kata's tables, run
 this from the kata folder:

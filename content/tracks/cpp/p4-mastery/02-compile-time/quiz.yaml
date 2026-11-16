@@ -1,0 +1,43 @@
+questions:
+  - id: constexpr-runtime
+    prompt: "Can a constexpr function be called with a value read from the user at run time?"
+    options:
+      - "No, it only works at compile time"
+      - "Yes: constexpr means it may run at compile time; with run-time arguments it runs at run time"
+      - "Only if it is also inline"
+    answer: 1
+    explanation: "constexpr allows compile-time evaluation; consteval is the one that requires it."
+  - id: consteval
+    prompt: "What does `consteval` require?"
+    options:
+      - "Every call must be evaluated at compile time"
+      - "The function has no side effects at run time"
+      - "The function is evaluated once at program start"
+    answer: 0
+    explanation: "An immediate function cannot be called with run-time values; that is how format strings are checked."
+  - id: ub-constexpr
+    prompt: "A constexpr function overflows a signed int while it is evaluated inside a static_assert. What happens?"
+    options:
+      - "The value wraps around"
+      - "Compilation fails: undefined behaviour is not allowed in constant evaluation"
+      - "It is undefined behaviour at run time"
+    answer: 1
+    explanation: "The compiler must diagnose UB during constant evaluation, which makes constexpr tests a strong check."
+  - id: constinit
+    prompt: "What problem does `constinit` on a global solve?"
+    options:
+      - "It makes the global immutable"
+      - "It guarantees initialisation at compile time, so no other global can see it uninitialised during start-up"
+      - "It puts the global in a register"
+    answer: 1
+    explanation: "constinit avoids the static initialisation order fiasco; unlike constexpr the variable can still change."
+  - id: trait
+    prompt: "What is `std::remove_cvref_t<const std::string&>`?"
+    options: ["const std::string", "std::string", "std::string&"]
+    answer: 1
+    explanation: "remove_cvref strips references and const/volatile qualifiers."
+  - id: static-assert
+    prompt: "Where does `static_assert(std::is_nothrow_move_constructible_v<Buffer>);` report a problem?"
+    options: ["At run time, when Buffer is moved", "At compile time", "Only in debug builds"]
+    answer: 1
+    explanation: "static_assert is checked by the compiler, so a design assumption cannot silently break."

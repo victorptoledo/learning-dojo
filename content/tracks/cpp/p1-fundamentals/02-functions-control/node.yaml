@@ -1,0 +1,24 @@
+id: cpp.p1.functions-control
+kind: lesson
+status: draft
+title: "Functions, Parameters, Lambdas and std::optional"
+summary: "Control flow with initialisers, how to pass and return values (the Core Guidelines table), structured bindings, overloading, enum class, lambdas and their captures, std::function, and std::optional for results that may be missing."
+objectives:
+  - { id: o1, text: "Choose by value, const reference or reference for each parameter, and return results instead of using out-parameters", skills: [cpp.functions-control] }
+  - { id: o2, text: "Write lambdas with the right captures and explain when a capture dangles", skills: [cpp.functions-control] }
+  - { id: o3, text: "Model an optional result with std::optional and read it safely", skills: [cpp.functions-control] }
+prerequisites: [cpp.p1.types-values]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design the signatures (no bodies needed, but explain each choice) for a small module that loads users: a function that reads a whole file into memory, one that parses one line `id,name,email` into a User or reports that the line is invalid, one that adds a user to an index the caller owns, and one that finds a user by id. Then write a call site that registers a callback `on_loaded` with a lambda that counts users, and explain what goes wrong if the lambda captures a local counter by reference and the loader calls it later on another thread.'
+  criteria:
+    - 'Returns the file contents and the parsed User by value instead of using out-parameters, and uses std::string_view or const std::string& for read-only inputs'
+    - 'Uses std::optional<User> (or a result type) for the parse that may fail, instead of a sentinel'
+    - 'Takes the caller-owned index by non-const reference, and returns a pointer or std::optional from find, explaining why a reference cannot express not found'
+    - 'Explains that a lambda capturing a local by reference dangles once the function returns, and captures by copy (or shares ownership, or keeps the counter alive) instead'
+    - 'Mentions that a counter shared between threads also needs synchronisation (an atomic or a mutex)'

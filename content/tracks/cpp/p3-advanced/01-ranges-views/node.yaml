@@ -1,0 +1,24 @@
+id: cpp.p3.ranges-views
+kind: lesson
+status: draft
+title: "Ranges, Views, Projections and Generators"
+summary: "Range algorithms with projections, lazy views composed with |, the C++23 adaptors (enumerate, zip, chunk, slide), collecting with std::ranges::to, dangling views and const-iterability, std::generator with co_yield, and when a loop is still the better choice."
+objectives:
+  - { id: o1, text: "Use range algorithms with projections instead of hand-written loops", skills: [cpp.ranges] }
+  - { id: o2, text: "Compose lazy view pipelines and collect them with std::ranges::to", skills: [cpp.ranges] }
+  - { id: o3, text: "Write a std::generator and explain view lifetimes and dangling", skills: [cpp.ranges] }
+prerequisites: [cpp.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Rewrite this loop as a range pipeline and explain each step: it reads `std::vector<Order> orders`, keeps the paid orders of the last 30 days, takes the customer id of each, removes duplicates and returns them sorted. Then a reviewer proposes `auto recent_customers(const Store& s) { auto orders = s.load_orders(); return orders | std::views::filter(paid) | std::views::transform(&Order::customer); }`. Explain what goes wrong when the caller iterates the result, and fix it.'
+  criteria:
+    - 'Writes a pipeline with views::filter and views::transform (with a projection or member pointer) and collects with std::ranges::to (to a set, or to a vector then sort and unique)'
+    - 'Explains that views are lazy and compute elements while iterating, without intermediate containers'
+    - 'Explains that load_orders returns a local vector that dies when the function returns, so the returned view dangles'
+    - 'Fixes it by returning a container (ranges::to) or taking the orders from the caller, who keeps them alive'
+    - 'Mentions that AddressSanitizer would report the dangling access, or that owning_view can keep a moved-in container alive'

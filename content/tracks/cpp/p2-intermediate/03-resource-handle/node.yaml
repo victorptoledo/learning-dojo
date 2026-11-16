@@ -1,0 +1,57 @@
+id: cpp.p2.resource-handle
+kind: kata
+status: draft
+title: "Resource Handles: the Rule of Five and unique_ptr Chains"
+summary: "Write a heap buffer that owns its memory by hand (constructor, destructor, deep copy, noexcept move, copy-and-swap) and a linked list owned by unique_ptr that frees long chains without overflowing the stack. AddressSanitizer catches every leak and double free."
+objectives:
+  - { id: o1, text: "Pair every allocation with exactly one release in a destructor, and write the copy and move operations of an owning class", skills: [cpp.raii-memory, cpp.move-semantics] }
+  - { id: o2, text: "Give moves noexcept and a valid empty moved-from state, and use copy-and-swap for a strongly exception-safe assignment", skills: [cpp.move-semantics] }
+  - { id: o3, text: "Own a chain of nodes with std::unique_ptr and free it iteratively", skills: [cpp.raii-memory] }
+prerequisites: [cpp.p2.move-semantics]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 150 }
+  hints:
+    - |-
+      Write the constructor and the destructor first: `new int[size]{}` gives zeroed memory and `delete[]` gives it back. Every other member is about one question: after this operation, which object owns which memory, and does every allocation still have exactly one owner?
+    - |-
+      The copy constructor allocates its own array and copies the values (`std::copy_n`). The move constructor takes the pointer and the size with `std::exchange(other.data_, nullptr)`, so `other` is left empty and its destructor frees nothing. For copy assignment, make a copy first and then `swap` with it: the old memory dies with the copy, and self-assignment needs no special case. In `IntList`, `push_front` makes a node with `std::make_unique`, moves the old head into its `next` and makes it the new head.
+    - |-
+      ```cpp
+      Buffer& Buffer::operator=(const Buffer& other) {
+          Buffer copy(other);  // may throw: *this is still untouched
+          swap(copy);          // noexcept
+          return *this;        // copy now holds the old memory and frees it
+      }
+
+      IntList::~IntList() {
+          while (head_) {
+              head_ = std::move(head_->next);  // the old head dies here, with no next to free
+          }
+      }
+
+      void IntList::reverse() {
+          std::unique_ptr<Node> reversed;
+          while (head_) {
+              // take head_->next out, point head_->next at reversed,
+              // move head_ into reversed, and continue with the rest
+          }
+          head_ = std::move(reversed);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.

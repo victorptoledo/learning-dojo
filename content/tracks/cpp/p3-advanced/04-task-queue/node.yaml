@@ -1,0 +1,56 @@
+id: cpp.p3.task-queue
+kind: kata
+status: draft
+title: "Task Queue: Mutexes, Condition Variables and a Worker Pool"
+summary: "Write a blocking queue with a capacity and close(), a worker pool on std::jthread that drains its queue on shutdown and returns futures, and a lock-free parallel sum. The tests run under ThreadSanitizer, so every data race fails."
+objectives:
+  - { id: o1, text: "Protect shared state with std::mutex and wait for a condition with std::condition_variable and a predicate", skills: [cpp.concurrency] }
+  - { id: o2, text: "Shut threads down cleanly: close the queue, drain it and join every worker", skills: [cpp.concurrency, cpp.raii-memory] }
+  - { id: o3, text: "Return results and exceptions from other threads with std::packaged_task and std::future", skills: [cpp.concurrency] }
+prerequisites: [cpp.p3.concurrency]
+difficulty: 4
+estimated_minutes: 75
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 180 }
+  hints:
+    - |-
+      Write the queue first: the pool is ten lines on top of it. Every member of the queue starts by locking `mutex_`. A thread that has to wait (pop on an empty queue, push on a full one) waits on a condition variable with a predicate that also says "closed". Who has to wake it up, and when?
+    - |-
+      `pop`: `std::unique_lock lock(mutex_); not_empty_.wait(lock, [this] { return closed_ || !items_.empty(); });` then take the front if there is one. `push` waits on `not_full_` the same way (when `capacity_ > 0`) and fails if closed. Notify `not_empty_` after a push and `not_full_` after a pop. `close` sets `closed_` under the lock and calls `notify_all` on both. The pool's workers loop `while (auto task = queue_.pop())`, run the task inside `try`/`catch (...)` and count it. `shutdown` closes the queue and joins the threads that are still joinable.
+    - |-
+      ```cpp
+      WorkerPool::WorkerPool(std::size_t threads) {
+          for (std::size_t i = 0; i < std::max<std::size_t>(threads, 1); ++i) {
+              workers_.emplace_back([this] { work(); });  // reserve first: clang-tidy asks
+          }
+      }
+
+      void WorkerPool::work() {
+          while (auto task = queue_.pop()) {  // nothing once closed and drained
+              try {
+                  (*task)();
+                  ++completed_;
+              } catch (...) {
+                  ++failed_;
+              }
+          }
+      }
+
+      // parallel_sum: one jthread per chunk, each writing only partial[i];
+      // the jthreads join when the vector holding them is destroyed.
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.

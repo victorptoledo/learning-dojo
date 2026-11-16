@@ -1,0 +1,24 @@
+id: cpp.p0.toolchain
+kind: lesson
+status: draft
+title: "The Toolchain and the Build Model"
+summary: "Why C++ exists, the standards and the three compilers, how the preprocessor, compiler and linker turn headers and sources into an executable, the one definition rule, CMake targets, and the warnings, sanitizers and tools that catch what the compiler allows."
+objectives:
+  - { id: o1, text: "Explain what the preprocessor, the compiler and the linker each do, and tell a compile error from a link error", skills: [cpp.toolchain] }
+  - { id: o2, text: "Split code into headers and sources that respect the one definition rule", skills: [cpp.toolchain] }
+  - { id: o3, text: "Build a project with CMake and turn on warnings and sanitizers", skills: [cpp.toolchain] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 35
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A colleague who writes Java moves a helper `int clamp(int v, int lo, int hi) { ... }` into `util.hpp` and includes it from `a.cpp` and `b.cpp`. The build fails with `multiple definition of clamp(int, int, int)`. They then move the body into `util.cpp` but forget to add the file to `add_executable`, and get `undefined reference to clamp(int, int, int)`. Explain both errors step by step (preprocessor, compiler, linker), give two different correct fixes for the first one, and say what you would add to their CMakeLists.txt so the next mistake is caught early.'
+  criteria:
+    - 'Explains that #include pastes the header into each translation unit, so both object files contain a definition of clamp and the linker rejects it (the one definition rule)'
+    - 'Gives two fixes: declare in the header and define once in util.cpp, or mark the function inline (or constexpr) in the header'
+    - 'Explains that undefined reference is a link error: the declaration compiled, but no object file contains the definition because util.cpp was not built'
+    - 'Adds util.cpp to the target (add_executable or target_sources) rather than to a global variable'
+    - 'Suggests warnings (-Wall -Wextra) and, in tests, sanitizers, or names compile_commands.json for tools'

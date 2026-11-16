@@ -101,6 +101,7 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         KataLanguage::Kubernetes => (kata_dir.to_path_buf(), "yaml"),
         KataLanguage::Go => (kata_dir.to_path_buf(), "go"),
         KataLanguage::TypeScript => (kata_dir.to_path_buf(), "ts"),
+        KataLanguage::Cpp => return cpp_sources(kata_dir),
     };
     let mut found = Vec::new();
     collect(&root, extension, &mut found);
@@ -113,6 +114,28 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         .collect();
     files.sort();
     files
+}
+
+/// The `.cpp`, `.hpp` and `.h` files at the top of a C++ kata: its tests live in `tests/`
+/// and a local CMake build in `build/`.
+fn cpp_sources(kata_dir: &Path) -> Vec<PathBuf> {
+    let Ok(entries) = std::fs::read_dir(kata_dir) else {
+        return Vec::new();
+    };
+    let mut files: Vec<PathBuf> = entries
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file() && is_cpp_source(path))
+        .filter_map(|path| path.file_name().map(PathBuf::from))
+        .collect();
+    files.sort();
+    files
+}
+
+/// A C++ header or source file.
+pub fn is_cpp_source(path: &Path) -> bool {
+    path.extension()
+        .is_some_and(|ext| ext == "cpp" || ext == "hpp" || ext == "h")
 }
 
 /// Virtual environments, caches and packages (`.venv`, `__pycache__`, `node_modules`) are
@@ -160,6 +183,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Kubernetes => "Kubernetes manifests, Kustomize and Helm",
         KataLanguage::Go => "Go",
         KataLanguage::TypeScript => "TypeScript",
+        KataLanguage::Cpp => "modern C++ (C++23)",
     };
     let files = kata
         .files
@@ -371,5 +395,22 @@ mod tests {
         std::fs::write(dir.path().join("node_modules/zod/index.d.ts"), "x").unwrap();
         let files = kata_files(dir.path(), KataLanguage::TypeScript);
         assert_eq!(files, vec![PathBuf::from("shapes.ts")]);
+    }
+
+    #[test]
+    fn kata_files_lists_cpp_sources_at_the_top_only() {
+        let dir = tempfile::TempDir::new().unwrap();
+        std::fs::write(dir.path().join("buffer.hpp"), "#pragma once").unwrap();
+        std::fs::write(dir.path().join("buffer.cpp"), "#include \"buffer.hpp\"").unwrap();
+        std::fs::write(dir.path().join("CMakeLists.txt"), "project(kata)").unwrap();
+        std::fs::create_dir_all(dir.path().join("tests")).unwrap();
+        std::fs::write(dir.path().join("tests/visible_test.cpp"), "TEST").unwrap();
+        std::fs::create_dir_all(dir.path().join("build/_deps")).unwrap();
+        std::fs::write(dir.path().join("build/_deps/gtest.cpp"), "x").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::Cpp);
+        assert_eq!(
+            files,
+            vec![PathBuf::from("buffer.cpp"), PathBuf::from("buffer.hpp")]
+        );
     }
 }

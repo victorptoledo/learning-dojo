@@ -89,6 +89,7 @@ impl App {
         files.extend(yaml_manifests(dir));
         files.extend(go_sources(dir));
         files.extend(typescript_modules(dir));
+        files.extend(cpp_sources(dir));
         let existing: Vec<_> = files.into_iter().filter(|file| file.is_file()).collect();
         match self.editor.open_folder(dir, &existing) {
             Ok(()) => format!("Opened {} in `{}`.", dir.display(), self.editor.command()),
@@ -353,6 +354,26 @@ fn typescript_modules(dir: &Path) -> Vec<PathBuf> {
         .collect();
     modules.sort();
     modules
+}
+
+/// The code of a C++ kata: the headers and sources at the top of its folder, tests left out.
+fn cpp_sources(dir: &Path) -> Vec<PathBuf> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut sources: Vec<PathBuf> = entries
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file() && crate::review_prompt::is_cpp_source(path))
+        .collect();
+    // Headers first: they hold the declarations the statement talks about.
+    sources.sort_by_key(|path| {
+        (
+            path.extension().is_some_and(|ext| ext == "cpp"),
+            path.clone(),
+        )
+    });
+    sources
 }
 
 fn java_sources(dir: &Path) -> Vec<PathBuf> {

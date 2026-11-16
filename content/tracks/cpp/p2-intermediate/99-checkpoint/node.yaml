@@ -1,0 +1,55 @@
+id: cpp.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz over RAII, moves, errors and templates, and an integration kata, a configuration parser that reports errors with std::expected, a typed get<T> constrained by a concept and written with if constexpr, and a move-only RAII Transaction that rolls back on scope exit."
+objectives:
+  - { id: o1, text: "Explain ownership, moves, exception safety, std::expected and concepts in your own words", skills: [cpp.raii-memory, cpp.move-semantics, cpp.error-handling, cpp.templates-concepts] }
+  - { id: o2, text: "Combine RAII, a move-only type, std::expected and a constrained template in one small library", skills: [cpp.raii-memory, cpp.move-semantics, cpp.error-handling, cpp.templates-concepts] }
+prerequisites: [cpp.p2.ring-buffer]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+closes_phase: p2
+covers_skills: [cpp.raii-memory, cpp.move-semantics, cpp.error-handling, cpp.templates-concepts]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 150 }
+  hints:
+    - |-
+      Do it in three steps, each with its own tests: `parse` and `raw` (and `set`, `erase`), then `get<T>` and `get_or`, then `Transaction`. For the transaction, ask what it must remember to undo a change: the key, and what the key held before (or that it held nothing).
+    - |-
+      `parse` returns `std::unexpected(ConfigError{...})` at the first bad line and the `Config` at the end. `try_emplace` tells you whether a key was new, which is exactly the duplicate check. In `get<T>`, `if constexpr (std::same_as<T, std::string>)` and friends pick one branch per type at compile time; for `int` and `double`, `std::from_chars` must consume the whole text. `get_or` is `get<T>(key).value_or(fallback)`. The transaction pushes `{key, config_->raw(key)}` before each change; `rollback` walks that list backwards; the destructor rolls back unless the transaction is done.
+    - |-
+      ```cpp
+      void Transaction::set(std::string key, std::string value) {
+          if (done_) {
+              throw std::logic_error("transaction ended");
+          }
+          undo_.emplace_back(key, config_->raw(key));  // the value before, or nothing
+          config_->set(std::move(key), std::move(value));
+      }
+
+      Transaction::Transaction(Transaction&& other) noexcept
+          : config_(other.config_), undo_(std::move(other.undo_)), done_(other.done_) {
+          other.undo_.clear();
+          other.done_ = true;  // the moved-from transaction must not roll back
+      }
+
+      // rollback: for (auto it = undo_.rbegin(); it != undo_.rend(); ++it)
+      //   restore the old value with config_->set, or config_->erase when there was none
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.

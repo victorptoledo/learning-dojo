@@ -1,0 +1,50 @@
+id: cpp.p0.hello-dojo
+kind: kata
+status: draft
+title: "Hello, Dojo: Your First C++ Kata"
+summary: "Write a greeting and an initials function with std::string, std::string_view and std::format, and see how C++ katas are checked with GoogleTest, the sanitizers, clang-tidy and clang-format."
+objectives:
+  - { id: o1, text: "Write functions declared in a header and defined in a .cpp file, with std::string_view parameters and std::format", skills: [cpp.toolchain] }
+  - { id: o2, text: "Read a failing GoogleTest EXPECT_EQ message and the dojo's tool checks", skills: [cpp.toolchain] }
+prerequisites: [cpp.p0.toolchain]
+difficulty: 1
+estimated_minutes: 25
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with the visible test: `greet("Ada")` must return `"Hello, Ada!"`. Then decide what "blank" means: is `"  "` a name? Which part of the text do you keep before you build the message?
+    - |-
+      A `std::string_view` is a window on the text: `remove_prefix(1)` and `remove_suffix(1)` shrink it without copying, so trimming is two small loops with `std::isspace` (cast the char to `unsigned char` first). `std::format("Hello, {}!", who)` builds the message. For `initials`, walk the characters and remember whether the previous one was a space.
+    - |-
+      ```cpp
+      std::string greet(std::string_view name) {
+          std::string_view who = trim(name);  // write trim with remove_prefix / remove_suffix
+          return std::format("Hello, {}!", who.empty() ? std::string_view("stranger") : who);
+      }
+
+      std::string initials(std::string_view full_name) {
+          std::string result;
+          bool at_word_start = true;
+          for (const char c : full_name) {
+              // a space sets at_word_start; the first letter after it goes into result,
+              // upper case with std::toupper(static_cast<unsigned char>(c))
+          }
+          return result;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.

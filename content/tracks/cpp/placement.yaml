@@ -1,0 +1,319 @@
+# Placement test of the Modern C++ track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with C++?
+  options:
+    - { label: "Never used it", start_phase: p0, test: false }
+    - { label: "I write small programs: classes, std::vector, std::string, references", start_phase: p1, test: true }
+    - { label: "I use modern C++ at work: smart pointers, moves, templates, exceptions", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-copy-struct
+    phase: p1
+    skills: [cpp.types-values]
+    difficulty: 1
+    prompt: "What does this print?"
+    code: |
+      struct Box { int size = 1; };
+      Box a;
+      Box b = a;
+      b.size = 9;
+      std::println("{}", a.size);
+    options: ["1", "9", "It does not compile"]
+    answer: 0
+    explanation: "Objects are values: b is a copy, so a is unchanged."
+  - id: p1-reference-param
+    phase: p1
+    skills: [cpp.types-values, cpp.functions-control]
+    difficulty: 2
+    prompt: "`void grow(std::string s) { s += \"!\"; }` is called as `grow(name);`. How do you change the signature so the caller's name changes?"
+    options: ["void grow(std::string* s)", "void grow(std::string& s)", "void grow(const std::string& s)"]
+    answer: 1
+    explanation: "A non-const reference aliases the caller's object; a const reference forbids the change."
+  - id: p1-string-view-temp
+    phase: p1
+    skills: [cpp.types-values]
+    difficulty: 3
+    prompt: "`std::string_view v = make_name();` where make_name returns a std::string. Is reading v afterwards safe?"
+    options: ["Yes", "No: the temporary string is destroyed at the end of the statement", "Only in release builds"]
+    answer: 1
+    explanation: "A view does not keep the string alive; it dangles as soon as the temporary dies."
+  - id: p1-lambda-copy
+    phase: p1
+    skills: [cpp.functions-control]
+    difficulty: 2
+    prompt: "What does this print?"
+    code: |
+      int base = 10;
+      auto add = [base](int x) { return base + x; };
+      base = 100;
+      std::println("{}", add(1));
+    options: ["11", "101", "It does not compile"]
+    answer: 0
+    explanation: "[base] copies base when the lambda is created."
+  - id: p1-optional
+    phase: p1
+    skills: [cpp.functions-control]
+    difficulty: 2
+    prompt: "`std::optional<int> find_id(std::string_view name);` returns nothing. Which call is safe?"
+    options: ["int id = *find_id(n);", "int id = find_id(n).value_or(-1);", "int id = find_id(n).value();"]
+    answer: 1
+    explanation: "value_or gives a fallback; * on an empty optional is undefined behaviour and value() throws."
+  - id: p1-map-insert
+    phase: p1
+    skills: [cpp.containers-algorithms]
+    difficulty: 2
+    prompt: "After `std::map<std::string, int> m; if (m[\"a\"] == 0) {}`, what is m.size()?"
+    answers: ["1"]
+    explanation: "operator[] inserted \"a\" with 0 while reading it."
+  - id: p1-erase-loop
+    phase: p1
+    skills: [cpp.containers-algorithms]
+    difficulty: 3
+    prompt: "Which removes every empty string from `std::vector<std::string> v` correctly?"
+    options:
+      - "for (auto it = v.begin(); it != v.end(); ++it) if (it->empty()) v.erase(it);"
+      - "std::erase_if(v, [](const std::string& s) { return s.empty(); });"
+      - "std::remove_if(v.begin(), v.end(), [](const std::string& s) { return s.empty(); });"
+    answer: 1
+    explanation: "The loop uses an invalidated iterator; remove_if alone leaves the size unchanged."
+  - id: p1-const-member
+    phase: p1
+    skills: [cpp.classes]
+    difficulty: 2
+    prompt: "Which member function can be called on a `const Account&`?"
+    options: ["void deposit(long c);", "long balance() const;", "long balance();"]
+    answer: 1
+    explanation: "Only const member functions are callable on const objects."
+  - id: p1-rule-zero
+    phase: p1
+    skills: [cpp.classes]
+    difficulty: 3
+    prompt: "A class has members std::string name_ and std::vector<int> scores_. You add a destructor `~Player() {}`. What did you lose?"
+    options:
+      - "Nothing"
+      - "The implicit move constructor and move assignment: moves now fall back to copies"
+      - "The copy constructor"
+    answer: 1
+    explanation: "A user-declared destructor suppresses the implicit moves; the rule of zero says write none."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-unique-move
+    phase: p2
+    skills: [cpp.raii-memory]
+    difficulty: 2
+    prompt: "How do you hand a `std::unique_ptr<Job> job` to `void run(std::unique_ptr<Job> j)`?"
+    options: ["run(job);", "run(std::move(job));", "run(job.get());"]
+    answer: 1
+    explanation: "unique_ptr is move-only; std::move transfers ownership and leaves job null."
+  - id: p2-shared-cycle
+    phase: p2
+    skills: [cpp.raii-memory]
+    difficulty: 3
+    prompt: "An Observer holds a shared_ptr to its Subject, and the Subject holds shared_ptrs to its Observers. What happens when the rest of the program drops them?"
+    options: ["They are freed", "They leak: the cycle keeps both counts above zero", "A double free"]
+    answer: 1
+    explanation: "Make one direction a std::weak_ptr."
+  - id: p2-raii-exception
+    phase: p2
+    skills: [cpp.raii-memory, cpp.error-handling]
+    difficulty: 2
+    prompt: "`std::ofstream out(path); write_all(out);` and write_all throws. Is the file closed?"
+    options: ["No, it leaks until the program exits", "Yes: out's destructor runs during stack unwinding", "Only if you catch the exception"]
+    answer: 1
+    explanation: "Destructors of locals run while an exception propagates."
+  - id: p2-noexcept-move
+    phase: p2
+    skills: [cpp.move-semantics]
+    difficulty: 3
+    prompt: "Why does a std::vector<Big> copy its elements on growth instead of moving them?"
+    options:
+      - "Big's move constructor is not noexcept (or is missing)"
+      - "Vectors never move elements"
+      - "Big is too large to move"
+    answer: 0
+    explanation: "vector moves on reallocation only when the move cannot throw."
+  - id: p2-sink
+    phase: p2
+    skills: [cpp.move-semantics]
+    difficulty: 3
+    prompt: "`explicit Person(std::string name) : name_(std::move(name)) {}` is called as `Person p(read_line());`. How many string copies happen?"
+    answers: ["0", "zero", "none"]
+    explanation: "The temporary is moved into the parameter, then the parameter is moved into the member."
+  - id: p2-expected
+    phase: p2
+    skills: [cpp.error-handling]
+    difficulty: 2
+    prompt: "Which return type lets callers see why `parse_date` failed, without exceptions?"
+    options: ["Date*", "std::optional<Date>", "std::expected<Date, DateError>"]
+    answer: 2
+    explanation: "expected carries either the value or a typed error; optional only says that it failed."
+  - id: p2-strong
+    phase: p2
+    skills: [cpp.error-handling]
+    difficulty: 4
+    prompt: "Which version of `void set_all(std::vector<Item> items)` gives the strong exception guarantee?"
+    options:
+      - "Clear items_, then insert each new item"
+      - "Build a new container from items, then items_.swap(fresh)"
+      - "Insert each new item, then remove the old ones"
+    answer: 1
+    explanation: "Do everything that can throw on the side, then commit with a noexcept swap."
+  - id: p2-concept
+    phase: p2
+    skills: [cpp.templates-concepts]
+    difficulty: 3
+    prompt: "Which declaration accepts integers and floating-point numbers but not std::string?"
+    options:
+      - "template <typename T> T twice(T x);"
+      - "template <typename T> requires std::integral<T> || std::floating_point<T> T twice(T x);"
+      - "template <class T> T twice(const T& x) noexcept;"
+    answer: 1
+    explanation: "A requires-clause with standard concepts constrains T."
+  - id: p2-template-header
+    phase: p2
+    skills: [cpp.templates-concepts]
+    difficulty: 3
+    prompt: "A function template is declared in util.hpp and defined only in util.cpp; main.cpp calls it with int. What happens?"
+    options: ["It works", "An undefined reference at link time", "A compile error in util.cpp"]
+    answer: 1
+    explanation: "main.cpp cannot instantiate a body it does not see; template definitions belong in headers."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-view-lazy
+    phase: p3
+    skills: [cpp.ranges]
+    difficulty: 2
+    prompt: "How many times is `f` called by `auto v = data | std::views::transform(f) | std::views::take(2);` before anything iterates v?"
+    answers: ["0", "zero", "none"]
+    explanation: "Views are lazy: nothing runs until iteration."
+  - id: p3-ranges-to
+    phase: p3
+    skills: [cpp.ranges, cpp.containers-algorithms]
+    difficulty: 2
+    prompt: "Which expression collects the names of active users into a std::vector<std::string>?"
+    options:
+      - "users | std::views::filter(active) | std::views::transform(&User::name) | std::ranges::to<std::vector>()"
+      - "std::vector(users | std::views::filter(active))"
+      - "users.filter(active).map(&User::name)"
+    answer: 0
+    explanation: "Filter, project, then collect with ranges::to."
+  - id: p3-dangling-view
+    phase: p3
+    skills: [cpp.ranges]
+    difficulty: 3
+    prompt: "`auto active() { auto users = load(); return users | std::views::filter(is_active); }` What is wrong?"
+    options: ["Nothing", "The returned view refers to users, a local destroyed on return", "filter cannot be returned"]
+    answer: 1
+    explanation: "Return a container, or let the caller own the data."
+  - id: p3-race
+    phase: p3
+    skills: [cpp.concurrency]
+    difficulty: 2
+    prompt: "Four threads append to the same std::vector with no lock. What is it?"
+    options: ["Fine: push_back is thread-safe", "A data race: undefined behaviour", "Slow but correct"]
+    answer: 1
+    explanation: "Standard containers are not synchronised; protect them with a mutex."
+  - id: p3-cv
+    phase: p3
+    skills: [cpp.concurrency]
+    difficulty: 3
+    prompt: "A consumer calls `cv.wait(lock);` without a predicate, and sometimes runs with an empty queue. Why?"
+    options:
+      - "Spurious wake-ups (or a notification for a value another consumer took); wait with a predicate"
+      - "The mutex was not locked"
+      - "notify_one wakes every thread"
+    answer: 0
+    explanation: "Always re-check the condition: cv.wait(lock, [&] { return !queue.empty(); })."
+  - id: p3-jthread
+    phase: p3
+    skills: [cpp.concurrency, cpp.raii-memory]
+    difficulty: 2
+    prompt: "What does std::jthread do in its destructor that std::thread does not?"
+    options: ["Detaches", "Requests stop and joins", "Kills the thread"]
+    answer: 1
+    explanation: "jthread is the RAII thread; a joinable std::thread destroyed calls std::terminate."
+  - id: p3-virtual-dtor
+    phase: p3
+    skills: [cpp.polymorphism]
+    difficulty: 2
+    prompt: "A std::vector<std::unique_ptr<Base>> holds Derived objects and Base has no virtual destructor. What happens when the vector is destroyed?"
+    options: ["Everything is fine", "Undefined behaviour: ~Derived never runs", "A compile error"]
+    answer: 1
+    explanation: "Polymorphic bases need a virtual destructor."
+  - id: p3-variant
+    phase: p3
+    skills: [cpp.polymorphism, cpp.templates-concepts]
+    difficulty: 3
+    prompt: "Which design makes the compiler reject a handler that forgets a message type, for a fixed set of three messages?"
+    options: ["A base class with a virtual handle()", "std::variant of the three types with std::visit", "A std::string type field"]
+    answer: 1
+    explanation: "std::visit needs a case for every alternative."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-layout
+    phase: p4
+    skills: [cpp.performance]
+    difficulty: 3
+    prompt: "A loop sums one float field of a std::vector of 200-byte structs, and is memory bound. What layout change usually helps most?"
+    options: ["Make the field double", "A structure of arrays: keep that field in its own contiguous vector", "Store the structs in a std::list"]
+    answer: 1
+    explanation: "Each cache line then carries 16 useful floats instead of a fraction of one."
+  - id: p4-profile
+    phase: p4
+    skills: [cpp.performance]
+    difficulty: 2
+    prompt: "Which build should you profile to find the hot spots of a slow service?"
+    options: ["A debug build with -O0", "An optimised build with symbols (RelWithDebInfo)", "A build with ThreadSanitizer"]
+    answer: 1
+    explanation: "Profile optimised code with debug info; -O0 and sanitizers change the picture."
+  - id: p4-consteval
+    phase: p4
+    skills: [cpp.compile-time]
+    difficulty: 3
+    prompt: "You want a function that hashes string literals and must never run at run time. Which keyword?"
+    options: ["constexpr", "consteval", "constinit"]
+    answer: 1
+    explanation: "consteval makes every call a compile-time evaluation."
+  - id: p4-static-assert
+    phase: p4
+    skills: [cpp.compile-time]
+    difficulty: 2
+    prompt: "How do you make the build fail if `Packet` stops being 16 bytes?"
+    options: ["assert(sizeof(Packet) == 16);", "static_assert(sizeof(Packet) == 16);", "if (sizeof(Packet) != 16) throw ...;"]
+    answer: 1
+    explanation: "static_assert is checked by the compiler."
+  - id: p4-lru
+    phase: p4
+    skills: [cpp.performance, cpp.containers-algorithms]
+    difficulty: 4
+    prompt: "Which pair of containers gives an LRU cache O(1) get and put?"
+    options: ["std::vector + std::sort", "std::list (recency order) + std::unordered_map (key to list iterator)", "std::map alone"]
+    answer: 1
+    explanation: "The map finds the node; list::splice moves it to the front without invalidating iterators."
+  - id: p4-hardening
+    phase: p4
+    skills: [cpp.production]
+    difficulty: 3
+    prompt: "A C++ service parses untrusted uploads. Which practice finds most memory bugs before attackers do?"
+    options: ["Code formatting", "Fuzzing the parser with AddressSanitizer", "Compiling with -O3"]
+    answer: 1
+    explanation: "Fuzzers explore inputs; ASan turns silent corruption into a report."
+  - id: p4-extern-c
+    phase: p4
+    skills: [cpp.production, cpp.toolchain]
+    difficulty: 3
+    prompt: "What is the safest way to let Go (cgo) or Python (ctypes) call a C++ library?"
+    options:
+      - "Export C++ classes directly"
+      - "An extern \"C\" API with opaque handles that catches every exception and returns error codes"
+      - "Share the header with the other language"
+    answer: 1
+    explanation: "C is the common ABI, and exceptions must not cross the boundary."

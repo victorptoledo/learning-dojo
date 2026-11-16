@@ -1,0 +1,46 @@
+questions:
+  - id: link-error
+    prompt: "The build prints `undefined reference to 'dojo::greet(std::string_view)'`. Which step failed?"
+    options:
+      - "The preprocessor: a header is missing"
+      - "The compiler: greet was never declared"
+      - "The linker: greet is declared, but no object file defines it"
+    answer: 2
+    explanation: "Undefined reference comes from the linker: the code compiled against a declaration, but the definition is missing from the build or has a different signature."
+  - id: include
+    prompt: "What does `#include \"greet.hpp\"` do?"
+    options:
+      - "It imports a compiled module"
+      - "It pastes the text of the header into the file before compilation"
+      - "It links the greet library"
+    answer: 1
+    explanation: "Inclusion is textual: the preprocessor copies the header in. That is why a definition in a header can end up in many object files."
+  - id: odr
+    prompt: "A non-inline function is defined in a header that two .cpp files include. What happens?"
+    options:
+      - "It works: the compiler keeps one copy"
+      - "The linker reports a multiple definition (the one definition rule)"
+      - "The second file silently overrides the first"
+    answer: 1
+    explanation: "Each translation unit gets its own definition, and the linker refuses two. Declare in the header and define once, or make the function inline."
+  - id: translation-unit
+    prompt: "What is a translation unit?"
+    options:
+      - "One .cpp file after the preprocessor has pasted in its headers"
+      - "The whole program"
+      - "One header file"
+    answer: 0
+    explanation: "The compiler works on one translation unit at a time and only knows what that unit declares."
+  - id: standard-flag
+    prompt: "How do you make CMake compile a target as C++23, and fail if the compiler cannot?"
+    options:
+      - "add_definitions(-DCPP23)"
+      - "set(CMAKE_CXX_STANDARD 23) and set(CMAKE_CXX_STANDARD_REQUIRED ON)"
+      - "Nothing: CMake always uses the newest standard"
+    answer: 1
+    explanation: "CMAKE_CXX_STANDARD picks the standard and _REQUIRED turns a missing one into an error instead of a silent fallback."
+  - id: sanitizer
+    prompt: "Which tool reports a use after free when the program runs?"
+    options: ["clang-format", "AddressSanitizer", "-Wpedantic"]
+    answer: 1
+    explanation: "AddressSanitizer instruments memory accesses at run time. Warnings and clang-tidy look at code statically; clang-format only formats."

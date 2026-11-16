@@ -1,0 +1,49 @@
+id: cpp.p1.word-stats
+kind: kata
+status: draft
+title: "Word Stats: Strings, Vectors, Maps and Sorting"
+summary: "Split text into words, count them in a std::map, rank the most frequent with a two-level sort, keep first-seen order with a set and group words by length."
+objectives:
+  - { id: o1, text: "Build words character by character with std::string and string_view lookahead", skills: [cpp.types-values] }
+  - { id: o2, text: "Count and group with std::map, std::set and std::unordered_set, and iterate them with structured bindings", skills: [cpp.containers-algorithms] }
+  - { id: o3, text: "Sort a vector with std::ranges::sort and a comparison that breaks ties", skills: [cpp.containers-algorithms, cpp.functions-control] }
+prerequisites: [cpp.p1.containers-algorithms]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 120 }
+  hints:
+    - |-
+      `words` is the heart of the kata: the other functions call it. Walk the text one character at a time and keep the word you are building. What decides that a character ends a word? To know whether an apostrophe is inside a word, which characters do you need to look at?
+    - |-
+      Keep a `std::string current`. Append `std::tolower` of each letter or digit (`std::isalnum`, with the `unsigned char` cast); an apostrophe joins only when `current` is not empty and the next character (`text[i + 1]`) is a letter or digit. Any other character flushes `current` into the result. `count` is `++counts[word]`. `top` copies the map into a `std::vector<WordCount>`, sorts it and `resize`s it to `std::min(n, size)`. `first_seen` needs a set of what it has already seen.
+    - |-
+      ```cpp
+      std::ranges::sort(ranking, [](const WordCount& a, const WordCount& b) {
+          if (a.count != b.count) {
+              return a.count > b.count;  // more first
+          }
+          return a.word < b.word;  // then alphabetical
+      });
+
+      std::map<std::size_t, std::set<std::string>> sets;  // a set keeps words distinct and sorted
+      for (auto& word : words(text)) {
+          // insert word into sets[word.size()]
+      }
+      // then copy each set into the vector of the result map
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.

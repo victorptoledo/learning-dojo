@@ -1,0 +1,48 @@
+questions:
+  - id: pass-big
+    prompt: "A function only reads a large `Report` object. How should it take it?"
+    options: ["Report r", "const Report& r", "Report* r"]
+    answer: 1
+    explanation: "A const reference avoids the copy and promises not to change it; a pointer would also allow null, which read-only access does not need."
+  - id: sink
+    prompt: "A setter stores its std::string argument in a member. Which signature do the Core Guidelines suggest?"
+    options:
+      - "void set_name(const std::string& n) { name_ = n; }"
+      - "void set_name(std::string n) { name_ = std::move(n); }"
+      - "void set_name(std::string& n) { name_ = n; }"
+    answer: 1
+    explanation: "Take by value and move into the member: a temporary argument is moved twice and never copied, a named one is copied once."
+  - id: capture
+    prompt: "What does this print?"
+    code: |
+      int n = 1;
+      auto f = [n] { return n * 10; };
+      n = 5;
+      std::println("{}", f());
+    options: ["10", "50", "It does not compile"]
+    answer: 0
+    explanation: "[n] captures a copy when the lambda is created, so later changes to n are not seen."
+  - id: optional-read
+    prompt: "What happens with `*opt` when `std::optional<int> opt` is empty?"
+    options:
+      - "It returns 0"
+      - "Undefined behaviour; use if (opt), value_or or value() instead"
+      - "It throws std::bad_optional_access"
+    answer: 1
+    explanation: "operator* does no check. value() throws when empty, value_or gives a default."
+  - id: enum-class
+    prompt: "Why prefer `enum class Level { Info, Warn };` over `enum Level { Info, Warn };`?"
+    options:
+      - "Its values do not leak into the surrounding scope and do not convert to int implicitly"
+      - "It is faster at run time"
+      - "It can hold strings"
+    answer: 0
+    explanation: "Scoped enums keep their names inside Level:: and need an explicit static_cast to become integers."
+  - id: return-big
+    prompt: "Is it expensive to return a `std::vector<std::string>` by value from a function?"
+    options:
+      - "Yes: every element is copied"
+      - "No: copy elision builds it in the caller, or it is moved"
+      - "It does not compile; return a pointer"
+    answer: 1
+    explanation: "Returning by value is the idiomatic and cheap way to produce a result."

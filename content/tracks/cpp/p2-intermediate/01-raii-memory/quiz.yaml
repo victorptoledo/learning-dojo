@@ -1,0 +1,49 @@
+questions:
+  - id: unwinding
+    prompt: "A function creates `std::lock_guard lock(mutex);` and then calls code that throws. Is the mutex unlocked?"
+    options:
+      - "No: the throw skips the rest of the function"
+      - "Yes: destructors of local objects run while the exception unwinds the stack"
+      - "Only if there is a catch block in the same function"
+    answer: 1
+    explanation: "Stack unwinding destroys every local object, which is what makes RAII exception-safe."
+  - id: unique-copy
+    prompt: "What does `auto b = a;` do when a is a `std::unique_ptr<Widget>`?"
+    options:
+      - "It copies the Widget"
+      - "It does not compile: unique_ptr cannot be copied; use std::move(a)"
+      - "Both pointers share the Widget"
+    answer: 1
+    explanation: "unique_ptr is move-only, so the type system enforces a single owner."
+  - id: unique-cost
+    prompt: "What does std::unique_ptr cost compared with a raw owning pointer (default deleter)?"
+    options:
+      - "Nothing: same size and same code"
+      - "An atomic reference count"
+      - "A heap allocation for the control block"
+    answer: 0
+    explanation: "unique_ptr is a zero-overhead abstraction; reference counts belong to shared_ptr."
+  - id: cycle
+    prompt: "A parent holds shared_ptrs to its children and each child holds a shared_ptr to its parent. What happens when the last outside shared_ptr goes?"
+    options:
+      - "Everything is freed"
+      - "Nothing is freed: the cycle keeps every count above zero; make the back link a weak_ptr"
+      - "The program crashes"
+    answer: 1
+    explanation: "Reference counting cannot free cycles. weak_ptr observes without owning."
+  - id: raw-pointer
+    prompt: "In modern C++, what does a raw pointer parameter `void draw(const Widget* w)` usually mean?"
+    options:
+      - "draw takes ownership and deletes w"
+      - "draw observes a Widget that may be null and that someone else owns"
+      - "w points to an array"
+    answer: 1
+    explanation: "Ownership is expressed with smart pointers or values; raw pointers and references are non-owning."
+  - id: make-shared
+    prompt: "Why prefer `std::make_shared<T>(args)` to `std::shared_ptr<T>(new T(args))`?"
+    options:
+      - "It does one allocation for the object and the control block, and no naked new"
+      - "It makes the object immutable"
+      - "It avoids the reference count"
+    answer: 0
+    explanation: "make_shared allocates once and leaves no new in your code; make_unique gives the same safety for unique_ptr."

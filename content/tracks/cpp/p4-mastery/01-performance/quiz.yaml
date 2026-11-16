@@ -1,0 +1,49 @@
+questions:
+  - id: measure
+    prompt: "Before optimising a slow function, what should you do first?"
+    options:
+      - "Rewrite it with raw pointers"
+      - "Profile a release build on a realistic workload to confirm where the time goes"
+      - "Add inline to every function"
+    answer: 1
+    explanation: "Debug builds and guesses mislead; measure the real hot spots first."
+  - id: vector-list
+    prompt: "Why is summing a std::vector<int> usually much faster than summing a std::list<int> of the same size?"
+    options:
+      - "list uses a slower addition"
+      - "The vector's elements are contiguous, so cache lines and the prefetcher are used fully; the list jumps through memory per node"
+      - "Vectors are always sorted"
+    answer: 1
+    explanation: "Memory access patterns dominate: contiguous data streams through the caches."
+  - id: false-sharing
+    prompt: "Eight threads each increment their own counter in `std::array<std::atomic<long>, 8>`. Why can this scale badly?"
+    options:
+      - "Atomics cannot be in arrays"
+      - "The counters share cache lines, so every write invalidates the line for the other cores (false sharing)"
+      - "There is a data race"
+    answer: 1
+    explanation: "Pad each counter to its own cache line (hardware_destructive_interference_size) to stop the ping-pong."
+  - id: reserve
+    prompt: "A loop does 1,000,000 push_back calls on an empty vector. What does `v.reserve(1'000'000)` before the loop save?"
+    options:
+      - "Nothing: push_back never allocates"
+      - "The repeated reallocations and element moves as the capacity grows"
+      - "The elements' constructors"
+    answer: 1
+    explanation: "Growth is amortised O(1) but still reallocates about 20 times; reserve allocates once."
+  - id: endl
+    prompt: "Why can `std::cout << line << std::endl;` in a loop be slow?"
+    options:
+      - "std::endl flushes the stream every time; '\\n' does not"
+      - "std::endl allocates a string"
+      - "It is not slow"
+    answer: 0
+    explanation: "Flushing forces a system call per line. Use '\\n' and flush once, or std::print."
+  - id: complexity
+    prompt: "Which change usually gives the biggest speed-up?"
+    options:
+      - "Replacing an O(n²) algorithm with an O(n log n) one on large inputs"
+      - "Marking variables register"
+      - "Using ++i instead of i++ on ints"
+    answer: 0
+    explanation: "Algorithmic improvements dwarf micro-optimisations the compiler already does."

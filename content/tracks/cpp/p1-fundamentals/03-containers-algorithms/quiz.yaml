@@ -1,0 +1,43 @@
+questions:
+  - id: map-index
+    prompt: "What does `counts[\"zebra\"]` do on a `std::map<std::string, int>` without that key?"
+    options:
+      - "It throws std::out_of_range"
+      - "It inserts \"zebra\" with 0 and returns a reference to it"
+      - "It returns 0 and leaves the map unchanged"
+    answer: 1
+    explanation: "operator[] inserts a value-initialised element for a missing key. Use find, contains or at to only read."
+  - id: invalidation
+    prompt: "You hold `int& first = v[0];` and then call `v.push_back(7)` on a std::vector<int>. Is `first` still valid?"
+    options:
+      - "Yes, references to vector elements never change"
+      - "Not if the push_back reallocated: it may dangle"
+      - "Only if v was empty"
+    answer: 1
+    explanation: "A reallocation moves every element to new memory and invalidates all references, pointers and iterators."
+  - id: erase-if
+    prompt: "What is the idiomatic C++20 way to remove every negative number from a vector?"
+    options:
+      - "Erase inside a for loop over iterators"
+      - "std::erase_if(v, [](int x) { return x < 0; });"
+      - "std::remove_if(v.begin(), v.end(), ...) alone"
+    answer: 1
+    explanation: "std::erase_if does the erase-remove idiom correctly. remove_if alone only moves elements and leaves the vector size unchanged."
+  - id: comparator
+    prompt: "Why is `[](int a, int b) { return a <= b; }` a bad comparator for std::sort?"
+    options:
+      - "It sorts descending"
+      - "It is not a strict weak ordering (a would come before a), which is undefined behaviour"
+      - "Lambdas cannot be comparators"
+    answer: 1
+    explanation: "Comparators must be strict, like <. With <=, sort may read out of bounds or loop."
+  - id: which-container
+    prompt: "You need keys in sorted order and the first key not less than a given value. Which container fits?"
+    options: ["std::unordered_map", "std::map (lower_bound)", "std::vector without sorting"]
+    answer: 1
+    explanation: "std::map keeps keys sorted, and lower_bound finds that key in O(log n). unordered_map has no order."
+  - id: end
+    prompt: "What does `v.end()` point to?"
+    options: ["The last element", "One past the last element; it must not be dereferenced", "The first element of the next container"]
+    answer: 1
+    explanation: "Ranges are half-open [begin, end). Comparing with end() means not found."

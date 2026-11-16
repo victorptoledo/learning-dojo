@@ -1,4 +1,17 @@
 namespace: cpp
 skills:
-  - { id: cpp.raii-memory, title: "RAII and Smart Pointers (`std::unique_ptr`, `std::shared_ptr`)" }
-  - { id: cpp.move-semantics, title: "Move Semantics and Rvalue References (`&&`, `std::move`)" }
+  - { id: cpp.toolchain, title: "The C++ Toolchain: Compiling, Linking, Headers and CMake" }
+  - { id: cpp.types-values, title: "Types, Values, References, const and Strings" }
+  - { id: cpp.functions-control, title: "Functions, Parameters, Lambdas, Enums and std::optional" }
+  - { id: cpp.containers-algorithms, title: "Standard Containers, Iterators and Algorithms" }
+  - { id: cpp.classes, title: "Classes, Constructors, Invariants and Operators" }
+  - { id: cpp.raii-memory, title: "RAII, Object Lifetime and Smart Pointers" }
+  - { id: cpp.move-semantics, title: "Move Semantics, Value Categories and Perfect Forwarding" }
+  - { id: cpp.error-handling, title: "Errors: Exceptions, Exception Safety and std::expected" }
+  - { id: cpp.templates-concepts, title: "Templates, Concepts and Generic Programming" }
+  - { id: cpp.ranges, title: "Ranges, Views, Projections and Generators" }
+  - { id: cpp.concurrency, title: "Threads, Mutexes, Condition Variables, Atomics and the Memory Model" }
+  - { id: cpp.polymorphism, title: "Polymorphism: Virtual Functions, std::variant and Type Erasure" }
+  - { id: cpp.performance, title: "Performance: Memory Layout, Allocation, Measuring and Profiling" }
+  - { id: cpp.compile-time, title: "Compile-Time Programming: constexpr, consteval and Type Traits" }
+  - { id: cpp.production, title: "C++ in Production: Builds, Dependencies, Safety and Interop" }

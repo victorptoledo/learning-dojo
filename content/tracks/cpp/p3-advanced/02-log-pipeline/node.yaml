@@ -1,0 +1,50 @@
+id: cpp.p3.log-pipeline
+kind: kata
+status: draft
+title: "Log Pipeline: Ranges, Views and a Generator"
+summary: "Read a log lazily with std::generator, parse entries with std::from_chars, and answer questions with range pipelines: filter, transform, ranges::to, partial_sort with a comparison, distinct services and a sliding-window average with views::slide."
+objectives:
+  - { id: o1, text: "Write a lazy std::generator that yields string_views into a text it does not own", skills: [cpp.ranges] }
+  - { id: o2, text: "Compose views with | and materialise them with std::ranges::to", skills: [cpp.ranges] }
+  - { id: o3, text: "Pick the right algorithm (partial_sort, slide, set) for a question about the data", skills: [cpp.ranges, cpp.containers-algorithms] }
+prerequisites: [cpp.p3.ranges-views]
+difficulty: 3
+estimated_minutes: 60
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 150 }
+  hints:
+    - |-
+      Write `lines` and `parse_entry` first: every other function is a short pipeline over them. A generator is a function with `co_yield` in it: each `co_yield line;` hands one value to the loop that reads it, and the function resumes there for the next one.
+    - |-
+      In `lines`, cut the text at each `'\n'` with `find` and `substr`, drop a trailing `'\r'`, and `co_yield` only lines that are not blank. In `parse_entry`, take space-separated fields one by one (a small helper that cuts the first field off a `std::string_view&` helps); read numbers with `std::from_chars` and check that it used every character. `parse_all` is `lines(text) | views::transform(parse_entry) | views::filter(has a value) | views::transform(unwrap) | ranges::to<std::vector>()`.
+    - |-
+      ```cpp
+      std::vector<Entry> slowest(const std::vector<Entry>& entries, std::size_t n) {
+          std::vector<Entry> ranked = entries;
+          const auto keep = std::min(n, ranked.size());
+          std::ranges::partial_sort(ranked, ranked.begin() + static_cast<std::ptrdiff_t>(keep),
+                                    [](const Entry& a, const Entry& b) {
+                                        // higher latency first, then the earlier timestamp
+                                    });
+          ranked.resize(keep);
+          return ranked;
+      }
+
+      // moving_average: values | std::views::slide(window) gives each run of window values;
+      // transform each run into its mean and collect with std::ranges::to<std::vector>().
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.

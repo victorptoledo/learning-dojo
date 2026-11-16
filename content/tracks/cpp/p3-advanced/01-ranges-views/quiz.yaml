@@ -1,0 +1,46 @@
+questions:
+  - id: lazy
+    prompt: "When does `auto v = data | std::views::transform(expensive);` call `expensive`?"
+    options:
+      - "Immediately, for every element"
+      - "Only when the view is iterated, once per element read"
+      - "Never: views cannot call functions"
+    answer: 1
+    explanation: "Views are lazy; the work happens as the loop pulls values."
+  - id: projection
+    prompt: "What does `std::ranges::sort(people, {}, &Person::age);` do?"
+    options:
+      - "Sorts people by age, using the default less-than on the projected ages"
+      - "Sorts the ages and throws away the people"
+      - "It does not compile: sort needs a lambda"
+    answer: 0
+    explanation: "The third argument is a projection applied before comparing; {} picks the default comparison."
+  - id: to
+    prompt: "What does C++23's `| std::ranges::to<std::vector>()` add to a pipeline?"
+    options:
+      - "It makes the pipeline run in parallel"
+      - "It collects the elements into a new std::vector, deducing the element type"
+      - "It converts the vector to a view"
+    answer: 1
+    explanation: "ranges::to materialises a range into a container."
+  - id: dangling
+    prompt: "A function returns `local_vector | std::views::filter(pred)`. What is the problem?"
+    options:
+      - "None: the view copies the vector"
+      - "The view refers to local_vector, which is destroyed when the function returns"
+      - "filter cannot be returned from functions"
+    answer: 1
+    explanation: "Views do not own the data they show (unless built from an rvalue as an owning_view)."
+  - id: generator
+    prompt: "In a function returning `std::generator<int>`, what does `co_yield x;` do?"
+    options:
+      - "Returns x and ends the function"
+      - "Hands x to the caller's loop and pauses the function until the next value is requested"
+      - "Starts a new thread"
+    answer: 1
+    explanation: "A generator is a coroutine: it resumes after co_yield when the loop asks for the next element."
+  - id: slide
+    prompt: "What does `std::vector{1, 2, 3, 4} | std::views::slide(2)` contain?"
+    options: ["{1,2}, {3,4}", "{1,2}, {2,3}, {3,4}", "{1,3}, {2,4}"]
+    answer: 1
+    explanation: "slide gives every window of n consecutive elements; chunk would give {1,2}, {3,4}."

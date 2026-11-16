@@ -1,0 +1,24 @@
+id: cpp.p1.types-values
+kind: lesson
+status: draft
+title: "Types, Values, References and Strings"
+summary: "Fundamental types and integer traps, initialisation, const and constexpr, references and pointers, value semantics, std::string and std::string_view, and what undefined behaviour means."
+objectives:
+  - { id: o1, text: "Choose fundamental types and initialise them safely, avoiding narrowing, signed overflow and signed/unsigned mixing", skills: [cpp.types-values] }
+  - { id: o2, text: "Explain value semantics and when to use a reference, a pointer or a copy", skills: [cpp.types-values] }
+  - { id: o3, text: "Use std::string and std::string_view and spot a dangling view", skills: [cpp.types-values] }
+prerequisites: [cpp.p0.hello-dojo]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this function from a pull request and explain every problem you find, then rewrite it: `std::string_view first_word(std::string text) { int i; for (i = 0; i < text.size(); i++) if (text[i] == '' '') break; return std::string_view(text).substr(0, i); }`. Say which problems the compiler warnings would show, which AddressSanitizer would catch at run time, and which only a reader would notice.'
+  criteria:
+    - 'Explains that the returned string_view points into the parameter text, which is destroyed when the function returns: a dangling view (AddressSanitizer reports a use after free or after return)'
+    - 'Points out the signed/unsigned comparison of int i with text.size() (a -Wall -Wextra warning) and uses std::size_t'
+    - 'Points out the copy of the parameter and takes std::string_view (or const std::string&) instead'
+    - 'Rewrites it with text.find('' '') or a loop, returning a view into the caller''s text, and notes the lifetime rule for callers'
+    - 'Mentions initialising variables and braces around the loop body as readability or safety habits'

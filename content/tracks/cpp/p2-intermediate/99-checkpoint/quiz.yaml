@@ -1,0 +1,66 @@
+questions:
+  - id: raii-early-return
+    skills: [cpp.raii-memory]
+    prompt: "`auto conn = std::make_unique<Connection>(url); if (!conn->ok()) return;` Does the early return leak the connection?"
+    options:
+      - "Yes: return skips the cleanup"
+      - "No: the unique_ptr's destructor runs on every way out of the scope"
+      - "Only in debug builds"
+    answer: 1
+    explanation: "RAII objects release their resource at scope exit, whatever the path: return, break or an exception."
+  - id: shared-or-unique
+    skills: [cpp.raii-memory]
+    prompt: "A factory creates a Parser that the caller alone will use. What should it return?"
+    options: ["Parser* (raw)", "std::unique_ptr<Parser> or a Parser by value", "std::shared_ptr<Parser>"]
+    answer: 1
+    explanation: "Single ownership is unique_ptr (or a value); shared_ptr adds cost and blurs lifetimes for no reason."
+  - id: vector-growth
+    skills: [cpp.move-semantics]
+    prompt: "A class has a move constructor without noexcept. What does std::vector do with its elements when it reallocates?"
+    options:
+      - "It moves them anyway"
+      - "It copies them, to keep the strong exception guarantee (if the class is copyable)"
+      - "It refuses to compile"
+    answer: 1
+    explanation: "vector uses std::move_if_noexcept: a throwing move could leave the old and new storage half-moved."
+  - id: after-move
+    skills: [cpp.move-semantics]
+    prompt: "What does this print?"
+    code: |
+      std::vector<int> a{1, 2, 3};
+      std::vector<int> b = std::move(a);
+      a = {9};
+      std::println("{} {}", a.size(), b.size());
+    options: ["1 3", "0 3", "Undefined behaviour"]
+    answer: 0
+    explanation: "A moved-from vector is valid; assigning to it is fine. b took the three elements."
+  - id: guarantee
+    skills: [cpp.error-handling]
+    prompt: "push_back on a full vector throws std::bad_alloc while growing. Which guarantee does std::vector::push_back give?"
+    options: ["None", "Basic: some elements may be lost", "Strong: the vector is unchanged"]
+    answer: 2
+    explanation: "push_back has the strong guarantee (given noexcept moves or copyable elements)."
+  - id: expected-or-throw
+    skills: [cpp.error-handling]
+    prompt: "A login function can fail with a wrong password several times a minute. How should it report it?"
+    options:
+      - "Throw an exception every time"
+      - "Return std::expected<Session, LoginError> (or similar), because the failure is a normal outcome"
+      - "Call std::terminate"
+    answer: 1
+    explanation: "Frequent, expected failures belong in the return type; exceptions are for exceptional paths."
+  - id: concept-overload
+    skills: [cpp.templates-concepts]
+    prompt: "Two overloads: `void f(std::integral auto x)` and `void f(auto x)`. Which one does `f(5)` call?"
+    options: ["The unconstrained one", "The std::integral one, because it is more constrained", "It is ambiguous"]
+    answer: 1
+    explanation: "When several candidates match, the most constrained one wins."
+  - id: template-link
+    skills: [cpp.templates-concepts]
+    prompt: "A class template's member functions are defined in `ring.cpp` and used from `main.cpp`. What happens?"
+    options:
+      - "It works like any class"
+      - "Undefined references at link time: main.cpp could not instantiate the bodies it never saw"
+      - "The compiler copies ring.cpp into main.cpp"
+    answer: 1
+    explanation: "Template bodies must be visible where they are instantiated, so they go in the header."
