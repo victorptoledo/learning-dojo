@@ -1,0 +1,23 @@
+id: postgresql.p4.monitoring-tuning
+kind: lesson
+status: reviewed
+title: "Monitoring and Tuning in Production"
+summary: "pg_stat_statements and auto_explain to find the queries that cost the most, the statistics every production server should watch, tuning in order of payoff (queries, autovacuum, memory, storage costs, checkpoints, connections, parallelism), sequence exhaustion, and a method for working an incident."
+objectives:
+  - { id: o1, text: "Find the most expensive queries with pg_stat_statements and auto_explain", skills: [postgresql.monitoring-tuning] }
+  - { id: o2, text: "Monitor connections, locks, vacuum, xid age, replication, archiving, checkpoints, temp files and sequences", skills: [postgresql.monitoring-tuning] }
+  - { id: o3, text: "Tune a server in order of payoff from measurements, and work an incident methodically", skills: [postgresql.monitoring-tuning] }
+prerequisites: [postgresql.p4.backup-recovery]
+difficulty: 4
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You join a team whose PostgreSQL 17 server "is slow". Nobody has metrics; the configuration is the default except max_connections = 500; the server has 32 GB of RAM, 8 cores and SSDs. Write your first-week plan: what you would install and enable, the ten numbers you would put on a dashboard with an alert threshold for each, the first configuration changes you would make and why, and how you would decide which slow query to fix first.'
+  criteria:
+    - 'Installs pg_stat_statements (shared_preload_libraries, restart) and configures useful logging or auto_explain, with a monitoring role granted pg_monitor'
+    - 'Lists dashboard signals with thresholds: connections by state, long and idle-in-transaction sessions, lock waits, cache hit ratio, dead tuples and autovacuum, xid age, replication lag and slot WAL, archiving failures, temp files, disk, sequence usage'
+    - 'Proposes concrete settings: shared_buffers about 8 GB, effective_cache_size about 20–24 GB, random_page_cost about 1.1, per-role work_mem, max_wal_size and autovacuum cost limits, and a pooler instead of 500 connections'
+    - 'Chooses the first query by total_exec_time in pg_stat_statements, examines it with EXPLAIN (ANALYZE, BUFFERS), and changes one thing at a time while measuring'

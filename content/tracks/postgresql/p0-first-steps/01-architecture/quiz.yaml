@@ -1,0 +1,35 @@
+questions:
+  - id: process-per-connection
+    prompt: "An application opens 600 connections to PostgreSQL. What does the server create for them?"
+    options: ["600 threads in one process", "600 backend processes forked by the postmaster", "One process with 600 sockets", "Nothing until a query runs"]
+    answer: 1
+    explanation: "PostgreSQL uses one process per connection. That is why many idle connections cost memory and why pools exist."
+  - id: cross-database
+    prompt: "In one connection to the database shop, can a query join shop's public.orders with the table public.users of the database auth in the same cluster?"
+    options: ["Yes, as auth.public.users", "No: a connection sees one database; it needs postgres_fdw or dblink", "Yes, if both use the public schema", "Only as a superuser"]
+    answer: 1
+    explanation: "Databases are isolated. Schemas inside one database can be mixed freely; other databases need a foreign data wrapper."
+  - id: wal-first
+    prompt: "Why can PostgreSQL write changed data pages to disk later, at a checkpoint, without losing committed data in a crash?"
+    options: ["Because shared buffers survive a crash", "Because every change was first written and flushed to the WAL, which is replayed after a crash", "Because the OS writes pages at once", "Because commits wait for the checkpoint"]
+    answer: 1
+    explanation: "Write-ahead logging: the log is durable at commit, so pages can be written lazily and rebuilt from the WAL."
+  - id: relkind
+    prompt: "In pg_class, which relkind letter marks an ordinary table?"
+    answers: ["r", "'r'"]
+    explanation: "r is a table, p a partitioned table, i an index, S a sequence, v a view, m a materialized view, t a TOAST table."
+  - id: total-size
+    prompt: "Which function returns the size of a table together with its indexes and TOAST data?"
+    options: ["pg_relation_size", "pg_table_size", "pg_total_relation_size", "pg_indexes_size"]
+    answer: 2
+    explanation: "pg_relation_size is the main file only, pg_table_size adds TOAST but not indexes, pg_total_relation_size adds everything."
+  - id: echo-hidden
+    prompt: "How do you see the catalog queries that psql runs for \\d orders?"
+    options: ["\\timing on", "psql -E, or \\set ECHO_HIDDEN on", "EXPLAIN \\d orders", "\\x on"]
+    answer: 1
+    explanation: "ECHO_HIDDEN prints the hidden queries behind backslash commands; it is the quickest way to learn the catalogs."
+  - id: minor-upgrade
+    prompt: "Moving from PostgreSQL 17.2 to 17.4 requires..."
+    options: ["pg_upgrade", "a dump and restore", "installing the new binaries and restarting", "logical replication"]
+    answer: 2
+    explanation: "Minor releases keep the on-disk format; only major upgrades need pg_upgrade, dump and restore, or logical replication."

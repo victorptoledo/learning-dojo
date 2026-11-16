@@ -1,0 +1,50 @@
+id: postgresql.p0.catalog-tour
+kind: kata
+status: reviewed
+title: "Catalog Tour: Ask PostgreSQL About Itself"
+summary: "Answer four day-one questions from the system catalogs: the largest tables with their index sizes, a table's columns as psql shows them, the foreign keys that no index covers, and the settings that were changed from their defaults."
+objectives:
+  - { id: o1, text: "Query pg_class, pg_namespace, pg_attribute, pg_constraint, pg_index and pg_settings, and use regclass and the size functions", skills: [postgresql.architecture] }
+  - { id: o2, text: "Find the foreign keys that no index covers by comparing conkey with the leading columns of indkey", skills: [postgresql.architecture, postgresql.indexes-advanced] }
+prerequisites: [postgresql.p0.architecture]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 60 }
+  hints:
+    - |-
+      Which catalog has one row per table, and which column says it is a table and not an index? Its `relnamespace` is a schema OID: join `pg_namespace` to filter by schema name. For the columns, how does `pg_attribute` mark system columns and the ones you dropped? For the foreign keys, compare two lists of column numbers: `pg_constraint.conkey` and the first columns of `pg_index.indkey`.
+    - |-
+      `pg_total_relation_size(c.oid)` and `pg_indexes_size(c.oid)` give the sizes; `relkind IN ('r', 'p')` keeps tables. `WHERE attrelid = 'shop.orders'::regclass AND attnum > 0 AND NOT attisdropped`, with `format_type(atttypid, atttypmod)`. For a key, take `n = cardinality(conkey)` and the first `n` columns of each index of the table, `(string_to_array(indkey::text, ' ')::smallint[])[1:n]`; two arrays hold the same set when each contains the other (`@>` and `<@`). Keys covered by no index are a `NOT EXISTS`.
+    - |-
+      ```sql
+      -- unindexed_fks.sql
+      SELECT c.conrelid::regclass::text AS table_name,
+             c.conname AS constraint_name,
+             (SELECT string_agg(a.attname, ', ' ORDER BY k.ord)
+              FROM unnest(c.conkey) WITH ORDINALITY AS k(attnum, ord)
+              JOIN pg_attribute AS a ON a.attrelid = c.conrelid AND a.attnum = k.attnum) AS columns
+      FROM pg_constraint AS c
+      WHERE c.contype = 'f'
+        AND c.connamespace = 'shop'::regnamespace
+        AND NOT EXISTS (
+            SELECT 1 FROM pg_index AS i
+            WHERE i.indrelid = c.conrelid
+              AND ...
+        );
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

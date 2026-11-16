@@ -1,0 +1,2 @@
+-- todo: the rooms for 8 or more people with a projector that are free on 2026-11-16 from
+-- 14:00 to 15:00 UTC.

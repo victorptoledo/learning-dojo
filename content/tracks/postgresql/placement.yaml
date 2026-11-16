@@ -1,0 +1,271 @@
+# Placement test of the PostgreSQL track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How well do you know PostgreSQL itself, beyond writing SQL?
+  options:
+    - { label: "I write SQL, but I have never looked inside the server", start_phase: p0, test: false }
+    - { label: "I know MVCC, VACUUM and how to read pg_stat_activity", start_phase: p1, test: true }
+    - { label: "I read EXPLAIN ANALYZE, design indexes and fix lock problems at work", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 5, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-catalog-size
+    phase: p1
+    skills: [postgresql.architecture]
+    difficulty: 2
+    prompt: "A table's pg_relation_size is 2 GB but pg_total_relation_size is 9 GB. Where are the other 7 GB?"
+    options: ["In the WAL", "In its indexes and TOAST data", "In shared buffers", "In other databases"]
+    answer: 1
+    explanation: "pg_relation_size is the main file only; the total adds indexes, TOAST and the free space and visibility maps."
+  - id: p1-range-type
+    phase: p1
+    skills: [postgresql.data-types]
+    difficulty: 2
+    prompt: "Which type and bound style fit a hotel stay that checks in on 3 May and out on 7 May, so the next stay can start on 7 May?"
+    options: ["daterange '[2026-05-03,2026-05-07]'", "daterange '[2026-05-03,2026-05-07)'", "two text columns", "tsrange with both bounds open"]
+    answer: 1
+    explanation: "Half-open [start, end) ranges let consecutive periods touch without overlapping."
+  - id: p1-domain
+    phase: p1
+    skills: [postgresql.data-types]
+    difficulty: 3
+    prompt: "Ten tables have a column for a postal code with the same CHECK. How do you keep the rule in one place?"
+    options: ["A trigger on each table", "CREATE DOMAIN postal_code AS text CHECK (...) and use it as the columns' type", "An enum", "A view"]
+    answer: 1
+    explanation: "A domain is a type with constraints; changing it changes the rule everywhere."
+  - id: p1-xmax
+    phase: p1
+    skills: [postgresql.mvcc]
+    difficulty: 3
+    prompt: "A row was just deleted by a committed transaction. What does its tuple look like until VACUUM?"
+    options: ["It is gone from the page", "It is still in the page, with xmax set to the deleting transaction", "Its xmin is set to 0", "It moved to TOAST"]
+    answer: 1
+    explanation: "DELETE only sets xmax; the tuple becomes dead once no snapshot can see it, and VACUUM reclaims it."
+  - id: p1-hot-index
+    phase: p1
+    skills: [postgresql.mvcc]
+    difficulty: 4
+    prompt: "Adding a B-tree index on a column updated on every request made writes slower and the table bloat. Why?"
+    options: ["B-trees lock the table", "Updates of that column can no longer be HOT, so every update writes new entries in all the table's indexes", "The index disables autovacuum", "Indexes are rewritten on each update"]
+    answer: 1
+    explanation: "A HOT update requires that no indexed column changes."
+  - id: p1-autovacuum-big
+    phase: p1
+    skills: [postgresql.vacuum]
+    difficulty: 3
+    prompt: "A 2-billion-row table is vacuumed only every few weeks. Which setting do you change, and where?"
+    options: ["autovacuum = off on the table", "A smaller autovacuum_vacuum_scale_factor for that table, with ALTER TABLE ... SET", "A higher vacuum_freeze_min_age globally", "max_connections"]
+    answer: 1
+    explanation: "With the default 0.2, autovacuum waits for 400 million dead tuples on that table."
+  - id: p1-wraparound-age
+    phase: p1
+    skills: [postgresql.vacuum]
+    difficulty: 3
+    prompt: "Which expression tells you how close a database is to transaction id wraparound?"
+    answers: ["age(datfrozenxid)", "age(datfrozenxid) from pg_database"]
+    explanation: "Compare it with autovacuum_freeze_max_age (200 million) and with the hard limit near 2 billion."
+  - id: p1-context
+    phase: p1
+    skills: [postgresql.configuration]
+    difficulty: 2
+    prompt: "You changed max_connections with ALTER SYSTEM and reloaded. pg_settings shows pending_restart = true. Why?"
+    options: ["ALTER SYSTEM failed", "max_connections has the postmaster context: it only changes at a restart", "A reload is never needed", "The value is invalid"]
+    answer: 1
+    explanation: "postmaster-context settings are read at server start."
+  - id: p1-role-timeout
+    phase: p1
+    skills: [postgresql.configuration]
+    difficulty: 2
+    prompt: "How do you give every session of the role api a 30-second statement timeout without touching other roles?"
+    options: ["SET statement_timeout = '30s'", "ALTER ROLE api SET statement_timeout = '30s'", "ALTER SYSTEM SET statement_timeout = '30s'", "A CHECK constraint"]
+    answer: 1
+    explanation: "Role settings apply to each new session of that role."
+
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-loops
+    phase: p2
+    skills: [postgresql.query-planner]
+    difficulty: 3
+    prompt: "An inner Index Scan shows actual time=0.02..0.03 rows=1 loops=200000. Is it a problem?"
+    options: ["No: 0.03 ms is fast", "Yes: it ran 200,000 times, about 6 seconds in total, because the outer side was much larger than estimated", "Only if the index is unused", "It cannot be told"]
+    answer: 1
+    explanation: "Per-loop numbers must be multiplied by loops; the root cause is usually the outer estimate."
+  - id: p2-stats-target
+    phase: p2
+    skills: [postgresql.query-planner]
+    difficulty: 4
+    prompt: "A column with 50,000 distinct, very skewed values gets poor estimates for its frequent values. What helps?"
+    options: ["ALTER TABLE t ALTER COLUMN c SET STATISTICS 1000, then ANALYZE", "A hash index", "VACUUM FULL", "SET enable_seqscan = off"]
+    answer: 0
+    explanation: "A larger statistics target keeps a longer most-common-values list and a finer histogram."
+  - id: p2-truncate-lock
+    phase: p2
+    skills: [postgresql.locking]
+    difficulty: 3
+    prompt: "Which statement blocks even plain SELECTs on the table while it runs?"
+    options: ["UPDATE", "CREATE INDEX CONCURRENTLY", "TRUNCATE", "VACUUM"]
+    answer: 2
+    explanation: "TRUNCATE takes ACCESS EXCLUSIVE, the only mode that conflicts with ACCESS SHARE."
+  - id: p2-fk-lock
+    phase: p2
+    skills: [postgresql.locking]
+    difficulty: 4
+    prompt: "Inserting an order waits for a transaction that is deleting the order's customer. Why?"
+    options: ["Inserts lock the whole customers table", "The foreign key check takes FOR KEY SHARE on the customer row, which conflicts with the delete", "Deadlock detection", "Sequences are locked"]
+    answer: 1
+    explanation: "Foreign key checks lock the referenced row in KEY SHARE mode."
+  - id: p2-jsonb-index
+    phase: p2
+    skills: [postgresql.jsonb]
+    difficulty: 3
+    prompt: "Most queries filter documents with attrs @> '{\"color\": \"red\"}' and never with ?. Which index is smallest and fastest for them?"
+    options: ["A B-tree on attrs", "GIN with jsonb_path_ops", "GIN with the default jsonb_ops", "BRIN on attrs"]
+    answer: 1
+    explanation: "jsonb_path_ops supports containment and jsonpath only, which makes it smaller."
+  - id: p2-fts-rank
+    phase: p2
+    skills: [postgresql.full-text-search]
+    difficulty: 3
+    prompt: "How do you make a match in the title rank higher than a match in the body?"
+    options: ["Search the title twice", "setweight the title's tsvector to A and the body's to B, and order by ts_rank", "Use ILIKE on the title", "Use a trigram index"]
+    answer: 1
+    explanation: "ts_rank uses the weights stored in the tsvector."
+  - id: p2-trigger-return
+    phase: p2
+    skills: [postgresql.plpgsql]
+    difficulty: 3
+    prompt: "A BEFORE UPDATE row trigger must set updated_at. What must the function do?"
+    options: ["UPDATE the table again", "Assign NEW.updated_at := now() and RETURN NEW", "RETURN OLD", "RETURN NULL"]
+    answer: 1
+    explanation: "A BEFORE row trigger returns the row to store; NULL would skip the update."
+  - id: p2-security-definer
+    phase: p2
+    skills: [postgresql.plpgsql]
+    difficulty: 4
+    prompt: "Why is a SECURITY DEFINER function without SET search_path dangerous?"
+    options: ["It runs slower", "A caller can put an object with the same name earlier in their search_path and make it run with the owner's privileges", "It cannot read tables", "It disables RLS"]
+    answer: 1
+    explanation: "Pin the search_path and revoke EXECUTE from PUBLIC."
+
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-brin
+    phase: p3
+    skills: [postgresql.indexes-advanced]
+    difficulty: 3
+    prompt: "pg_stats.correlation for logs.created_at is 0.99 and the table has 3 billion rows. Which index stays tiny for time-range queries?"
+    answers: ["BRIN", "brin"]
+    explanation: "BRIN stores min and max per block range and works when values follow the physical order."
+  - id: p3-partial
+    phase: p3
+    skills: [postgresql.indexes-advanced]
+    difficulty: 3
+    prompt: "Only 0.05% of payments have status = 'failed', and support queries them by created_at. Which index fits?"
+    options: ["CREATE INDEX ON payments (status)", "CREATE INDEX ON payments (created_at) WHERE status = 'failed'", "A GIN index on status", "BRIN on status"]
+    answer: 1
+    explanation: "A partial index holds only the rows the query needs."
+  - id: p3-partition-unique
+    phase: p3
+    skills: [postgresql.partitioning]
+    difficulty: 3
+    prompt: "Why can a table partitioned by created_at not have UNIQUE (email)?"
+    options: ["Partitioned tables cannot have constraints", "Uniqueness is checked per partition, so unique keys must include the partition key", "email must be citext", "Only hash partitions allow it"]
+    answer: 1
+    explanation: "There are no global indexes in PostgreSQL."
+  - id: p3-default-partition
+    phase: p3
+    skills: [postgresql.partitioning]
+    difficulty: 4
+    prompt: "CREATE TABLE events_2027_01 PARTITION OF events FOR VALUES FROM ('2027-01-01') TO ('2027-02-01') fails. The default partition has rows from January 2027. Why?"
+    options: ["Partition names must be unique", "Rows in the default partition belong to the new range; they must be moved out first", "Ranges cannot start on the first of a month", "Default partitions forbid new partitions"]
+    answer: 1
+    explanation: "Keep the default partition empty and create partitions before their data arrives."
+  - id: p3-rls-superuser
+    phase: p3
+    skills: [postgresql.security]
+    difficulty: 3
+    prompt: "You test a tenant policy from psql as postgres and see every tenant's rows. What does that tell you?"
+    options: ["The policy is broken", "Nothing about the policy: superusers always bypass RLS; test with SET ROLE as the application role", "RLS is disabled", "The tenant setting is wrong"]
+    answer: 1
+    explanation: "Superusers and BYPASSRLS roles skip policies; owners too unless FORCE ROW LEVEL SECURITY."
+  - id: p3-default-privs
+    phase: p3
+    skills: [postgresql.security]
+    difficulty: 3
+    prompt: "Which statement gives the role reporting SELECT on every table the role migrator creates in schema app from now on?"
+    options: ["GRANT SELECT ON ALL TABLES IN SCHEMA app TO reporting", "ALTER DEFAULT PRIVILEGES FOR ROLE migrator IN SCHEMA app GRANT SELECT ON TABLES TO reporting", "GRANT USAGE ON SCHEMA app TO reporting", "ALTER ROLE reporting SET search_path = app"]
+    answer: 1
+    explanation: "GRANT ... ON ALL TABLES covers only existing tables."
+  - id: p3-preload
+    phase: p3
+    skills: [postgresql.extensions]
+    difficulty: 2
+    prompt: "Which of these extensions needs shared_preload_libraries and a restart?"
+    options: ["pg_trgm", "citext", "pg_stat_statements", "btree_gist"]
+    answer: 2
+    explanation: "pg_stat_statements hooks into query execution at startup; the others only add SQL objects."
+  - id: p3-pool-mode
+    phase: p3
+    skills: [postgresql.connection-pooling]
+    difficulty: 3
+    prompt: "An application uses LISTEN/NOTIFY and session-level advisory locks. Which PgBouncer mode does it need for those connections?"
+    options: ["transaction", "statement", "session", "replication"]
+    answer: 2
+    explanation: "Session state only survives in session mode; or give those features a direct connection."
+
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-checkpoints
+    phase: p4
+    skills: [postgresql.replication]
+    difficulty: 3
+    prompt: "The log shows checkpoints every 40 seconds, all 'wal' triggered, on a write-heavy server. What do you change?"
+    options: ["Lower checkpoint_timeout", "Raise max_wal_size so most checkpoints are triggered by time", "Turn off full_page_writes", "Set fsync = off"]
+    answer: 1
+    explanation: "Frequent checkpoints mean more full-page writes and I/O spikes; size max_wal_size for the write rate."
+  - id: p4-slot
+    phase: p4
+    skills: [postgresql.replication]
+    difficulty: 3
+    prompt: "pg_wal grows by 50 GB a day on a primary with one inactive replication slot. What do you do?"
+    options: ["Delete files in pg_wal by hand", "Drop the slot if its consumer is gone (pg_drop_replication_slot) and set max_slot_wal_keep_size", "Run VACUUM FULL", "Restart the primary"]
+    answer: 1
+    explanation: "Never delete WAL files by hand; the slot is what keeps them."
+  - id: p4-pitr
+    phase: p4
+    skills: [postgresql.backup-recovery]
+    difficulty: 3
+    prompt: "Which recovery setting stops replay just before a bad DELETE at 10:15?"
+    options: ["recovery_target_time = '... 10:14:59'", "restore_command", "archive_timeout", "primary_conninfo"]
+    answer: 0
+    explanation: "With recovery_target_action = pause you can check the data before promoting."
+  - id: p4-dump-version
+    phase: p4
+    skills: [postgresql.backup-recovery]
+    difficulty: 2
+    prompt: "You must restore one table from a PostgreSQL 15 database into a PostgreSQL 17 server. Which backup kind allows that?"
+    options: ["A physical base backup", "A pg_dump in custom format, restored with pg_restore -t", "A copy of the data directory", "A replication slot"]
+    answer: 1
+    explanation: "Physical backups restore only to the same major version and the whole cluster."
+  - id: p4-top-query
+    phase: p4
+    skills: [postgresql.monitoring-tuning]
+    difficulty: 3
+    prompt: "To find what costs the server the most CPU time, how do you sort pg_stat_statements?"
+    options: ["By calls", "By mean_exec_time", "By total_exec_time", "By rows"]
+    answer: 2
+    explanation: "Total time captures fast queries that run millions of times."
+  - id: p4-sequence
+    phase: p4
+    skills: [postgresql.monitoring-tuning]
+    difficulty: 3
+    prompt: "Which view tells you how close each sequence is to its maximum value?"
+    answers: ["pg_sequences"]
+    explanation: "Compare last_value with max_value; integer keys stop at 2,147,483,647."

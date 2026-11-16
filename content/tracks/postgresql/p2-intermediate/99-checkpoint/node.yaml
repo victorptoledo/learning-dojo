@@ -1,0 +1,49 @@
+id: postgresql.p2.checkpoint
+kind: checkpoint
+status: reviewed
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz over the planner, locks, JSONB, full-text search and PL/pgSQL, and an integration kata over a help desk with a generated, indexed search vector, a ranked search with JSONB filters, audit and updated_at triggers, and a STABLE function that validates its input."
+objectives:
+  - { id: o1, text: "Explain plans and estimates, lock modes and the lock queue, JSONB indexing, full-text search and PL/pgSQL attributes in your own words", skills: [postgresql.query-planner, postgresql.locking, postgresql.jsonb, postgresql.full-text-search, postgresql.plpgsql] }
+  - { id: o2, text: "Build indexed full-text search with JSONB filters, an audit trail of changed columns with triggers, and a set-returning PL/pgSQL function", skills: [postgresql.full-text-search, postgresql.jsonb, postgresql.plpgsql, postgresql.query-planner] }
+prerequisites: [postgresql.p2.plpgsql]
+difficulty: 4
+estimated_minutes: 100
+xp: 450
+closes_phase: p2
+covers_skills: [postgresql.query-planner, postgresql.locking, postgresql.jsonb, postgresql.full-text-search, postgresql.plpgsql]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 120 }
+  hints:
+    - |-
+      A generated column's expression must be immutable: which argument of `to_tsvector` makes it so? Which index type serves `@@` and `@>`? For the audit, which trigger timing can change `NEW` before it is written, and which one sees the final row? How can you compare two rows column by column without naming the columns?
+    - |-
+      `doc tsvector GENERATED ALWAYS AS (setweight(to_tsvector('english', title), 'A') || setweight(to_tsvector('english', body), 'B')) STORED`, then `USING gin (doc)` and `USING gin (metadata jsonb_path_ops)`. Search with `websearch_to_tsquery('english', 'login error')` and `ORDER BY ts_rank(doc, q) DESC, id`. In the audit function, join `jsonb_each(to_jsonb(NEW) - 'updated_at' - 'doc')` with `jsonb_each(to_jsonb(OLD))` on the key and keep `IS DISTINCT FROM` values. The function is `LANGUAGE plpgsql STABLE` with `RAISE EXCEPTION ... USING ERRCODE = '22023'` and `RETURN QUERY`.
+    - |-
+      ```sql
+      -- audit.sql, the UPDATE branch of the trigger function
+      SELECT coalesce(jsonb_object_agg(n.key, jsonb_build_object('old', o.value, 'new', n.value)), '{}')
+      INTO v_changes
+      FROM jsonb_each(to_jsonb(NEW) - 'updated_at' - 'doc') AS n
+      JOIN jsonb_each(to_jsonb(OLD)) AS o ON o.key = n.key
+      WHERE n.value IS DISTINCT FROM o.value;
+
+      IF v_changes <> '{}' THEN
+          INSERT INTO audit_log (op, ticket_id, changes) VALUES ('UPDATE', NEW.id, v_changes);
+      END IF;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

@@ -1,0 +1,35 @@
+questions:
+  - id: update-is-insert
+    prompt: "What does UPDATE accounts SET balance = 80 WHERE id = 1 do to the table's heap?"
+    options: ["Overwrites the tuple in place", "Writes a new tuple and sets xmax of the old one", "Deletes the old tuple at once and inserts a new one", "Writes only to the WAL"]
+    answer: 1
+    explanation: "Every update creates a new row version. The old one stays, marked with xmax, until VACUUM or pruning removes it."
+  - id: xmin
+    prompt: "Which system column holds the id of the transaction that created a row version?"
+    answers: ["xmin"]
+    explanation: "xmin is the creator, xmax the deleter or locker, ctid the physical address."
+  - id: readers-writers
+    prompt: "Session A updates a row and has not committed. Session B runs SELECT on that row. What happens?"
+    options: ["B waits for A", "B sees A's new value", "B sees the last committed version at once", "B fails with a serialization error"]
+    answer: 2
+    explanation: "B's snapshot does not include A's uncommitted change, so B reads the previous version without waiting."
+  - id: long-transaction
+    prompt: "A report runs for two hours inside one REPEATABLE READ transaction. What does it do to the rest of the database?"
+    options: ["Nothing", "It blocks all writers", "VACUUM cannot remove tuples that died after the report's snapshot, so dead tuples pile up", "It disables autovacuum"]
+    answer: 2
+    explanation: "Its snapshot may need old versions, so cleanup stops behind it everywhere. Idle-in-transaction sessions do the same."
+  - id: hot-conditions
+    prompt: "Which two conditions make an update HOT?"
+    options: ["No indexed column changes, and the new version fits on the same page", "The table has no primary key, and fillfactor is 100", "The update is inside a transaction, and autovacuum is on", "Only one row is updated, and it is small"]
+    answer: 0
+    explanation: "HOT needs no change to indexed columns (BRIN aside, from 16) and free space on the page; then no index entry is written."
+  - id: fillfactor
+    prompt: "Why lower a table's fillfactor to 80?"
+    options: ["To compress the table", "To leave free space on each page so updates can stay on the page (HOT)", "To limit the number of rows", "To make sequential scans faster"]
+    answer: 1
+    explanation: "With fillfactor 100, inserts fill pages completely and new versions must go to another page, which forces index updates."
+  - id: visibility-map
+    prompt: "What lets an index-only scan skip visiting the table for a page?"
+    options: ["Hint bits", "The visibility map bit that says every tuple on the page is visible to all", "The primary key", "The free space map"]
+    answer: 1
+    explanation: "Indexes have no visibility information; VACUUM sets the all-visible bit, and any change on the page clears it."

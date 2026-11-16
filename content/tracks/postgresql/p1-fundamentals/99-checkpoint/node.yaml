@@ -1,0 +1,50 @@
+id: postgresql.p1.checkpoint
+kind: checkpoint
+status: reviewed
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata over room bookings, with a data clean-up, a domain, range checks and an exclusion constraint, array and range queries, role settings and per-table autovacuum."
+objectives:
+  - { id: o1, text: "Explain PostgreSQL's types, MVCC, HOT updates, VACUUM, wraparound and configuration levels in your own words", skills: [postgresql.data-types, postgresql.mvcc, postgresql.vacuum, postgresql.configuration] }
+  - { id: o2, text: "Migrate a table to domains, checks and an exclusion constraint after cleaning its data, query it with array and range operators, and configure a role and autovacuum", skills: [postgresql.data-types, postgresql.configuration, postgresql.vacuum] }
+prerequisites: [postgresql.p1.configuration]
+difficulty: 3
+estimated_minutes: 90
+xp: 400
+closes_phase: p1
+covers_skills: [postgresql.architecture, postgresql.data-types, postgresql.mvcc, postgresql.vacuum, postgresql.configuration]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 90 }
+  hints:
+    - |-
+      Why must the double bookings be cancelled **before** the exclusion constraint is added? For the clean-up, a booking must be cancelled when another confirmed booking of the same room overlaps it and was created earlier: that is an `EXISTS` on the same table. Which range functions tell you whether a bound is inclusive, infinite, or whether the range is empty? Which aggregate merges ranges?
+    - |-
+      `CREATE DOMAIN email AS text CHECK (VALUE ~ '^[^@[:space:]]+@[^@[:space:]]+$')`, then `ALTER TABLE bookings ALTER COLUMN organiser TYPE email, ALTER COLUMN attendees TYPE email[]`. The period check uses `isempty`, `lower_inc`, `upper_inc`, `lower_inf` and `upper_inf`. The exclusion constraint is `EXCLUDE USING gist (room_id WITH =, during WITH &&) WHERE (status = 'confirmed')`. For busy periods, `unnest(range_agg(during))` and then `lower()` and `upper()`. Role settings are `ALTER ROLE ... SET`.
+    - |-
+      ```sql
+      -- constraints.sql, step 1
+      UPDATE bookings AS b
+      SET status = 'cancelled'
+      WHERE b.status = 'confirmed'
+        AND EXISTS (
+            SELECT 1 FROM bookings AS e
+            WHERE e.room_id = b.room_id
+              AND e.status = 'confirmed'
+              AND e.during && b.during
+              AND (e.created_at, e.id) < (b.created_at, b.id)
+        );
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

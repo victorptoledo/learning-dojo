@@ -1,4 +1,20 @@
 namespace: postgresql
 skills:
+  - { id: postgresql.architecture, title: "PostgreSQL Architecture: Clusters, Processes, psql and the Catalogs" }
+  - { id: postgresql.data-types, title: "PostgreSQL Types: Arrays, Ranges, Enums, Domains and Exclusion Constraints" }
+  - { id: postgresql.mvcc, title: "MVCC Inside: Row Versions, Snapshots and HOT Updates" }
+  - { id: postgresql.vacuum, title: "VACUUM, Autovacuum, Bloat and Wraparound" }
+  - { id: postgresql.configuration, title: "Configuration: Settings, Memory and Logging" }
   - { id: postgresql.query-planner, title: "EXPLAIN (ANALYZE, BUFFERS): Reading the Query Planner" }
+  - { id: postgresql.locking, title: "Locks in Depth: Lock Modes, Waits, Deadlocks and Advisory Locks" }
+  - { id: postgresql.jsonb, title: "JSONB: Operators, jsonpath and Indexes" }
+  - { id: postgresql.full-text-search, title: "Full-Text Search and Trigrams" }
+  - { id: postgresql.plpgsql, title: "PL/pgSQL Functions, Procedures and Triggers" }
   - { id: postgresql.indexes-advanced, title: "Advanced Indexes: GIN, BRIN, Partial and Expression Indexes" }
+  - { id: postgresql.partitioning, title: "Declarative Partitioning" }
+  - { id: postgresql.security, title: "Roles, Privileges and Row-Level Security" }
+  - { id: postgresql.extensions, title: "Extensions" }
+  - { id: postgresql.connection-pooling, title: "Connections and Connection Pooling" }
+  - { id: postgresql.replication, title: "WAL, Replication and High Availability" }
+  - { id: postgresql.backup-recovery, title: "Backups, Point-in-Time Recovery and Upgrades" }
+  - { id: postgresql.monitoring-tuning, title: "Monitoring and Tuning in Production" }

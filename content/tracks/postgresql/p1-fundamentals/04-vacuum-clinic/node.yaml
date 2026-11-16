@@ -1,0 +1,50 @@
+id: postgresql.p1.vacuum-clinic
+kind: kata
+status: reviewed
+title: "Vacuum Clinic: HOT Updates, Autovacuum Triggers and Wraparound"
+summary: "Design an update-heavy table so its updates are HOT (checked with the transaction's own counters), compute which tables autovacuum should be vacuuming from a production export with per-table overrides, tune autovacuum per table, and report every database's distance to wraparound."
+objectives:
+  - { id: o1, text: "Create a table whose frequent updates are HOT, using fillfactor and leaving the updated column out of every index", skills: [postgresql.mvcc] }
+  - { id: o2, text: "Compute autovacuum's trigger from server settings and reloptions, and tune autovacuum per table with ALTER TABLE SET and RESET", skills: [postgresql.vacuum, postgresql.configuration] }
+  - { id: o3, text: "Report the age of datfrozenxid against autovacuum_freeze_max_age", skills: [postgresql.vacuum] }
+prerequisites: [postgresql.p1.vacuum]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 90 }
+  hints:
+    - |-
+      For `sessions.sql`: an update is HOT only when no indexed column changes and the new version fits on the same page. Which column changes on every request, and does any index need it? With the default fillfactor of 100, how much free space is left on a freshly filled page? For `vacuum_due.sql`, `reloptions` is a `text[]` of `name=value` strings: how do you turn one element into a name and a value?
+    - |-
+      `CREATE TABLE ... (...) WITH (fillfactor = 85)`, a `UNIQUE` on `token` (it brings its own index) and `CREATE INDEX ... (user_id)`; nothing on `last_seen`. For the options, `unnest(reloptions)` with `split_part(opt, '=', 1)` and `split_part(opt, '=', 2)`, then `coalesce(table_value, current_setting('autovacuum_vacuum_threshold')::bigint)`. `tune.sql` is two `ALTER TABLE` statements, one `SET (...)` and one `RESET (...)`.
+    - |-
+      ```sql
+      -- vacuum_due.sql
+      SELECT s.relname, s.n_dead_tup,
+             round(t.threshold + t.scale_factor * s.reltuples)::bigint AS vacuum_at,
+             ... AS autovacuum_disabled
+      FROM stats_snapshot AS s
+      CROSS JOIN LATERAL (
+          SELECT max(split_part(opt, '=', 2)) FILTER (WHERE split_part(opt, '=', 1) = 'autovacuum_vacuum_threshold')::bigint AS threshold,
+                 ...
+          FROM unnest(s.reloptions) AS opt
+      ) AS o
+      CROSS JOIN LATERAL (SELECT coalesce(o.threshold, ...) AS threshold, ... AS scale_factor) AS t
+      WHERE s.n_dead_tup > ...
+      ORDER BY s.relname;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

@@ -1,0 +1,2 @@
+-- todo: add the currency column and the balance check without queueing the application
+-- behind this migration.

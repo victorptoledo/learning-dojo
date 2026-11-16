@@ -1,0 +1,2 @@
+-- todo: create the table sessions (id, user_id, token, last_seen, created_at) so that the
+-- constant updates of last_seen are HOT, and lookups by user_id and token stay fast.

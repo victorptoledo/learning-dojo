@@ -1,0 +1,40 @@
+questions:
+  - id: select-vs-update
+    prompt: "Session A runs a long SELECT on orders. Session B runs UPDATE orders SET ... on other rows. Does B wait?"
+    options: ["Yes, for the whole SELECT", "No: ACCESS SHARE and ROW EXCLUSIVE do not conflict", "Only under SERIALIZABLE", "Only if both touch the same index"]
+    answer: 1
+    explanation: "Reads and writes do not block each other at the table level; MVCC gives the reader its snapshot."
+  - id: lock-queue
+    prompt: "A 5-minute report is reading orders when a migration runs ALTER TABLE orders ADD COLUMN note text. What happens to new SELECTs on orders?"
+    options: ["They run normally", "They queue behind the waiting ALTER TABLE until the report and the migration finish", "They fail at once", "They read the old version of the table"]
+    answer: 1
+    explanation: "The ALTER waits for ACCESS EXCLUSIVE; later requests that conflict with it queue behind it. lock_timeout on the migration prevents this."
+  - id: lock-timeout
+    prompt: "Which setting makes a statement give up waiting for a lock after a given time, with SQLSTATE 55P03?"
+    answers: ["lock_timeout"]
+    explanation: "Give migrations a short lock_timeout and retry; statement_timeout limits the whole statement instead."
+  - id: create-index
+    prompt: "Why use CREATE INDEX CONCURRENTLY on a busy table?"
+    options: ["It is faster", "Plain CREATE INDEX takes a SHARE lock that blocks writes for the whole build", "It creates a unique index", "It can run inside a transaction"]
+    answer: 1
+    explanation: "CONCURRENTLY takes a weaker lock and lets writes continue; it is slower and cannot run in a transaction block."
+  - id: not-valid
+    prompt: "What does ALTER TABLE orders ADD CONSTRAINT positive CHECK (total >= 0) NOT VALID do?"
+    options: ["Adds a disabled constraint", "Checks new and changed rows from now on without scanning existing ones; VALIDATE CONSTRAINT scans them later with a weaker lock", "Ignores the constraint for superusers", "Deletes invalid rows"]
+    answer: 1
+    explanation: "Splitting the add and the validation keeps the strong lock short."
+  - id: blocking-pids
+    prompt: "Which function returns the process ids that block a given backend?"
+    options: ["pg_locks(pid)", "pg_blocking_pids(pid)", "pg_cancel_backend(pid)", "pg_stat_get_wait(pid)"]
+    answer: 1
+    explanation: "pg_blocking_pids includes conflicting holders and conflicting requests ahead in the queue."
+  - id: idle-blocker
+    prompt: "The blocker is a session in state idle in transaction. Which function ends its transaction?"
+    options: ["pg_cancel_backend(pid)", "pg_terminate_backend(pid)", "pg_advisory_unlock_all()", "VACUUM"]
+    answer: 1
+    explanation: "It runs no statement, so there is nothing to cancel; terminating the session rolls the transaction back."
+  - id: advisory-pooler
+    prompt: "Why prefer pg_try_advisory_xact_lock over pg_try_advisory_lock behind PgBouncer in transaction mode?"
+    options: ["It is faster", "A session-level lock stays with a server connection your next transaction may not get; a transaction-level one is released at commit", "Session locks are not supported", "It locks a row"]
+    answer: 1
+    explanation: "Transaction pooling hands out connections per transaction, so session state, including session advisory locks, cannot be relied on."

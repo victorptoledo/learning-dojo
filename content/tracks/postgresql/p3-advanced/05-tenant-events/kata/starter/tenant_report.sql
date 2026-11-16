@@ -1,0 +1,1 @@
+-- todo: the current tenant's events of November 2026, by kind.

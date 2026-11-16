@@ -1,0 +1,35 @@
+questions:
+  - id: preload
+    prompt: "CREATE EXTENSION pg_stat_statements succeeds, but the view says pg_stat_statements must be loaded via shared_preload_libraries. What is needed?"
+    options: ["Nothing more", "Adding it to shared_preload_libraries and restarting the server", "A reload", "Reinstalling the extension in every database"]
+    answer: 1
+    explanation: "Extensions that hook into the server at startup (pg_stat_statements, auto_explain, pg_cron) need shared_preload_libraries and a restart."
+  - id: per-database
+    prompt: "pg_trgm is installed in the database shop. Is it available in the database billing of the same cluster?"
+    options: ["Yes, extensions are cluster-wide", "No, CREATE EXTENSION is per database", "Only for superusers", "Only after a restart"]
+    answer: 1
+    explanation: "Extensions create objects in one database; run CREATE EXTENSION in each database that needs it."
+  - id: vector
+    prompt: "Which extension adds a vector type and HNSW indexes for similarity search over embeddings?"
+    answers: ["pgvector", "vector"]
+    explanation: "pgvector is not part of PostgreSQL itself but is widely packaged and offered by managed services."
+  - id: connection-count
+    prompt: "A server with 16 cores has 900 connections, 25 of them active. What is the main improvement?"
+    options: ["Raise max_connections to 2000", "Put a transaction-mode pooler in front and shrink the application pools", "Add more work_mem", "Restart the server every night"]
+    answer: 1
+    explanation: "Idle processes cost memory and slow snapshots; a pooler lets many clients share a few server connections."
+  - id: transaction-mode-set
+    prompt: "Behind PgBouncer in transaction mode, an application runs SET search_path = tenant_42 once after connecting. What can happen?"
+    options: ["Nothing: it works as usual", "Later transactions may run on another server connection without it, and other clients may inherit it", "PgBouncer rejects SET", "The setting becomes cluster-wide"]
+    answer: 1
+    explanation: "Session state does not follow a client in transaction mode; use SET LOCAL inside each transaction."
+  - id: modes
+    prompt: "In which PgBouncer mode is a server connection given back to the pool after each transaction?"
+    options: ["session", "transaction", "statement", "replication"]
+    answer: 1
+    explanation: "Transaction mode is the usual choice; session mode gains little, statement mode allows no multi-statement transactions."
+  - id: fdw
+    prompt: "Which extension lets a query read tables of another PostgreSQL server as if they were local?"
+    options: ["pg_trgm", "postgres_fdw", "pgcrypto", "citext"]
+    answer: 1
+    explanation: "postgres_fdw is a foreign data wrapper; conditions are pushed down to the remote server when possible."

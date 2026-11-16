@@ -1,0 +1,1 @@
+-- todo: the role app_api, its privileges, and the row-level security that keeps tenants apart.

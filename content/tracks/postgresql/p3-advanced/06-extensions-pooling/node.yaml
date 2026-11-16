@@ -1,0 +1,23 @@
+id: postgresql.p3.extensions-pooling
+kind: lesson
+status: reviewed
+title: "Extensions and Connection Pooling"
+summary: "How extensions are installed, preloaded, trusted and upgraded, the contrib modules and big external extensions worth knowing (pg_stat_statements, pg_trgm, postgres_fdw, PostGIS, pgvector, TimescaleDB), why every connection costs a process, how to size pools, and what PgBouncer's pooling modes allow and break."
+objectives:
+  - { id: o1, text: "Install, preload, upgrade and choose extensions, including postgres_fdw for remote tables", skills: [postgresql.extensions] }
+  - { id: o2, text: "Explain the cost of connections, size application pools and read pg_stat_activity by state", skills: [postgresql.connection-pooling] }
+  - { id: o3, text: "Choose a PgBouncer pooling mode and avoid the session features that transaction mode breaks", skills: [postgresql.connection-pooling] }
+prerequisites: [postgresql.p3.tenant-events]
+difficulty: 3
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A product runs 40 Kubernetes pods, each with a pool of 25 connections, against a managed PostgreSQL 17 with 8 vCPUs and max_connections = 1100. At peak, CPU is at 95%, pg_stat_activity shows about 60 active and 900 idle connections, and latency is poor. The team also wants semantic search over product descriptions and asks whether they need a separate vector database. Explain what is wrong with the connection setup, propose a pooling design with numbers and the PgBouncer mode, list what the application must change to work behind it, and answer the vector search question.'
+  criteria:
+    - 'Explains that 1,000 server processes and 60 active ones on 8 cores cause contention and memory use, and that active connections should be near a small multiple of the cores'
+    - 'Proposes PgBouncer (or the provider''s pooler) in transaction mode with a small server pool (for example 16–32) and smaller per-pod pools'
+    - 'Lists the session features to remove or change: session SET (use SET LOCAL), session advisory locks, LISTEN, temporary tables, and prepared statements on older PgBouncer versions'
+    - 'Suggests the pgvector extension (with an HNSW index) if the provider supports it, and when a separate system would be justified'

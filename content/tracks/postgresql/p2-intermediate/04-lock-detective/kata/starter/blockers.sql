@@ -1,0 +1,2 @@
+-- todo: every session waiting for a lock, with each session that blocks it: waiting,
+-- blocked_by, blocker_state, blocker_query.

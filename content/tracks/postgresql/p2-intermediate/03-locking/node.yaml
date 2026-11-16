@@ -1,0 +1,23 @@
+id: postgresql.p2.locking
+kind: lesson
+status: reviewed
+title: "Locks in Depth: Lock Modes, Waits, Deadlocks and Advisory Locks"
+summary: "The eight table lock modes and which statements take them, the lock queue that turns a quick ALTER TABLE into an outage, safe schema changes with lock_timeout, NOT VALID and CONCURRENTLY, row lock strengths and foreign keys, finding blockers with pg_blocking_pids, deadlocks, and advisory locks."
+objectives:
+  - { id: o1, text: "Name the lock each common statement takes and predict which statements block each other, including through the lock queue", skills: [postgresql.locking] }
+  - { id: o2, text: "Write schema changes that keep strong locks short: lock_timeout, NOT VALID with VALIDATE, CREATE INDEX CONCURRENTLY", skills: [postgresql.locking] }
+  - { id: o3, text: "Find blocking chains with pg_stat_activity and pg_blocking_pids, end blockers, and use advisory locks", skills: [postgresql.locking] }
+prerequisites: [postgresql.p2.plan-detective]
+difficulty: 4
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'At 14:02 the API started timing out on every request that touches the orders table, and the connection pool is exhausted. At 14:01 a deployment ran a migration with ALTER TABLE orders ALTER COLUMN status SET NOT NULL. A support engineer had opened psql at 13:30, run BEGIN and an UPDATE on one order, and gone to lunch. Explain the chain of waits that caused the outage, the query you would run to confirm it, what you would do right now, and how you would rewrite the migration and change the configuration so it cannot happen again.'
+  criteria:
+    - 'Explains that the support session holds ROW EXCLUSIVE (and a row lock) while idle in transaction, the ALTER waits for ACCESS EXCLUSIVE, and every later query queues behind the ALTER'
+    - 'Gives a query over pg_stat_activity with pg_blocking_pids that shows the waiting sessions, the migration and the idle-in-transaction blocker'
+    - 'Ends the blocker with pg_terminate_backend (cancel would not help an idle session) or cancels the migration'
+    - 'Rewrites the migration with SET lock_timeout and a retry, and SET NOT NULL via a CHECK ... NOT VALID plus VALIDATE CONSTRAINT; sets idle_in_transaction_session_timeout'

@@ -1,0 +1,2 @@
+-- todo: the most common values of orders.status and their frequencies, as the planner sees
+-- them.

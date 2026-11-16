@@ -1,0 +1,40 @@
+questions:
+  - id: containment
+    prompt: "attrs is '{\"brand\": \"Kestrel\", \"sizes\": [40, 41, 42]}'. Which condition is true?"
+    options: ["attrs @> '{\"sizes\": [41, 42]}'", "attrs @> '{\"sizes\": 41}'", "attrs = '{\"brand\": \"Kestrel\"}'", "attrs ? 'Kestrel'"]
+    answer: 0
+    explanation: "An array contains another array when it has all its elements. ? tests keys (or array string elements) at the top level."
+  - id: gin-vs-arrow
+    prompt: "products has a GIN index on attrs. Which query can use it?"
+    options: ["WHERE attrs ->> 'brand' = 'Kestrel'", "WHERE attrs @> '{\"brand\": \"Kestrel\"}'", "WHERE lower(attrs::text) LIKE '%kestrel%'", "WHERE attrs -> 'brand' IS NOT NULL"]
+    answer: 1
+    explanation: "GIN on jsonb serves @>, ?, ?|, ?& and jsonpath operators; ->> equality needs a B-tree on the expression."
+  - id: path-ops
+    prompt: "What does the jsonb_path_ops operator class give up compared with the default jsonb_ops?"
+    options: ["Containment queries", "The key-existence operators ?, ?| and ?&", "Nothing", "Support for nested documents"]
+    answer: 1
+    explanation: "jsonb_path_ops indexes paths and values only, so it is smaller and faster for @> but cannot answer key-existence questions."
+  - id: jsonb-set
+    prompt: "Which function replaces the value at the path {specs,weight_g} inside a jsonb document?"
+    answers: ["jsonb_set", "jsonb_set()"]
+    explanation: "jsonb_set(doc, path, new_value) returns a new document; the UPDATE writes the whole document again."
+  - id: stemming
+    prompt: "Why does to_tsvector('english', 'logged') @@ to_tsquery('english', 'logging') return true?"
+    options: ["Because @@ is a LIKE", "Because both are reduced by the English stemmer to the same lexeme", "Because of trigrams", "It returns false"]
+    answer: 1
+    explanation: "The configuration's stemmer normalises word forms; that is the main gain over LIKE."
+  - id: websearch
+    prompt: "Which function safely turns what a user typed in a search box ('\"log in\" -password') into a tsquery?"
+    options: ["to_tsquery", "websearch_to_tsquery", "to_tsvector", "ts_headline"]
+    answer: 1
+    explanation: "websearch_to_tsquery understands quotes, or and minus and never raises a syntax error; to_tsquery needs its strict syntax."
+  - id: immutable-config
+    prompt: "Why must a generated tsvector column call to_tsvector('english', body) and not to_tsvector(body)?"
+    options: ["The one-argument form is slower", "The one-argument form depends on default_text_search_config, so it is not immutable", "Generated columns cannot call functions", "There is no difference"]
+    answer: 1
+    explanation: "Generated columns and index expressions need immutable expressions; naming the configuration makes it so."
+  - id: trigram
+    prompt: "Users search customer names with typos ('Jonh Smiht'). Which tool fits best?"
+    options: ["Full-text search with the english configuration", "pg_trgm similarity with a trigram index", "A B-tree on name", "jsonpath"]
+    answer: 1
+    explanation: "Trigram similarity tolerates typos and fragments; full-text search matches whole, stemmed words."

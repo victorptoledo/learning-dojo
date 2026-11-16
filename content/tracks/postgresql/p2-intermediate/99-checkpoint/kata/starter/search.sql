@@ -1,0 +1,2 @@
+-- todo: a stored, searchable tsvector column doc (title weighted above body) and the
+-- indexes that make searches and metadata filters fast.

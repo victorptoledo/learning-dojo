@@ -1,0 +1,23 @@
+id: postgresql.p2.plpgsql
+kind: lesson
+status: reviewed
+title: "PL/pgSQL Functions, Procedures and Triggers"
+summary: "SQL and PL/pgSQL functions, the PL/pgSQL you need (INTO, FOUND, RETURN QUERY, RAISE, exceptions, safe dynamic SQL), volatility, STRICT, PARALLEL SAFE and SECURITY DEFINER, procedures that commit, and trigger patterns: updated_at, audit trails, WHEN clauses and statement triggers with transition tables."
+objectives:
+  - { id: o1, text: "Write SQL and PL/pgSQL functions with variables, branches, loops, errors and safe dynamic SQL", skills: [postgresql.plpgsql] }
+  - { id: o2, text: "Choose volatility, STRICT, PARALLEL SAFE and SECURITY DEFINER with a fixed search_path correctly, and use procedures for batch jobs", skills: [postgresql.plpgsql] }
+  - { id: o3, text: "Write row and statement triggers with NEW, OLD, TG_OP, WHEN and transition tables, and know their pitfalls", skills: [postgresql.plpgsql] }
+prerequisites: [postgresql.p2.jsonb-full-text]
+difficulty: 3
+estimated_minutes: 65
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A team wants every change to the invoices table to be recorded (who, when, what changed), wants updated_at to be correct even when someone fixes data in psql, and wants a nightly job that deletes 50 million old invoice lines without blocking the application. They also have a function current_rate(currency) that reads a rates table, marked IMMUTABLE "because it is faster". Design the triggers and the job, write the trigger functions, and explain what is wrong with current_rate and what to do instead.'
+  criteria:
+    - 'Writes a BEFORE UPDATE row trigger that sets NEW.updated_at and returns NEW'
+    - 'Writes an AFTER INSERT OR UPDATE OR DELETE audit trigger using TG_OP, OLD and NEW with to_jsonb, and current_user or a session setting for who; mentions a WHEN clause or a statement trigger with transition tables for bulk changes'
+    - 'Writes the purge as a PROCEDURE that deletes in batches and COMMITs between them, called with CALL'
+    - 'Explains that current_rate reads a table so it is STABLE, that IMMUTABLE can return stale results or corrupt indexes, and suggests STABLE (and SECURITY DEFINER only with a fixed search_path if needed)'

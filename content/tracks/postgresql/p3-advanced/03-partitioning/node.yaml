@@ -1,0 +1,23 @@
+id: postgresql.p3.partitioning
+kind: lesson
+status: reviewed
+title: "Declarative Partitioning"
+summary: "Range, list and hash partitioning, the default partition, partition pruning, the rules on keys, indexes and foreign keys, retention with DETACH (CONCURRENTLY) and DROP, bulk loads with ATTACH, automating future partitions, and when partitioning is worth it."
+objectives:
+  - { id: o1, text: "Create range, list and hash partitioned tables with a default partition and keys that include the partition key", skills: [postgresql.partitioning] }
+  - { id: o2, text: "Write queries that prune partitions and read plans that show it", skills: [postgresql.partitioning, postgresql.query-planner] }
+  - { id: o3, text: "Implement retention and bulk loads with DETACH, DROP and ATTACH, and decide when partitioning pays off", skills: [postgresql.partitioning] }
+prerequisites: [postgresql.p3.index-lab]
+difficulty: 4
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An audit_events table grows by 30 GB a month and must keep 13 months of data; a nightly DELETE of the oldest day takes three hours and leaves the table bloated. Nearly every query filters on created_at and tenant_id. Design a partitioned replacement: the CREATE TABLE statements for the parent and two monthly partitions, the primary key, the index you would add, and the monthly job (what it creates, what it removes and how). Explain how you would migrate the existing 400 GB table and which queries would get slower.'
+  criteria:
+    - 'Partitions by RANGE (created_at) monthly with a PRIMARY KEY that includes created_at, and an index such as (tenant_id, created_at) created on the parent'
+    - 'The monthly job creates next month''s partition (or two) ahead of time and removes the 14th month with DETACH PARTITION (CONCURRENTLY) and DROP TABLE, instead of DELETE'
+    - 'Mentions a DEFAULT partition (kept empty and monitored) or alerts for missing partitions'
+    - 'Describes a migration (attach the old table as a partition with a matching CHECK, or copy in batches / logical replication) and notes that queries without a created_at filter read every partition'

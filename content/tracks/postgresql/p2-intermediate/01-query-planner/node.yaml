@@ -1,14 +1,24 @@
 id: postgresql.p2.query-planner
 legacy_id: pg-01-query-planner
 kind: lesson
-status: draft
+status: reviewed
 title: "EXPLAIN (ANALYZE, BUFFERS): Reading the Query Planner"
-summary: "Spotting Seq Scan, Index Scan and Bitmap Heap Scan to turn minute-long queries into milliseconds."
+summary: "How the planner estimates and chooses, the options of EXPLAIN, reading estimated against actual rows, loops and buffers, the scan and join nodes and when each wins, where estimates come from (pg_stats, extended statistics), why they go wrong, and generic plans of prepared statements."
 objectives:
-  - { id: o1, text: "Spotting Seq Scan, Index Scan and Bitmap Heap Scan to turn minute-long queries into milliseconds.", skills: [postgresql.query-planner] }
-prerequisites: []
+  - { id: o1, text: "Read EXPLAIN (ANALYZE, BUFFERS): estimated versus actual rows, loops, buffers, filters and spills", skills: [postgresql.query-planner] }
+  - { id: o2, text: "Explain when the planner picks seq, index, index-only and bitmap scans, and nested loop, hash and merge joins", skills: [postgresql.query-planner] }
+  - { id: o3, text: "Read pg_stats and fix bad estimates with ANALYZE, statistics targets and CREATE STATISTICS", skills: [postgresql.query-planner] }
+prerequisites: [postgresql.p1.checkpoint]
 difficulty: 3
-estimated_minutes: 30
-xp: 150
+estimated_minutes: 60
+xp: 200
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An endpoint that lists the orders of customers in one city became slow after a data import. Its plan shows a Nested Loop whose outer side is "Seq Scan on addresses (rows=12) (actual rows=48210 loops=1)" with Filter: city = ''Porto'' AND country = ''PT'', and an inner "Index Scan using orders_customer on orders (actual rows=3 loops=48210)". Explain what this plan says, why the planner chose it, two possible causes of the wrong estimate, how you would confirm each from the catalogs, and how you would fix it without changing planner settings.'
+  criteria:
+    - 'Reads the plan: the outer side returned about 4,000 times more rows than estimated, so the inner index scan ran 48,210 times'
+    - 'Explains that the nested loop was chosen because 12 outer rows made it look cheapest, and that a hash join would fit the real numbers'
+    - 'Names stale statistics after the import (check last_analyze / last_autoanalyze and n_mod_since_analyze, fix with ANALYZE) and correlated columns (city implies country; fix with CREATE STATISTICS ... dependencies ON city, country plus ANALYZE)'
+    - 'Rejects enable_nestloop = off as a fix and verifies the result with a new EXPLAIN ANALYZE'

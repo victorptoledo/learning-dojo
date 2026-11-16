@@ -1,0 +1,23 @@
+id: postgresql.p1.configuration
+kind: lesson
+status: reviewed
+title: "Configuration: Settings, Memory, Timeouts and Logging"
+summary: "Where a setting's value comes from (files, ALTER SYSTEM, database, role, session, transaction), what a change needs (restart, reload or SET), the memory settings and why work_mem is per operation, the timeouts every application role needs, and the logging that answers most performance questions."
+objectives:
+  - { id: o1, text: "Explain the levels at which a setting can be set and read its source and context in pg_settings", skills: [postgresql.configuration] }
+  - { id: o2, text: "Size shared_buffers, effective_cache_size, work_mem and maintenance_work_mem, and raise work_mem per role or transaction", skills: [postgresql.configuration] }
+  - { id: o3, text: "Set statement, lock and idle-in-transaction timeouts per role, and configure useful logging", skills: [postgresql.configuration] }
+prerequisites: [postgresql.p1.vacuum-clinic]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You inherit a dedicated 64 GB PostgreSQL 17 server with every setting at its default and max_connections = 300. An API (role api) runs short queries, a reporting tool (role reporting) runs big aggregations, and nightly migrations run as role migrator. Write the configuration you would apply (which settings in postgresql.conf or with ALTER SYSTEM, which with ALTER ROLE), say for each whether it needs a restart or a reload, and explain your values for shared_buffers, effective_cache_size and work_mem.'
+  criteria:
+    - 'Sets shared_buffers around 16 GB (25%) and effective_cache_size around 40–48 GB, and says shared_buffers needs a restart'
+    - 'Keeps the global work_mem modest and raises it with ALTER ROLE reporting SET work_mem, explaining that work_mem applies per sort or hash per backend'
+    - 'Gives api a statement_timeout and idle_in_transaction_session_timeout, and migrator a lock_timeout, all with ALTER ROLE'
+    - 'Enables useful logging (log_min_duration_statement, log_lock_waits, log_temp_files, log_autovacuum_min_duration) and notes these need only a reload; questions max_connections = 300 and suggests a pool'

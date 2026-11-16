@@ -1,0 +1,40 @@
+questions:
+  - id: brin-when
+    prompt: "An events table gets 50 million rows a day, always inserted in time order, and is queried by time range. Which index is tiny and still effective on at?"
+    options: ["Hash", "BRIN", "GIN", "A partial B-tree"]
+    answer: 1
+    explanation: "BRIN stores min and max per block range; it works because the values follow the physical order."
+  - id: brin-random
+    prompt: "Why is a BRIN index on customer_id of the same events table nearly useless?"
+    options: ["BRIN only supports timestamps", "customer_id values are scattered over all pages, so every block range's min and max cover almost everything", "customer_id is not unique", "BRIN cannot be used with equality"]
+    answer: 1
+    explanation: "BRIN needs correlation between values and physical position (check pg_stats.correlation)."
+  - id: gin-for
+    prompt: "Which index type serves tags @> ARRAY['postgres'] on a text[] column?"
+    answers: ["GIN", "gin"]
+    explanation: "GIN indexes each element of the array, like a book's index."
+  - id: partial-unique
+    prompt: "How do you allow many cancelled subscriptions per user but only one active one?"
+    options: ["UNIQUE (user_id, status)", "CREATE UNIQUE INDEX ON subscriptions (user_id) WHERE status = 'active'", "A CHECK constraint", "An exclusion constraint on status"]
+    answer: 1
+    explanation: "A partial unique index enforces uniqueness only among the rows matching its WHERE."
+  - id: expression-use
+    prompt: "There is an index on lower(email). Which query can use it?"
+    options: ["WHERE email = 'ana@example.com'", "WHERE lower(email) = 'ana@example.com'", "WHERE upper(email) = 'ANA@EXAMPLE.COM'", "WHERE email ILIKE 'ana@example.com'"]
+    answer: 1
+    explanation: "An expression index serves queries that use the same expression."
+  - id: include
+    prompt: "What does CREATE INDEX ON orders (customer_id) INCLUDE (total) allow?"
+    options: ["Sorting by total", "An index-only scan for SELECT total ... WHERE customer_id = 42, without making total part of the key", "Uniqueness on total", "A GIN search on total"]
+    answer: 1
+    explanation: "INCLUDE columns live in the leaf pages only: they can be returned but not searched."
+  - id: like-middle
+    prompt: "Which index makes WHERE name ILIKE '%smit%' fast?"
+    options: ["A B-tree on name", "A B-tree on lower(name)", "A GIN (or GiST) index with gin_trgm_ops from pg_trgm", "BRIN"]
+    answer: 2
+    explanation: "Trigram indexes support LIKE and ILIKE with leading wildcards; B-trees only help with prefixes."
+  - id: unused
+    prompt: "Which view shows how many times each index was scanned?"
+    options: ["pg_indexes", "pg_stat_user_indexes", "pg_stats", "pg_locks"]
+    answer: 1
+    explanation: "idx_scan = 0 over a long period (on every server) marks an index that only costs writes."

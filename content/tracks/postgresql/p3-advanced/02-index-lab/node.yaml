@@ -1,0 +1,41 @@
+id: postgresql.p3.index-lab
+kind: kata
+status: reviewed
+title: "Index Lab: The Right Index for Each Workload"
+summary: "Give six workloads their index (BRIN for time ranges, GIN for arrays and jsonb, a unique expression index for emails, a partial index for a queue, trigrams for fragments, INCLUDE for an index-only scan) and write two queries that use them, checked through plans, index types and sizes."
+objectives:
+  - { id: o1, text: "Choose BRIN, GIN, trigram GIN and B-tree indexes from the shape of the data and the operators of the query", skills: [postgresql.indexes-advanced] }
+  - { id: o2, text: "Write partial, unique expression and covering indexes, and queries that match them", skills: [postgresql.indexes-advanced, postgresql.query-planner] }
+prerequisites: [postgresql.p3.indexes-advanced]
+difficulty: 4
+estimated_minutes: 60
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 120 }
+  hints:
+    - |-
+      For each table, ask two questions: which operator does the query use (`=`, a range, `@>`, `ILIKE '%x%'`), and how is the data laid out (appended in order? only a few rows matter?). Which index type stores only a minimum and a maximum per block of pages? Which one can enforce uniqueness on `lower(email)`? Which one indexes only the rows a `WHERE` selects?
+    - |-
+      `USING brin (at)` for events; `USING gin (tags)` and `USING gin (attrs jsonb_path_ops)` for products; `CREATE UNIQUE INDEX ... (lower(email))`; `CREATE INDEX ... ON jobs (run_at) WHERE status = 'pending'`; `CREATE EXTENSION IF NOT EXISTS pg_trgm` and `USING gin (name gin_trgm_ops)`; and `ON orders (customer_id) INCLUDE (total)`. In `login.sql`, compare `lower(email)` with `lower('...')`.
+    - |-
+      ```sql
+      -- indexes.sql (part)
+      CREATE INDEX events_at_brin ON events USING brin (at);
+      CREATE UNIQUE INDEX users_email_lower ON users (lower(email));
+      CREATE INDEX jobs_pending ON jobs (run_at) WHERE ...;
+      CREATE INDEX orders_customer ON orders (customer_id) INCLUDE (...);
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

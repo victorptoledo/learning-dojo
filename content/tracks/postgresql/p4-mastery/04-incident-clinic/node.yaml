@@ -1,0 +1,46 @@
+id: postgresql.p4.incident-clinic
+kind: kata
+status: reviewed
+title: "Incident Clinic: Vacuum Blockers, Exhausted Sequences and Top Queries"
+summary: "Four production tickets: find the sessions that hold back VACUUM (with real sessions), report sequences that used more than 75% of their range, rank statements from a pg_stat_statements export by total time with their share and hit ratio, and widen a serial key and its sequence to bigint."
+objectives:
+  - { id: o1, text: "Find the sessions that hold back the xmin horizon from backend_xmin and backend_xid", skills: [postgresql.vacuum, postgresql.monitoring-tuning] }
+  - { id: o2, text: "Monitor sequence usage in pg_sequences and widen an integer key and its sequence", skills: [postgresql.monitoring-tuning] }
+  - { id: o3, text: "Rank statements from pg_stat_statements data by total time, share and cache hit ratio", skills: [postgresql.monitoring-tuning] }
+prerequisites: [postgresql.p4.monitoring-tuning]
+difficulty: 4
+estimated_minutes: 60
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 120 }
+  hints:
+    - |-
+      Which two columns of `pg_stat_activity` say that a session keeps a snapshot or a transaction id? Does a session that only ran `BEGIN` have either yet? For sequences, which view shows `last_value`, `max_value` and `data_type` for every sequence? For the statements, which window function gives a share of a total without a second query? For the key, how many objects must change: the column, the columns that reference it, and what else?
+    - |-
+      `WHERE pid <> pg_backend_pid() AND (backend_xmin IS NOT NULL OR backend_xid IS NOT NULL)`. In `pg_sequences`, `last_value IS NOT NULL AND last_value > 0.75 * max_value` and `round(100.0 * last_value / max_value, 1)`. For the share, `100.0 * total_exec_time / sum(total_exec_time) OVER ()`; `nullif(hits + reads, 0)` avoids a division by zero. For the key: `ALTER TABLE ... ALTER COLUMN ... TYPE bigint` on both tables, then `ALTER SEQUENCE orders_id_seq AS bigint`.
+    - |-
+      ```sql
+      -- top_queries.sql
+      SELECT queryid,
+             round(total_exec_time / 1000) AS total_seconds,
+             round((100.0 * total_exec_time / sum(total_exec_time) OVER ())::numeric, 1) AS percent_of_total,
+             round((total_exec_time / calls)::numeric, 2) AS mean_ms,
+             round(100.0 * shared_blks_hit / nullif(..., 0), 1) AS hit_percent
+      FROM statements_snapshot
+      ORDER BY ... DESC
+      LIMIT 3;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

@@ -1,0 +1,23 @@
+id: postgresql.p1.mvcc
+kind: lesson
+status: reviewed
+title: "MVCC Inside: Row Versions, Snapshots and HOT Updates"
+summary: "What a row version (tuple) is, how xmin, xmax and snapshots decide what a transaction sees, why every UPDATE writes a new tuple and touches every index, how HOT updates and fillfactor avoid that, and what the visibility map does for index-only scans."
+objectives:
+  - { id: o1, text: "Explain tuples, ctid, xmin and xmax, and show that an UPDATE writes a new version", skills: [postgresql.mvcc] }
+  - { id: o2, text: "Explain how a snapshot decides visibility, and why long and idle-in-transaction sessions stop cleanup", skills: [postgresql.mvcc] }
+  - { id: o3, text: "Make update-heavy tables use HOT updates with fillfactor and careful indexing, and measure the HOT ratio", skills: [postgresql.mvcc] }
+prerequisites: [postgresql.p1.data-types]
+difficulty: 3
+estimated_minutes: 55
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A sessions table (id, user_id, token, last_seen_at, created_at) gets an UPDATE of last_seen_at on every request, about 2,000 per second. It has indexes on user_id, token and last_seen_at (used by a nightly job that deletes sessions older than 30 days). pg_stat_user_tables shows n_tup_hot_upd at 0 and the indexes keep growing. Explain, at the level of tuples and index entries, what each of those updates writes, why none of them is HOT, and what you would change. Include the statements.'
+  criteria:
+    - 'Explains that each update writes a new heap tuple and a new entry in all three indexes, leaving dead tuples and dead index entries'
+    - 'Identifies the index on last_seen_at as what disables HOT, and the default fillfactor 100 as the lack of room on the page'
+    - 'Proposes dropping or replacing the last_seen_at index (for example a BRIN index from PostgreSQL 16, or deleting by created_at or in batches) and setting fillfactor to about 80 with ALTER TABLE ... SET (fillfactor = 80), noting that it only applies to new pages unless the table is rewritten'
+    - 'Says how to verify with n_tup_hot_upd versus n_tup_upd in pg_stat_user_tables'
