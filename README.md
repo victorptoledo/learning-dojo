@@ -46,77 +46,43 @@ of your choice.
 
 ### Tracks
 
-16 tracks are complete, with 378 lessons and checkpoints and 133 katas between them:
-16 tracks are complete, with 378 lessons and checkpoints and 132 katas between them:
-16 tracks are complete, with 376 lessons and checkpoints and 133 katas between them:
-16 tracks are complete, with 377 lessons and checkpoints and 133 katas between them:
-16 tracks are complete, with 377 lessons and checkpoints and 134 katas between them:
+All 30 tracks are complete, with 721 lessons and checkpoints and 258 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
 | Rust | Rust 2024 edition | 22 | 7 | `dojo-rust` (cargo test) |
 | Modern Java | Java 25 | 22 | 7 | `dojo-java` (JUnit 6) |
-| Spring Boot | Boot 4.1 on Java 25 | 22 | 7 | `dojo-java` (MockMvc, JPA on H2, Spring Security) |
-| Backend Developer | HTTP, auth, data, reliability | 22 | 8 | `dojo-java` |
-| Linux | Debian 13, bash 5.2 | 23 | 8 | `dojo-linux` (bats, ShellCheck) |
-| Git & GitHub | Git from the object model to rescues | 25 | 9 | `dojo-linux` (bash scripts that drive `git`) |
-| System Design | building blocks of large systems | 23 | 10 | `dojo-java` |
-| Docker & Containers | images, Compose, production | 25 | 9 | your Docker engine + `dojo-docker` (hadolint, bats) |
-| SQL & Relational Databases | standard SQL on PostgreSQL 17 | 25 | 8 | `dojo-sql` (a throwaway PostgreSQL 17) |
-| PostgreSQL | PostgreSQL 17 internals and operations | 25 | 9 | `dojo-sql` (other sessions opened with dblink for lock katas) |
 | Modern Python | Python 3.15 | 24 | 7 | `dojo-python` (pytest, ruff) |
 | Go | Go 1.27 | 23 | 8 | `dojo-go` (go test -race, go vet, gofmt) |
 | TypeScript | TypeScript 7 on Node.js 26 | 23 | 9 | `dojo-node` (tsc, node:test) |
 | Node.js | Node.js 26 backends in TypeScript | 25 | 9 | `dojo-node` (tsc, node:test; real servers, workers and child processes) |
+| Modern C++ | C++23 on GCC 16 | 24 | 9 | `dojo-cpp` (GoogleTest under the sanitizers, clang-tidy, clang-format) |
+| Spring Boot | Boot 4.1 on Java 25 | 22 | 7 | `dojo-java` (MockMvc, JPA on H2, Spring Security) |
 | React Developer | React 19 with TypeScript | 25 | 8 | `dojo-react` (tsc, Testing Library in jsdom) |
+| Linux | Debian 13, bash 5.2 | 23 | 8 | `dojo-linux` (bats, ShellCheck) |
+| Git & GitHub | Git from the object model to rescues | 25 | 9 | `dojo-linux` (bash scripts that drive `git`) |
+| Docker & Containers | images, Compose, production | 25 | 9 | your Docker engine + `dojo-docker` (hadolint, bats) |
 | Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |
-| DevOps & Cloud | CI/CD, Terraform, GitOps, releases, SLOs, DevSecOps | 25 | 8 | `dojo-devops` (actionlint, Terraform 1.17, promtool, bats), `dojo-linux`, `dojo-k8s` |
+| AWS Cloud Architecture | IAM, VPC, EC2, S3, CloudFormation, serverless, containers, security, cost | 25 | 9 | `dojo-aws` (cfn-lint, cfn-guard, IAM policy evaluator, moto; no AWS account) |
+| SQL & Relational Databases | standard SQL on PostgreSQL 17 | 25 | 8 | `dojo-sql` (a throwaway PostgreSQL 17) |
+| PostgreSQL | PostgreSQL 17 internals and operations | 25 | 9 | `dojo-sql` (other sessions opened with dblink for lock katas) |
+| System Design | building blocks of large systems | 23 | 10 | `dojo-java` |
 | Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
 | Design Patterns | principles and patterns in modern Java | 24 | 10 | `dojo-java` (refactoring katas) |
-| Cyber Security | defensive application and infrastructure security | 25 | 10 | `dojo-python`, `dojo-java` (JCA) and `dojo-linux` (bash, awk); defensive and offline |
 | API Design | HTTP, REST, errors, evolution, contracts | 25 | 8 | `dojo-java` (Spring Boot and MockMvc, plus an OpenAPI linter) |
-| Computer Science | from bits and caches to compilers, computability and database internals | 25 | 9 | `dojo-python`, `dojo-rust` and `dojo-java` |
-| Prompt Engineering | prompts for LLMs, from instructions to evals | 23 | 9 | `dojo-python` (prompt builders, parsers and eval harnesses; no model calls) |
 | Software Architecture | modularity, hexagonal, DDD, events, fitness functions | 23 | 9 | `dojo-java` (fitness functions over compiled classes) |
-| AWS Cloud Architecture | IAM, VPC, EC2, S3, CloudFormation, serverless, containers, security, cost | 25 | 9 | `dojo-aws` (cfn-lint, cfn-guard, IAM policy evaluator, moto; no AWS account) |
-
-Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
-languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
-Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
-Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
-Node.js, Software Architecture, Prompt Engineering, PostgreSQL, AWS and Computer Science.
-Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL and AWS.
-Node.js, Software Architecture, API Design, PostgreSQL, AWS and Computer Science.
-Node.js, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
+| Computer Science | from bits and caches to compilers, computability and database internals | 25 | 9 | `dojo-python`, `dojo-rust` and `dojo-java` |
+| Cyber Security | defensive application and infrastructure security | 25 | 10 | `dojo-python`, `dojo-java` (JCA) and `dojo-linux` (bash, awk); defensive and offline |
+| Prompt Engineering | prompts for LLMs, from instructions to evals | 23 | 9 | `dojo-python` (prompt builders, parsers and eval harnesses; no model calls) |
+| Backend Developer | HTTP, auth, data, reliability | 22 | 8 | `dojo-java` |
+| Frontend Developer | HTML, CSS, the DOM and browser APIs, no framework | 25 | 9 | `dojo-web` (headless Chromium, axe-core, html-validate) |
 | Full Stack Developer | browser to database: contracts, auth, caching, deploys, observability | 24 | 9 | `dojo-node`, `dojo-java`, `dojo-sql`, `dojo-docker` |
-
-Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
-languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
-Frontend, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
+| DevOps & Cloud | CI/CD, Terraform, GitOps, releases, SLOs, DevSecOps | 25 | 8 | `dojo-devops` (actionlint, Terraform 1.17, promtool, bats), `dojo-linux`, `dojo-k8s` |
 | AI Engineer | LLM features: APIs, RAG, tools, evals, guardrails | 24 | 10 | `dojo-python` (pytest against a fake, offline model) |
-
-Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
-languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
-Frontend, Full Stack, DevOps & Cloud, Data Engineer, Cyber Security, React, Modern C++,
 | Data Engineer | pipelines, modelling, lakes, streaming | 25 | 9 | `dojo-sql`, `dojo-python` and `dojo-data` (pyarrow, DuckDB) |
 
-Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
-languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
-Frontend, Full Stack, DevOps & Cloud, AI Engineer, Cyber Security, React, Modern C++,
-| Modern C++ | C++23 on GCC 16 | 24 | 9 | `dojo-cpp` (GoogleTest under the sanitizers, clang-tidy, clang-format) |
-
-Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
-languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
-Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React,
-Frontend, Full Stack, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
-| Frontend Developer | HTML, CSS, the DOM and browser APIs, no framework | 25 | 9 | `dojo-web` (headless Chromium, axe-core, html-validate) |
-
-Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
-languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
-Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
-Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, Modern C++,
-Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
-Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL and Computer Science.
+Every track has two checkpoints, a placement test, an interview bank and bridges from five
+languages.
 
 ## Requirements
 

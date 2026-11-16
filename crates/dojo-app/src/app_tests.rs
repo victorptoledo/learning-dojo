@@ -278,9 +278,17 @@ fn leaving_a_quiz_with_esc_records_nothing() {
 
 #[test]
 fn a_lesson_without_document_and_quiz_is_under_construction() {
+    // Every track in the catalogue is complete, so take a real lesson's quiz away.
     let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
-    h.app.selector_cursor = h.app.catalog.track_index("react").unwrap();
-    h.app.confirm_selection();
+    let rust = h.app.catalog.track_index("rust").unwrap();
+    let setup = h.app.catalog.tracks[rust]
+        .phases
+        .iter_mut()
+        .flat_map(|phase| phase.nodes.iter_mut())
+        .find(|node| node.id == "rust.p0.setup")
+        .unwrap();
+    setup.quiz = None;
+    select(&mut h.app, "rust.p0.setup");
 
     h.app.activate_selected();
 
