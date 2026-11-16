@@ -1,0 +1,47 @@
+questions:
+  - id: footer
+    prompt: "Where does a Parquet reader find the schema and the min/max statistics of each column chunk?"
+    options: ["In the first row", "In the file footer", "In a separate .json file", "Nowhere: it scans everything"]
+    answer: 1
+    explanation: "The footer holds the schema, row group locations and statistics; readers plan from it."
+  - id: dictionary
+    prompt: "Why does a country column with 50 distinct values compress so well in Parquet?"
+    options:
+      - "Parquet drops repeated values"
+      - "Dictionary encoding replaces values with small codes, and run-length encoding collapses repeats"
+      - "Countries are stored as images"
+      - "It is stored only once per file"
+    answer: 1
+    explanation: "Low-cardinality columns become compact integer codes."
+  - id: pushdown
+    prompt: "Row groups have min/max statistics on event_id, but WHERE event_id = 42 still reads every row group. Most likely cause?"
+    options:
+      - "Statistics are always ignored"
+      - "event_id values are randomly spread, so every row group's range contains 42; sort or cluster the data"
+      - "The file is compressed"
+      - "Parquet does not support integers"
+    answer: 1
+    explanation: "Statistics prune only when values are clustered."
+  - id: partition-key
+    prompt: "Which is the best partition column for a large events table queried by date range?"
+    options: ["event_id", "user_id", "event_date", "amount"]
+    answer: 2
+    explanation: "Low cardinality and present in almost every filter."
+  - id: small-files
+    prompt: "A streaming job writes a new 50 KB file per partition every minute. What is the problem and the fix?"
+    options:
+      - "No problem: smaller files are faster"
+      - "Millions of small files make listing and opening dominate query time; write larger batches and compact"
+      - "Parquet files must be exactly 1 MB"
+      - "Use CSV instead"
+    answer: 1
+    explanation: "Per-file overhead dominates; target files of hundreds of megabytes."
+  - id: compaction-safe
+    prompt: "How should compaction replace small files without readers seeing missing data?"
+    options:
+      - "Delete the small files, then write the big one"
+      - "Write the merged file first, then swap it in (or commit it through the table format), then delete the old files"
+      - "Stop all readers for a day"
+      - "Rename each small file"
+    answer: 1
+    explanation: "Writing before deleting (or an atomic commit) means data is never absent."

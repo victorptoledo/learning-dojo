@@ -1,0 +1,2 @@
+-- todo: country, year, quarter, number of orders and revenue from the star schema only,
+-- ordered by country, year, quarter.

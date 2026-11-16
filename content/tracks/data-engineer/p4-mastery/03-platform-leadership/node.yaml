@@ -1,0 +1,24 @@
+id: data-engineer.p4.platform-leadership
+kind: lesson
+status: draft
+title: "Leading a Data Platform"
+summary: "The senior part of the role: designing a data platform, build versus buy, centralised teams versus data mesh, data contracts across teams, design documents and reviews, roadmaps that balance reliability and new work, and growing the team."
+objectives:
+  - { id: o1, text: "Design a data platform architecture and justify build versus buy choices", skills: [data-engineer.platform-leadership, data-engineer.warehouses-lakehouses] }
+  - { id: o2, text: "Compare centralised, hub-and-spoke and data mesh organisations and their prerequisites", skills: [data-engineer.platform-leadership] }
+  - { id: o3, text: "Write and review design documents and plan a roadmap with stakeholders", skills: [data-engineer.platform-leadership] }
+prerequisites: [data-engineer.p4.data-reliability]
+difficulty: 5
+estimated_minutes: 45
+xp: 400
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You are the first senior data engineer at a 300-person company. Data lives in five SaaS tools, two PostgreSQL databases and spreadsheets; three analysts write SQL against production replicas; leadership wants "AI on our data" next year. Write a one-page design document for the first year of the data platform: goals and non-goals, the architecture, what you buy and what you build, how teams will contribute, and the first three milestones.'
+  criteria:
+    - 'States goals and explicit non-goals tied to business needs'
+    - 'Proposes a coherent architecture: managed ingestion, a warehouse or lakehouse, transformations in versioned SQL, orchestration, BI'
+    - 'Justifies build versus buy with team size, cost and differentiation'
+    - 'Defines ownership and contribution: analysts and domain teams writing models with review, contracts with source teams'
+    - 'Sets milestones that deliver value early and include reliability (tests, SLOs) and governance basics'

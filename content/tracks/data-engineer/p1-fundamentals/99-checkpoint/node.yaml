@@ -1,0 +1,54 @@
+id: data-engineer.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over ETL and ELT, dimensional modelling, file formats and incremental loads, and an integration kata that loads CSV and JSON-lines files into a star schema on SQLite, with rejects and idempotent reruns."
+objectives:
+  - { id: o1, text: "Explain ETL and ELT, star schemas, file formats and incremental, idempotent loads in your own words", skills: [data-engineer.etl-vs-elt, data-engineer.dimensional-modelling, data-engineer.file-formats, data-engineer.incremental-loads] }
+  - { id: o2, text: "Build a small warehouse from files: a star schema, validated loads with reasons for rejects, and reruns that change nothing", skills: [data-engineer.dimensional-modelling, data-engineer.file-formats, data-engineer.incremental-loads] }
+prerequisites: [data-engineer.p1.incremental-load]
+difficulty: 3
+estimated_minutes: 90
+xp: 400
+closes_phase: p1
+covers_skills: [data-engineer.etl-vs-elt, data-engineer.dimensional-modelling, data-engineer.file-formats, data-engineer.incremental-loads]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 90 }
+  hints:
+    - |-
+      Write `create_schema` and `load_customers` first and check them with the visible test. For `load_orders`, write a helper that takes one line and returns either a reason string or the parsed order, checking in the order of the README table. Which `json.loads` option keeps `19.99` exact? How do you make a record seen again replace the order instead of adding to it?
+    - |-
+      `CREATE TABLE IF NOT EXISTS` makes the schema rerunnable; `INSERT ... ON CONFLICT (customer_id) DO UPDATE` keeps the surrogate key. `datetime.fromisoformat` accepts offsets; a result with `tzinfo is None` is a bad timestamp, and `.astimezone(UTC).date()` gives the UTC day. `True` is an `int` in Python: check `isinstance(x, int) and not isinstance(x, bool)`. For each accepted order, `DELETE FROM fact_sales WHERE order_id = ?` then insert its lines, all inside `with conn:`.
+    - |-
+      ```python
+      def load_orders(conn, path):
+          known = dict(conn.execute("SELECT customer_id, customer_key FROM dim_customer"))
+          report = LoadReport()
+          with open(path, encoding="utf-8") as source, conn:
+              for number, text in enumerate(source, start=1):
+                  if not text.strip():
+                      continue
+                  result = parse_order(text, known)  # a reason, or the parsed order
+                  if isinstance(result, str):
+                      report.rejected.append((number, result))
+                      continue
+                  order_id, customer_key, day, lines = result
+                  ...  # dim_date row, delete the order's facts, insert its lines
+                  report.loaded += 1
+          return report
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

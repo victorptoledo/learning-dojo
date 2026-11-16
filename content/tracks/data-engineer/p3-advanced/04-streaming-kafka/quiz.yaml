@@ -1,0 +1,56 @@
+questions:
+  - id: ordering
+    prompt: "Events of the same order must be processed in sequence. How do you guarantee it in Kafka?"
+    options:
+      - "Use one consumer per topic"
+      - "Use the order id as the key, so all its events go to the same partition"
+      - "Sort by timestamp in the consumer"
+      - "Kafka orders the whole topic"
+    answer: 1
+    explanation: "Kafka keeps order within a partition; the key chooses the partition."
+  - id: group
+    prompt: "A topic has 6 partitions and a consumer group has 8 members. What happens?"
+    options:
+      - "Each partition is read by more consumers, faster"
+      - "6 members get one partition each and 2 stay idle"
+      - "Kafka creates 2 more partitions"
+      - "The group fails"
+    answer: 1
+    explanation: "A partition is read by one member of a group; partitions cap parallelism."
+  - id: commit
+    prompt: "A consumer commits the offset after writing results, then crashes right before the commit. On restart?"
+    options:
+      - "The records are lost"
+      - "The records are delivered again: at-least-once, so the write must be idempotent"
+      - "Kafka deduplicates them"
+      - "The consumer skips the whole partition"
+    answer: 1
+    explanation: "Committing after processing never loses records but can repeat them."
+  - id: compaction
+    prompt: "What does a compacted topic keep?"
+    options:
+      - "Only the first record"
+      - "At least the latest record for each key; older values of a key can be removed"
+      - "Records from the last 7 days"
+      - "Nothing after it is read"
+    answer: 1
+    explanation: "Compaction turns a topic into a changelog of current values per key."
+  - id: event-time
+    prompt: "A phone offline for an hour sends its clicks when it reconnects. Which time puts them in the right minute?"
+    options: ["Processing time", "Event time, with a watermark and allowed lateness", "Broker time", "Commit time"]
+    answer: 1
+    explanation: "Event time reflects when the click happened; late data handling decides what to do if the window closed."
+  - id: watermark
+    prompt: "With allowed lateness of 10 s, the largest event time seen is 12:01:05. When does the window [12:00:00, 12:01:00) close?"
+    options:
+      - "Now, because an event at 12:01:05 was seen"
+      - "When the watermark reaches 12:01:00, that is after an event at 12:01:10 or later"
+      - "At 12:01:00 wall-clock time"
+      - "Never"
+    answer: 1
+    explanation: "Watermark = max event time - lateness; the window closes when the watermark passes its end."
+  - id: lag
+    prompt: "Which metric best shows a streaming consumer falling behind?"
+    options: ["CPU of the broker", "Consumer lag: latest offset minus committed offset", "Number of topics", "Message size"]
+    answer: 1
+    explanation: "Growing lag means the consumer processes slower than producers write."

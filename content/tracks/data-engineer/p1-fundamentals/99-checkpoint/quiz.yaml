@@ -1,0 +1,66 @@
+pass_percent: 85
+questions:
+  - id: elt-rebuild
+    skills: [data-engineer.etl-vs-elt]
+    prompt: "A mart's logic was wrong for a year. In an ELT design with raw, staging and mart layers, how is it fixed?"
+    options:
+      - "Extract a year of data from every source again"
+      - "Fix the SQL and rebuild staging and marts from the raw layer"
+      - "Edit the raw tables by hand"
+      - "It cannot be fixed"
+    answer: 1
+    explanation: "Raw keeps the faithful history; derived layers are rebuilt from it."
+  - id: elt-pii
+    skills: [data-engineer.etl-vs-elt]
+    prompt: "Which data must be transformed before it is loaded, even in an ELT pipeline?"
+    options: ["Timestamps in UTC", "Data that must never be stored, such as full card numbers", "Product categories", "Order totals"]
+    answer: 1
+    explanation: "ELT keeps raw data, so what must not be stored is dropped or masked during extraction."
+  - id: grain-check
+    skills: [data-engineer.dimensional-modelling]
+    prompt: "fact_sales is declared as one row per order line. Which check verifies the grain?"
+    options: ["sum(revenue) > 0", "(order_id, line_no) is unique", "customer_key is not null", "count(*) > 1000"]
+    answer: 1
+    explanation: "The grain says what identifies a row; test that it is unique."
+  - id: conformed
+    skills: [data-engineer.dimensional-modelling]
+    prompt: "Sales and support tickets both use the same dim_customer with the same keys and meaning. What is it called?"
+    options: ["A degenerate dimension", "A conformed dimension", "A junk dimension", "A snowflake"]
+    answer: 1
+    explanation: "Conformed dimensions make facts from different processes comparable."
+  - id: json-big-int
+    skills: [data-engineer.file-formats]
+    prompt: "A partner sends ids like 9007199254740993 as JSON numbers, and a JavaScript service reads them. What happens?"
+    options: ["Nothing", "They lose precision: JSON numbers become doubles and integers above 2^53 are rounded", "They become strings", "The parser fails"]
+    answer: 1
+    explanation: "Send large ids as strings, or use a parser that keeps them exact."
+  - id: parquet-vs-avro
+    skills: [data-engineer.file-formats]
+    prompt: "Which pairing is right?"
+    options:
+      - "Avro for analytical tables, Parquet for Kafka messages"
+      - "Avro for messages written record by record, Parquet for analytical tables"
+      - "CSV for both"
+      - "Parquet for both"
+    answer: 1
+    explanation: "Avro is row-oriented with a schema; Parquet is columnar."
+  - id: watermark-store
+    skills: [data-engineer.incremental-loads]
+    prompt: "When should an incremental load store its new watermark?"
+    options:
+      - "Before reading the batch"
+      - "After the batch is loaded successfully, ideally in the same transaction"
+      - "Every minute"
+      - "Only on Sundays"
+    answer: 1
+    explanation: "Storing it earlier loses the batch if the load fails."
+  - id: partition-overwrite
+    skills: [data-engineer.incremental-loads]
+    prompt: "A daily job loads one day of events. Which write is idempotent?"
+    options:
+      - "INSERT the day's rows"
+      - "Delete the day's partition and insert it again, in one transaction"
+      - "Append and deduplicate next month"
+      - "INSERT with a random id"
+    answer: 1
+    explanation: "Overwriting the partition of the logical date gives the same result however often it runs."

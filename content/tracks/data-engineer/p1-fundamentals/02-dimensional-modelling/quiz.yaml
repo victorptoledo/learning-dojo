@@ -1,0 +1,48 @@
+questions:
+  - id: grain
+    prompt: "What should you decide first when designing a fact table?"
+    options: ["The list of dimensions", "The grain: what exactly one row means", "The indexes", "The dashboard colours"]
+    answer: 1
+    explanation: "Dimensions and measures must all be true at the declared grain, so it comes first."
+  - id: fact-or-dim
+    prompt: "Where does 'product category' belong in a sales star schema?"
+    options: ["In the fact table as a measure", "In the product dimension as an attribute", "In the date dimension", "Nowhere"]
+    answer: 1
+    explanation: "Descriptive attributes used to filter and group live in dimensions."
+  - id: surrogate
+    prompt: "Why give dim_customer its own customer_key instead of using the source customer_id?"
+    options:
+      - "Integers are always faster than any other type"
+      - "One customer can have several versions over time, and ids from different sources can clash"
+      - "The source id is secret"
+      - "SQL requires it"
+    answer: 1
+    explanation: "A surrogate key identifies one dimension row (one version), independent of source ids."
+  - id: semi-additive
+    prompt: "A daily account-balance snapshot. What is wrong with sum(balance) for March?"
+    options:
+      - "Nothing"
+      - "Balances are semi-additive: summing across days counts the same money 31 times; take the month-end or average"
+      - "Balances cannot be stored as numbers"
+      - "You must use count instead"
+    answer: 1
+    explanation: "Semi-additive measures add across other dimensions but not across time."
+  - id: ratio
+    prompt: "How do you compute the average price paid per unit over many order lines?"
+    options: ["avg(unit_price)", "sum(revenue) / sum(quantity)", "max(unit_price)", "sum(unit_price)"]
+    answer: 1
+    explanation: "Non-additive measures are computed from additive parts after aggregation."
+  - id: degenerate
+    prompt: "The order number on an order-line fact has no attributes of its own. How is it modelled?"
+    options: ["As a separate dim_order with one column", "As a degenerate dimension in the fact table", "It is dropped", "As a measure"]
+    answer: 1
+    explanation: "A degenerate dimension keeps the id in the fact for grouping and drilling back to the source."
+  - id: atomic
+    prompt: "Why prefer the most detailed (atomic) grain for a sales fact?"
+    options:
+      - "It uses less storage"
+      - "You can always aggregate detailed rows up, but never break a daily total back into lines"
+      - "Dashboards need it"
+      - "Atomic facts need no dimensions"
+    answer: 1
+    explanation: "Detailed facts answer questions nobody has asked yet."

@@ -1,0 +1,48 @@
+id: data-engineer.p3.stream-windows
+kind: kata
+status: draft
+title: "Event-Time Windows on a Stream"
+summary: "Aggregate a Kafka-like stream in event-time tumbling windows: a watermark with allowed lateness, windows emitted exactly once, late events set aside, redelivered offsets ignored and the next offsets to commit."
+objectives:
+  - { id: o1, text: "Assign events to tumbling windows by event time and close them with a watermark", skills: [data-engineer.streaming-kafka] }
+  - { id: o2, text: "Handle out-of-order and late events with allowed lateness and a side output", skills: [data-engineer.streaming-kafka] }
+  - { id: o3, text: "Make a consumer effectively-once with per-partition offsets", skills: [data-engineer.streaming-kafka, python.classes] }
+prerequisites: [data-engineer.p3.streaming-kafka]
+difficulty: 4
+estimated_minutes: 70
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      What state must survive between two calls of `process`? Think of three things: the open windows (keyed by what?), the largest event time seen, and the last offset per partition. In which order should `process` do its checks: redelivery, lateness, counting, moving the watermark, emitting?
+    - |-
+      Keep `_open: dict[(start, key), counts]`, `_max_event_time` and `_last_offset: dict[partition, offset]` (`field(default_factory=dict)` in the dataclass). `start = event_time - event_time % size` floors negative times too. An event is late when `start + size <= watermark` measured **before** it updates the maximum. Emitting is `sorted(k for k in _open if k[0] + size <= watermark)`, popping each one.
+    - |-
+      ```python
+      def process(self, event):
+          last = self._last_offset.get(event.partition)
+          if last is not None and event.offset <= last:
+              return []
+          self._last_offset[event.partition] = event.offset
+          start = event.event_time - event.event_time % self.size
+          if self.watermark is not None and start + self.size <= self.watermark:
+              self.late.append(event)
+              return []
+          ...  # count it, then move _max_event_time
+          return self._emit(lambda window_start: window_start + self.size <= self.watermark)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

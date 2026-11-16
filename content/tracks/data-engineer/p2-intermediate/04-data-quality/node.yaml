@@ -1,0 +1,24 @@
+id: data-engineer.p2.data-quality
+kind: lesson
+status: draft
+title: "Data Quality and Testing"
+summary: "The dimensions of data quality, tests on data (not null, unique, accepted values, relationships, freshness, volume), where to run them, severities and quality gates, data contracts with producers, and unit tests for pipeline code."
+objectives:
+  - { id: o1, text: "Name the dimensions of data quality and a check that measures each", skills: [data-engineer.data-quality] }
+  - { id: o2, text: "Place checks in the pipeline with severities, and stop bad data with a quality gate", skills: [data-engineer.data-quality] }
+  - { id: o3, text: "Agree data contracts with producers and unit test transformation code", skills: [data-engineer.data-quality, python.testing] }
+prerequisites: [data-engineer.p2.cdc]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write the quality plan for a daily `fct_payments` table fed by a payment provider''s API (payment_id, customer_id, amount, currency, status, paid_at). List the checks you would run, where in the pipeline each runs, which ones block publication and which only warn, and what happens when a blocking check fails at 3:00.'
+  criteria:
+    - 'Covers uniqueness of payment_id, not-null keys, accepted values for currency and status, and a valid range for amount'
+    - 'Checks referential integrity of customer_id against the customer dimension'
+    - 'Adds freshness and volume (row count compared with recent days) checks'
+    - 'Separates blocking errors from warnings with a reason for each'
+    - 'Describes the failure path: the previous good data stays published, someone is alerted, the run can be rerun after a fix'

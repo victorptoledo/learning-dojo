@@ -1,0 +1,51 @@
+questions:
+  - id: query-vs-log
+    prompt: "An order goes placed -> paid -> shipped within one minute, then is deleted. What does a query-based CDC that polls every 10 minutes see?"
+    options:
+      - "All three updates and the delete"
+      - "At most the last state it happened to poll, and never the delete"
+      - "Only the delete"
+      - "Nothing ever"
+    answer: 1
+    explanation: "Polling sees snapshots of the current state; log-based CDC sees every change, deletes included."
+  - id: slot
+    prompt: "A Debezium connector on PostgreSQL is stopped for a week. What risk grows on the source database?"
+    options:
+      - "None: CDC has no effect on the source"
+      - "The replication slot keeps WAL that was not confirmed, so the disk can fill up"
+      - "The tables are locked"
+      - "The publication is dropped"
+    answer: 1
+    explanation: "Slots guarantee no change is lost by retaining WAL; an idle consumer makes it accumulate."
+  - id: op-codes
+    prompt: "A Debezium event has op = 'r'. What is it?"
+    options: ["A deleted row", "A row read during the initial snapshot", "A rollback", "A replication error"]
+    answer: 1
+    explanation: "c, u and d are create, update and delete; r marks rows from the snapshot."
+  - id: idempotent-apply
+    prompt: "Change events arrive at least once. How do you keep a replica correct when an old update is redelivered?"
+    options:
+      - "Apply every event in arrival order"
+      - "Store the source position (LSN) per row and ignore events older than it"
+      - "Deduplicate by ts_ms of the consumer"
+      - "Truncate the replica every hour"
+    answer: 1
+    explanation: "The source log position orders changes; idempotent application ignores what is already reflected."
+  - id: snapshot-first
+    prompt: "Why does a CDC pipeline usually start with a snapshot?"
+    options:
+      - "The log only holds recent changes, not every row ever written"
+      - "Snapshots are faster than logs"
+      - "Kafka requires it"
+      - "To delete old data"
+    answer: 0
+    explanation: "The current table contents come from a snapshot; the log supplies changes from that position on."
+  - id: outbox
+    prompt: "A service saves an order and then publishes OrderPaid to Kafka; sometimes the publish fails after the commit. What fixes this?"
+    options:
+      - "Publishing before the commit"
+      - "Writing the event to an outbox table in the same transaction and publishing it with CDC"
+      - "Retrying the HTTP request"
+      - "A longer Kafka timeout"
+    answer: 1
+    explanation: "The outbox makes the event part of the same commit, removing the dual write."

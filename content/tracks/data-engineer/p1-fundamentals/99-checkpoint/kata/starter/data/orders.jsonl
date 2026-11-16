@@ -1,0 +1,10 @@
+{"order_id": 1, "customer_id": 1, "ordered_at": "2026-11-01T10:00:00+00:00", "lines": [{"sku": "KB-1", "quantity": 1, "unit_price": 80.00}, {"sku": "MS-2", "quantity": 2, "unit_price": 19.99}]}
+{"order_id": 2, "customer_id": 2, "ordered_at": "2026-11-01T23:30:00-03:00", "lines": [{"sku": "IDE-1", "quantity": 1, "unit_price": 120}]}
+{"order_id": 3, "customer_id": 1,
+{"order_id": 4, "customer_id": 99, "ordered_at": "2026-11-02T09:00:00+00:00", "lines": [{"sku": "KB-1", "quantity": 1, "unit_price": 80.00}]}
+{"order_id": 5, "customer_id": 3, "ordered_at": "2026-11-02", "lines": [{"sku": "KB-1", "quantity": 1, "unit_price": 80.00}]}
+{"order_id": 6, "customer_id": 3, "ordered_at": "2026-11-03T08:15:00+01:00", "lines": [{"sku": "CRS-1", "quantity": 0, "unit_price": 300}]}
+{"order_id": 7, "customer_id": 3, "lines": []}
+
+{"order_id": 1, "customer_id": 1, "ordered_at": "2026-11-01T10:00:00+00:00", "lines": [{"sku": "KB-1", "quantity": 1, "unit_price": 80.00}]}
+{"order_id": 8, "customer_id": 3, "ordered_at": "2026-11-03T08:15:00+01:00", "lines": [{"sku": "CRS-1", "quantity": 1, "unit_price": 299.99}]}

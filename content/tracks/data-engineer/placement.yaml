@@ -1,0 +1,323 @@
+# Placement test of the Data Engineer track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How much data engineering have you done?
+  options:
+    - { label: "New to it: I write SQL and Python but have not built pipelines", start_phase: p0, test: false }
+    - { label: "I have built batch pipelines and star schemas with incremental, rerunnable loads", start_phase: p1, test: true }
+    - { label: "I also run orchestrated pipelines with history, CDC and data quality checks", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 24
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-staging-join
+    phase: p1
+    skills: [data-engineer.etl-vs-elt]
+    difficulty: 2
+    prompt: "A staging model joins orders to customers and filters out test accounts. What is wrong with that layering?"
+    options:
+      - "Nothing"
+      - "Staging should clean one source table at a time; joins and business rules belong in marts"
+      - "Staging must be in Python"
+      - "Joins are not allowed in SQL views"
+    answer: 1
+    explanation: "Keeping staging one-to-one with sources makes it reusable and easy to rebuild."
+  - id: p1-raw-edit
+    phase: p1
+    skills: [data-engineer.etl-vs-elt]
+    difficulty: 2
+    prompt: "A colleague fixes a wrong value directly in a raw table. Why is that a problem?"
+    options:
+      - "Raw tables are read-only in every database"
+      - "Raw should be the faithful record of what the source sent; fixes belong in staging logic, where they are versioned and rebuildable"
+      - "It is faster to fix in the dashboard"
+      - "It is not a problem"
+    answer: 1
+    explanation: "Editing raw destroys the evidence and the ability to rebuild consistently."
+  - id: p1-grain-mix
+    phase: p1
+    skills: [data-engineer.dimensional-modelling]
+    difficulty: 3
+    prompt: "A fact table has one row per order line, plus a column with the order's shipping cost repeated on every line. What happens to sum(shipping_cost)?"
+    options:
+      - "It is correct"
+      - "It counts the shipping cost once per line: a measure at a different grain was mixed in"
+      - "It returns NULL"
+      - "SQL refuses it"
+    answer: 1
+    explanation: "Every measure must be true at the declared grain; keep order-level measures in an order-level fact."
+  - id: p1-date-dim
+    phase: p1
+    skills: [data-engineer.dimensional-modelling]
+    difficulty: 2
+    prompt: "Why build a date dimension instead of computing extract(quarter FROM day) in every query?"
+    options:
+      - "Dates cannot be stored in facts"
+      - "It centralises calendar attributes (quarters, weeks, holidays, fiscal periods) and turns them into simple joins and filters"
+      - "It saves all storage"
+      - "Extract is not standard SQL"
+    answer: 1
+    explanation: "Calendar logic, especially fiscal and holiday rules, is defined once."
+  - id: p1-csv-encoding
+    phase: p1
+    skills: [data-engineer.file-formats]
+    difficulty: 2
+    prompt: "The first column name of a CSV read with encoding='utf-8' comes out as '\\ufefforder_id'. Why?"
+    options: ["The file is binary", "The file starts with a UTF-8 byte order mark; read it with utf-8-sig", "The column is empty", "CSV forbids underscores"]
+    answer: 1
+    explanation: "Excel and other tools write a BOM; utf-8-sig removes it."
+  - id: p1-schema-rename
+    phase: p1
+    skills: [data-engineer.file-formats]
+    difficulty: 3
+    prompt: "A producer wants to rename the field cust to customer_id in an Avro topic with many consumers. Safest path?"
+    options:
+      - "Rename it in one release"
+      - "Add customer_id (optional, with an alias or default), migrate consumers, then remove cust"
+      - "Change its type too"
+      - "Create a CSV export"
+    answer: 1
+    explanation: "Renames are breaking; expand, migrate, then contract."
+  - id: p1-merge-twice
+    phase: p1
+    skills: [data-engineer.incremental-loads]
+    difficulty: 3
+    prompt: "An upsert batch contains two versions of the same key, and PostgreSQL raises 'cannot affect row a second time'. Fix?"
+    options:
+      - "Retry until it works"
+      - "Deduplicate the batch first, keeping one version per key with a deterministic order"
+      - "Drop the primary key"
+      - "Split it into two transactions at random"
+    answer: 1
+    explanation: "Deduplicate with row_number() and a tie-break before the upsert."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-scd-key
+    phase: p2
+    skills: [data-engineer.slowly-changing-dimensions]
+    difficulty: 3
+    prompt: "A fact row stores customer_key 11, which is the London version of customer 1. The customer moves to Cambridge. What does the fact show afterwards?"
+    options: ["Cambridge", "London: it still points at the version it was loaded with", "NULL", "An error"]
+    answer: 1
+    explanation: "Type 2 keeps facts attached to the version of their time."
+  - id: p2-scd-between
+    phase: p2
+    skills: [data-engineer.slowly-changing-dimensions]
+    difficulty: 3
+    prompt: "A point-in-time join uses order_date BETWEEN valid_from AND valid_to, with valid_to equal to the next version's valid_from. What goes wrong?"
+    options: ["Nothing", "On a change date the order matches two versions and is counted twice", "It matches no version", "BETWEEN is not allowed on dates"]
+    answer: 1
+    explanation: "Use a half-open range: >= valid_from AND < valid_to."
+  - id: p2-cdc-slot
+    phase: p2
+    skills: [data-engineer.cdc]
+    difficulty: 3
+    prompt: "What does a PostgreSQL replication slot guarantee to a CDC consumer?"
+    options:
+      - "That the consumer is fast"
+      - "That WAL is kept until the consumer confirms it, so no change is lost while it is down"
+      - "That changes are sorted by table"
+      - "That deletes are hidden"
+    answer: 1
+    explanation: "The slot holds the position; the price is WAL growing while the consumer is away."
+  - id: p2-cdc-tombstone
+    phase: p2
+    skills: [data-engineer.cdc]
+    difficulty: 4
+    prompt: "Why does Debezium follow a delete event with a tombstone (null value) on a compacted topic?"
+    options:
+      - "To mark the end of the topic"
+      - "So that log compaction can eventually remove every record of that key"
+      - "To restart the connector"
+      - "To encrypt the key"
+    answer: 1
+    explanation: "Compaction keeps the latest value per key; a null value lets the key disappear."
+  - id: p2-dq-severity
+    phase: p2
+    skills: [data-engineer.data-quality]
+    difficulty: 2
+    prompt: "Three rows of 2 million have an unknown country code. Which severity is reasonable?"
+    options: ["Error: block everything", "Warn: log and track it, alert if it grows", "Ignore it forever", "Delete the table"]
+    answer: 1
+    explanation: "Severity follows impact; a tiny, known-harmless anomaly should not block publication."
+  - id: p2-dq-wap
+    phase: p2
+    skills: [data-engineer.data-quality]
+    difficulty: 3
+    prompt: "How do you make sure consumers never see a batch that fails its checks?"
+    options:
+      - "Run checks after publishing"
+      - "Write-audit-publish: write to a hidden location, run the checks, publish only if they pass"
+      - "Ask consumers to wait"
+      - "Check only on Mondays"
+    answer: 1
+    explanation: "Publishing only audited data keeps bad batches invisible."
+  - id: p2-orch-ds
+    phase: p2
+    skills: [data-engineer.orchestration]
+    difficulty: 3
+    prompt: "Which task definition is safe to backfill?"
+    options:
+      - "DELETE FROM fct WHERE day = current_date - 1; INSERT ... WHERE day = current_date - 1"
+      - "DELETE FROM fct WHERE day = :ds; INSERT ... WHERE day = :ds"
+      - "INSERT ... SELECT everything"
+      - "TRUNCATE fct; INSERT today"
+    answer: 1
+    explanation: "Keyed by the logical date and overwriting its partition: reruns and backfills give the same result."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-commit
+    phase: p3
+    skills: [data-engineer.warehouses-lakehouses]
+    difficulty: 3
+    prompt: "Two jobs commit to the same Iceberg table at the same time. What protects the table?"
+    options:
+      - "Nothing; one overwrites the other's files"
+      - "Optimistic concurrency: each commit atomically swaps the metadata pointer, and a conflicting commit retries or fails"
+      - "The object store locks the folder"
+      - "Iceberg allows only one writer per day"
+    answer: 1
+    explanation: "Table formats commit by an atomic pointer swap with conflict detection."
+  - id: p3-storage-compute
+    phase: p3
+    skills: [data-engineer.warehouses-lakehouses]
+    difficulty: 2
+    prompt: "A nightly ELT and the analysts' daytime queries slow each other down in one cloud warehouse. A common fix?"
+    options:
+      - "Copy the data to a second warehouse"
+      - "Give each workload its own compute cluster over the same storage"
+      - "Run everything at noon"
+      - "Delete old data"
+    answer: 1
+    explanation: "Separated storage and compute lets workloads scale and isolate independently."
+  - id: p3-rowgroup
+    phase: p3
+    skills: [data-engineer.columnar-storage]
+    difficulty: 4
+    prompt: "Queries filter on customer_id, which is random in every Parquet row group. What improves pruning most?"
+    options:
+      - "Gzip instead of zstd"
+      - "Sorting (or clustering) the data by customer_id before writing"
+      - "Smaller pages"
+      - "More columns"
+    answer: 1
+    explanation: "Sorted data gives tight min/max ranges per row group, so most can be skipped."
+  - id: p3-overpartition
+    phase: p3
+    skills: [data-engineer.columnar-storage]
+    difficulty: 3
+    prompt: "A table partitioned by event_date and user_id has millions of folders. Main consequence?"
+    options:
+      - "Faster queries"
+      - "Tiny files and huge listings: per-file overhead dominates every query"
+      - "Better compression"
+      - "Nothing"
+    answer: 1
+    explanation: "High-cardinality partition keys create the small-files problem."
+  - id: p3-kafka-partitions
+    phase: p3
+    skills: [data-engineer.streaming-kafka]
+    difficulty: 3
+    prompt: "You increase a keyed topic from 6 to 12 partitions. What changes for existing keys?"
+    options:
+      - "Nothing"
+      - "Many keys now hash to different partitions, so per-key order across the change is not guaranteed"
+      - "All data is deleted"
+      - "Consumers stop"
+    answer: 1
+    explanation: "The partition is hash(key) modulo the count; changing the count moves keys."
+  - id: p3-processing-time
+    phase: p3
+    skills: [data-engineer.streaming-kafka]
+    difficulty: 3
+    prompt: "A consumer restarts after an hour and replays the backlog quickly. With processing-time windows, what happens to the per-minute counts?"
+    options:
+      - "They are correct"
+      - "An hour of events lands in the few minutes of the replay: the counts are wrong"
+      - "Kafka fixes them"
+      - "Nothing is counted"
+    answer: 1
+    explanation: "Event-time windows give the same answer whenever the events are processed."
+  - id: p3-spark-udf
+    phase: p3
+    skills: [data-engineer.spark-distributed]
+    difficulty: 3
+    prompt: "A PySpark job uses a Python UDF to lower-case a column and is slow. Better option?"
+    options: ["More executors only", "The built-in F.lower, which runs in the JVM without moving rows to Python", "collect() and do it in pandas", "A bigger driver"]
+    answer: 1
+    explanation: "Built-in functions avoid serialising rows to Python workers and are optimised by Catalyst."
+  - id: p3-spark-stages
+    phase: p3
+    skills: [data-engineer.spark-distributed]
+    difficulty: 3
+    prompt: "What splits a Spark job into stages?"
+    options: ["Each filter", "Shuffles caused by wide transformations", "Each column", "The number of files"]
+    answer: 1
+    explanation: "Narrow transformations are pipelined in one stage; a shuffle starts a new one."
+  # ---- P4 Mastery ----------------------------------------------------------------
+  - id: p4-lineage-root
+    phase: p4
+    skills: [data-engineer.lineage-governance]
+    difficulty: 3
+    prompt: "A dashboard number is wrong. How does lineage help?"
+    options:
+      - "It fixes the number"
+      - "It lets you walk upstream through the models and sources that feed the number to find where it went wrong"
+      - "It hides the dashboard"
+      - "It does not"
+    answer: 1
+    explanation: "Upstream lineage narrows the search for the root cause."
+  - id: p4-pseudonym
+    phase: p4
+    skills: [data-engineer.lineage-governance]
+    difficulty: 4
+    prompt: "Analysts need to count distinct users without seeing e-mails. What fits?"
+    options:
+      - "Give them the e-mails"
+      - "Pseudonymise: a keyed hash (or surrogate id) of the e-mail, with the key kept away from analysts"
+      - "Delete users"
+      - "Store e-mails in uppercase"
+    answer: 1
+    explanation: "A keyed hash keeps distinct counts and joins possible without exposing the identifier."
+  - id: p4-symptom-alert
+    phase: p4
+    skills: [data-engineer.data-reliability]
+    difficulty: 3
+    prompt: "Which alert best protects finance's 09:00 report?"
+    options:
+      - "Any task retry"
+      - "fct_revenue for yesterday not published by 07:00, or its total far outside the usual range"
+      - "Warehouse CPU above 50%"
+      - "A weekly cost summary"
+    answer: 1
+    explanation: "Alert on the symptoms consumers would feel, early enough to act."
+  - id: p4-error-budget
+    phase: p4
+    skills: [data-engineer.data-reliability]
+    difficulty: 3
+    prompt: "A data product's freshness SLO is 99% of days, and it missed 5 days this quarter. What does the error budget suggest?"
+    options:
+      - "Nothing"
+      - "The budget is spent: prioritise reliability work over new features for this product"
+      - "Lower the SLO silently"
+      - "Stop monitoring"
+    answer: 1
+    explanation: "About 1 missed day per quarter was allowed; the budget guides priorities."
+  - id: p4-mesh-fit
+    phase: p4
+    skills: [data-engineer.platform-leadership]
+    difficulty: 4
+    prompt: "A 40-person startup with one data engineer asks whether to adopt a data mesh. Best answer?"
+    options:
+      - "Yes, immediately"
+      - "Not yet: start centralised with good standards and a platform; mesh pays off with many mature domain teams"
+      - "Only if they use Kafka"
+      - "Mesh is a database"
+    answer: 1
+    explanation: "Data mesh is an organisational model that needs scale, domain maturity and a self-serve platform."

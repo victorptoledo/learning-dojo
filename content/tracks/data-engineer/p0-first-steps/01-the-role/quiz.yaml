@@ -1,0 +1,47 @@
+questions:
+  - id: ownership
+    prompt: "The revenue dashboard shows no data for yesterday. Whose system should have noticed first?"
+    options:
+      - "The analyst who opens the dashboard"
+      - "The data pipeline, with a check that yesterday's data arrived and is complete"
+      - "The source application's developers"
+      - "Nobody: missing data is normal"
+    answer: 1
+    explanation: "Owning the flow means detecting missing or late data before consumers do."
+  - id: lifecycle-order
+    prompt: "Which order matches the data lifecycle?"
+    options:
+      - "Serving, storage, ingestion, generation, transformation"
+      - "Generation, ingestion, storage, transformation, serving"
+      - "Ingestion, generation, transformation, serving, storage"
+      - "Generation, transformation, ingestion, serving, storage"
+    answer: 1
+    explanation: "Data is created in sources, copied out, stored, transformed into models and served."
+  - id: oltp-olap
+    prompt: "Why not run the yearly revenue report directly on the shop's production database?"
+    options:
+      - "SQL cannot aggregate a year of data"
+      - "Large scans slow down the application, and the history and other sources are not there"
+      - "Production databases cannot be read"
+      - "Reports must be written in Python"
+    answer: 1
+    explanation: "OLTP systems are tuned for small transactions; analysis belongs in an OLAP store fed by pipelines."
+  - id: column-store
+    prompt: "Which storage layout suits 'average order value by country over three years' best?"
+    options: ["Row-oriented", "Column-oriented", "A key-value store", "A message queue"]
+    answer: 1
+    explanation: "The query reads two columns of many rows; a column store reads only those columns."
+  - id: batch-or-stream
+    prompt: "Finance reviews revenue every morning. Which ingestion fits best?"
+    options:
+      - "A stream with sub-second latency"
+      - "A nightly or hourly batch"
+      - "Manual exports by email"
+      - "Querying the payment provider's API from the dashboard"
+    answer: 1
+    explanation: "A daily consumer does not need streaming; batch is simpler, cheaper and easier to rerun."
+  - id: analytics-engineer
+    prompt: "Who most typically writes the tested SQL models that define 'active customer' for the whole company?"
+    options: ["A data scientist", "An analytics engineer (or a data engineer in a small team)", "The CRM vendor", "A site reliability engineer"]
+    answer: 1
+    explanation: "Analytics engineers model the business in clean, tested tables; in small teams data engineers do it."

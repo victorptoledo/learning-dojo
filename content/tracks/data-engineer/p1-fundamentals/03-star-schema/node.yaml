@@ -1,0 +1,54 @@
+id: data-engineer.p1.star-schema
+kind: kata
+status: draft
+title: "A Star Schema for Sales"
+summary: "Turn a normalised shop database into a star schema: a calendar dimension, customer and product dimensions with surrogate keys, a fact table at order-line grain, and two reports that read only the star."
+objectives:
+  - { id: o1, text: "Choose the grain of a fact table and build it from OLTP tables", skills: [data-engineer.dimensional-modelling, sql.joins] }
+  - { id: o2, text: "Build date, customer and product dimensions with surrogate and natural keys", skills: [data-engineer.dimensional-modelling, sql.constraints-keys] }
+  - { id: o3, text: "Answer business questions with star joins and aggregates", skills: [data-engineer.dimensional-modelling, sql.aggregation] }
+prerequisites: [data-engineer.p1.dimensional-modelling]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with the grain: which source table has exactly one row per fact row, and which rows must you leave out? The dimensions come first, because the fact table needs their keys: how do you look up the surrogate key of customer 2 while inserting a fact row?
+    - |-
+      `customer_key integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY` gives a surrogate key; keep `customer_id integer NOT NULL UNIQUE` as the natural key. Fill `dim_date` from `generate_series` between the min and max UTC order dates. Insert the facts with `INSERT INTO fact_sales (...) SELECT ... FROM orders JOIN order_items ... JOIN dim_customer AS c ON c.customer_id = o.customer_id JOIN dim_product ... WHERE o.status <> 'cancelled'`. In the reports, `count(DISTINCT order_id)` counts orders, not lines.
+    - |-
+      ```sql
+      INSERT INTO dim_date (date_key, full_date, year, quarter, month, day_of_week)
+      SELECT to_char(d, 'YYYYMMDD')::integer, d, extract(year FROM d),
+             extract(quarter FROM d), extract(month FROM d), extract(isodow FROM d)
+      FROM (
+          SELECT g::date AS d
+          FROM generate_series(
+                   (SELECT min((ordered_at AT TIME ZONE 'UTC')::date) FROM orders),
+                   (SELECT max((ordered_at AT TIME ZONE 'UTC')::date) FROM orders),
+                   interval '1 day') AS g
+      ) AS days;
+
+      -- revenue_by_month_category.sql
+      SELECT d.year, d.month, p.category, sum(f.revenue)
+      FROM fact_sales AS f
+      JOIN dim_date AS d USING (date_key)
+      JOIN dim_product AS p USING (product_key)
+      GROUP BY ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

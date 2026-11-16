@@ -1,0 +1,50 @@
+id: data-engineer.p2.quality-checks
+kind: kata
+status: draft
+title: "Data Quality Checks"
+summary: "Write a small check framework in the spirit of dbt tests: not-null, unique, accepted values, ranges, referential integrity, row counts and freshness, with severities, a readable report and a quality gate that stops a bad batch."
+objectives:
+  - { id: o1, text: "Express data expectations as reusable checks over rows and over a whole batch", skills: [data-engineer.data-quality, python.functions] }
+  - { id: o2, text: "Handle NULLs, composite keys and orphans the way the database would", skills: [data-engineer.data-quality] }
+  - { id: o3, text: "Report failures with samples and severities, and gate publication on errors", skills: [data-engineer.data-quality, python.classes] }
+prerequisites: [data-engineer.p2.data-quality]
+difficulty: 3
+estimated_minutes: 70
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Most checks fail row by row: could one helper take a name, a severity and a function `bad(row) -> bool`, and build the `Check` with its `evaluate` closure? Which two checks need the whole batch instead? For `unique`, what do you have to know about all the rows before you can say that one row fails?
+    - |-
+      A helper `row_check(name, severity, bad)` returns `Check(name, severity, evaluate)` where `evaluate` collects `[i for i, row in enumerate(rows) if bad(row)]` and keeps `failing[:3]` as the sample. `unique` counts the keys first with `collections.Counter`, then fails every row whose key counted more than once. Turn `parents` into a set when the check is created, so a generator is read once. `Report.passed` is `all(r.passed or r.severity == "warn" for r in self.results)`.
+    - |-
+      ```python
+      def row_check(name, severity, bad):
+          if severity not in ("error", "warn"):
+              raise ValueError(f"unknown severity: {severity!r}")
+
+          def evaluate(rows):
+              failing = [i for i, row in enumerate(rows) if bad(row)]
+              return CheckResult(name, severity, not failing, len(failing), tuple(failing[:3]))
+
+          return Check(name, severity, evaluate)
+
+
+      def not_null(column, *, severity="error"):
+          return row_check(f"not_null({column})", severity, lambda row: row.get(column) is None)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

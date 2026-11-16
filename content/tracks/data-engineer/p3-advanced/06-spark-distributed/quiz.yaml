@@ -1,0 +1,52 @@
+questions:
+  - id: lazy
+    prompt: "df.filter(...).groupBy(...).agg(...) runs in a few milliseconds even on a huge table. Why?"
+    options:
+      - "Spark caches everything"
+      - "Transformations are lazy: they build a plan; nothing runs until an action such as write or count"
+      - "The filter removed all rows"
+      - "groupBy is free"
+    answer: 1
+    explanation: "Only actions execute the optimised plan."
+  - id: wide
+    prompt: "Which transformation causes a shuffle?"
+    options: ["filter", "withColumn", "groupBy(...).agg(...)", "select"]
+    answer: 2
+    explanation: "Aggregating by key needs all rows of a key together: a wide transformation."
+  - id: broadcast
+    prompt: "A 3 billion row fact joins a 300 row country table. Best strategy?"
+    options: ["Sort-merge join", "Broadcast hash join of the country table", "Cross join", "Collect both to the driver"]
+    answer: 1
+    explanation: "Copying the small table to every executor avoids shuffling the large side."
+  - id: skew
+    prompt: "In the Spark UI, 199 tasks of a join stage take 1 minute and one takes 2 hours with heavy spill. Most likely cause?"
+    options: ["Too few executors", "Data skew: one key holds a large share of the rows", "A slow network", "Parquet compression"]
+    answer: 1
+    explanation: "One partition got most of the data; check key frequencies, AQE skew join or salting."
+  - id: salting
+    prompt: "What does salting a skewed key do?"
+    options:
+      - "Encrypts it"
+      - "Adds a random suffix so the hot key's rows spread across several partitions, with the other side replicated per suffix"
+      - "Removes duplicates"
+      - "Sorts the key"
+    answer: 1
+    explanation: "Spreading the hot key splits its work over many tasks."
+  - id: collect
+    prompt: "Why is df.collect() dangerous on a large DataFrame?"
+    options:
+      - "It deletes the data"
+      - "It brings every row to the driver, which runs out of memory"
+      - "It is not supported in PySpark"
+      - "It triggers a shuffle"
+    answer: 1
+    explanation: "The driver is one machine; keep large data distributed and write it out instead."
+  - id: files
+    prompt: "A job writes partitionBy('event_date') for 30 dates after a 200-partition shuffle and produces about 6,000 files. Fix?"
+    options:
+      - "Increase shuffle partitions to 2,000"
+      - "repartition('event_date') (or coalesce) before writing so each date gets few files"
+      - "Write CSV instead"
+      - "Disable compression"
+    answer: 1
+    explanation: "Each task writes one file per output partition it holds; repartition by the output key."

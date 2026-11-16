@@ -1,0 +1,47 @@
+questions:
+  - id: separation
+    prompt: "What does 'separation of storage and compute' let a cloud warehouse do?"
+    options:
+      - "Store data without disks"
+      - "Scale or pause compute clusters independently of the data, paying for each separately"
+      - "Run without SQL"
+      - "Avoid columnar storage"
+    answer: 1
+    explanation: "Data sits in shared storage; compute is started and resized on demand."
+  - id: lake-problem
+    prompt: "A Spark job writes 200 Parquet files into a table folder while a dashboard query reads it. What can go wrong with plain files?"
+    options:
+      - "Nothing"
+      - "The query can see some new files and not others: there are no atomic commits"
+      - "Parquet files are locked"
+      - "The job will fail"
+    answer: 1
+    explanation: "Without a table format, a lake has no transactions; readers can see partial writes."
+  - id: commit
+    prompt: "How do Iceberg and Delta make a write atomic?"
+    options:
+      - "They lock the object store"
+      - "They write new data files, then atomically switch the table to new metadata that references them"
+      - "They write everything into one file"
+      - "They copy the table first"
+    answer: 1
+    explanation: "Readers follow the current metadata pointer, so they see whole snapshots only."
+  - id: time-travel
+    prompt: "Yesterday's MERGE corrupted a table. What lakehouse feature helps most?"
+    options: ["Compaction", "Time travel and rollback to the previous snapshot", "Partitioning", "Z-ordering"]
+    answer: 1
+    explanation: "Snapshots keep old versions until they are expired, so you can query or restore them."
+  - id: maintenance
+    prompt: "Why do lakehouse tables need snapshot expiry?"
+    options:
+      - "Old snapshots keep old data files alive, so storage grows without bound"
+      - "Snapshots slow down writes to zero"
+      - "Queries fail after ten snapshots"
+      - "It is required by Parquet"
+    answer: 0
+    explanation: "Time travel has a storage cost; expire snapshots older than your retention."
+  - id: medallion
+    prompt: "In the medallion layers, where do cleaned, deduplicated, conformed tables live?"
+    options: ["Bronze", "Silver", "Gold", "Platinum"]
+    answer: 1
+    explanation: "Bronze is raw, silver is clean, gold is business-level."

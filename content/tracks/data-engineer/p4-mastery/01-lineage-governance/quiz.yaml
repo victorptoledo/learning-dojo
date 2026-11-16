@@ -1,0 +1,47 @@
+questions:
+  - id: impact
+    prompt: "You want to rename stg_orders.amount. What tells you what will break?"
+    options: ["The table's row count", "Downstream (column-level) lineage", "The warehouse bill", "The source's API docs"]
+    answer: 1
+    explanation: "Lineage shows every model, dashboard and job that depends on the column."
+  - id: openlineage
+    prompt: "What is OpenLineage?"
+    options:
+      - "A proprietary catalog"
+      - "An open standard for jobs to emit run events with their input and output datasets"
+      - "A file format"
+      - "A Kafka replacement"
+    answer: 1
+    explanation: "Spark, Airflow, dbt and others can emit OpenLineage events to a lineage backend."
+  - id: masking
+    prompt: "Analysts need order data but must not see customer e-mails; support must. Best approach?"
+    options:
+      - "Two copies of every table"
+      - "Column masking or column-level permissions by role"
+      - "Trust analysts not to look"
+      - "Delete the e-mail column"
+    answer: 1
+    explanation: "Column-level security serves both roles from one governed table."
+  - id: rls
+    prompt: "Country managers may only see their own country's sales. Which feature fits?"
+    options: ["Row-level security", "Partitioning", "Compaction", "A unique index"]
+    answer: 0
+    explanation: "Row-level security filters rows by the user's attributes."
+  - id: crypto-shredding
+    prompt: "How does crypto-shredding help with erasure in immutable files and backups?"
+    options:
+      - "It compresses personal data"
+      - "Each person's personal fields are encrypted with their own key; deleting the key makes every copy unreadable"
+      - "It deletes backups"
+      - "It hides data from the catalog"
+    answer: 1
+    explanation: "You cannot easily rewrite every copy, but you can destroy the key."
+  - id: ownership
+    prompt: "Why does every dataset in a catalog need an owner?"
+    options:
+      - "For billing only"
+      - "Someone must answer questions, approve changes and fix problems; without owners metadata rots"
+      - "Catalogs require a login"
+      - "Owners make queries faster"
+    answer: 1
+    explanation: "Ownership is what keeps metadata and quality accountable."

@@ -1,0 +1,25 @@
+id: data-engineer.p3.columnar-partitioning
+legacy_id: de-02-columnar-storage
+kind: lesson
+status: draft
+title: "Columnar Storage, Parquet Internals and Partitioning"
+summary: "Inside Parquet: row groups, column chunks, pages, dictionary and run-length encoding, compression and min/max statistics; projection and predicate pushdown; Hive-style partitioning, choosing partition keys, the small-files problem and compaction."
+objectives:
+  - { id: o1, text: "Explain Parquet's layout and how encodings and statistics make scans cheap", skills: [data-engineer.columnar-storage] }
+  - { id: o2, text: "Choose partition keys and file sizes, and avoid over-partitioning and small files", skills: [data-engineer.columnar-storage] }
+  - { id: o3, text: "Use projection and predicate pushdown, sorting and compaction to cut what a query reads", skills: [data-engineer.columnar-storage, data-engineer.warehouses-lakehouses] }
+prerequisites: [data-engineer.p3.warehouses-lakehouses]
+difficulty: 3
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An events table receives 2 billion rows a day from 50 countries and is queried mostly by "last 7 days for one country" and by "one user over the last year". It is stored as Parquet partitioned by event_date, country and user_id, and jobs produce about 300,000 files a day. Diagnose the problems and propose a better layout.'
+  criteria:
+    - 'Identifies user_id as a high-cardinality partition key that creates tiny files and slow listing'
+    - 'Keeps a coarse partition (event_date, maybe country) and targets files of roughly 128 MB to 1 GB'
+    - 'Sorts or clusters by user_id (or country) within files so min/max statistics prune row groups'
+    - 'Adds compaction of small files (or writes with fewer, larger files)'
+    - 'Explains how the two query patterns are served after the change'

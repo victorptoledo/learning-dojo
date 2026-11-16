@@ -1,0 +1,2 @@
+-- todo: for each order in raw_orders, its latest version (order_id, status, amount) and how
+-- many raw rows it has, ordered by order_id.

@@ -1,0 +1,49 @@
+id: data-engineer.p0.first-pipeline
+kind: kata
+status: draft
+title: "Your First Pipeline: CSV to SQLite"
+summary: "Extract a CSV of orders, validate and clean every field, reject bad rows with a line number and a reason, and load the rest into SQLite with an idempotent upsert."
+objectives:
+  - { id: o1, text: "Extract a CSV safely with the csv module, including a byte order mark and quoted commas", skills: [data-engineer.role, python.collections] }
+  - { id: o2, text: "Validate and normalise fields, keeping money exact with Decimal and rejecting rows with a reason", skills: [data-engineer.role, python.errors] }
+  - { id: o3, text: "Load with an upsert in one transaction so that a rerun is idempotent", skills: [data-engineer.incremental-loads, sql.dml] }
+prerequisites: [data-engineer.p0.the-role]
+difficulty: 2
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with `extract`: which `open` encoding drops a byte order mark for you, and which `csv` class gives you one dict per row? For `transform`, write a helper that takes one row and returns either an `Order` or a reason string, checking the fields in the order of the README table. Where do you remember the order ids you have already accepted?
+    - |-
+      `open(path, encoding="utf-8-sig", newline="")` and `list(csv.DictReader(f))`. For the amount, `Decimal(text)` raises `InvalidOperation` on bad text; `amount == amount.quantize(Decimal("0.01"))` is true only with 2 decimals or fewer, and `is_finite()` refuses `NaN`. `date.fromisoformat` refuses `2026-13-01`. In `load`, `with conn:` commits the block, and `executemany` with `ON CONFLICT (order_id) DO UPDATE SET customer = excluded.customer, ...` is the upsert.
+    - |-
+      ```python
+      def transform(rows):
+          orders, rejected, seen = [], [], set()
+          for index, row in enumerate(rows):
+              line = index + 2  # the header is line 1
+              result = parse(row)  # an Order or a reason
+              if isinstance(result, str):
+                  rejected.append((line, result))
+              elif result.order_id in seen:
+                  rejected.append((line, "duplicate order_id"))
+              else:
+                  ...
+          return orders, rejected
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

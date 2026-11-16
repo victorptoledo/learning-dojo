@@ -1,0 +1,57 @@
+id: data-engineer.p3.partitioned-lake
+kind: kata
+status: draft
+title: "A Partitioned Parquet Lake"
+summary: "Write Hive-style partitioned Parquet with pyarrow, replace partitions idempotently, prune partitions and row groups by their statistics, compact small files safely, and query the lake with DuckDB."
+objectives:
+  - { id: o1, text: "Write and overwrite Hive-style partitions of Parquet files idempotently", skills: [data-engineer.columnar-storage, data-engineer.warehouses-lakehouses] }
+  - { id: o2, text: "Prune partitions and row groups with folder names and min/max statistics", skills: [data-engineer.columnar-storage] }
+  - { id: o3, text: "Compact small files without a window where data is missing, and query the lake with DuckDB", skills: [data-engineer.columnar-storage, data-engineer.warehouses-lakehouses] }
+prerequisites: [data-engineer.p3.columnar-partitioning]
+difficulty: 4
+estimated_minutes: 80
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-data, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with `write_partitioned` and `partitions`, then `read_range`: everything else reads what they write. How do you get the distinct values of a column in pyarrow, and the rows of one value without that column? In `read_range`, which decision can you take from the folder name alone, before opening anything?
+    - |-
+      `pc.unique(table[column]).to_pylist()`, then `table.filter(pc.equal(table[column], value)).drop_columns([column])` gives one partition. Delete the folder's old `*.parquet` files before writing `part-0.parquet`. Reading back, `pq.read_table(path, columns=...)` without the partition column, then `append_column(column, pa.array([value] * n, pa.string()))`, then `select(columns)`. For statistics, find the column with `metadata.schema.to_arrow_schema().get_field_index(column)`; a group may match when `max >= low and min <= high`.
+    - |-
+      ```python
+      def row_groups_matching(path, column, low, high):
+          metadata = pq.ParquetFile(path).metadata
+          index = metadata.schema.to_arrow_schema().get_field_index(column)
+          matching = []
+          for group in range(metadata.num_row_groups):
+              stats = metadata.row_group(group).column(index).statistics
+              if stats is None or not stats.has_min_max:
+                  ...
+              elif ...:
+                  matching.append(group)
+          return matching
+
+
+      def daily_totals(root):
+          pattern = (root / "*" / "*.parquet").as_posix()
+          with duckdb.connect() as conn:
+              return conn.execute(
+                  "SELECT CAST(event_date AS VARCHAR) AS day, count(*), sum(amount_cents) "
+                  "FROM read_parquet(?, hive_partitioning = true) GROUP BY day ORDER BY day",
+                  [pattern]).fetchall()
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-data runner image
+    image: dojo-data
+    why: The Python 3.15 container with pytest, ruff, pyarrow and DuckDB that runs the grading tests.

@@ -1,5 +1,18 @@
 namespace: data-engineer
 skills:
-  - { id: data-engineer.etl-vs-elt, title: "ETL vs ELT and Dimensional Modelling (Kimball)" }
-  - { id: data-engineer.columnar-storage, title: "Columnar Formats: Parquet, ORC and Compression" }
-  - { id: data-engineer.spark-distributed, title: "Apache Spark, DataFrames and Data Partitioning" }
+  - { id: data-engineer.role, title: "The Data Engineer Role, the Data Lifecycle and the Toolbox" }
+  - { id: data-engineer.etl-vs-elt, title: "ETL vs ELT, Layers and the Modern Data Stack" }
+  - { id: data-engineer.dimensional-modelling, title: "Dimensional Modelling: Star Schemas, Grain, Facts and Dimensions" }
+  - { id: data-engineer.file-formats, title: "File Formats: CSV, JSON Lines, Avro and Parquet, and Schema Evolution" }
+  - { id: data-engineer.incremental-loads, title: "Full and Incremental Loads, Watermarks, Idempotency and Upserts" }
+  - { id: data-engineer.slowly-changing-dimensions, title: "Slowly Changing Dimensions: Types 0, 1, 2, 3 and 6" }
+  - { id: data-engineer.cdc, title: "Change Data Capture: Logs, Debezium Events and the Outbox" }
+  - { id: data-engineer.data-quality, title: "Data Quality: Dimensions, Tests, Contracts and Quality Gates" }
+  - { id: data-engineer.orchestration, title: "Orchestration: DAGs, Logical Dates, Retries and Backfills" }
+  - { id: data-engineer.warehouses-lakehouses, title: "Warehouses, Lakes and Lakehouses: MPP, Table Formats and the Medallion Layers" }
+  - { id: data-engineer.columnar-storage, title: "Columnar Storage: Parquet Internals, Partitioning, Pruning and Small Files" }
+  - { id: data-engineer.streaming-kafka, title: "Streaming with Kafka: Topics, Partitions, Offsets, Delivery and Windows" }
+  - { id: data-engineer.spark-distributed, title: "Apache Spark: Partitions, Lazy Plans, Shuffles, Joins and Skew" }
+  - { id: data-engineer.lineage-governance, title: "Lineage, Catalogs, Governance and Privacy" }
+  - { id: data-engineer.data-reliability, title: "Reliable Data Products: Freshness SLOs, Observability, Incidents and Cost" }
+  - { id: data-engineer.platform-leadership, title: "Leading a Data Platform: Architecture, Data Mesh and Design Reviews" }

@@ -1,0 +1,47 @@
+questions:
+  - id: where-t
+    prompt: "What is the essential difference between ETL and ELT?"
+    options:
+      - "ELT does not transform data"
+      - "Where the transformation runs: before loading in a separate tool, or after loading, inside the warehouse"
+      - "ETL is for streaming and ELT for batch"
+      - "ELT only works with CSV files"
+    answer: 1
+    explanation: "Both transform; ELT loads raw data first and transforms it with the warehouse's compute."
+  - id: why-elt
+    prompt: "A bug in the revenue logic is found after six months. Why is this cheaper to fix with ELT?"
+    options:
+      - "ELT tools never have bugs"
+      - "The raw data is still in the warehouse, so the models can be rebuilt with the fixed SQL"
+      - "ELT pipelines run faster"
+      - "The source system keeps everything forever"
+    answer: 1
+    explanation: "Keeping raw history and deriving everything else makes a fix a rebuild, not a re-extraction."
+  - id: raw-rules
+    prompt: "Which rule belongs to the raw layer?"
+    options:
+      - "Rename columns to the company's conventions"
+      - "Append what the source sent, unchanged, with load metadata, and never edit it"
+      - "Join customers to orders"
+      - "Remove rows that look wrong"
+    answer: 1
+    explanation: "Raw is the faithful copy; cleaning happens in staging, business logic in marts."
+  - id: staging
+    prompt: "Where do you cast a text amount to numeric and lower-case a status column?"
+    options: ["In raw", "In staging", "In the dashboard", "In the source application"]
+    answer: 1
+    explanation: "Staging cleans one source table at a time, without business logic."
+  - id: pii
+    prompt: "A source table has a column with full card numbers. What should an ELT pipeline do?"
+    options:
+      - "Load it raw like everything else"
+      - "Drop or mask it during extraction, so it is never stored"
+      - "Load it and hide it in the dashboard"
+      - "Encrypt the whole warehouse and keep it"
+    answer: 1
+    explanation: "ELT keeps raw data, so data that must never be stored has to be removed before loading."
+  - id: reverse-etl
+    prompt: "A churn score computed in the warehouse is pushed every hour into the CRM. What is this called?"
+    options: ["Change data capture", "Reverse ETL", "A slowly changing dimension", "Sharding"]
+    answer: 1
+    explanation: "Reverse ETL sends warehouse results back to operational tools."

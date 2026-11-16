@@ -4,9 +4,9 @@ name: "Data Engineer"
 archetype: role
 category: "Careers & Roles"
 icon: "📊"
-description: "Large-scale data pipelines, ETL/ELT, data lakes, data warehouses, Apache Spark and dbt."
-status: draft
-bridges_available: [java]
+description: "The data engineer role from the ground up: batch pipelines, dimensional modelling, incremental and idempotent loads, slowly changing dimensions, CDC, data quality, orchestration, Parquet lakes and lakehouses, streaming with Kafka, Spark, lineage and governance, practised in SQL and Python. Take the SQL & Relational Databases and Modern Python tracks first; Docker & Containers helps."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "SQL Querier" }
   - { name: "Yellow Belt", required_xp: 300, title: "ETL Scripter" }
@@ -16,8 +16,17 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "Big Data Titan" }
   - { name: "Sensei", required_xp: 6000, title: "Data Engineering Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does and the tools of the trade" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The minimum of each pillar of the role" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Integrating the pillars into working features" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Scale, performance and architecture decisions" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production ownership, reliability and leadership topics" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What a data engineer does, the data lifecycle, and a first pipeline from CSV to SQLite" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "ETL and ELT, dimensional modelling, file formats and idempotent incremental loads" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "History with slowly changing dimensions, CDC, data quality and orchestrated, backfillable pipelines" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Warehouses and lakehouses, Parquet and partitioning, streaming with Kafka, and Spark" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Lineage and governance, reliable data products, and leading a data platform" }
+requirements:
+  - kind: tool
+    name: uv (Python 3.15)
+    command: uv
+    version_args: ["--version"]
+    min_version: "0.9"
+    required: false
+    why: Runs the Python katas and their visible tests on your machine. The grading checks run in Docker and do not need it.
+    install_hint: "install uv: winget install astral-sh.uv, then reopen the terminal"

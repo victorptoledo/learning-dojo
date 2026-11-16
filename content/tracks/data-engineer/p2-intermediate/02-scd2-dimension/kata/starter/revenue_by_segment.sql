@@ -1,0 +1,2 @@
+-- todo: revenue of fact_orders by the segment each customer had on the order date
+-- ('unknown' when it was NULL), ordered by segment.
