@@ -1,0 +1,24 @@
+id: react.p4.react-in-production
+kind: lesson
+status: draft
+title: "React in Production: Architecture, Design Systems and Upgrades"
+summary: "Structuring a large React codebase by feature, component APIs and design systems, TypeScript and lint rules as guardrails, the testing pyramid, performance budgets and Core Web Vitals, error monitoring, security pitfalls, and upgrading React safely."
+objectives:
+  - { id: o1, text: "Organise a large codebase by feature with clear component APIs and a shared design system", skills: [react.production] }
+  - { id: o2, text: "Set up guardrails: strict TypeScript, React lint rules, a testing strategy, performance budgets and error monitoring", skills: [react.production, react.testing-a11y] }
+  - { id: o3, text: "Avoid React-specific security pitfalls and plan an incremental React upgrade", skills: [react.production] }
+prerequisites: [react.p4.server-components]
+difficulty: 4
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You join a team with a three-year-old React 17 app: 400 components in one `components/` folder, class components mixed with hooks, no tests above unit level, a 3 MB bundle, frequent "white screen" incidents nobody can reproduce, and a design team that complains every button looks different. Write a one-page plan for the first three months: what you would measure first, how you would restructure the code, the guardrails you would add, how you would reach React 19 safely, and how you would make the UI consistent. Order the steps and justify the order.'
+  criteria:
+    - "Starts by measuring: error monitoring with source maps and an error boundary, bundle analysis, Core Web Vitals"
+    - "Restructures by feature (feature folders with their components, hooks and tests) gradually, not as a big bang"
+    - "Adds guardrails: strict TypeScript, eslint-plugin-react-hooks and jsx-a11y, CI with tests, integration tests with Testing Library and a few end-to-end tests"
+    - "Plans the upgrade incrementally: React 18 first (createRoot, StrictMode), fix warnings and deprecations, then React 19 with codemods"
+    - "Introduces a design system (shared accessible components, tokens, Storybook) and code splitting to cut the bundle"

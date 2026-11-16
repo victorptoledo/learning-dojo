@@ -1,0 +1,60 @@
+id: react.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata, an accessible sign-up form with a pure validator, controlled inputs, errors tied to fields, focus management with refs and an async submit."
+objectives:
+  - { id: o1, text: "Explain JSX, props and state, events and lists, effects and refs, and forms in your own words", skills: [react.jsx-components, react.props-state, react.events-lists, react.hooks-lifecycle, react.forms] }
+  - { id: o2, text: "Build a complete form component: state, validation, accessible errors, focus and an async submit", skills: [react.props-state, react.forms, react.hooks-lifecycle] }
+prerequisites: [react.p1.forms]
+difficulty: 3
+estimated_minutes: 90
+xp: 300
+closes_phase: p1
+covers_skills: [react.jsx-components, react.props-state, react.events-lists, react.hooks-lifecycle, react.forms]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-react, timeout_secs: 90 }
+  hints:
+    - |-
+      Build it bottom up: `validateSignup` first (it is pure and the visible test covers it), then the form. Which state does the form need: the values, the errors, whether a submit was tried, whether a submit is running, the result? How does the form know which field to focus when several are invalid?
+    - |-
+      Keep the values in one object, `useState<SignupValues>(EMPTY)`, and update one field with `setValues((v) => ({ ...v, [field]: value }))`. After a failed submit, set `submitted` to true; while it is true, recompute the errors on every change with `validateSignup`. Keep one ref per field in an object or `useRef<Record<Field, HTMLInputElement | null>>({...})`, and focus the first field of `FIELDS` that has an error. For the async part, `setPending(true)`, `await onSubmit(...)` in a `try`/`catch`/`finally`.
+    - |-
+      ```tsx
+      async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        const found = validateSignup(values);
+        setErrors(found);
+        setSubmitted(true);
+        const first = FIELDS.find((field) => found[field]);
+        if (first) {
+          refs.current[first]?.focus();
+          return;
+        }
+        setPending(true);
+        setFailure(null);
+        try {
+          await onSubmit({ name: values.name.trim(), email: values.email.trim(), password: values.password });
+          setWelcome(values.name.trim());
+        } catch (error) {
+          setFailure(error instanceof Error ? error.message : "Something went wrong");
+        } finally {
+          setPending(false);
+        }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-react runner image
+    image: dojo-react
+    why: The Node.js 26 container with TypeScript 7, React 19, jsdom and Testing Library that checks your components.

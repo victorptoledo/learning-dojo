@@ -1,0 +1,49 @@
+questions:
+  - id: controlled
+    prompt: "What makes an input controlled?"
+    options:
+      - "It has a name attribute"
+      - "Its value comes from state through value, and onChange updates that state"
+      - "It is inside a <form>"
+    answer: 1
+    explanation: "State is the single source of truth; the DOM shows what state says."
+  - id: value-no-onchange
+    prompt: "An input has `value={name}` but no onChange. What does the user see?"
+    options:
+      - "A normal editable field"
+      - "A field that cannot be edited, and a React warning"
+      - "An empty field"
+    answer: 1
+    explanation: "Controlled without a change handler means read-only; use defaultValue for uncontrolled fields."
+  - id: formdata
+    prompt: "In an onSubmit handler of an uncontrolled form, how do you read the field named q?"
+    options:
+      - "event.target.q.state"
+      - "new FormData(event.currentTarget).get(\"q\")"
+      - "useState(\"q\")"
+    answer: 1
+    explanation: "FormData reads named fields from the form element."
+  - id: checkbox
+    prompt: "Which prop holds the value of a controlled checkbox?"
+    answers: ["checked"]
+    explanation: "Checkboxes use checked and event.target.checked, not value."
+  - id: describedby
+    prompt: "Which attribute makes a screen reader read an error message together with its input?"
+    options: ["aria-label", "aria-describedby", "title", "placeholder"]
+    answer: 1
+    explanation: "aria-describedby points at the id of the error text; aria-invalid marks the field."
+  - id: action-state
+    prompt: "What does `useActionState(action, initial)` return?"
+    options:
+      - "[state, formAction, isPending]"
+      - "[value, setValue]"
+      - "A promise"
+    answer: 0
+    explanation: "The last state the action returned, the action to pass to <form action>, and whether it is running."
+  - id: placeholder-label
+    prompt: "Is a placeholder a replacement for a label?"
+    options:
+      - "Yes, screen readers read it"
+      - "No: it disappears when typing and is not a reliable accessible name; add a label"
+    answer: 1
+    explanation: "Every input needs a visible label associated with it."

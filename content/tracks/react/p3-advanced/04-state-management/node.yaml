@@ -1,0 +1,24 @@
+id: react.p3.state-management
+kind: lesson
+status: draft
+title: "State Management at Scale: Client vs Server State"
+summary: "The kinds of state in an app and where each belongs, server state in a query cache, URL and form state, when built-in state and context stop scaling, external stores with selectors (Zustand, Redux Toolkit), useSyncExternalStore, and how to choose."
+objectives:
+  - { id: o1, text: "Classify the state of an app (local, shared client, server, URL, form) and place each kind", skills: [react.state-management] }
+  - { id: o2, text: "Explain what an external store with selectors adds over context, and how useSyncExternalStore connects one", skills: [react.state-management, react.context-reducer] }
+  - { id: o3, text: "Choose between built-in state, a query cache and a store library for a given app, with reasons", skills: [react.state-management] }
+prerequisites: [react.p3.render-budget]
+difficulty: 3
+estimated_minutes: 50
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team wants to put "all app state" in Redux: the products list from the API, the current page of the orders table, the open/closed state of every dropdown, the signed-in user, the draft of the checkout form, and a "dark mode" toggle. Write a short design review. For each piece, say where it belongs (local state, URL, form library, query cache, context, store) and why. Then say when a client-side store such as Zustand or Redux Toolkit is worth adding, and what it gives you over context.'
+  criteria:
+    - "Puts the products list (and other server data) in a query cache such as TanStack Query, not in a client store"
+    - "Puts the orders page number in the URL search params"
+    - "Keeps dropdown open state local to the component"
+    - "Keeps the form draft in local or form-library state, and the user and theme in context (or a small store)"
+    - "Explains that a store is worth it for complex, frequently updated client state shared widely, because selectors re-render only the components whose slice changed, and adds devtools and middleware"

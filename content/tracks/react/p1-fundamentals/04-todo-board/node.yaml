@@ -1,0 +1,51 @@
+id: react.p1.todo-board
+kind: kata
+status: draft
+title: "Todo Board: State, Events and Lists"
+summary: "Pure, immutable update functions for a todo list and a board component around them: a form to add tasks, checkboxes, filters with aria-pressed, a counter and a clear button."
+objectives:
+  - { id: o1, text: "Write immutable update functions for a list in state", skills: [react.props-state] }
+  - { id: o2, text: "Wire state to a form, checkboxes and buttons with typed event handlers", skills: [react.props-state, react.events-lists] }
+  - { id: o3, text: "Render a filtered list with stable keys and derive counts instead of storing them", skills: [react.events-lists, react.props-state] }
+prerequisites: [react.p1.events-lists]
+difficulty: 2
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-react, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with `todos.ts`: each function takes the current array and returns a **new** one. Which array methods return a new array instead of changing the old one? Then, in `TodoBoard`, which values really need `useState`, and which can you compute from the todos during render?
+    - |-
+      `addTodo` returns `[...todos, { id, title: title.trim(), done: false }]`, or the same array when the title is blank. `toggleTodo` is a `map` that copies the one matching todo with `{ ...todo, done: !todo.done }`. In the component you need three pieces of state: the todos, the filter and the text of the input. The visible list and the "items left" are derived. The form's `onSubmit` must call `event.preventDefault()`.
+    - |-
+      ```tsx
+      export function TodoBoard({ initialTodos = [], createId = () => crypto.randomUUID() }: TodoBoardProps) {
+        const [todos, setTodos] = useState(initialTodos);
+        const [filter, setFilter] = useState<Filter>("all");
+        const [title, setTitle] = useState("");
+
+        function handleSubmit(event: FormEvent<HTMLFormElement>) {
+          event.preventDefault();
+          setTodos((current) => addTodo(current, title, createId()));
+          setTitle("");
+        }
+        const shown = visibleTodos(todos, filter);
+        const left = remaining(todos);
+        // the form, the filter buttons (aria-pressed={filter === "all"}), the list, the counter, Clear done
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-react runner image
+    image: dojo-react
+    why: The Node.js 26 container with TypeScript 7, React 19, jsdom and Testing Library that checks your components.

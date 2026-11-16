@@ -1,0 +1,352 @@
+# Placement test of the React track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with React?
+  options:
+    - { label: "Never used it", start_phase: p0, test: false }
+    - { label: "I write components with useState, props and lists", start_phase: p1, test: true }
+    - { label: "I use it at work: effects, custom hooks, context, data fetching, tests", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-jsx-output
+    phase: p1
+    skills: [react.jsx-components]
+    difficulty: 1
+    prompt: "What does this component render when `count` is 0?"
+    code: |
+      function Inbox({ count }: { count: number }) {
+        return <div>{count && <span>{count} new</span>}</div>;
+      }
+    options:
+      - "<div></div>"
+      - "<div>0</div>"
+      - "<div><span>0 new</span></div>"
+    answer: 1
+    explanation: "0 && x is 0, and React renders numbers. Use count > 0 && ..."
+  - id: p1-purity
+    phase: p1
+    skills: [react.jsx-components]
+    difficulty: 2
+    prompt: "Which line makes this component impure?"
+    code: |
+      const seen: string[] = [];
+      function Tag({ name }: { name: string }) {
+        const label = name.toUpperCase();   // A
+        seen.push(name);                    // B
+        return <b>{label}</b>;              // C
+      }
+    options: ["A", "B", "C"]
+    answer: 1
+    explanation: "B changes a value outside the component during render."
+  - id: p1-snapshot
+    phase: p1
+    skills: [react.props-state]
+    difficulty: 2
+    prompt: "count starts at 5. What does the screen show after one click?"
+    code: |
+      <button onClick={() => { setCount(count + 1); setCount((c) => c * 2); }}>
+        {count}
+      </button>
+    options: ["6", "10", "12", "11"]
+    answer: 2
+    explanation: "The first update sets 6, the updater then doubles the queued value: 12."
+  - id: p1-mutation
+    phase: p1
+    skills: [react.props-state]
+    difficulty: 2
+    prompt: "Why might this not update the screen?"
+    code: |
+      function rename(id: string, name: string) {
+        const user = users.find((u) => u.id === id)!;
+        user.name = name;
+        setUsers(users);
+      }
+    options:
+      - "find is not allowed in handlers"
+      - "It mutates the existing array and object, so setUsers receives the same reference"
+      - "setUsers needs a function"
+    answer: 1
+    explanation: "Build a new array: users.map((u) => (u.id === id ? { ...u, name } : u))."
+  - id: p1-keys
+    phase: p1
+    skills: [react.events-lists]
+    difficulty: 2
+    prompt: "Rows hold their own <input> state and are rendered with key={index}. A row is removed from the middle. What does the user see?"
+    options:
+      - "The right rows, unchanged"
+      - "Typed text shifts to the wrong rows below the removed one"
+      - "An error"
+    answer: 1
+    explanation: "State follows the key, and index keys follow positions."
+  - id: p1-effect-loop
+    phase: p1
+    skills: [react.hooks-lifecycle]
+    difficulty: 3
+    prompt: "What happens with this effect?"
+    code: |
+      const [user, setUser] = useState<User | null>(null);
+      const options = { id };
+      useEffect(() => {
+        load(options).then(setUser);
+      }, [options]);
+    options:
+      - "It loads once"
+      - "It loads after every render, forever: options is a new object each render"
+      - "It never loads"
+    answer: 1
+    explanation: "Depend on id (a primitive), or create the object inside the effect."
+  - id: p1-cleanup
+    phase: p1
+    skills: [react.hooks-lifecycle]
+    difficulty: 2
+    prompt: "Which effect is correct for a ticking clock?"
+    options:
+      - "useEffect(() => { setInterval(tick, 1000); }, [])"
+      - "useEffect(() => { const id = setInterval(tick, 1000); return () => clearInterval(id); }, [])"
+      - "useEffect(() => { setInterval(tick, 1000); })"
+    answer: 1
+    explanation: "Every interval needs a cleanup; StrictMode would otherwise run two."
+  - id: p1-controlled
+    phase: p1
+    skills: [react.forms]
+    difficulty: 2
+    prompt: "An input has `value={email}` and `onChange={(e) => setEmail(e.target.value.trim())}`. What does the user notice?"
+    options:
+      - "Nothing unusual"
+      - "Spaces can never be typed, even between words, because every change is trimmed immediately"
+      - "The field is read-only"
+    answer: 1
+    explanation: "A controlled input shows exactly the state; trim on submit instead."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-hook-rules
+    phase: p2
+    skills: [react.custom-hooks]
+    difficulty: 2
+    prompt: "Which component breaks the rules of hooks?"
+    code: |
+      function A({ items }: Props) { const [q, setQ] = useState(""); if (!items.length) return null; return <List q={q} />; }
+      function B({ items }: Props) { if (!items.length) return null; const [q, setQ] = useState(""); return <List q={q} />; }
+    options: ["A", "B", "Both", "Neither"]
+    answer: 1
+    explanation: "B calls useState after an early return, so the hook is skipped on some renders."
+  - id: p2-hook-state
+    phase: p2
+    skills: [react.custom-hooks]
+    difficulty: 2
+    prompt: "A header and a sidebar both call `useToggle(false)`. The header toggles. What happens in the sidebar?"
+    options:
+      - "It toggles too"
+      - "Nothing: each call has its own state"
+      - "React throws"
+    answer: 1
+    explanation: "Custom hooks share logic, not state."
+  - id: p2-context-default
+    phase: p2
+    skills: [react.context-reducer]
+    difficulty: 2
+    prompt: "`const Ctx = createContext(\"light\")`. A component reads `useContext(Ctx)` with no provider above it. What does it get?"
+    answers: ["light", "\"light\""]
+    explanation: "Without a provider, the default passed to createContext is used."
+  - id: p2-reducer
+    phase: p2
+    skills: [react.context-reducer]
+    difficulty: 3
+    prompt: "What is wrong with this reducer case?"
+    code: |
+      case "rename":
+        state.title = action.title;
+        return state;
+    options:
+      - "Nothing"
+      - "It mutates state and returns the same object, so React may not re-render"
+      - "Reducers cannot handle strings"
+    answer: 1
+    explanation: "Return { ...state, title: action.title }."
+  - id: p2-race
+    phase: p2
+    skills: [react.data-fetching]
+    difficulty: 3
+    prompt: "Which addition prevents an old response from overwriting a newer one in this effect?"
+    code: |
+      useEffect(() => {
+        fetchUser(id).then(setUser);
+      }, [id]);
+    options:
+      - "Add user to the dependencies"
+      - "let ignore = false; ...then((u) => { if (!ignore) setUser(u); }); return () => { ignore = true; };"
+      - "Wrap fetchUser in useCallback"
+    answer: 1
+    explanation: "The cleanup of the old effect marks its response as stale."
+  - id: p2-fetch-ok
+    phase: p2
+    skills: [react.data-fetching]
+    difficulty: 2
+    prompt: "A fetch for a missing product returns 404, and the page shows a product with every field undefined. Why?"
+    options:
+      - "fetch rejected but the error was swallowed"
+      - "fetch resolved (only network errors reject) and the code parsed the error body as a product"
+      - "React cached the old product"
+    answer: 1
+    explanation: "Check response.ok before using the body."
+  - id: p2-url-state
+    phase: p2
+    skills: [react.routing]
+    difficulty: 2
+    prompt: "Users complain that reloading a search result page loses the filters. Where should the filters live?"
+    options: ["In a context", "In the URL search params", "In a ref"]
+    answer: 1
+    explanation: "The URL survives reloads and can be shared."
+  - id: p2-outlet
+    phase: p2
+    skills: [react.routing]
+    difficulty: 2
+    prompt: "In a nested route tree, what does an account layout render to show the active child route (orders or settings)?"
+    options: ["{children}", "<Outlet />", "<Route />"]
+    answer: 1
+    explanation: "Layout routes render the matched child in their Outlet."
+  # ---- P3 Advanced ---------------------------------------------------------------
+  - id: p3-state-reset
+    phase: p3
+    skills: [react.reconciliation-fiber]
+    difficulty: 3
+    prompt: "Does the text typed into `<Field />` survive when `wide` toggles?"
+    code: |
+      return wide ? <div className="wide"><Field /></div> : <section><Field /></section>;
+    options:
+      - "Yes"
+      - "No: the parent element type changes, so the subtree remounts"
+    answer: 1
+    explanation: "Different types at the same position produce different trees."
+  - id: p3-commit
+    phase: p3
+    skills: [react.reconciliation-fiber]
+    difficulty: 3
+    prompt: "A parent re-renders and its child returns exactly the same JSX as before. What happens to the child's DOM?"
+    options:
+      - "It is rebuilt"
+      - "Nothing changes in the DOM: React only commits differences"
+      - "It flickers"
+    answer: 1
+    explanation: "Rendering is calling components; the commit applies only what differs."
+  - id: p3-memo
+    phase: p3
+    skills: [react.performance]
+    difficulty: 3
+    prompt: "`const Chart = memo(ChartImpl)`. Which prop makes it re-render on every parent render?"
+    options:
+      - "data={data} where data comes from useState"
+      - "options={{ animate: true }}"
+      - "title=\"Sales\""
+    answer: 1
+    explanation: "An object literal is new each render; hoist it or useMemo it."
+  - id: p3-colocate
+    phase: p3
+    skills: [react.performance]
+    difficulty: 3
+    prompt: "A page re-renders a slow table on every keystroke in a comment box at the top. Which fix needs no memoisation?"
+    options:
+      - "Move the comment's state into a CommentBox component"
+      - "Use a class component"
+      - "Add keys to the table rows"
+    answer: 0
+    explanation: "Colocated state re-renders only its own subtree."
+  - id: p3-server-state
+    phase: p3
+    skills: [react.state-management]
+    difficulty: 3
+    prompt: "A team stores every API response in a global store with isLoading flags and refetch logic. What would most reduce that code?"
+    options:
+      - "Splitting the store in two"
+      - "A server-state library such as TanStack Query"
+      - "More selectors"
+    answer: 1
+    explanation: "Server state is a cache; query libraries handle loading, caching and refetching."
+  - id: p3-query
+    phase: p3
+    skills: [react.testing-a11y]
+    difficulty: 2
+    prompt: "Which query best finds the Save button in a Testing Library test?"
+    options:
+      - "container.querySelector(\"button.save\")"
+      - "screen.getByRole(\"button\", { name: \"Save\" })"
+      - "screen.getByTestId(\"save\")"
+    answer: 1
+    explanation: "Roles and names are what users and assistive technology see."
+  - id: p3-a11y
+    phase: p3
+    skills: [react.testing-a11y]
+    difficulty: 3
+    prompt: "In a custom tabs widget, how many tabs should be reachable with the Tab key?"
+    options: ["All of them", "Only the selected one (roving tabindex); arrows move between tabs", "None"]
+    answer: 1
+    explanation: "Composite widgets have one tab stop and arrow-key navigation inside."
+  # ---- P4 Mastery ---------------------------------------------------------------
+  - id: p4-use-promise
+    phase: p4
+    skills: [react.suspense-transitions]
+    difficulty: 4
+    prompt: "This component shows its Suspense fallback forever. Why?"
+    code: |
+      function Profile({ id }: { id: string }) {
+        const user = use(fetch(`/api/users/${id}`).then((r) => r.json()));
+        return <h1>{user.name}</h1>;
+      }
+    options:
+      - "use cannot read fetch"
+      - "Every render creates a new promise, so it suspends again each time"
+      - "The fallback is missing a key"
+    answer: 1
+    explanation: "Read a cached promise created outside render."
+  - id: p4-transition
+    phase: p4
+    skills: [react.suspense-transitions]
+    difficulty: 4
+    prompt: "Switching tabs shows the spinner again even though the old tab's content was fine to keep. What fixes it?"
+    options:
+      - "Remove Suspense"
+      - "Update the selected tab inside startTransition"
+      - "Add an error boundary"
+    answer: 1
+    explanation: "Transitions keep revealed content on screen while the next one loads."
+  - id: p4-rsc-props
+    phase: p4
+    skills: [react.server-components]
+    difficulty: 4
+    prompt: "A Server Component passes `user={dbUser}` (the full database row with passwordHash) to a Client Component. What is the problem?"
+    options:
+      - "None, props stay on the server"
+      - "Every prop crossing the boundary is serialised to the browser, so the hash leaks"
+      - "Client Components cannot receive objects"
+    answer: 1
+    explanation: "Pass only the fields the client needs."
+  - id: p4-server-function
+    phase: p4
+    skills: [react.server-components]
+    difficulty: 4
+    prompt: "A 'use server' function deletes a post by id. The button is only shown to the author. Is that enough?"
+    options:
+      - "Yes"
+      - "No: the function is a public endpoint and must check that the caller owns the post"
+    answer: 1
+    explanation: "Hidden buttons are not authorisation."
+  - id: p4-upgrade
+    phase: p4
+    skills: [react.production]
+    difficulty: 3
+    prompt: "What is the safest way to start a React major upgrade?"
+    options:
+      - "Bump the version in package.json and fix what breaks"
+      - "Get to the latest minor of the current major, fix all console warnings, then run the official codemods"
+      - "Rewrite the app in the new version"
+    answer: 1
+    explanation: "Warnings are next major's breaking changes, announced early."

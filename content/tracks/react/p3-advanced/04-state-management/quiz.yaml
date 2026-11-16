@@ -1,0 +1,47 @@
+questions:
+  - id: server-cache
+    prompt: "Where should a list of products loaded from the API live?"
+    options:
+      - "In a Redux slice with loading flags written by hand"
+      - "In a query cache such as TanStack Query, keyed by the request"
+      - "In a module-level variable"
+    answer: 1
+    explanation: "Server state is a cache that needs fetching, deduplication, refresh and invalidation."
+  - id: url-state
+    prompt: "Where should the current page of a paginated table live so a link can share it?"
+    answers: ["url", "the url", "in the url", "search params", "the URL"]
+    explanation: "Shareable view state belongs in the path or search params."
+  - id: local
+    prompt: "Where should the open/closed state of one dropdown live?"
+    options: ["In a global store", "Local state in the dropdown component", "In the URL"]
+    answer: 1
+    explanation: "Keep state as local as possible; nobody else needs it."
+  - id: selectors
+    prompt: "What does a store with selectors (Zustand, Redux useSelector) give you over a single context?"
+    options:
+      - "Nothing"
+      - "Components re-render only when the slice they selected changes"
+      - "Server-side rendering"
+    answer: 1
+    explanation: "A context value change re-renders every consumer."
+  - id: usese
+    prompt: "Which React hook connects an external store so that rendering stays consistent under concurrency?"
+    options: ["useEffect", "useSyncExternalStore", "useReducer"]
+    answer: 1
+    explanation: "It subscribes and reads snapshots without tearing."
+  - id: snapshot
+    prompt: "What happens if getSnapshot returns a new object on every call?"
+    options:
+      - "Nothing"
+      - "React sees a change every time and re-renders in a loop"
+      - "The store is reset"
+    answer: 1
+    explanation: "Return the same value while nothing changed."
+  - id: when-store
+    prompt: "When is a client-side store library most worth adding?"
+    options:
+      - "On day one of every project"
+      - "When complex client state is shared widely and updated often, or comes from outside React"
+      - "To hold API responses"
+    answer: 1
+    explanation: "Built-in tools and a query cache cover most apps; stores shine for busy shared client state."

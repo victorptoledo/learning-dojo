@@ -1,4 +1,19 @@
 namespace: react
 skills:
-  - { id: react.hooks-lifecycle, title: "useState, useEffect and the Synchronisation Mindset" }
-  - { id: react.reconciliation-fiber, title: "React Reconciliation: the Virtual DOM and Fiber" }
+  - { id: react.toolchain, title: "React 19 Projects: Vite, TSX, StrictMode and the Dev Tools" }
+  - { id: react.jsx-components, title: "JSX and Function Components" }
+  - { id: react.props-state, title: "Props, State and One-Way Data Flow" }
+  - { id: react.events-lists, title: "Events, Conditional Rendering, Lists and Keys" }
+  - { id: react.hooks-lifecycle, title: "useEffect, Cleanup and useRef: the Synchronisation Mindset" }
+  - { id: react.forms, title: "Forms: Controlled and Uncontrolled Inputs, Validation and Actions" }
+  - { id: react.custom-hooks, title: "Custom Hooks and the Rules of Hooks" }
+  - { id: react.context-reducer, title: "Context and useReducer" }
+  - { id: react.data-fetching, title: "Data Fetching, Races and Server State" }
+  - { id: react.routing, title: "Client-Side Routing with React Router" }
+  - { id: react.reconciliation-fiber, title: "React Reconciliation: Render, Commit and Fiber" }
+  - { id: react.performance, title: "Performance: memo, useMemo, useCallback and the React Compiler" }
+  - { id: react.state-management, title: "State Management at Scale: Client vs Server State" }
+  - { id: react.testing-a11y, title: "Testing with Testing Library and Accessible Components" }
+  - { id: react.suspense-transitions, title: "Suspense, use, Transitions and Error Boundaries" }
+  - { id: react.server-components, title: "Server Components, Server Functions and Frameworks" }
+  - { id: react.production, title: "React in Production: Architecture, Design Systems and Upgrades" }

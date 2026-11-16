@@ -1,0 +1,50 @@
+questions:
+  - id: triggers
+    prompt: "Which of these does NOT trigger a re-render of a component?"
+    options:
+      - "Its state changes"
+      - "Its parent re-renders"
+      - "A ref it holds changes ref.current"
+      - "A context it reads changes"
+    answer: 2
+    explanation: "Refs are not tracked by React."
+  - id: phases
+    prompt: "In which phase does React change the DOM?"
+    answers: ["commit", "the commit phase", "commit phase"]
+    explanation: "The render phase only computes and compares; the commit applies the changes."
+  - id: type-change
+    prompt: "A child changes from `<div><Chat /></div>` to `<section><Chat /></section>`. What happens to Chat's state?"
+    options:
+      - "It is kept"
+      - "It is lost: a different parent type unmounts the whole subtree"
+      - "React merges the two"
+    answer: 1
+    explanation: "Different element types produce different trees."
+  - id: same-position
+    prompt: "`{on ? <Counter color=\"red\" /> : <Counter color=\"blue\" />}`: what happens to the count when on toggles?"
+    options:
+      - "It resets"
+      - "It is kept: same type at the same position, only a prop changed"
+    answer: 1
+    explanation: "React sees one Counter whose props changed."
+  - id: key-reset
+    prompt: "What is the idiomatic way to reset a form's state when the edited user changes?"
+    options:
+      - "An effect that clears every field"
+      - "Render <EditForm key={user.id} />"
+      - "Unmount the whole page"
+    answer: 1
+    explanation: "A new key is a new component instance with fresh state."
+  - id: fiber
+    prompt: "What does Fiber make possible?"
+    options:
+      - "Server-side rendering"
+      - "Splitting rendering into units of work that can be paused, prioritised or discarded"
+      - "Faster DOM APIs"
+    answer: 1
+    explanation: "That is the basis of concurrent features such as transitions."
+  - id: batching
+    prompt: "A click handler calls three setters. How many renders follow?"
+    options: ["Three", "One: updates in the same event are batched", "Zero"]
+    answer: 1
+    explanation: "React batches updates, also in timeouts and promise callbacks since React 18."

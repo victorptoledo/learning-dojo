@@ -1,0 +1,86 @@
+pass_percent: 85
+questions:
+  - id: jsx-expression
+    skills: [react.jsx-components]
+    prompt: "Which of these can you put inside `{ }` in JSX?"
+    options:
+      - "An if statement"
+      - "A for loop"
+      - "Any expression, such as a ternary or a map call"
+    answer: 2
+    explanation: "Braces hold expressions; statements must move out of the JSX or become expressions."
+  - id: pure-render
+    skills: [react.jsx-components]
+    prompt: "Why does React require components to be pure?"
+    options:
+      - "To make them faster to type-check"
+      - "React may render them several times or discard a render, so a render must not change anything outside"
+      - "Because hooks are pure"
+    answer: 1
+    explanation: "StrictMode, re-renders and concurrent rendering all call your component more than once."
+  - id: snapshot-alert
+    skills: [react.props-state]
+    prompt: "A handler does `setName(\"Bo\"); alert(name)` while name is \"Al\". What does the alert show?"
+    options: ["Bo", "Al", "undefined"]
+    answer: 1
+    explanation: "State is a snapshot of this render; the new value appears in the next render."
+  - id: immutable-object
+    skills: [react.props-state]
+    prompt: "Which update of `user` in state is correct?"
+    options:
+      - "user.email = x; setUser(user)"
+      - "setUser({ ...user, email: x })"
+      - "Object.assign(user, { email: x })"
+    answer: 1
+    explanation: "A new object gets a new reference, so React sees the change."
+  - id: lift-state
+    skills: [react.props-state]
+    prompt: "A filter input and a result list are siblings. Where does the filter text live?"
+    options:
+      - "In the input component, and the list reads the DOM"
+      - "In their common parent, passed to both"
+      - "In an effect"
+    answer: 1
+    explanation: "Shared state goes to the closest common parent; data flows down."
+  - id: keys
+    skills: [react.events-lists]
+    prompt: "What is the best key for rows rendered from `orders`?"
+    options: ["The index", "order.id", "Math.random()", "No key, React handles it"]
+    answer: 1
+    explanation: "Stable, unique ids from the data keep each row's state and DOM with the right order."
+  - id: effect-deps
+    skills: [react.hooks-lifecycle]
+    prompt: "An effect reads `userId` and has `[]` as dependencies. What happens when userId changes?"
+    options:
+      - "The effect re-runs"
+      - "Nothing: the effect keeps working with the old userId"
+      - "React throws"
+    answer: 1
+    explanation: "List every reactive value the effect reads, or it uses stale values."
+  - id: no-effect
+    skills: [react.hooks-lifecycle]
+    prompt: "Which needs an effect?"
+    options:
+      - "Showing items.length"
+      - "Saving the form when the user clicks Save"
+      - "Keeping document.title equal to the unread count"
+    answer: 2
+    explanation: "document.title is outside React; a derived value is computed in render and a click is handled in its handler."
+  - id: focus
+    skills: [react.hooks-lifecycle, react.forms]
+    prompt: "How do you move focus to the email input when a submit fails?"
+    options:
+      - "document.querySelector(\"#email\").focus() during render"
+      - "A ref on the input and emailRef.current?.focus() in the submit handler"
+      - "autoFocus={failed}"
+    answer: 1
+    explanation: "Refs give access to DOM nodes in handlers and effects."
+  - id: a11y-error
+    skills: [react.forms]
+    prompt: "Which markup ties an error message to its input for screen readers?"
+    options:
+      - "<input aria-invalid=\"true\" aria-describedby=\"email-error\" /> <p id=\"email-error\">...</p>"
+      - "<input title=\"error\" />"
+      - "A red border"
+    answer: 0
+    explanation: "aria-invalid marks the field and aria-describedby reads the message with it."

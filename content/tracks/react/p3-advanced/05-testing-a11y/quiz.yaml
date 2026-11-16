@@ -1,0 +1,48 @@
+questions:
+  - id: priority
+    prompt: "Which query does Testing Library recommend first?"
+    options: ["getByTestId", "getByRole", "container.querySelector", "getByText"]
+    answer: 1
+    explanation: "Roles and accessible names reflect what users and assistive technology perceive."
+  - id: absent
+    prompt: "Which query do you use to assert that an error message is NOT shown?"
+    options: ["getByText", "queryByText", "findByText"]
+    answer: 1
+    explanation: "queryBy returns null instead of throwing."
+  - id: async
+    prompt: "A message appears after a fetch resolves. How do you wait for it?"
+    options:
+      - "await screen.findByText(\"Saved\")"
+      - "screen.getByText(\"Saved\") right away"
+      - "setTimeout for one second"
+    answer: 0
+    explanation: "findBy queries retry until the element appears or a timeout passes."
+  - id: user-event
+    prompt: "Why prefer user-event over fireEvent?"
+    options:
+      - "It is faster"
+      - "It simulates the whole interaction (focus, keydown, input, keyup, click) like a real user"
+      - "It works without a DOM"
+    answer: 1
+    explanation: "Bugs often hide in the events fireEvent skips."
+  - id: div-button
+    prompt: "What is wrong with `<div onClick={close}>X</div>` as a close button?"
+    options:
+      - "Nothing"
+      - "It is not focusable, not keyboard-operable, not announced as a button and has no meaningful name"
+      - "divs cannot have onClick"
+    answer: 1
+    explanation: "Use <button type=\"button\" aria-label=\"Close\">."
+  - id: roving
+    prompt: "In a tab list, which tab has tabIndex 0 with a roving tabindex?"
+    options: ["Every tab", "Only the selected (active) tab; the others have -1", "None"]
+    answer: 1
+    explanation: "Tab enters the widget at the active tab, and arrow keys move between tabs."
+  - id: mock-edges
+    prompt: "What should a component test mock?"
+    options:
+      - "The component's own children and hooks"
+      - "The edges: network, timers, browser APIs jsdom lacks"
+      - "React itself"
+    answer: 1
+    explanation: "Mocking your own code tests the mocks, not the app."

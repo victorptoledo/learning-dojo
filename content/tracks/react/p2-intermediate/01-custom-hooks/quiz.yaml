@@ -1,0 +1,52 @@
+questions:
+  - id: call-order
+    prompt: "How does React know which state belongs to which useState call?"
+    options:
+      - "By the variable name"
+      - "By the order in which the hooks are called during render"
+      - "By a key passed to useState"
+    answer: 1
+    explanation: "That is why hooks must run in the same order on every render."
+  - id: conditional-hook
+    prompt: "Which of these breaks the rules of hooks?"
+    options:
+      - "Calling useState at the top of a component"
+      - "Calling useEffect inside if (open) { ... }"
+      - "Calling a custom hook from another custom hook"
+    answer: 1
+    explanation: "A conditional call changes the order of the hooks between renders."
+  - id: shared-state
+    prompt: "Two components call `useOnlineStatus()`. Do they share one state?"
+    options:
+      - "Yes, hooks are singletons"
+      - "No, each call has its own state; custom hooks share logic"
+    answer: 1
+    explanation: "To share state, lift it up or put it in context."
+  - id: naming
+    prompt: "A helper `useFormatDate(date)` calls no hooks. What should you do?"
+    options:
+      - "Keep the name"
+      - "Rename it to formatDate: only functions that call hooks start with use"
+      - "Add a useState so the name is right"
+    answer: 1
+    explanation: "The use prefix tells the tooling to check the rules of hooks."
+  - id: initialiser
+    prompt: "Why write `useState(() => readFromStorage())` instead of `useState(readFromStorage())`?"
+    options:
+      - "It is the same"
+      - "The function form is called only on the first render, so the costly read does not run on every render"
+      - "It makes the state immutable"
+    answer: 1
+    explanation: "The argument of useState is evaluated every render; an initialiser function is called once."
+  - id: render-hook
+    prompt: "Which Testing Library function renders a hook on its own for a test?"
+    answers: ["renderHook"]
+    explanation: "renderHook returns result.current, rerender and unmount."
+  - id: act
+    prompt: "In a hook test, why wrap `result.current.increment()` in act()?"
+    options:
+      - "To make it async"
+      - "So React processes the state update and re-renders before the assertion"
+      - "To silence TypeScript"
+    answer: 1
+    explanation: "act flushes updates and effects, like a real event would."

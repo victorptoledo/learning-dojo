@@ -1,0 +1,46 @@
+questions:
+  - id: spa
+    prompt: "What does a client-side router do when the user clicks a <Link>?"
+    options:
+      - "Asks the server for a new HTML page"
+      - "Updates the URL with the History API and renders the matching route without a reload"
+      - "Opens a new tab"
+    answer: 1
+    explanation: "The page stays loaded; only the matched components change."
+  - id: outlet
+    prompt: "In a layout route, which component marks where the matching child route renders?"
+    answers: ["Outlet", "<Outlet />", "<Outlet/>"]
+    explanation: "The parent keeps its layout mounted and renders the child in the outlet."
+  - id: params
+    prompt: "For the route `products/:productId`, what does useParams() return on /products/42?"
+    options: ["{ productId: 42 }", "{ productId: \"42\" }", "\"42\""]
+    answer: 1
+    explanation: "Params are strings (or undefined); parse and validate them."
+  - id: search-params
+    prompt: "Where should the filters and page number of a product list live so the view can be shared?"
+    options: ["In React state", "In search params of the URL", "In localStorage"]
+    answer: 1
+    explanation: "The URL is the state users can bookmark, share and reload."
+  - id: link-vs-navigate
+    prompt: "When should you use useNavigate instead of <Link>?"
+    options:
+      - "For every menu item"
+      - "For navigation triggered by code, such as after a successful save"
+      - "Never"
+    answer: 1
+    explanation: "Links keep native behaviour (open in new tab, accessibility); navigate is for programmatic moves."
+  - id: loader
+    prompt: "What advantage does a route loader have over fetching in the page's useEffect?"
+    options:
+      - "None"
+      - "It starts loading when the route matches, before rendering, and in parallel for nested routes"
+      - "It caches forever"
+    answer: 1
+    explanation: "Loaders avoid fetch-after-render waterfalls."
+  - id: guard
+    prompt: "A route guard redirects users who are not signed in. Is the data behind that page now safe?"
+    options:
+      - "Yes"
+      - "No: the server must still check authorisation on every request"
+    answer: 1
+    explanation: "Client checks are for user experience; anyone can change client code."

@@ -1,0 +1,24 @@
+id: react.p1.events-lists
+kind: lesson
+status: draft
+title: "Events, Conditional Rendering, Lists and Keys"
+summary: "Event handlers and their types, passing handlers down, preventDefault and propagation, conditional rendering with ternaries and &&, rendering lists with map, and choosing stable keys."
+objectives:
+  - { id: o1, text: "Handle events with typed handlers and pass handlers to child components", skills: [react.events-lists] }
+  - { id: o2, text: "Render parts of the UI conditionally without the && pitfalls", skills: [react.events-lists] }
+  - { id: o3, text: "Render lists with map and stable keys, and explain what goes wrong with index keys", skills: [react.events-lists] }
+prerequisites: [react.p1.props-state]
+difficulty: 2
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A list of editable rows is rendered with `{rows.map((row, i) => <Row key={i} row={row} />)}`, each `Row` keeps the text being edited in its own state, and a "Delete" button removes a row. Users report that after deleting the first row, the second row shows the text they had typed in the first. A header also shows `{rows.length && <p>{rows.length} rows</p>}` and prints a stray "0" when the list is empty. Explain both bugs, fix them, and write the Delete handler so that clicking it does not also trigger the `onClick` of the row container.'
+  criteria:
+    - "Explains that index keys tie state to positions, so after a delete the state of row 1 moves to the row now at index 0"
+    - "Uses a stable id from the data as the key"
+    - "Explains that 0 && x evaluates to 0, which React renders, and uses rows.length > 0 && ... or a ternary"
+    - "Calls event.stopPropagation() in the Delete handler (and explains propagation from child to parent)"
+    - "Passes the handler as a function (onClick={() => onDelete(row.id)}), not as a call (onClick={onDelete(row.id)})"

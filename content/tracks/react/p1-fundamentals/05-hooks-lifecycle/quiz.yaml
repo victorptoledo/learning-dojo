@@ -1,0 +1,52 @@
+questions:
+  - id: what-for
+    prompt: "What is an effect for?"
+    options:
+      - "Computing values from props"
+      - "Synchronising the component with a system outside React (network, timers, DOM APIs)"
+      - "Handling clicks"
+      - "Replacing state"
+    answer: 1
+    explanation: "Rendering computes, handlers react to events, effects synchronise with the outside world."
+  - id: no-deps
+    prompt: "How often does `useEffect(fn)` without a dependency array run?"
+    options: ["Once", "After every render", "Only on unmount"]
+    answer: 1
+    explanation: "No array means no comparison: it runs after each commit. [] means once after mount."
+  - id: cleanup-when
+    prompt: "When does React call an effect's cleanup function?"
+    options:
+      - "Only when the page closes"
+      - "Before the effect runs again with changed dependencies, and when the component unmounts"
+      - "Right after the effect runs"
+    answer: 1
+    explanation: "The cleanup stops what the previous run started."
+  - id: strict-double
+    prompt: "An interval effect without cleanup makes a clock tick twice as fast in development. What is the right fix?"
+    options:
+      - "Remove StrictMode"
+      - "Return () => clearInterval(id) from the effect"
+      - "Use a ref to skip the second run"
+    answer: 1
+    explanation: "StrictMode's extra mount exposed the missing cleanup; the same bug would appear on remounts in production."
+  - id: derived-effect
+    prompt: "Which of these needs an effect?"
+    options:
+      - "Showing firstName + lastName"
+      - "Filtering a list by a search term"
+      - "Subscribing to window resize events"
+      - "Sending a request when the user clicks Save"
+    answer: 2
+    explanation: "Derived values are computed in render, clicks are handled in handlers; a subscription synchronises with the browser."
+  - id: ref-render
+    prompt: "Changing `ref.current` makes the component re-render. True or false?"
+    answers: ["false", "False"]
+    explanation: "Refs are mutable boxes React does not track; use state for anything that is displayed."
+  - id: dom-ref
+    prompt: "When is `inputRef.current` the input element?"
+    options:
+      - "During the first render"
+      - "After React has committed the element to the DOM (in effects and event handlers)"
+      - "Never; refs only hold numbers"
+    answer: 1
+    explanation: "During render the DOM node may not exist yet; read refs in handlers and effects."

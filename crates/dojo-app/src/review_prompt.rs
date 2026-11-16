@@ -101,9 +101,14 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         KataLanguage::Kubernetes => (kata_dir.to_path_buf(), "yaml"),
         KataLanguage::Go => (kata_dir.to_path_buf(), "go"),
         KataLanguage::TypeScript => (kata_dir.to_path_buf(), "ts"),
+        KataLanguage::React => (kata_dir.to_path_buf(), "tsx"),
     };
     let mut found = Vec::new();
     collect(&root, extension, &mut found);
+    if language == KataLanguage::React {
+        // Hooks and helpers live in .ts files next to the components.
+        collect(&root, "ts", &mut found);
+    }
     let mut files: Vec<PathBuf> = found
         .into_iter()
         .filter_map(|path| path.strip_prefix(kata_dir).ok().map(Path::to_path_buf))
@@ -160,6 +165,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Kubernetes => "Kubernetes manifests, Kustomize and Helm",
         KataLanguage::Go => "Go",
         KataLanguage::TypeScript => "TypeScript",
+        KataLanguage::React => "React with TypeScript",
     };
     let files = kata
         .files
@@ -371,5 +377,22 @@ mod tests {
         std::fs::write(dir.path().join("node_modules/zod/index.d.ts"), "x").unwrap();
         let files = kata_files(dir.path(), KataLanguage::TypeScript);
         assert_eq!(files, vec![PathBuf::from("shapes.ts")]);
+    }
+
+    #[test]
+    fn kata_files_lists_react_components_and_hooks_but_not_tests() {
+        let dir = tempfile::TempDir::new().unwrap();
+        for folder in ["tests", "node_modules/react"] {
+            std::fs::create_dir_all(dir.path().join(folder)).unwrap();
+        }
+        std::fs::write(dir.path().join("Tabs.tsx"), "export {}").unwrap();
+        std::fs::write(dir.path().join("useTabs.ts"), "export {}").unwrap();
+        std::fs::write(dir.path().join("tests/visible.test.tsx"), "x").unwrap();
+        std::fs::write(dir.path().join("node_modules/react/index.d.ts"), "x").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::React);
+        assert_eq!(
+            files,
+            vec![PathBuf::from("Tabs.tsx"), PathBuf::from("useTabs.ts")]
+        );
     }
 }

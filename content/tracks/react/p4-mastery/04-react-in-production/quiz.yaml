@@ -1,0 +1,49 @@
+questions:
+  - id: by-feature
+    prompt: "Why do large React apps group files by feature instead of by kind?"
+    options:
+      - "It makes the bundle smaller"
+      - "Everything about one part of the product lives together and can be changed or removed as a unit"
+      - "React requires it"
+    answer: 1
+    explanation: "Feature folders with public entry points keep coupling visible."
+  - id: inp
+    prompt: "Which Core Web Vital measures how quickly the page responds to interactions, where slow renders show up?"
+    answers: ["INP", "interaction to next paint"]
+    explanation: "LCP is loading, CLS is layout shift, INP is responsiveness."
+  - id: xss
+    prompt: "Which is an XSS risk in React?"
+    options:
+      - "<p>{comment.text}</p>"
+      - "<div dangerouslySetInnerHTML={{ __html: comment.html }} /> with user HTML"
+      - "<input value={name} />"
+    answer: 1
+    explanation: "JSX escapes text; dangerouslySetInnerHTML does not. Sanitise first."
+  - id: secrets
+    prompt: "An API key is read from VITE_API_KEY in client code. Is it secret?"
+    options:
+      - "Yes, environment variables are private"
+      - "No: it is embedded in the bundle that every visitor downloads"
+    answer: 1
+    explanation: "Keep secrets on the server."
+  - id: white-screen
+    prompt: "What turns production 'white screens' into actionable reports?"
+    options:
+      - "console.log"
+      - "Error boundaries that report to an error monitoring service with source maps"
+      - "More unit tests"
+    answer: 1
+    explanation: "You need the stack trace, the release and the context of the user."
+  - id: upgrade
+    prompt: "What is the first step of a React major upgrade?"
+    options:
+      - "Change the version and fix what breaks"
+      - "Upgrade to the latest minor of the current major and fix every console warning"
+      - "Rewrite the app"
+    answer: 1
+    explanation: "Warnings announce the next major's breaking changes; codemods handle the mechanical part."
+  - id: pyramid
+    prompt: "Which tests should be the fewest?"
+    options: ["Unit tests of reducers", "Integration tests with Testing Library", "End-to-end browser tests"]
+    answer: 2
+    explanation: "E2E tests are slow and brittle; keep them for critical journeys."

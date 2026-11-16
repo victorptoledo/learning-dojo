@@ -372,6 +372,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::TypeScript => {
                 "2. Edit the .ts modules in the kata folder. Each function that still throws new Error(\"todo ...\") and each type marked todo is yours to write:"
             }
+            KataLanguage::React => {
+                "2. Edit the .tsx components and .ts hooks in the kata folder. Each one that still throws new Error(\"todo ...\") is yours to write:"
+            }
         }),
         Line::from(match language {
             KataLanguage::Rust => {
@@ -400,6 +403,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             }
             KataLanguage::TypeScript => {
                 "   that throw is a placeholder; tsc must find no type errors, then node:test runs the tests."
+            }
+            KataLanguage::React => {
+                "   that throw is a placeholder; tsc must find no type errors, then Testing Library renders your components in a jsdom page."
             }
         }),
         Line::from("3. Save the file. The tests run by themselves and the result appears below."),

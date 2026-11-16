@@ -1,0 +1,25 @@
+id: react.p3.reconciliation-fiber
+legacy_id: react-02-reconciliation-fiber
+kind: lesson
+status: draft
+title: "React Reconciliation: Render, Commit and Fiber"
+summary: "What triggers a render, the render and commit phases, how React diffs element trees (types, positions and keys), preserving and resetting state, batching, Fiber and interruptible concurrent rendering."
+objectives:
+  - { id: o1, text: "Explain what triggers a re-render and the difference between the render and the commit phase", skills: [react.reconciliation-fiber] }
+  - { id: o2, text: "Predict when React keeps or resets state from element types, positions and keys", skills: [react.reconciliation-fiber] }
+  - { id: o3, text: "Explain what Fiber is and how concurrent rendering lets React interrupt and prioritise work", skills: [react.reconciliation-fiber] }
+prerequisites: [react.p2.checkpoint]
+difficulty: 4
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A page renders `{isAdmin ? <Form key="admin" /> : <Form key="user" />}` and, elsewhere, `{showBanner && <Banner />}<Editor />`, plus a tab component that renders `<Settings />` inside a `<div>` for one tab and inside a `<section>` for the other. For each case, say whether the state inside Form, Editor and Settings survives a toggle, and why, in terms of how React reconciles element trees. Then explain to a junior what "React re-rendered" means: what runs, what is compared, and what actually touches the DOM.'
+  criteria:
+    - "Explains that different keys make React treat the two Forms as different components, so state resets"
+    - "Explains that && keeps a slot (false) in the children, so Editor keeps its position and its state"
+    - "Explains that changing the parent element type (div to section) unmounts the subtree, so Settings loses its state"
+    - "Distinguishes the render phase (calling components, building elements, diffing) from the commit phase (applying the minimal DOM changes, running effects)"
+    - "Mentions that a re-render of a parent re-renders its children by default, but the DOM is only touched where the output differs"

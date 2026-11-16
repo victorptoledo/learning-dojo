@@ -1,0 +1,24 @@
+id: react.p4.server-components
+kind: lesson
+status: draft
+title: "Server Components, Server Functions and Frameworks"
+summary: "Rendering strategies (CSR, SSR, SSG, streaming), hydration, React Server Components and the 'use client' boundary, what can cross it, server functions and 'use server', security of server code, and what Next.js and React Router framework mode provide."
+objectives:
+  - { id: o1, text: "Compare client rendering, server rendering, static generation and streaming, and explain hydration", skills: [react.server-components] }
+  - { id: o2, text: "Split an app into Server and Client Components and explain what can cross the boundary", skills: [react.server-components] }
+  - { id: o3, text: "Explain server functions and the security rules for code that runs on the server", skills: [react.server-components, react.forms] }
+prerequisites: [react.p4.resource-loader]
+difficulty: 4
+estimated_minutes: 60
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You are moving a product page from a client-only Vite app to a framework with React Server Components. The page has a product description from the database, a price that depends on the signed-in user, an image gallery with swipe gestures, an "Add to cart" button, reviews with a "load more" button, and a markdown renderer library of 80 KB. Mark each part as a Server or a Client Component, say where the data is loaded, how "Add to cart" reaches the server, and what must be checked inside the server function. Explain one thing that gets better for users and one new risk.'
+  criteria:
+    - "Keeps data-reading parts (description, reviews list, markdown rendering) as Server Components that query data directly, so their code and the markdown library never reach the browser"
+    - "Makes interactive parts (gallery, Add to cart, load more) Client Components with 'use client', receiving serialisable props"
+    - "Uses a server function ('use server') or a form action for Add to cart"
+    - "Checks authentication, authorisation and input validation inside the server function, treating its arguments as untrusted"
+    - "Names a benefit (less JavaScript, faster first paint with streaming, no client-server waterfall) and a risk (leaking secrets or private fields through props, exposed endpoints, server load)"

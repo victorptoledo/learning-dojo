@@ -1,0 +1,54 @@
+questions:
+  - id: library-or-framework
+    prompt: "Which of these does the `react` package itself provide?"
+    options:
+      - "A router for URLs"
+      - "Components, state and hooks"
+      - "An HTTP client"
+      - "A bundler and dev server"
+    answer: 1
+    explanation: "React is a UI library. Routing, HTTP and bundling come from other libraries, Vite or a framework."
+  - id: ui-of-state
+    prompt: "How do you change what a React component shows on screen?"
+    options:
+      - "Edit the DOM nodes with document.querySelector"
+      - "Change its state (or its props); React re-renders and updates the DOM"
+      - "Call render() on the component again by hand"
+    answer: 1
+    explanation: "React owns the DOM under its root: you describe UI for a state, and React applies the changes."
+  - id: create-root
+    prompt: "What does `createRoot(document.getElementById(\"root\")!)` do?"
+    options:
+      - "Creates a new HTML page"
+      - "Attaches React to that DOM node, so render() can show a component tree inside it"
+      - "Starts the Vite dev server"
+    answer: 1
+    explanation: "The root is where React manages the DOM; render shows the tree there."
+  - id: strict-mode-effects
+    prompt: "In development with StrictMode, an effect logs `mounted` twice. Why?"
+    options:
+      - "A bug in React 19"
+      - "StrictMode runs effects mount, cleanup, mount once more to reveal missing cleanups"
+      - "Vite reloads the page twice"
+    answer: 1
+    explanation: "It only happens in development, and well-written effects behave the same either way."
+  - id: strict-mode-production
+    prompt: "In one word: what does StrictMode change in a production build?"
+    answers: ["nothing"]
+    explanation: "Its extra checks run only in development."
+  - id: jsx-compiles
+    prompt: "With `\"jsx\": \"react-jsx\"`, what does `<App />` compile to?"
+    options:
+      - "An HTML string"
+      - "A call to jsx(App, {}) from react/jsx-runtime"
+      - "A DOM element created with document.createElement"
+    answer: 1
+    explanation: "JSX is syntax for function calls that build React elements, plain objects describing UI."
+  - id: kata-tests
+    prompt: "How do the tests of a dojo React kata find a button?"
+    options:
+      - "By its CSS class"
+      - "The way a user does: by role and accessible name, with Testing Library"
+      - "By the component's internal state"
+    answer: 1
+    explanation: "Testing Library queries such as getByRole('button', { name: 'Save' }) test behaviour, not implementation."

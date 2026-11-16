@@ -1,0 +1,24 @@
+id: react.p3.performance
+kind: lesson
+status: draft
+title: "Performance: memo, useMemo, useCallback and the React Compiler"
+summary: "Measure first with the Profiler, why components re-render, memo and its props comparison, useMemo and useCallback for stable values, state colocation and composition, the React Compiler, list virtualisation, code splitting and transitions."
+objectives:
+  - { id: o1, text: "Find slow renders with the React Profiler before optimising", skills: [react.performance] }
+  - { id: o2, text: "Skip unnecessary renders with memo, useMemo and useCallback, and explain when they do not help", skills: [react.performance] }
+  - { id: o3, text: "Prefer structural fixes (colocate state, pass children) and know what the React Compiler automates", skills: [react.performance] }
+prerequisites: [react.p3.reconciliation-fiber]
+difficulty: 4
+estimated_minutes: 60
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A dashboard re-renders its 2,000-row table on every keystroke in a "note" field at the top of the page, and typing lags. The page component holds `note`, `rows` and `selectedId` in state and passes `onSelect={(id) => setSelectedId(id)}` and `columns={[...]}` to `<Table>`. Describe how you would confirm the cause, then give two fixes that change the structure (no memo) and one that uses memo, useMemo and useCallback. Explain why `memo(Table)` alone does not help here, and what the React Compiler would change.'
+  criteria:
+    - "Measures first with the React DevTools Profiler (which components render, how long, why)"
+    - "Proposes colocating the note state in its own component so the table is outside the re-rendering subtree"
+    - "Explains that inline functions and array literals are new on every render, so memo's shallow comparison fails"
+    - "Stabilises onSelect with useCallback and columns with useMemo (or moves the constant out of the component) together with memo(Table)"
+    - "Mentions virtualising the 2,000 rows, and that the React Compiler memoises components and values automatically"

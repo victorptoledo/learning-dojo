@@ -1,0 +1,50 @@
+questions:
+  - id: fetch-404
+    prompt: "What does `fetch(url)` do when the server answers 404?"
+    options:
+      - "The promise rejects"
+      - "The promise resolves with a response whose ok is false"
+      - "It retries"
+    answer: 1
+    explanation: "fetch rejects only on network errors; check response.ok."
+  - id: race
+    prompt: "A user switches from user 1 to user 2 quickly, and sometimes sees user 1. Why?"
+    options:
+      - "The cache is stale"
+      - "The slower first response arrives last and overwrites the second"
+      - "StrictMode"
+    answer: 1
+    explanation: "Abort or ignore the previous request in the effect cleanup."
+  - id: abort
+    prompt: "Where do you abort the previous request in an effect?"
+    answers: ["in the cleanup", "cleanup", "the cleanup function"]
+    explanation: "The cleanup runs before the effect runs again with the new id, and on unmount."
+  - id: union-state
+    prompt: "Why model fetch state as a union of loading, error and success?"
+    options:
+      - "To make impossible combinations (loading with an error, data with an error) unrepresentable"
+      - "Because useState requires it"
+      - "It is faster"
+    answer: 0
+    explanation: "Each state has exactly the fields it needs."
+  - id: waterfall
+    prompt: "A page fetches the user, then its child component fetches the user's orders. What is this called?"
+    options: ["A race condition", "A waterfall", "Deduplication"]
+    answer: 1
+    explanation: "Sequential requests that could run in parallel; start them together or load on the route."
+  - id: server-state
+    prompt: "What do server-state libraries such as TanStack Query add over a fetch in an effect?"
+    options:
+      - "Only a nicer syntax"
+      - "Caching by key, deduplication, retries, background refresh and invalidation"
+      - "A server"
+    answer: 1
+    explanation: "They treat server data as a cache that can go stale."
+  - id: use-promise
+    prompt: "Why must the promise passed to `use(promise)` not be created inside the same component's render?"
+    options:
+      - "use only accepts strings"
+      - "Each render would create a new promise and start a new request, so it would never settle"
+      - "Promises cannot be created in components"
+    answer: 1
+    explanation: "Create it in a loader, a cache or a parent, so it is stable across renders."

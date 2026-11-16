@@ -1,0 +1,51 @@
+questions:
+  - id: rsc-bundle
+    prompt: "What happens to the code of a Server Component?"
+    options:
+      - "It is sent to the browser and runs twice"
+      - "It runs only on the server and is never sent to the browser"
+      - "It runs in a web worker"
+    answer: 1
+    explanation: "Only its rendered output (the RSC payload or HTML) reaches the client."
+  - id: use-client
+    prompt: "Which directive marks a module as a Client Component boundary?"
+    answers: ["use client", "\"use client\"", "'use client'"]
+    explanation: "That module and its imports go into the client bundle."
+  - id: serialisable
+    prompt: "Which prop can a Server Component NOT pass to a Client Component?"
+    options:
+      - "A plain object with strings and numbers"
+      - "JSX as children"
+      - "An ordinary function such as () => console.log(\"hi\")"
+      - "A promise"
+    answer: 2
+    explanation: "Props must be serialisable; only server functions are allowed as functions."
+  - id: hydration
+    prompt: "What is hydration?"
+    options:
+      - "Rendering HTML on the server"
+      - "React attaching event handlers and state to server-rendered HTML in the browser"
+      - "Caching data"
+    answer: 1
+    explanation: "Mismatched output between server and client causes hydration errors."
+  - id: server-function-security
+    prompt: "A server function updates the cart. What must it do?"
+    options:
+      - "Nothing special: only our client calls it"
+      - "Authenticate, authorise and validate its arguments, because anyone can call it"
+      - "Run in a Client Component"
+    answer: 1
+    explanation: "Server functions are public HTTP endpoints."
+  - id: where-boundary
+    prompt: "Where should 'use client' usually go?"
+    options:
+      - "At the root layout, so everything is interactive"
+      - "As low as possible, on the interactive leaves"
+      - "Nowhere"
+    answer: 1
+    explanation: "Keeping most of the tree on the server ships less JavaScript."
+  - id: ssg
+    prompt: "Which strategy produces HTML at build time?"
+    options: ["CSR", "SSR", "SSG", "Streaming"]
+    answer: 2
+    explanation: "Static generation is ideal for content that changes rarely."

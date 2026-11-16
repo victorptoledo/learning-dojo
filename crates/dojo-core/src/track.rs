@@ -109,6 +109,9 @@ pub enum KataLanguage {
     Go,
     /// TypeScript modules type-checked by tsc and tested with node:test in `dojo-node`.
     TypeScript,
+    /// React components and hooks in TypeScript (.tsx), type-checked by tsc and tested with
+    /// Testing Library and node:test in a jsdom document in `dojo-react`.
+    React,
 }
 
 impl Kata {
@@ -122,6 +125,7 @@ impl Kata {
             "dojo-k8s" => KataLanguage::Kubernetes,
             "dojo-go" => KataLanguage::Go,
             "dojo-node" => KataLanguage::TypeScript,
+            "dojo-react" => KataLanguage::React,
             _ => KataLanguage::Rust,
         }
     }

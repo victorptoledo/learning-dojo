@@ -1,0 +1,26 @@
+id: react.p1.hooks-lifecycle
+legacy_id: react-01-hooks-lifecycle
+kind: lesson
+status: draft
+title: "useEffect, Cleanup and useRef: the Synchronisation Mindset"
+summary: "Effects synchronise a component with something outside React; dependencies, cleanup, why effects run twice in development, when you do not need an effect, and refs for DOM nodes and values that do not render."
+objectives:
+  - { id: o1, text: "Write an effect that synchronises with an external system and cleans up after itself", skills: [react.hooks-lifecycle] }
+  - { id: o2, text: "Choose the right dependencies and avoid infinite re-render loops", skills: [react.hooks-lifecycle] }
+  - { id: o3, text: "Recognise code that does not need an effect (derived values, event logic)", skills: [react.hooks-lifecycle] }
+  - { id: o4, text: "Use useRef for DOM access and for mutable values that must not trigger a render", skills: [react.hooks-lifecycle] }
+prerequisites: [react.p1.todo-board]
+difficulty: 3
+estimated_minutes: 60
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this component: `function Chat({ roomId }) { const [messages, setMessages] = useState([]); const [count, setCount] = useState(0); useEffect(() => { const socket = connect(roomId); socket.on("message", (m) => setMessages([...messages, m])); }); useEffect(() => { setCount(messages.length); }, [messages]); ... }`. Explain every problem you see (what happens when roomId changes, in StrictMode, and on each new message), then rewrite it with correct dependencies and cleanup. Say which of the two effects should not exist at all.'
+  criteria:
+    - "Spots that the effect has no dependency array, so it reconnects after every render"
+    - "Adds a cleanup that disconnects the socket, and explains that it runs before the next effect and on unmount"
+    - "Uses [roomId] as dependencies and explains that the effect re-runs when the room changes"
+    - "Fixes the stale messages closure with an updater: setMessages((current) => [...current, m])"
+    - "Removes the count effect and derives messages.length during render"

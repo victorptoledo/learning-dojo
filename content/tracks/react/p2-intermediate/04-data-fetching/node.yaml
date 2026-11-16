@@ -1,0 +1,24 @@
+id: react.p2.data-fetching
+kind: lesson
+status: draft
+title: "Data Fetching, Races and Server State"
+summary: "Fetching in effects with loading and error states, race conditions and AbortController, why server state is a cache, TanStack Query and framework loaders at a conceptual level, and where Suspense and use fit."
+objectives:
+  - { id: o1, text: "Fetch data in an effect with loading, error and empty states, and cancel stale requests", skills: [react.data-fetching] }
+  - { id: o2, text: "Explain race conditions and waterfalls in client-side fetching and how to avoid them", skills: [react.data-fetching] }
+  - { id: o3, text: "Explain why server state is a cache and what libraries such as TanStack Query and framework loaders add", skills: [react.data-fetching, react.state-management] }
+prerequisites: [react.p2.context-reducer]
+difficulty: 3
+estimated_minutes: 60
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A product page fetches `/api/products/:id` in `useEffect(() => { fetch(url).then((r) => r.json()).then(setProduct); }, [id])`. Users who click quickly between products sometimes see the wrong product, there is no spinner, a 404 shows a blank page, and the reviews panel only starts loading after the product arrives. Explain each problem, rewrite the effect so it handles loading, errors (including HTTP errors) and races, and say what you would gain by moving to TanStack Query or a framework loader.'
+  criteria:
+    - "Explains the race: an older response can arrive after a newer one and overwrite it"
+    - "Uses an AbortController (or an ignore flag) in the effect cleanup to drop stale responses"
+    - "Models loading, error and success states and checks response.ok, since fetch does not reject on HTTP errors"
+    - "Identifies the waterfall and proposes starting both requests in parallel (or loading on the route)"
+    - "Names benefits of a server-state library or loader: caching, deduplication, retries, background refresh, loading before render"

@@ -1,0 +1,24 @@
+id: react.p0.toolchain
+kind: lesson
+status: draft
+title: "React 19 Projects: Vite, TSX and StrictMode"
+summary: "What React is and is not, a React 19 project with Vite and TypeScript, the root, StrictMode, the React Developer Tools, and how the dojo checks React katas."
+objectives:
+  - { id: o1, text: "Explain what React does (UI as a function of state) and what it leaves to other tools", skills: [react.toolchain] }
+  - { id: o2, text: "Create and run a Vite + React + TypeScript project and name the role of each file", skills: [react.toolchain] }
+  - { id: o3, text: "Explain what StrictMode does in development and why effects run twice there", skills: [react.toolchain] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 35
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A colleague says: "React is a framework like Angular, so it gives us routing, HTTP and forms out of the box. And StrictMode is broken: our analytics event fires twice on every page load, so let us remove it." Write a short reply. Explain what React itself provides and what a project picks separately (or gets from a framework such as Next.js or React Router), what `createRoot(...).render(...)` does in `main.tsx`, and what StrictMode is telling them about their analytics code and how to fix it instead of removing StrictMode.'
+  criteria:
+    - "Explains that React is a library for building UIs from components: it renders and updates the UI from state"
+    - "Names at least two concerns React leaves to other libraries or frameworks (routing, data fetching, build tooling, styling)"
+    - "Explains that createRoot attaches React to a DOM node and render shows the root component there"
+    - "Explains that StrictMode runs only in development and double-invokes renders and effects (mount, unmount, mount) to reveal missing cleanup or impure code"
+    - "Suggests fixing the effect (cleanup, or moving the event to the user action that causes it) rather than removing StrictMode"

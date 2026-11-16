@@ -1,0 +1,86 @@
+pass_percent: 85
+questions:
+  - id: hooks-order
+    skills: [react.custom-hooks]
+    prompt: "Why may a hook not be called after an early return?"
+    options:
+      - "Early returns are not allowed in components"
+      - "On some renders it would not run, so every hook after it would get another hook's state"
+      - "TypeScript forbids it"
+    answer: 1
+    explanation: "React matches hooks to their state by call order."
+  - id: hooks-share
+    skills: [react.custom-hooks]
+    prompt: "What does a custom hook let two components share?"
+    options: ["Their state", "Logic: each call has its own state", "Their props"]
+    answer: 1
+    explanation: "Share state by lifting it up or with context."
+  - id: latest-callback
+    skills: [react.custom-hooks, react.hooks-lifecycle]
+    prompt: "A hook's effect lists the callback prop `onMessage` as a dependency, and the parent passes an inline arrow. What happens?"
+    options:
+      - "Nothing special"
+      - "The effect re-subscribes on every render of the parent"
+      - "The callback is never called"
+    answer: 1
+    explanation: "A new function each render is a changed dependency; keep the latest callback in a ref or memoise it."
+  - id: context-cost
+    skills: [react.context-reducer]
+    prompt: "What happens to consumers when a context provider's value changes?"
+    options:
+      - "Only the consumers that use the changed field re-render"
+      - "Every consumer of that context re-renders"
+      - "Nothing until they call refresh()"
+    answer: 1
+    explanation: "Context has no selectors; split contexts or memoise the value."
+  - id: reducer-action
+    skills: [react.context-reducer]
+    prompt: "Which is the best type for the actions of a cart reducer?"
+    options:
+      - "{ type: string; payload: any }"
+      - "A discriminated union such as { type: \"add\"; product: Product } | { type: \"remove\"; id: string }"
+      - "A class per action with a run() method"
+    answer: 1
+    explanation: "The union lets TypeScript check each case and its fields."
+  - id: reducer-same
+    skills: [react.context-reducer]
+    prompt: "A reducer gets an action that changes nothing. What should it return?"
+    options: ["undefined", "The same state object", "A deep copy of the state"]
+    answer: 1
+    explanation: "Returning the same object lets React skip the re-render."
+  - id: fetch-race
+    skills: [react.data-fetching]
+    prompt: "What does aborting in the effect cleanup protect you from?"
+    options:
+      - "Slow servers"
+      - "A stale response overwriting the state of a newer request, and updates after unmount"
+      - "CORS errors"
+    answer: 1
+    explanation: "The cleanup runs before the next effect and on unmount."
+  - id: retry
+    skills: [react.data-fetching]
+    prompt: "How can a Retry button make a fetch effect run again?"
+    options:
+      - "Call the effect function directly"
+      - "Change a state value listed in the effect's dependencies, such as an attempt counter"
+      - "Reload the page"
+    answer: 1
+    explanation: "Effects re-run when a dependency changes."
+  - id: url-state
+    skills: [react.routing]
+    prompt: "Which state belongs in the URL?"
+    options:
+      - "Whether a dropdown is open"
+      - "The selected product and the filters of a list"
+      - "The text being typed into a search field before submit"
+    answer: 1
+    explanation: "What identifies the view and should survive reload and sharing goes into the path or search params."
+  - id: loaders
+    skills: [react.routing, react.data-fetching]
+    prompt: "What do route loaders avoid?"
+    options:
+      - "Fetch-after-render waterfalls"
+      - "The need for a server"
+      - "TypeScript errors"
+    answer: 0
+    explanation: "Loaders start fetching when the route matches, in parallel for nested routes."

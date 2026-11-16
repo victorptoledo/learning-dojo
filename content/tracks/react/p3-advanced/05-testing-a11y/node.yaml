@@ -1,0 +1,24 @@
+id: react.p3.testing-a11y
+kind: lesson
+status: draft
+title: "Testing with Testing Library and Accessible Components"
+summary: "Testing behaviour instead of implementation, Testing Library queries by priority, user-event, async utilities, testing hooks and context, mocking the network at the edge, plus semantic HTML, accessible names, ARIA roles and states, keyboard support and focus management."
+objectives:
+  - { id: o1, text: "Write component tests that query by role, label and text and interact with user-event", skills: [react.testing-a11y] }
+  - { id: o2, text: "Test asynchronous UI with findBy and waitFor, and decide what to mock", skills: [react.testing-a11y] }
+  - { id: o3, text: "Build accessible components: semantic elements, accessible names, ARIA states, keyboard support and focus", skills: [react.testing-a11y] }
+prerequisites: [react.p3.state-management]
+difficulty: 3
+estimated_minutes: 65
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A colleague wrote this test for a modal: it renders `<ConfirmDialog />`, finds the confirm button with `container.querySelector(".btn-primary")`, calls `fireEvent.click`, and checks `component.state.isOpen === false` through a test-only prop. The dialog itself is a `<div class="modal">` with a clickable `<div>` as close button. Rewrite the test in Testing Library style and list the accessibility fixes the component needs (roles, names, keyboard, focus). Explain why the rewritten test is more likely to catch real bugs.'
+  criteria:
+    - "Queries by role and accessible name (getByRole(\"button\", { name: \"Delete\" })) instead of CSS classes"
+    - "Uses user-event instead of fireEvent and asserts what the user sees (the dialog is gone, a callback was called), not internal state"
+    - "Makes the dialog a <dialog> or role=\"dialog\" with aria-modal and an accessible name (aria-labelledby)"
+    - "Replaces the clickable div with a real <button> with an accessible name, and supports Escape to close"
+    - "Moves focus into the dialog when it opens and returns it to the trigger when it closes"

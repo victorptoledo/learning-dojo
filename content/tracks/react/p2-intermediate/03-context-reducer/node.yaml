@@ -1,0 +1,24 @@
+id: react.p2.context-reducer
+kind: lesson
+status: draft
+title: "Context and useReducer"
+summary: "Prop drilling, createContext and useContext, providers and default values, a typed context with a guard hook, useReducer with discriminated-union actions, combining both for app state, and what context costs in re-renders."
+objectives:
+  - { id: o1, text: "Pass data deep into the tree with context, typed, with a hook that fails clearly outside its provider", skills: [react.context-reducer] }
+  - { id: o2, text: "Move complex state logic into a pure reducer with typed actions", skills: [react.context-reducer] }
+  - { id: o3, text: "Combine a reducer and context, and explain when context causes too many re-renders", skills: [react.context-reducer, react.performance] }
+prerequisites: [react.p2.debounced-search]
+difficulty: 3
+estimated_minutes: 60
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your app passes `user`, `theme` and `onLogout` through six layers of components that do not use them, and the cart state is updated by eight different `setCart` calls spread across components, two of which have bugs. Propose a design: what goes into context (and how many contexts), what becomes a reducer, the type of the actions, and the hooks components will use. Explain one downside of putting everything into a single context value and how you would avoid it.'
+  criteria:
+    - "Identifies prop drilling and moves rarely changing, widely used values (user, theme) into context"
+    - "Proposes a reducer for the cart with a discriminated union of actions (type: \"add\" | \"remove\" | ...)"
+    - "Keeps the reducer pure and immutable, testable without React"
+    - "Exposes custom hooks such as useCart() that throw a clear error outside the provider"
+    - "Explains that every consumer re-renders when the context value changes, and splits contexts (state vs dispatch, or by concern) or memoises the value"
