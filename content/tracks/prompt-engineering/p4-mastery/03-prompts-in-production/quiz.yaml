@@ -1,0 +1,32 @@
+questions:
+  - id: stop-reason
+    prompt: "6% of answers are cut off mid-sentence. Which logged field tells you why first?"
+    options: ["The temperature", "The stop reason (for example, max tokens reached)", "The user agent"]
+    answer: 1
+    explanation: "The stop reason shows whether the model finished or ran out of output tokens."
+  - id: silent
+    prompt: "Why are many prompt failures in production called silent?"
+    options: ["They do not appear in logs at all", "The call succeeds and returns an answer; the answer is just wrong", "They only happen at night"]
+    answer: 1
+    explanation: "Only validation, grading and sampled review reveal wrong-but-successful answers."
+  - id: fallback
+    prompt: "When should a fallback model be evaluated?"
+    options: ["During the incident", "In advance, with the same evaluation set and prompt contract", "Never; fallbacks always work"]
+    answer: 1
+    explanation: "A fallback you have not evaluated is a new risk, not a safety net."
+  - id: routing
+    prompt: "What does model routing do for cost?"
+    options:
+      - "Sends every request to the largest model"
+      - "Sends easy requests to a small, cheap model and hard ones to a larger model"
+      - "Routes requests to the nearest data centre"
+    answer: 1
+    explanation: "Routing matches the model to the difficulty of the request."
+  - id: privacy
+    prompt: "Which practice protects privacy in prompts?"
+    options:
+      - "Sending the whole customer record in case it helps"
+      - "Sending only the data the task needs and treating prompt logs as sensitive"
+      - "Putting personal data in the system prompt"
+    answer: 1
+    explanation: "Minimise what you send and protect what you log."

@@ -1,0 +1,24 @@
+id: prompt-engineering.p4.prompts-in-production
+kind: lesson
+status: draft
+title: "Prompts in Production"
+summary: "What goes wrong when prompts meet real traffic (format drift, refusals, truncation, hallucination, injection, latency, cost, model changes), guardrails and fallbacks, monitoring signals, privacy, cost control, and three short case studies."
+objectives:
+  - { id: o1, text: "Recognise the common production failure modes of prompts and the signal that reveals each one", skills: [prompt-engineering.production] }
+  - { id: o2, text: "Design guardrails, fallbacks and monitoring around a prompt", skills: [prompt-engineering.production, prompt-engineering.evaluation] }
+  - { id: o3, text: "Control cost, latency and privacy of prompts at scale", skills: [prompt-engineering.production, prompt-engineering.long-context] }
+prerequisites: [prompt-engineering.p4.versioning-prompts]
+difficulty: 5
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You are on call for a feature that summarises support conversations with a model. Since this morning: p95 latency went from 4 s to 19 s, 6% of summaries are cut off mid-sentence, the JSON parse-failure rate rose from 0.2% to 3%, and the monthly cost forecast doubled. Nothing was deployed by your team. Write the incident analysis: the likely causes you would check, in order, which logs or metrics tell them apart, the immediate mitigation, and two changes that would have caught this earlier or limited its impact.'
+  criteria:
+    - 'Considers a change outside the team: a model alias moving to a new model, a provider incident, or a change in inputs (longer conversations, a new channel)'
+    - 'Connects the cut-off summaries to the stop reason (output token limit) and checks token counts per call'
+    - 'Uses logged data to tell causes apart: prompt and model version per call, input and output tokens, stop reasons, latency by model and parse failures by version'
+    - 'Proposes an immediate mitigation such as pinning or rolling back the model snapshot, a fallback, or capping inputs, before a root-cause fix'
+    - 'Proposes preventive changes such as pinned snapshots, alerts on parse-failure rate and stop reasons, input budgets, and an evaluation run before model changes'

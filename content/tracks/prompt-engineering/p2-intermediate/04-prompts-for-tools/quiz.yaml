@@ -1,0 +1,34 @@
+questions:
+  - id: who-runs
+    prompt: "Who executes a tool call?"
+    options: ["The model, on the provider's servers", "Your code, after validating the call", "The user's browser"]
+    answer: 1
+    explanation: "The model only writes a structured request; your code decides and runs it."
+  - id: description
+    prompt: "What should a tool description contain?"
+    options:
+      - "Only the function's name again"
+      - "What it does, when to use it, when not to, and what it returns"
+      - "The source code of the tool"
+    answer: 1
+    explanation: "The model chooses tools by their descriptions; make the boundaries explicit."
+  - id: error
+    prompt: "The model calls a tool with `units: \"kelvin\"`, but only celsius and fahrenheit exist. What should the tool result say?"
+    options: ["error 400", "That 'units' must be one of: celsius, fahrenheit, and to call again", "Nothing; execute with celsius"]
+    answer: 1
+    explanation: "Specific errors let the model fix its call; silent defaults hide mistakes."
+  - id: permission
+    prompt: "Where must \"users may only see their own orders\" be enforced?"
+    options: ["In the tool description", "In the code of the tool, using the authenticated user", "In the user turn"]
+    answer: 1
+    explanation: "Prompts guide; code enforces. Arguments come from the model and can be wrong or manipulated."
+  - id: forced
+    prompt: "How can tool use give you reliable structured output?"
+    options: ["By forcing a call to one specific tool whose schema is your output format", "By disabling tools", "By raising the temperature"]
+    answer: 0
+    explanation: "The arguments of a forced call follow the tool's schema."
+  - id: overlap
+    prompt: "Two tools, find_customer and lookup_user, do almost the same thing. What is the risk?"
+    options: ["None", "The model will sometimes pick the wrong one; merge them or make the boundary explicit", "The API rejects the request"]
+    answer: 1
+    explanation: "Overlapping tools make the model's choice ambiguous."

@@ -1,0 +1,38 @@
+questions:
+  - id: criteria-first
+    prompt: "What should you write before the prompt itself?"
+    options: ["A list of synonyms for the task", "Success criteria that someone could check", "A persona with a name"]
+    answer: 1
+    explanation: "Criteria say what the prompt needs and become the tests you run against it."
+  - id: specific
+    prompt: "Which instruction is the most specific?"
+    options:
+      - "Keep it brief."
+      - "Make it short and sweet."
+      - "At most 50 words, in one paragraph."
+    answer: 2
+    explanation: "A number and a format can be followed and checked; adjectives cannot."
+  - id: reason
+    prompt: "Why add \"because the text is read aloud by a speech engine\" to \"no bullet points\"?"
+    options:
+      - "Models refuse rules without reasons"
+      - "With the reason, the model can generalise to related cases, such as avoiding tables and emoji"
+      - "It makes the prompt longer, which improves quality"
+    answer: 1
+    explanation: "A reason lets the model apply the intent of the rule, not just its letter."
+  - id: way-out
+    prompt: "A classifier prompt sometimes gets empty or off-topic input. What helps most?"
+    options:
+      - "Telling the model to try harder"
+      - "An explicit output for inputs that do not fit, such as NOT_AN_ORDER"
+      - "Raising the temperature"
+    answer: 1
+    explanation: "An exit turns a forced guess into a signal your code can count and handle."
+  - id: mirror
+    prompt: "Your prompt is full of Markdown headings and bullets, and you want plain prose back. What is a good first step?"
+    options:
+      - "Write the instructions themselves in prose, and ask for plain paragraphs"
+      - "Add NEVER USE MARKDOWN in capitals three times"
+      - "Lower max_tokens"
+    answer: 0
+    explanation: "The style of the prompt influences the style of the answer, and positive instructions beat shouted prohibitions."

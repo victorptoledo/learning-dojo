@@ -1,0 +1,24 @@
+id: prompt-engineering.p3.long-context
+kind: lesson
+status: draft
+title: "Long Context"
+summary: "Working with long inputs: documents first and the question last, structured documents with metadata, quoting before answering, lost in the middle, budgets and truncation, prompt caching, and when to retrieve instead of stuffing."
+objectives:
+  - { id: o1, text: "Lay out long prompts: documents with metadata at the top, instructions and the question at the end", skills: [prompt-engineering.long-context] }
+  - { id: o2, text: "Ground answers in the documents by asking for quotes first and checking them in code", skills: [prompt-engineering.long-context] }
+  - { id: o3, text: "Manage the context budget with ordering, truncation and caching, and decide when retrieval beats a longer prompt", skills: [prompt-engineering.long-context] }
+prerequisites: [prompt-engineering.p2.checkpoint]
+difficulty: 4
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An internal assistant answers questions about a company''s policies by pasting all 40 policy documents (about 300,000 tokens) into every request, followed by "Answer the question below." and the question. Answers are slow, expensive, and sometimes cite the wrong policy or miss a rule in the middle of a long document. Propose a better design: the layout of the prompt, how documents are labelled, how the model should ground its answer, what you would do about cost and latency, and when you would stop sending whole documents and retrieve passages instead.'
+  criteria:
+    - 'Puts the documents first, each in its own tags with metadata (title, id, date), and the instructions and question at the end'
+    - 'Asks the model to quote the relevant passages (with document ids) before answering, and checks the quotes in code'
+    - 'Mentions that details in the middle of long contexts are more easily missed, and orders or limits documents by relevance'
+    - 'Uses prompt caching for the stable document prefix, or reduces the input, to cut cost and latency'
+    - 'Proposes retrieval of relevant passages when the corpus is large or changes often, and names its own risk (missing the right passage)'

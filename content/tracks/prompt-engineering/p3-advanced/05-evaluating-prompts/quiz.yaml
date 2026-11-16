@@ -1,0 +1,37 @@
+questions:
+  - id: evidence
+    prompt: "Which is evidence that a prompt change is an improvement?"
+    options:
+      - "It looked better on three inputs in the playground"
+      - "It passes more cases of a fixed test set without breaking previously passing ones"
+      - "It is longer"
+    answer: 1
+    explanation: "Compare on a fixed set, case by case, and look for regressions."
+  - id: slices
+    prompt: "Why tag test cases with slices such as language and length?"
+    options: ["To make the report longer", "Because an overall score can hide a slice that fails badly", "Graders need tags"]
+    answer: 1
+    explanation: "Results per slice show where a change helps and where it breaks things."
+  - id: grader
+    prompt: "Which grader fits \"the answer is valid JSON with the keys id and status\"?"
+    options: ["A model grader with a rubric", "A code grader that parses and checks the structure", "Human review"]
+    answer: 1
+    explanation: "Use the cheapest reliable grader; structure is checked by code."
+  - id: judge-bias
+    prompt: "A model grader compares two answers and tends to prefer whichever is shown first. What is this, and what helps?"
+    options:
+      - "Verbosity bias; shorten the answers"
+      - "Position bias; grade both orders and combine"
+      - "No bias; trust it"
+    answer: 1
+    explanation: "Swap the order and grade twice to cancel position bias."
+  - id: validate-judge
+    prompt: "What must you do before trusting a model grader?"
+    options: ["Nothing", "Check its verdicts against human labels on a sample", "Run it at temperature 1"]
+    answer: 1
+    explanation: "A grader is a model too; validate it like one."
+  - id: one-change
+    prompt: "Why change one thing at a time between evaluation runs?"
+    options: ["It is faster", "So you know which change caused the difference", "Providers limit changes"]
+    answer: 1
+    explanation: "Several changes at once make the result impossible to attribute."

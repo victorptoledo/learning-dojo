@@ -1,0 +1,24 @@
+id: prompt-engineering.p1.structured-output
+kind: lesson
+status: draft
+title: "Structured Output and Schemas"
+summary: "Getting answers code can read: describing a format, JSON and JSON Schema, provider structured-output modes, field order and enums, explicit nulls, parsing defensively, validating and retrying with the errors."
+objectives:
+  - { id: o1, text: "Specify an output format precisely, with JSON Schema, enums and explicit values for missing data", skills: [prompt-engineering.structured-output] }
+  - { id: o2, text: "Choose between format instructions, JSON mode, schema-constrained output and tool calls", skills: [prompt-engineering.structured-output] }
+  - { id: o3, text: "Parse model output defensively, validate it and build a retry message from the validation errors", skills: [prompt-engineering.structured-output] }
+prerequisites: [prompt-engineering.p1.example-picker]
+difficulty: 3
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An application extracts invoices from emails with the prompt "Extract the invoice as JSON" and json.loads on the answer. In production it fails about once in fifty calls: sometimes the JSON is wrapped in a Markdown code fence, sometimes the total is "1.234,50 EUR" as a string, sometimes a missing due date becomes "N/A" or is left out. Design the fix: the output schema (fields, types, enums, how missing values are written), the prompt changes, the provider feature you would use if available, and the parsing, validation and retry logic in your code.'
+  criteria:
+    - 'Defines a schema with typed fields (for example the total as a number in minor units or a decimal string with a fixed format, the currency as an ISO 4217 enum) and required fields'
+    - 'Specifies one explicit representation for missing values (null) instead of free text such as N/A'
+    - 'Proposes schema-constrained structured output or a forced tool call where the provider offers it'
+    - 'Parses defensively (strips code fences, finds the object) and validates every field after parsing, even with constrained output'
+    - 'On failure, retries a bounded number of times with the validation errors in the message, then fails visibly'

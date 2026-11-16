@@ -1,0 +1,32 @@
+questions:
+  - id: layout
+    prompt: "In a prompt with 50 pages of documents, where do the documents go?"
+    options: ["At the end, after the question", "At the top, with the instructions and question at the end", "In the system prompt only"]
+    answer: 1
+    explanation: "Long material first and the query last gives better answers on long inputs and caches well."
+  - id: quotes
+    prompt: "Why ask the model to quote the relevant passages before answering?"
+    options:
+      - "It makes the answer shorter"
+      - "It focuses the model on the relevant text and lets code check that the quotes really exist"
+      - "Quotes are cheaper than answers"
+    answer: 1
+    explanation: "Quote-first grounding is both a prompting technique and a check."
+  - id: middle
+    prompt: "What does \"lost in the middle\" describe?"
+    options:
+      - "Models use information at the start and end of a long context better than in the middle"
+      - "Models forget the system prompt"
+      - "Prompts longer than the window are cut in the middle"
+    answer: 0
+    explanation: "Put the most relevant material first and avoid padding the context."
+  - id: truncate
+    prompt: "A document must be cut to fit the budget. What should the prompt show?"
+    options: ["Nothing; just cut it", "A marker such as [truncated] where the text was cut, at a word or paragraph boundary", "The first and last word"]
+    answer: 1
+    explanation: "A marker tells the model that the text is incomplete."
+  - id: cache
+    prompt: "Which change breaks prompt caching of a long document prefix?"
+    options: ["Changing the question at the end", "Putting the current timestamp at the very start of the prompt", "Asking a follow-up question"]
+    answer: 1
+    explanation: "Caching needs identical prefixes; varying data belongs at the end."

@@ -1,0 +1,24 @@
+id: prompt-engineering.p4.versioning-prompts
+kind: lesson
+status: draft
+title: "Versioning Prompts"
+summary: "Prompts as code: files under version control, what a prompt version contains (template, model snapshot, parameters, tools, schema), semantic versions and changelogs, logging the version on every call, rollout and rollback, and re-evaluating on model upgrades."
+objectives:
+  - { id: o1, text: "Manage prompts as versioned artefacts that include the template, the model snapshot, the parameters, the tools and the output schema", skills: [prompt-engineering.versioning] }
+  - { id: o2, text: "Decide what makes a prompt change major, minor or a patch, and record it in a changelog with its evaluation results", skills: [prompt-engineering.versioning] }
+  - { id: o3, text: "Roll prompt versions out and back safely, and plan for model upgrades and deprecations", skills: [prompt-engineering.versioning, prompt-engineering.evaluation] }
+prerequisites: [prompt-engineering.p4.eval-harness]
+difficulty: 4
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'In your company''s code base, prompts are string constants spread over 14 files, edited directly in pull requests that nobody can review meaningfully. Last week a model upgrade by the provider changed the behaviour of three of them and nobody noticed for days. Propose a prompt-management process: where prompts live, what one prompt version contains, how versions are numbered and reviewed, what is logged with every call, how a new version is rolled out and rolled back, and what happens when the provider announces a new model or deprecates the current one.'
+  criteria:
+    - 'Moves prompts into dedicated, named files (or a registry) under version control, reviewed like code'
+    - 'Defines a version as template plus model snapshot, parameters, tools and output schema, and pins the model snapshot instead of a moving alias'
+    - 'Uses a numbering scheme (for example semantic versions) with a changelog that records the reason and the evaluation result of each change'
+    - 'Logs the prompt id and version (and model) with every call so outputs can be traced to a version'
+    - 'Rolls out gradually (shadow, canary or A/B) with a fast rollback, and re-runs the evaluation set before switching models or when a deprecation is announced'

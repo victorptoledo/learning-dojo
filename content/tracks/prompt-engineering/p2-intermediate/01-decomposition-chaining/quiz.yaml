@@ -1,0 +1,28 @@
+questions:
+  - id: when
+    prompt: "Which is the strongest reason to split a prompt into a chain?"
+    options: ["The prompt is longer than 100 words", "The task has distinct stages whose outputs you want to check", "Chains are always cheaper"]
+    answer: 1
+    explanation: "Chains earn their cost when stages are distinct and intermediate results can be checked."
+  - id: gate
+    prompt: "What is a gate in a prompt chain?"
+    options: ["A rate limit", "A check in code on a step's output before the next step runs", "A special token"]
+    answer: 1
+    explanation: "Gates catch bad output where it happens and retry or stop the chain."
+  - id: routing
+    prompt: "A cheap first call classifies a request, then code picks a specialised prompt. This pattern is called..."
+    answers: ["routing", "a router"]
+    explanation: "Routing keeps each specialised prompt short and focused."
+  - id: compound
+    prompt: "Five steps, each correct 90% of the time, independently. About how often is the whole chain correct?"
+    options: ["90%", "About 59%", "About 10%"]
+    answer: 1
+    explanation: "0.9 to the power of 5 is about 0.59. Errors compound; gates and retries counter it."
+  - id: escape-handoff
+    prompt: "Why delimit and escape the previous step's output when putting it into the next prompt?"
+    options:
+      - "It is model output and may carry instructions injected from an untrusted document"
+      - "Models cannot read their own output"
+      - "To save tokens"
+    answer: 0
+    explanation: "Intermediate output is data, possibly influenced by untrusted input; treat it as data."

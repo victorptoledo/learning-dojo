@@ -1,0 +1,37 @@
+questions:
+  - id: teaches
+    prompt: "Which of these do few-shot examples teach most reliably?"
+    options: ["New facts the model did not know", "The output format, style and where the boundary between labels lies", "How to use less memory"]
+    answer: 1
+    explanation: "Examples demonstrate format, style and decision boundaries; facts belong in the context."
+  - id: balance
+    prompt: "Six examples: five labelled spam and one not spam. What bias do you expect?"
+    options: ["Recency bias", "Majority-label bias towards spam", "No bias"]
+    answer: 1
+    explanation: "Models tend to favour the label they saw most often in the examples."
+  - id: order
+    prompt: "How should labels be ordered across examples?"
+    options: ["All examples of one label first, then the next", "Interleaved, so the last examples are not all one label", "Alphabetically by input"]
+    answer: 1
+    explanation: "Grouping labels at the end causes recency bias; interleave them."
+  - id: leak
+    prompt: "Why must an evaluation input never also be a few-shot example?"
+    options:
+      - "It wastes tokens"
+      - "The model sees the answer in the prompt, so the score no longer measures anything"
+      - "The API rejects duplicates"
+    answer: 1
+    explanation: "An example that equals the test input gives away its answer."
+  - id: consistent
+    prompt: "The examples answer `positive`, the instructions ask for JSON. What is wrong?"
+    options:
+      - "Nothing"
+      - "The examples and the instructions send conflicting format signals"
+      - "JSON is not allowed with examples"
+    answer: 1
+    explanation: "Examples must use exactly the output format you want back."
+  - id: reasoning-models
+    prompt: "With a reasoning model, what is a sensible starting point?"
+    options: ["Always ten examples", "Zero-shot first; add examples if they help on your test set", "Only examples, no instructions"]
+    answer: 1
+    explanation: "Reasoning models often do well zero-shot, and examples can constrain them; measure."

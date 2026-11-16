@@ -1,0 +1,50 @@
+id: prompt-engineering.p2.answer-extractor
+kind: kata
+status: draft
+title: "Answer Extractor: Thinking, Answers and Majority Votes"
+summary: "Parse chain-of-thought responses: extract tagged sections, find the final answer with a defined fallback, hide the reasoning from users, normalise answers and take a self-consistency vote."
+objectives:
+  - { id: o1, text: "Extract the final answer from a reasoning response, with an explicit fallback and failure", skills: [prompt-engineering.reasoning] }
+  - { id: o2, text: "Remove reasoning before showing output to a user, including truncated reasoning", skills: [prompt-engineering.reasoning] }
+  - { id: o3, text: "Normalise answers and compute a self-consistency majority with its share as a confidence", skills: [prompt-engineering.reasoning] }
+prerequisites: [prompt-engineering.p2.reasoning-prompts]
+difficulty: 3
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Every function builds on `extract_tag` and `strip_reasoning`, so write those first. Why must `extract_tag` return the **last** pair, and what should a non-greedy regular expression with `re.DOTALL` look like for a tag name you insert with `re.escape`?
+    - |-
+      `re.findall(rf"<{re.escape(tag)}>(.*?)</{re.escape(tag)}>", text, re.DOTALL)` gives every pair; take `[-1]`. For `strip_reasoning`, remove closed blocks with `re.sub`, then cut an unclosed `<thinking>` to the end of the text. For the fallback in `final_answer`, look at the lines of `strip_reasoning(text)` from the bottom up. For the vote, `Counter` counts, and the first answer with the highest count wins a tie.
+    - |-
+      ```python
+      def majority_vote(samples):
+          answers = []
+          for sample in samples:
+              try:
+                  answers.append(normalize(final_answer(sample)))
+              except ValueError:
+                  continue
+          if not answers:
+              raise ValueError("no sample has a final answer")
+          counts = Counter(answers)
+          best = max(counts.values())
+          winner = next(answer for answer in answers if counts[answer] == best)
+          # return the winner and its share of the valid answers
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

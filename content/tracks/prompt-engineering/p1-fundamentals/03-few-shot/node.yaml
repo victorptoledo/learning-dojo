@@ -1,0 +1,25 @@
+id: prompt-engineering.p1.few-shot
+legacy_id: pe-01-cot-few-shot
+kind: lesson
+status: draft
+title: "Examples and Few-Shot Prompting"
+summary: "Zero-shot, one-shot and few-shot prompts, choosing examples that are relevant, diverse and balanced, formatting them consistently, the biases examples introduce, and when examples hurt."
+objectives:
+  - { id: o1, text: "Explain what few-shot examples teach a model (format, style, decision boundaries) and when zero-shot is enough", skills: [prompt-engineering.few-shot] }
+  - { id: o2, text: "Choose and format examples that are relevant, diverse, balanced and clearly delimited", skills: [prompt-engineering.few-shot] }
+  - { id: o3, text: "Recognise the biases examples introduce (majority label, recency, copying) and how to counter them", skills: [prompt-engineering.few-shot] }
+prerequisites: [prompt-engineering.p1.system-prompts]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A prompt classifies product reviews as positive, negative or mixed. It has five examples: four positive reviews about shoes and one negative review about shoes, all one sentence long, and the last example is positive. In production it labels too many reviews positive and does badly on long reviews about electronics. Explain which properties of the example set cause each problem, and describe the new example set you would build (how many, which ones, in which order, and how you would format and test it).'
+  criteria:
+    - 'Identifies majority-label bias (four of five positive) and recency bias (the last example is positive)'
+    - 'Identifies the lack of diversity: one product category and one length, so the examples do not cover real inputs'
+    - 'Proposes a balanced, diverse set that includes the mixed label, other product categories and long reviews, with a mixed order'
+    - 'Formats the examples consistently and delimited (for example <example> tags) and keeps them apart from the real input'
+    - 'Says how to check the change: run the old and new prompt on a labelled test set that does not contain the examples'

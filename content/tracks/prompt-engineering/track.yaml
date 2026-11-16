@@ -4,9 +4,9 @@ name: "Prompt Engineering"
 archetype: concept
 category: "Architecture & Engineering"
 icon: "🧠"
-description: "Prompting techniques: few-shot, chain-of-thought, ReAct, RAG and structured outputs."
-status: draft
-bridges_available: [java]
+description: "Writing prompts that work and keep working: how models read text, clear instructions, system prompts, few-shot examples, structured output, chaining, reasoning, prompts for tools, long context, prompt injection, evaluation and versioning. Katas build and check prompts in Python, offline."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Chatter" }
   - { name: "Yellow Belt", required_xp: 300, title: "System Prompt Crafter" }
@@ -16,8 +16,22 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "Metaprompt Architect" }
   - { name: "Sensei", required_xp: 6000, title: "Prompt Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Why the discipline exists and the vocabulary to talk about it" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core concepts and mental models" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Trade-offs, combining concepts and common practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Advanced techniques and architecture at scale" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Real production cases, failure modes and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "How a model reads a prompt, the parts of a good prompt, and the dojo's prompt katas" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Clear instructions and context, system prompts, few-shot examples and structured output" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Decomposition and chaining, reasoning prompts and prompts for tool use" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Long context, prompt injection and its defences, and evaluating prompts" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Eval harnesses, versioning prompts and running prompts in production" }
+requirements:
+  - kind: tool
+    name: uv
+    command: uv
+    version_args: ["--version"]
+    min_version: "0.9"
+    required: false
+    why: Installs Python 3.15 and pytest to run the visible tests of the katas locally. The grading checks run in Docker and do not need it.
+    install_hint: "install uv: winget install astral-sh.uv, then reopen the terminal"
+  - kind: vscode-extension
+    name: Python extension for VS Code
+    id: ms-python.python
+    required: false
+    why: Shows errors as you type and runs the pytest tests of the katas from the Testing panel.

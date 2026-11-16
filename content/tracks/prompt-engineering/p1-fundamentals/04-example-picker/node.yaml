@@ -1,0 +1,48 @@
+id: prompt-engineering.p1.example-picker
+kind: kata
+status: draft
+title: "Example Picker: Balanced Few-Shot Within a Budget"
+summary: "Select few-shot examples from a labelled pool: drop the query itself and duplicates, interleave labels round robin, respect a token budget and a maximum, and format the block consistently."
+objectives:
+  - { id: o1, text: "Pick examples that are balanced and interleaved across labels, and never equal to the input being classified", skills: [prompt-engineering.few-shot] }
+  - { id: o2, text: "Fit examples into a token budget and format them with one consistent, delimited layout", skills: [prompt-engineering.few-shot, prompt-engineering.how-models-read] }
+prerequisites: [prompt-engineering.p1.few-shot]
+difficulty: 2
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Write `format_example` and `few_shot_block` first; they are pure string building. For `pick_examples`, work in stages: filter (query and duplicates), group by label, then the round robin. How do you compare two inputs "ignoring case and spacing"?
+    - |-
+      `" ".join(text.casefold().split())` normalises an input. Keep `seen` as a set of normalised inputs, and add the normalised query to it before you start, so the query is dropped like a duplicate. Group with a dict of label to list: a dict keeps the order in which labels first appear. For the rounds, keep one index per label.
+    - |-
+      ```python
+      groups: dict[str, list[Example]] = {}
+      for example in candidates:
+          groups.setdefault(example.output, []).append(example)
+      queues = [list(group) for group in groups.values()]
+      picked, remaining = [], budget_tokens
+      while len(picked) < max_examples and any(queues):
+          for queue in queues:
+              if not queue or len(picked) == max_examples:
+                  continue
+              example = queue.pop(0)
+              # pick it if its cost fits in what remains of the budget
+      return picked
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

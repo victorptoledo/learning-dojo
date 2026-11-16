@@ -1,0 +1,51 @@
+questions:
+  - id: criteria
+    skills: [prompt-engineering.clear-instructions]
+    prompt: "Which is a success criterion you can test?"
+    options: ["The summary is good", "The summary is at most 3 sentences and names any deadline in the email", "The summary sounds professional"]
+    answer: 1
+    explanation: "A criterion must be checkable; numbers and named contents are."
+  - id: exit
+    skills: [prompt-engineering.clear-instructions]
+    prompt: "Why give a classifier an explicit output such as NOT_A_TICKET?"
+    options: ["It makes the prompt shorter", "So inputs that do not fit become a visible signal instead of a forced guess", "Models need at least five labels"]
+    answer: 1
+    explanation: "An exit turns silent wrong answers into a value code can count."
+  - id: where
+    skills: [prompt-engineering.system-prompts]
+    prompt: "The ticket text of this request goes in..."
+    options: ["the system prompt", "the user turn", "an assistant turn"]
+    answer: 1
+    explanation: "Per-call, untrusted data goes in the user turn; the system prompt holds the stable instructions."
+  - id: hierarchy
+    skills: [prompt-engineering.system-prompts]
+    prompt: "What is true about the instruction hierarchy?"
+    options:
+      - "It makes the system prompt a security boundary"
+      - "Models tend to prefer operator instructions over user ones, but it is not a guarantee"
+      - "It only applies to tools"
+    answer: 1
+    explanation: "It is a trained tendency. Enforce permissions in code and keep secrets out of prompts."
+  - id: recency
+    skills: [prompt-engineering.few-shot]
+    prompt: "All the 'urgent' examples are at the end of the few-shot block. What bias is likely?"
+    answers: ["recency bias", "recency"]
+    explanation: "Models favour the labels of the last examples; interleave labels."
+  - id: few-shot-format
+    skills: [prompt-engineering.few-shot]
+    prompt: "What should the output of each few-shot example look like?"
+    options: ["Exactly the format you want back", "A shorter version of the format", "Free text; the format is in the instructions"]
+    answer: 0
+    explanation: "Examples and instructions must agree, or the model gets two signals."
+  - id: fence
+    skills: [prompt-engineering.structured-output]
+    prompt: "The model answers with ```json on the first line and the object below. What should a robust parser do?"
+    options: ["Reject it", "Strip the fence (take the text from the first { to the last }), parse and validate", "Ask the user"]
+    answer: 1
+    explanation: "Fences and preambles are common; strip them, then validate the object."
+  - id: retry-bound
+    skills: [prompt-engineering.structured-output]
+    prompt: "Validation fails again after two retries. What now?"
+    options: ["Keep retrying until it passes", "Fail visibly (error or human queue) and log it", "Use the last answer anyway"]
+    answer: 1
+    explanation: "Bound retries; passing on an invalid answer hides the failure."

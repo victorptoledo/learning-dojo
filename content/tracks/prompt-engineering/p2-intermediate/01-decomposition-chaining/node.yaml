@@ -1,0 +1,24 @@
+id: prompt-engineering.p2.decomposition-chaining
+kind: lesson
+status: draft
+title: "Decomposition and Prompt Chaining"
+summary: "Splitting a task into steps a model does well: sequential chains, routing, parallel sections and votes, passing outputs between steps, checks between steps, and the costs of chaining."
+objectives:
+  - { id: o1, text: "Decide when to split a task into several prompts and where to cut it", skills: [prompt-engineering.decomposition] }
+  - { id: o2, text: "Design a chain with clear hand-offs between steps and a check (gate) after each step", skills: [prompt-engineering.decomposition] }
+  - { id: o3, text: "Choose between a sequential chain, routing and parallel calls, and weigh latency, cost and debuggability", skills: [prompt-engineering.decomposition] }
+prerequisites: [prompt-engineering.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'One prompt currently takes a customer''s 30-page contract and must return: a list of risky clauses, a one-page summary for a sales manager, and a reply email to the customer in their language. Results are inconsistent and impossible to debug. Design a chain of prompts to replace it: name each step, its input and output (with format), the check you run between steps, which steps could run in parallel, and what you would log. Then name one cost of your design compared with the single prompt.'
+  criteria:
+    - 'Splits the work into steps with one job each (for example: extract clauses, assess risk per clause, summarise, draft the email, translate)'
+    - 'Defines what each step receives and returns, in a format the next step can use (tags or JSON)'
+    - 'Adds a check between steps (validation, a count, a rule) that stops or retries the chain on bad output'
+    - 'Identifies steps that are independent and can run in parallel'
+    - 'Names a real cost: more calls and latency, more tokens, or more code to maintain'

@@ -1,0 +1,43 @@
+questions:
+  - id: unit
+    prompt: "What does a language model actually read and produce?"
+    options: ["Characters", "Words", "Tokens: pieces of text from the model's own tokenizer", "Sentences"]
+    answer: 2
+    explanation: "A tokenizer splits text into tokens; the model predicts one token at a time."
+  - id: estimate
+    prompt: "With the rule of about four characters per token, roughly how many tokens is an English text of 2,000 characters?"
+    answers: ["500", "about 500", "~500"]
+    explanation: "2000 / 4 = 500. The real count depends on the tokenizer and the text."
+  - id: hallucination
+    prompt: "Why can a model state a wrong fact fluently?"
+    options:
+      - "Its database of facts is out of date"
+      - "It produces the most plausible continuation of the context; it does not look facts up"
+      - "The temperature was set to 0"
+    answer: 1
+    explanation: "A model predicts text. When the facts are not in its context, a plausible but wrong continuation is a natural outcome."
+  - id: temperature
+    prompt: "What does lowering the temperature do?"
+    options:
+      - "Makes the model choose the most likely tokens more often, so outputs vary less"
+      - "Makes the model use fewer tokens"
+      - "Guarantees identical outputs on every run"
+      - "Makes the model more creative"
+    answer: 0
+    explanation: "Low temperature sharpens the distribution. It reduces variation but does not strictly guarantee identical outputs."
+  - id: window
+    prompt: "What must fit in the context window of a single call?"
+    options:
+      - "Only the user's last message"
+      - "The system prompt, the conversation, any documents and tool results, and the answer being generated"
+      - "Only the system prompt"
+    answer: 1
+    explanation: "The window is shared by everything the model reads and everything it writes in that call."
+  - id: stateless
+    prompt: "A chat app remembers earlier turns of the conversation. How?"
+    options:
+      - "The model stores each conversation in its weights"
+      - "The application sends the earlier messages again with every call"
+      - "The provider keeps a memory per user automatically"
+    answer: 1
+    explanation: "Chat APIs are stateless: the client sends the whole conversation (or a summary) on every call, and pays for those tokens."

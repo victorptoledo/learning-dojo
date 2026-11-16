@@ -1,0 +1,48 @@
+id: prompt-engineering.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata, a ticket-triage prompt with a system prompt, escaped input, few-shot turns, a validating parser and a retry message."
+objectives:
+  - { id: o1, text: "Explain clear instructions, system prompts, few-shot examples and structured output in your own words", skills: [prompt-engineering.clear-instructions, prompt-engineering.system-prompts, prompt-engineering.few-shot, prompt-engineering.structured-output] }
+  - { id: o2, text: "Build the message list of a classification prompt and validate the model's JSON answer with a retry on failure", skills: [prompt-engineering.system-prompts, prompt-engineering.few-shot, prompt-engineering.structured-output] }
+prerequisites: [prompt-engineering.p1.structured-output]
+difficulty: 3
+estimated_minutes: 80
+xp: 300
+closes_phase: p1
+covers_skills: [prompt-engineering.clear-instructions, prompt-engineering.system-prompts, prompt-engineering.few-shot, prompt-engineering.structured-output]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Build it bottom up: `validate` first (it is a list of checks that each append a message), then `parse_response` (clean the text, find the object, `json.loads`, `validate`), then the messages. Which part of a ticket could break the `<ticket>` tags, and which standard function makes it harmless?
+    - |-
+      `html.escape(text.strip(), quote=False)` turns `<`, `>` and `&` into entities, so a ticket cannot close the tag. In `parse_response`, `text.find("{")` and `text.rfind("}")` give the object even with a fence or a preamble around it. Wrap `json.JSONDecodeError` into a `TriageError`. In `build_messages`, run each example label through `validate` and dump it with `json.dumps(label)` in the order category, priority, summary.
+    - |-
+      ```python
+      def validate(answer: object) -> list[str]:
+          if not isinstance(answer, dict):
+              return ["the answer must be a JSON object"]
+          problems = [f"missing field '{key}'" for key in FIELDS if key not in answer]
+          problems += [f"unknown field '{key}'" for key in sorted(set(answer) - set(FIELDS))]
+          if "category" in answer and answer["category"] not in CATEGORIES:
+              problems.append("category must be one of: " + ", ".join(CATEGORIES))
+          # the same for priority, then the summary checks
+          return problems
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

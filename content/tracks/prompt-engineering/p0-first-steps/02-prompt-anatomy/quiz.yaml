@@ -1,0 +1,38 @@
+questions:
+  - id: delimit
+    prompt: "Why wrap the customer's email in <email> tags?"
+    options:
+      - "Models only accept XML"
+      - "It marks where the data starts and ends, so the model does not mistake it for instructions"
+      - "It makes the prompt shorter"
+    answer: 1
+    explanation: "Delimiters separate instructions from data and let the prompt refer to the data by name."
+  - id: long-first
+    prompt: "A prompt contains a 20-page contract and a question about it. Where should the question go?"
+    options: ["Before the contract", "After the contract, near the end", "It does not matter"]
+    answer: 1
+    explanation: "Provider guides report better answers with long material first and the query at the end."
+  - id: positive
+    prompt: "Which instruction is better?"
+    options:
+      - "Don't be too long."
+      - "Answer in at most three sentences, because it is shown in a phone notification."
+      - "Be concise!!!"
+    answer: 1
+    explanation: "Specific, positive instructions with a reason leave the model less to guess."
+  - id: missing-variable
+    prompt: "A template is rendered without a value for {{email}}. What should happen?"
+    options:
+      - "Leave {{email}} in the text"
+      - "Replace it with an empty string"
+      - "Fail loudly with an error that names the missing variable"
+    answer: 2
+    explanation: "A prompt with a missing or literal placeholder is a silent bug; rendering should fail."
+  - id: cache-order
+    prompt: "Why keep the stable parts (role, rules, examples) at the start of a template?"
+    options:
+      - "Providers can cache a shared prefix, making repeated calls cheaper and faster"
+      - "Models ignore the end of the prompt"
+      - "It is required by the API"
+    answer: 0
+    explanation: "Prompt caching works on identical prefixes; varying parts belong at the end."
