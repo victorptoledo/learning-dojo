@@ -1,0 +1,24 @@
+id: cyber-security.p3.hardening
+kind: lesson
+status: draft
+title: "Hardening Servers and Services"
+summary: "Reducing the attack surface of hosts and services: benchmarks and baselines, patching, SSH hardening, least privilege for services, firewalls and segmentation, and auditing configuration as code."
+objectives:
+  - { id: o1, text: "Apply a hardening baseline (CIS Benchmarks, vendor guides) and keep systems patched", skills: [cyber-security.hardening] }
+  - { id: o2, text: "Harden SSH and service accounts, and limit what a compromised service can reach", skills: [cyber-security.hardening] }
+  - { id: o3, text: "Check configuration automatically and treat drift as a finding", skills: [cyber-security.hardening] }
+prerequisites: [cyber-security.p3.brute-force-detector]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A new Debian VM will run a web application and its PostgreSQL database. Today it has password SSH login for root, every port open, the application running as root, and updates installed by hand when someone remembers. Write the hardening checklist you would apply before it goes live, grouped by area, and say how you would keep it hardened six months later.'
+  criteria:
+    - 'SSH: keys only, no root login, limited users or groups, and optionally MFA or a bastion/VPN'
+    - 'Network: a default-deny firewall allowing only the needed ports, the database not exposed publicly'
+    - 'Services run as dedicated unprivileged users with systemd sandboxing or containers, and the database user has least privilege'
+    - 'Automatic security updates (unattended-upgrades) and a process for kernel reboots and application dependencies'
+    - 'Keeps it hardened with configuration as code (Ansible, images) and automated audits against a baseline such as a CIS Benchmark, with logs shipped centrally'

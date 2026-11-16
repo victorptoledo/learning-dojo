@@ -1,0 +1,25 @@
+id: cyber-security.p1.authn-access-control
+kind: lesson
+status: draft
+title: "Authentication, Sessions and Access Control"
+summary: "Proving who a user is (passwords, MFA, passkeys), keeping them logged in safely (session cookies, fixation, CSRF), and deciding what they may do (RBAC, ABAC, ownership checks)."
+objectives:
+  - { id: o1, text: "Design a login with rate limiting, generic errors, MFA and safe password recovery", skills: [cyber-security.authn-access-control] }
+  - { id: o2, text: "Manage sessions with secure cookies, rotation at login, expiry and CSRF protection", skills: [cyber-security.authn-access-control] }
+  - { id: o3, text: "Choose between RBAC and attribute-based checks and enforce them centrally", skills: [cyber-security.authn-access-control] }
+prerequisites: [cyber-security.p1.escape-and-validate]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this login design and list every weakness with its fix: the login form answers "unknown user" or "wrong password"; after login the server keeps the same session id it issued to the anonymous visitor; the session cookie is `sid=...; Path=/`; sessions never expire; "forgot password" emails a new password in plain text; any user with role "staff" can call `POST /api/refunds` for any amount.'
+  criteria:
+    - 'Generic login error and rate limiting or lockout with backoff against credential stuffing, plus MFA'
+    - 'Rotates the session id at login to stop session fixation'
+    - 'Adds Secure, HttpOnly and SameSite (Lax or Strict) to the cookie and explains each'
+    - 'Adds idle and absolute session timeouts and server-side logout'
+    - 'Replaces the emailed password with a single-use, short-lived, random reset token whose hash is stored'
+    - 'Adds an attribute or limit to the refund permission (amount limits, approval) rather than a role alone'

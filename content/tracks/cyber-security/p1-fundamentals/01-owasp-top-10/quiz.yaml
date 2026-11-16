@@ -1,0 +1,43 @@
+questions:
+  - id: a01
+    prompt: "Which category is first in the OWASP Top 10:2025?"
+    options: ["Injection", "Broken Access Control", "Cryptographic Failures", "Security Misconfiguration"]
+    answer: 1
+    explanation: "Broken access control has been first since 2021, and SSRF was folded into it in 2025."
+  - id: idor
+    prompt: "A logged-in user changes /orders/1001 to /orders/1002 and sees someone else's order. What is the root cause?"
+    options:
+      - "The session cookie is not HttpOnly"
+      - "The server authenticates the user but does not check that the order belongs to them"
+      - "The ids are sequential numbers"
+      - "The page is not served over HTTPS"
+    answer: 1
+    explanation: "An insecure direct object reference is missing authorisation. Random ids only make guessing harder; the ownership check is the fix."
+  - id: hide-button
+    prompt: "The admin 'Delete user' button is hidden from normal users in the front end. Is the endpoint protected?"
+    options: ["Yes", "No: the server must check the permission on the DELETE request itself", "Yes, if the JavaScript is minified", "Only on mobile"]
+    answer: 1
+    explanation: "Anyone can send the request directly; access control must be enforced on the server."
+  - id: ssrf-target
+    prompt: "Why is http://169.254.169.254/ a favourite SSRF target in the cloud?"
+    options:
+      - "It is the default gateway"
+      - "It is the instance metadata service, which can return credentials for the instance's role"
+      - "It is the DNS server"
+      - "It always runs an old web server"
+    answer: 1
+    explanation: "The link-local metadata endpoint gives instance data and, on IMDSv1, temporary credentials to any local GET."
+  - id: ssrf-regex
+    prompt: "Which is a sound SSRF defence for an 'import from URL' feature?"
+    options:
+      - "A regex that rejects URLs containing 'localhost' or '127.0.0.1'"
+      - "Resolve the host, reject private, loopback and link-local IPs, connect to that IP, do not follow redirects, and block egress to internal networks"
+      - "Only allow URLs ending in .jpg"
+      - "Encode the URL with urlencode"
+    answer: 1
+    explanation: "String checks miss decimal IPs, IPv6, DNS names that resolve to internal IPs and redirects; check the resolved address and restrict the network too."
+  - id: a10
+    prompt: "A permission check throws an exception and the catch block lets the request continue. Which 2025 category fits best?"
+    options: ["Injection", "Mishandling of Exceptional Conditions", "Software Supply Chain Failures", "Cryptographic Failures"]
+    answer: 1
+    explanation: "Failing open on an error is the classic case of A10; the code must fail closed."

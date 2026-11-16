@@ -1,0 +1,24 @@
+id: cyber-security.p4.security-program
+kind: lesson
+status: draft
+title: "Secure SDLC, Vulnerability Management and Security Leadership"
+summary: "Running security as a program: security built into the development life cycle (SSDF, SAMM, SAST, DAST, SCA, secret scanning), vulnerability management with CVSS, EPSS and KEV, authorised testing and disclosure, frameworks and compliance, and metrics that guide decisions."
+objectives:
+  - { id: o1, text: "Build security into each stage of the development life cycle without blocking delivery", skills: [cyber-security.security-program] }
+  - { id: o2, text: "Prioritise vulnerabilities with CVSS, EPSS, KEV and business context, with service levels for fixing", skills: [cyber-security.security-program] }
+  - { id: o3, text: "Explain how frameworks, compliance, testing and metrics fit together in a security program", skills: [cyber-security.security-program] }
+prerequisites: [cyber-security.p4.incident-response]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You are the first security engineer at a 60-developer company with no security program. A scanner reports 1 400 open findings, nobody owns them, and the CEO asks for "ISO 27001 next year". Write your plan for the first 90 days: what you do first, what you put in the pipeline, how you triage the backlog, which metrics you report, and how you work with the development teams.'
+  criteria:
+    - 'Starts with an inventory of systems, data and owners and the highest risks (for example identity, internet-facing systems, secrets), not with the full backlog'
+    - 'Adds pipeline controls gradually (secret scanning and dependency scanning first, then SAST and DAST), tuned to low noise, warning before blocking'
+    - 'Triages findings by exploitability and exposure (KEV, EPSS, reachable, internet-facing) and asset value, with fix-time SLAs by severity'
+    - 'Proposes a security champions model, threat modeling for risky features, and training tied to real findings'
+    - 'Reports outcome metrics (time to fix, KEV exposure, coverage, incidents) rather than raw counts, and frames ISO 27001 as the management system built on these controls'

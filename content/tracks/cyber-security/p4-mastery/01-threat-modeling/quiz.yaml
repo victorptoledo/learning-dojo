@@ -1,0 +1,30 @@
+questions:
+  - id: boundary
+    prompt: "In a data flow diagram, where should you look hardest for threats?"
+    options: ["Inside each process", "Where data flows cross a trust boundary", "At the database indexes", "At the UI colours"]
+    answer: 1
+    explanation: "A change of trust level is where input must be validated and identities checked."
+  - id: repudiation
+    prompt: "An admin deletes an account and later says they never did. Which STRIDE category is this?"
+    answers: ["Repudiation", "R"]
+    explanation: "Repudiation threats are mitigated by tamper-resistant audit logs."
+  - id: elevation
+    prompt: "A viewer of a shared document finds an API call that lets them edit it. Which STRIDE category?"
+    options: ["Spoofing", "Tampering", "Elevation of privilege", "Denial of service"]
+    answer: 2
+    explanation: "They gained rights beyond those granted: elevation of privilege (the edit itself is also tampering)."
+  - id: when
+    prompt: "When is threat modeling most valuable?"
+    options: ["After the penetration test", "At design time, before the code is written", "Only after an incident", "Once a year for the whole company"]
+    answer: 1
+    explanation: "Design flaws are cheapest to fix before implementation; revisit the model when the design changes."
+  - id: accept
+    prompt: "What must an accepted risk have?"
+    options: ["Nothing, it is accepted", "An owner, a reason and a review date", "A CVE number", "Encryption"]
+    answer: 1
+    explanation: "Accepting a risk is a decision someone owns and revisits, not a way to forget it."
+  - id: stride-letters
+    prompt: "Which property does the T in STRIDE violate?"
+    options: ["Confidentiality", "Integrity", "Availability", "Authentication"]
+    answer: 1
+    explanation: "Tampering means unauthorised modification of data or code."

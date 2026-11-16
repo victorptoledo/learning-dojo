@@ -1,0 +1,24 @@
+id: cyber-security.p1.xss-output-encoding
+kind: lesson
+status: draft
+title: "Input Validation, Output Encoding and XSS"
+summary: "Cross-site scripting in its stored, reflected and DOM forms; why validation alone cannot stop it; encoding for the HTML, attribute, JavaScript and URL contexts; sanitising rich text; and Content Security Policy as the second line."
+objectives:
+  - { id: o1, text: "Explain stored, reflected and DOM-based XSS and what an attacker gains from each", skills: [cyber-security.xss-validation] }
+  - { id: o2, text: "Validate input with allow-lists and full matches, and encode output for the context it lands in", skills: [cyber-security.xss-validation] }
+  - { id: o3, text: "Choose between escaping, sanitising and CSP for user-supplied content", skills: [cyber-security.xss-validation] }
+prerequisites: [cyber-security.p1.sql-injection-fix]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A forum lets users set a display name, a profile link and a bio written in Markdown, and the search page shows "Results for <query>". For each of these four values, say which XSS form could hit it, which output context it lands in, and exactly how you would validate, encode or sanitise it. Then write the Content-Security-Policy header you would add.'
+  criteria:
+    - 'Classifies the search echo as reflected XSS and the name, link and bio as stored XSS'
+    - 'Encodes the name and query for the HTML body context and quotes and encodes attribute values'
+    - 'Allows only http and https links (rejecting javascript: and data:) after parsing the URL'
+    - 'Renders Markdown to HTML and then sanitises it with an allow-list sanitiser, rather than escaping or regex filtering'
+    - 'Gives a CSP with script-src restricted (no unsafe-inline, nonces or self), object-src none and base-uri, and says it is a second line of defence'

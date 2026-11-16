@@ -1,0 +1,55 @@
+id: cyber-security.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz over cryptography, signatures, certificates and tokens, and an integration kata that logs users in with scrypt hashes and issues HMAC-signed tokens with expiry, audience checks and key rotation."
+objectives:
+  - { id: o1, text: "Explain password hashing, AEAD, MACs, signatures, certificates and token validation in your own words", skills: [cyber-security.cryptography-secrets, cyber-security.signatures-pki, cyber-security.tokens-api-security] }
+  - { id: o2, text: "Build a token service with full claim validation, constant-time checks and key rotation on top of a password login", skills: [cyber-security.cryptography-secrets, cyber-security.signatures-pki, cyber-security.tokens-api-security] }
+prerequisites: [cyber-security.p2.tokens-api-security]
+difficulty: 4
+estimated_minutes: 90
+xp: 350
+closes_phase: p2
+covers_skills: [cyber-security.cryptography-secrets, cyber-security.signatures-pki, cyber-security.tokens-api-security]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 120 }
+  hints:
+    - |-
+      Write two helpers first: `_b64(data) -> str` (urlsafe Base64 without `=`) and `_unb64(text) -> bytes`, which raises `ValueError` on `=` or on anything that is not urlsafe Base64. Then `_sign(kid, payload_b64)` returns the HMAC-SHA256 of `f"v1.{kid}.{payload_b64}"` with `self._keys[kid]`. `issue` and `verify` are built from those three.
+    - |-
+      In `verify`, return `None` at the first failed check, in this order: four parts and `v1`; a known `kid`; decodable signature compared with `hmac.compare_digest`; decodable JSON object; `iss` and `aud` equal; `iat` and `exp` of type `int` exactly (`type(x) is int`, so `True` is refused); then the times with `LEEWAY`. Wrap the decoding in `try/except (ValueError, UnicodeDecodeError)`. For `login`, when the user does not exist still call `verify_password(password, DUMMY_HASH)` so both cases take the same time.
+    - |-
+      ```python
+      def verify(self, token, audience):
+          try:
+              version, kid, payload_b64, signature_b64 = token.split(".")
+          except (AttributeError, ValueError):
+              return None
+          if version != "v1" or kid not in self._keys:
+              return None
+          try:
+              signature = _unb64(signature_b64)
+              if not hmac.compare_digest(signature, self._sign(kid, payload_b64)):
+                  return None
+              claims = json.loads(_unb64(payload_b64))
+          except (ValueError, UnicodeDecodeError):
+              return None
+          # claims must be a dict; check iss, aud, the int types, then
+          # claims["iat"] - LEEWAY <= now < claims["exp"] + LEEWAY
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

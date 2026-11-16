@@ -1,0 +1,43 @@
+questions:
+  - id: shared
+    prompt: "With a managed database service, who is responsible for its network exposure and user permissions?"
+    options: ["The cloud provider", "You, the customer", "Nobody, it is managed", "The database vendor"]
+    answer: 1
+    explanation: "Providers run the service; access configuration, identities and data are always the customer's side."
+  - id: oidc
+    prompt: "What should a CI pipeline use to deploy to a cloud account?"
+    options:
+      - "An administrator access key stored as a secret"
+      - "Short-lived credentials from OIDC federation to a least-privilege role"
+      - "The root account password"
+      - "A shared team user"
+    answer: 1
+    explanation: "OIDC removes stored long-lived keys and lets you scope trust to a repository and branch."
+  - id: imds
+    prompt: "Which setting stops a simple SSRF from reading EC2 instance credentials?"
+    answers: ["IMDSv2", "IMDSv2 only", "require IMDSv2"]
+    explanation: "IMDSv2 needs a session token obtained with a PUT request, which a forged GET cannot do."
+  - id: sbom
+    prompt: "A critical CVE is announced in a popular library. What lets you find every affected service quickly?"
+    options: ["Code comments", "An SBOM generated for each build", "The firewall logs", "Penetration tests"]
+    answer: 1
+    explanation: "A Software Bill of Materials lists every component and version in each artifact."
+  - id: pin-actions
+    prompt: "Why pin third-party GitHub Actions by commit SHA instead of a tag like v4?"
+    options:
+      - "It is faster"
+      - "Tags can be moved to malicious code by whoever controls the action; a SHA cannot change"
+      - "GitHub requires it"
+      - "To save storage"
+    answer: 1
+    explanation: "A compromised action repository can repoint a tag; a full commit SHA is immutable."
+  - id: dependency-confusion
+    prompt: "An internal package name is also registered publicly with a higher version, and builds install it. What is this attack called?"
+    options: ["Typosquatting", "Dependency confusion", "SQL injection", "Clickjacking"]
+    answer: 1
+    explanation: "Resolvers that check public registries for private names pick the attacker's higher version."
+  - id: slsa
+    prompt: "What does SLSA mainly address?"
+    options: ["Password storage", "The integrity of builds and the provenance of artifacts", "Web headers", "Incident response"]
+    answer: 1
+    explanation: "SLSA levels describe how trustworthy the build process and its signed provenance are."

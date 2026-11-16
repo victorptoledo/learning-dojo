@@ -1,0 +1,54 @@
+id: cyber-security.p2.verify-signatures
+kind: kata
+status: draft
+title: "Verify Signatures: Webhooks with HMAC, Releases with Ed25519"
+summary: "In Java, verify signed webhooks (HMAC-SHA256 over a timestamp and the raw body, constant-time comparison, a replay window, several secrets during rotation) and signed release files (Ed25519 with a set of trusted, revocable key ids)."
+objectives:
+  - { id: o1, text: "Verify an HMAC over the exact signed bytes in constant time and reject stale timestamps", skills: [cyber-security.signatures-pki] }
+  - { id: o2, text: "Verify Ed25519 signatures against a list of trusted keys with ids, and revoke a key", skills: [cyber-security.signatures-pki] }
+  - { id: o3, text: "Fail closed on every parsing and verification error", skills: [cyber-security.signatures-pki] }
+prerequisites: [cyber-security.p2.signatures-pki]
+difficulty: 3
+estimated_minutes: 70
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with `WebhookVerifier`: split the header on `,`, then each part on the first `=`. Collect `t` (exactly one) and every `v1`. Wrap the whole method in `try { ... } catch (RuntimeException e) { return false; }` so a bad number or bad hex can never let a request through. Which JDK method compares two byte arrays in constant time?
+    - |-
+      The signed bytes are `(t + ".").getBytes(UTF_8)` followed by the body: write both into a `ByteArrayOutputStream`, or call `mac.update` twice. `HexFormat.of().parseHex(value)` decodes hex (it throws on bad input; accept only 64 characters). For releases, `KeyFactory.getInstance("Ed25519").generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(text)))` builds a key; `Signature.getInstance("Ed25519")` with `initVerify`, `update`, `verify` checks it.
+    - |-
+      ```java
+      public boolean verify(byte[] body, String header) {
+          try {
+              String timestamp = null;
+              List<String> candidates = new ArrayList<>();
+              for (String part : header.split(",")) {
+                  int eq = part.indexOf('=');
+                  if (eq < 0) return false;
+                  String key = part.substring(0, eq).trim(), value = part.substring(eq + 1).trim();
+                  // remember t (reject a second one) and every v1
+              }
+              long t = Long.parseLong(timestamp);
+              if (Math.abs(clock.instant().getEpochSecond() - t) > tolerance.toSeconds()) return false;
+              // for each secret and each candidate: MessageDigest.isEqual(expected, HexFormat.of().parseHex(candidate))
+          } catch (RuntimeException e) {
+              return false;
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The Java 25 container with JUnit 6 that compiles your code and runs the grading tests.

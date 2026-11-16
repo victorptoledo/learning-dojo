@@ -4,9 +4,9 @@ name: "Cyber Security"
 archetype: role
 category: "Careers & Roles"
 icon: "🛡️"
-description: "Defensive and offensive security: OWASP Top 10, cryptography, cloud security and penetration testing."
-status: draft
-bridges_available: [java]
+description: "Defensive application and infrastructure security: the OWASP Top 10, injection and XSS, authentication, cryptography and signatures, tokens, logging and detection, hardening, cloud and supply chain, threat modeling and incident response."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Security Aware" }
   - { name: "Yellow Belt", required_xp: 300, title: "Vulnerability Hunter" }
@@ -16,8 +16,8 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "SecOps & CISO Mind" }
   - { name: "Sensei", required_xp: 6000, title: "Cyber Security Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does and the tools of the trade" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The minimum of each pillar of the role" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Integrating the pillars into working features" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Scale, performance and architecture decisions" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production ownership, reliability and leadership topics" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Think like a defender: the CIA triad, risk, ethics, and your first defensive kata" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The OWASP Top 10, injection, XSS, authentication and access control" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Cryptography that holds up: password storage, signatures, certificates and tokens" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Detect and harden: security logging, server and web hardening, cloud and supply chain" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Threat modeling, incident response and running a security program" }

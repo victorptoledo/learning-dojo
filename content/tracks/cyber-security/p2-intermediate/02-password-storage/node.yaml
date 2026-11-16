@@ -1,0 +1,48 @@
+id: cyber-security.p2.password-storage
+kind: kata
+status: draft
+title: "Password Storage: scrypt, Salts and Rehash on Login"
+summary: "Replace unsalted SHA-256 password hashes with salted scrypt in a self-describing format, verify in constant time, refuse malformed or abusive parameters, and upgrade old hashes when users log in."
+objectives:
+  - { id: o1, text: "Hash passwords with a salted, memory-hard KDF and store the parameters with the hash", skills: [cyber-security.cryptography-secrets] }
+  - { id: o2, text: "Verify in constant time and treat malformed or extreme stored values as a failed login", skills: [cyber-security.cryptography-secrets] }
+  - { id: o3, text: "Migrate legacy hashes by rehashing at the next successful login", skills: [cyber-security.cryptography-secrets] }
+prerequisites: [cyber-security.p2.cryptography-secrets]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 120 }
+  hints:
+    - |-
+      Write a small `_parse(stored)` first that returns the scheme and its parts, or `None` for anything malformed; `verify_password`, `needs_rehash` and `login` all start from it. `stored.split("$")` gives `["scrypt", "n=16384,r=8,p=1", salt, hash]`. Wrap the whole parse in `try/except (ValueError, TypeError)`.
+    - |-
+      Base64 without padding: encode with `base64.b64encode(data).decode().rstrip("=")`, and decode by adding it back: `base64.b64decode(text + "=" * (-len(text) % 4), validate=True)`. A power of two has exactly one bit set: `n > 1 and n & (n - 1) == 0`. Compare digests with `hmac.compare_digest(expected, actual)`, for the legacy `sha256$` scheme too (compare the hex strings).
+    - |-
+      ```python
+      def verify_password(password, stored):
+          parsed = _parse(stored)
+          if parsed is None:
+              return False
+          if parsed[0] == "sha256":
+              actual = hashlib.sha256(_normalise(password)).hexdigest()
+              return hmac.compare_digest(parsed[1], actual)
+          _, n, r, p, salt, expected = parsed
+          actual = hashlib.scrypt(_normalise(password), salt=salt, n=n, r=r, p=p,
+                                  maxmem=MAX_MEMORY, dklen=len(expected))
+          return hmac.compare_digest(expected, actual)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

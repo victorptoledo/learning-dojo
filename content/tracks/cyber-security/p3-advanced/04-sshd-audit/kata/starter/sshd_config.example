@@ -1,0 +1,17 @@
+# Example server configuration for the audit kata.
+Include /etc/ssh/sshd_config.d/*.conf
+
+Port 22
+PermitRootLogin yes
+#PasswordAuthentication no
+MaxAuthTries 10
+PubkeyAuthentication yes
+Ciphers chacha20-poly1305@openssh.com,aes128-cbc,aes256-gcm@openssh.com
+MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
+
+# A later line never overrides an earlier one.
+PermitRootLogin no
+
+Match User backup
+    X11Forwarding yes
+    PermitEmptyPasswords yes

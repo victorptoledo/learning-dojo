@@ -1,0 +1,53 @@
+id: cyber-security.p3.security-headers
+kind: kata
+status: draft
+title: "Security Headers Audit: HSTS, CSP, Cookies and Leaks"
+summary: "A Python auditor for HTTP response headers that parses HSTS, Content-Security-Policy, frame protection, nosniff, Referrer-Policy, version leaks and every Set-Cookie, plus a builder for a strict, nonce-based header set."
+objectives:
+  - { id: o1, text: "Parse security headers case-insensitively and detect weak HSTS and CSP policies", skills: [cyber-security.web-hardening] }
+  - { id: o2, text: "Audit every Set-Cookie for Secure, HttpOnly and SameSite", skills: [cyber-security.web-hardening] }
+  - { id: o3, text: "Build a strict header set with a validated per-response nonce", skills: [cyber-security.web-hardening] }
+prerequisites: [cyber-security.p3.web-hardening]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Turn the list into something easy to query first: a dict of lower-cased names to the **first** value (stripped), and a separate list of every `Set-Cookie` value. Then write one small parser per header: `_csp(value) -> dict[str, list[str]]` with lower-cased directive names, keeping only the first occurrence of each directive.
+    - |-
+      HSTS: `re.search(r"(?:^|;)\s*max-age\s*=\s*(\d+)\s*(?:;|$)", value, re.IGNORECASE)`. CSP: the script sources are `policy.get("script-src", policy.get("default-src"))`; `None` means no restriction at all, which is a wildcard. Compare sources lower-cased: `"'unsafe-inline'" in sources`. For cookies, `name, _, rest = cookie.partition(";")`, then split `rest` on `;` and lower-case each attribute name before `=`.
+    - |-
+      ```python
+      def check_headers(headers):
+          first, cookies = {}, []
+          for name, value in headers:
+              key = name.strip().lower()
+              if key == "set-cookie":
+                  cookies.append(value.strip())
+              else:
+                  first.setdefault(key, value.strip())
+          findings = []
+          hsts = first.get("strict-transport-security")
+          if hsts is None:
+              findings.append("hsts-missing")
+          elif _max_age(hsts) is None or _max_age(hsts) < ONE_YEAR:
+              findings.append("hsts-short")
+          # CSP, frame, nosniff, referrer, version leak, then the cookies
+          ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

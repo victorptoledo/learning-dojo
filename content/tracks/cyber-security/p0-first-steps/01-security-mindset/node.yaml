@@ -1,0 +1,24 @@
+id: cyber-security.p0.security-mindset
+kind: lesson
+status: draft
+title: "The Security Mindset: CIA, Risk and the Defender's Role"
+summary: "What security protects (confidentiality, integrity, availability), how to think about threats and risk, the principles every control comes from, and the legal and ethical limits of the work."
+objectives:
+  - { id: o1, text: "Classify a security problem by the CIA property it breaks and name the asset, threat and vulnerability involved", skills: [cyber-security.security-mindset] }
+  - { id: o2, text: "Apply least privilege, defense in depth, secure defaults and fail closed to a concrete design", skills: [cyber-security.security-mindset] }
+  - { id: o3, text: "Explain what authorisation means for security testing and where the defender's role sits in a team", skills: [cyber-security.security-mindset] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 35
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Pick an application you know (a to-do app, a shop, an internal admin panel). List three assets it holds, and for each one write a threat that breaks confidentiality, integrity or availability, the weakness that would let it happen, and one control from the principles in this lesson that reduces the risk. Finish with the one risk you would fix first and why.'
+  criteria:
+    - 'Names concrete assets (data, credentials, money, uptime), not vague ones like "the system"'
+    - 'Maps each threat to the CIA property it breaks'
+    - 'Separates the threat (who or what) from the vulnerability (the weakness)'
+    - 'Each control follows a named principle: least privilege, defense in depth, secure defaults, fail closed, separation of duties or a smaller attack surface'
+    - 'Prioritises with likelihood and impact rather than by gut feeling'

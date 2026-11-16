@@ -1,0 +1,24 @@
+id: cyber-security.p4.incident-response
+kind: lesson
+status: draft
+title: "Incident Response and Forensics Basics"
+summary: "Preparing for, detecting, containing and recovering from security incidents: the NIST SP 800-61 life cycle aligned with CSF 2.0, roles and communication, evidence handling, breach notification and blameless post-incident reviews."
+objectives:
+  - { id: o1, text: "Run the incident life cycle: prepare, detect and analyse, contain, eradicate, recover, learn", skills: [cyber-security.incident-response] }
+  - { id: o2, text: "Collect and preserve evidence without destroying it, and keep a timeline", skills: [cyber-security.incident-response] }
+  - { id: o3, text: "Communicate during an incident, meet notification duties and run a blameless review", skills: [cyber-security.incident-response] }
+prerequisites: [cyber-security.p4.threat-modeling]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'At 02:10 an alert fires: a production API server is making outbound connections to an unknown IP, and an access key belonging to the CI system was used from a country where you have no staff. Write the first two hours of your response: who you call, what you collect before changing anything, how you contain each problem, what you tell whom, and what must be in the post-incident review.'
+  criteria:
+    - 'Declares an incident, assigns an incident commander and a scribe, opens a channel and starts a timeline'
+    - 'Preserves evidence first: memory and disk snapshots of the server, cloud audit logs, network flow logs, with timestamps and chain of custody'
+    - 'Contains without destroying evidence: isolates the server (security group or network), revokes and rotates the CI key and other secrets it could reach, checks what the key did'
+    - 'Plans eradication and recovery: rebuild from known-good images rather than cleaning, verify integrity, monitor for return'
+    - 'Communicates to leadership, legal and privacy (notification deadlines such as 72 hours under GDPR) and plans a blameless review with root causes and tracked actions'

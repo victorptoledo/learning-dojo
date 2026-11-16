@@ -1,0 +1,47 @@
+questions:
+  - id: epss
+    prompt: "What does EPSS estimate?"
+    options: ["The technical severity of a CVE", "The probability that a vulnerability will be exploited in the next 30 days", "The cost of a breach", "The number of affected users"]
+    answer: 1
+    explanation: "CVSS measures severity; EPSS estimates exploitation likelihood; KEV confirms exploitation."
+  - id: priority
+    prompt: "Which finding should be fixed first?"
+    options:
+      - "CVSS 9.8 in a test-only dependency that never runs in production"
+      - "A CISA KEV vulnerability on an internet-facing service that handles payments"
+      - "A medium finding in an internal wiki"
+      - "The oldest finding in the backlog"
+    answer: 1
+    explanation: "Known exploitation plus exposure plus asset value beats a raw severity score."
+  - id: sast-dast
+    prompt: "What is the difference between SAST and DAST?"
+    options:
+      - "There is none"
+      - "SAST analyses source code without running it; DAST tests the running application from outside"
+      - "SAST is for networks, DAST for code"
+      - "DAST only scans dependencies"
+    answer: 1
+    explanation: "They find different classes of issue and complement each other; SCA covers dependencies."
+  - id: block
+    prompt: "A new SAST tool produces many false positives. What is the better rollout?"
+    options:
+      - "Block every pull request with any finding from day one"
+      - "Start with a few high-signal rules, show findings in pull requests as warnings, and block only on reliable serious ones"
+      - "Run it once a year"
+      - "Hide the results from developers"
+    answer: 1
+    explanation: "Noisy blocking tools get bypassed; trust is earned with signal."
+  - id: iso
+    prompt: "What is ISO/IEC 27001 at its core?"
+    options: ["A list of firewall rules", "A certifiable information security management system based on risk", "A programming standard", "A vulnerability scanner"]
+    answer: 1
+    explanation: "It requires a risk-driven management system; Annex A lists controls to consider."
+  - id: security-txt
+    prompt: "Which file tells researchers how to report a vulnerability in your site?"
+    answers: ["security.txt", "/.well-known/security.txt"]
+    explanation: "RFC 9116 defines /.well-known/security.txt with contact and policy fields."
+  - id: metrics
+    prompt: "Which is the most useful metric to report to leadership?"
+    options: ["Total number of scanner findings", "Median time to fix known-exploited vulnerabilities on internet-facing systems, and its trend", "Number of security tools bought", "Lines of code scanned"]
+    answer: 1
+    explanation: "Outcome metrics tied to real risk show whether the program works."

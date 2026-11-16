@@ -1,0 +1,52 @@
+questions:
+  - id: or-1-1
+    prompt: "A query is built as f\"SELECT * FROM users WHERE name = '{name}'\". Which input makes it return every user?"
+    options: ["admin", "' OR '1'='1", "%", "NULL"]
+    answer: 1
+    explanation: "The quote closes the string and OR '1'='1' makes the condition always true."
+  - id: params-why
+    prompt: "Why do bound parameters prevent SQL injection?"
+    options:
+      - "They escape quotes more carefully than you would"
+      - "The database parses the statement before the values arrive, so values can only ever be data"
+      - "They encrypt the values"
+      - "They reject values with quotes"
+    answer: 1
+    explanation: "Statement and values travel separately; no escaping is involved, which is why it cannot be bypassed."
+  - id: order-by
+    prompt: "The user chooses the sort column. How do you put it into ORDER BY safely?"
+    options:
+      - "As a bound parameter: ORDER BY ?"
+      - "Escape it with a quote function"
+      - "Map the input through an allow-list of known column names and reject anything else"
+      - "Remove spaces from it"
+    answer: 2
+    explanation: "Identifiers cannot be bound; only your own fixed strings should reach that part of the SQL."
+  - id: blind
+    prompt: "The app shows a generic error page and never displays database errors. Is SQL injection still exploitable?"
+    options: ["No", "Yes: blind injection reads data through true/false differences or timing", "Only with UNION", "Only on MySQL"]
+    answer: 1
+    explanation: "Hiding errors makes exploitation slower, not impossible."
+  - id: subprocess
+    prompt: "Which call is safe from shell injection when host comes from the user?"
+    options:
+      - "os.system('ping -c 1 ' + host)"
+      - "subprocess.run(f'ping -c 1 {host}', shell=True)"
+      - "subprocess.run(['ping', '-c', '1', host])"
+      - "os.popen('ping -c 1 %s' % host)"
+    answer: 2
+    explanation: "An argument list without a shell passes host as one argument; ; and | have no meaning. Still validate it."
+  - id: traversal
+    prompt: "What is the reliable check that a user-supplied file name stays inside /srv/uploads?"
+    options:
+      - "Reject names containing '../'"
+      - "Resolve base / name to an absolute path and check that it is still inside the resolved base"
+      - "URL-decode the name"
+      - "Check the extension"
+    answer: 1
+    explanation: "String filters miss encodings, absolute paths and symlinks; check the resolved result."
+  - id: like
+    prompt: "In WHERE name LIKE ?, the bound value is '%'. What matches?"
+    options: ["Only names containing a % sign", "Every row", "Nothing", "It is a syntax error"]
+    answer: 1
+    explanation: "Binding stops injection, but % is still a LIKE wildcard; escape it if the text must match literally."

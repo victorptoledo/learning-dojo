@@ -1,0 +1,51 @@
+id: cyber-security.p0.password-policy
+kind: kata
+status: draft
+title: "Password Policy: Rules That Help, Not Hurt"
+summary: "Replace a legacy password policy (composition rules, a 16-character limit) with checks in the spirit of NIST SP 800-63B: length, a blocklist, context words and Unicode normalisation."
+objectives:
+  - { id: o1, text: "Check passwords by length, a blocklist and context words instead of composition rules", skills: [cyber-security.security-mindset] }
+  - { id: o2, text: "Normalise Unicode with NFKC before counting and comparing", skills: [cyber-security.security-mindset] }
+prerequisites: [cyber-security.p0.security-mindset]
+difficulty: 1
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Start by deleting the legacy rules: no check should look for upper case, digits or symbols. Then normalise once at the top with `unicodedata.normalize("NFKC", password)` and work only with the normalised text. `len()` of a Python `str` already counts code points.
+    - |-
+      Build the list in the order of the table: `if len(text) < min_length: problems.append("too-short")`, then too-long, then the blocklist (compare `text.casefold()` with a set of normalised, case-folded entries), then the username (only when it has 3 or more characters), then `len(set(text)) == 1` for repetitive. An empty string is too short and nothing else.
+    - |-
+      ```python
+      def _fold(value: str) -> str:
+          return unicodedata.normalize("NFKC", value).casefold()
+
+
+      def check_password(password, *, username="", mfa=False, blocklist=COMMON_PASSWORDS):
+          text = unicodedata.normalize("NFKC", password)
+          problems = []
+          if len(text) < (MIN_LENGTH_WITH_MFA if mfa else MIN_LENGTH):
+              problems.append("too-short")
+          if len(text) > MAX_LENGTH:
+              problems.append("too-long")
+          if _fold(text) in {_fold(entry) for entry in blocklist}:
+              problems.append("common")
+          # contains-username and repetitive
+          ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

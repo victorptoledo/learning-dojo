@@ -1,0 +1,24 @@
+id: cyber-security.p3.web-hardening
+kind: lesson
+status: draft
+title: "Web Hardening: Security Headers, Cookies, CORS and TLS"
+summary: "The HTTP response headers that make browsers enforce security for you (HSTS, CSP, frame-ancestors, nosniff, Referrer-Policy, Permissions-Policy), cookie attributes, CORS done right, and a sound TLS configuration."
+objectives:
+  - { id: o1, text: "Set and explain HSTS, a strict CSP, frame protection, nosniff and Referrer-Policy", skills: [cyber-security.web-hardening] }
+  - { id: o2, text: "Configure cookies and CORS so that they do not open cross-site attacks", skills: [cyber-security.web-hardening] }
+  - { id: o3, text: "Audit a site's headers and TLS configuration and prioritise the gaps", skills: [cyber-security.web-hardening] }
+prerequisites: [cyber-security.p3.sshd-audit]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A single-page app at app.example.com calls an API at api.example.com with a session cookie. The API answers every request with `Access-Control-Allow-Origin` set to the request''s Origin and `Access-Control-Allow-Credentials: true`, sets `Set-Cookie: session=...; Path=/`, and the app''s HTML has no security headers. Write the headers both should send and explain the attack each one prevents.'
+  criteria:
+    - 'Identifies the reflected Origin with credentials as letting any site read authenticated API responses, and replaces it with an allow-list containing app.example.com only'
+    - 'Adds Secure, HttpOnly and SameSite to the cookie (and explains SameSite=Lax versus Strict or None with Secure)'
+    - 'Adds HSTS with a long max-age (at least one year) and includeSubDomains, and mentions preload with care'
+    - 'Adds a CSP with script-src restricted (self or nonces, no unsafe-inline), object-src none, base-uri and frame-ancestors'
+    - 'Adds X-Content-Type-Options nosniff and a Referrer-Policy such as strict-origin-when-cross-origin, and removes version-revealing Server headers'

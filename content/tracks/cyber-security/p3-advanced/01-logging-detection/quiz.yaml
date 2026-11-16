@@ -1,0 +1,38 @@
+questions:
+  - id: never-log
+    prompt: "Which of these should never appear in application logs?"
+    options: ["The user id of a failed login", "The source IP", "The password typed in a failed login", "The request id"]
+    answer: 2
+    explanation: "Wrong passwords are often real passwords for another account, or the right one with a typo."
+  - id: injection
+    prompt: "A username contains a newline followed by a fake 'login ok user=admin' line. What prevents the forged log entry?"
+    options: ["Longer retention", "Structured (JSON) logging or encoding control characters", "Logging less", "Rotating logs daily"]
+    answer: 1
+    explanation: "Log injection works when user data can create new lines or fields in a text format."
+  - id: ship
+    prompt: "Why send logs to central storage quickly instead of keeping them only on each server?"
+    options:
+      - "To save disk space"
+      - "An attacker with root on a server can delete or edit its local logs"
+      - "Central logs are faster to write"
+      - "Regulations forbid local logs"
+    answer: 1
+    explanation: "Off-host, access-controlled storage keeps the evidence even if the host is compromised."
+  - id: spraying
+    prompt: "One IP fails once each against 300 different accounts in ten minutes. Which rule shape detects it?"
+    options: ["Failures per account over a threshold", "Distinct accounts per source IP", "Impossible travel", "File integrity monitoring"]
+    answer: 1
+    explanation: "Password spraying stays under per-account limits, so count distinct targets per source."
+  - id: sequence
+    prompt: "Which event after many failures from the same IP deserves an immediate alert?"
+    answers: ["a successful login", "successful login", "success", "accepted login"]
+    explanation: "A success right after a burst of failures may mean the brute force worked."
+  - id: attack
+    prompt: "What is MITRE ATT&CK?"
+    options:
+      - "A vulnerability scanner"
+      - "A knowledge base of adversary tactics and techniques used to map and plan detections"
+      - "A log format"
+      - "A firewall"
+    answer: 1
+    explanation: "Mapping detections to ATT&CK techniques shows coverage and gaps."

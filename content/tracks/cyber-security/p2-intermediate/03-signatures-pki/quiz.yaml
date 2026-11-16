@@ -1,0 +1,47 @@
+questions:
+  - id: mac-vs-sig
+    prompt: "Thousands of customers' devices must verify your firmware updates. Which tool fits?"
+    options: ["HMAC with a key embedded in every device", "A digital signature: the devices hold only the public key", "SHA-256 checksum on the same server", "AES-GCM encryption"]
+    answer: 1
+    explanation: "With a MAC every device could also forge updates; with a signature only the private key holder can sign."
+  - id: raw-body
+    prompt: "A webhook handler parses the JSON, re-serialises it and computes the HMAC over the result. What is wrong?"
+    options:
+      - "Nothing"
+      - "The tag must be computed over the exact raw bytes received; re-serialising can change them"
+      - "HMAC cannot be used for JSON"
+      - "It should use MD5"
+    answer: 1
+    explanation: "Key order, spacing and number formatting can differ, so valid requests fail or, worse, different bytes are trusted."
+  - id: constant-time
+    prompt: "Why compare MAC tags with a constant-time function?"
+    options:
+      - "It is faster"
+      - "An early-exit comparison leaks, through timing, how many leading bytes are right"
+      - "It handles Unicode"
+      - "It prevents replays"
+    answer: 1
+    explanation: "Timing differences let an attacker find a valid tag byte by byte."
+  - id: replay
+    prompt: "A valid signed webhook is captured and sent again an hour later. What stops it?"
+    options: ["TLS", "A signed timestamp checked against a short tolerance window (and remembered event ids)", "A longer secret", "Base64 encoding"]
+    answer: 1
+    explanation: "The signature is still valid, so freshness must be part of what is signed and checked."
+  - id: forward-secrecy
+    prompt: "What does forward secrecy in TLS 1.3 protect against?"
+    options:
+      - "Expired certificates"
+      - "A later leak of the server's private key decrypting traffic recorded earlier"
+      - "Phishing"
+      - "Weak passwords"
+    answer: 1
+    explanation: "Each session uses ephemeral key exchange; the long-term key only signs the handshake."
+  - id: ct
+    prompt: "What lets you discover a certificate for your domain that a CA issued without your request?"
+    answers: ["Certificate Transparency", "CT", "CT logs"]
+    explanation: "CAs log every publicly trusted certificate; monitors alert you on unexpected ones."
+  - id: verify-off
+    prompt: "A developer sets verify=False on an HTTPS client to get past a certificate error. What do they lose?"
+    options: ["Only speed", "Server authentication: anyone in the middle can impersonate the server", "Compression", "Nothing, the traffic is still encrypted, so it is safe"]
+    answer: 1
+    explanation: "Encryption to an unauthenticated peer protects nothing against an active attacker."

@@ -1,0 +1,290 @@
+# Placement test of the Cyber Security track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with application and infrastructure security?
+  options:
+    - { label: "New to security: I have heard of the OWASP Top 10 but not used it", start_phase: p0, test: false }
+    - { label: "I write code that avoids injection and XSS and know how logins and sessions should work", start_phase: p1, test: true }
+    - { label: "I also use cryptography, signatures and tokens correctly and harden what I deploy", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-idor-uuid
+    phase: p1
+    skills: [cyber-security.owasp-top-10]
+    difficulty: 2
+    prompt: "Order ids change from numbers to random UUIDs. Is the 'see another customer's order' bug fixed?"
+    options:
+      - "Yes, UUIDs cannot be guessed"
+      - "No: ids leak in links, logs and referrers; the server must still check that the order belongs to the caller"
+      - "Yes, if they are UUID version 4"
+      - "Only on mobile"
+    answer: 1
+    explanation: "Unguessable ids reduce the risk, but authorisation on every request is the fix."
+  - id: p1-ssrf-dns
+    phase: p1
+    skills: [cyber-security.owasp-top-10]
+    difficulty: 3
+    prompt: "A URL fetcher rejects hosts named 'localhost' and IPs starting with 127. Which input still reaches the loopback interface?"
+    options: ["https://example.com", "http://[::1]/admin", "https://8.8.8.8", "ftp://example.org"]
+    answer: 1
+    explanation: "IPv6 loopback, decimal IPs and DNS names that resolve to 127.0.0.1 all bypass string checks; check the resolved address."
+  - id: p1-second-order
+    phase: p1
+    skills: [cyber-security.injection]
+    difficulty: 3
+    prompt: "A sign-up form stores the name with bound parameters. A nightly report later builds SQL with that name and gets injected. What is this called?"
+    answers: ["second-order SQL injection", "second order injection", "second-order injection", "stored SQL injection"]
+    explanation: "Data stored safely becomes dangerous when a later query concatenates it."
+  - id: p1-orm-raw
+    phase: p1
+    skills: [cyber-security.injection]
+    difficulty: 2
+    prompt: "The app uses an ORM. Where can SQL injection still appear?"
+    options: ["Nowhere", "In raw queries and string-built query fragments passed to the ORM", "Only in stored procedures", "Only in SELECT statements"]
+    answer: 1
+    explanation: "ORMs bind parameters for their own query builders; raw and interpolated SQL is as risky as hand-written SQL."
+  - id: p1-dom-xss
+    phase: p1
+    skills: [cyber-security.xss-validation]
+    difficulty: 3
+    prompt: "document.getElementById('msg').innerHTML = new URLSearchParams(location.search).get('m'). What is the bug and the fix?"
+    options:
+      - "None, the URL is encoded"
+      - "DOM-based XSS; assign to textContent instead (or sanitise if HTML is needed)"
+      - "CSRF; add a token"
+      - "SQL injection; use parameters"
+    answer: 1
+    explanation: "innerHTML parses attacker-controlled text as HTML in the page's origin."
+  - id: p1-validate-not-enough
+    phase: p1
+    skills: [cyber-security.xss-validation]
+    difficulty: 2
+    prompt: "A display name may contain any printable character. What prevents stored XSS when it is shown?"
+    options: ["Validation alone", "Encoding the name for the HTML context where it is printed", "Base64 in the database", "A longer maximum length"]
+    answer: 1
+    explanation: "Valid data can still contain < and \"; output encoding makes it safe in each context."
+  - id: p1-csrf-get
+    phase: p1
+    skills: [cyber-security.authn-access-control]
+    difficulty: 2
+    prompt: "GET /account/delete?confirm=yes deletes the logged-in user's account. Which attack does this invite most directly?"
+    options: ["SQL injection", "CSRF: an image tag on another site can trigger it", "Clickjacking only", "Brute force"]
+    answer: 1
+    explanation: "State-changing GET requests are sent by the browser for img and link tags, with cookies; and SameSite=Lax allows top-level GETs."
+  - id: p1-reset-token
+    phase: p1
+    skills: [cyber-security.authn-access-control]
+    difficulty: 3
+    prompt: "How should password reset tokens be stored on the server?"
+    options: ["In plain text, they expire anyway", "As a hash, single-use and with a short expiry", "Encrypted with the user's password", "In a cookie only"]
+    answer: 1
+    explanation: "A database leak must not give attackers working reset links."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-bcrypt-72
+    phase: p2
+    skills: [cyber-security.cryptography-secrets]
+    difficulty: 3
+    prompt: "What is a known limitation of bcrypt?"
+    options: ["It has no salt", "It only uses the first 72 bytes of the password", "It is reversible", "It is too fast"]
+    answer: 1
+    explanation: "Longer inputs are silently truncated; Argon2id or scrypt have no such limit."
+  - id: p2-ecb
+    phase: p2
+    skills: [cyber-security.cryptography-secrets]
+    difficulty: 2
+    prompt: "Why does encrypting an image with AES in ECB mode still show its outline?"
+    options: ["The key is too short", "Identical plaintext blocks become identical ciphertext blocks", "ECB compresses the data", "AES is broken"]
+    answer: 1
+    explanation: "ECB has no chaining or nonce, so patterns survive; use an AEAD mode."
+  - id: p2-aad
+    phase: p2
+    skills: [cyber-security.cryptography-secrets]
+    difficulty: 4
+    prompt: "Each customer's tax id is encrypted with AES-GCM under one key. An attacker with database write access swaps two customers' ciphertexts. What stops this?"
+    options:
+      - "Nothing, both decrypt fine"
+      - "Associated data: binding each ciphertext to its customer id makes the swapped ones fail to decrypt"
+      - "A longer nonce"
+      - "Base64 encoding"
+    answer: 1
+    explanation: "Associated data is authenticated with the ciphertext, so moving it to another row is detected."
+  - id: p2-hmac-vs-hash
+    phase: p2
+    skills: [cyber-security.signatures-pki]
+    difficulty: 3
+    prompt: "Why is SHA-256(secret + message) a poor substitute for HMAC-SHA256?"
+    options:
+      - "It is slower"
+      - "Length-extension attacks let an attacker append data and compute a valid tag without the secret"
+      - "SHA-256 is broken"
+      - "It produces a shorter tag"
+    answer: 1
+    explanation: "Merkle-Damgard hashes allow length extension; HMAC's construction prevents it."
+  - id: p2-mtls
+    phase: p2
+    skills: [cyber-security.signatures-pki]
+    difficulty: 3
+    prompt: "What does mutual TLS add to normal TLS?"
+    answers: ["client authentication", "the client presents a certificate", "client certificates", "authentication of the client"]
+    explanation: "Both sides prove their identity with certificates, common between services."
+  - id: p2-intermediate
+    phase: p2
+    skills: [cyber-security.signatures-pki]
+    difficulty: 3
+    prompt: "Browsers accept your site but some API clients fail with 'unable to get local issuer certificate'. What is the likely cause?"
+    options:
+      - "The certificate expired"
+      - "The server does not send the intermediate certificate, so clients without it cannot build the chain"
+      - "TLS 1.3 is disabled"
+      - "The private key is too short"
+    answer: 1
+    explanation: "Browsers may cache or fetch intermediates; many clients need the server to send the full chain."
+  - id: p2-jwt-none
+    phase: p2
+    skills: [cyber-security.tokens-api-security]
+    difficulty: 2
+    prompt: "A JWT arrives with header {\"alg\": \"none\"} and no signature. What should a correct verifier do?"
+    options: ["Accept it, no signature is needed", "Reject it, because the expected algorithm is pinned", "Verify it with HMAC", "Ask the user"]
+    answer: 1
+    explanation: "The verifier, not the token, decides which algorithms are acceptable."
+  - id: p2-state
+    phase: p2
+    skills: [cyber-security.tokens-api-security]
+    difficulty: 3
+    prompt: "In the OAuth authorization code flow, what does the state parameter protect against?"
+    options: ["Token expiry", "CSRF on the redirect: an attacker logging the victim into the attacker's account", "Weak passwords", "SQL injection"]
+    answer: 1
+    explanation: "The client checks that the state returned matches the one it sent for this browser session."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-what-to-log
+    phase: p3
+    skills: [cyber-security.logging-detection]
+    difficulty: 2
+    prompt: "Which event is most important to log for detecting account takeover?"
+    options: ["Page views", "Authentication failures and successes with source IP, plus changes to email, password and MFA", "CSS load times", "Database query plans"]
+    answer: 1
+    explanation: "Takeovers show up as failure bursts, unusual successes and changes to recovery settings."
+  - id: p3-fail2ban
+    phase: p3
+    skills: [cyber-security.logging-detection]
+    difficulty: 3
+    prompt: "What does fail2ban do?"
+    options: ["Encrypts logs", "Watches logs for repeated failures and bans the source IPs for a time", "Rotates passwords", "Scans for viruses"]
+    answer: 1
+    explanation: "It turns a log-based detection into an automatic response at the host firewall."
+  - id: p3-sshd-effective
+    phase: p3
+    skills: [cyber-security.hardening]
+    difficulty: 3
+    prompt: "Which command prints the SSH server's effective configuration after all includes and defaults?"
+    answers: ["sshd -T", "sudo sshd -T", "/usr/sbin/sshd -T"]
+    explanation: "sshd -T shows the values sshd will really use, unlike reading the file."
+  - id: p3-unattended
+    phase: p3
+    skills: [cyber-security.hardening]
+    difficulty: 2
+    prompt: "Which Debian package installs security updates automatically?"
+    answers: ["unattended-upgrades"]
+    explanation: "It applies updates from the security repository daily, configurable per origin."
+  - id: p3-hsts-preload
+    phase: p3
+    skills: [cyber-security.web-hardening]
+    difficulty: 3
+    prompt: "What risk does HSTS preload add?"
+    options:
+      - "None"
+      - "It is hard to undo: every subdomain must serve HTTPS for a long time, or it becomes unreachable"
+      - "It slows the site"
+      - "It disables cookies"
+    answer: 1
+    explanation: "Browsers ship the preload list; removal takes months, so all subdomains must be ready."
+  - id: p3-cors-null
+    phase: p3
+    skills: [cyber-security.web-hardening]
+    difficulty: 4
+    prompt: "An API allows the origin 'null' with credentials for local testing. Who can exploit it?"
+    options: ["Nobody", "Any site, by sending the request from a sandboxed iframe, whose origin is null", "Only localhost", "Only Safari users"]
+    answer: 1
+    explanation: "Sandboxed iframes and some redirects produce the null origin, which attackers can create at will."
+  - id: p3-public-bucket
+    phase: p3
+    skills: [cyber-security.cloud-supply-chain]
+    difficulty: 2
+    prompt: "What is the strongest single control against accidentally public storage buckets on AWS?"
+    options: ["Bucket naming rules", "Block Public Access at the account (or organisation) level", "Encrypting the objects", "A CDN"]
+    answer: 1
+    explanation: "Account-level Block Public Access overrides individual bucket policies and ACLs."
+  - id: p3-digest
+    phase: p3
+    skills: [cyber-security.cloud-supply-chain]
+    difficulty: 3
+    prompt: "Why pin a base image as python@sha256:... instead of python:3.15?"
+    options: ["It is shorter", "A tag can be moved to different content; a digest identifies exactly one image", "Digests download faster", "Tags are deprecated"]
+    answer: 1
+    explanation: "Digests make builds reproducible and stop a changed tag from slipping in; update them on purpose."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-dfd
+    phase: p4
+    skills: [cyber-security.threat-modeling]
+    difficulty: 3
+    prompt: "In STRIDE-per-element, which threats apply mainly to a data store?"
+    options: ["All six equally", "Tampering, information disclosure, denial of service (and repudiation for logs)", "Only spoofing", "Only elevation of privilege"]
+    answer: 1
+    explanation: "Stores are attacked by changing, reading or exhausting them; spoofing applies to entities and processes."
+  - id: p4-attack-tree
+    phase: p4
+    skills: [cyber-security.threat-modeling]
+    difficulty: 4
+    prompt: "What sits at the root of an attack tree?"
+    answers: ["the attacker's goal", "the goal", "attacker goal", "the attack goal"]
+    explanation: "Children are the alternative or combined ways to reach that goal."
+  - id: p4-order
+    phase: p4
+    skills: [cyber-security.incident-response]
+    difficulty: 3
+    prompt: "An attacker still has access. Why might you delay rotating one credential you found?"
+    options:
+      - "Rotation is expensive"
+      - "Acting before you know the scope can tip them off while they keep other footholds"
+      - "Credentials cannot be rotated during an incident"
+      - "To meet a notification deadline"
+    answer: 1
+    explanation: "Scope first, then contain everything at once where the situation allows; immediate harm still comes first."
+  - id: p4-chain-custody
+    phase: p4
+    skills: [cyber-security.incident-response]
+    difficulty: 3
+    prompt: "What does chain of custody record?"
+    options: ["The attacker's IP", "Who collected each piece of evidence, when, how, and where it has been stored since", "The order of volatility", "The backup schedule"]
+    answer: 1
+    explanation: "It keeps evidence usable for legal action and trustworthy for analysis."
+  - id: p4-cvss-epss
+    phase: p4
+    skills: [cyber-security.security-program]
+    difficulty: 3
+    prompt: "A CVE has CVSS 9.1 and EPSS 0.2%. Another has CVSS 7.5, EPSS 94% and is in CISA KEV. Both affect internet-facing systems. Which first?"
+    options: ["The CVSS 9.1 one", "The KEV one with high EPSS", "Both at the same time, whatever the cost", "Neither until the next release"]
+    answer: 1
+    explanation: "Known and likely exploitation on exposed systems outweighs a higher theoretical severity."
+  - id: p4-coordinated
+    phase: p4
+    skills: [cyber-security.security-program]
+    difficulty: 2
+    prompt: "What is coordinated vulnerability disclosure?"
+    options:
+      - "Publishing a bug immediately"
+      - "Reporting privately to the vendor and publishing after a fix or an agreed deadline"
+      - "Selling the bug"
+      - "Never telling anyone"
+    answer: 1
+    explanation: "It gives users a fix before attackers get the details, with a deadline so vendors act."
