@@ -2,13 +2,24 @@ id: software-architect.p3.ddd-tactical
 legacy_id: arch-04-ddd-tactical
 kind: lesson
 status: draft
-title: "Tactical DDD: Entities, Value Objects and Aggregates"
-summary: "Protecting business invariants and atomic transactional consistency."
+title: "Tactical DDD: Entities, Value Objects, Aggregates and Domain Events"
+summary: "The building blocks inside a bounded context: entities with identity, immutable value objects, aggregates as consistency boundaries with Vernon's design rules, repositories per aggregate, domain services and domain events."
 objectives:
-  - { id: o1, text: "Protecting business invariants and atomic transactional consistency.", skills: [software-architect.ddd-tactical] }
-prerequisites: [software-architect.p2.ddd-strategic]
-difficulty: 4
-estimated_minutes: 30
-xp: 350
+  - { id: o1, text: "Tell entities from value objects and model money, quantities and ids as values", skills: [software-architect.ddd-tactical] }
+  - { id: o2, text: "Draw aggregate boundaries around true invariants and apply the four aggregate design rules", skills: [software-architect.ddd-tactical] }
+  - { id: o3, text: "Use repositories per aggregate root, domain services and domain events in their proper places", skills: [software-architect.ddd-tactical] }
+prerequisites: [software-architect.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 150
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A conference ticketing context has: conferences with a capacity, ticket types (early bird, regular) with prices and quotas, orders that hold several tickets, attendees, and discount codes that can be used a limited number of times across all orders. Rules: a conference may never sell more tickets than its capacity; an order is paid in full or not at all; a discount code may not be used more times than allowed. Propose the aggregates (their roots and what is inside each), the value objects, which rules are enforced inside one aggregate and which need eventual consistency or another mechanism, and the domain events you would raise.'
+  criteria:
+    - 'Identifies value objects such as money, ticket quantity, email or code, and entities with identity'
+    - 'Keeps aggregates small; does not put all orders inside the conference aggregate'
+    - 'Explains how capacity is protected (for example a capacity or allocation aggregate reserved per order, or an explicit trade-off) and why'
+    - 'Treats the discount code limit as a rule across orders that needs its own aggregate or eventual consistency, and says what happens on a race'
+    - 'References other aggregates by id and names past-tense domain events such as `OrderPaid` or `TicketsReserved`'

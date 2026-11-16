@@ -1,0 +1,46 @@
+id: software-architect.p4.fitness-suite
+kind: kata
+status: draft
+title: "A Fitness Function Suite"
+summary: "Build the fitness functions an evolving codebase needs: package metrics (coupling, instability, abstractness, distance from the main sequence), package cycle detection, and a ratchet that tolerates known violations but fails on new ones."
+objectives:
+  - { id: o1, text: "Compute afferent and efferent coupling, instability, abstractness and distance from the main sequence from a dependency graph", skills: [software-architect.evolutionary, software-architect.modularity] }
+  - { id: o2, text: "Detect package cycles and adopt fitness functions on a legacy codebase with a ratchet over a baseline", skills: [software-architect.evolutionary, software-architect.fitness-functions] }
+prerequisites: [software-architect.p4.evolutionary-architecture]
+difficulty: 4
+estimated_minutes: 70
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Work package by package. The classes **in** a package are the scanned class names whose package is it. Ca counts distinct classes **outside** it (but scanned) that use one of its classes; Ce counts distinct scanned classes outside it that its classes use. JDK classes are never counted: they are not keys of the graph.
+    - |-
+      For cycles, two packages are in the same cycle when each one reaches the other. Compute, for each package, the set it reaches by following edges (a depth-first search); then group each package with the ones that reach it back. Keep the groups of two or more, sort inside each group and then the groups. The ratchet is two set differences: `current − baseline` must be empty, `baseline − current` is what you can remove from the baseline.
+    - |-
+      ```java
+      public static Set<String> violations(Map<String, Set<String>> classGraph, Set<String> abstractTypes) {
+          Set<String> found = new TreeSet<>();
+          for (List<String> cycle : Cycles.find(ClassGraph.packageDependencies(classGraph))) {
+              found.add("cycle: " + String.join(", ", cycle));
+          }
+          Metrics.of(classGraph, abstractTypes).values().stream()
+                  .filter(m -> m.distance() > 0.7)
+                  .forEach(m -> found.add(String.format(Locale.ROOT, "main sequence: %s D=%.2f", m.pkg(), m.distance())));
+          return found;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

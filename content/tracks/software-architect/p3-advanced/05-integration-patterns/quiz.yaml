@@ -1,0 +1,31 @@
+questions:
+  - id: temporal-coupling
+    prompt: "What does asynchronous messaging remove that synchronous calls have?"
+    options: ["The need for a contract", "Temporal coupling: the receiver need not be up when the sender sends", "All failures", "The need to handle duplicates"]
+    answer: 1
+    explanation: "The broker holds the message until the receiver can take it."
+  - id: dead-letter
+    prompt: "A message fails to be processed ten times in a row. Which pattern stops it blocking the queue?"
+    options: ["Claim check", "Dead letter channel", "Content-based router", "Splitter"]
+    answer: 1
+    explanation: "The message is parked for inspection while the rest keep flowing."
+  - id: compensation
+    prompt: "A saga reserved a flight and a hotel, then the payment fails. What happens?"
+    options: ["A distributed rollback undoes both", "The compensations run in reverse order: cancel the hotel, then cancel the flight", "Nothing; the customer keeps the reservations", "The payment is retried forever"]
+    answer: 1
+    explanation: "Each completed local transaction is semantically undone by its compensating action."
+  - id: pivot
+    prompt: "Where should a step that cannot be undone (a non-refundable purchase) go in a saga?"
+    options: ["First", "As late as possible, after the steps likely to fail", "In the middle, always", "In a separate saga with no compensations for anything"]
+    answer: 1
+    explanation: "Steps after the pivot must succeed eventually; steps before it can still be compensated."
+  - id: orchestration
+    prompt: "A process has seven steps owned by four teams, with compensations and timeouts. Which coordination style is usually clearer?"
+    options: ["Choreography", "Orchestration with a saga orchestrator or workflow engine", "A shared database", "Synchronous calls in one chain"]
+    answer: 1
+    explanation: "An explicit orchestrator makes a long process visible, monitorable and changeable."
+  - id: bff
+    prompt: "What is a backend for frontend?"
+    options: ["A gateway with all business logic", "A small backend per kind of client, owned by that client's team, that aggregates and shapes calls for it", "A frontend framework", "A database for the UI"]
+    answer: 1
+    explanation: "It trades some duplication for client-specific APIs and team autonomy."

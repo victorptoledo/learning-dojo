@@ -1,0 +1,24 @@
+id: software-architect.p4.documenting-c4
+kind: lesson
+status: draft
+title: "Documenting Architecture: the C4 Model, arc42 and Diagrams as Code"
+summary: "Diagrams that say one thing each: the C4 model's context, container, component and code levels, supporting views, the arc42 template for the rest, and keeping documentation alive with diagrams as code next to the source."
+objectives:
+  - { id: o1, text: "Draw system context, container and component diagrams with the C4 notation rules", skills: [software-architect.documentation-c4] }
+  - { id: o2, text: "Choose what to document for which audience, using arc42 sections and ADRs", skills: [software-architect.documentation-c4, software-architect.decision-records] }
+  - { id: o3, text: "Keep diagrams current with diagrams as code and documentation reviewed with the code", skills: [software-architect.documentation-c4] }
+prerequisites: [software-architect.p4.fitness-suite]
+difficulty: 3
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Document a library loans system (the one from the Fundamentals checkpoint, grown up): members use a web app and a mobile app; librarians use an admin web app; a backend API holds the loans in PostgreSQL; a worker sends reminder emails through an external email provider; members sign in with the city''s identity provider. Describe in text (or in Structurizr DSL or Mermaid) a C4 system context diagram and a container diagram, with every element''s name, type, technology and responsibility, and every relationship''s description and protocol. Then list which arc42 sections you would write first for a new developer joining the team, and why.'
+  criteria:
+    - 'The context diagram shows the system as one box, the people (members, librarians) and the external systems (email provider, identity provider), with labelled relationships'
+    - 'The container diagram shows the deployable or runnable parts (web app, mobile app, admin app, API, worker, database) with technologies'
+    - 'Every relationship has a description and, at container level, a protocol or technology (HTTPS/JSON, SQL, SMTP or an API)'
+    - 'Does not mix levels: no classes in the container diagram, no infrastructure nodes pretending to be containers'
+    - 'Chooses arc42 sections with reasons (for example context and scope, solution strategy, building blocks, crosscutting concepts, decisions) and links ADRs'

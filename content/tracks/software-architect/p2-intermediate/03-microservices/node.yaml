@@ -1,0 +1,24 @@
+id: software-architect.p2.microservices
+kind: lesson
+status: draft
+title: "Microservices and Their Costs"
+summary: "What microservices are (independently deployable services around business capabilities that own their data), what they buy, what the network and the data split cost, the distributed monolith, and Conway's law and team topologies."
+objectives:
+  - { id: o1, text: "Define microservices by independent deployability and data ownership, not by size", skills: [software-architect.microservices] }
+  - { id: o2, text: "Name the costs of distribution and recognise a distributed monolith", skills: [software-architect.microservices] }
+  - { id: o3, text: "Use Conway's law and team topologies to align service boundaries with teams", skills: [software-architect.microservices, software-architect.architect-role] }
+prerequisites: [software-architect.p2.module-boundaries]
+difficulty: 3
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A company split its monolith into twelve services a year ago. Since then: every feature needs changes in four services that must be deployed together in a fixed order; services call each other in chains of up to six synchronous HTTP calls; three services read and write the same `customers` table; one team owns nine of the twelve services. Diagnose what went wrong with the vocabulary of this lesson, and propose three concrete changes, in the order you would make them, with what each one costs.'
+  criteria:
+    - 'Names the distributed monolith: services that must be deployed together and change together'
+    - 'Points at the shared table as broken data ownership and proposes one owner with others asking or subscribing'
+    - 'Explains why long synchronous chains hurt availability and latency (availability multiplies) and proposes asynchronous events, caching or merging services'
+    - 'Uses Conway''s law: one team with nine services suggests merging services or regrouping them by team and capability'
+    - 'Orders the changes sensibly and states costs, not only benefits; merging services back is a valid option'

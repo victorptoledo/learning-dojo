@@ -1,0 +1,31 @@
+questions:
+  - id: asr
+    prompt: "Which requirement is most likely architecturally significant?"
+    options: ["The login button is blue", "Customer data must stay in the EU, and the company already has customers in three regions", "The report lists orders by date", "Error messages are in English"]
+    answer: 1
+    explanation: "Data residency is expensive to change later and constrains where data and services can live."
+  - id: constraint
+    prompt: "What is the difference between a constraint and a decision?"
+    options: ["None", "A constraint is given and removes options (a regulation, a budget, a mandated platform); a decision is a choice among the remaining options", "Constraints are always technical", "Decisions are made by managers"]
+    answer: 1
+    explanation: "Record constraints too: when one disappears, decisions built on it may need revisiting."
+  - id: superseded
+    prompt: "An accepted ADR chose a read replica; a year later you move reports to a warehouse. What do you do with the ADR?"
+    options: ["Edit it to say warehouse", "Delete it", "Write a new ADR for the warehouse and mark the old one 'superseded by' the new one", "Leave both without links"]
+    answer: 2
+    explanation: "ADRs are immutable; the chain of records is the history of why the architecture is what it is."
+  - id: consequences
+    prompt: "What belongs in the Consequences section of an ADR?"
+    options: ["Only the benefits", "What becomes easier and what becomes harder, including new risks and costs", "The implementation steps", "The names of the people who disagreed"]
+    answer: 1
+    explanation: "Honest consequences let future readers judge whether the trade-off still holds."
+  - id: two-way-door
+    prompt: "Which decision is a 'two-way door' you can make quickly and revisit?"
+    options: ["Publishing a public API used by partners", "Choosing a JSON library behind your own small interface", "Letting other teams query your database tables directly", "Splitting the customer data between two services"]
+    answer: 1
+    explanation: "Behind an interface, swapping the library is cheap; the others create dependencies that are hard to undo."
+  - id: last-responsible-moment
+    prompt: "What does 'decide at the last responsible moment' mean?"
+    options: ["Never decide", "Decide as late as you can while you still have real options, using what you have learned, but before the choice is made for you by default", "Decide everything on day one", "Let the newest team member decide"]
+    answer: 1
+    explanation: "Waiting buys information; waiting too long lets the code decide by accident."

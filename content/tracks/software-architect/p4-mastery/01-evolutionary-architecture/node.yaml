@@ -1,0 +1,24 @@
+id: software-architect.p4.evolutionary-architecture
+kind: lesson
+status: draft
+title: "Evolutionary Architecture: Fitness Functions and Incremental Migration"
+summary: "Architecture that is expected to change: fitness functions of every kind (atomic and holistic, triggered and continuous), adopting them on legacy code with a ratchet, and migrating incrementally with the strangler fig, branch by abstraction and parallel runs."
+objectives:
+  - { id: o1, text: "Design fitness functions for the quality attributes that matter, and classify them", skills: [software-architect.evolutionary, software-architect.fitness-functions] }
+  - { id: o2, text: "Adopt fitness functions on a legacy codebase without stopping delivery", skills: [software-architect.evolutionary] }
+  - { id: o3, text: "Plan an incremental migration with the strangler fig, branch by abstraction or a parallel run", skills: [software-architect.evolutionary] }
+prerequisites: [software-architect.p3.integration-patterns]
+difficulty: 4
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A ten-year-old insurance claims system is a single application with a tangled codebase. The business wants to replace the claims assessment part with a new service within a year, without a big-bang cut-over and without stopping other work. Propose: (1) four fitness functions you would add first, each with what it protects, how it is measured and when it runs; (2) a migration plan using the strangler fig, with the first slice you would move and why; and (3) how you would know the new assessment gives the same answers as the old one before switching traffic.'
+  criteria:
+    - 'Fitness functions cover more than code structure (for example a dependency rule, a performance threshold, an availability or error-rate check, a security or dependency-freshness check) and say whether they are triggered or continuous'
+    - 'Uses a baseline or ratchet so existing violations do not block the team while new ones fail the build'
+    - 'The strangler plan routes requests through a facade or proxy and moves slices one at a time, with a way back'
+    - 'Chooses a first slice with low risk and high learning (for example one claim type) and justifies it'
+    - 'Proposes a parallel run, shadow traffic or comparison of results (or a dark launch) before switching'

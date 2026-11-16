@@ -1,0 +1,51 @@
+id: software-architect.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz on modular monoliths, microservices, bounded contexts and context maps, and a car rental whose booking context gets its own customer model behind an anti-corruption layer and talks to billing only through billing's api."
+objectives:
+  - { id: o1, text: "Explain modular monoliths, the costs of microservices, bounded contexts and the context map relationships", skills: [software-architect.modular-monolith, software-architect.microservices, software-architect.ddd-strategic] }
+  - { id: o2, text: "Protect a context's model from a legacy system with an anti-corruption layer and keep two contexts apart behind a published api", skills: [software-architect.ddd-strategic, software-architect.modular-monolith] }
+prerequisites: [software-architect.p2.extract-bounded-context]
+difficulty: 4
+estimated_minutes: 80
+xp: 400
+closes_phase: p2
+covers_skills: [software-architect.modular-monolith, software-architect.microservices, software-architect.ddd-strategic]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Start from the booking rules and write them against a model you would like to have: a `Customer` with a standing, a credit limit and a business flag. Everything about `CUST_NM`, `"A"`/`"S"`/`"X"` and zero-padded strings is the legacy system's language and goes into **one** class in `booking.acl`. The booking service should not be able to tell that a CRM exists.
+    - |-
+      `booking.domain`: `record Customer(String id, String displayName, Standing standing, long creditLimitCents, boolean business)`, `enum Standing { GOOD, SUSPENDED, CLOSED }` and `interface CustomerDirectory { Optional<Customer> find(String customerId); }`. `booking.acl.CrmCustomerDirectory(CrmClient)` implements it. `billing.internal.BillingService implements Billing` wraps the `Ledger`. `BookingService(CustomerDirectory, Billing)`. `App.create(CrmClient)` wires the four.
+    - |-
+      ```java
+      static String displayName(String crmName) {
+          String[] parts = crmName.split(",\\s*", 2);
+          String given = parts.length == 2 ? parts[1] : "";
+          return (capitalised(given) + " " + capitalised(parts[0])).strip();
+      }
+
+      private static String capitalised(String words) {
+          return Arrays.stream(words.strip().split("\\s+"))
+                  .filter(word -> !word.isEmpty())
+                  .map(word -> word.substring(0, 1).toUpperCase(Locale.ROOT) + word.substring(1).toLowerCase(Locale.ROOT))
+                  .collect(Collectors.joining(" "));
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

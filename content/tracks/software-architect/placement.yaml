@@ -1,0 +1,265 @@
+# Placement test of the Software Architecture track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How much do you work with software architecture?
+  options:
+    - { label: "Little: I build features inside an architecture someone else chose", start_phase: p0, test: false }
+    - { label: "I know layers, hexagonal architecture and package dependencies, and write ADRs", start_phase: p1, test: true }
+    - { label: "I design module and service boundaries, use DDD and event-driven integration", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 5, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-what-hides
+    phase: p1
+    skills: [software-architect.modularity]
+    difficulty: 2
+    prompt: "A `tax` package exposes `TaxRates.forCountry(code)` and hides whether rates come from a file, a table or a web service. Which principle does it follow?"
+    options: ["The single table principle", "Information hiding: the module hides a decision likely to change behind a small interface", "Layering", "The open host service"]
+    answer: 1
+    explanation: "Parnas's criterion: a module hides a design decision."
+  - id: p1-connascence-position
+    phase: p1
+    skills: [software-architect.modularity]
+    difficulty: 3
+    prompt: "A public method across a module boundary takes seven positional `String` arguments. Which kind of connascence makes it fragile, and what weakens it?"
+    options: ["Identity; a singleton", "Position; a record or parameter object with named fields", "Timing; a lock", "Meaning; an enum"]
+    answer: 1
+    explanation: "Callers must agree on the order; named fields turn it into connascence of name."
+  - id: p1-instability
+    phase: p1
+    skills: [software-architect.modularity]
+    difficulty: 3
+    prompt: "A package's classes are used by no other package and use eight classes outside it. What is its instability I = Ce / (Ca + Ce)?"
+    answers: ["1", "1.0", "one"]
+    explanation: "Ca = 0 and Ce = 8, so I = 8 / 8 = 1: maximally unstable, which is fine for a top-level package such as the web layer."
+  - id: p1-cycle-fix
+    phase: p1
+    skills: [software-architect.modularity]
+    difficulty: 3
+    prompt: "`users` calls `audit` to log changes, and `audit` calls `users` to look up a name for its report. You want to keep users → audit. What do you change?"
+    options: ["Merge the packages", "Make audit store the name it is given in the audit entry, or declare a `UserNames` interface in audit that users implements", "Make all classes public", "Add a third package that both import and that imports both"]
+    answer: 1
+    explanation: "Pass the data down or invert the arrow with an interface owned by the lower package."
+  - id: p1-open-layer
+    phase: p1
+    skills: [software-architect.layered]
+    difficulty: 2
+    prompt: "In a layered system, a shared 'services' layer may be skipped by the layer above it. What is such a layer called?"
+    options: ["Closed", "Open", "Sinkhole", "Strict"]
+    answer: 1
+    explanation: "Open layers may be bypassed; closed layers must be passed through."
+  - id: p1-feature-public
+    phase: p1
+    skills: [software-architect.layered]
+    difficulty: 3
+    prompt: "In a package-by-feature codebase, which classes of the `payments` package should be public?"
+    options: ["All of them", "Only the small interface other features use (for example `Invoices.hasUnpaid(memberId)`) and its types", "Only the repository", "None, not even the interface"]
+    answer: 1
+    explanation: "Package by feature lets everything else be package-private."
+  - id: p1-adapter-direction
+    phase: p1
+    skills: [software-architect.clean-hexagonal]
+    difficulty: 3
+    prompt: "In a hexagonal codebase, which import direction is correct?"
+    options: ["`domain.PricingService` imports `adapters.JdbcPriceTable`", "`adapters.JdbcPriceTable` imports and implements `domain.PriceTable`", "`domain` imports the HTTP framework", "The use case imports the composition root"]
+    answer: 1
+    explanation: "Adapters depend on the domain's ports; never the reverse."
+  - id: p1-clock
+    phase: p1
+    skills: [software-architect.clean-hexagonal]
+    difficulty: 3
+    prompt: "A domain rule calls `LocalDate.now()`, and its tests fail every month-end. Which hexagonal fix applies?"
+    options: ["Mock the JVM", "Treat the clock as a driven dependency: pass a `Clock` (or a port) in and use a fixed one in tests", "Run the tests on the 15th", "Catch the exception"]
+    answer: 1
+    explanation: "The system clock is infrastructure; the core should receive it."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-module-schema
+    phase: p2
+    skills: [software-architect.modular-monolith]
+    difficulty: 3
+    prompt: "In a modular monolith, the reporting module needs data from orders and payments for a nightly report. Which option keeps data ownership?"
+    options: ["SQL joins across the two modules' tables", "Ask both modules' published interfaces, or keep a reporting read model fed by their events", "Copy their repository classes", "Give reporting write access to both schemas"]
+    answer: 1
+    explanation: "Each module owns its data; others ask or subscribe."
+  - id: p2-shared-kernel
+    phase: p2
+    skills: [software-architect.modular-monolith, software-architect.ddd-strategic]
+    difficulty: 3
+    prompt: "Which content is reasonable for a small shared kernel between modules?"
+    options: ["The `Order` entity with its repository", "Stable value types such as `Money` and typed ids, changed only by agreement", "All utilities", "The database connection pool"]
+    answer: 1
+    explanation: "Share only what is stable and small; everything shared is coupling."
+  - id: p2-premium
+    phase: p2
+    skills: [software-architect.microservices]
+    difficulty: 3
+    prompt: "A team of five starts a new product with unclear requirements. A colleague wants twelve services from day one. What is the strongest argument against?"
+    options: ["Services cannot use databases", "The boundaries are not known yet, moving them between services is expensive, and five people cannot carry twelve services' operations", "Monoliths are always faster", "Kubernetes is too new"]
+    answer: 1
+    explanation: "Monolith first, modular inside; extract when a force demands it."
+  - id: p2-chain
+    phase: p2
+    skills: [software-architect.microservices]
+    difficulty: 4
+    prompt: "A page needs six synchronous calls in a chain, each service at 99.5 % availability. Roughly how available is the page at best?"
+    options: ["99.5 %", "About 97 %", "About 99.9 %", "About 90 %"]
+    answer: 1
+    explanation: "0.995^6 ≈ 0.970: availability multiplies along a chain."
+  - id: p2-team-load
+    phase: p2
+    skills: [software-architect.microservices]
+    difficulty: 3
+    prompt: "Which concept from *Team Topologies* warns against one team owning fifteen services?"
+    answers: ["cognitive load", "team cognitive load"]
+    explanation: "A team should own no more than it can understand and operate."
+  - id: p2-same-word
+    phase: p2
+    skills: [software-architect.ddd-strategic]
+    difficulty: 3
+    prompt: "To marketing an 'account' is a company it targets; to billing it is a balance with invoices. What does that suggest?"
+    options: ["Rename one of them", "Two bounded contexts, each with its own model of account, translated at the boundary", "One `Account` class with optional fields", "A shared database view"]
+    answer: 1
+    explanation: "Where the meaning changes, the model and the context change."
+  - id: p2-conformist
+    phase: p2
+    skills: [software-architect.ddd-strategic]
+    difficulty: 4
+    prompt: "Your small context uses a large payment provider's API. Its model is clean and close to yours, and you have no influence over it. Which relationship is simplest and reasonable?"
+    options: ["Partnership", "Conformist: adopt its model as it is", "Shared kernel", "Anti-corruption layer with a full model translation"]
+    answer: 1
+    explanation: "When the upstream model is good enough, conforming is cheaper than translating."
+  - id: p2-generic
+    phase: p2
+    skills: [software-architect.ddd-strategic]
+    difficulty: 2
+    prompt: "What kind of subdomain is user authentication for most businesses?"
+    answers: ["generic", "a generic subdomain", "generic subdomain"]
+    explanation: "Everyone needs it and it does not differentiate; buy or reuse."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-aggregate-rule
+    phase: p3
+    skills: [software-architect.ddd-tactical]
+    difficulty: 3
+    prompt: "A rule says 'a shopping cart may hold at most 50 items'. Where should it be enforced?"
+    options: ["In the controller", "Inside the cart aggregate's methods, so no caller can break it", "In a database trigger only", "In the read model"]
+    answer: 1
+    explanation: "An invariant of one aggregate belongs inside its root."
+  - id: p3-value-equality
+    phase: p3
+    skills: [software-architect.ddd-tactical]
+    difficulty: 2
+    prompt: "Two `Address` objects have the same street, city and postcode. As value objects, are they equal?"
+    options: ["Only if they are the same instance", "Yes: value objects are equal when their attributes are equal", "Only if they have the same id", "Never"]
+    answer: 1
+    explanation: "Values have no identity; equality is by attributes."
+  - id: p3-cross-aggregate
+    phase: p3
+    skills: [software-architect.ddd-tactical, software-architect.event-driven]
+    difficulty: 4
+    prompt: "Paying an invoice must close the related order. Invoice and order are different aggregates. How do you apply 'one aggregate per transaction'?"
+    options: ["Change both in one transaction anyway", "Pay the invoice, record `InvoicePaid`, and close the order in a separate transaction when the event is handled", "Merge the aggregates", "Close the order first and hope"]
+    answer: 1
+    explanation: "Use domain events and eventual consistency between aggregates."
+  - id: p3-ghost-event
+    phase: p3
+    skills: [software-architect.event-driven]
+    difficulty: 3
+    prompt: "A service publishes `UserRegistered` to the broker inside a database transaction that later rolls back. What is the result called and what prevents it?"
+    options: ["A deadlock; a lock", "A ghost event for a user that never existed; write the event to an outbox in the same transaction", "A read model; CQRS", "Nothing happens"]
+    answer: 1
+    explanation: "The outbox ties the event to the commit."
+  - id: p3-idempotent-update
+    phase: p3
+    skills: [software-architect.event-driven]
+    difficulty: 3
+    prompt: "Which consumer update is naturally idempotent?"
+    options: ["`balance = balance + amount`", "`status = 'SHIPPED'` for the order in the event", "`count = count + 1`", "Appending a row per event without a key"]
+    answer: 1
+    explanation: "Setting a value to a state is safe to repeat; adding is not."
+  - id: p3-event-sourcing
+    phase: p3
+    skills: [software-architect.event-driven]
+    difficulty: 4
+    prompt: "In which design is the sequence of events itself the system of record, with current state derived by replaying it?"
+    answers: ["event sourcing", "event-sourcing"]
+    explanation: "Event sourcing stores the events; CQRS and notifications do not require it."
+  - id: p3-saga-isolation
+    phase: p3
+    skills: [software-architect.integration-patterns]
+    difficulty: 4
+    prompt: "During a booking saga, another request sees a hotel room as reserved for a trip that will be compensated a minute later. Which property of sagas is this?"
+    options: ["Atomicity is lost", "Sagas lack isolation: intermediate states are visible to other transactions", "Durability is lost", "It is not possible"]
+    answer: 1
+    explanation: "Countermeasures include semantic locks such as a 'pending' status."
+  - id: p3-claim-check
+    phase: p3
+    skills: [software-architect.integration-patterns]
+    difficulty: 3
+    prompt: "Messages must carry 50 MB scanned documents, but the broker limits messages to 1 MB. Which integration pattern fits?"
+    options: ["Dead letter channel", "Claim check: store the document and send a reference", "Splitter", "Competing consumers"]
+    answer: 1
+    explanation: "Store the large payload elsewhere and pass a key."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-holistic
+    phase: p4
+    skills: [software-architect.evolutionary]
+    difficulty: 4
+    prompt: "A staging test checks that checkout stays under 500 ms **and** no order is lost while an instance is killed. What kind of fitness function is it?"
+    options: ["Atomic", "Holistic: it checks several attributes together", "Manual", "Static analysis"]
+    answer: 1
+    explanation: "Holistic fitness functions check the interaction of attributes."
+  - id: p4-strangler-first
+    phase: p4
+    skills: [software-architect.evolutionary]
+    difficulty: 4
+    prompt: "You strangle a legacy billing system. Which first slice is usually best?"
+    options: ["The most complex and critical flow, to get it over with", "A low-risk slice with real traffic that teaches you the most, such as one product line, with a way back", "Everything at once", "Only the database"]
+    answer: 1
+    explanation: "Early slices are for learning with limited risk."
+  - id: p4-freeze
+    phase: p4
+    skills: [software-architect.evolutionary, software-architect.fitness-functions]
+    difficulty: 3
+    prompt: "ArchUnit can record today's violations of a rule and fail only on new ones. What is the general technique called in this track?"
+    answers: ["ratchet", "a ratchet", "baseline", "ratcheting"]
+    explanation: "A ratchet over a baseline: the number of violations can only go down."
+  - id: p4-c4-deploy
+    phase: p4
+    skills: [software-architect.documentation-c4]
+    difficulty: 3
+    prompt: "Where in C4 do Kubernetes clusters, regions and load balancers belong?"
+    options: ["The system context diagram", "The container diagram", "A deployment diagram", "The code level"]
+    answer: 2
+    explanation: "Deployment diagrams map containers to infrastructure."
+  - id: p4-arc42-quality
+    phase: p4
+    skills: [software-architect.documentation-c4]
+    difficulty: 3
+    prompt: "Which arc42 section holds the quality attribute scenarios?"
+    options: ["Glossary", "Quality requirements", "Deployment view", "Constraints"]
+    answer: 1
+    explanation: "Section 10, quality requirements, often as a quality tree with scenarios."
+  - id: p4-sensitivity
+    phase: p4
+    skills: [software-architect.architect-role]
+    difficulty: 4
+    prompt: "In ATAM, a decision that strongly affects one quality attribute (the cache size decides read latency) is called a…?"
+    answers: ["sensitivity point", "a sensitivity point"]
+    explanation: "Sensitivity points affect one attribute; trade-off points affect several in opposite directions."
+  - id: p4-advice
+    phase: p4
+    skills: [software-architect.architect-role]
+    difficulty: 3
+    prompt: "A team wants to add a new message broker. Under the advice process, what must it do before deciding?"
+    options: ["Get approval from the architecture board", "Seek advice from those affected and from experts, consider it, and record the decision in an ADR", "Nothing", "Ask the most senior developer to decide"]
+    answer: 1
+    explanation: "Anyone may decide, but must seek advice first and record the decision."

@@ -1,0 +1,31 @@
+questions:
+  - id: ball-of-mud
+    prompt: "What is the main problem of a 'big ball of mud', according to this lesson?"
+    options: ["It is deployed as one unit", "It has no enforced inside structure: anything calls anything and any query reads any table", "It uses one database server", "It is written in one language"]
+    answer: 1
+    explanation: "Being one deployable is not the problem; missing boundaries are."
+  - id: data-ownership
+    prompt: "In a modular monolith, orders needs a product's price. What should it do?"
+    options: ["Join the catalog's tables in its own query", "Ask the catalog module's published interface", "Copy the catalog's repository class", "Read the catalog's cache directly"]
+    answer: 1
+    explanation: "Each module owns its data; others go through its interface."
+  - id: api-leak
+    prompt: "The catalog's public `ProductView` has a method that takes a `catalog.internal.ProductRow`. Why is that a problem?"
+    options: ["It is slower", "The api now exposes an internal type, so other modules can depend on it and the internal type is no longer free to change", "Records cannot have methods", "It breaks the acyclic dependencies principle"]
+    answer: 1
+    explanation: "Whatever a published interface mentions becomes published too."
+  - id: keeps
+    prompt: "Which benefit does a modular monolith keep that microservices give up?"
+    options: ["Independent scaling of each module", "In-process calls and, where needed, one database transaction across modules", "Different languages per module", "Independent deployments"]
+    answer: 1
+    explanation: "No network between modules means no partial failure, no serialisation, and local transactions."
+  - id: monolith-first
+    prompt: "Why does 'monolith first' advise against starting with microservices?"
+    options: ["Microservices are illegal in some countries", "Early on the stable boundaries are unknown, and moving a boundary between services is much more expensive than inside one codebase", "Monoliths are always faster", "Cloud providers charge per service"]
+    answer: 1
+    explanation: "Find the boundaries cheaply first, then extract the ones that need it."
+  - id: extract-sign
+    prompt: "Which is a good reason to extract a module into a service?"
+    options: ["Microservices are modern", "The module needs to scale to 50 times the load of the rest and is owned by a separate team with its own release cadence", "The module has many classes", "The module is new"]
+    answer: 1
+    explanation: "Different scaling, ownership and release needs are real forces; size and fashion are not."

@@ -1,0 +1,59 @@
+id: software-architect.p3.aggregate-design
+kind: kata
+status: draft
+title: "Design an Aggregate"
+summary: "Turn an anemic order with public setters and rules scattered in a service into an aggregate root that guards its invariants, holds value objects, references the customer by id and records domain events."
+objectives:
+  - { id: o1, text: "Move invariants from a service into an aggregate root so no caller can break them", skills: [software-architect.ddd-tactical] }
+  - { id: o2, text: "Model money and identities as value objects, reference other aggregates by id and record domain events", skills: [software-architect.ddd-tactical] }
+prerequisites: [software-architect.p3.ddd-tactical]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Every rule that `OrderService` checks (and the ones it forgets) is about the order's own data, so it belongs **inside** `Order`. If `Order` has no setters and hands out only copies, the only way to change an order is through methods that check the rules first. Start with `Money` and the two ids; they make the rest shorter.
+    - |-
+      `Order` keeps `OrderId id`, `CustomerId customerId`, `String currency`, `OrderStatus status`, a private `List<OrderLine>` and a private `List<DomainEvent>`. Each command checks, **then** changes: build the new list of lines, compute its total, and only assign it if the limit holds. `pullEvents()` copies the event list, clears it and returns the copy. `OrderService` becomes three lines per method: load, call, save and publish.
+    - |-
+      ```java
+      public void addLine(String sku, int quantity, Money unitPrice) {
+          requireDraft();
+          if (quantity < 1 || !unitPrice.currency().equals(currency)) {
+              throw new IllegalArgumentException("bad line for " + sku);
+          }
+          List<OrderLine> next = new ArrayList<>(lines);
+          int at = indexOf(sku);
+          if (at >= 0) {
+              OrderLine old = next.get(at);
+              if (!old.unitPrice().equals(unitPrice)) {
+                  throw new IllegalArgumentException("price changed for " + sku);
+              }
+              next.set(at, new OrderLine(sku, old.quantity() + quantity, unitPrice));
+          } else if (next.size() == MAX_LINES) {
+              throw new IllegalStateException("an order has at most 10 lines");
+          } else {
+              next.add(new OrderLine(sku, quantity, unitPrice));
+          }
+          if (totalOf(next).cents() > LIMIT_CENTS) {
+              throw new IllegalStateException("order total above limit");
+          }
+          lines = next;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

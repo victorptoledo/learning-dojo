@@ -1,0 +1,26 @@
+id: software-architect.p1.hexagonal-clean
+legacy_id: arch-02-clean-hexagonal
+kind: lesson
+status: draft
+title: "Hexagonal, Onion and Clean Architecture: the Dependency Rule"
+summary: "Invert the one arrow layers get wrong: put the domain in the centre, let it own the interfaces it needs, push frameworks and databases to the edge, and wire everything in a composition root."
+objectives:
+  - { id: o1, text: "Explain the dependency rule and how hexagonal, onion and clean architecture express it", skills: [software-architect.clean-hexagonal] }
+  - { id: o2, text: "Tell driving from driven ports and adapters, and place each piece of a feature in the right ring", skills: [software-architect.clean-hexagonal] }
+  - { id: o3, text: "Judge when the style pays off and when it is ceremony", skills: [software-architect.clean-hexagonal, software-architect.foundations] }
+prerequisites: [software-architect.p1.break-the-cycle]
+difficulty: 3
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A loyalty-points service receives purchases from a Kafka topic, looks up the customer tier in a REST API owned by another team, stores point balances in PostgreSQL, and exposes balances through an HTTP endpoint. Business rule: points are 1 per euro, doubled for gold customers, and expire after 12 months. Lay it out as a hexagonal architecture: list the domain types, the driving and driven ports with their method signatures, the adapters and the composition root, and explain how you would test the business rule and how the code would change if purchases later came from a webhook instead of Kafka.'
+  criteria:
+    - 'The domain holds the points rule and the expiry, with no Kafka, HTTP, JSON or SQL types in it'
+    - 'Driven ports are declared by the domain in its own words (for example `CustomerTiers`, `PointBalances`, a `Clock`), not named after the technology'
+    - 'Driving side: a use case interface or service called by a Kafka consumer adapter and an HTTP adapter'
+    - 'The test of the rule uses fakes for the driven ports and no infrastructure'
+    - 'Moving from Kafka to a webhook means a new driving adapter and no change in the domain'
+    - 'Mentions the composition root as the only place that knows all adapters'

@@ -1,0 +1,31 @@
+questions:
+  - id: architectural-decision
+    prompt: "Which of these decisions is most clearly architectural?"
+    options: ["Renaming `OrderHelper` to `OrderPricing`", "Choosing to split the system into services that each own their database", "Using a `for` loop instead of a stream", "Adding a log line to a method"]
+    answer: 1
+    explanation: "It is expensive to reverse and shapes performance, availability, operations and team work: the test for architecture."
+  - id: functional-vs-quality
+    prompt: "Why do quality attributes, more than functional requirements, decide an architecture?"
+    options: ["Functional requirements are optional", "Almost any structure can deliver the functions; architectures differ in how well they deliver performance, availability, modifiability and the rest", "Quality attributes are easier to write down", "Only quality attributes can be tested"]
+    answer: 1
+    explanation: "You can sell tickets from a monolith or from fifty services; what differs is how each copes with load, failure and change."
+  - id: scenario
+    prompt: "Which statement is a usable quality attribute scenario?"
+    options: ["The system must be fast", "The system must scale", "When 2,000 users search at once during normal operation, 99 % of searches return in under 300 ms", "The system should use caching"]
+    answer: 2
+    explanation: "It has a source, a stimulus, an environment and a measurable response; the others are wishes or solutions."
+  - id: structures
+    prompt: "A diagram shows packages, servers and teams as boxes of the same kind with arrows between them. What is wrong with it?"
+    options: ["Nothing, it is complete", "It mixes module, runtime and allocation structures, so the arrows mean different things and the diagram explains little", "It has too few colours", "Teams should never appear in architecture"]
+    answer: 1
+    explanation: "Each structure answers different questions; draw them as separate views."
+  - id: trade-off
+    prompt: "A colleague says 'we should use microservices because they are best practice'. What is the architect's answer?"
+    options: ["Agree: best practices are always right", "Ask which quality attributes matter, what they cost in this context, and what we give up (simplicity, cost, consistency) in exchange", "Refuse: monoliths are always better", "Choose whatever the newest framework supports"]
+    answer: 1
+    explanation: "Everything in architecture is a trade-off; a choice is right only for a context and a set of attributes."
+  - id: why-over-how
+    prompt: "Why is recording **why** a decision was made more important than recording **how** it is implemented?"
+    options: ["The how is visible in the code; the why is not, and without it nobody can tell when the decision should change", "The how is secret", "Managers only read the why", "The why is shorter"]
+    answer: 0
+    explanation: "Code shows the outcome, not the forces and alternatives; when the forces change, only the reasons tell you the decision is stale."

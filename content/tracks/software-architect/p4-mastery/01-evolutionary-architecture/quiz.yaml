@@ -1,0 +1,31 @@
+questions:
+  - id: fitness-kinds
+    prompt: "An alert fires when the production error rate of checkout exceeds 0.1 % over five minutes. What kind of fitness function is it?"
+    options: ["Atomic and triggered", "Continuous: it monitors production all the time", "Manual", "Static code analysis"]
+    answer: 1
+    explanation: "It runs continuously against the live system, unlike a check triggered by a build."
+  - id: not-only-code
+    prompt: "Which of these is a fitness function?"
+    options: ["A diagram of the services", "A load test in the pipeline that fails when p95 latency of search exceeds 300 ms", "An ADR", "A meeting about performance"]
+    answer: 1
+    explanation: "It objectively checks a quality attribute and runs automatically."
+  - id: ratchet
+    prompt: "A new cycle rule finds 140 cycles in a legacy codebase. How do you adopt it without stopping the team?"
+    options: ["Disable the rule", "Fix all 140 before any other work", "Record today's 140 in a baseline, fail only on new ones, and shrink the baseline as they are fixed", "Run the rule once a year"]
+    answer: 2
+    explanation: "A ratchet stops the number growing while letting it fall."
+  - id: strangler
+    prompt: "What is the role of the facade in a strangler fig migration?"
+    options: ["It stores the data", "It sits in front of the old system and routes each slice of traffic to the old or the new system, so slices move one at a time with a way back", "It replaces the database", "It generates code"]
+    answer: 1
+    explanation: "Routing per slice is what makes the migration incremental and reversible."
+  - id: branch-by-abstraction
+    prompt: "Branch by abstraction lets a team replace a payment provider without...?"
+    options: ["Writing tests", "A long-lived branch: the main branch stays releasable while callers move behind an abstraction to the new implementation", "Any code changes", "Telling the business"]
+    answer: 1
+    explanation: "The switch happens behind a port, toggled gradually, on the main branch."
+  - id: parallel-run
+    prompt: "How do you gain confidence that a new pricing engine gives the same answers as the old one?"
+    options: ["Read the code twice", "Run both on the same inputs, serve the old answer and log every difference (a parallel run)", "Switch all traffic at once and watch", "Ask the original author"]
+    answer: 1
+    explanation: "Comparing real inputs turns belief into evidence before any user depends on the new answers."

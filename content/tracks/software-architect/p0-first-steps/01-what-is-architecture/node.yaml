@@ -1,0 +1,23 @@
+id: software-architect.p0.what-is-architecture
+kind: lesson
+status: draft
+title: "What Software Architecture Is: Decisions, Quality Attributes and Trade-offs"
+summary: "Architecture as the decisions that are expensive to change, the quality attributes that drive them, how to make them concrete with scenarios, and why every architectural choice is a trade-off."
+objectives:
+  - { id: o1, text: "Tell architecture from design by the cost of changing a decision, and name the structures an architecture describes", skills: [software-architect.foundations] }
+  - { id: o2, text: "Turn vague quality goals into measurable quality attribute scenarios", skills: [software-architect.foundations] }
+  - { id: o3, text: "Explain a choice as a trade-off between quality attributes rather than as a best practice", skills: [software-architect.foundations] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 35
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A small company sells tickets for local concerts online. Most days it sells a few hundred tickets; when a popular band announces a show, 50,000 people try to buy in the first ten minutes. Payments go through an external provider. The team has four developers. Name the three quality attributes you think matter most for this system, write one quality attribute scenario for each (source, stimulus, environment, response, response measure), and describe one architectural decision that two of them pull in opposite directions.'
+  criteria:
+    - 'Picks attributes that follow from the description (for example scalability or elasticity, availability, consistency of ticket counts, security of payments, cost or simplicity for a small team) and says why'
+    - 'Each scenario is concrete and measurable, with a stimulus, an environment and a response measure (numbers, times, percentages)'
+    - 'Names a real tension, such as elastic capacity versus cost and operational simplicity, or selling fast versus never selling a seat twice'
+    - 'Explains the trade-off instead of declaring one option best, and mentions what would change the choice'

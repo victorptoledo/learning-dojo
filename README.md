@@ -73,6 +73,7 @@ of your choice.
 | API Design | HTTP, REST, errors, evolution, contracts | 25 | 8 | `dojo-java` (Spring Boot and MockMvc, plus an OpenAPI linter) |
 | Computer Science | from bits and caches to compilers, computability and database internals | 25 | 9 | `dojo-python`, `dojo-rust` and `dojo-java` |
 | Prompt Engineering | prompts for LLMs, from instructions to evals | 23 | 9 | `dojo-python` (prompt builders, parsers and eval harnesses; no model calls) |
+| Software Architecture | modularity, hexagonal, DDD, events, fitness functions | 23 | 9 | `dojo-java` (fitness functions over compiled classes) |
 
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
@@ -81,6 +82,7 @@ Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Compu
 Node.js, Software Architecture, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL and AWS.
 Node.js, Software Architecture, API Design, PostgreSQL, AWS and Computer Science.
+Node.js, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 
 ## Requirements
 

@@ -1,0 +1,25 @@
+id: software-architect.p3.event-driven
+legacy_id: arch-05-cqrs-outbox
+kind: lesson
+status: draft
+title: "Event-Driven Architecture, CQRS and the Transactional Outbox"
+summary: "Events versus commands, Fowler's four meanings of event-driven (notification, event-carried state transfer, event sourcing, CQRS), choreography versus orchestration, eventual consistency, the dual-write problem and the outbox, and idempotent consumers."
+objectives:
+  - { id: o1, text: "Tell events from commands and choose between event notification, event-carried state transfer and event sourcing", skills: [software-architect.event-driven] }
+  - { id: o2, text: "Explain CQRS and read models, and when they are worth their cost", skills: [software-architect.event-driven] }
+  - { id: o3, text: "Solve the dual-write problem with a transactional outbox and make consumers idempotent", skills: [software-architect.event-driven] }
+prerequisites: [software-architect.p3.aggregate-design]
+difficulty: 4
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An online bookshop wants three things when an order is placed: the warehouse starts picking, the customer gets an email, and a "best sellers this week" page updates. Today the order service calls the warehouse and email services synchronously, and the best sellers page runs a heavy SQL query on the orders table every time it is opened. Redesign it with events. Say which events exist and what data they carry, which style of event each consumer needs (notification or state transfer), how the order service publishes reliably, how consumers deal with duplicates, and whether the best sellers page should use a read model. Name two new problems your design creates.'
+  criteria:
+    - 'Defines past-tense events (for example `OrderPlaced`) with their payload, and justifies notification versus carried state per consumer'
+    - 'Publishes through a transactional outbox (or change data capture), not by writing to the database and the broker separately'
+    - 'Makes consumers idempotent, for example by recording processed event ids or by naturally idempotent updates'
+    - 'Proposes a read model for best sellers built from the events and accepts that it lags behind'
+    - 'Names real new problems: eventual consistency visible to users, ordering, schema evolution of events, harder debugging and tracing'

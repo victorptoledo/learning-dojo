@@ -1,0 +1,25 @@
+id: software-architect.p3.integration-patterns
+legacy_id: arch-06-saga-resilience
+kind: lesson
+status: draft
+title: "Integration Patterns, Sagas and API Gateways"
+summary: "How systems talk: synchronous versus asynchronous integration, the enterprise integration patterns that still matter (channels, routers, translators, idempotent receivers, dead letter channels), sagas with compensations, and API gateways and backends for frontends."
+objectives:
+  - { id: o1, text: "Choose between synchronous request-response and asynchronous messaging for an interaction", skills: [software-architect.integration-patterns] }
+  - { id: o2, text: "Recognise the core enterprise integration patterns and where today's tools implement them", skills: [software-architect.integration-patterns] }
+  - { id: o3, text: "Design a saga with compensating actions, choreographed or orchestrated, and place an API gateway or BFF", skills: [software-architect.integration-patterns, software-architect.event-driven] }
+prerequisites: [software-architect.p3.outbox-projection]
+difficulty: 4
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A travel site books a trip as three steps in three services: reserve a flight, reserve a hotel, take the payment. Each can fail, and the hotel service sometimes answers only after minutes. Design the booking as a saga. Choose orchestration or choreography and say why; list each step with its compensating action; say what the user sees while the saga runs and when it fails at each step; and explain how you handle a step that is retried and runs twice. Finally, say where an API gateway or a backend for frontend fits for the web and mobile apps that start the booking.'
+  criteria:
+    - 'Picks orchestration or choreography with a reason tied to the number of steps, visibility and ownership'
+    - 'Every step that can be undone has a compensating action (cancel flight, cancel hotel, refund), and the order of compensation is the reverse of the steps'
+    - 'Puts the pivot step (payment, or whatever cannot be undone) thoughtfully, and notes that compensations are semantic, not rollbacks'
+    - 'Handles duplicates with idempotency keys or idempotent receivers, and slow steps with timeouts and asynchronous replies'
+    - 'States the user-visible states (pending, confirmed, failed) and places a gateway or BFF for cross-cutting concerns or client-specific aggregation'

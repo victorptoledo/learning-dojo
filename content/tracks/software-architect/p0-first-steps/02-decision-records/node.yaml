@@ -1,0 +1,24 @@
+id: software-architect.p0.decision-records
+kind: lesson
+status: draft
+title: "Architecture Decision Records and Architecturally Significant Requirements"
+summary: "Find the requirements that shape the architecture, compare options with their trade-offs, and record each decision in a short ADR kept next to the code, so its reasons survive the people who made it."
+objectives:
+  - { id: o1, text: "Recognise architecturally significant requirements and the constraints that limit the options", skills: [software-architect.decision-records] }
+  - { id: o2, text: "Write an ADR with context, options, decision and consequences, and supersede it instead of editing it", skills: [software-architect.decision-records] }
+  - { id: o3, text: "Treat reversible and irreversible decisions differently, and decide at the last responsible moment", skills: [software-architect.decision-records, software-architect.foundations] }
+prerequisites: [software-architect.p0.what-is-architecture]
+difficulty: 2
+estimated_minutes: 35
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team runs a single PostgreSQL database for an online shop. Reporting queries from the analytics team slow down checkout every Monday morning. Options on the table: a read replica for reporting, a nightly export to a data warehouse, or caching the slow reports. Write an ADR in the Nygard style (title, status, context, decision, consequences) that picks one option, and add a short "Options considered" section that explains why the other two were rejected.'
+  criteria:
+    - 'The context states the forces: the Monday slowdown, checkout as the priority, how fresh reports must be, team skills and budget'
+    - 'The decision is one clear sentence in the active voice ("We will ...")'
+    - 'Each rejected option has a concrete reason tied to the forces, not a generic one'
+    - 'Consequences include the downsides and new risks of the chosen option (replication lag, cost, another system to run), not only the benefits'
+    - 'Has a status and explains that a later change would be a new ADR that supersedes this one'

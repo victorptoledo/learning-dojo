@@ -1,0 +1,25 @@
+id: software-architect.p2.ddd-strategic
+legacy_id: arch-03-ddd-strategic
+kind: lesson
+status: draft
+title: "Strategic DDD: Subdomains, Bounded Contexts and Context Maps"
+summary: "Find the core of the business and invest there, use a ubiquitous language inside explicit bounded contexts, and map how contexts relate: partnership, shared kernel, customer and supplier, conformist, anti-corruption layer, open host service and published language."
+objectives:
+  - { id: o1, text: "Classify subdomains as core, supporting or generic and decide where to invest", skills: [software-architect.ddd-strategic] }
+  - { id: o2, text: "Find bounded context boundaries where the language and the model change", skills: [software-architect.ddd-strategic] }
+  - { id: o3, text: "Draw a context map and choose a relationship pattern for each pair of contexts", skills: [software-architect.ddd-strategic] }
+prerequisites: [software-architect.p2.microservices]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A hospital group is building software for patient admissions, clinical care (diagnoses, prescriptions), the pharmacy, billing to insurers, and staff scheduling. It must integrate with a national insurer system it cannot change and with a commercial payroll product. Classify the subdomains as core, supporting or generic; propose bounded contexts; show how the word "patient" differs between at least two of them; and draw a context map (as a list of relationships) naming the pattern for each relationship and why.'
+  criteria:
+    - 'Classification is justified (for example clinical care as core, scheduling as supporting, payroll as generic and bought)'
+    - 'Contexts follow changes of language and model, not database tables or teams alone'
+    - 'Shows a real difference in meaning of "patient" (clinical history and allergies versus insurance policy and billing address)'
+    - 'Uses the insurer system with a conformist or anti-corruption layer relationship and explains the choice'
+    - 'Names upstream and downstream correctly and uses at least three distinct patterns from the lesson'

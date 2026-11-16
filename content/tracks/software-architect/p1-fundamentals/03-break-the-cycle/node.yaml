@@ -1,0 +1,47 @@
+id: software-architect.p1.break-the-cycle
+kind: kata
+status: draft
+title: "Break the Cycle"
+summary: "Orders call billing and billing reaches back into orders: break the package cycle with billing's own request model and a port that orders implement, keeping every invoice and payment rule."
+objectives:
+  - { id: o1, text: "Find a package cycle in a dependency graph and choose which direction to keep", skills: [software-architect.modularity] }
+  - { id: o2, text: "Break a cycle with dependency inversion and a model owned by the lower module, without changing behaviour", skills: [software-architect.modularity, software-architect.layered] }
+prerequisites: [software-architect.p1.layered-architecture]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Keep `orders -> billing` (an order needs an invoice) and remove the two arrows back. Billing reaches into orders for two reasons: to **read** an order when it writes the invoice, and to **tell** orders that an invoice was paid. Each needs a different technique.
+    - |-
+      For reading: billing defines what it needs, `record InvoiceRequest(String orderId, String customer, long netCents)`, and `OrderService` fills it in. For telling: billing declares `interface PaymentListener { void invoicePaid(String orderId); }`, `PaymentService` calls it, and `orders.MarkOrderPaid` implements it with the repository. `App.create` passes a `MarkOrderPaid` to the `PaymentService`.
+    - |-
+      ```java
+      public void recordPayment(String invoiceId, long cents) {
+          Invoice invoice = invoices.find(invoiceId)
+                  .orElseThrow(() -> new IllegalArgumentException("unknown invoice " + invoiceId));
+          if (cents != invoice.totalCents()) {
+              throw new IllegalArgumentException("amount does not match invoice " + invoiceId);
+          }
+          if (!paid.add(invoiceId)) {
+              throw new IllegalStateException("invoice already paid: " + invoiceId);
+          }
+          listener.invoicePaid(invoice.orderId());
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

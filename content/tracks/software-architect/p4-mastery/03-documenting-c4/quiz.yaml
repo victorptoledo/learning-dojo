@@ -1,0 +1,31 @@
+questions:
+  - id: context-level
+    prompt: "What does a C4 system context diagram show?"
+    options: ["The classes of the core module", "The system as one box with the people who use it and the external systems it talks to", "The Kubernetes clusters", "Every database table"]
+    answer: 1
+    explanation: "Level 1 is the big picture for every audience."
+  - id: container
+    prompt: "In C4, which of these is a container?"
+    options: ["A Java class", "A PostgreSQL database used by the system", "A Git repository", "A team"]
+    answer: 1
+    explanation: "Containers are separately runnable or deployable things: apps, APIs, workers, databases."
+  - id: mixing-levels
+    prompt: "A container diagram also shows a few important classes and the load balancer. What is wrong?"
+    options: ["Nothing", "It mixes levels: classes belong to the component or code level, infrastructure to a deployment diagram", "It needs more colours", "Load balancers are always containers"]
+    answer: 1
+    explanation: "One level of abstraction per diagram keeps it readable."
+  - id: relationship
+    prompt: "Which relationship label follows the C4 guidance at container level?"
+    options: ["an unlabelled arrow", "'uses'", "'Reads and writes loans [SQL/TCP]'", "'calls stuff'"]
+    answer: 2
+    explanation: "Relationships need a description and, from container level down, a technology or protocol."
+  - id: arc42
+    prompt: "In arc42, where do your architecture decision records belong?"
+    options: ["In the glossary", "In section 9, architecture decisions", "Nowhere", "In the deployment view"]
+    answer: 1
+    explanation: "arc42 has a section for decisions; ADRs fill it."
+  - id: diagrams-as-code
+    prompt: "What is the main benefit of Structurizr DSL over drawing each diagram by hand?"
+    options: ["Nicer colours", "One model generates every view, and it lives in the repository, so diagrams change with the code in the same review", "It needs no text", "It replaces ADRs"]
+    answer: 1
+    explanation: "Text in the repository is versioned, reviewed and consistent across views."

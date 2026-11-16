@@ -1,0 +1,31 @@
+questions:
+  - id: elevator
+    prompt: "What does Gregor Hohpe's 'architect elevator' describe?"
+    options: ["A building's lifts", "Moving between strategy and the engine room, translating business goals into technical decisions and technical reality back to the business", "Promotion to manager", "Deploying to production"]
+    answer: 1
+    explanation: "An architect must connect both levels, not live on only one."
+  - id: stay-technical
+    prompt: "Which is a good way for an architect to stay close to the code?"
+    options: ["Owning the most critical feature of the release", "Writing spikes, fitness functions and tooling, and pairing and reviewing in areas with architectural impact", "Never reading code", "Rewriting teams' code at night"]
+    answer: 1
+    explanation: "Stay hands-on without becoming the bottleneck on the critical path."
+  - id: trade-off-point
+    prompt: "In ATAM, what is a trade-off point?"
+    options: ["A meeting", "A decision that affects several quality attributes in opposite directions, such as encryption improving security and costing latency", "A bug", "A cost estimate"]
+    answer: 1
+    explanation: "Trade-off points are where the architecture's balance is decided."
+  - id: utility-tree
+    prompt: "How are scenarios in a utility tree prioritised?"
+    options: ["Alphabetically", "By business importance and technical difficulty", "By who proposed them", "They are not prioritised"]
+    answer: 1
+    explanation: "High importance and high difficulty scenarios get analysed first."
+  - id: advice-process
+    prompt: "Under the advice process, who may make an architectural decision?"
+    options: ["Only the chief architect", "Anyone, after seeking advice from those affected and from experts, and recording the decision", "Only a review board, by vote", "Nobody: decisions are forbidden"]
+    answer: 1
+    explanation: "Decisions are decentralised; advice is mandatory, following it is not."
+  - id: governance
+    prompt: "Which approach keeps an important architectural rule true at scale without slowing teams?"
+    options: ["A board that approves every pull request", "A fitness function in the build plus a paved road that makes the right way the easy way", "An email reminding everyone of the rule", "Hiring more architects to read all code"]
+    answer: 1
+    explanation: "Automation and easy defaults scale; manual gatekeeping does not."

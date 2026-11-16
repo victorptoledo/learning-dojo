@@ -1,0 +1,25 @@
+id: software-architect.p1.modularity
+legacy_id: arch-01-solid-modern
+kind: lesson
+status: draft
+title: "Modularity, Coupling and Cohesion at the Level of Modules"
+summary: "Information hiding as the reason modules exist, connascence as a finer measure of coupling, and Robert C. Martin's component principles and metrics: acyclic dependencies, stable dependencies, stable abstractions and the main sequence."
+objectives:
+  - { id: o1, text: "Decompose a system by what each module hides, not by the steps of the processing", skills: [software-architect.modularity] }
+  - { id: o2, text: "Name the kind and strength of coupling between modules with connascence, and weaken it", skills: [software-architect.modularity] }
+  - { id: o3, text: "Apply the acyclic, stable dependencies and stable abstractions principles using Ca, Ce, instability and abstractness", skills: [software-architect.modularity] }
+prerequisites: [software-architect.p0.first-fitness-function]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An application has five packages: `web` (controllers), `orders`, `payments`, `notifications` and `common` (utilities, the `Customer` entity, shared enums and a `Config` class that reads environment variables). Every package imports `common`; `orders` and `payments` import each other; `notifications` imports `orders` to read order details. Describe the problems you see using the vocabulary of this lesson (information hiding, connascence, the acyclic dependencies and stable dependencies principles, instability), and propose a new dependency structure, drawn as a list of allowed arrows, with what each package hides.'
+  criteria:
+    - 'Identifies the orders and payments cycle and proposes a concrete way to break it (an interface owned by one side, an event, or a new module)'
+    - 'Recognises `common` as a low-cohesion module that everything depends on, so a change there ripples everywhere; proposes splitting it by reason to change'
+    - 'Uses at least one kind of connascence correctly (for example connascence of meaning for shared magic values, or of position for long parameter lists)'
+    - 'Places stable, abstract code where many depend on it and volatile code where few do, and explains it with instability'
+    - 'States what each module hides (a decision that may change), not only what it contains'
