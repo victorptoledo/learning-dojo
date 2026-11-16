@@ -1,0 +1,54 @@
+id: computer-science.p2.page-table
+kind: kata
+status: draft
+title: "Page Table"
+summary: "A two-level page table for 32-bit addresses in Rust, with permission checks, accessed and dirty bits, sparse tables freed when empty, and an LRU TLB that must stay consistent with unmap and protect."
+objectives:
+  - { id: o1, text: "Translate virtual addresses through a two-level page table and enforce write, execute and user permissions", skills: [computer-science.virtual-memory] }
+  - { id: o2, text: "Put an LRU TLB in front of the walk and keep it consistent when mappings change", skills: [computer-science.virtual-memory, computer-science.memory-hierarchy] }
+prerequisites: [computer-science.p2.virtual-memory]
+difficulty: 3
+estimated_minutes: 75
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 120 }
+  hints:
+    - |-
+      Model the hardware directly: `directory: Vec<Option<Table>>` with 1,024 slots, and a `Table` holding `entries: Vec<Option<Entry>>` (1,024 slots) plus a count of used entries so you know when to free it. An `Entry` needs the frame, the flags and the two bits. Write two private helpers, `entry(&self, vaddr)` and `entry_mut(&mut self, vaddr)`, that walk the two levels with `split`; almost every method becomes a few lines on top of them.
+    - |-
+      Keep the TLB as a `Vec` of `(vpn, frame, flags)` ordered from most to least recently used, like the cache simulator's sets. In `translate`, decide the `(frame, flags)` pair first (from the TLB or from a walk), then check permissions once for both paths, and only then set the bits through `entry_mut`. `unmap` and `protect` call `tlb.retain(|e| e.vpn != vaddr >> 12)`.
+    - |-
+      ```rust
+      fn allowed(flags: Flags, kind: AccessKind, mode: Mode) -> bool {
+          let kind_ok = match kind {
+              AccessKind::Read => true,
+              AccessKind::Write => flags.writable,
+              AccessKind::Execute => flags.executable,
+          };
+          kind_ok && (mode == Mode::Kernel || flags.user)
+      }
+
+      // in translate, after finding (frame, flags):
+      if !allowed(flags, kind, mode) {
+          self.stats.faults += 1;
+          return Err(Fault::Protection { vaddr, kind });
+      }
+      let entry = self.entry_mut(vaddr).expect("mapped");
+      entry.accessed = true;
+      entry.dirty |= kind == AccessKind::Write;
+      Ok(frame << 12 | (vaddr & 0xFFF))
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-rust runner image
+    image: dojo-rust
+    why: The Rust container that runs cargo test on your kata.

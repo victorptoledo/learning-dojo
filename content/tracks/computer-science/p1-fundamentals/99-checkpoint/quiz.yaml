@@ -1,0 +1,47 @@
+questions:
+  - id: sign-extend
+    skills: [computer-science.data-representation]
+    prompt: "A 6-bit immediate field holds 111010. What value does it have as a signed two's complement number?"
+    answers: ["-6", "−6"]
+    explanation: "The top bit weighs −32: −32 + 16 + 8 + 2 = −6."
+  - id: float-precision
+    skills: [computer-science.data-representation]
+    prompt: "Why can a 32-bit float not represent 16,777,217 exactly?"
+    options: ["It is negative", "Above 2²⁴ the 24 bits of significand cannot hold every integer, so neighbouring floats are 2 apart", "Floats only store fractions", "The exponent overflows"]
+    answer: 1
+    explanation: "1 implicit + 23 fraction bits = 24 bits of precision; 16,777,217 = 2²⁴ + 1 needs 25."
+  - id: subtract-with-adder
+    skills: [computer-science.logic-circuits]
+    prompt: "How does an ALU compute A − B with its adder?"
+    options: ["It cannot; it needs a subtractor circuit", "A + NOT B + 1 (two's complement negation of B)", "A XOR B", "By shifting B right"]
+    answer: 1
+    explanation: "Invert B and set the carry-in to 1: the same adder serves both operations."
+  - id: branch-cost
+    skills: [computer-science.cpu-architecture]
+    prompt: "A filter loop runs much faster on sorted input than on random input with the same number of instructions. What is the most likely cause?"
+    options: ["Sorted data uses less memory", "Branch mispredictions on random data flush the pipeline", "The compiler removes the loop", "Sorted data is cached in the GPU"]
+    answer: 1
+    explanation: "On sorted data the branch is predictable; on random data it is mispredicted about half the time."
+  - id: cache-index
+    skills: [computer-science.memory-hierarchy]
+    prompt: "A direct-mapped cache has 8 lines of 16 bytes. In which line slot does byte address 200 go?"
+    answers: ["4"]
+    explanation: "200 // 16 = 12 is the line number; 12 % 8 = 4 is the slot."
+  - id: stride
+    skills: [computer-science.memory-hierarchy]
+    prompt: "Why is walking a large row-major matrix column by column slow?"
+    options: ["Columns are stored in a different memory", "Each access lands on a different cache line, so almost every access misses", "The CPU cannot multiply indexes", "It causes page faults on every access"]
+    answer: 1
+    explanation: "Row by row uses every word of a line; column by column uses one word per line."
+  - id: context-switch
+    skills: [computer-science.processes-scheduling]
+    prompt: "Besides saving and restoring registers, what makes context switches expensive?"
+    options: ["They reboot the core", "The new thread starts with cold caches and TLB entries", "They need a disk access", "They recompile the program"]
+    answer: 1
+    explanation: "The indirect cost of cold caches is often larger than the direct cost."
+  - id: srtf
+    skills: [computer-science.processes-scheduling]
+    prompt: "Which scheduling policy minimises the average waiting time when job lengths are known?"
+    options: ["First come, first served", "Round robin", "Shortest remaining time first", "Highest priority first"]
+    answer: 2
+    explanation: "Running the shortest remaining work first is optimal for average waiting and completion time."

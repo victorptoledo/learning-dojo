@@ -1,0 +1,23 @@
+id: computer-science.p3.automata
+kind: lesson
+status: draft
+title: "Automata, Regular Languages and Regular Expressions"
+summary: "The simplest model of computation: alphabets and languages, deterministic and nondeterministic finite automata, regular expressions and their equivalence (Thompson's construction, the subset construction, minimisation), the pumping lemma and what regular languages cannot do, and why backtracking regex engines can take exponential time while automaton-based ones cannot."
+objectives:
+  - { id: o1, text: "Design DFAs and NFAs for simple languages and trace them on input strings", skills: [computer-science.automata] }
+  - { id: o2, text: "Convert a regular expression to an NFA (Thompson) and an NFA to a DFA (subset construction)", skills: [computer-science.automata] }
+  - { id: o3, text: "Use the pumping lemma to show a language is not regular, and explain catastrophic backtracking and how linear-time engines avoid it", skills: [computer-science.automata, computer-science.complexity-classes] }
+prerequisites: [computer-science.p2.checkpoint]
+difficulty: 4
+estimated_minutes: 60
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A service validates user-supplied identifiers with the Java regex `^(\w+\s?)*$`. A single 40-character input such as "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!" takes the request thread to 100% CPU for minutes. (1) Explain why, in terms of how a backtracking engine explores the ways the pattern can match. (2) Rewrite the pattern so it accepts the same strings without the ambiguity. (3) Explain why an engine based on finite automata (RE2, Rust''s regex crate, Go''s regexp) cannot have this problem, and what features such engines give up. (4) Draw (or describe as a transition table) a DFA over the alphabet {a, b} that accepts exactly the strings with an even number of a''s and ending in b, and give one string it accepts and one it rejects.'
+  criteria:
+    - 'Explains catastrophic backtracking: the nested quantifiers let the same letters be split between \w+ and the outer * in exponentially many ways, and on a failing input the engine tries all of them before giving up'
+    - 'Gives an unambiguous pattern such as ^(\w+(\s\w+)*\s?)?$ (the outer ? keeps the empty string, which the original also accepts), or uses a possessive quantifier or an atomic group, and checks that it accepts the same strings'
+    - 'Explains that an automaton-based engine tracks the set of possible states in one pass, so the time is O(pattern × input) whatever the pattern; such engines give up backreferences and (often) lookaround'
+    - 'Gives a correct DFA with four states (parity of a''s × whether the last symbol is b), with the accepting state "even a''s, last symbol b", and a correct accepted and rejected example'

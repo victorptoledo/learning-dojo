@@ -1,0 +1,50 @@
+id: computer-science.p3.regex-engine
+kind: kata
+status: draft
+title: "Regex Engine"
+summary: "A linear-time regular expression engine in Rust: a pattern parser with groups, alternation, quantifiers, escapes and character classes, Thompson's construction, NFA simulation with state sets, and leftmost-longest search, tested against inputs that make backtracking engines hang."
+objectives:
+  - { id: o1, text: "Parse regular expressions with precise error positions", skills: [computer-science.automata, computer-science.compilers] }
+  - { id: o2, text: "Build an NFA with Thompson's construction and simulate it with sets of states in O(pattern × text)", skills: [computer-science.automata] }
+prerequisites: [computer-science.p3.automata]
+difficulty: 4
+estimated_minutes: 90
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 120 }
+  hints:
+    - |-
+      Three steps, each testable alone. (1) Parse into a small tree with one function per precedence level: alternation (`|`), concatenation, repetition (`*`, `+`, `?`) and atoms (a character, `.`, a class, a group). (2) Compile the tree into a `Vec` of states: "consume a character in this set and go to n", "split to a and b without consuming", "jump to n" and "match". (3) Simulate. What does the simulation keep between two characters?
+    - |-
+      Thompson's construction builds a fragment per node: an entry state plus a list of dangling exits to connect later. `x*`: a Split whose first branch is x's entry and whose second branch dangles; x's exits loop back to the Split. `x+`: x first, then a Split back to x. `x?`: a Split to x or onward. The simulation keeps the set of "consuming" states reachable through ε-moves; for each character, step every state whose set contains it and take the ε-closure again. Use a `visited` array per step, so ε-cycles such as `(a*)*` terminate.
+    - |-
+      ```rust
+      /// Adds `s` and every state reachable from it without consuming input.
+      fn add(&self, set: &mut Vec<usize>, on: &mut [bool], s: usize) {
+          let mut stack = vec![s];
+          while let Some(s) = stack.pop() {
+              if on[s] { continue; }
+              on[s] = true;
+              match &self.states[s] {
+                  State::Split(a, b) => { stack.push(*b); stack.push(*a); }
+                  State::Jump(next) => stack.push(*next),
+                  _ => set.push(s),          // Char and Match states are kept
+              }
+          }
+      }
+      ```
+      `is_match`: start with the closure of the start state, step once per `char`, and at the end check whether any kept state is `Match`.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-rust runner image
+    image: dojo-rust
+    why: The Rust container that runs cargo test on your kata.

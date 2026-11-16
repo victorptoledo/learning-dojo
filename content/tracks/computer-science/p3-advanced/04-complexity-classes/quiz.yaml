@@ -1,0 +1,36 @@
+questions:
+  - id: np-definition
+    prompt: "What characterises a problem in NP?"
+    options: ["It cannot be solved in polynomial time", "A proposed solution (certificate) for a yes-instance can be checked in polynomial time", "It needs exponential memory", "It is not decidable"]
+    answer: 1
+    explanation: "NP is about checking; P ⊆ NP because solving fast also lets you check fast."
+  - id: np-complete
+    prompt: "What follows if someone finds a polynomial-time algorithm for one NP-complete problem?"
+    options: ["Only that problem becomes easy", "Every problem in NP can be solved in polynomial time: P = NP", "The halting problem becomes decidable", "Nothing, NP-complete problems are unrelated"]
+    answer: 1
+    explanation: "Every NP problem reduces to any NP-complete one."
+  - id: cook-levin
+    prompt: "Which problem did the Cook-Levin theorem prove NP-complete first?"
+    options: ["Travelling salesman", "Boolean satisfiability (SAT)", "Sorting", "Graph isomorphism"]
+    answer: 1
+    explanation: "Other problems were then shown NP-complete by reducing SAT (or a descendant) to them."
+  - id: reduction-direction
+    prompt: "To show a new problem X is NP-hard, you reduce…"
+    options: ["X to a known NP-complete problem", "A known NP-complete problem to X", "X to sorting", "X to itself"]
+    answer: 1
+    explanation: "If X solved a known hard problem, X is at least as hard."
+  - id: easy-or-hard
+    prompt: "Which of these is solvable in polynomial time?"
+    options: ["3-colouring a graph", "Finding a shortest path with non-negative weights", "Finding the longest simple path", "3-SAT"]
+    answer: 1
+    explanation: "Dijkstra runs in O((V + E) log V); the others are NP-hard."
+  - id: approx
+    prompt: "A greedy algorithm for vertex cover is guaranteed to find a cover at most twice the optimal size. What kind of algorithm is it?"
+    options: ["An exact algorithm", "An approximation algorithm", "A heuristic with no guarantee", "A randomised verifier"]
+    answer: 1
+    explanation: "Approximation algorithms trade optimality for a proven bound and polynomial time."
+  - id: exp-small
+    prompt: "An exact algorithm takes 2ⁿ steps. At 10⁹ steps per second, roughly how long does n = 30 take?"
+    options: ["About a microsecond", "About a second", "About a year", "Longer than the age of the universe"]
+    answer: 1
+    explanation: "2³⁰ ≈ 1.07 × 10⁹ steps: about one second. n = 60 would take about 35 years."

@@ -1,0 +1,23 @@
+id: computer-science.p1.cpu-architecture
+kind: lesson
+status: draft
+title: "The CPU: Instruction Sets, Execution and Pipelines"
+summary: "How a processor runs a program: registers, the fetch-decode-execute cycle, instruction formats and addressing, RISC and CISC, the stack and calling conventions, pipelining and its hazards, branch prediction, out-of-order and superscalar execution, and multiple cores."
+objectives:
+  - { id: o1, text: "Trace the fetch-decode-execute cycle and read a short assembly program with loads, stores, arithmetic and branches", skills: [computer-science.cpu-architecture] }
+  - { id: o2, text: "Explain how a function call uses the stack, registers and a calling convention", skills: [computer-science.cpu-architecture] }
+  - { id: o3, text: "Explain pipelining, hazards, branch prediction and out-of-order execution, and how they change the speed of real code", skills: [computer-science.cpu-architecture] }
+prerequisites: [computer-science.p1.logic-gates]
+difficulty: 3
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A loop sums the elements of a large array of random integers between 0 and 255, but only those that are 128 or more: `for x in data: if x >= 128: total += x`. Measured on the same machine, the loop runs several times faster after the array is sorted, although it does the same number of additions. Explain why, in terms of the pipeline and branch prediction. Then rewrite the loop body so it is fast on unsorted data too (a branch-free version), and explain why it helps. Finally, write the loop as pseudo-assembly for a load-store machine (loads, an add, a compare, a conditional branch, an increment and a jump), and point out which instruction the branch predictor has to guess.'
+  criteria:
+    - 'Explains that the CPU pipelines instructions and must guess the direction of the branch before the comparison is known; a wrong guess flushes the pipeline (about 10–20 cycles)'
+    - 'Explains that on sorted data the branch is predictable (all false, then all true), while on random data it is wrong about half the time'
+    - 'Gives a branch-free version, for example total += x & -(x >= 128) or a conditional move, and explains that there is nothing to mispredict'
+    - 'Writes a plausible load-store loop (load element, compare, conditional branch over the add, add, increment the index or pointer, compare with the end, branch back) and identifies the conditional branch on x >= 128 as the hard one'

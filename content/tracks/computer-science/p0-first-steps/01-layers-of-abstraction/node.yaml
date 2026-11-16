@@ -1,0 +1,23 @@
+id: computer-science.p0.layers-of-abstraction
+kind: lesson
+status: draft
+title: "Layers of Abstraction: What Computer Science Studies"
+summary: "The stack from transistors to applications, what each layer hides and leaks, the questions computer science asks (what can be computed, how fast, how reliably), and the map of this track."
+objectives:
+  - { id: o1, text: "Name the layers between a line of code and the transistors that run it, and what each one provides", skills: [computer-science.foundations] }
+  - { id: o2, text: "Explain what an abstraction is, and give examples of abstractions that leak", skills: [computer-science.foundations] }
+  - { id: o3, text: "Use the latency numbers every programmer should know to estimate the cost of an operation", skills: [computer-science.foundations, computer-science.memory-hierarchy] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A colleague says: "I write Python web services, so I do not need to know how computers work: the language and the cloud hide all of that." Write a short reply (half a page) that agrees with what is true in this, then gives three concrete situations from web services where a lower layer leaks through (pick from: floating point money, cache misses or memory layout, the process or thread model, virtual memory and containers being killed, the network, the database). For each, name the layer, the symptom a developer sees, and the concept from this track that explains it. Finish with a back-of-the-envelope estimate: how long do 1,000 sequential database queries on another machine in the same data centre take, and why?'
+  criteria:
+    - 'Agrees that abstraction is the point: most of the time the lower layers can and should be ignored'
+    - 'Gives three different leaks, each tied to a named layer, a visible symptom and the concept that explains it (for example 0.1 + 0.2 != 0.3 from binary floating point)'
+    - 'Estimates the 1,000 queries from a round trip of roughly 0.5 ms in a data centre: about 0.5 s, dominated by network latency, not by the database work'
+    - 'Concludes with when knowing the lower layers matters: performance, correctness at the edges, and debugging'

@@ -1,0 +1,36 @@
+questions:
+  - id: count-plus-plus
+    prompt: "Two threads each run count++ 1,000 times on a shared int without synchronisation. Which final values are possible?"
+    options: ["Exactly 2,000", "Any value from 2 to 2,000", "Only 1,000 or 2,000", "0"]
+    answer: 1
+    explanation: "Each increment is read-modify-write; lost updates can pile up (even down to 2 in contrived interleavings)."
+  - id: cas
+    prompt: "What does compare-and-swap do?"
+    options: ["Swaps two registers", "Atomically writes a new value only if the location still holds the expected value, and reports whether it did", "Compares two locks", "Sorts an array in place"]
+    answer: 1
+    explanation: "CAS loops build counters, stacks and queues without locks."
+  - id: coffman
+    prompt: "Which change prevents deadlock by breaking the circular-wait condition?"
+    options: ["Using more threads", "Acquiring locks always in the same global order", "Making locks reentrant", "Adding a sleep before each lock"]
+    answer: 1
+    explanation: "With one order, no cycle of waiting threads can form."
+  - id: wait-loop
+    prompt: "Why must a thread call wait() on a condition variable inside a while loop that re-checks the condition?"
+    options: ["For performance", "Because of spurious wake-ups and because another thread may have changed the state before it re-acquired the lock", "Because wait() returns immediately", "It does not need to"]
+    answer: 1
+    explanation: "Waking up is a hint, not a guarantee that the condition holds."
+  - id: happens-before
+    prompt: "A thread sets a plain boolean `done = true`; another loops `while (!done) {}`. Why may the loop never end in Java?"
+    options: ["Booleans are not atomic", "There is no happens-before edge, so the write need not become visible; the read may even be hoisted out of the loop", "The CPU ignores booleans", "Threads cannot share variables"]
+    answer: 1
+    explanation: "Make the field volatile or use an AtomicBoolean."
+  - id: linearizable
+    prompt: "What does it mean for a concurrent queue to be linearizable?"
+    options: ["It never uses locks", "Each operation appears to happen instantly at some point between its start and its end", "Operations run in a straight line", "It is sorted"]
+    answer: 1
+    explanation: "Then the queue behaves like a sequential queue under every interleaving."
+  - id: livelock
+    prompt: "Two threads repeatedly detect a conflict, back off by the same fixed delay and retry, forever. What is this?"
+    options: ["Deadlock", "Livelock", "A data race", "Priority inversion"]
+    answer: 1
+    explanation: "They are active but make no progress; randomised back-off fixes it."

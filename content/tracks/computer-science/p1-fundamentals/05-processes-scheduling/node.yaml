@@ -1,0 +1,24 @@
+id: computer-science.p1.processes-scheduling
+kind: lesson
+status: draft
+title: "Processes, Threads and CPU Scheduling"
+summary: "What the kernel gives a program: user and kernel mode, system calls and interrupts, processes and their states, fork and exec, threads and what they share, context switches, and how a scheduler chooses who runs next (FCFS, SJF, round robin, priorities, MLFQ, Linux's fair schedulers) and the metrics it trades off."
+objectives:
+  - { id: o1, text: "Explain user and kernel mode, system calls and interrupts, and the life cycle of a process", skills: [computer-science.processes-scheduling] }
+  - { id: o2, text: "Compare processes and threads: what they share, what a context switch costs, and when each is used", skills: [computer-science.processes-scheduling] }
+  - { id: o3, text: "Simulate FCFS, SJF and round robin by hand and compute turnaround, waiting and response times", skills: [computer-science.processes-scheduling] }
+prerequisites: [computer-science.p1.memory-hierarchy]
+difficulty: 3
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Four jobs arrive at a single CPU: A at time 0 needing 8 units, B at 1 needing 4, C at 2 needing 9, D at 3 needing 5. (1) Draw the timeline (a Gantt chart) under FCFS, under non-preemptive SJF and under round robin with a quantum of 3 (a job that arrives at the same moment as a quantum expires joins the queue before the preempted job), and compute the average turnaround and the average waiting time for each. (2) Which policy gives the best average response time, and which the best average turnaround? (3) A web server runs on the same machine as a nightly batch job, and requests become slow while the batch runs. Explain what the scheduler is doing, and two ways to fix it at the OS level.'
+  criteria:
+    - 'FCFS: A 0–8, B 8–12, C 12–21, D 21–26; average turnaround 15.25, average waiting 8.75'
+    - 'SJF (non-preemptive): A 0–8, B 8–12, D 12–17, C 17–26; average turnaround 14.25, average waiting 7.75'
+    - 'Round robin q=3: A 0–3, B 3–6, C 6–9, D 9–12, A 12–15, B 15–16, C 16–19, D 19–21, A 21–23, C 23–26; average turnaround 20, average waiting 13.5, average response 3'
+    - 'Says round robin gives the best response time and SJF the best average turnaround (among these policies)'
+    - 'Explains that the batch job competes for CPU time slices with the server, and proposes priorities (nice, a lower weight), cgroups CPU quotas or pinning to separate cores'

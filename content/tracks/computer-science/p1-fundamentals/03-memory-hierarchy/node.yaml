@@ -1,0 +1,25 @@
+id: computer-science.p1.memory-hierarchy
+legacy_id: cs-01-memory-hierarchy
+kind: lesson
+status: draft
+title: "Memory Hierarchy: Registers, L1/L2/L3 Caches and RAM"
+summary: "Why memory is slow and caches make it fast: locality, cache lines, how an address splits into tag, index and offset, direct-mapped and set-associative caches, replacement and write policies, the three kinds of miss, coherence and false sharing, and how to write cache-friendly code."
+objectives:
+  - { id: o1, text: "Explain temporal and spatial locality and why a hierarchy of small fast and large slow memories works", skills: [computer-science.memory-hierarchy] }
+  - { id: o2, text: "Split an address into tag, set index and offset, and trace hits, misses and evictions in a set-associative cache with LRU", skills: [computer-science.memory-hierarchy] }
+  - { id: o3, text: "Recognise cache-unfriendly code (strided access, pointer chasing, false sharing) and rewrite it", skills: [computer-science.memory-hierarchy] }
+prerequisites: [computer-science.p1.cpu-architecture]
+difficulty: 3
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A CPU has a 32 KiB, 8-way set-associative L1 data cache with 64-byte lines. (1) How many sets does it have, and how is a 48-bit physical address split into tag, index and offset bits? (2) A program walks a 4096 × 4096 matrix of 4-byte ints, once row by row and once column by column. Estimate the miss rate of each walk on this cache and explain the difference. (3) Two threads each increment their own counter, stored next to each other in one array of longs, and the program gets slower with two threads than with one. Name the effect and give two fixes.'
+  criteria:
+    - '32 KiB / 64 B = 512 lines; 512 / 8 ways = 64 sets; offset 6 bits, index 6 bits, tag 48 − 12 = 36 bits'
+    - 'Row by row reads consecutive ints: one miss per 64-byte line of 16 ints, a miss rate of about 1/16 (6.25%)'
+    - 'Column by column jumps 16 KiB per access; every access touches a new line and lines are evicted before they are reused (the stride also maps many rows to the same sets), so almost every access misses'
+    - 'Names false sharing: the two counters share one cache line, so coherence moves the line between cores on every write'
+    - 'Fixes: pad or align each counter to its own 64-byte line (for example @Contended in Java, padding fields, or separate objects), or let each thread count locally and combine at the end'

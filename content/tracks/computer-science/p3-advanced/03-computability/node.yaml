@@ -1,0 +1,23 @@
+id: computer-science.p3.computability
+kind: lesson
+status: draft
+title: "Turing Machines, Grammars and Computability"
+summary: "The limits of computation: pushdown automata and context-free grammars, the Chomsky hierarchy, Turing machines and the Church-Turing thesis, universal machines and Turing completeness, the halting problem and its proof by diagonalisation, reductions, Rice's theorem, and what undecidability means for compilers, static analysis and verification."
+objectives:
+  - { id: o1, text: "Place a language in the Chomsky hierarchy and name the machine that recognises it", skills: [computer-science.computability, computer-science.automata] }
+  - { id: o2, text: "Explain Turing machines, the Church-Turing thesis and Turing completeness", skills: [computer-science.computability] }
+  - { id: o3, text: "Prove that the halting problem is undecidable, and use reductions and Rice's theorem to recognise undecidable questions about programs", skills: [computer-science.computability] }
+prerequisites: [computer-science.p3.regex-engine]
+difficulty: 4
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A product manager asks for three features in a code-quality tool for a Turing-complete language: (a) "warn if a function can ever throw a NullPointerException", (b) "reject any program that contains an infinite loop", (c) "warn if a function is more than 200 lines long". (1) For each, say whether it is decidable exactly, and justify it (for the undecidable ones, sketch a reduction from the halting problem or cite Rice''s theorem). (2) Explain how real tools (javac''s definite assignment, Kotlin''s null safety, linters, Infer, TLA+ model checkers, timeouts) still deliver useful versions of the undecidable ones, and what they give up. (3) Write the classic proof that no program H(P, x) can decide whether P halts on x, in your own words.'
+  criteria:
+    - 'Classifies (c) as decidable (a syntactic property, checked by reading the source) and (a) and (b) as undecidable (semantic, non-trivial properties of the program''s behaviour)'
+    - 'Justifies (a) or (b) with Rice''s theorem or a reduction: if a checker existed, wrap any program P so that it throws (or loops) exactly when P halts, and the checker would decide halting'
+    - 'Explains the practical escapes: sound but incomplete analyses with false positives (null-safety types, definite assignment), unsound heuristics with false negatives (linters, bug finders), restricted languages, bounded model checking, and timeouts'
+    - 'Gives the diagonal proof: build D(P) that runs H(P, P) and does the opposite (loops if H says halts, halts otherwise); D(D) contradicts H either way'

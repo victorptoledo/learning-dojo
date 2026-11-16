@@ -1,0 +1,25 @@
+questions:
+  - id: isa-contract
+    prompt: "Which layer promises 'this instruction adds two registers', whatever the hardware does to achieve it?"
+    options: ["The operating system", "The instruction set architecture (ISA)", "The programming language", "The network stack"]
+    answer: 1
+    explanation: "The ISA is the contract between software and the processor; the microarchitecture (pipelines, caches) implements it."
+  - id: leak-float
+    prompt: "Why is `0.1 + 0.2 == 0.3` false in most languages?"
+    options: ["A compiler bug", "0.1 and 0.2 have no exact binary floating point representation, so the sum is rounded", "Integers overflow", "The CPU uses decimal arithmetic"]
+    answer: 1
+    explanation: "Binary floating point represents fractions as sums of powers of two; 0.1 is a repeating fraction in binary, like 1/3 in decimal."
+  - id: ram-vs-l1
+    prompt: "Roughly how many times slower is a main memory access than an L1 cache hit?"
+    options: ["About 2 times", "About 100 times", "About 1,000,000 times", "They are the same"]
+    answer: 1
+    explanation: "About 1 ns for L1 against 80–100 ns for RAM: two orders of magnitude."
+  - id: round-trips
+    prompt: "A request makes 200 sequential calls to a service in the same data centre (about 0.5 ms per round trip). What is the minimum time it spends waiting on the network?"
+    answers: ["100 ms", "100ms", "0.1 s", "0.1s", "100"]
+    explanation: "200 × 0.5 ms = 100 ms, whatever the service does: batch the calls or run them concurrently."
+  - id: three-questions
+    prompt: "Which question belongs to computability theory rather than complexity theory?"
+    options: ["Can this problem be solved in polynomial time?", "Is there any algorithm at all that solves this problem for every input?", "How many cache misses does this loop cause?", "Is quicksort faster than mergesort?"]
+    answer: 1
+    explanation: "Computability asks whether an algorithm exists; complexity asks how much time or memory it needs."

@@ -1,0 +1,23 @@
+id: computer-science.p4.database-internals
+kind: lesson
+status: draft
+title: "Database Internals: Storage, Indexes, Logging and Transactions"
+summary: "What a database does with your data: pages and the buffer pool, heap files and slotted pages, B+tree indexes versus LSM trees, the write-ahead log and crash recovery (redo, undo, checkpoints, ARIES in outline), ACID transactions, isolation levels and their anomalies, two-phase locking and MVCC, and how a query is planned and executed."
+objectives:
+  - { id: o1, text: "Explain how pages, the buffer pool, B+trees and LSM trees store and find data, and their read and write trade-offs", skills: [computer-science.database-internals, computer-science.file-systems] }
+  - { id: o2, text: "Explain the write-ahead log, checkpoints and crash recovery, and why the log must reach disk before the data", skills: [computer-science.database-internals] }
+  - { id: o3, text: "Explain isolation levels and their anomalies, and how two-phase locking and MVCC implement them", skills: [computer-science.database-internals, computer-science.concurrency] }
+prerequisites: [computer-science.p3.concurrency-theory]
+difficulty: 4
+estimated_minutes: 60
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You must choose a storage engine for two workloads: (A) an append-heavy metrics store receiving 200,000 small writes per second and serving mostly recent-range reads, and (B) an orders database with many point lookups and range scans by customer and date, and a moderate write rate. (1) For each, compare a B+tree engine (like PostgreSQL or InnoDB) and an LSM engine (like RocksDB or Cassandra) on write amplification, read amplification and space, and recommend one. (2) Describe what happens, step by step, when the database crashes after a transaction has committed but before its modified pages were written to their place on disk, and how recovery restores it. (3) Two transactions each read the number of doctors on call (2), and each removes a different doctor because "there is still another one". Name the anomaly, say which isolation levels allow it, and give two ways to prevent it.'
+  criteria:
+    - 'Explains that LSM trees turn writes into sequential appends (memtable, flush, compaction) with low write cost but more read and space amplification, and recommends LSM for A'
+    - 'Explains that B+trees update pages in place with O(log n) lookups and efficient range scans, at the cost of random writes and page splits, and recommends a B+tree for B'
+    - 'Describes recovery: the commit record was forced to the write-ahead log before the commit returned; on restart the database replays the log from the last checkpoint (redo) and rolls back uncommitted transactions (undo)'
+    - 'Names write skew, allowed under snapshot isolation (PostgreSQL REPEATABLE READ) and weaker levels, prevented by SERIALIZABLE (for example SSI) or by explicit locking such as SELECT ... FOR UPDATE on the rows read, or by a constraint'

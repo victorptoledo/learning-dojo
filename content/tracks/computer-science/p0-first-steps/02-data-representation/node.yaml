@@ -1,0 +1,24 @@
+id: computer-science.p0.data-representation
+kind: lesson
+status: draft
+title: "Data Representation: Binary, Two's Complement, Floating Point and Text"
+summary: "How bits become numbers and text: positional notation, hexadecimal, unsigned and two's complement integers and their overflow, byte order, IEEE 754 floating point with its rounding, special values and subnormals, and Unicode with UTF-8."
+objectives:
+  - { id: o1, text: "Convert between binary, hexadecimal and decimal, and read signed integers in two's complement, including overflow", skills: [computer-science.data-representation] }
+  - { id: o2, text: "Decode an IEEE 754 binary32 value into sign, exponent and fraction, and explain rounding, infinities, NaN and subnormals", skills: [computer-science.data-representation] }
+  - { id: o3, text: "Explain byte order and how UTF-8 encodes Unicode code points in one to four bytes", skills: [computer-science.data-representation] }
+prerequisites: [computer-science.p0.layers-of-abstraction]
+difficulty: 2
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An invoicing service stores prices as 64-bit floats in euros. Customers report invoices that are off by one cent, and a test fails because `0.1 * 3` does not equal `0.3`. A second service stores quantities in a signed 32-bit integer, and a bulk order of 3,000,000,000 units shows up as a negative number. A third bug: names such as "José" arrive as "JosÃ©". Explain the cause of each of the three bugs at the level of bits (show the relevant binary or hexadecimal where it helps), and propose a fix for each that you would actually ship.'
+  criteria:
+    - 'Explains that 0.1 has no finite binary representation, so binary64 stores the nearest double and arithmetic rounds; errors accumulate and show up when rounding to cents'
+    - 'Proposes integer cents (a long) or a decimal type (BigDecimal, decimal.Decimal, System.Decimal) for money, with an explicit rounding mode'
+    - 'Explains the overflow: 3,000,000,000 is above 2^31 − 1 = 2,147,483,647, so in two''s complement the bit pattern is read as a negative number (3,000,000,000 − 2^32 = −1,294,967,296)'
+    - 'Proposes a 64-bit type or checked arithmetic (Math.addExact, checked in C#, explicit range validation) rather than ignoring it'
+    - 'Explains mojibake: "é" is U+00E9, encoded in UTF-8 as C3 A9, and those two bytes decoded as Latin-1/Windows-1252 show as "Ã©"; the fix is to declare and use UTF-8 at every boundary'

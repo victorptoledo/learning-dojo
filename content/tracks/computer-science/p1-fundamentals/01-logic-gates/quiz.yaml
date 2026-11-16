@@ -1,0 +1,31 @@
+questions:
+  - id: de-morgan
+    prompt: "Which expression equals NOT (A OR B)?"
+    options: ["NOT A OR NOT B", "NOT A AND NOT B", "A AND B", "A XOR B"]
+    answer: 1
+    explanation: "De Morgan's law: negating an OR gives the AND of the negations."
+  - id: nand-universal
+    prompt: "Why is NAND called a universal gate?"
+    options: ["It is the fastest gate", "Every Boolean function can be built from NAND gates alone", "It works with any voltage", "It stores one bit"]
+    answer: 1
+    explanation: "NOT, AND and OR can all be made from NANDs, and they are enough for any truth table."
+  - id: half-adder
+    prompt: "In a half adder, which gate produces the sum bit?"
+    options: ["AND", "OR", "XOR", "NAND"]
+    answer: 2
+    explanation: "1 + 1 = 10 in binary: the sum bit is A XOR B and the carry is A AND B."
+  - id: ripple
+    prompt: "Why is a 64-bit ripple-carry adder slow?"
+    options: ["It needs 64 clock cycles", "Each bit must wait for the carry of the previous one, so the delay grows with the width", "It cannot add negative numbers", "It uses DRAM"]
+    answer: 1
+    explanation: "The carry ripples through 64 full adders; carry-lookahead adders compute carries in parallel."
+  - id: flip-flop
+    prompt: "What does a D flip-flop do?"
+    options: ["Inverts its input", "Stores its input on a clock edge and holds it until the next one", "Adds two bits", "Selects one of two inputs"]
+    answer: 1
+    explanation: "Flip-flops are the memory of sequential circuits; a register is a row of them."
+  - id: clock-limit
+    prompt: "What limits the highest clock frequency of a circuit?"
+    options: ["The number of registers", "The delay of the slowest path of logic between two registers (the critical path)", "The size of the cache", "The operating system"]
+    answer: 1
+    explanation: "Each cycle must be long enough for the slowest path to settle before the registers capture it."

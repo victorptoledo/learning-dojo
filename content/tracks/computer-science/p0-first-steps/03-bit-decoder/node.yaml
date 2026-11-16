@@ -1,0 +1,47 @@
+id: computer-science.p0.bit-decoder
+kind: kata
+status: draft
+title: "Bit Decoder"
+summary: "Two's complement, overflow, the fields of an IEEE 754 float and UTF-8, written by hand with shifts and masks and checked against the hardware and Python's codec."
+objectives:
+  - { id: o1, text: "Encode, decode and wrap two's complement integers of any width", skills: [computer-science.data-representation] }
+  - { id: o2, text: "Decode IEEE 754 binary32 words, including zeros, subnormals, infinities and NaN", skills: [computer-science.data-representation] }
+  - { id: o3, text: "Encode and validate UTF-8, rejecting overlong, truncated and surrogate sequences", skills: [computer-science.data-representation] }
+prerequisites: [computer-science.p0.data-representation]
+difficulty: 2
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Every function is "look at some bits, then combine them". To read bit i of x, use `x >> i & 1`; to keep the low n bits, `x & ((1 << n) - 1)`. Masking a negative Python int with `(1 << width) - 1` gives exactly its two's complement pattern. For a float, which shift and mask extract the 8 exponent bits?
+    - |-
+      `decode_f32`: `sign = word >> 31`, `biased = word >> 23 & 0xFF`, `fraction = word & 0x7FFFFF`. Check the exponent first: 0xFF is infinity or NaN, 0 is zero or subnormal. A normal value is `ldexp((1 << 23) | fraction, biased - 127 - 23)`, a subnormal `ldexp(fraction, -126 - 23)`. For UTF-8, the lead byte tells you how many continuation bytes follow (110xxxxx: one, 1110xxxx: two, 11110xxx: three), and each continuation must match 10xxxxxx.
+    - |-
+      ```python
+      def utf8_encode(code_point: int) -> bytes:
+          if not 0 <= code_point <= 0x10FFFF or 0xD800 <= code_point <= 0xDFFF:
+              raise ValueError(f"U+{code_point:X} is not a Unicode scalar value")
+          if code_point < 0x80:
+              return bytes([code_point])
+          if code_point < 0x800:
+              return bytes([0xC0 | code_point >> 6, 0x80 | code_point & 0x3F])
+          # three bytes: 0xE0 | cp >> 12, then two continuation bytes; four bytes: 0xF0 | cp >> 18
+          ...
+      ```
+      For decoding, after assembling the code point, reject it if it is smaller than the smallest value that needs that many bytes (0x80, 0x800, 0x10000): that is an overlong encoding.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

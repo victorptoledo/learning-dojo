@@ -1,0 +1,24 @@
+id: computer-science.p2.file-systems
+kind: lesson
+status: draft
+title: "File Systems, Storage and I/O"
+summary: "From devices to files: how disks and SSDs behave, interrupts and DMA, blocking and non-blocking I/O, file descriptors and the page cache, inodes, directories and links, allocation, crash consistency with journaling and copy-on-write, and what fsync and atomic rename really guarantee."
+objectives:
+  - { id: o1, text: "Explain how the kernel talks to devices (interrupts, DMA, drivers) and the performance profile of HDDs and SSDs", skills: [computer-science.file-systems] }
+  - { id: o2, text: "Describe inodes, directories, hard and symbolic links, and how a path is resolved to data blocks", skills: [computer-science.file-systems] }
+  - { id: o3, text: "Explain the page cache, write-back, fsync, journaling and how to update a file safely across crashes", skills: [computer-science.file-systems] }
+prerequisites: [computer-science.p2.page-table]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A configuration tool saves `settings.json` by opening it with truncation and writing the new content. After a power cut, users sometimes find the file empty or half written. (1) Explain, step by step, what the kernel and the file system do between the write call and the data being on the disk, and why the file can end up empty. (2) Write the sequence of system calls (or the equivalent in your language) that updates the file so that after a crash it holds either the complete old or the complete new content, and explain why each step is needed. (3) A colleague suggests calling fsync after every log line in a high-volume logger instead. Estimate the cost on an SSD and suggest a better trade-off.'
+  criteria:
+    - 'Explains that write() copies the data into the page cache and returns; the kernel writes dirty pages back later (seconds), so truncation can reach the disk (through the journaled metadata) before the new data does'
+    - 'Gives the safe sequence: write a temporary file in the same directory, fsync it, rename it over the old name (atomic replace), then fsync the directory'
+    - 'Explains why: fsync makes the data durable before the rename; rename is atomic within one file system; fsyncing the directory makes the rename itself durable'
+    - 'Estimates that an fsync costs from tens of microseconds to milliseconds (a device cache flush), so one per line limits throughput to thousands of lines per second or fewer'
+    - 'Suggests group commit or batching: buffer lines and fsync periodically (for example every few milliseconds or every N lines), accepting a bounded loss window'

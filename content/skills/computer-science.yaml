@@ -1,4 +1,18 @@
 namespace: computer-science
 skills:
+  - { id: computer-science.foundations, title: "Layers of Abstraction: What Computer Science Studies" }
+  - { id: computer-science.data-representation, title: "Data Representation: Binary, Two's Complement, Floating Point and Text" }
+  - { id: computer-science.logic-circuits, title: "Boolean Logic, Gates and Circuits" }
+  - { id: computer-science.cpu-architecture, title: "The CPU: Instruction Sets, Execution and Pipelines" }
   - { id: computer-science.memory-hierarchy, title: "Memory Hierarchy: Registers, L1/L2/L3 Caches and RAM" }
-  - { id: computer-science.complexity-big-o, title: "Asymptotic Analysis: Big-O in the Real World" }
+  - { id: computer-science.processes-scheduling, title: "Processes, Threads and CPU Scheduling" }
+  - { id: computer-science.virtual-memory, title: "Virtual Memory, Paging and the TLB" }
+  - { id: computer-science.file-systems, title: "File Systems, Storage and I/O" }
+  - { id: computer-science.networking, title: "Networking Fundamentals: Layers, TCP/IP and DNS" }
+  - { id: computer-science.compilers, title: "Compilers and Interpreters: Lexing, Parsing, ASTs and Bytecode" }
+  - { id: computer-science.automata, title: "Automata, Regular Languages and Regular Expressions" }
+  - { id: computer-science.computability, title: "Turing Machines, Grammars and Computability" }
+  - { id: computer-science.complexity-classes, title: "Complexity Classes: P, NP and Intractability" }
+  - { id: computer-science.concurrency, title: "Concurrency Theory: Races, Mutual Exclusion, Deadlock and Memory Models" }
+  - { id: computer-science.database-internals, title: "Database Internals: Storage, Indexes, Logging and Transactions" }
+  - { id: computer-science.systems-thinking, title: "Systems Thinking Across the Layers" }

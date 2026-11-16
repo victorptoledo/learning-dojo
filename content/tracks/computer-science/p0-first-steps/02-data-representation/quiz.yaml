@@ -1,0 +1,34 @@
+questions:
+  - id: hex-to-dec
+    prompt: "What is 0x7F in decimal?"
+    answers: ["127"]
+    explanation: "7 × 16 + 15 = 127, the largest signed 8-bit value."
+  - id: twos-negative
+    prompt: "In 8-bit two's complement, which value does the bit pattern 1111 1110 hold?"
+    options: ["254", "−2", "−126", "−127"]
+    answer: 1
+    explanation: "The top bit weighs −128: −128 + 64 + 32 + 16 + 8 + 4 + 2 = −2. Or: invert (0000 0001) and add 1 (0000 0010) = 2, so it is −2."
+  - id: int-overflow
+    prompt: "In Java, what does `Integer.MAX_VALUE + 1` evaluate to?"
+    options: ["An ArithmeticException", "Integer.MIN_VALUE, −2,147,483,648", "2,147,483,648", "0"]
+    answer: 1
+    explanation: "int arithmetic wraps modulo 2³²; use Math.addExact or a long when overflow is possible."
+  - id: bias
+    prompt: "A binary32 float has stored exponent bits 1000 0010 (130) and sign 0. By which power of two is 1.fraction multiplied?"
+    options: ["2¹³⁰", "2³", "2⁻³", "2²"]
+    answer: 1
+    explanation: "The bias is 127: 130 − 127 = 3."
+  - id: nan
+    prompt: "Which statement about NaN is true?"
+    options: ["NaN == NaN is true", "NaN is a special exponent of all ones with a non-zero fraction, and it compares unequal even to itself", "NaN is the same as null", "NaN is stored as zero"]
+    answer: 1
+    explanation: "Use isNaN (Double.isNaN, math.isnan, Number.isNaN) to test for it."
+  - id: utf8-bytes
+    prompt: "How many bytes does UTF-8 use for the euro sign, U+20AC?"
+    answers: ["3", "three"]
+    explanation: "U+0800 to U+FFFF take three bytes: E2 82 AC."
+  - id: little-endian
+    prompt: "How is the 32-bit value 0x12345678 laid out in memory on a little-endian machine, lowest address first?"
+    options: ["12 34 56 78", "78 56 34 12", "56 78 12 34", "87 65 43 21"]
+    answer: 1
+    explanation: "Little-endian stores the least significant byte at the lowest address."
