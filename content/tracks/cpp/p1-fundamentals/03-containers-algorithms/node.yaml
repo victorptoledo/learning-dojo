@@ -1,0 +1,24 @@
+id: cpp.p1.containers-algorithms
+kind: lesson
+status: draft
+title: "Containers, Iterators and Algorithms"
+summary: "Which standard container to pick, maps and their operator[] trap, heterogeneous lookup, iterators and iterator invalidation, the algorithms and their ranges versions with projections, strict weak ordering, and std::span."
+objectives:
+  - { id: o1, text: "Pick a container for a job and explain the cost of its main operations", skills: [cpp.containers-algorithms] }
+  - { id: o2, text: "Say which operations invalidate iterators and references, and avoid the erase-in-a-loop bug", skills: [cpp.containers-algorithms] }
+  - { id: o3, text: "Replace hand-written loops with standard algorithms, projections and correct comparators", skills: [cpp.containers-algorithms] }
+prerequisites: [cpp.p1.functions-control]
+difficulty: 2
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A service keeps active sessions in a `std::vector<Session>` and an index `std::unordered_map<std::string, Session*>` from token to the session in the vector. It crashes now and then under load, and a review also finds `for (auto it = sessions.begin(); it != sessions.end(); ++it) if (it->expired()) sessions.erase(it);`. Explain both bugs, and propose a design for the container(s) with the cost of lookup, insertion and expiry.'
+  criteria:
+    - 'Explains that push_back can reallocate the vector, so the pointers in the index dangle (and erase shifts elements, moving them under the pointers)'
+    - 'Explains that erase invalidates it, so ++it is undefined behaviour, and uses std::erase_if (or the iterator erase returns)'
+    - 'Proposes a design that keeps references stable: an unordered_map<std::string, Session> as the owner, or indices or ids instead of pointers, or a node-based container'
+    - 'States the costs: average O(1) lookup and insertion for unordered_map, and O(n) expiry sweeps (or a second ordered structure by expiry time)'
+    - 'Mentions AddressSanitizer or _GLIBCXX_ASSERTIONS as a way to catch such bugs in tests'

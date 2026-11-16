@@ -1,0 +1,49 @@
+questions:
+  - id: std-move
+    prompt: "What does `std::move(x)` do by itself?"
+    options:
+      - "It moves x's resources into a new object"
+      - "It casts x to an rvalue reference, so a move constructor or assignment may be chosen"
+      - "It frees x"
+    answer: 1
+    explanation: "std::move is only a cast; nothing moves unless something takes the rvalue reference."
+  - id: moved-from
+    prompt: "After `std::string b = std::move(a);`, what can you safely do with a?"
+    options:
+      - "Read its old value"
+      - "Assign it a new value or let it be destroyed; its value is valid but unspecified"
+      - "Nothing at all: using a is undefined behaviour"
+    answer: 1
+    explanation: "Moved-from standard objects are valid; you may reuse them after assigning, but should not rely on their value."
+  - id: noexcept
+    prompt: "Why should a move constructor be noexcept?"
+    options:
+      - "The compiler rejects moves that can throw"
+      - "std::vector only moves elements on reallocation if the move cannot throw; otherwise it copies them"
+      - "noexcept makes the move twice as fast"
+    answer: 1
+    explanation: "To keep its strong exception guarantee, vector uses move_if_noexcept when it grows."
+  - id: return-move
+    prompt: "Inside a function, `Widget w = build(); return std::move(w);`. What is the problem?"
+    options:
+      - "None, it is the fastest form"
+      - "std::move prevents copy elision; return w; is elided or moved anyway"
+      - "It returns a dangling reference"
+    answer: 1
+    explanation: "Returning a local by name is already treated as an rvalue; std::move only blocks the elision."
+  - id: suppressed
+    prompt: "A class declares only a destructor. What happens to its implicit move constructor?"
+    options:
+      - "It is generated as usual"
+      - "It is not declared, so moves fall back to copies"
+      - "The class cannot be copied either"
+    answer: 1
+    explanation: "A user-declared destructor (or copy operation) suppresses the implicit move members. Hence the rule of five."
+  - id: forward
+    prompt: "In `template <typename T> void wrap(T&& arg) { use(std::forward<T>(arg)); }`, what does std::forward do?"
+    options:
+      - "Always moves arg"
+      - "Passes arg on as an lvalue or an rvalue, the way the caller passed it"
+      - "Copies arg"
+    answer: 1
+    explanation: "T&& with a deduced T is a forwarding reference; std::forward preserves the value category."

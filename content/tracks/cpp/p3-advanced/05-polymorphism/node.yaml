@@ -1,0 +1,24 @@
+id: cpp.p3.polymorphism
+kind: lesson
+status: draft
+title: "Polymorphism: Virtual Functions, std::variant and Type Erasure"
+summary: "Four kinds of polymorphism and when each fits: virtual functions with virtual destructors, override and final, slicing; std::variant with std::visit and the overloaded helper; type erasure with std::function, std::move_only_function and hand-written wrappers; and static polymorphism with concepts, CRTP and deducing this."
+objectives:
+  - { id: o1, text: "Write a class hierarchy with virtual functions safely: virtual destructor, override, ownership by unique_ptr, no slicing", skills: [cpp.polymorphism] }
+  - { id: o2, text: "Model a closed set of alternatives with std::variant and handle every case with std::visit", skills: [cpp.polymorphism] }
+  - { id: o3, text: "Choose between inheritance, variants, type erasure and templates for a design", skills: [cpp.polymorphism, cpp.templates-concepts] }
+prerequisites: [cpp.p3.task-queue]
+difficulty: 4
+estimated_minutes: 55
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A payment service models messages as `class Message { public: virtual std::string type() const; }` with subclasses `Authorize`, `Capture` and `Refund`, stored in a `std::vector<Message>` and handled with `if (m.type() == "capture") { auto& c = static_cast<Capture&>(m); ... }`. Bugs keep appearing: fields are lost, and a new message type was added without updating two of the handlers. Explain the problems, then propose two designs (one with virtual functions, one with std::variant), say which you would pick for this case and why.'
+  criteria:
+    - 'Explains slicing: a std::vector<Message> stores base values, so derived fields are lost and the static_cast is undefined behaviour'
+    - 'Explains that string type checks are not exhaustive, so a new type silently skips handlers'
+    - 'Designs a hierarchy held by std::unique_ptr<Message> with a virtual destructor and override, moving behaviour into virtual functions'
+    - 'Designs std::variant<Authorize, Capture, Refund> handled by std::visit, which fails to compile when a case is missing'
+    - 'Chooses with a reason: the set of message types is closed and known, so variant fits (or argues for virtual functions if plugins must add types)'

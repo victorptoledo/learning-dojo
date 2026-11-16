@@ -1,0 +1,50 @@
+questions:
+  - id: copy
+    prompt: "What does this print?"
+    code: |
+      std::vector<int> a{1, 2, 3};
+      std::vector<int> b = a;
+      b.push_back(4);
+      std::println("{}", a.size());
+    options: ["3", "4", "It does not compile"]
+    answer: 0
+    explanation: "Standard containers are values: b = a makes a deep copy, so a keeps its three elements."
+  - id: reference
+    prompt: "After `int x = 1; int& r = x; r = 5;`, what is x?"
+    options: ["1", "5", "r is a copy, so x is unchanged"]
+    answer: 1
+    explanation: "A reference is another name for the same object; assigning through it changes x."
+  - id: signed-overflow
+    prompt: "What is the result of adding 1 to an int that holds INT_MAX?"
+    options:
+      - "INT_MIN: it wraps around"
+      - "Undefined behaviour: the compiler may assume it never happens"
+      - "An exception is thrown"
+    answer: 1
+    explanation: "Signed overflow is undefined behaviour in C++. Only unsigned arithmetic is defined to wrap."
+  - id: narrowing
+    prompt: "Which line does not compile?"
+    options: ["int a = 3.9;", "int b{3.9};", "double c{3};"]
+    answer: 1
+    explanation: "Brace initialisation forbids narrowing conversions; int a = 3.9 silently truncates to 3, and int to double is not narrowing."
+  - id: string-view
+    prompt: "Why is `std::string_view` a good parameter type for read-only text?"
+    options:
+      - "It copies the text into a faster buffer"
+      - "It accepts a std::string, a literal or part of a buffer without copying"
+      - "It makes the text immutable for every other caller"
+    answer: 1
+    explanation: "A view is a pointer and a length into characters someone else owns, so no copy or allocation happens."
+  - id: dangling
+    prompt: "A function returns `std::string_view` into a local `std::string`. What happens when the caller reads it?"
+    options:
+      - "It works: the view keeps the string alive"
+      - "Undefined behaviour: the string was destroyed and the view dangles"
+      - "The compiler copies the string automatically"
+    answer: 1
+    explanation: "A view never owns or extends the lifetime of what it shows. AddressSanitizer reports such reads."
+  - id: uninitialised
+    prompt: "`int total; total += 5;` inside a function. What is total?"
+    options: ["5", "Undefined: total was never initialised", "0 + 5, because locals start at 0"]
+    answer: 1
+    explanation: "Local variables of fundamental types are not initialised; reading one is undefined behaviour. Write int total{} or int total = 0."

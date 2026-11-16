@@ -7,7 +7,7 @@ use std::time::{Duration, Instant};
 
 /// Wait this long after the last save before checking, so one save = one check.
 const DEBOUNCE: Duration = Duration::from_millis(700);
-const IGNORED_DIRS: [&str; 3] = ["target", ".git", "node_modules"];
+const IGNORED_DIRS: [&str; 4] = ["target", "build", ".git", "node_modules"];
 
 pub struct WorkspaceWatcher {
     _watcher: RecommendedWatcher,
@@ -58,6 +58,7 @@ mod tests {
     fn build_output_and_git_changes_are_ignored() {
         assert!(is_ignored(Path::new("ws/rust/p0/hello/target/debug/x")));
         assert!(is_ignored(Path::new("ws/.git/index")));
+        assert!(is_ignored(Path::new("ws/cpp/p2/buffer/build/kata_tests")));
         assert!(!is_ignored(Path::new("ws/rust/p0/hello/src/lib.rs")));
     }
 }

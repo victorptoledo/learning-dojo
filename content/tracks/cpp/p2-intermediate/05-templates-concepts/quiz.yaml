@@ -1,0 +1,46 @@
+questions:
+  - id: header
+    prompt: "Why are template definitions usually written in headers?"
+    options:
+      - "Templates cannot be declared"
+      - "Each translation unit that uses a template must see its body to instantiate it with the real types"
+      - "Headers compile faster"
+    answer: 1
+    explanation: "Instantiation happens where the template is used; a definition hidden in another .cpp leads to undefined references."
+  - id: concept-error
+    prompt: "What is the main practical benefit of constraining a template with a concept?"
+    options:
+      - "The generated code runs faster"
+      - "A wrong type fails at the call site with a short message, and overloads can be chosen by constraints"
+      - "Concepts allow virtual functions in templates"
+    answer: 1
+    explanation: "Concepts check requirements before instantiation, so errors name the unsatisfied concept."
+  - id: requires-expr
+    prompt: "What does `requires(const T& s) { { s.area() } -> std::convertible_to<double>; }` check?"
+    options:
+      - "That s.area() is a valid expression whose result converts to double"
+      - "That area() returns exactly double and is virtual"
+      - "It calls area() at compile time"
+    answer: 0
+    explanation: "A requires-expression checks that expressions compile and that their types satisfy concepts; nothing is evaluated."
+  - id: nttp
+    prompt: "In `RingBuffer<int, 8>`, what is 8?"
+    options:
+      - "A non-type template parameter: a compile-time value that is part of the type"
+      - "The initial size, chosen at run time"
+      - "A default argument of the constructor"
+    answer: 0
+    explanation: "RingBuffer<int, 8> and RingBuffer<int, 16> are different types; N is known at compile time."
+  - id: if-constexpr
+    prompt: "In a template, what happens to the branch of `if constexpr` whose condition is false?"
+    options:
+      - "It is compiled but never executed"
+      - "It is discarded and not instantiated, so it may use operations the type does not have"
+      - "It causes a compile error"
+    answer: 1
+    explanation: "That is what lets one template handle very different types."
+  - id: bool-integral
+    prompt: "Is `std::integral<bool>` true?"
+    options: ["Yes", "No"]
+    answer: 0
+    explanation: "bool is an integral type, so a Number concept that should reject it needs && !std::same_as<T, bool>."

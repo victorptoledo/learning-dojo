@@ -8,8 +8,9 @@ use std::time::SystemTime;
 use tempfile::TempDir;
 
 /// Folders never copied: build output, dependencies, caches and version control.
-const SKIPPED: [&str; 8] = [
+const SKIPPED: [&str; 9] = [
     "target",
+    "build",
     ".git",
     "node_modules",
     ".idea",

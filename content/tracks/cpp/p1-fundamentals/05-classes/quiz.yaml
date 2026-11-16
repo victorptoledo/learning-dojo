@@ -1,0 +1,49 @@
+questions:
+  - id: const-member
+    prompt: "`double area() { return w * h; }` is a member of Rect. Why does `void f(const Rect& r) { r.area(); }` not compile?"
+    options:
+      - "area is not marked const, so it cannot be called on a const object"
+      - "References cannot call member functions"
+      - "area must be static"
+    answer: 0
+    explanation: "Only const member functions can be called through const references; mark area() const."
+  - id: init-order
+    prompt: "In what order are data members initialised?"
+    options:
+      - "In the order of the member initialiser list"
+      - "In the order they are declared in the class"
+      - "Alphabetically"
+    answer: 1
+    explanation: "Declaration order wins; -Wall warns when the initialiser list is written in a different order."
+  - id: explicit
+    prompt: "What does `explicit` on `explicit Account(std::string owner);` prevent?"
+    options:
+      - "Copying an Account"
+      - "Implicit conversions such as Account a = std::string(\"ada\"); or passing a string where an Account is expected"
+      - "Inheriting from Account"
+    answer: 1
+    explanation: "explicit constructors are not used for implicit conversions, which avoids surprising temporaries."
+  - id: rule-of-zero
+    prompt: "A class holds a std::string and a std::vector<int>. Which special members should you write?"
+    options:
+      - "All five: destructor, copy and move constructors and assignments"
+      - "None: the generated ones are correct (the rule of zero)"
+      - "Only the destructor"
+    answer: 1
+    explanation: "Members that manage their own resources make the compiler-generated special members correct."
+  - id: spaceship
+    prompt: "What does `auto operator<=>(const Money&) const = default;` give a struct?"
+    options:
+      - "Only operator<"
+      - "Member-wise <, <=, >, >= (and == is defaulted alongside)"
+      - "A hash function"
+    answer: 1
+    explanation: "A defaulted three-way comparison generates the relational operators, comparing members in declaration order; a defaulted <=> also declares a defaulted ==."
+  - id: struct-class
+    prompt: "What is the only language difference between struct and class?"
+    options:
+      - "Structs cannot have member functions"
+      - "The default access: public for struct, private for class"
+      - "Structs live on the stack, classes on the heap"
+    answer: 1
+    explanation: "Everything else is convention: struct for plain data, class for an invariant."

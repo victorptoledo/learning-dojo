@@ -1,0 +1,53 @@
+id: cpp.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata, a stock inventory built from a class with invariants, a std::map with heterogeneous lookup, std::optional, money in cents and a small command parser."
+objectives:
+  - { id: o1, text: "Explain the build model, value semantics, references, containers and class invariants in your own words", skills: [cpp.toolchain, cpp.types-values, cpp.functions-control, cpp.containers-algorithms, cpp.classes] }
+  - { id: o2, text: "Build a small class whose operations keep its invariants and report failure without exceptions", skills: [cpp.classes, cpp.containers-algorithms, cpp.functions-control] }
+prerequisites: [cpp.p1.classes]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+closes_phase: p1
+covers_skills: [cpp.toolchain, cpp.types-values, cpp.functions-control, cpp.containers-algorithms, cpp.classes]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 120 }
+  hints:
+    - |-
+      Build it bottom up: `add` and `find` first (most tests need them), then `restock`, `sell`, `total_value` and `low_stock`, then `parse_cents`, and only then `apply`. In every member that changes stock, check everything before you change anything, so a refused call leaves the inventory as it was.
+    - |-
+      `items_` is a `std::map<std::string, Item, std::less<>>`: the `std::less<>` lets `items_.find(sku)` take a `std::string_view` directly. For `parse_cents`, split at the first `'.'`: the units must be one or more digits, the decimals one or two digits; read the units with `std::from_chars` (it reports a number that does not fit) and check `whole > (max - fraction) / 100` before you multiply. In `apply`, cut the script at each `'\n'`, split each line into words at spaces (and `'\r'`), count lines from 1, and push the number of each line that fails.
+    - |-
+      ```cpp
+      bool Inventory::sell(std::string_view sku, int amount) {
+          const auto found = items_.find(sku);
+          if (found == items_.end() || amount <= 0 || found->second.quantity < amount) {
+              return false;  // every check before the change
+          }
+          found->second.quantity -= amount;
+          return true;
+      }
+
+      // apply: for each line
+      //   words = split(line); skip if empty or words[0] starts with '#'
+      //   "add" with 5 words: parse_int(words[3]) and parse_cents(words[4]), then add(...)
+      //   "restock"/"sell" with 3 words: parse_int(words[2]), then restock or sell
+      //   anything else, or a false result: failed.push_back(line_number)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.

@@ -1,0 +1,24 @@
+id: cpp.p4.production
+kind: lesson
+status: draft
+title: "C++ in Production: Builds, Dependencies, Safety and Interop"
+summary: "Reproducible builds with CMake presets and build types, dependencies with vcpkg and Conan, a layered memory-safety strategy (modern style, sanitizers, static analysis, fuzzing, hardened builds, C++26 contracts), ABI stability and pimpl, C interfaces for other languages, and operating C++ services."
+objectives:
+  - { id: o1, text: "Set up reproducible builds and a dependency strategy for a C++ project", skills: [cpp.production, cpp.toolchain] }
+  - { id: o2, text: "Design a layered memory-safety strategy with sanitizers, analysis, fuzzing and hardening flags", skills: [cpp.production] }
+  - { id: o3, text: "Keep binary interfaces stable and expose C++ to other languages through C", skills: [cpp.production] }
+prerequisites: [cpp.p4.lru-cache]
+difficulty: 4
+estimated_minutes: 50
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team inherits a 10-year-old C++ image-decoding library that parses untrusted files uploaded by users. It builds with a hand-written Makefile on one engineer''s machine, vendors three libraries by copying their sources, has no tests, and is called from a Python service through ctypes with functions that sometimes throw exceptions. Security asks for a plan. Write the first steps you would take, in order, for the build, the dependencies, finding memory bugs, hardening and the Python boundary, and say how you would know each step worked.'
+  criteria:
+    - 'Moves the build to CMake with presets (or another reproducible setup) built in CI, with warnings enabled'
+    - 'Replaces vendored copies with pinned dependencies (vcpkg or Conan, or FetchContent with fixed versions) and a way to update them'
+    - 'Adds tests and runs them under AddressSanitizer and UBSan, and fuzzes the parsers (libFuzzer or AFL++) because the input is untrusted'
+    - 'Turns on hardening flags (_GLIBCXX_ASSERTIONS or library hardening, _FORTIFY_SOURCE, stack protector, PIE/RELRO) or runs the decoder in a sandboxed process'
+    - 'Wraps the Python boundary in an extern "C" (or pybind11) layer that catches every exception and returns errors, with explicit ownership'

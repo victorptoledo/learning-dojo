@@ -1,0 +1,67 @@
+questions:
+  - id: multiple-definition
+    skills: [cpp.toolchain]
+    prompt: "`int twice(int x) { return 2 * x; }` sits in `math.hpp`, which `a.cpp` and `b.cpp` include. What happens when you build?"
+    options:
+      - "It compiles and links: the compiler merges the copies"
+      - "Each object file defines twice, and the linker reports a multiple definition"
+      - "The preprocessor includes it only once in the whole program"
+    answer: 1
+    explanation: "Inclusion is per translation unit. Declare it in the header and define it once, or make it inline."
+  - id: unsigned-compare
+    skills: [cpp.types-values]
+    prompt: "What does `std::println(\"{}\", -1 < v.size());` print for any vector v?"
+    options: ["true", "false", "It does not compile"]
+    answer: 1
+    explanation: "-1 is converted to the unsigned type of size(), becoming a huge number. -Wall -Wextra warns about signed/unsigned comparisons."
+  - id: view-lifetime
+    skills: [cpp.types-values]
+    prompt: "`std::string_view name = std::string(\"ada\") + \" lovelace\";` What is wrong?"
+    options:
+      - "Nothing"
+      - "The view points into a temporary string destroyed at the end of the statement"
+      - "string_view cannot hold spaces"
+    answer: 1
+    explanation: "The concatenation creates a temporary std::string that dies at the semicolon, so name dangles."
+  - id: by-value-param
+    skills: [cpp.functions-control]
+    prompt: "`void reset(std::vector<int> v) { v.clear(); }` is called as `reset(items);`. What happens to items?"
+    options: ["It is cleared", "Nothing: the function cleared a copy", "It does not compile"]
+    answer: 1
+    explanation: "Parameters are copies unless declared as references; to change the caller's vector take std::vector<int>&."
+  - id: lambda-ref
+    skills: [cpp.functions-control]
+    prompt: "A function returns `[&count] { return ++count; }` where count is its local variable. What happens when the caller calls the lambda?"
+    options:
+      - "It increments the local count, which is kept alive"
+      - "Undefined behaviour: count was destroyed when the function returned"
+      - "It returns 1 every time"
+    answer: 1
+    explanation: "Capturing by reference does not extend lifetimes. Capture by copy (and mark the lambda mutable) when it escapes."
+  - id: map-const
+    skills: [cpp.containers-algorithms]
+    prompt: "Why does `int get(const std::map<std::string, int>& m) { return m[\"x\"]; }` not compile?"
+    options:
+      - "operator[] may insert, so it is not available on a const map; use find or at"
+      - "Maps cannot be passed by reference"
+      - "The key must be a std::string_view"
+    answer: 0
+    explanation: "operator[] inserts a default value for a missing key, which a const map cannot do."
+  - id: sort-pairs
+    skills: [cpp.containers-algorithms]
+    prompt: "You sort `std::vector<Item>` by price, cheapest first, and equal prices by name. Which comparator is right?"
+    options:
+      - "[](auto& a, auto& b) { return a.price <= b.price; }"
+      - "[](auto& a, auto& b) { return a.price != b.price ? a.price < b.price : a.name < b.name; }"
+      - "[](auto& a, auto& b) { return a.price < b.price || a.name < b.name; }"
+    answer: 1
+    explanation: "Compare the second key only on a tie of the first. <= is not strict; the third breaks the ordering for different prices."
+  - id: invariant
+    skills: [cpp.classes]
+    prompt: "A class keeps `quantity_ >= 0` as its invariant. Which member breaks the design?"
+    options:
+      - "bool sell(int amount) that checks the stock before changing it"
+      - "void set_quantity(int q) { quantity_ = q; }"
+      - "int quantity() const { return quantity_; }"
+    answer: 1
+    explanation: "A setter that accepts any value lets callers break the invariant; expose operations that check it."

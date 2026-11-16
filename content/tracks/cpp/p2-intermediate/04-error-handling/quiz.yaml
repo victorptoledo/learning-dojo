@@ -1,0 +1,46 @@
+questions:
+  - id: catch-ref
+    prompt: "Why catch exceptions as `catch (const std::exception& e)` and not `catch (std::exception e)`?"
+    options:
+      - "Catching by value copies and slices a derived exception, losing its type and message overrides"
+      - "Catching by value is not allowed"
+      - "References are faster to throw"
+    answer: 0
+    explanation: "By value, a std::out_of_range becomes a plain std::exception copy. Catch by const reference."
+  - id: strong
+    prompt: "What does the strong exception guarantee promise?"
+    options:
+      - "The function never throws"
+      - "If it throws, the program state is as it was before the call"
+      - "If it throws, nothing leaks but the state may have changed"
+    answer: 1
+    explanation: "Strong means commit or roll back. No leaks with a possibly changed state is the basic guarantee."
+  - id: destructor-throw
+    prompt: "A destructor throws while another exception is already unwinding the stack. What happens?"
+    options:
+      - "The second exception replaces the first"
+      - "std::terminate ends the program (destructors are noexcept by default anyway)"
+      - "Both exceptions are delivered"
+    answer: 1
+    explanation: "Never let an exception escape a destructor."
+  - id: expected-use
+    prompt: "Which case fits `std::expected<Config, ParseError>` best?"
+    options:
+      - "Running out of memory"
+      - "Parsing a configuration file a user wrote, where mistakes are a normal outcome"
+      - "A null pointer passed by a buggy caller"
+    answer: 1
+    explanation: "Expected failures the caller handles right away belong in the return type; bugs are for assertions, rare failures far away for exceptions."
+  - id: expected-deref
+    prompt: "What does `*result` do when a `std::expected<int, Error>` holds an error?"
+    options: ["Returns 0", "Undefined behaviour; check it first or use value(), which throws", "Returns the error"]
+    answer: 1
+    explanation: "Like optional, operator* does not check. value() throws bad_expected_access; error() gives the error."
+  - id: swap-commit
+    prompt: "Why does `build a new std::map aside, then items_.swap(fresh)` give the strong guarantee?"
+    options:
+      - "Because swap of standard containers is noexcept, so the only step that changes items_ cannot fail"
+      - "Because maps never throw"
+      - "Because swap copies the elements"
+    answer: 0
+    explanation: "Everything that can throw happens on the side; the commit is a noexcept pointer swap."

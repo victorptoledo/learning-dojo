@@ -1,0 +1,24 @@
+id: cpp.p1.classes
+kind: lesson
+status: draft
+title: "Classes, Constructors, Invariants and Operators"
+summary: "struct versus class, invariants, constructors with initialiser lists and explicit, const member functions, the six special members and the rule of zero, deleted copies, defaulted comparisons and the spaceship operator, and encapsulation without reflex getters."
+objectives:
+  - { id: o1, text: "Design a class around an invariant that constructors establish and members keep", skills: [cpp.classes] }
+  - { id: o2, text: "Explain the special members and apply the rule of zero", skills: [cpp.classes] }
+  - { id: o3, text: "Overload comparison and arithmetic operators with = default and <=> where they fit", skills: [cpp.classes] }
+prerequisites: [cpp.p1.word-stats]
+difficulty: 2
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A teammate wrote `class Temperature { public: double celsius; Temperature() {} void setCelsius(double c) { celsius = c; } double getCelsius() { return celsius; } };` and uses it as `void show(const Temperature& t) { std::println("{}", t.getCelsius()); }`, which does not compile. Explain why, list what else is wrong or risky in the class (think of the invariant: no temperature below absolute zero), and write a better version with a constructor, const members, a comparison and a conversion to Fahrenheit.'
+  criteria:
+    - 'Explains that getCelsius is not const, so it cannot be called through a const reference'
+    - 'Points out the uninitialised celsius in the empty default constructor and the public field that lets callers bypass the invariant'
+    - 'Writes an explicit constructor (or a factory) that rejects values below -273.15, with private data and no setter that breaks the invariant'
+    - 'Marks read-only members const and adds a fahrenheit() conversion'
+    - 'Adds comparison with = default <=> or operator==, and notes the rule of zero (no destructor or copy members needed)'

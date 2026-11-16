@@ -1,0 +1,46 @@
+questions:
+  - id: data-race
+    prompt: "Two threads run `++counter;` on a plain `int counter` with no lock. What does the C++ standard say?"
+    options:
+      - "The result may be lower than expected, but it is defined"
+      - "It is a data race, which is undefined behaviour"
+      - "Increments of int are always atomic"
+    answer: 1
+    explanation: "Unsynchronised conflicting accesses are undefined behaviour; use std::atomic<int> or a mutex."
+  - id: thread-destroy
+    prompt: "What happens when a joinable std::thread is destroyed without join() or detach()?"
+    options: ["It joins automatically", "std::terminate is called", "The thread is killed silently"]
+    answer: 1
+    explanation: "std::thread calls terminate; std::jthread joins in its destructor, which is why it is preferred."
+  - id: cv-predicate
+    prompt: "Why call `cv.wait(lock, [&] { return !queue.empty(); })` with a predicate?"
+    options:
+      - "It makes the wait faster"
+      - "Wake-ups can be spurious and notifications can come before the wait; the predicate re-checks the real state"
+      - "Without it the mutex stays locked forever"
+    answer: 1
+    explanation: "The predicate form loops until the condition holds, which handles both problems."
+  - id: deadlock
+    prompt: "Thread A locks m1 then m2; thread B locks m2 then m1. What can happen, and what is a standard fix?"
+    options:
+      - "Nothing; mutexes are reentrant"
+      - "A deadlock; lock both with std::scoped_lock lock(m1, m2) or always in the same order"
+      - "A data race; use atomics"
+    answer: 1
+    explanation: "Opposite lock orders can block both threads forever. scoped_lock locks several mutexes with a deadlock-avoidance algorithm."
+  - id: acquire-release
+    prompt: "A writer fills `data` then does `ready.store(true, std::memory_order_release)`. A reader sees `ready.load(std::memory_order_acquire) == true`. Is reading `data` safe?"
+    options:
+      - "Yes: the release store happens before the acquire load that reads it, so the writes to data are visible"
+      - "No: data must also be atomic"
+      - "Only with memory_order_relaxed"
+    answer: 0
+    explanation: "Release/acquire on the same atomic creates a happens-before edge that publishes everything written before the store."
+  - id: tsan
+    prompt: "What can ThreadSanitizer not find?"
+    options:
+      - "A race between two writes to a map"
+      - "A race in code paths the tests never execute"
+      - "A race on a bool flag"
+    answer: 1
+    explanation: "TSan checks accesses that really happen during the run; tests must exercise the concurrent paths."

@@ -3,12 +3,23 @@ legacy_id: cpp-02-move-semantics
 kind: lesson
 status: draft
 title: "Move Semantics and Rvalue References (`&&`, `std::move`)"
-summary: "Transferring resources without allocating or deep-copying memory."
+summary: "Lvalues and rvalues, what std::move really does, the move constructor and assignment, valid moved-from states and noexcept, the rule of five and copy-and-swap, implicit moves and copy elision, move-only types, and forwarding references with std::forward."
 objectives:
-  - { id: o1, text: "Transferring resources without allocating or deep-copying memory.", skills: [cpp.move-semantics] }
+  - { id: o1, text: "Explain lvalues, rvalues and std::move, and say when a copy or a move happens", skills: [cpp.move-semantics] }
+  - { id: o2, text: "Write noexcept move members that leave the source valid, and copy-and-swap assignment", skills: [cpp.move-semantics] }
+  - { id: o3, text: "Use sink parameters, return by value and perfect forwarding correctly", skills: [cpp.move-semantics] }
 prerequisites: [cpp.p2.raii-memory]
 difficulty: 3
-estimated_minutes: 30
+estimated_minutes: 50
 xp: 300
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A `Matrix` class owns `double* data_` and has a destructor and a copy constructor, but no move members. Profiling shows that `std::vector<Matrix>` growth copies every matrix, and that `Matrix result = compute(); return std::move(result);` inside a function is slower than expected. Explain why in both cases, write the move constructor and move assignment, and say which other special member you would write or default and why.'
+  criteria:
+    - 'Explains that declaring a destructor or copy constructor suppresses the implicit moves, so the class only copies'
+    - 'Explains that vector copies on growth unless the move constructor is noexcept (strong exception guarantee)'
+    - 'Explains that return std::move(result) prevents copy elision; return result is the right form'
+    - 'Writes noexcept move members that steal the pointer and leave the source empty but destructible (std::exchange or equivalent), with a self-move check in assignment'
+    - 'Completes the rule of five with a copy assignment (copy-and-swap or equivalent), or proposes owning the data with std::vector<double> and the rule of zero'

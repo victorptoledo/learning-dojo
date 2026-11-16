@@ -1,0 +1,24 @@
+id: cpp.p2.error-handling
+kind: lesson
+status: draft
+title: "Errors: Exceptions, Exception Safety and std::expected"
+summary: "Throwing and catching exceptions, the nothrow, strong and basic guarantees, build-then-swap for the strong one, noexcept and destructors, std::expected and its monadic operations, and how to choose between expected, exceptions, assertions and error codes."
+objectives:
+  - { id: o1, text: "Throw and catch exceptions correctly and say which exception-safety guarantee a function gives", skills: [cpp.error-handling] }
+  - { id: o2, text: "Give a function the strong guarantee by building the new state aside and committing with a noexcept swap", skills: [cpp.error-handling, cpp.raii-memory] }
+  - { id: o3, text: "Report expected failures with std::expected and pick between it, exceptions and assertions", skills: [cpp.error-handling] }
+prerequisites: [cpp.p2.resource-handle]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You maintain `void Catalog::import(const std::vector<std::string>& lines)` that parses each line and inserts it into `std::map<std::string, Product> products_`, throwing `std::invalid_argument` on the first bad line. Users complain that a failed import leaves half the products imported, and the UI team wants to show every bad line with its number instead of only the first. Redesign the API: write the new signatures, explain which exception-safety guarantee each version gives, and show where std::expected (or a list of errors) and exceptions each fit.'
+  criteria:
+    - 'Explains that the current version gives only the basic guarantee: products inserted before the throw stay'
+    - 'Gives import the strong guarantee by parsing into a separate map and committing with a noexcept swap (or merging only after every line parsed)'
+    - 'Returns the per-line problems in the type, for example std::expected<void, std::vector<LineError>> or a result struct, instead of throwing for an expected outcome'
+    - 'Keeps exceptions for truly exceptional failures (out of memory, an invariant broken by a bug) and does not swallow them'
+    - 'Mentions noexcept on swap and destructors, or that the parse function per line can return std::expected<Product, LineError>'

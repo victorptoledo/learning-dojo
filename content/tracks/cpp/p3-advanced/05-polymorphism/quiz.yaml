@@ -1,0 +1,46 @@
+questions:
+  - id: virtual-dtor
+    prompt: "`Base* p = new Derived(); delete p;` and Base has a non-virtual destructor. What happens?"
+    options:
+      - "Both destructors run"
+      - "Undefined behaviour: Derived's destructor is not called through the base pointer"
+      - "A compile error"
+    answer: 1
+    explanation: "A base class meant for polymorphic deletion needs a virtual destructor."
+  - id: slicing
+    prompt: "What is stored in `std::vector<Shape> v; v.push_back(Circle{2.0});`?"
+    options:
+      - "A Circle"
+      - "Only the Shape part of the Circle: the object is sliced"
+      - "A pointer to the Circle"
+    answer: 1
+    explanation: "Containers of base values copy only the base subobject; store std::unique_ptr<Shape> instead."
+  - id: override
+    prompt: "What does `override` add to `double area() const override;`?"
+    options:
+      - "It makes the function virtual for the first time"
+      - "The compiler checks that it really overrides a base virtual function (a typo or const mismatch becomes an error)"
+      - "It prevents further overriding"
+    answer: 1
+    explanation: "Without override, a mismatched signature silently declares a new function. final prevents further overriding."
+  - id: visit
+    prompt: "What happens if a std::visit over `std::variant<A, B, C>` has no case for C?"
+    options:
+      - "C values are ignored at run time"
+      - "It does not compile"
+      - "std::bad_variant_access is thrown"
+    answer: 1
+    explanation: "The visitor must be callable for every alternative, which makes the handling exhaustive."
+  - id: variant-heap
+    prompt: "Does `std::variant<int, std::string>` allocate to store its value?"
+    options:
+      - "Yes, always on the heap"
+      - "No: the active alternative lives inside the variant (the string may still allocate its own characters)"
+      - "Only for int"
+    answer: 1
+    explanation: "A variant is as large as its largest alternative plus an index; there is no separate allocation."
+  - id: which-tool
+    prompt: "A plugin system loads shape types from shared libraries at run time. Which technique fits?"
+    options: ["std::variant of every shape", "Virtual functions (or type erasure): the set of types is open", "if constexpr"]
+    answer: 1
+    explanation: "A variant needs every alternative at compile time; an open set needs run-time dispatch."

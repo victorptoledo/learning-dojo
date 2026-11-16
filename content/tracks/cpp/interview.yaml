@@ -1,0 +1,241 @@
+# Technical interview questions for the cpp track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/questions/cpp"
+  - "https://isocpp.org/wiki/faq"
+  - "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines"
+  - "https://en.cppreference.com/w/cpp"
+  - "https://www.geeksforgeeks.org/cpp-interview-questions/"
+  - "https://www.interviewbit.com/cpp-interview-questions/"
+questions:
+  - id: compile-link
+    level: junior
+    skills: [cpp.toolchain]
+    question: "What happens between writing a .cpp file and running the program? What is the difference between a compile error and a link error?"
+    key_points:
+      - "The preprocessor handles #include and macros, producing a translation unit"
+      - "The compiler turns each translation unit into an object file, independently"
+      - "The linker resolves calls across object files and libraries into an executable"
+      - "Not declared is a compiler error; undefined reference or multiple definition is the linker (the one definition rule)"
+    follow_up: "Why do templates usually live in headers, and what are modules changing?"
+  - id: reference-pointer
+    level: junior
+    skills: [cpp.types-values]
+    question: "What is the difference between a reference and a pointer, and when do you use each?"
+    key_points:
+      - "A reference is an alias: must be initialised, cannot be null or re-seated"
+      - "A pointer holds an address, may be null, can be changed, and needs * to dereference"
+      - "References for parameters that must exist; pointers (or std::optional) when absence is valid"
+      - "In modern C++ raw pointers and references are non-owning; ownership uses smart pointers or values"
+    follow_up: "What is a dangling reference, and how can a function return one by accident?"
+  - id: value-semantics
+    level: junior
+    skills: [cpp.types-values, cpp.functions-control]
+    question: "C++ is said to have value semantics. What does that mean for assignment and function parameters, and how do you pass large objects?"
+    key_points:
+      - "Variables are objects; assignment and by-value parameters copy (deeply for standard types)"
+      - "Read-only large parameters are passed by const reference; parameters to modify by reference"
+      - "Results are returned by value: copy elision and moves make it cheap"
+      - "Sink parameters are taken by value and moved into members"
+    follow_up: "When is passing by value better than passing by const reference?"
+  - id: undefined-behaviour
+    level: junior
+    skills: [cpp.types-values]
+    question: "What is undefined behaviour? Give examples and explain why it is dangerous."
+    key_points:
+      - "Behaviour the standard places no requirements on: anything may happen"
+      - "Examples: signed overflow, out-of-bounds access, use after free, uninitialised reads, data races, null dereference"
+      - "The optimiser assumes it never happens, so bugs can appear far from their cause or only in release builds"
+      - "Avoid it with safe habits and catch it with sanitizers (ASan, UBSan, TSan) and library assertions"
+    follow_up: "Why can a check like if (x + 1 < x) be removed by the compiler?"
+  - id: containers-choice
+    level: junior
+    skills: [cpp.containers-algorithms]
+    question: "How do you choose between std::vector, std::list, std::map and std::unordered_map?"
+    key_points:
+      - "vector by default: contiguous, cache-friendly, amortised O(1) push_back"
+      - "map: sorted keys, O(log n), ordered iteration and range queries"
+      - "unordered_map: O(1) average lookup, no order, needs a hash"
+      - "list rarely wins: stable iterators and splicing, but a pointer chase per element"
+    follow_up: "What invalidates iterators of a vector, and how does that cause bugs?"
+  - id: const-correctness
+    level: junior
+    skills: [cpp.classes]
+    question: "What does const mean on a variable, a reference parameter and a member function?"
+    key_points:
+      - "A const variable cannot change after initialisation; constexpr is a compile-time constant"
+      - "const T& promises the function will not modify the argument"
+      - "A const member function does not modify the object and is the only kind callable on const objects"
+      - "mutable members (for example a mutex or a cache) can change inside const functions"
+    follow_up: "Is const enough to make a class thread-safe?"
+  - id: raii
+    level: mid
+    skills: [cpp.raii-memory]
+    question: "Explain RAII and why it matters in C++."
+    key_points:
+      - "Tie a resource to an object: acquire in the constructor, release in the destructor"
+      - "Destructors run at scope exit, also during exception unwinding, so resources cannot leak"
+      - "Works for memory, files, locks, sockets, transactions"
+      - "Standard examples: containers, smart pointers, lock_guard, fstream, jthread"
+    follow_up: "How would you wrap a C library handle that must be released with a custom function?"
+  - id: smart-pointers
+    level: mid
+    skills: [cpp.raii-memory]
+    question: "Compare std::unique_ptr, std::shared_ptr and std::weak_ptr. When do you use each?"
+    key_points:
+      - "unique_ptr: single ownership, move-only, zero overhead, the default for heap objects"
+      - "shared_ptr: shared ownership with an atomic reference count and a control block; use only when ownership is truly shared"
+      - "weak_ptr: observes a shared object without owning it, breaks cycles, lock() to use"
+      - "make_unique and make_shared instead of new"
+    follow_up: "How should a function take a smart pointer parameter if it only uses the object?"
+  - id: rule-of-five
+    level: mid
+    skills: [cpp.classes, cpp.move-semantics]
+    question: "What are the rule of three, the rule of five and the rule of zero?"
+    key_points:
+      - "A class that manages a resource by hand needs a destructor, copy constructor and copy assignment (three)"
+      - "With moves, also a move constructor and move assignment (five)"
+      - "Declaring a destructor or a copy operation suppresses the implicit moves"
+      - "Rule of zero: let members (containers, smart pointers) manage resources and write none of them"
+    follow_up: "What is copy-and-swap, and which exception guarantee does it give?"
+  - id: move-semantics
+    level: mid
+    skills: [cpp.move-semantics]
+    question: "What are move semantics and what does std::move actually do?"
+    key_points:
+      - "Moving transfers resources from an object that is about to die instead of copying them"
+      - "Rvalue references (T&&) bind to temporaries and to std::move results"
+      - "std::move is only a cast to an rvalue reference; the move constructor does the work"
+      - "Moved-from objects are valid but unspecified; moves should be noexcept"
+    follow_up: "Why should you not write return std::move(local);?"
+  - id: exceptions-expected
+    level: mid
+    skills: [cpp.error-handling]
+    question: "How do you handle errors in modern C++? When would you use exceptions and when std::expected?"
+    key_points:
+      - "Exceptions for failures handled far away or that prevent constructing an object; throw by value, catch by const reference"
+      - "std::expected (or optional) for expected failures the caller handles right away; the error is in the type"
+      - "Assertions or contracts for programming errors"
+      - "Never let exceptions escape destructors; mark moves and swap noexcept"
+    follow_up: "What are the basic, strong and nothrow guarantees? How do you give the strong one?"
+  - id: virtual-functions
+    level: mid
+    skills: [cpp.polymorphism]
+    question: "How do virtual functions work, and why does a base class need a virtual destructor?"
+    key_points:
+      - "Each polymorphic object has a pointer to a vtable; virtual calls go through it at run time"
+      - "override checks the signature; final stops further overriding"
+      - "Deleting a derived object through a base pointer without a virtual destructor is undefined behaviour"
+      - "Polymorphic objects are used through pointers or references; copying into a base value slices"
+    follow_up: "What is object slicing, and how do you prevent it?"
+  - id: templates-concepts
+    level: mid
+    skills: [cpp.templates-concepts]
+    question: "What are templates and what problem do C++20 concepts solve?"
+    key_points:
+      - "Templates generate code per set of types at compile time, with no run-time cost"
+      - "Definitions must be visible where they are instantiated, usually in headers"
+      - "Without constraints, wrong types fail deep inside instantiation with long errors"
+      - "Concepts state requirements, give errors at the call site and choose between overloads"
+    follow_up: "How does if constexpr help in generic code?"
+  - id: ranges
+    level: mid
+    skills: [cpp.ranges]
+    question: "What do C++20 ranges add over the classic iterator-based algorithms?"
+    key_points:
+      - "Algorithms take whole ranges and support projections"
+      - "Views are lazy, non-owning and compose with |"
+      - "C++23 adds ranges::to to collect, and more adaptors (zip, enumerate, chunk, slide)"
+      - "Views must not outlive their data; std::generator writes lazy sequences with co_yield"
+    follow_up: "Why can a function that returns a view over a local vector crash?"
+  - id: data-race
+    level: mid
+    skills: [cpp.concurrency]
+    question: "What is a data race in C++, and how do you prevent one?"
+    key_points:
+      - "Two threads access the same memory, at least one writes, with no synchronisation: undefined behaviour"
+      - "Protect shared data with a mutex locked through lock_guard or scoped_lock"
+      - "Use std::atomic for single variables"
+      - "Find races with ThreadSanitizer on tests that exercise concurrency"
+    follow_up: "How do you avoid deadlocks when a function must lock two mutexes?"
+  - id: condition-variable
+    level: senior
+    skills: [cpp.concurrency]
+    question: "Design a thread-safe bounded queue. How do producers and consumers wait, and how does it shut down?"
+    key_points:
+      - "A mutex protects a deque; two condition variables signal not empty and not full"
+      - "Wait with predicates to handle spurious wake-ups and missed notifications"
+      - "Change state under the lock, notify after; keep critical sections short"
+      - "A close operation wakes everyone: pushes fail, pops drain remaining items then return nothing"
+    follow_up: "When would a lock-free queue be worth its complexity, and how would you test it?"
+  - id: memory-model
+    level: senior
+    skills: [cpp.concurrency]
+    question: "Explain the C++ memory model: happens-before, memory orders, and when relaxed atomics are safe."
+    key_points:
+      - "Without happens-before, a thread may not see another's writes (and racing is UB)"
+      - "seq_cst gives a single total order of atomic operations; it is the default"
+      - "Release store plus acquire load of the same atomic publishes all prior writes"
+      - "Relaxed only guarantees atomicity, fine for counters but not for publishing data"
+    follow_up: "Why is volatile not a synchronisation tool in C++?"
+  - id: variant-vs-virtual
+    level: senior
+    skills: [cpp.polymorphism, cpp.templates-concepts]
+    question: "Compare virtual functions, std::variant and type erasure for runtime polymorphism. How do you choose?"
+    key_points:
+      - "Virtual functions: open set of types, heap objects through pointers, one indirect call"
+      - "std::variant with std::visit: closed set, values stored inline, exhaustive handling checked by the compiler"
+      - "Type erasure (std::function, hand-written): open set with value semantics"
+      - "Templates when the type is known at compile time; choose by whether types or operations change more often"
+    follow_up: "How would you implement a type-erased Shape that holds any type with an area() function?"
+  - id: performance-memory
+    level: senior
+    skills: [cpp.performance]
+    question: "A hot loop in a C++ service is slower than expected. How do you investigate and what do you look for?"
+    key_points:
+      - "Profile an optimised build with symbols; benchmark the change in isolation"
+      - "Check the algorithm and data structure first"
+      - "Look at memory access: contiguous data, cache misses, struct size and padding, false sharing"
+      - "Count allocations and copies (reserve, reuse buffers, string_view, moves); look at the generated code"
+    follow_up: "Why is std::vector often faster than std::list even for inserts in the middle?"
+  - id: constexpr
+    level: senior
+    skills: [cpp.compile-time]
+    question: "What can constexpr, consteval and constinit do, and why are they useful?"
+    key_points:
+      - "constexpr functions may run at compile time; most of the language is allowed since C++20"
+      - "consteval requires compile-time evaluation; constinit requires compile-time initialisation"
+      - "Undefined behaviour is a compile error during constant evaluation, so static_assert tests are strong"
+      - "They remove start-up cost and the static initialisation order problem"
+    follow_up: "Where do type traits still beat concepts?"
+  - id: abi-pimpl
+    level: senior
+    skills: [cpp.production]
+    question: "What is ABI compatibility, why is it fragile in C++, and how do libraries keep it?"
+    key_points:
+      - "ABI covers layout, name mangling and calling conventions of compiled code"
+      - "Changing private members changes the layout and breaks code compiled against the old header"
+      - "Pimpl hides members behind a pointer; symbol visibility and versioned sonames control exports"
+      - "C interfaces (extern C) are the stable boundary for other languages and compilers"
+    follow_up: "Why must exceptions not cross an extern C boundary?"
+  - id: memory-safety
+    level: senior
+    skills: [cpp.production, cpp.raii-memory]
+    question: "Memory safety is a growing concern for C++. What would you put in place for a security-sensitive C++ codebase?"
+    key_points:
+      - "Modern style enforced by review and clang-tidy: RAII, containers, span, no naked new, no C casts"
+      - "Sanitizers on every test run in CI, and fuzzing for parsers of untrusted input"
+      - "Hardened builds: library assertions, _FORTIFY_SOURCE, stack protector, PIE and RELRO"
+      - "Static analysis, and isolating risky components (sandboxes, separate processes) or rewriting them in a safer language"
+    follow_up: "What do C++26 contracts and erroneous behaviour for uninitialised reads change?"
+  - id: build-deps
+    level: mid
+    skills: [cpp.production, cpp.toolchain]
+    question: "How do you set up builds and dependencies for a C++ project a team can reproduce?"
+    key_points:
+      - "Target-based CMake with presets for each configuration"
+      - "A package manager (vcpkg or Conan) with pinned versions or lockfiles"
+      - "CI builds with warnings as errors, tests and sanitizers"
+      - "compile_commands.json for tools, and caching (ccache) for speed"
+    follow_up: "How do you handle a dependency that must be built with the same flags as your code?"

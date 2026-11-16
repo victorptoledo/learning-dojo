@@ -4,9 +4,9 @@ name: "Modern C++ (C++20/23)"
 archetype: language
 category: "Programming Languages"
 icon: "⚡"
-description: "Maximum performance and hardware control: RAII, smart pointers, templates, move semantics and concepts."
-status: draft
-bridges_available: [java]
+description: "C++23 on GCC 16 as it is written today: the build model and CMake, values and references, containers and algorithms, classes, RAII and smart pointers, move semantics, exceptions and std::expected, templates and concepts, ranges and generators, threads and the memory model, polymorphism, performance, compile-time code and C++ in production."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Raw Pointer Novice" }
   - { name: "Yellow Belt", required_xp: 300, title: "RAII Practitioner" }
@@ -16,8 +16,27 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "Systems Core Master" }
   - { name: "Sensei", required_xp: 6000, title: "C++ Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Understand the build model, compile and link a first program with CMake, and meet the dojo's C++ katas" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types and references, functions and lambdas, standard containers and algorithms, and classes with invariants" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "RAII and smart pointers, move semantics, exceptions and std::expected, and templates with concepts" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Ranges and generators, threads and the memory model, and polymorphism with virtual functions, variants and type erasure" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Performance and profiling, compile-time programming, and C++ in production" }
+requirements:
+  - kind: tool
+    name: CMake (cmake)
+    command: cmake
+    version_args: ["--version"]
+    min_version: "3.28"
+    required: false
+    why: Builds the kata and runs the visible tests locally. The grading checks run in Docker and do not need it.
+    install_hint: "install CMake: winget install Kitware.CMake, then reopen the terminal"
+  - kind: vscode-extension
+    name: C/C++ extension for VS Code
+    id: ms-vscode.cpptools
+    required: false
+    why: Shows errors as you type, formats on save with the kata's .clang-format and debugs the tests.
+  - kind: vscode-extension
+    name: CMake Tools for VS Code
+    id: ms-vscode.cmake-tools
+    required: false
+    why: Configures, builds and runs the kata's CMake project and its tests from the editor.

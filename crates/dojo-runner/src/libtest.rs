@@ -244,6 +244,62 @@ test result: FAILED. 2 passed; 2 failed
         assert!(broken.details.contains("undefined: who"));
     }
 
+    /// What the dojo-cpp image prints (`runner-images/cpp/report/dojo_report.cpp`).
+    const CPP_FAILING: &str = "
+running 5 tests
+test Greet.UsesTheName ... FAILED
+test Buffer.MovedFromIsEmpty ... FAILED
+test leak_sanitizer ... ok
+test gcc_warnings ... ok
+test clang_tidy::greet_cpp ... FAILED
+
+failures:
+
+---- Greet.UsesTheName stdout ----
+thread 'Greet.UsesTheName' panicked at Greet.UsesTheName:
+todo: write greet
+
+---- Buffer.MovedFromIsEmpty stdout ----
+thread 'Buffer.MovedFromIsEmpty' panicked at Buffer.MovedFromIsEmpty:
+AddressSanitizer: heap-use-after-free at buffer.cpp:31 in dojo::Buffer::~Buffer()
+
+---- clang_tidy::greet_cpp stdout ----
+thread 'clang_tidy::greet_cpp' panicked at clang_tidy::greet_cpp:
+greet.cpp:9:10: warning: use nullptr [modernize-use-nullptr]
+
+failures:
+
+test result: FAILED. 2 passed; 3 failed
+";
+
+    #[test]
+    fn reads_the_cpp_image_output_like_cargo_test() {
+        let report = parse_cargo_test(CPP_FAILING, false, 9);
+        assert_eq!(report.outcome, CheckOutcome::TestsFailed);
+        assert_eq!(report.tests.len(), 5);
+        assert_eq!(
+            report.tests[0].message.as_deref(),
+            Some("todo: write greet")
+        );
+        assert!(
+            report.tests[1]
+                .message
+                .as_deref()
+                .is_some_and(|message| message.starts_with("AddressSanitizer: heap-use-after-free"))
+        );
+        assert_eq!(report.tests[4].name, "clang_tidy::greet_cpp");
+
+        let broken = parse_cargo_test(
+            "error: the code does not compile
+greet.cpp:12:5: error: 'who' was not declared in this scope
+",
+            false,
+            9,
+        );
+        assert_eq!(broken.outcome, CheckOutcome::CompileError);
+        assert!(broken.details.contains("'who' was not declared"));
+    }
+
     /// What the dojo-python image prints (`runner-images/python/junit2cargo.py`).
     const PYTHON_FAILING: &str = "
 running 3 tests

@@ -3,12 +3,23 @@ legacy_id: cpp-01-raii-memory
 kind: lesson
 status: draft
 title: "RAII and Smart Pointers (`std::unique_ptr`, `std::shared_ptr`)"
-summary: "The principle that inspired Rust's ownership: automatic release in the destructor."
+summary: "Object lifetime on the stack and the heap, the four bugs of manual memory management, RAII for any resource, std::unique_ptr and make_unique, std::shared_ptr and weak_ptr for shared ownership and cycles, and non-owning raw pointers and references."
 objectives:
-  - { id: o1, text: "The principle that inspired Rust's ownership: automatic release in the destructor.", skills: [cpp.raii-memory] }
-prerequisites: []
+  - { id: o1, text: "Explain RAII and why destructors make resources exception-safe", skills: [cpp.raii-memory] }
+  - { id: o2, text: "Choose between a value, std::unique_ptr and std::shared_ptr to express ownership", skills: [cpp.raii-memory] }
+  - { id: o3, text: "Break reference cycles with std::weak_ptr and keep raw pointers non-owning", skills: [cpp.raii-memory] }
+prerequisites: [cpp.p1.checkpoint]
 difficulty: 3
-estimated_minutes: 30
-xp: 150
+estimated_minutes: 50
+xp: 250
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this code and rewrite it in modern C++: `Report* build(const char* path) { FILE* f = fopen(path, "r"); Report* r = new Report(); if (!parse(f, r)) { return nullptr; } fclose(f); return r; }`. The caller does `Report* r = build(p); show(r); delete r;`. List every leak or ownership problem (including what happens if parse throws), then rewrite build and the call site so no path can leak.'
+  criteria:
+    - 'Finds the leaks: on the failure path both the file and the Report leak, and if parse throws neither is released'
+    - 'Points out that the raw pointer return does not say who owns the Report, so the caller can forget or double-delete it'
+    - 'Wraps the file in RAII (an fstream, or unique_ptr with fclose as the deleter, or a small class)'
+    - 'Returns std::unique_ptr<Report> made with std::make_unique (or the Report by value, or std::optional/std::expected), with no delete at the call site'
+    - 'Explains that destructors run during stack unwinding, which is why RAII also handles the exception path'

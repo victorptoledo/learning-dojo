@@ -1,0 +1,57 @@
+id: cpp.p2.ring-buffer
+kind: kata
+status: draft
+title: "Generic Code: Concepts, Projections and a Ring Buffer"
+summary: "Write a Number concept, generic sum, mean and max_by over any range with projections, and a fixed-capacity RingBuffer<T, N> class template that works with move-only types."
+objectives:
+  - { id: o1, text: "Write a concept from standard concepts and constrain function templates with requires", skills: [cpp.templates-concepts] }
+  - { id: o2, text: "Write generic algorithms over ranges with std::invoke and projections", skills: [cpp.templates-concepts] }
+  - { id: o3, text: "Write a class template with a non-type parameter that stores move-only values", skills: [cpp.templates-concepts, cpp.move-semantics] }
+prerequisites: [cpp.p2.templates-concepts]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 150 }
+  hints:
+    - |-
+      Start with the concept: which standard concepts in `<concepts>` describe integers and floating-point types, and how do you leave `bool` out? Many tests only check the concept. For the ring buffer, draw the array on paper: where is the oldest value, and where does the next push go?
+    - |-
+      `Number` combines `std::integral<T>`, `std::floating_point<T>` and `!std::same_as<T, bool>`. `sum` starts from `std::ranges::range_value_t<R>{}`; `mean` counts as it adds, in a `double`. `max_by` keeps an iterator to the best element so far and compares `std::invoke(proj, *best)` with `std::invoke(proj, *it)` using `<`, so a tie keeps the first. In the ring buffer, the next free slot is `(head_ + size_) % N`; `pop` moves the value out of `slots_[head_]`, resets the slot and advances `head_`.
+    - |-
+      ```cpp
+      template <typename T>
+      concept Number = (std::integral<T> || std::floating_point<T>) && !std::same_as<T, bool>;
+
+      bool push(T value) {
+          if (full()) {
+              return false;
+          }
+          slots_[(head_ + size_) % N].emplace(std::move(value));  // move: T may be move-only
+          ++size_;
+          return true;
+      }
+
+      std::optional<T> pop() {
+          if (empty()) {
+              return std::nullopt;
+          }
+          std::optional<T> oldest = std::move(slots_[head_]);
+          // reset the slot, advance head_ modulo N, shrink size_
+          return oldest;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.
