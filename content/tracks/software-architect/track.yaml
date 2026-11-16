@@ -4,20 +4,34 @@ name: "Software Architecture"
 archetype: concept
 category: "Architecture & Engineering"
 icon: "📐"
-description: "Domain-Driven Design, Clean and Hexagonal Architecture, CQRS, sagas and resilient microservices."
-status: draft
-bridges_available: [java]
+description: "The decisions above the code: quality attributes and trade-offs, decision records, modularity and package dependencies, layered, hexagonal and clean architecture, the modular monolith and microservices, strategic and tactical domain-driven design, event-driven architecture and integration patterns, evolutionary architecture with fitness functions, C4 documentation and the architect's role. The katas are Java codebases whose architecture you fix and then guard with fitness functions written over the compiled classes, ArchUnit-style."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Spaghetti Untangler" }
-  - { name: "Yellow Belt", required_xp: 300, title: "SOLID Craftsman" }
-  - { name: "Green Belt", required_xp: 800, title: "Clean Architecture Disciple" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Decision Recorder" }
+  - { name: "Green Belt", required_xp: 800, title: "Dependency Rule Keeper" }
   - { name: "Purple Belt", required_xp: 1500, title: "Bounded Context Navigator" }
   - { name: "Brown Belt", required_xp: 2500, title: "Event-Driven Strategist" }
-  - { name: "Black Belt", required_xp: 4000, title: "Enterprise System Architect" }
-  - { name: "Sensei", required_xp: 6000, title: "Grand Domain Master" }
+  - { name: "Black Belt", required_xp: 4000, title: "Evolutionary Architect" }
+  - { name: "Sensei", required_xp: 6000, title: "Trade-off Master" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Why the discipline exists and the vocabulary to talk about it" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core concepts and mental models" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Trade-offs, combining concepts and common practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Advanced techniques and architecture at scale" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Real production cases, failure modes and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What architecture is, quality attributes and trade-offs, decision records, and a first fitness function" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Modularity, coupling and cohesion between modules, layers, package cycles, and hexagonal, onion and clean architecture" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "The modular monolith and its boundaries, microservices and their costs, and strategic DDD with bounded contexts and context maps" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Tactical DDD and aggregates, event-driven architecture with CQRS and the outbox, and integration patterns and sagas" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Evolutionary architecture and fitness function suites, documenting with C4 and arc42, and the architect's role and governance" }
+requirements:
+  - kind: tool
+    name: JDK 25 (java)
+    command: java
+    version_args: ["--version"]
+    min_version: "25"
+    required: false
+    why: Runs the katas and their visible tests in VS Code. The grading checks run in Docker and do not need it.
+    install_hint: "install Temurin 25: winget install EclipseAdoptium.Temurin.25.JDK, then reopen the terminal"
+  - kind: vscode-extension
+    name: Extension Pack for Java
+    id: vscjava.vscode-java-pack
+    required: false
+    why: Shows errors as you type and adds the Run Test and Debug buttons to JUnit tests.

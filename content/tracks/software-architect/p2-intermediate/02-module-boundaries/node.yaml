@@ -1,0 +1,50 @@
+id: software-architect.p2.module-boundaries
+kind: kata
+status: draft
+title: "Module Boundaries"
+summary: "A modular monolith where modules may only talk through each other's api packages: write the rule, find the three shortcuts that break it, and close them without changing what the store does."
+objectives:
+  - { id: o1, text: "Express the boundaries of a modular monolith as a fitness function over the dependency graph", skills: [software-architect.modular-monolith, software-architect.fitness-functions] }
+  - { id: o2, text: "Replace calls into another module's internals with its published interface, and keep internal types out of an api", skills: [software-architect.modular-monolith] }
+prerequisites: [software-architect.p2.modular-monolith]
+difficulty: 3
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      For each use `from -> to`, work out the module of each side: the package segment right after `root`, if it is one of `modules`. Two different modules are fine only when `to` is in `root.<its module>.api`. The same module is fine, except an `api` class using its own `internal`.
+    - |-
+      The three shortcuts: `OrderService` reads `ProductTable` rows instead of asking `Catalog`; it also creates a `shipping.internal.ShippingService` and lets shipping read `orders.internal.OrderStore` for the weight; and `ProductView.of(ProductRow)` puts an internal type in catalog's api. Give `Shipping` a `ship(orderId, weightGrams)` method, make `OrderService(Catalog, Shipping)`, and move the row mapping into `CatalogService`.
+    - |-
+      ```java
+      private static String moduleOf(String className, String root, Set<String> modules) {
+          if (!className.startsWith(root + ".")) {
+              return null;
+          }
+          String rest = className.substring(root.length() + 1);
+          int dot = rest.indexOf('.');
+          String first = dot < 0 ? null : rest.substring(0, dot);
+          return first != null && modules.contains(first) ? first : null;
+      }
+      // then, for each use: forbidden when
+      //   fromModule != null && toModule != null &&
+      //   (!fromModule.equals(toModule) && !isIn(to, root + "." + toModule + ".api")
+      //    || fromModule.equals(toModule) && isIn(from, root + "." + fromModule + ".api")
+      //                                   && isIn(to, root + "." + fromModule + ".internal"))
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

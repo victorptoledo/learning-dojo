@@ -1,0 +1,31 @@
+questions:
+  - id: dependency-rule
+    prompt: "What does the dependency rule of clean architecture say?"
+    options: ["Outer layers must not depend on inner ones", "Source code dependencies point inwards, towards the business rules; inner code knows nothing of outer code", "Every class needs an interface", "The database is the centre"]
+    answer: 1
+    explanation: "Technology at the edge depends on the domain, never the other way round."
+  - id: who-owns-port
+    prompt: "The domain must save orders to PostgreSQL. Where does the `Orders` interface live?"
+    options: ["In the PostgreSQL adapter package", "In the domain, written in the domain's terms; the adapter implements it", "In a shared utilities package", "Nowhere: the domain calls JDBC"]
+    answer: 1
+    explanation: "Owning the interface is what inverts the arrow from domain to database."
+  - id: driving-driven
+    prompt: "Which one is a driving (primary) adapter?"
+    options: ["A JDBC repository", "An email client", "An HTTP controller that calls a use case", "A clock"]
+    answer: 2
+    explanation: "Driving adapters call into the application; driven adapters are called by it through its ports."
+  - id: composition-root
+    prompt: "What is the composition root for?"
+    options: ["Storing the root entity", "Being the one place at the edge that creates the real adapters and wires them into the core", "Holding all constants", "Running database migrations"]
+    answer: 1
+    explanation: "Only the composition root may depend on everything; the core receives its collaborators."
+  - id: port-naming
+    prompt: "Which name for a driven port best keeps the dependency rule?"
+    options: ["`KafkaEventPublisher`", "`PostgresOrderDao`", "`OrderEvents` with `orderPlaced(Order)`", "`HttpClientWrapper`"]
+    answer: 2
+    explanation: "A port speaks the domain's language; technology names leak the detail into the centre."
+  - id: when-not
+    prompt: "When is a full hexagonal structure most likely to be ceremony?"
+    options: ["A pricing engine with many business rules", "A CRUD admin screen that only stores and lists records", "A service with three integrations and complex rules", "A domain that must be tested without infrastructure"]
+    answer: 1
+    explanation: "With no business rules to protect, ports and mappers add cost without benefit."

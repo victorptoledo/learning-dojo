@@ -1,0 +1,56 @@
+id: software-architect.p3.outbox-projection
+kind: kata
+status: draft
+title: "Outbox and Projection"
+summary: "Replace a dual write to a database and a broker with a transactional outbox and a relay that delivers at least once, then build a read model whose consumer ignores duplicates."
+objectives:
+  - { id: o1, text: "Write state and the event that announces it in one transaction, and relay events at least once and in order", skills: [software-architect.event-driven] }
+  - { id: o2, text: "Build a projection whose consumer is idempotent, so redelivered events do not corrupt the read model", skills: [software-architect.event-driven, software-architect.integration-patterns] }
+prerequisites: [software-architect.p3.event-driven]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      `OrderService` must not see the broker at all. Inside the same `inTransaction` that writes the order row, append `new OutboxMessage(event, false)` to `tx.outbox()`. If anything throws, the database throws both writes away together, so there is never an order without its event or an event without its order.
+    - |-
+      `OutboxRelay.relay()` reads `db.outbox()`, and for each message that is not sent, in order: `broker.publish(event)`, then a small transaction that replaces that message with a sent copy. If `publish` throws, stop and return how many were published: the rest stay unsent for the next call. `OrderSummaryProjection` keeps a `Set<String>` of event ids it has applied and returns early for one it has seen.
+    - |-
+      ```java
+      public int relay() {
+          int published = 0;
+          for (OutboxMessage message : db.outbox()) {
+              if (message.sent()) {
+                  continue;
+              }
+              try {
+                  broker.publish(message.event());
+              } catch (RuntimeException brokerDown) {
+                  return published;
+              }
+              String id = message.event().id();
+              db.inTransaction(tx -> {
+                  tx.outbox().replaceAll(m -> m.event().id().equals(id) ? new OutboxMessage(m.event(), true) : m);
+                  return null;
+              });
+              published++;
+          }
+          return published;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

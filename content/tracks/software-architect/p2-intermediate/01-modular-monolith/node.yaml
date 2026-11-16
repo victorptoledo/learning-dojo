@@ -1,0 +1,24 @@
+id: software-architect.p2.modular-monolith
+kind: lesson
+status: draft
+title: "The Modular Monolith"
+summary: "One deployable split into modules that own their data and talk only through published interfaces: what it buys over a big ball of mud and over microservices, how to enforce the boundaries, and how it prepares a later extraction."
+objectives:
+  - { id: o1, text: "Describe a modular monolith: modules by business capability, published interfaces, owned data", skills: [software-architect.modular-monolith] }
+  - { id: o2, text: "Enforce module boundaries with visibility, build modules and fitness functions", skills: [software-architect.modular-monolith, software-architect.fitness-functions] }
+  - { id: o3, text: "Argue for monolith first and name the signs that a module is ready to become a service", skills: [software-architect.modular-monolith, software-architect.microservices] }
+prerequisites: [software-architect.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A startup with eight developers runs one application for a food delivery platform: restaurants and menus, orders, couriers and dispatch, payments, and customer notifications. Everything shares one database schema, and any class may call any other. Investors ask whether to move to microservices. Propose instead a modular monolith: name the modules, what each publishes, who owns which tables, how modules talk (calls or in-process events), and how the build enforces the boundaries. Then name two signs that would justify extracting one module into its own service later, and which module you expect to go first.'
+  criteria:
+    - 'Modules follow business capabilities, not technical layers'
+    - 'Each module owns its tables; no module reads another module''s tables directly'
+    - 'Each module publishes a small interface (and possibly events); internals are hidden'
+    - 'Enforcement is concrete: package visibility, build modules, a fitness function or a tool such as Spring Modulith, ArchUnit, import-linter or Nx rules'
+    - 'Extraction signs are real forces (independent scaling, a different release cadence, a separate team, different availability needs), and the choice of first module follows from them'

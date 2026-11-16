@@ -1,0 +1,231 @@
+# Technical interview questions for the software-architect track, written for the dojo.
+# The topics follow what public interview guides and architecture books treat as common (see
+# sources); the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/software-architect"
+  - "https://martinfowler.com/architecture/"
+  - "https://microservices.io/patterns/"
+  - "https://c4model.com/"
+  - "https://adr.github.io/"
+  - "https://www.domainlanguage.com/ddd/reference/"
+questions:
+  - id: what-is-architecture
+    level: junior
+    skills: [software-architect.foundations]
+    question: "What is software architecture, and how is it different from design?"
+    key_points:
+      - "The decisions that are expensive to change, and the structures needed to reason about the system"
+      - "Architecture is driven mainly by quality attributes, not by features"
+      - "The line between architecture and design depends on the cost of change and who depends on it"
+      - "Module, runtime and allocation structures"
+    follow_up: "Give an example of a decision you considered design that turned out to be architectural."
+  - id: quality-attributes
+    level: junior
+    skills: [software-architect.foundations]
+    question: "Name some quality attributes and explain how you would make one of them concrete."
+    key_points:
+      - "Performance, scalability, availability, modifiability, security, testability, deployability, observability, cost"
+      - "A quality attribute scenario: source, stimulus, environment, response, response measure"
+      - "Choose the few that matter for this system"
+      - "Measurable numbers rather than adjectives"
+    follow_up: "How would you monitor that scenario in production?"
+  - id: trade-offs
+    level: junior
+    skills: [software-architect.foundations]
+    question: "Why is everything in architecture a trade-off? Give two attributes that pull against each other."
+    key_points:
+      - "Improving one attribute usually costs another"
+      - "Examples: performance versus modifiability, availability versus consistency, scalability versus simplicity and cost"
+      - "The right choice depends on context: business goals, team, budget"
+      - "Record why, so the decision can be revisited when the context changes"
+    follow_up: "Tell me about a trade-off you made and later regretted."
+  - id: adr
+    level: junior
+    skills: [software-architect.decision-records]
+    question: "What is an architecture decision record, and what goes in one?"
+    key_points:
+      - "A short document per significant decision, kept with the code"
+      - "Title, status, context (forces and constraints), decision, consequences (good and bad)"
+      - "Immutable: superseded by a new ADR instead of edited"
+      - "Often lists the options considered"
+    follow_up: "How do you make sure ADRs are actually read?"
+  - id: coupling-cohesion
+    level: junior
+    skills: [software-architect.modularity]
+    question: "Explain coupling and cohesion at the level of modules, and how you would improve a module with low cohesion."
+    key_points:
+      - "Coupling: how much a module must know about others; cohesion: how strongly its parts belong together"
+      - "Information hiding: a module hides a decision likely to change"
+      - "Split a low-cohesion module by reason to change; keep what changes together together"
+      - "Connascence as a finer vocabulary for coupling"
+    follow_up: "What is a 'common' package and why does it often become a problem?"
+  - id: layers
+    level: junior
+    skills: [software-architect.layered]
+    question: "Describe a layered architecture. What are its strengths and its typical problems?"
+    key_points:
+      - "Presentation, application, domain, persistence; dependencies point down"
+      - "Closed versus open layers"
+      - "Strengths: familiar, separates technical concerns"
+      - "Problems: sinkhole, changes cut across layers, domain depends on persistence"
+    follow_up: "When would you organise code by feature instead?"
+  - id: cycles
+    level: mid
+    skills: [software-architect.modularity]
+    question: "Two packages depend on each other. Why is that a problem, and how do you break the cycle?"
+    key_points:
+      - "Acyclic dependencies principle: a cycle fuses modules for build, test and release"
+      - "Invert one dependency with an interface owned by the lower module"
+      - "Extract the shared part into a new module, or replace a call with an event"
+      - "Guard with a fitness function so the cycle does not return"
+    follow_up: "Which direction would you keep, and how do you decide?"
+  - id: hexagonal
+    level: mid
+    skills: [software-architect.clean-hexagonal]
+    question: "Explain hexagonal architecture. What are ports and adapters, and what is the dependency rule?"
+    key_points:
+      - "The domain is at the centre; dependencies point inward"
+      - "Driving ports (use cases) called by driving adapters; driven ports implemented by driven adapters"
+      - "The core owns its interfaces, named in domain terms"
+      - "A composition root wires adapters; tests are just another adapter"
+    follow_up: "When is hexagonal architecture over-engineering?"
+  - id: fitness-functions
+    level: mid
+    skills: [software-architect.fitness-functions, software-architect.evolutionary]
+    question: "What is a fitness function? Give examples beyond code structure."
+    key_points:
+      - "An objective, preferably automated, check of an architectural characteristic"
+      - "Structure (ArchUnit rules), performance thresholds, availability and error rates, security scans, deploy time"
+      - "Triggered versus continuous; atomic versus holistic"
+      - "Makes ADR consequences checkable"
+    follow_up: "How would you introduce a new rule on a codebase that breaks it in hundreds of places?"
+  - id: modular-monolith
+    level: mid
+    skills: [software-architect.modular-monolith]
+    question: "What is a modular monolith, and why might you choose it over microservices?"
+    key_points:
+      - "One deployable split into modules by business capability with published interfaces"
+      - "Each module owns its data"
+      - "Keeps in-process calls, local transactions and simple operations"
+      - "Boundaries enforced with visibility, build modules and fitness functions; modules can be extracted later"
+    follow_up: "What are the signs that a module should become a service?"
+  - id: microservice-costs
+    level: mid
+    skills: [software-architect.microservices]
+    question: "What do microservices buy you, and what do they cost?"
+    key_points:
+      - "Independent deployability, scaling, fault isolation, team autonomy"
+      - "Costs: network failures, latency, no cross-service transactions, data duplication, operations, testing"
+      - "Fallacies of distributed computing"
+      - "Worth it only past a level of system and organisational complexity"
+    follow_up: "How would you recognise a distributed monolith?"
+  - id: bounded-context
+    level: mid
+    skills: [software-architect.ddd-strategic]
+    question: "What is a bounded context, and how do you find the boundaries?"
+    key_points:
+      - "The boundary within which one model and its ubiquitous language apply"
+      - "Same word, different meaning (or different words, same thing) signals a boundary"
+      - "Follow departments, processes and hand-offs; Event Storming"
+      - "Contexts share identities, not classes"
+    follow_up: "How do bounded contexts relate to services and to teams?"
+  - id: aggregates
+    level: mid
+    skills: [software-architect.ddd-tactical]
+    question: "What is an aggregate? How do you decide how big it should be?"
+    key_points:
+      - "A cluster of entities and values changed through one root that keeps invariants"
+      - "A consistency and transaction boundary"
+      - "Small aggregates; reference other aggregates by id"
+      - "Eventual consistency between aggregates with domain events"
+    follow_up: "What goes wrong with very large aggregates under concurrent load?"
+  - id: events-commands
+    level: mid
+    skills: [software-architect.event-driven]
+    question: "What is the difference between an event and a command, and what does each do to coupling?"
+    key_points:
+      - "A command asks for something, has one receiver, can be refused"
+      - "An event states a past fact; the publisher does not know the subscribers"
+      - "Events invert the dependency and decouple; the flow becomes implicit"
+      - "Event notification versus event-carried state transfer"
+    follow_up: "When would you prefer a command even though an event looks more decoupled?"
+  - id: outbox
+    level: senior
+    skills: [software-architect.event-driven]
+    question: "Explain the dual-write problem and the transactional outbox."
+    key_points:
+      - "Writing to a database and a broker cannot be atomic without a distributed transaction"
+      - "Crash after commit loses the event; publish before a rollback creates a ghost event"
+      - "Outbox row in the same local transaction; a relay or CDC publishes it"
+      - "At-least-once delivery, so consumers must be idempotent; ordering per aggregate"
+    follow_up: "How would you implement idempotent consumers, and where is the processed-id stored?"
+  - id: cqrs-es
+    level: senior
+    skills: [software-architect.event-driven]
+    question: "What are CQRS and event sourcing, and when are they worth it?"
+    key_points:
+      - "CQRS: separate write and read models; read models often fed by events"
+      - "Event sourcing: events are the system of record; state is a replay"
+      - "Independent of each other"
+      - "Worth it for very different read and write needs, audit or temporal queries; costly otherwise (versioning, projections, eventual consistency)"
+    follow_up: "How do you evolve the schema of events that are already stored?"
+  - id: sagas
+    level: senior
+    skills: [software-architect.integration-patterns]
+    question: "How do you keep data consistent across services without distributed transactions?"
+    key_points:
+      - "Sagas: local transactions with compensating actions"
+      - "Choreography versus orchestration, with their trade-offs"
+      - "Idempotent, retryable steps; pivot step late"
+      - "No isolation: semantic locks, visible pending states"
+    follow_up: "Design the compensations for a trip booking with flight, hotel and payment."
+  - id: context-map
+    level: senior
+    skills: [software-architect.ddd-strategic]
+    question: "How do you integrate with a legacy system whose model you do not want in your code?"
+    key_points:
+      - "Anti-corruption layer: one translating boundary into your model"
+      - "Compare with conformist when the upstream model is acceptable"
+      - "Open host service and published language from the upstream side"
+      - "Enforce that only the ACL depends on the legacy client"
+    follow_up: "What happens when the legacy system adds a new status code you do not know?"
+  - id: evolutionary
+    level: senior
+    skills: [software-architect.evolutionary]
+    question: "How would you migrate a large legacy system to a new architecture without a big-bang rewrite?"
+    key_points:
+      - "Strangler fig: a facade routes slices to the new system one at a time, with a way back"
+      - "Branch by abstraction inside one codebase"
+      - "Parallel runs, shadow traffic or dark launches to prove equivalence"
+      - "Data ownership and synchronisation during the transition; fitness functions with a ratchet"
+    follow_up: "Which slice would you move first, and why?"
+  - id: documentation
+    level: senior
+    skills: [software-architect.documentation-c4]
+    question: "How do you document an architecture so that it stays useful?"
+    key_points:
+      - "C4: context, container, component (code rarely), one level per diagram"
+      - "Labels with responsibilities and protocols, a key per diagram"
+      - "arc42 for the rest; ADRs for decisions"
+      - "Diagrams as code next to the source, reviewed with the code; written for an audience"
+    follow_up: "Which diagram would you show a new developer on day one?"
+  - id: evaluation
+    level: senior
+    skills: [software-architect.architect-role]
+    question: "How would you evaluate whether a proposed architecture is good enough?"
+    key_points:
+      - "Start from business drivers and prioritised quality attribute scenarios (a utility tree)"
+      - "Walk the top scenarios through the architecture"
+      - "Identify sensitivity points, trade-off points and risks (ATAM ideas)"
+      - "Lighter options: pre-mortem, prototypes, fitness functions"
+    follow_up: "How do you present the risks to non-technical stakeholders?"
+  - id: governance
+    level: senior
+    skills: [software-architect.architect-role, software-architect.decision-records]
+    question: "How do you govern architecture across many teams without becoming a bottleneck?"
+    key_points:
+      - "Decentralise decisions; guide the few with wide impact centrally"
+      - "Advice process with ADRs and an advisory forum instead of approval boards"
+      - "Paved roads that make the right way easy"
+      - "Fitness functions and a technology radar instead of manual gatekeeping; stay close to the code"
+    follow_up: "Tell me about a time teams ignored an architectural guideline. What did you change?"

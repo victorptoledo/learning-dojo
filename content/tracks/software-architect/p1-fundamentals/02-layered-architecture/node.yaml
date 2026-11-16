@@ -1,0 +1,24 @@
+id: software-architect.p1.layered-architecture
+kind: lesson
+status: draft
+title: "Layered Architecture, Package by Layer and Package by Feature"
+summary: "The classic layered style, strict and relaxed layers, the architecture sinkhole, where layers help and where they hurt, and organising code by feature so a change stays in one place."
+objectives:
+  - { id: o1, text: "Describe a layered architecture with its layers, the allowed directions and the difference between closed and open layers", skills: [software-architect.layered] }
+  - { id: o2, text: "Recognise the sinkhole anti-pattern and the cost of a change that crosses every layer", skills: [software-architect.layered] }
+  - { id: o3, text: "Compare package by layer with package by feature and choose for a given codebase", skills: [software-architect.layered, software-architect.modularity] }
+prerequisites: [software-architect.p1.modularity]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A web application for a gym is organised by layer: `controllers` (15 classes), `services` (15), `repositories` (15) and `entities` (15). Members, classes, bookings, payments and trainers each have one class in each package. A new rule says members with an unpaid invoice may not book classes. Describe which files the change touches today and what is wrong with that, then propose a package-by-feature structure for the same code. Say what stays public in each feature package, and give one situation where you would keep a layered structure instead.'
+  criteria:
+    - 'Shows that the change crosses several layer packages and that related code is spread far apart'
+    - 'Proposes feature packages (members, classes, bookings, payments, trainers) with their own controller, service and storage inside'
+    - 'Says how the booking feature asks the payments feature about unpaid invoices through a small public interface, not by reading its repository'
+    - 'Keeps internal classes package-private and names what is public'
+    - 'Gives a fair case for layers (a small CRUD app, a team used to it, a framework that expects it) or mentions layers inside each feature'

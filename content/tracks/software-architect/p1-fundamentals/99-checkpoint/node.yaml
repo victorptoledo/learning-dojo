@@ -1,0 +1,59 @@
+id: software-architect.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz on modularity, layers, cycles and the dependency rule, and a library loans app turned hexagonal, with its rules written as fitness functions."
+objectives:
+  - { id: o1, text: "Explain coupling, cohesion, layering, package cycles and the dependency rule in your own words", skills: [software-architect.modularity, software-architect.layered, software-architect.clean-hexagonal] }
+  - { id: o2, text: "Restructure a leaking layered application into ports and adapters and guard it with fitness functions", skills: [software-architect.clean-hexagonal, software-architect.fitness-functions] }
+prerequisites: [software-architect.p1.hexagonal-clean]
+difficulty: 3
+estimated_minutes: 80
+xp: 400
+closes_phase: p1
+covers_skills: [software-architect.modularity, software-architect.layered, software-architect.clean-hexagonal, software-architect.fitness-functions]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      List what the domain and the use cases reach for that they should be **given** instead: the static `InMemoryLoans.INSTANCE`, `new InMemoryBooks()`, `ConsoleNotifier.send`, and `LocalDate.now()` (the clock is a dependency too). Each one becomes a port in `domain` or a constructor parameter (`java.time.Clock`). Write `HexagonalRules` first, so the test tells you when you are done.
+    - |-
+      Ports in `domain`: `Books { Optional<Book> find(String isbn); }`, `Loans { List<Loan> byMember(String memberId); Optional<Loan> byIsbn(String isbn); void add(Loan loan); void remove(String isbn); }`, `Notifier { void send(String memberId, String message); }`. `LoanPolicy` becomes pure: it receives the current loans and today's date. `BorrowBook(Books, Loans, Notifier, Clock)` and `ReturnBook(Loans, Notifier, Clock)` compute today with `LocalDate.now(clock)`. `InMemoryLoans` loses its `INSTANCE`; `App.create` makes one and passes it to both use cases.
+    - |-
+      ```java
+      public static List<String> violations(Map<String, Set<String>> graph, String root) {
+          List<String> found = new ArrayList<>();
+          graph.forEach((from, uses) -> {
+              for (String to : uses) {
+                  boolean forbidden =
+                          isIn(from, root + ".domain") && (isIn(to, root + ".application") || outerRing(to, root))
+                          || isIn(from, root + ".application") && outerRing(to, root)
+                          || (isIn(from, root + ".domain") || isIn(from, root + ".application"))
+                             && to.equals("java.lang.System");
+                  if (forbidden) {
+                      found.add(from + " -> " + to);
+                  }
+              }
+          });
+          return found.stream().distinct().sorted().toList();
+      }
+
+      private static boolean outerRing(String className, String root) {
+          return isIn(className, root + ".adapters") || ClassGraph.packageOf(className).equals(root);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

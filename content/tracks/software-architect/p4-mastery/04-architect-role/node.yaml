@@ -1,0 +1,25 @@
+id: software-architect.p4.architect-role
+kind: lesson
+status: draft
+title: "The Architect's Role: Stakeholders, Evaluation and Governance"
+summary: "What an architect does all day: work with stakeholders, keep close to the code, evaluate architectures with ATAM-style trade-off analysis, govern through fitness functions and the advice process instead of approval boards, and practise with architecture katas."
+objectives:
+  - { id: o1, text: "Describe the architect's responsibilities and the skills beyond technology they need", skills: [software-architect.architect-role] }
+  - { id: o2, text: "Run a lightweight evaluation of an architecture against prioritised quality attribute scenarios", skills: [software-architect.architect-role, software-architect.foundations] }
+  - { id: o3, text: "Choose governance that scales: decentralised decisions with the advice process, ADRs and fitness functions", skills: [software-architect.architect-role, software-architect.decision-records] }
+prerequisites: [software-architect.p4.documenting-c4]
+difficulty: 3
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You become the first architect of a company with six product teams. Today every team decides alone, the systems drift apart (three message brokers, two ways to authenticate), and an earlier attempt at an architecture review board was abandoned because it slowed everyone down. Write a short plan for your first three months: how you learn the systems and the business, which decisions you would make or guide centrally and which you would leave to teams, how decisions are proposed and recorded, how you keep the important rules true without a review board, and how you would know after six months whether it is working.'
+  criteria:
+    - 'Starts by listening and learning (stakeholders, systems, current pain), not by imposing a target architecture'
+    - 'Separates the few decisions with wide impact (authentication, messaging, data ownership) from those teams own'
+    - 'Uses a decentralised mechanism such as the advice process with ADRs, an architecture forum for advice rather than approval, or paved roads'
+    - 'Keeps rules true with fitness functions and shared platforms instead of manual gatekeeping'
+    - 'Defines observable success measures (lead time, incidents, convergence on fewer brokers, how often ADRs are written and read)'
+    - 'Mentions staying close to the code (pairing, reviews, prototypes) and communicating trade-offs to non-technical stakeholders'

@@ -1,0 +1,49 @@
+questions:
+  - id: cp1-hiding
+    skills: [software-architect.modularity]
+    prompt: "Which split of a reporting system follows Parnas's criterion?"
+    options: ["read.py, compute.py, print.py: one module per step", "A module that hides how reports are stored, one that hides the tax rules, one that hides the output format", "One module per developer", "One module per database table"]
+    answer: 1
+    explanation: "Each module hides a decision likely to change, so a change stays in one module."
+  - id: cp1-connascence
+    skills: [software-architect.modularity]
+    prompt: "A service and its clients must call `start()`, then `configure()`, then `run()`, in that order. Which connascence is that, and is it worse across modules?"
+    options: ["Name; no", "Execution order, a dynamic kind; yes, strong connascence should fall with distance", "Type; no", "Identity; it is the weakest"]
+    answer: 1
+    explanation: "Dynamic connascence is strong; across a boundary, replace it with a single call or a builder that enforces the order."
+  - id: cp1-cycle
+    skills: [software-architect.modularity]
+    prompt: "Billing reaches into orders to mark an order paid, and orders calls billing to invoice. Which change removes the cycle while keeping orders → billing?"
+    options: ["Merge the packages", "Billing declares a `PaymentListener` interface that orders implements, and the composition root wires it", "Make every class public", "Call billing through reflection"]
+    answer: 1
+    explanation: "Inverting the arrow with an interface owned by billing keeps only orders → billing."
+  - id: cp1-stable
+    skills: [software-architect.modularity]
+    prompt: "A package with I = 0.1 is used by most of the system. Which content suits it best?"
+    options: ["Frequently changing concrete code", "Stable abstractions: interfaces and small value types that rarely change", "Controllers", "Experimental features"]
+    answer: 1
+    explanation: "Stable packages should be abstract (stable abstractions principle) and change rarely."
+  - id: cp1-layers
+    skills: [software-architect.layered]
+    prompt: "In a strict layered system a controller must show a list of products. What does it call?"
+    options: ["The repository directly", "The application layer, which uses the lower layers", "The database driver", "Another controller"]
+    answer: 1
+    explanation: "Closed layers must be passed through."
+  - id: cp1-feature
+    skills: [software-architect.layered]
+    prompt: "Most changes in your codebase touch a controller, a service and a repository in three different packages. What restructuring helps most?"
+    options: ["More layers", "Package by feature, so each change stays in one package and most classes can be package-private", "A common utilities package", "Moving all classes into one package"]
+    answer: 1
+    explanation: "Grouping by feature puts what changes together in one place."
+  - id: cp1-dependency-rule
+    skills: [software-architect.clean-hexagonal]
+    prompt: "In a hexagonal codebase, which import breaks the dependency rule?"
+    options: ["The JDBC adapter imports the domain's `Loans` port", "The HTTP controller imports the `BorrowBook` use case", "The domain's `LoanPolicy` imports the `InMemoryLoans` adapter", "The composition root imports every adapter"]
+    answer: 2
+    explanation: "The core may not know an adapter; it receives a port implementation instead."
+  - id: cp1-fitness
+    skills: [software-architect.fitness-functions, software-architect.clean-hexagonal]
+    prompt: "Why write 'the domain uses nothing from adapters' as a test over compiled classes instead of a wiki rule?"
+    options: ["Tests are prettier", "It runs on every build and fails on the first violation, so the rule cannot erode silently", "Wikis are not allowed", "It makes the code faster"]
+    answer: 1
+    explanation: "An automated fitness function keeps an architectural rule true as the code changes."

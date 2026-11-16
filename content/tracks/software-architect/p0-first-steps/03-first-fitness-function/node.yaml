@@ -1,0 +1,51 @@
+id: software-architect.p0.first-fitness-function
+kind: kata
+status: draft
+title: "Your First Fitness Function"
+summary: "Write a dependency rule as a JUnit test over the compiled classes, watch it catch the domain reaching into infrastructure, then fix the code with a port so the rule stays green."
+objectives:
+  - { id: o1, text: "Turn an architectural rule into an automated check over the real dependency graph", skills: [software-architect.fitness-functions] }
+  - { id: o2, text: "Remove a forbidden dependency by moving a mapping out of the domain and putting a port in front of a client", skills: [software-architect.fitness-functions, software-architect.clean-hexagonal] }
+prerequisites: [software-architect.p0.decision-records]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Start with `Rules.violations` alone: for each class that is in `fromPackage`, look at each class it uses and keep the ones that are in a forbidden package. "In a package" means the name starts with the package **and a dot**. Run `ArchitectureTest`: it now lists exactly what is wrong with the shop.
+    - |-
+      Two lines break the rule. `Order.toRow` builds an `infra.OrderRow`: the domain should not know how rows look, so let `PlaceOrder` (application) build the row. `PriceConverter` creates an `infra.FxApiClient`: declare `interface ExchangeRates { BigDecimal toEuro(String currency); }` in the domain, take it in the constructor, and write `infra.FxApiRates implements ExchangeRates` over the client. `App.placeOrder` wires the real adapter.
+    - |-
+      ```java
+      public static List<String> violations(Map<String, Set<String>> graph, String fromPackage,
+                                            Set<String> forbiddenPackages) {
+          return graph.entrySet().stream()
+                  .filter(entry -> isIn(entry.getKey(), fromPackage))
+                  .flatMap(entry -> entry.getValue().stream()
+                          .filter(target -> forbiddenPackages.stream().anyMatch(p -> isIn(target, p)))
+                          .map(target -> entry.getKey() + " -> " + target))
+                  .distinct()
+                  .sorted()
+                  .toList();
+      }
+
+      private static boolean isIn(String className, String pkg) {
+          return className.startsWith(pkg + ".");
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

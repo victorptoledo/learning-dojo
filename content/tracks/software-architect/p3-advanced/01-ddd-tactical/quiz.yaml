@@ -1,0 +1,31 @@
+questions:
+  - id: value-object
+    prompt: "Which is best modelled as a value object?"
+    options: ["A customer account", "An amount of money in a currency", "An order that moves through statuses", "A user who changes their email"]
+    answer: 1
+    explanation: "Money is defined by its amount and currency and has no identity of its own."
+  - id: entity
+    prompt: "What makes something an entity?"
+    options: ["It is stored in a database", "It has an identity that stays the same while its attributes change", "It has many fields", "It is immutable"]
+    answer: 1
+    explanation: "Identity over time, not storage, defines an entity."
+  - id: reference-by-id
+    prompt: "Why should an `Order` aggregate hold a `CustomerId` rather than a `Customer` object?"
+    options: ["It saves a few bytes", "It keeps the aggregate boundary clear, avoids loading and locking the customer, and keeps the two aggregates independently changeable and storable", "Customers have no ids", "Java forbids it"]
+    answer: 1
+    explanation: "Vernon's third rule: reference other aggregates by identity."
+  - id: small-aggregates
+    prompt: "A `Conference` aggregate contains all its 20,000 orders to protect capacity. What is the main problem?"
+    options: ["None", "It is huge: slow to load, and every concurrent order collides on the same aggregate", "Orders cannot be entities", "It breaks the ubiquitous language"]
+    answer: 1
+    explanation: "Design small aggregates; protect capacity with a smaller aggregate or a reservation."
+  - id: one-aggregate-per-tx
+    prompt: "Placing an order must also update the customer's loyalty points. Following the aggregate rules, how?"
+    options: ["Change both aggregates in one transaction always", "Change the order, record an `OrderPlaced` event, and update the loyalty aggregate when it is handled", "Store the points inside the order", "Use a global lock"]
+    answer: 1
+    explanation: "One transaction per aggregate; eventual consistency outside the boundary."
+  - id: anemic
+    prompt: "An `Order` class has only getters and setters, and an `OrderService` checks every rule. What is this called?"
+    options: ["A rich domain model", "An anemic domain model", "Event sourcing", "A value object"]
+    answer: 1
+    explanation: "Rules outside the data can be bypassed by any caller that uses the setters."

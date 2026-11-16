@@ -1,0 +1,31 @@
+questions:
+  - id: event-vs-command
+    prompt: "Which message is an event rather than a command?"
+    options: ["`ShipOrder`", "`ReserveStock`", "`PaymentReceived`", "`SendInvoice`"]
+    answer: 2
+    explanation: "Events state facts in the past tense; the others ask for something to happen."
+  - id: carried-state
+    prompt: "A shipping service must keep working when the order service is down. Which event style suits it?"
+    options: ["Event notification with a call back for details", "Event-carried state transfer: the event holds the address and lines shipping needs", "No events: synchronous calls", "A shared database"]
+    answer: 1
+    explanation: "Carrying the state lets the consumer act without calling the publisher."
+  - id: dual-write
+    prompt: "A service commits the order and then publishes to Kafka; it crashes between the two. What happens?"
+    options: ["Kafka retries automatically", "The order exists but its event is lost", "The database rolls back", "The event is published twice"]
+    answer: 1
+    explanation: "That is the dual-write problem; the outbox removes it."
+  - id: outbox
+    prompt: "How does a transactional outbox make publishing reliable?"
+    options: ["It uses a distributed transaction across the database and the broker", "The event is written to an outbox table in the same local transaction as the state; a relay publishes it afterwards, at least once", "It publishes before saving", "It deletes failed events"]
+    answer: 1
+    explanation: "One local transaction makes state and event atomic; the relay retries until published."
+  - id: idempotent
+    prompt: "Why must consumers of an outbox relay be idempotent?"
+    options: ["Because delivery is at least once, so the same event can arrive more than once", "Because events are encrypted", "Because the relay sorts events", "They need not be"]
+    answer: 0
+    explanation: "A relay that crashes after publishing and before marking will publish again."
+  - id: cqrs
+    prompt: "When is CQRS most likely worth its cost?"
+    options: ["A settings screen with one form", "Reads and writes with very different shapes and loads, such as complex invariants on writes and many denormalised dashboards on reads", "Every new service", "Only with event sourcing"]
+    answer: 1
+    explanation: "Separate models pay off when one model cannot serve both sides well."

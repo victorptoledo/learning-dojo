@@ -1,0 +1,31 @@
+questions:
+  - id: definition
+    prompt: "Which property most defines a microservice?"
+    options: ["Fewer than 1,000 lines of code", "It can be changed and deployed independently and owns its data", "It uses Kubernetes", "It has its own Git repository"]
+    answer: 1
+    explanation: "Independent deployability and data ownership; size and tooling are secondary."
+  - id: availability-chain
+    prompt: "A request crosses four services in a synchronous chain, each 99.9 % available. At best, how available is the request?"
+    options: ["99.9 %", "About 99.6 %", "100 %", "About 96 %"]
+    answer: 1
+    explanation: "Availabilities multiply: 0.999^4 ≈ 0.996."
+  - id: distributed-monolith
+    prompt: "Every release requires deploying the user, order and billing services together, in order. What do you have?"
+    options: ["A modular monolith", "A distributed monolith: the costs of distribution without independent deployment", "Event sourcing", "A healthy microservice system"]
+    answer: 1
+    explanation: "Services that must change and deploy together are not independent."
+  - id: shared-db
+    prompt: "Three services read and write the same `customers` table. What is the best direction?"
+    options: ["Add a fourth service on the same table", "Give the table one owning service; the others call its API or keep a copy updated by its events", "Use a bigger database", "Lock the table"]
+    answer: 1
+    explanation: "One owner per piece of data is what makes services independent."
+  - id: conway
+    prompt: "What does Conway's law predict?"
+    options: ["Software doubles in size every two years", "System structure mirrors the communication structure of the organisation that builds it", "Every service needs a database", "Teams should be large"]
+    answer: 1
+    explanation: "So boundaries should line up with teams, or teams with the boundaries you want."
+  - id: premium
+    prompt: "When is the 'microservice premium' worth paying?"
+    options: ["Always, for every new system", "When the system and organisation are complex enough that coordinating one deployable costs more than running a distributed one, and the platform can carry it", "Never", "Only for systems with fewer than three users"]
+    answer: 1
+    explanation: "The premium buys independence; it only pays off past a level of complexity."

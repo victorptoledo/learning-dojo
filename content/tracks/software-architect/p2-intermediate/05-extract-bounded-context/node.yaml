@@ -1,0 +1,46 @@
+id: software-architect.p2.extract-bounded-context
+kind: kata
+status: draft
+title: "Extract a Bounded Context"
+summary: "Sales and the warehouse share one Product class and both write to it: give each context its own model and store, let sales reserve stock through the warehouse's published interface, and migrate the legacy records in the composition root."
+objectives:
+  - { id: o1, text: "Split a shared model into one model per bounded context, each holding only what its context needs", skills: [software-architect.ddd-strategic] }
+  - { id: o2, text: "Connect two contexts through an upstream's published interface (customer and supplier) instead of shared data", skills: [software-architect.ddd-strategic, software-architect.modular-monolith] }
+prerequisites: [software-architect.p2.ddd-strategic]
+difficulty: 3
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Sort the fields of `catalog.Product` by who reads and writes them. Price, name and discontinued belong to **sales**; weight, bin and stock on hand belong to the **warehouse**; the description is read by nobody (leave it behind). The sku is the one thing both share, as an identity, not as an object.
+    - |-
+      Sales: `record Product(String sku, String name, long priceCents, boolean discontinued)` and a `Products` store. Warehouse: `record StockItem(String sku, int weightGrams, String bin, int onHand)` and a `StockItems` store. The warehouse publishes `warehouse.api.Stock { boolean reserve(String sku, int quantity); }` and `WarehouseService` implements it; `SalesService(Products, Stock)` calls it instead of touching stock itself. `App.create` copies each legacy `catalog.Product` into both stores.
+    - |-
+      ```java
+      public static Shop create(List<dojo.shop.catalog.Product> legacy) {
+          Products products = new Products();
+          StockItems items = new StockItems();
+          for (dojo.shop.catalog.Product old : legacy) {
+              products.save(new Product(old.sku(), old.name(), old.priceCents(), old.discontinued()));
+              items.save(new StockItem(old.sku(), old.weightGrams(), old.binLocation(), old.stockOnHand()));
+          }
+          WarehouseService warehouse = new WarehouseService(items);
+          return new Shop(new SalesService(products, warehouse), warehouse);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

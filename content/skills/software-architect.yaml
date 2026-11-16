@@ -1,8 +1,17 @@
 namespace: software-architect
 skills:
-  - { id: software-architect.solid-modern, title: "SOLID Revisited and Loose Coupling" }
-  - { id: software-architect.clean-hexagonal, title: "Hexagonal Architecture (Ports and Adapters)" }
-  - { id: software-architect.ddd-strategic, title: "Strategic DDD: Ubiquitous Language and Bounded Contexts" }
-  - { id: software-architect.ddd-tactical, title: "Tactical DDD: Entities, Value Objects and Aggregates" }
-  - { id: software-architect.cqrs-outbox, title: "CQRS and the Transactional Outbox" }
-  - { id: software-architect.saga-resilience, title: "The Saga Pattern and Compensations in Microservices" }
+  - { id: software-architect.foundations, title: "What Architecture Is: Decisions, Quality Attributes and Trade-offs" }
+  - { id: software-architect.decision-records, title: "Architecturally Significant Requirements and Decision Records" }
+  - { id: software-architect.fitness-functions, title: "Architecture Rules as Automated Fitness Functions" }
+  - { id: software-architect.modularity, title: "Modularity, Coupling, Cohesion and Package Dependencies" }
+  - { id: software-architect.layered, title: "Layered Architecture and Package by Feature" }
+  - { id: software-architect.clean-hexagonal, title: "Hexagonal, Onion and Clean Architecture: the Dependency Rule" }
+  - { id: software-architect.modular-monolith, title: "The Modular Monolith and Module Boundaries" }
+  - { id: software-architect.microservices, title: "Microservices: Benefits, Costs and When to Split" }
+  - { id: software-architect.ddd-strategic, title: "Strategic DDD: Subdomains, Bounded Contexts and Context Maps" }
+  - { id: software-architect.ddd-tactical, title: "Tactical DDD: Entities, Value Objects, Aggregates and Domain Events" }
+  - { id: software-architect.event-driven, title: "Event-Driven Architecture, CQRS and the Transactional Outbox" }
+  - { id: software-architect.integration-patterns, title: "Integration Patterns, Sagas and API Gateways" }
+  - { id: software-architect.evolutionary, title: "Evolutionary Architecture, Fitness Functions and Incremental Migration" }
+  - { id: software-architect.documentation-c4, title: "Documenting Architecture with C4, arc42 and Diagrams as Code" }
+  - { id: software-architect.architect-role, title: "The Architect's Role, Evaluation and Governance" }

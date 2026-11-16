@@ -1,0 +1,31 @@
+questions:
+  - id: core
+    prompt: "For an online insurer, which subdomain is most likely core?"
+    options: ["Sending emails", "Risk pricing of policies", "Payroll", "Login and identity"]
+    answer: 1
+    explanation: "Pricing risk is what differentiates an insurer; the others are generic and can be bought."
+  - id: generic
+    prompt: "What should you usually do with a generic subdomain such as payroll?"
+    options: ["Model it in depth with your best team", "Buy a product or use an existing solution, and integrate with it", "Make it the centre of the architecture", "Merge it with the core"]
+    answer: 1
+    explanation: "Investing in what everyone has gives no advantage."
+  - id: bounded-context
+    prompt: "Sales and the warehouse both use a `Product` class, and both teams keep adding fields for themselves. What does strategic DDD suggest?"
+    options: ["One bigger `Product` class", "Two bounded contexts, each with its own product model, sharing only the identity (the sku)", "A product microservice that both call for every field", "Inheritance: `SalesProduct extends Product`"]
+    answer: 1
+    explanation: "Where the meaning differs, the model should differ; share identity, not the class."
+  - id: ubiquitous
+    prompt: "What does ubiquitous language require?"
+    options: ["English in all code", "The same terms with the same meaning used by experts and developers, including in the code, within one bounded context", "One glossary for the whole company", "Translating every term into technical words"]
+    answer: 1
+    explanation: "The language is ubiquitous inside its context; across contexts it is translated."
+  - id: acl
+    prompt: "Your context must use a legacy system whose model is confusing and that you cannot change. Which relationship protects your model?"
+    options: ["Conformist", "Anti-corruption layer", "Shared kernel", "Partnership"]
+    answer: 1
+    explanation: "An ACL translates the upstream model into yours, so its concepts never leak in."
+  - id: ohs
+    prompt: "An upstream identity context has fifteen downstream consumers. Which patterns fit best?"
+    options: ["A partnership with each of them", "An open host service with a published language", "A shared kernel with all fifteen", "Separate ways"]
+    answer: 1
+    explanation: "One well-defined protocol and format for everyone avoids fifteen bespoke negotiations."

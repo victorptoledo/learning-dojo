@@ -1,0 +1,49 @@
+questions:
+  - id: cp2-owned-data
+    skills: [software-architect.modular-monolith]
+    prompt: "In a modular monolith, shipping needs the weight of an order. Which way keeps the modules independent?"
+    options: ["Shipping queries the orders tables", "Orders passes the weight through shipping's published `ship(orderId, weight)` interface", "Shipping uses orders' internal store class", "Both modules share one `Order` entity"]
+    answer: 1
+    explanation: "Modules talk through published interfaces and never reach into each other's internals or data."
+  - id: cp2-enforce
+    skills: [software-architect.modular-monolith, software-architect.fitness-functions]
+    prompt: "Which is the strongest way to keep module boundaries from eroding?"
+    options: ["A diagram on the wiki", "Visibility plus build modules plus a fitness function over the dependency graph that runs on every build", "Code review only", "A naming convention"]
+    answer: 1
+    explanation: "Layered, automated checks fail on the first violation."
+  - id: cp2-extract
+    skills: [software-architect.modular-monolith, software-architect.microservices]
+    prompt: "What makes extracting a module of a modular monolith into a service relatively cheap?"
+    options: ["It already talks through an interface and owns its data, so the in-process adapter is replaced by a network one", "Services are always cheaper", "The database disappears", "Nothing: it is as hard as untangling a ball of mud"]
+    answer: 0
+    explanation: "The boundary already exists; extraction moves it across the network."
+  - id: cp2-distributed-monolith
+    skills: [software-architect.microservices]
+    prompt: "Which is a sign of a distributed monolith?"
+    options: ["Each service has its own database", "A shared library of domain entities forces every service to upgrade and deploy together", "Teams deploy independently many times a day", "Services communicate through events"]
+    answer: 1
+    explanation: "Lock-step releases mean the services are not independent."
+  - id: cp2-conway
+    skills: [software-architect.microservices]
+    prompt: "Two teams constantly coordinate every release of one shared service. What does Conway's law suggest?"
+    options: ["Add a third team", "Realign the boundary so each service is owned by one team, or the teams around the boundary you want", "Release less often", "Merge the two teams' repositories"]
+    answer: 1
+    explanation: "Systems mirror communication structures; align ownership and boundaries."
+  - id: cp2-subdomain
+    skills: [software-architect.ddd-strategic]
+    prompt: "A startup's differentiator is route optimisation for deliveries. Where should it spend its best modelling effort?"
+    options: ["On user login", "On route optimisation, its core subdomain", "On invoicing", "Spread evenly over everything"]
+    answer: 1
+    explanation: "Invest in the core; buy or simplify the generic and supporting parts."
+  - id: cp2-acl
+    skills: [software-architect.ddd-strategic]
+    prompt: "A legacy CRM answers with codes such as `STAT_CD = \"S\"`. Where should that code be translated into `Standing.SUSPENDED`?"
+    options: ["In every booking rule that needs it", "In one anti-corruption layer class at the edge of the booking context", "In the CRM", "In the database"]
+    answer: 1
+    explanation: "One translating layer keeps the legacy language out of the context's model."
+  - id: cp2-shared-identity
+    skills: [software-architect.ddd-strategic]
+    prompt: "Sales and the warehouse each have their own product model. What do they share?"
+    options: ["One mutable `Product` object", "The product's identity (the sku), and nothing else unless they agree on a small shared kernel", "Their databases", "All fields, copied nightly"]
+    answer: 1
+    explanation: "Bounded contexts share identities, not classes."

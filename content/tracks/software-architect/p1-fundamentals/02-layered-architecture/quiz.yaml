@@ -1,0 +1,31 @@
+questions:
+  - id: direction
+    prompt: "In a layered architecture, which dependency is forbidden?"
+    options: ["Presentation uses application", "Application uses domain", "Persistence calls a controller in presentation", "Domain uses persistence"]
+    answer: 2
+    explanation: "Layers depend only downward; a lower layer never knows the layers above it."
+  - id: closed-layer
+    prompt: "The application layer is closed. What does that mean for a controller?"
+    options: ["It may call repositories directly", "It must go through the application layer; it may not skip to persistence", "It may not call anything", "It must be in the same package as the repository"]
+    answer: 1
+    explanation: "A closed layer must be passed through, which isolates the layers above from changes below."
+  - id: sinkhole
+    prompt: "Nine out of ten requests go controller → service → repository with the service only forwarding the call. What is this called?"
+    options: ["The main sequence", "The architecture sinkhole anti-pattern", "A strict layer", "Event sourcing"]
+    answer: 1
+    explanation: "Layers that add no logic cost files and indirection; consider opening the layer or another style."
+  - id: change-cost
+    prompt: "Why does a business change often cost more in a package-by-layer codebase?"
+    options: ["Layers make code slower", "Each feature is spread across every layer package, so one change touches many packages full of unrelated classes", "Layers forbid tests", "Package by layer needs more databases"]
+    answer: 1
+    explanation: "Layers group by technical kind; business changes follow features."
+  - id: package-private
+    prompt: "What does package by feature allow that package by layer makes hard?"
+    options: ["Using a database", "Keeping most classes package-private and exposing a small public interface per feature", "Writing controllers", "Using Spring"]
+    answer: 1
+    explanation: "In package by layer, classes must be public to be called from the next layer's package."
+  - id: domain-depends
+    prompt: "In the classic layered style, which way does the arrow between domain and persistence point, and why does that matter?"
+    options: ["Persistence depends on domain, so the domain is pure", "Domain depends on persistence, so database types and changes leak into business rules", "There is no arrow", "Both ways"]
+    answer: 1
+    explanation: "Hexagonal and clean architecture invert exactly this arrow."

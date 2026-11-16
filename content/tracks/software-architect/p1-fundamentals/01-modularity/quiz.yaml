@@ -1,0 +1,31 @@
+questions:
+  - id: parnas
+    prompt: "According to Parnas, what should each module be built around?"
+    options: ["One step of the processing", "A design decision likely to change, hidden behind an interface", "One database table", "One developer"]
+    answer: 1
+    explanation: "Hiding a decision means that when it changes, only one module changes."
+  - id: shallow-module
+    prompt: "A module exposes a getter and a setter for each of its 20 fields and nothing else. What is the problem?"
+    options: ["It is too deep", "It is shallow: its interface is as big as its implementation, so it hides nothing", "It has too few fields", "Getters are slow"]
+    answer: 1
+    explanation: "A boundary that hides nothing costs indirection without buying independence."
+  - id: connascence-meaning
+    prompt: "Two modules both know that `status == 3` means 'shipped'. Which kind of connascence is that, and how do you weaken it?"
+    options: ["Name; rename the field", "Meaning; replace the number with a named enum value both sides refer to", "Timing; add a lock", "Identity; share the object"]
+    answer: 1
+    explanation: "Connascence of meaning becomes connascence of name, which tools can check and rename."
+  - id: adp
+    prompt: "Packages `orders` and `billing` depend on each other. Which statement is true?"
+    options: ["It is fine if both are well tested", "They break the acyclic dependencies principle: neither can be built, tested or released without the other", "Cycles only matter between services", "Cycles make code faster"]
+    answer: 1
+    explanation: "A cycle fuses modules; invert one arrow or extract the shared part to break it."
+  - id: instability
+    prompt: "A package has Ca = 6 and Ce = 2. What is its instability, and what should it ideally be?"
+    options: ["0.75; concrete", "0.25; fairly stable, so it should be fairly abstract", "0.5; it does not matter", "3; split it"]
+    answer: 1
+    explanation: "I = Ce / (Ca + Ce) = 2 / 8 = 0.25. Stable packages should be abstract (stable abstractions principle)."
+  - id: zone-of-pain
+    prompt: "A `common` package of concrete entities and utilities is used by every other package. Where does it sit on Martin's chart?"
+    options: ["In the zone of uselessness", "On the main sequence", "In the zone of pain: stable and concrete, so every change ripples everywhere", "Outside the chart"]
+    answer: 2
+    explanation: "A = 0 and I close to 0: a classic zone-of-pain package. Split it by reason to change."
