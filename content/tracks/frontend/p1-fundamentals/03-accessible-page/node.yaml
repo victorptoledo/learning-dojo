@@ -1,0 +1,54 @@
+id: frontend.p1.accessible-page
+kind: kata
+status: draft
+title: "Accessible Page: Fix the Meetup Page"
+summary: "A meetup page works with a mouse but fails screen-reader and keyboard users. Add landmarks, a heading outline, alt text, a skip link, a real toggle button with aria-expanded, a labelled form, visible focus and enough contrast until axe-core finds nothing."
+objectives:
+  - { id: o1, text: "Fix landmarks, headings, alt text and link texts so the page is navigable by assistive technology", skills: [frontend.html-semantics, frontend.accessibility] }
+  - { id: o2, text: "Make every control work by keyboard with visible focus, a skip link and correct ARIA state", skills: [frontend.accessibility] }
+prerequisites: [frontend.p1.accessibility]
+difficulty: 2
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-web, timeout_secs: 120 }
+  hints:
+    - |-
+      Go down README.md's list one item at a time and rerun the checks after each: the failure messages name axe-core rules (`image-alt`, `landmark-one-main`, `heading-order`, `color-contrast`...). Which `div`s are really a header, a nav, a main and a footer? Which element should the "Show details" div be?
+    - |-
+      Use `<header>`, `<nav aria-label="Main">`, `<main id="main" tabindex="-1">`, `<footer>`, and `<section aria-labelledby>` with `<h2>` instead of `<h4>`. The toggle becomes `<button type="button" aria-expanded="false" aria-controls="talk-details">`; app.js sets `aria-expanded` to `String(!panel.hidden)`. The form needs `<label for="email">Email</label>`, `type="email" autocomplete="email"`, a submit `<button>` and `role="status"` on the message. Replace `*:focus { outline: none }` with a `:focus-visible` outline and darken `.muted` (for example `#595959`).
+    - |-
+      ```css
+      .skip-link {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.5rem;
+        padding: 0.5rem 1rem;
+        color: #fff;
+        background: #1a1a1a;
+        transform: translateY(-200%);
+      }
+      .skip-link:focus {
+        transform: none;
+      }
+      ```
+
+      ```html
+      <a class="skip-link" href="#main">Skip to content</a>
+      ```
+
+      It must be the first focusable element in `<body>`. For the map link, use text such as "the map of the library on OpenStreetMap".
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-web runner image
+    image: dojo-web
+    why: The Node.js 26 container with headless Chromium, axe-core and html-validate that loads your page and runs the tests.

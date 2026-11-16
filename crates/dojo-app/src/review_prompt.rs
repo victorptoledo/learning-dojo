@@ -101,9 +101,21 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         KataLanguage::Kubernetes => (kata_dir.to_path_buf(), "yaml"),
         KataLanguage::Go => (kata_dir.to_path_buf(), "go"),
         KataLanguage::TypeScript => (kata_dir.to_path_buf(), "ts"),
+        KataLanguage::Web => {
+            let mut found = Vec::new();
+            for extension in ["html", "css", "js"] {
+                collect(kata_dir, extension, &mut found);
+            }
+            return learner_files(kata_dir, found);
+        }
     };
     let mut found = Vec::new();
     collect(&root, extension, &mut found);
+    learner_files(kata_dir, found)
+}
+
+/// `found` relative to the kata folder, without tests, fixtures and tool folders, sorted.
+fn learner_files(kata_dir: &Path, found: Vec<PathBuf>) -> Vec<PathBuf> {
     let mut files: Vec<PathBuf> = found
         .into_iter()
         .filter_map(|path| path.strip_prefix(kata_dir).ok().map(Path::to_path_buf))
@@ -160,6 +172,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Kubernetes => "Kubernetes manifests, Kustomize and Helm",
         KataLanguage::Go => "Go",
         KataLanguage::TypeScript => "TypeScript",
+        KataLanguage::Web => "HTML, CSS and JavaScript in the browser",
     };
     let files = kata
         .files
@@ -371,5 +384,28 @@ mod tests {
         std::fs::write(dir.path().join("node_modules/zod/index.d.ts"), "x").unwrap();
         let files = kata_files(dir.path(), KataLanguage::TypeScript);
         assert_eq!(files, vec![PathBuf::from("shapes.ts")]);
+    }
+
+    #[test]
+    fn kata_files_lists_pages_styles_and_scripts_but_not_tests() {
+        let dir = tempfile::TempDir::new().unwrap();
+        for folder in ["tests", "node_modules/x", "js"] {
+            std::fs::create_dir_all(dir.path().join(folder)).unwrap();
+        }
+        std::fs::write(dir.path().join("index.html"), "<!doctype html>").unwrap();
+        std::fs::write(dir.path().join("style.css"), "body {}").unwrap();
+        std::fs::write(dir.path().join("js/app.js"), "export {}").unwrap();
+        std::fs::write(dir.path().join("package.json"), "{}").unwrap();
+        std::fs::write(dir.path().join("tests/visible.test.js"), "x").unwrap();
+        std::fs::write(dir.path().join("node_modules/x/index.js"), "x").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::Web);
+        assert_eq!(
+            files,
+            vec![
+                PathBuf::from("index.html"),
+                PathBuf::from("js").join("app.js"),
+                PathBuf::from("style.css"),
+            ]
+        );
     }
 }

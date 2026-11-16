@@ -46,7 +46,7 @@ of your choice.
 
 ### Tracks
 
-15 tracks are complete, with 353 lessons and checkpoints and 124 katas between them:
+16 tracks are complete, with 378 lessons and checkpoints and 133 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
@@ -65,10 +65,11 @@ of your choice.
 | Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |
 | Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
 | Design Patterns | principles and patterns in modern Java | 24 | 10 | `dojo-java` (refactoring katas) |
+| Frontend Developer | HTML, CSS, the DOM and browser APIs, no framework | 25 | 9 | `dojo-web` (headless Chromium, axe-core, html-validate) |
 
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
-Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
+Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 
 ## Requirements
@@ -80,7 +81,7 @@ Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS 
 | [Docker Desktop](https://www.docker.com/products/docker-desktop/) (running) | every kata is checked in a container |
 | [VS Code](https://code.visualstudio.com/) (optional) | the dojo opens lessons and katas in it; any editor works |
 
-You do **not** need a JDK, Maven, Python, Go, Node.js, PostgreSQL, kubectl or bash on your machine:
+You do **not** need a JDK, Maven, Python, Go, Node.js, a test browser, PostgreSQL, kubectl or bash on your machine:
 every kata runs in the dojo's own images, and Docker katas build your Dockerfile on your own Docker
 engine. The dojo is developed on Windows 11. It also builds on macOS and Linux, but those platforms
 get less testing.
@@ -161,6 +162,16 @@ this from the kata folder:
 
 ```bash
 docker run -it --rm --network none -v "${PWD}:/work" dojo-sql play
+```
+
+**Frontend katas** are plain HTML, CSS and JavaScript. The `dojo-web` image serves the kata
+folder inside the container, opens it in a headless Chromium and runs tests that click, type,
+resize the window and measure where boxes land; axe-core checks accessibility and html-validate
+checks the HTML. To look at a kata in your own browser, run this from its folder and open
+<http://localhost:8080/>:
+
+```bash
+docker run --rm -p 8080:8080 -v "${PWD}:/work" dojo-web serve
 ```
 
 **Data Structures & Algorithms katas** also time some hidden tests on large inputs, so a correct

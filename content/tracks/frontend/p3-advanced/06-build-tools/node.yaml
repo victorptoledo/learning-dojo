@@ -1,0 +1,24 @@
+id: frontend.p3.build-tools
+kind: lesson
+status: draft
+title: "ES Modules, Bundlers and Production Builds"
+summary: "Native ES modules and import maps, what bundlers do (resolution, transforms, tree shaking, code splitting, minification, hashing, source maps), Vite and the 2026 tool landscape, development versus production, public environment variables, bundle budgets and caching."
+objectives:
+  - { id: o1, text: "Explain native ES modules and what a bundler adds on top of them", skills: [frontend.build-tools] }
+  - { id: o2, text: "Use code splitting, tree shaking and hashed file names, and measure what you ship", skills: [frontend.build-tools] }
+  - { id: o3, text: "Configure caching and environment variables for production safely", skills: [frontend.build-tools, frontend.security] }
+prerequisites: [frontend.p3.safe-comments]
+difficulty: 4
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A team's single-page app ships one 1.8 MB `bundle.js` (520 KB compressed) with `Cache-Control: max-age=3600` on everything, including index.html. After each deploy some users see a blank page for an hour. The bundle includes a charting library used only on the admin page, all of a date library and an API key read from `process.env`. Explain each problem and describe the build and deploy setup you would use instead (tool, splitting, caching headers, environment variables, checks in CI)."
+  criteria:
+    - "Splits the admin page and the charting library with dynamic import() into lazy chunks"
+    - "Replaces or tree-shakes the date library (ES module imports, Intl.DateTimeFormat) and measures compressed size with a bundle analyzer"
+    - "Uses content-hashed file names with long immutable caching and no-cache on index.html, and explains the blank page as old HTML pointing at missing or mismatched files"
+    - "Explains that build-time environment variables are public and removes the secret from the frontend"
+    - "Adds a bundle-size budget (and maybe Lighthouse) to CI and deploys atomically"

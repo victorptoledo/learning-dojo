@@ -109,6 +109,9 @@ pub enum KataLanguage {
     Go,
     /// TypeScript modules type-checked by tsc and tested with node:test in `dojo-node`.
     TypeScript,
+    /// HTML, CSS and JavaScript pages loaded in headless Chromium and tested with node:test,
+    /// axe-core and html-validate in `dojo-web`.
+    Web,
 }
 
 impl Kata {
@@ -122,6 +125,7 @@ impl Kata {
             "dojo-k8s" => KataLanguage::Kubernetes,
             "dojo-go" => KataLanguage::Go,
             "dojo-node" => KataLanguage::TypeScript,
+            "dojo-web" => KataLanguage::Web,
             _ => KataLanguage::Rust,
         }
     }
@@ -361,6 +365,7 @@ mod tests {
         assert_eq!(kata("dojo-k8s").language(), KataLanguage::Kubernetes);
         assert_eq!(kata("dojo-linux").language(), KataLanguage::Bash);
         assert_eq!(kata("dojo-rust").language(), KataLanguage::Rust);
+        assert_eq!(kata("dojo-web").language(), KataLanguage::Web);
     }
 
     #[test]

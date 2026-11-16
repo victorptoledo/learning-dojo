@@ -1,0 +1,55 @@
+questions:
+  - id: layers
+    prompt: "Which layer of the platform should still make sense when CSS and JavaScript fail to load?"
+    options:
+      - "The HTML: structure and content"
+      - "The CSS: the layout"
+      - "The JavaScript: the behavior"
+      - "None of them"
+    answer: 0
+    explanation: "Progressive enhancement: HTML carries the content and meaning; CSS and JavaScript improve it."
+  - id: fragment
+    prompt: "Which part of `https://shop.example.com/jackets?size=m#reviews` is never sent to the server?"
+    options:
+      - "`/jackets`"
+      - "`?size=m`"
+      - "`#reviews`"
+      - "`shop.example.com`"
+    answer: 2
+    explanation: "The fragment identifies a place inside the document and stays in the browser."
+  - id: origin
+    prompt: "Which pair is the **same origin**?"
+    options:
+      - "https://example.com and http://example.com"
+      - "https://example.com and https://example.com:443/shop"
+      - "https://example.com and https://api.example.com"
+      - "https://example.com:8443 and https://example.com"
+    answer: 1
+    explanation: "An origin is scheme + host + port; 443 is https's default, and the path is not part of the origin."
+  - id: status
+    prompt: "A `fetch` gets an answer with status 404. Which class of status is it?"
+    options:
+      - "A redirect"
+      - "A client error"
+      - "A server error"
+      - "A success with no content"
+    answer: 1
+    explanation: "4xx means the request was wrong (not found, unauthorized, forbidden); 5xx means the server failed."
+  - id: file-protocol
+    prompt: "Why serve a page from a local HTTP server instead of opening it with `file://`?"
+    options:
+      - "file:// pages cannot use CSS"
+      - "ES modules and fetch are blocked or behave differently on file://"
+      - "file:// is slower"
+      - "Browsers refuse to open HTML files"
+    answer: 1
+    explanation: "Module scripts and fetch need an origin and correct MIME types; a server gives the same behavior as production."
+  - id: devtools
+    prompt: "Which DevTools panel shows each request's status, headers, size and timing?"
+    options:
+      - "Elements"
+      - "Console"
+      - "Network"
+      - "Sources"
+    answer: 2
+    explanation: "The Network panel lists every request; Elements shows the live DOM and styles."

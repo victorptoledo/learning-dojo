@@ -1,0 +1,24 @@
+id: frontend.p2.storage-state
+kind: lesson
+status: draft
+title: "Browser Storage, URL State and Client-Side State"
+summary: "Where state lives (memory, URL, sessionStorage, localStorage, IndexedDB, Cache API, cookies, server), Web Storage rules and risks, URL state with URLSearchParams and the History API, server state versus UI state, and immutable updates."
+objectives:
+  - { id: o1, text: "Choose where each piece of state lives and explain the lifetime, size and risks of each place", skills: [frontend.browser-storage] }
+  - { id: o2, text: "Persist and restore state with localStorage and the URL, defensively", skills: [frontend.browser-storage] }
+  - { id: o3, text: "Separate server state from UI state and keep one source of truth", skills: [frontend.browser-storage] }
+prerequisites: [frontend.p2.fetch-async]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A job board has: the search text and filters, the selected job, a half-written application letter, the user's theme preference, a list of 2,000 saved jobs for offline reading, and the session token. For each one, say where it should live (memory, URL, sessionStorage, localStorage, IndexedDB, a cookie or only the server) and why. Then explain what happens when a new release changes the shape of the stored letter draft, and how your code survives it."
+  criteria:
+    - "Puts search text, filters and the selected job in the URL so they can be shared and restored with Back"
+    - "Puts the letter draft and the theme in localStorage (or the server), parsed defensively"
+    - "Puts the large saved-jobs list in IndexedDB (or the Cache API), not localStorage"
+    - "Keeps the session token in an HttpOnly cookie, never in Web Storage, and explains why (XSS can read storage)"
+    - "Versions the stored draft and migrates or drops old versions inside try/catch"

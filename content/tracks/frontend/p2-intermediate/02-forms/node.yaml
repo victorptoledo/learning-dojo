@@ -1,0 +1,24 @@
+id: frontend.p2.forms
+kind: lesson
+status: draft
+title: "Forms: Native Controls, Constraint Validation and FormData"
+summary: "Choosing input types and autocomplete tokens, forms that work without JavaScript, the Constraint Validation API and ValidityState, accessible custom error messages, FormData and sending forms with fetch."
+objectives:
+  - { id: o1, text: "Choose the native control, input type and autocomplete token for each piece of data", skills: [frontend.forms] }
+  - { id: o2, text: "Validate with constraint attributes and the ValidityState API, and show accessible errors", skills: [frontend.forms, frontend.accessibility] }
+  - { id: o3, text: "Read and send form data with FormData, URLSearchParams or JSON", skills: [frontend.forms] }
+prerequisites: [frontend.p2.dom-events]
+difficulty: 3
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Design the sign-up form of a shop: email, password, a country, a date of birth, an optional phone, and a checkbox to accept the terms. Write the HTML with the right types, autocomplete tokens and constraints. Then describe the validation behavior: when errors appear and disappear, what the messages say, where focus goes on submit, how errors are announced, and what the server must still check. Finish with how the JavaScript sends the form and what happens if the request fails."
+  criteria:
+    - "Uses type=email, type=password with autocomplete=new-password, type=date, type=tel, a select or datalist for the country, and labels for every field"
+    - "Uses required, minlength and other constraint attributes, and setCustomValidity only for rules attributes cannot express"
+    - "Validates on submit, then re-validates fields as they are corrected, with messages that explain how to fix the value"
+    - "Ties messages with aria-describedby, sets aria-invalid, and focuses the first invalid field"
+    - "Sends with FormData (or JSON), disables the button meanwhile, keeps the data on failure, and states that the server validates again"

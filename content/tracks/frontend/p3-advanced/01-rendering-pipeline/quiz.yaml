@@ -1,0 +1,64 @@
+questions:
+  - id: render-blocking
+    prompt: "Why does the browser wait for stylesheets in `<head>` before the first paint?"
+    options:
+      - "To validate the CSS"
+      - "CSS is render blocking, so the page does not flash unstyled content"
+      - "Because CSS runs JavaScript"
+      - "It does not wait"
+    answer: 1
+    explanation: "The CSSOM is needed to compute styles; scripts may also read styles, so CSS blocks them too."
+  - id: defer
+    prompt: "What is true of `<script defer src>` and `<script type=\"module\">`?"
+    options:
+      - "They block the parser"
+      - "They download in parallel and run after parsing, in document order"
+      - "They run as soon as they arrive, in any order"
+      - "They never run"
+    answer: 1
+    explanation: "async is the one that runs as soon as it arrives, in any order."
+  - id: cheap-animation
+    prompt: "Which property change can usually skip layout and paint?"
+    options:
+      - "width"
+      - "margin-left"
+      - "transform"
+      - "font-size"
+    answer: 2
+    explanation: "transform and opacity on a composited layer only need compositing."
+  - id: thrash
+    prompt: "What causes layout thrashing?"
+    options:
+      - "Too many CSS files"
+      - "Reading a layout property right after a style write, repeatedly in a loop"
+      - "Using grid"
+      - "Using requestAnimationFrame"
+    answer: 1
+    explanation: "Each read forces a synchronous layout to give an up-to-date answer."
+  - id: frame
+    prompt: "At 60 frames per second, how long is one frame?"
+    options:
+      - "About 16.7 ms"
+      - "50 ms"
+      - "100 ms"
+      - "1 ms"
+    answer: 0
+    explanation: "1000 ms / 60; scripts, style, layout and paint all have to fit in it."
+  - id: worker
+    prompt: "Where should a 2-second CSV parse run so the page stays responsive?"
+    options:
+      - "In a click handler"
+      - "In a Web Worker, posting the result back"
+      - "In requestAnimationFrame"
+      - "In a CSS file"
+    answer: 1
+    explanation: "Workers run on another thread; the main thread stays free for input and rendering."
+  - id: lazy-lcp
+    prompt: "Which image should never get `loading=\"lazy\"`?"
+    options:
+      - "Images far below the fold"
+      - "The large hero image on the first screen"
+      - "Images in a carousel's later slides"
+      - "Avatars in comments"
+    answer: 1
+    explanation: "Lazy loading delays the image until layout proves it visible; the hero is usually the LCP element."

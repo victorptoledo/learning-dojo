@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Send us feedback</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <!-- You do not need to change this file: the kata is app.js. -->
+    <main class="feedback-page">
+      <h1>Send us feedback</h1>
+      <p id="form-status" role="status"></p>
+
+      <!-- novalidate: the browser still checks the constraints, but app.js shows the messages. -->
+      <form id="feedback" novalidate>
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" autocomplete="name" required maxlength="60" aria-describedby="name-error">
+          <p class="error" id="name-error"></p>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required aria-describedby="email-error">
+          <p class="error" id="email-error"></p>
+        </div>
+
+        <fieldset class="field rating" aria-describedby="rating-error">
+          <legend>Rating</legend>
+          <label><input type="radio" name="rating" value="1" required> 1</label>
+          <label><input type="radio" name="rating" value="2"> 2</label>
+          <label><input type="radio" name="rating" value="3"> 3</label>
+          <label><input type="radio" name="rating" value="4"> 4</label>
+          <label><input type="radio" name="rating" value="5"> 5</label>
+          <p class="error" id="rating-error"></p>
+        </fieldset>
+
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" required minlength="10" maxlength="500" aria-describedby="message-error message-count"></textarea>
+          <p class="hint" id="message-count">0 / 500</p>
+          <p class="error" id="message-error"></p>
+        </div>
+
+        <button type="submit">Send feedback</button>
+      </form>
+    </main>
+  </body>
+</html>

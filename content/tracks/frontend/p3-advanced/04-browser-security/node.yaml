@@ -1,0 +1,24 @@
+id: frontend.p3.browser-security
+kind: lesson
+status: draft
+title: "Browser Security: Same-Origin Policy, XSS, CSP, CORS and Cookies"
+summary: "The same-origin policy, stored, reflected and DOM-based XSS and their sinks, safe rendering, URL validation and sanitizers, Content-Security-Policy and Trusted Types, CORS and preflights, cookie attributes and CSRF, security headers and third-party scripts."
+objectives:
+  - { id: o1, text: "Explain the same-origin policy and prevent XSS by keeping data out of code sinks", skills: [frontend.security] }
+  - { id: o2, text: "Write a strict Content-Security-Policy with Trusted Types and the other security headers", skills: [frontend.security] }
+  - { id: o3, text: "Explain CORS, preflights, cookie attributes and CSRF defenses", skills: [frontend.security] }
+prerequisites: [frontend.p3.performance-fixes]
+difficulty: 4
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A single-page app stores its JWT in localStorage, renders product reviews with `innerHTML`, lets users set a profile website that becomes `<a href>`, calls `https://api.shop.example` from `https://shop.example`, and has no security headers. A penetration test reports a stored XSS in the reviews and a CORS misconfiguration `Access-Control-Allow-Origin: *` with credentials. Explain the attack each finding enables, what an attacker gains from the token in localStorage, and the full set of fixes, in the code, the cookies, the CORS configuration and the headers."
+  criteria:
+    - "Explains stored XSS through innerHTML and fixes it with textContent (or a real sanitizer like DOMPurify for rich text)"
+    - "Validates profile URLs with new URL() and allows only http: and https: to stop javascript: links"
+    - "Moves the session to a Secure, HttpOnly, SameSite cookie and explains that XSS can read localStorage"
+    - "Fixes CORS with an explicit allowed origin and Allow-Credentials only where needed, noting that * cannot be used with credentials"
+    - "Adds a strict CSP (script-src 'self' or nonces, object-src 'none', base-uri, frame-ancestors) with Trusted Types, rolled out in Report-Only first"

@@ -1,0 +1,23 @@
+id: frontend.p1.layout-responsive
+kind: lesson
+status: draft
+title: "Flexbox, Grid and Responsive Design"
+summary: "Flexbox for one axis and grid for two, fr and minmax, gap, mobile-first media queries in rem, fluid values with clamp, media features such as prefers-color-scheme, and container queries."
+objectives:
+  - { id: o1, text: "Build one-dimensional layouts with flexbox and two-dimensional layouts with grid", skills: [frontend.css-layout] }
+  - { id: o2, text: "Make layouts responsive mobile first with rem breakpoints, fluid values and container queries", skills: [frontend.css-layout] }
+prerequisites: [frontend.p1.cascade-box-model]
+difficulty: 2
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Design the CSS for a dashboard: a header with a logo, a search box that takes the free space and a user menu; below it, a sidebar of filters and a main area of stat cards. On phones everything stacks and the filters come after the cards; from 48rem the sidebar is 15rem wide on the left; the cards are as many columns as fit, each at least 12rem. The same stat card is also used inside a narrow widget, where it must switch to a compact layout. Write the key CSS and explain why you chose flexbox or grid for each part."
+  criteria:
+    - "Uses flexbox for the header with the search box growing (flex: 1) and items centered"
+    - "Uses grid for the page skeleton with a mobile-first single column and a min-width media query in rem for the sidebar"
+    - "Uses repeat(auto-fill or auto-fit, minmax(12rem, 1fr)) for the cards"
+    - "Reorders with grid placement or areas (or explains source order) so filters come after cards on phones, mentioning the keyboard-order caveat"
+    - "Uses a container query (container-type: inline-size and @container) for the compact card"

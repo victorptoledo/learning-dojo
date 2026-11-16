@@ -1,0 +1,24 @@
+id: frontend.p1.accessibility
+kind: lesson
+status: draft
+title: "Accessibility: Names, Keyboard, Focus and ARIA"
+summary: "WCAG 2.2 and POUR, the accessibility tree, accessible names and label in name, keyboard access and visible focus, skip links, ARIA states and live regions, contrast, and how to test."
+objectives:
+  - { id: o1, text: "Explain WCAG's POUR principles and the accessibility tree's role, name and state", skills: [frontend.accessibility] }
+  - { id: o2, text: "Give every control an accessible name and make every interaction work by keyboard with visible focus", skills: [frontend.accessibility] }
+  - { id: o3, text: "Use ARIA only for what HTML cannot express: states, relationships and live regions", skills: [frontend.accessibility] }
+prerequisites: [frontend.p1.html-semantics]
+difficulty: 2
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A settings page has: an icon-only \"gear\" button that opens a panel, a search field with only a placeholder, a custom toggle switch built from a div, error messages shown in red below fields, and a CSS reset with `*:focus { outline: none }`. A keyboard-only user and a screen-reader user both report they cannot use it. List each problem with the WCAG principle it breaks, and fix it in HTML (and the little CSS or JavaScript it needs)."
+  criteria:
+    - "Gives the icon button an accessible name (aria-label or visually hidden text) and aria-expanded/aria-controls for the panel"
+    - "Adds a real <label> to the search field and explains why a placeholder is not a label"
+    - "Replaces the div toggle with a native checkbox or a <button aria-pressed> (or role=switch with aria-checked) that works with the keyboard"
+    - "Ties errors to fields with aria-describedby and aria-invalid, and adds text or an icon so color is not the only cue"
+    - "Restores a visible focus indicator with :focus-visible"

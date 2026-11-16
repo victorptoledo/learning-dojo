@@ -1,0 +1,93 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* A clear focus ring for keyboard users; mouse clicks do not show it. */
+:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #fff;
+}
+
+.header,
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f2f2f2;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav a {
+  display: inline-block;
+  padding-block: 0.25rem;
+}
+
+.content {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* #595959 on white is 7:1, and still 6.3:1 on the #f2f2f2 footer. */
+.muted {
+  color: #595959;
+}
+
+.details-toggle,
+.submit {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 0;
+  border-radius: 0.25rem;
+  font: inherit;
+  color: #fff;
+  background: #1d4ed8;
+  cursor: pointer;
+}
+
+.newsletter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.newsletter input {
+  font: inherit;
+  padding: 0.4rem;
+}
+
+.divider {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  background: #1a1a1a;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}

@@ -1,0 +1,59 @@
+id: frontend.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata, a product page built from an empty body with semantic HTML, a labelled form, design tokens, a dark theme and a responsive two-column layout."
+objectives:
+  - { id: o1, text: "Explain semantic HTML, accessibility, the cascade and layout in your own words", skills: [frontend.html-semantics, frontend.accessibility, frontend.css-cascade, frontend.css-layout] }
+  - { id: o2, text: "Build an accessible, responsive, themeable page from scratch", skills: [frontend.html-semantics, frontend.accessibility, frontend.css-layout] }
+prerequisites: [frontend.p1.responsive-layout]
+difficulty: 3
+estimated_minutes: 80
+xp: 300
+closes_phase: p1
+covers_skills: [frontend.html-semantics, frontend.accessibility, frontend.css-cascade, frontend.css-layout]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-web, timeout_secs: 120 }
+  hints:
+    - |-
+      Write the HTML first and get the structural tests green (landmarks, breadcrumb, article, specs, the form), then the CSS. Which element groups radio buttons under a caption a screen reader reads? Which element gives a price a machine-readable value?
+    - |-
+      `<fieldset><legend>Size</legend>` with four `<label><input type="radio" name="size" value="S" required> S</label>`; `<label for="quantity">` with `<input id="quantity" type="number" min="1" max="10" value="1">`; the breadcrumb is `<nav aria-label="Breadcrumb"><ol>` with `aria-current="page"` on the last link. In CSS, define the tokens on `:root`, redefine them inside `@media (prefers-color-scheme: dark)`, and use `var(--color-accent)` for the button.
+    - |-
+      ```css
+      :root {
+        color-scheme: light dark;
+        --color-bg: #ffffff;
+        --color-text: #1c1917;
+        --color-accent: #166534;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: #1c1917;
+          --color-text: #f5f5f4;
+          --color-accent: #4ade80;
+        }
+      }
+      .product { display: grid; gap: 2rem; }
+      @media (min-width: 56rem) {
+        .product { grid-template-columns: 1fr 1fr; align-items: start; }
+      }
+      .product-photo { display: block; width: 100%; height: auto; }
+      ```
+
+      In dark mode the button text must contrast with a light green: give it a dark color through a token such as `--color-on-accent`.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-web runner image
+    image: dojo-web
+    why: The Node.js 26 container with headless Chromium, axe-core and html-validate that loads your page and runs the tests.

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Library search</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <!-- You do not need to change this file: the kata is app.js. -->
+    <main class="search-page">
+      <h1>Library search</h1>
+      <form class="search" role="search">
+        <label for="q">Search books</label>
+        <input id="q" name="q" type="search" autocomplete="off" spellcheck="false">
+      </form>
+      <p id="status" role="status"></p>
+      <ul id="results" aria-busy="false" aria-label="Results"></ul>
+    </main>
+  </body>
+</html>

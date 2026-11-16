@@ -1,0 +1,64 @@
+questions:
+  - id: source-maps
+    prompt: "Why upload source maps to an error tracker?"
+    options:
+      - "To make the bundle smaller"
+      - "So minified stack traces map back to the original files and lines"
+      - "To enable CSP"
+      - "To speed up the page"
+    answer: 1
+    explanation: "Without them, errors point at line 1 of a minified file."
+  - id: script-error
+    prompt: "Errors from a script on a CDN show only \"Script error.\". What fixes it?"
+    options:
+      - "A try/catch around everything"
+      - "crossorigin on the <script> tag plus CORS headers on the CDN"
+      - "Moving the script to <head>"
+      - "Turning off minification"
+    answer: 1
+    explanation: "Browsers hide details of cross-origin script errors unless the script is loaded with CORS."
+  - id: baseline
+    prompt: "What does \"Baseline Widely available\" mean for a web feature?"
+    options:
+      - "It is in one browser"
+      - "It has worked in all major browser engines for at least 30 months"
+      - "It is a proposal"
+      - "It needs a polyfill"
+    answer: 1
+    explanation: "Newly available means it just shipped in all of them; widely available adds 30 months."
+  - id: detect
+    prompt: "Which is the right way to use a newer API safely?"
+    options:
+      - "Check navigator.userAgent for \"Chrome\""
+      - "Feature detection (\"yield\" in scheduler) with a fallback"
+      - "Assume every browser has it"
+      - "Ask the user"
+    answer: 1
+    explanation: "Detect the capability, not the browser; @supports does the same in CSS."
+  - id: flags
+    prompt: "What do feature flags add to a release process?"
+    options:
+      - "Faster builds"
+      - "Turning code on for a subset of users and off again without a deploy"
+      - "Smaller bundles"
+      - "Automatic tests"
+    answer: 1
+    explanation: "They separate deploying code from releasing a feature."
+  - id: chunk-error
+    prompt: "After a deploy, users with an old tab open get errors loading a lazy chunk. What helps?"
+    options:
+      - "Deleting old assets immediately"
+      - "Keeping old hashed assets available for a while, and reloading on chunk-load failure"
+      - "Disabling code splitting"
+      - "Caching HTML forever"
+    answer: 1
+    explanation: "The old HTML still points at the old chunk names."
+  - id: intl
+    prompt: "What is the right way to show a price to a user in Germany?"
+    options:
+      - "`\"€\" + price.toFixed(2)`"
+      - "`new Intl.NumberFormat(\"de-DE\", { style: \"currency\", currency: \"EUR\" }).format(price)`"
+      - "`price + \" EUR\"`"
+      - "`price.toString()`"
+    answer: 1
+    explanation: "Intl handles the symbol, its position, separators and grouping for each locale."

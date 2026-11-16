@@ -1,0 +1,64 @@
+questions:
+  - id: name
+    prompt: "Which name is valid for a custom element?"
+    options:
+      - "<card>"
+      - "<CopyButton>"
+      - "<copy-button>"
+      - "<copy_button>"
+    answer: 2
+    explanation: "Custom element names must contain a hyphen (and be lowercase), so they never clash with future HTML elements."
+  - id: lifecycle
+    prompt: "Which callback is the right place to remove a global listener a custom element added?"
+    options:
+      - "constructor"
+      - "connectedCallback"
+      - "disconnectedCallback"
+      - "attributeChangedCallback"
+    answer: 2
+    explanation: "It runs when the element is removed from the document."
+  - id: shadow-css
+    prompt: "Which outside styles reach inside a shadow root?"
+    options:
+      - "All of them"
+      - "None at all"
+      - "Inherited properties (like color and font) and custom properties"
+      - "Only !important rules"
+    answer: 2
+    explanation: "Selectors do not cross the boundary, but inheritance and custom properties do; ::part exposes chosen elements."
+  - id: slot
+    prompt: "What does a `<slot>` in a shadow root do?"
+    options:
+      - "Loads a script"
+      - "Shows the element's light-DOM children at that place"
+      - "Creates a new shadow root"
+      - "Reserves layout space"
+    answer: 1
+    explanation: "Named slots (slot=\"title\") let users place children in specific spots."
+  - id: pe
+    prompt: "Progressive enhancement means:"
+    options:
+      - "Shipping the newest features only"
+      - "Starting from HTML that works on its own, then adding CSS and JavaScript as layers"
+      - "Loading JavaScript first"
+      - "Supporting only Chrome"
+    answer: 1
+    explanation: "If a layer fails, the ones below still work."
+  - id: ssg
+    prompt: "Which rendering strategy fits a documentation site whose content changes on publish?"
+    options:
+      - "Client-side rendering"
+      - "Static site generation"
+      - "Server-side rendering per request"
+      - "WebSockets"
+    answer: 1
+    explanation: "Pre-rendered HTML on a CDN gives the best TTFB and LCP at the lowest cost."
+  - id: aria-shadow
+    prompt: "What is a known accessibility pitfall of shadow DOM?"
+    options:
+      - "Screen readers cannot read shadow content"
+      - "ID references like aria-labelledby and label for cannot point across shadow boundaries"
+      - "Shadow DOM disables keyboard focus"
+      - "Buttons inside shadow DOM have no role"
+    answer: 1
+    explanation: "Keep labels and controls in the same tree, or use ElementInternals and reference-target proposals."

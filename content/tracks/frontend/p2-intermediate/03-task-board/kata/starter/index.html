@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Task board</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <!-- You do not need to change this file: the kata is app.js. -->
+    <main class="board">
+      <h1>Task board</h1>
+      <form id="new-task" class="new-task">
+        <label for="task-title">New task</label>
+        <input id="task-title" name="title" type="text" required maxlength="80" autocomplete="off">
+        <button type="submit">Add</button>
+      </form>
+      <p id="count" role="status">0 tasks left</p>
+
+      <section aria-labelledby="todo-heading">
+        <h2 id="todo-heading">To do</h2>
+        <ul id="todo" class="tasks"></ul>
+      </section>
+      <section aria-labelledby="done-heading">
+        <h2 id="done-heading">Done</h2>
+        <ul id="done" class="tasks"></ul>
+      </section>
+    </main>
+  </body>
+</html>

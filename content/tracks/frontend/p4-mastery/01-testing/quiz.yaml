@@ -1,0 +1,64 @@
+questions:
+  - id: role-query
+    prompt: "Which locator is the most robust and also checks accessibility?"
+    options:
+      - "page.locator(\".btn-primary > span\")"
+      - "page.getByRole(\"button\", { name: \"Save\" })"
+      - "page.locator(\"#app div:nth-child(3) button\")"
+      - "page.locator(\"xpath=//button[1]\")"
+    answer: 1
+    explanation: "It finds what users and assistive technology see: a button named Save."
+  - id: sleep
+    prompt: "A test does `await page.waitForTimeout(1000)` before checking results. What is wrong?"
+    options:
+      - "Nothing"
+      - "It is slow and still flaky: wait for the condition (a web-first assertion) instead"
+      - "waitForTimeout does not exist"
+      - "It should be 2000"
+    answer: 1
+    explanation: "Fixed sleeps are too long on fast machines and too short on slow CI."
+  - id: jsdom
+    prompt: "Why can't jsdom check that a card is 384px wide?"
+    options:
+      - "jsdom is too slow"
+      - "jsdom has no layout engine: boxes have no real size"
+      - "jsdom does not support CSS files"
+      - "It can"
+    answer: 1
+    explanation: "Layout, focus visibility and rendering metrics need a real browser."
+  - id: trophy
+    prompt: "Where does the testing trophy put most of the effort?"
+    options:
+      - "End-to-end tests"
+      - "Integration tests of components and pages"
+      - "Snapshot tests"
+      - "Manual testing"
+    answer: 1
+    explanation: "They give the most confidence per cost; static checks and a few end-to-end tests surround them."
+  - id: debounce-test
+    prompt: "How do you test a 300 ms debounce reliably?"
+    options:
+      - "Sleep 300 ms"
+      - "Install a fake clock and advance it by 299 ms, then 1 ms"
+      - "Remove the debounce in tests"
+      - "Run the test many times"
+    answer: 1
+    explanation: "Fake timers make time deterministic: page.clock in Playwright, vi.useFakeTimers in Vitest."
+  - id: axe-coverage
+    prompt: "axe-core reports zero violations. What does that prove?"
+    options:
+      - "The page is fully accessible"
+      - "No automatically detectable problems in the states you scanned; manual and keyboard testing are still needed"
+      - "WCAG AAA compliance"
+      - "Nothing at all"
+    answer: 1
+    explanation: "Automated checks find a part of the issues; meaning, order and usability need people."
+  - id: mock
+    prompt: "Where is the best place to mock an API in a frontend integration test?"
+    options:
+      - "Replace fetch inside the component's code"
+      - "At the network level (page.route or Mock Service Worker)"
+      - "Change the production server"
+      - "Do not mock, call production"
+    answer: 1
+    explanation: "The app's real fetch code runs, and you can return errors and delays."

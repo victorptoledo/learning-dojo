@@ -1,0 +1,59 @@
+id: frontend.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz over the DOM, events, forms, fetch and storage, and an integration kata, a feedback form with accessible custom validation, a draft saved in localStorage and a JSON submission with fetch."
+objectives:
+  - { id: o1, text: "Explain events and delegation, constraint validation, fetch errors and cancellation, and where state lives", skills: [frontend.dom-events, frontend.forms, frontend.fetch-async, frontend.browser-storage] }
+  - { id: o2, text: "Build a form that validates accessibly, never loses input and submits with fetch", skills: [frontend.forms, frontend.fetch-async, frontend.browser-storage] }
+prerequisites: [frontend.p2.live-search]
+difficulty: 3
+estimated_minutes: 90
+xp: 400
+closes_phase: p2
+covers_skills: [frontend.dom-events, frontend.forms, frontend.fetch-async, frontend.browser-storage]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-web, timeout_secs: 120 }
+  hints:
+    - |-
+      Build it bottom up: `errorFor`, then `checkField` and `validate`, then `formValues`, the draft functions and `sendFeedback`, and only then the three listeners. Which `validity` flags cover each message? What does `checkField` need to change in the DOM besides the message text?
+    - |-
+      `errorFor`: check `validity.valueMissing` (or a blank trimmed value), then `typeMismatch`, then the length against `field.minLength`. For the rating, `form.elements` holds the radios: take the first one with that name; its `validity.valueMissing` is true while none of the group is checked, and `aria-invalid` goes on its `closest("fieldset")`. `formValues`: `new FormData(form)` and `String(data.get(name) ?? "")`. `loadDraft`: `JSON.parse` inside `try`, then set values and check the matching radio.
+    - |-
+      ```js
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const invalid = validate(form);
+        if (invalid) {
+          status.textContent = "Please fix the errors in the form.";
+          invalid.focus();
+          return;
+        }
+        const values = formValues(form);
+        submit.disabled = true;
+        status.textContent = "Sending…";
+        try {
+          await sendFeedback(values);
+          // thank, reset, remove the draft, reset the counter
+        } catch {
+          status.textContent = "Sending failed. Your message is saved; try again.";
+        } finally {
+          submit.disabled = false;
+        }
+      });
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-web runner image
+    image: dojo-web
+    why: The Node.js 26 container with headless Chromium, axe-core and html-validate that loads your page and runs the tests.

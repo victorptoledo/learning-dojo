@@ -1,0 +1,159 @@
+:root {
+  color-scheme: light dark;
+  --color-bg: #ffffff;
+  --color-text: #1c1917;
+  --color-muted: #57534e;
+  --color-surface: #f5f5f4;
+  --color-accent: #166534;
+  --color-on-accent: #ffffff;
+  --space: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1c1917;
+    --color-text: #f5f5f4;
+    --color-muted: #d6d3d1;
+    --color-surface: #292524;
+    --color-accent: #4ade80;
+    --color-on-accent: #052e16;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.site-header,
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space);
+  padding: var(--space);
+  background: var(--color-surface);
+}
+
+.site-header ul,
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-header a,
+.breadcrumb a {
+  display: inline-block;
+  padding-block: 0.25rem;
+}
+
+.brand {
+  font-weight: 700;
+}
+
+main {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: var(--space);
+}
+
+.breadcrumb li + li::before {
+  content: "/";
+  margin-inline-end: var(--space);
+  color: var(--color-muted);
+}
+
+.product {
+  display: grid;
+  gap: 2rem;
+}
+
+.product-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.price {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.specs {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem var(--space);
+}
+
+.specs dt {
+  font-weight: 600;
+}
+
+.specs dd {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space);
+  margin: 0 0 var(--space);
+  border: 1px solid var(--color-muted);
+}
+
+.sizes label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2rem;
+}
+
+.buy input[type="number"] {
+  width: 5rem;
+  font: inherit;
+  padding: 0.25rem;
+}
+
+.buy button {
+  display: block;
+  margin-top: var(--space);
+  padding: 0.75rem 1.5rem;
+  border: 0;
+  border-radius: 0.25rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  cursor: pointer;
+}
+
+@media (min-width: 56rem) {
+  .product {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}

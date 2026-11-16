@@ -1,0 +1,64 @@
+questions:
+  - id: textcontent
+    prompt: "A user's comment is shown on the page. Which line is safe?"
+    options:
+      - "el.innerHTML = comment"
+      - "el.textContent = comment"
+      - "el.outerHTML = comment"
+      - "document.write(comment)"
+    answer: 1
+    explanation: "textContent never parses HTML, so markup in the comment is shown as text."
+  - id: bubble-order
+    prompt: "A click lands on a <span> inside a <button> inside a <li>. In the bubbling phase, which listener runs first?"
+    options:
+      - "The li's"
+      - "The button's"
+      - "The span's"
+      - "document's"
+    answer: 2
+    explanation: "Bubbling goes from the target up: span, button, li, ..., document, window."
+  - id: target-current
+    prompt: "In a listener on a <ul>, what is `event.currentTarget`?"
+    options:
+      - "The element that was clicked"
+      - "The <ul>"
+      - "document"
+      - "The first <li>"
+    answer: 1
+    explanation: "currentTarget is the element whose listener runs; target is where the event started."
+  - id: delegation
+    prompt: "Why does event delegation work for items added after the listener?"
+    options:
+      - "The browser copies listeners to new children"
+      - "Events from the new items bubble up to the ancestor that listens"
+      - "closest() adds listeners"
+      - "It does not work for new items"
+    answer: 1
+    explanation: "The listener is on an ancestor that already exists; new children's events reach it."
+  - id: prevent
+    prompt: "What does `event.preventDefault()` in a submit listener do?"
+    options:
+      - "Stops other listeners"
+      - "Stops the browser from submitting the form and loading a new page"
+      - "Clears the form"
+      - "Validates the form"
+    answer: 1
+    explanation: "It cancels the default action; stopPropagation is the one that stops the event travelling."
+  - id: focus-bubble
+    prompt: "Which event bubbles, so a form can listen for focus moving between its fields?"
+    options:
+      - "focus"
+      - "blur"
+      - "focusin"
+      - "load"
+    answer: 2
+    explanation: "focus and blur do not bubble; focusin and focusout do."
+  - id: remove-focus
+    prompt: "A user deletes the task whose Delete button has focus. What should the code do?"
+    options:
+      - "Nothing"
+      - "Move the focus to a sensible element, like the next task or the input"
+      - "Reload the page"
+      - "Call blur() on body"
+    answer: 1
+    explanation: "Otherwise the focus falls to <body> and keyboard and screen-reader users lose their place."

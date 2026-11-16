@@ -1,0 +1,64 @@
+questions:
+  - id: sop
+    prompt: "What does the same-origin policy stop?"
+    options:
+      - "Sending any request to another origin"
+      - "A page reading another origin's responses, DOM or storage"
+      - "Loading images from a CDN"
+      - "Using HTTPS"
+    answer: 1
+    explanation: "Cross-origin requests can be sent; reading the result is what is restricted."
+  - id: dom-xss
+    prompt: "Which code is a DOM-based XSS?"
+    options:
+      - "el.textContent = location.hash"
+      - "el.innerHTML = decodeURIComponent(location.hash.slice(1))"
+      - "el.setAttribute(\"title\", location.hash)"
+      - "console.log(location.hash)"
+    answer: 1
+    explanation: "A source the attacker controls (the URL) flows into an HTML sink."
+  - id: js-url
+    prompt: "A user's website is put in `<a href>`. What must you check?"
+    options:
+      - "Its length"
+      - "That it parses as a URL with the http: or https: protocol"
+      - "That it ends with .com"
+      - "Nothing, href is safe"
+    answer: 1
+    explanation: "javascript: URLs run code when clicked; data: URLs can carry documents."
+  - id: csp-inline
+    prompt: "With `script-src 'self'`, what happens to `<button onclick=\"save()\">`?"
+    options:
+      - "It works"
+      - "The inline handler is blocked; use addEventListener in a script file"
+      - "The button is removed"
+      - "Only the first click works"
+    answer: 1
+    explanation: "Inline scripts and event handler attributes need 'unsafe-inline', which defeats the point."
+  - id: trusted-types
+    prompt: "What does `require-trusted-types-for 'script'` do?"
+    options:
+      - "Encrypts scripts"
+      - "Makes string assignments to sinks like innerHTML throw unless a Trusted Types policy created the value"
+      - "Blocks all scripts"
+      - "Signs cookies"
+    answer: 1
+    explanation: "DOM XSS sinks only accept typed values from reviewed policies."
+  - id: cors
+    prompt: "Your frontend gets a CORS error calling your own API on another subdomain. Where is it fixed?"
+    options:
+      - "In the frontend with mode: \"no-cors\""
+      - "On the API server, with the right Access-Control-Allow-* headers"
+      - "By disabling the browser's security"
+      - "With a meta tag"
+    answer: 1
+    explanation: "The server decides which origins may read its responses; no-cors only gives an opaque, unreadable response."
+  - id: samesite
+    prompt: "Which cookie attribute blocks most CSRF by not sending the cookie on cross-site posts?"
+    options:
+      - "HttpOnly"
+      - "Secure"
+      - "SameSite=Lax (or Strict)"
+      - "Path=/"
+    answer: 2
+    explanation: "HttpOnly hides it from scripts and Secure requires HTTPS; SameSite controls cross-site sending."

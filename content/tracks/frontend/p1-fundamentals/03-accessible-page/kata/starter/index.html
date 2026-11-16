@@ -1,0 +1,51 @@
+<!doctype html>
+<!-- todo: this page works with a mouse and looks fine, but many people cannot use it.
+     Fix the HTML (and style.css and app.js where needed) until README.md's list is done. -->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Frontend Meetup #12</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <div class="header">
+      <img class="logo" src="logo.svg" width="48" height="48">
+      <div class="nav">
+        <a href="#schedule">Schedule</a>
+        <a href="#venue">Venue</a>
+        <a href="#newsletter">Newsletter</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <h1>Frontend Meetup #12</h1>
+      <p class="muted">Thursday, 3 December, 18:30. Free entry.</p>
+
+      <h4 id="schedule">Tonight's talk</h4>
+      <img class="speaker" src="speaker.svg" width="160" height="160">
+      <p>Grace Hopper explains why every button on the web should be a real button.</p>
+      <div class="details-toggle">Show details</div>
+      <div id="talk-details" hidden>
+        <p>Forty minutes of talk, twenty of questions. Bring your own laptop if you want to follow along.</p>
+      </div>
+      <img class="divider" src="divider.svg" alt="decoration" width="600" height="8">
+
+      <h4 id="venue">Venue</h4>
+      <p>The library, second floor. The building has a lift and step-free access.
+        For the map, <a href="https://www.openstreetmap.org/">click here</a>.</p>
+
+      <h4 id="newsletter">Newsletter</h4>
+      <form class="newsletter">
+        <input type="text" name="email" placeholder="Your email">
+        <div class="submit">Subscribe</div>
+      </form>
+      <p class="newsletter-status"></p>
+    </div>
+
+    <div class="footer">
+      <p class="muted">Organised by volunteers. Questions: hello@example.com</p>
+    </div>
+  </body>
+</html>

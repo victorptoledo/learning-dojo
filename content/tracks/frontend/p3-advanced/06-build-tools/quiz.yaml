@@ -1,0 +1,64 @@
+questions:
+  - id: bare
+    prompt: "In a browser without a bundler, why does `import { z } from \"zod\"` fail?"
+    options:
+      - "Browsers do not support import"
+      - "Bare specifiers need an import map or a bundler to resolve them"
+      - "zod is not an ES module"
+      - "Imports only work in Node.js"
+    answer: 1
+    explanation: "Browsers resolve URLs; a bare name means nothing without a mapping."
+  - id: tree-shaking
+    prompt: "What does tree shaking need to work well?"
+    options:
+      - "CommonJS modules"
+      - "ES modules with static imports and no side effects at import time"
+      - "Minified input"
+      - "One big file"
+    answer: 1
+    explanation: "Static import/export lets the bundler prove an export is unused."
+  - id: split
+    prompt: "How do you load the admin page's code only when someone opens it?"
+    options:
+      - "A second <script> tag in index.html"
+      - "A dynamic import(\"./admin.js\") at the route"
+      - "Minify it"
+      - "Put it in a worker"
+    answer: 1
+    explanation: "Each dynamic import becomes a separate chunk fetched on demand."
+  - id: hash
+    prompt: "Why do bundlers put content hashes in file names (app.3f9a1c.js)?"
+    options:
+      - "For security"
+      - "So the files can be cached forever: a change produces a new name"
+      - "To make them smaller"
+      - "To hide the source"
+    answer: 1
+    explanation: "Cache-Control: immutable on hashed files, and no-cache on the HTML that references them."
+  - id: env
+    prompt: "Is `import.meta.env.VITE_API_KEY` a safe place for a secret key?"
+    options:
+      - "Yes, it is encrypted"
+      - "No: build-time variables are written into the public bundle"
+      - "Only in production"
+      - "Only if minified"
+    answer: 1
+    explanation: "Anything in frontend code can be read by anyone who loads the page."
+  - id: vite-dev
+    prompt: "What makes Vite's development server start fast on big projects?"
+    options:
+      - "It bundles everything with webpack first"
+      - "It serves native ES modules on demand and only transforms what the browser requests"
+      - "It skips JavaScript"
+      - "It caches in localStorage"
+    answer: 1
+    explanation: "No up-front bundle in development; production builds are bundled."
+  - id: compressed
+    prompt: "Which size matters most for download time?"
+    options:
+      - "The source size in the repository"
+      - "The compressed (gzip or Brotli) size of what is shipped"
+      - "The number of files"
+      - "The size of node_modules"
+    answer: 1
+    explanation: "And for JavaScript, also the parse and compile cost on slow devices."

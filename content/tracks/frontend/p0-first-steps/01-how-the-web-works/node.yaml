@@ -1,0 +1,24 @@
+id: frontend.p0.how-the-web-works
+kind: lesson
+status: draft
+title: "How the Web Works: From a URL to Pixels"
+summary: "What a frontend developer builds, the three languages of the platform, what happens between a URL and a rendered page (DNS, TLS, HTTP, parsing), origins, and the DevTools panels you will use every day."
+objectives:
+  - { id: o1, text: "Explain the roles of HTML, CSS and JavaScript and why content must work before it is enhanced", skills: [frontend.web-platform] }
+  - { id: o2, text: "Describe the steps from a URL to a rendered page, with the HTTP request and response in the middle", skills: [frontend.web-platform] }
+  - { id: o3, text: "Use the Elements, Console and Network panels of the DevTools to inspect a page", skills: [frontend.web-platform] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 35
+xp: 50
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Open any news site with the DevTools' Network panel recording and reload the page. Describe, in your own words, what you see: the first request and its status and Content-Type, how many requests follow and of which kinds (documents, stylesheets, scripts, images, fonts, fetch/XHR), one response header that controls caching and one that controls security, and which requests go to other origins. Then explain what would still work if JavaScript were turned off, and why that matters."
+  criteria:
+    - "Identifies the first request as the HTML document with status 200 (or a redirect) and Content-Type text/html"
+    - "Groups the following requests by type and explains that each <link>, <script> and <img> causes one"
+    - "Names a caching header (Cache-Control, ETag, Expires) and a security header (Content-Security-Policy, Strict-Transport-Security, X-Content-Type-Options)"
+    - "Explains what an origin is and spots third-party origins"
+    - "Relates the JavaScript-off question to progressive enhancement"

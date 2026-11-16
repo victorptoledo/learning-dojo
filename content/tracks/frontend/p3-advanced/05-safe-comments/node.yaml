@@ -1,0 +1,42 @@
+id: frontend.p3.safe-comments
+kind: kata
+status: draft
+title: "Safe Comments: Stop XSS and Lock It Down with CSP"
+summary: "A comments widget builds HTML from strangers' text. Render it with createElement and textContent, link only to http(s) websites with rel ugc, move inline scripts out of the HTML, and serve a strict Content-Security-Policy with Trusted Types and the other security headers from a _headers file."
+objectives:
+  - { id: o1, text: "Render untrusted data safely and allow only http(s) URLs in links", skills: [frontend.security, frontend.dom-events] }
+  - { id: o2, text: "Serve a strict Content-Security-Policy with Trusted Types and security headers", skills: [frontend.security] }
+prerequisites: [frontend.p3.browser-security]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-web, timeout_secs: 120 }
+  hints:
+    - |-
+      Two halves: the code, then the policy. Every test about payloads fails until `commentElement` stops using `innerHTML`. Which DOM methods build an element without parsing HTML? For `safeUrl`, which built-in parses a URL and tells you its protocol?
+    - |-
+      `safeUrl`: `new URL(value.trim())` inside `try`, then accept only `url.protocol === "http:" || "https:"` and return `url.href`. `commentElement`: create `li.comment`, `p.author` (with an `a` whose `href`, `rel = "nofollow ugc noopener noreferrer"` and `textContent` you set, or just text) and `p.body` with `textContent`. Delete the inline `<script>` and the `onclick` attribute; add `document.querySelector("#load").addEventListener("click", ...)`.
+    - |-
+      ```text
+      /*
+        X-Content-Type-Options: nosniff
+        Referrer-Policy: strict-origin-when-cross-origin
+        Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'
+      ```
+
+      Keep the whole policy on one line in `_headers`. With Trusted Types on, any leftover `innerHTML = "..."` throws a TypeError, which the tests report.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-web runner image
+    image: dojo-web
+    why: The Node.js 26 container with headless Chromium, axe-core and html-validate that loads your page and runs the tests.

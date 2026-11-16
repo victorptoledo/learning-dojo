@@ -1,0 +1,24 @@
+id: frontend.p2.fetch-async
+kind: lesson
+status: draft
+title: "fetch, async Code and Cancellation in the Browser"
+summary: "The main thread and the event loop, fetch and response.ok, URLSearchParams and JSON bodies, promise combinators, AbortController and timeouts, stale responses, debounce and throttle, and loading, empty and error states."
+objectives:
+  - { id: o1, text: "Explain the event loop and why await keeps the page responsive while long synchronous code does not", skills: [frontend.fetch-async] }
+  - { id: o2, text: "Call APIs with fetch, check response.ok, build URLs with URLSearchParams and send JSON", skills: [frontend.fetch-async] }
+  - { id: o3, text: "Cancel requests with AbortController, ignore stale responses and debounce user input", skills: [frontend.fetch-async] }
+prerequisites: [frontend.p2.task-board]
+difficulty: 3
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A product page shows prices from `/api/prices?ids=1,2,3`. Users report three bugs: a 500 from the server shows an empty table with no message; switching quickly between two categories sometimes shows the first category's prices under the second's title; and typing in the filter field sends a request per keystroke. Explain the cause of each bug and write the fixed fetching code, including the loading, empty and error states and how they are announced to screen-reader users."
+  criteria:
+    - "Explains that fetch resolves on HTTP errors and checks response.ok, throwing or handling non-2xx statuses"
+    - "Explains the race between responses and fixes it with AbortController and/or by ignoring results that are not the latest"
+    - "Debounces the filter input (about 250–400 ms) and explains debounce versus throttle"
+    - "Builds the query with URLSearchParams instead of string concatenation"
+    - "Shows loading, empty and error states in a role=\"status\" region and sets aria-busy while loading"

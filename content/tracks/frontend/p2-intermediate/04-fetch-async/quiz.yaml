@@ -1,0 +1,64 @@
+questions:
+  - id: fetch-404
+    prompt: "`await fetch(\"/missing\")` gets a 404. What happens?"
+    options:
+      - "fetch rejects with an Error"
+      - "fetch resolves; response.ok is false"
+      - "fetch returns null"
+      - "The page reloads"
+    answer: 1
+    explanation: "fetch only rejects for network failures and aborts; check response.ok yourself."
+  - id: await-block
+    prompt: "While `await fetch(url)` waits for the network, can the user scroll and click?"
+    options:
+      - "No, await blocks the main thread"
+      - "Yes: await ends the current task and the page keeps handling events"
+      - "Only in workers"
+      - "Only if the request is cached"
+    answer: 1
+    explanation: "await suspends the function, not the thread; a long synchronous loop is what blocks."
+  - id: parallel
+    prompt: "Three independent requests run one after another in a `for` loop with `await`. How do you run them in parallel?"
+    options:
+      - "Add async to the loop"
+      - "Start all three and await Promise.all([...])"
+      - "Use setTimeout"
+      - "Use await three times on one line"
+    answer: 1
+    explanation: "Promise.all waits for all of them while they run at the same time."
+  - id: abort-error
+    prompt: "You abort a fetch with its AbortController. What does the awaiting code see?"
+    options:
+      - "A resolved response with status 0"
+      - "A rejection with an error named AbortError"
+      - "Nothing: the promise never settles"
+      - "A 499 status"
+    answer: 1
+    explanation: "Check error.name === \"AbortError\" and usually ignore it, since a newer request owns the screen."
+  - id: stale
+    prompt: "Request A (slow) starts before request B (fast). Without precautions, what can the screen end up showing?"
+    options:
+      - "B, always"
+      - "A's result, because it arrives last"
+      - "Both merged"
+      - "An error"
+    answer: 1
+    explanation: "Responses come back in any order; abort A or ignore results that are not the latest."
+  - id: debounce
+    prompt: "Search as you type should send a request only when the user pauses. Which technique?"
+    options:
+      - "Throttle"
+      - "Debounce"
+      - "Promise.race"
+      - "A for loop"
+    answer: 1
+    explanation: "Debounce runs after the calls stop; throttle runs at most once per interval while they continue."
+  - id: urlsearchparams
+    prompt: "What does `new URLSearchParams({ q: \"c & c++\" }).toString()` give?"
+    options:
+      - "q=c & c++"
+      - "q=c+%26+c%2B%2B"
+      - "q=c%20&%20c++"
+      - "q=\"c & c++\""
+    answer: 1
+    explanation: "Spaces become +, & and + are percent-encoded, so the server reads exactly what the user typed."

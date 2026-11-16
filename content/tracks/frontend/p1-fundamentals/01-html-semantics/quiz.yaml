@@ -1,0 +1,55 @@
+questions:
+  - id: main-count
+    prompt: "How many `<main>` elements should a page show at a time?"
+    options:
+      - "One"
+      - "One per section"
+      - "As many as needed"
+      - "None: main is deprecated"
+    answer: 0
+    explanation: "main marks the unique main content; screen readers jump to it."
+  - id: heading-skip
+    prompt: "You want a smaller heading under an `<h2>`. What is right?"
+    options:
+      - "Use <h4>, it is smaller"
+      - "Use <h3> and size it with CSS"
+      - "Use a <p class=\"heading\">"
+      - "Use <h2> again"
+    answer: 1
+    explanation: "Levels describe structure; skipping one breaks the outline for heading navigation."
+  - id: link-or-button
+    prompt: "A control opens a dialog on the same page. Which element?"
+    options:
+      - "<a href=\"#\">"
+      - "<div onclick>"
+      - "<button type=\"button\">"
+      - "<span role=\"link\">"
+    answer: 2
+    explanation: "Buttons act, links navigate. A button is focusable and works with Enter and Space."
+  - id: decorative-alt
+    prompt: "What is the right `alt` for a purely decorative divider image?"
+    options:
+      - "alt=\"divider\""
+      - "alt=\"image\""
+      - "alt=\"\""
+      - "No alt attribute at all"
+    answer: 2
+    explanation: "An empty alt tells assistive technology to skip the image; a missing alt makes some read the file name."
+  - id: time
+    prompt: "Which markup gives a date that machines can read?"
+    options:
+      - "<span class=\"date\">3 Dec</span>"
+      - "<time datetime=\"2026-12-03\">3 Dec</time>"
+      - "<date>3 Dec</date>"
+      - "<p data-date>3 Dec</p>"
+    answer: 1
+    explanation: "time with a datetime attribute keeps the human text and adds a standard value."
+  - id: button-default
+    prompt: "What does a `<button>` without a `type` do inside a `<form>`?"
+    options:
+      - "Nothing"
+      - "Submits the form"
+      - "Resets the form"
+      - "It is invalid HTML"
+    answer: 1
+    explanation: "The default type is submit; write type=\"button\" for buttons that only run script."

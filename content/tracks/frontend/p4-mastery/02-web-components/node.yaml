@@ -1,0 +1,24 @@
+id: frontend.p4.web-components
+kind: lesson
+status: draft
+title: "Web Components, Progressive Enhancement and Frontend Architecture"
+summary: "Custom elements and their lifecycle, shadow DOM, templates, slots and parts, declarative shadow DOM and accessibility caveats, progressive enhancement and islands, rendering strategies (SSG, SSR, CSR, islands, streaming), design systems and architecture for large frontends."
+objectives:
+  - { id: o1, text: "Build framework-independent components with custom elements and shadow DOM", skills: [frontend.web-components] }
+  - { id: o2, text: "Apply progressive enhancement so pages work before and without JavaScript", skills: [frontend.web-components, frontend.html-semantics] }
+  - { id: o3, text: "Choose a rendering strategy and an architecture for a given product", skills: [frontend.web-components] }
+prerequisites: [frontend.p4.testing]
+difficulty: 5
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A company has three products in React, Angular and plain server-rendered pages, and wants one shared set of UI components (buttons, a date picker, a disclosure, a toast) plus one look across all of them. A marketing site, a logged-in dashboard and a public product catalog are planned. Propose how the components should be built and distributed, how theming works, how they stay accessible and usable without JavaScript where possible, and which rendering strategy each of the three new sites should use, with reasons."
+  criteria:
+    - "Proposes custom elements (maybe with a small library like Lit) so every framework can use the components"
+    - "Themes through custom properties (design tokens) that cross shadow boundaries, plus ::part for exposed internals"
+    - "Addresses accessibility: native elements inside, label and ARIA references not crossing shadow roots, form-associated elements via ElementInternals"
+    - "Applies progressive enhancement: server-rendered fallbacks or declarative shadow DOM, native <details>/<dialog>/popover where possible"
+    - "Chooses static generation for marketing, CSR or SSR behind login for the dashboard, and SSR or islands for the catalog, with LCP and SEO reasoning"

@@ -1,0 +1,24 @@
+id: frontend.p1.cascade-box-model
+kind: lesson
+status: draft
+title: "The Cascade, Specificity and the Box Model"
+summary: "Selectors, the cascade's order (origin, layers, specificity, order), inheritance, units, custom properties as design tokens, the box model with border-box, margin collapsing, and stacking contexts."
+objectives:
+  - { id: o1, text: "Predict which declaration wins from origin, cascade layers, specificity and order", skills: [frontend.css-cascade] }
+  - { id: o2, text: "Use inheritance, rem units and custom properties to build a themeable base", skills: [frontend.css-cascade] }
+  - { id: o3, text: "Compute a box's size with content-box and border-box and explain margin collapsing", skills: [frontend.css-cascade] }
+prerequisites: [frontend.p1.accessible-page]
+difficulty: 2
+estimated_minutes: 50
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "In a project, `.button { color: white; }` does not win against `#sidebar a { color: blue; }` for `<a class=\"button\">` links in the sidebar, and someone fixed it with `!important`. Later, a `.card` with `width: 300px; padding: 24px; border: 1px solid` overflows its 300px column, and a modal with `z-index: 9999` shows under the header. Explain the cause of each problem with the cascade and the box model, and propose a durable fix for each (no new !important)."
+  criteria:
+    - "Computes the specificities: (1,0,1) for #sidebar a beats (0,1,0) for .button"
+    - "Proposes lowering specificity (classes instead of ids, :where()) or ordering with @layer instead of !important"
+    - "Computes the card as 350px wide in content-box and fixes it with box-sizing: border-box"
+    - "Explains stacking contexts: the modal is trapped inside an ancestor that creates one (transform, opacity, position with z-index)"
+    - "Suggests moving the modal out (for example to the end of body or the top layer with <dialog>) or fixing the ancestor"

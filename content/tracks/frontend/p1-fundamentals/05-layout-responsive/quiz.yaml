@@ -1,0 +1,64 @@
+questions:
+  - id: flex-or-grid
+    prompt: "Which layout fits flexbox best?"
+    options:
+      - "A photo gallery aligned in rows and columns"
+      - "A row of tags that wraps onto new lines as needed"
+      - "A page with header, sidebar, main and footer areas"
+      - "A calendar month view"
+    answer: 1
+    explanation: "Content-sized items in one direction that wrap are flexbox's strength; aligned rows and columns are grid's."
+  - id: minmax
+    prompt: "A grid column `1fr` grows wider than intended because a cell holds a very long URL. What fixes it?"
+    options:
+      - "width: 100%"
+      - "minmax(0, 1fr)"
+      - "flex: 1"
+      - "display: block"
+    answer: 1
+    explanation: "1fr has an automatic minimum (the content's width); minmax(0, 1fr) allows it to shrink."
+  - id: auto-fill
+    prompt: "What does `grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr))` do?"
+    options:
+      - "Always three columns"
+      - "As many columns of at least 14rem as fit, sharing the leftover space"
+      - "One column 14rem wide"
+      - "Columns that never shrink"
+    answer: 1
+    explanation: "A responsive grid without media queries."
+  - id: mobile-first
+    prompt: "Mobile-first CSS means:"
+    options:
+      - "Writing max-width queries for small screens"
+      - "Writing the small-screen layout without a query, then min-width queries for larger screens"
+      - "Hiding content on phones"
+      - "Using a separate m. site"
+    answer: 1
+    explanation: "The base CSS is the simplest layout; larger screens add complexity."
+  - id: push-bottom
+    prompt: "In a card with `display: flex; flex-direction: column`, how do you keep the button at the bottom?"
+    options:
+      - "position: absolute; bottom: 0"
+      - "margin-top: auto on the button"
+      - "vertical-align: bottom"
+      - "float: bottom"
+    answer: 1
+    explanation: "An auto margin takes all the free space in that direction."
+  - id: container
+    prompt: "What does a container query respond to?"
+    options:
+      - "The viewport's width"
+      - "The size of the nearest ancestor declared as a container"
+      - "The device type"
+      - "The user's preferences"
+    answer: 1
+    explanation: "The same component adapts to where it is placed, which media queries cannot do."
+  - id: reflow
+    prompt: "WCAG's Reflow criterion asks that content works without horizontal scrolling at which width?"
+    options:
+      - "320 CSS pixels"
+      - "768 CSS pixels"
+      - "1024 CSS pixels"
+      - "Any width above 100px"
+    answer: 0
+    explanation: "320px is what 1280px looks like at 400% zoom."

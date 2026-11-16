@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Comments</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <main class="comments-page">
+      <h1>Comments</h1>
+      <button type="button" id="load">Load comments</button>
+      <ul id="comments" aria-label="Comments"></ul>
+
+      <form id="new-comment">
+        <label for="author">Name</label>
+        <input id="author" name="author" required>
+        <label for="website">Website (optional)</label>
+        <input id="website" name="website" type="url" placeholder="https://">
+        <label for="body">Comment</label>
+        <textarea id="body" name="body" rows="3" required></textarea>
+        <button type="submit">Post</button>
+      </form>
+    </main>
+  </body>
+</html>

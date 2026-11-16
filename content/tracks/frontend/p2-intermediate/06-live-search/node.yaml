@@ -1,0 +1,52 @@
+id: frontend.p2.live-search
+kind: kata
+status: draft
+title: "Live Search: Debounce, Abort and Cache"
+summary: "Search a catalog as the user types: debounce the input, fetch JSON and check response.ok, abort the previous request and ignore stale answers, cache results in a Map, keep the query in the URL and localStorage, and announce loading, empty and error states."
+objectives:
+  - { id: o1, text: "Debounce input, fetch JSON with error handling and cancel stale requests", skills: [frontend.fetch-async] }
+  - { id: o2, text: "Keep the query in the URL and localStorage and cache answers in memory", skills: [frontend.browser-storage, frontend.fetch-async] }
+prerequisites: [frontend.p2.storage-state]
+difficulty: 3
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-web, timeout_secs: 120 }
+  hints:
+    - |-
+      Write the small functions first (`debounce`, `searchUrl`, `resultLabel`, `search`): the tests call them directly. Then `runSearch`. What should happen to the request that is still running when a new search starts, and how does its `catch` know it was cancelled on purpose?
+    - |-
+      Keep `let controller = null` and a `const cache = new Map()` at module level. In `runSearch`: `controller?.abort()`; update the URL with `history.replaceState` and `localStorage`; return early for a blank query or a cached one; otherwise create a new `AbortController`, set `aria-busy` and "Searching…", and `await search(query, { signal })`. In `catch`, return when `error.name === "AbortError"`. Only the search that is still `controller` resets `aria-busy`.
+    - |-
+      ```js
+      export function debounce(fn, ms) {
+        let timer;
+        return (...args) => {
+          clearTimeout(timer);
+          timer = setTimeout(() => fn(...args), ms);
+        };
+      }
+
+      export function searchUrl(query) {
+        return `/api/search?${new URLSearchParams({ q: query })}`;
+      }
+
+      const searchLater = debounce(runSearch, DELAY_MS);
+      input.addEventListener("input", () => searchLater(input.value));
+
+      const initial = new URLSearchParams(location.search).get("q") ?? localStorage.getItem(STORAGE_KEY) ?? "";
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-web runner image
+    image: dojo-web
+    why: The Node.js 26 container with headless Chromium, axe-core and html-validate that loads your page and runs the tests.
