@@ -1,0 +1,28 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AnalyticsReadsDatasets",
+      "Effect": "Allow",
+      "Principal": { "AWS": "arn:aws:iam::444455556666:role/analytics" },
+      "Action": ["s3:GetObject", "s3:ListBucket"],
+      "Resource": ["arn:aws:s3:::acme-shared-datasets", "arn:aws:s3:::acme-shared-datasets/*"]
+    },
+    {
+      "Sid": "DenyOutsideTheOrganization",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": ["arn:aws:s3:::acme-shared-datasets", "arn:aws:s3:::acme-shared-datasets/*"],
+      "Condition": { "StringNotEquals": { "aws:PrincipalOrgID": "o-acme1234567" } }
+    },
+    {
+      "Sid": "DenyInsecureTransport",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": ["arn:aws:s3:::acme-shared-datasets", "arn:aws:s3:::acme-shared-datasets/*"],
+      "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+    }
+  ]
+}

@@ -1,4 +1,18 @@
 namespace: aws
 skills:
+  - { id: aws.cloud-basics, title: "The Cloud, the Shared Responsibility Model, Regions and Accounts" }
   - { id: aws.iam-least-privilege, title: "IAM: Roles, Policies and Least Privilege" }
+  - { id: aws.ec2, title: "EC2: Instances, AMIs, EBS and Auto Scaling" }
+  - { id: aws.s3, title: "S3: Buckets, Storage Classes, Encryption and Access" }
   - { id: aws.vpc-subnets, title: "VPC: Public Subnets, Private Subnets and NAT Gateways" }
+  - { id: aws.cloudformation, title: "Infrastructure as Code: CloudFormation and CDK" }
+  - { id: aws.databases, title: "Databases: RDS, Aurora and DynamoDB" }
+  - { id: aws.lambda-serverless, title: "Lambda and Serverless: API Gateway, SQS, SNS, EventBridge and Step Functions" }
+  - { id: aws.containers, title: "Containers: ECR, ECS, Fargate and EKS" }
+  - { id: aws.cloudwatch, title: "Observability: CloudWatch Metrics, Logs, Alarms and X-Ray" }
+  - { id: aws.multi-account-iam, title: "Multi-Account IAM: Organizations, SCPs, Boundaries and Cross-Account Access" }
+  - { id: aws.security-services, title: "Security Services: KMS, Secrets Manager, CloudTrail, Config, GuardDuty and Security Hub" }
+  - { id: aws.high-availability, title: "High Availability and Disaster Recovery: ELB, Route 53, CloudFront and Backups" }
+  - { id: aws.cost, title: "Cost: Pricing Models, Savings Plans, Spot, Tags and Budgets" }
+  - { id: aws.well-architected, title: "The Well-Architected Framework" }
+  - { id: aws.operations, title: "Running AWS in Production: Landing Zones, Deployments and Incidents" }

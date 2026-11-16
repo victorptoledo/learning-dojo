@@ -1,0 +1,97 @@
+pass_percent: 80
+questions:
+  - id: explicit-deny
+    skills: [aws.iam-least-privilege]
+    prompt: "A role's identity policy allows dynamodb:* on a table; an SCP is not involved; the role's permissions boundary allows only dynamodb:GetItem. Can the role call PutItem?"
+    options:
+      - "Yes, the identity policy allows it"
+      - "No: a boundary caps the permissions, and PutItem is outside it"
+      - "Yes, boundaries only apply to users"
+      - "Only through the console"
+    answer: 1
+    explanation: "Effective permissions are the intersection of identity policies and the boundary (Phase 3 goes deeper)."
+  - id: trust
+    skills: [aws.iam-least-privilege]
+    prompt: "Why add aws:SourceAccount to a trust policy for a service principal such as ecs-tasks.amazonaws.com?"
+    options:
+      - "It makes the role faster"
+      - "To prevent the confused deputy: the service may assume the role only on behalf of your account"
+      - "It is required for every policy"
+      - "To allow other accounts in"
+    answer: 1
+    explanation: "Service principals act for all customers; the condition ties the assumption to your own resources."
+  - id: imds
+    skills: [aws.ec2]
+    prompt: "What protects an instance's role credentials from an SSRF bug in the web app?"
+    options:
+      - "A larger instance type"
+      - "Requiring IMDSv2 (session tokens) with a hop limit of 1"
+      - "Instance store"
+      - "A public IP"
+    answer: 1
+    explanation: "IMDSv2 needs a PUT for a token, which a forwarded GET cannot do."
+  - id: asg
+    skills: [aws.ec2]
+    prompt: "What builds the instances of an Auto Scaling group?"
+    answers: ["launch template", "a launch template", "the launch template"]
+    explanation: "The launch template holds the AMI, type, instance profile, metadata options and user data."
+  - id: s3-private
+    skills: [aws.s3]
+    prompt: "Which setting overrides any public bucket policy or ACL, on the bucket or the whole account?"
+    options:
+      - "Versioning"
+      - "S3 Block Public Access"
+      - "Object Lock"
+      - "Transfer Acceleration"
+    answer: 1
+    explanation: "Keep its four settings on and serve public content through CloudFront."
+  - id: s3-lifecycle
+    skills: [aws.s3]
+    prompt: "What moves objects to Standard-IA after 30 days and deletes old versions after 90?"
+    options:
+      - "A cron job on EC2"
+      - "Lifecycle rules on the bucket"
+      - "Replication"
+      - "Event notifications"
+    answer: 1
+    explanation: "Lifecycle rules transition and expire objects and noncurrent versions by age, prefix or tag."
+  - id: private-subnet
+    skills: [aws.vpc-subnets]
+    prompt: "A database subnet's route table has only the local route. What can reach it?"
+    options:
+      - "The whole internet"
+      - "Only resources inside the VPC (and connected networks), as security groups allow"
+      - "Nothing at all"
+      - "Only the NAT gateway"
+    answer: 1
+    explanation: "Without a route to an internet gateway there is no internet path in or out."
+  - id: sg-chain
+    skills: [aws.vpc-subnets]
+    prompt: "The API tier scales from 2 to 40 tasks. Which database security group rule keeps working without changes?"
+    options:
+      - "Allow 5432 from each task's IP"
+      - "Allow 5432 from the API tier's security group"
+      - "Allow 5432 from 0.0.0.0/0"
+      - "Allow all traffic from the VPC"
+    answer: 1
+    explanation: "A rule that references a security group follows its members, whatever their number and IPs."
+  - id: change-set
+    skills: [aws.cloudformation]
+    prompt: "What should you check in a change set before updating a stack with a database?"
+    options:
+      - "Only the number of changes"
+      - "Whether any stateful resource shows Replacement: True"
+      - "The stack description"
+      - "Nothing, CloudFormation rolls back anyway"
+    answer: 1
+    explanation: "A replacement creates a new resource and deletes the old one; protect data with Retain or Snapshot policies."
+  - id: cdk
+    skills: [aws.cloudformation]
+    prompt: "What does table.grantReadData(fn) do in the CDK?"
+    options:
+      - "Opens the table to the internet"
+      - "Adds an IAM policy to the function's role with the read actions on that table and its indexes"
+      - "Copies the table"
+      - "Nothing at deploy time"
+    answer: 1
+    explanation: "L2 constructs write least-privilege policies for you; cdk synth shows the resulting template."

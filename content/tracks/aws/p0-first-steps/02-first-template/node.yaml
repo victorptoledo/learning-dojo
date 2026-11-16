@@ -1,0 +1,51 @@
+id: aws.p0.first-template
+kind: kata
+status: draft
+title: "Your First Template: a Private, Encrypted S3 Bucket"
+summary: "Write a CloudFormation template by hand and see how the dojo checks AWS infrastructure without an account: cfn-lint, then tests over the parsed template."
+objectives:
+  - { id: o1, text: "Write a CloudFormation template with a resource, its properties, deletion policies and outputs", skills: [aws.cloud-basics] }
+  - { id: o2, text: "Make a bucket private, versioned and encrypted by default", skills: [aws.cloud-basics, aws.s3] }
+prerequisites: [aws.p0.cloud-basics]
+difficulty: 1
+estimated_minutes: 25
+xp: 100
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-aws, timeout_secs: 90 }
+  hints:
+    - |-
+      A resource has a `Type`, optional `Properties`, and attributes such as `DeletionPolicy` that sit **next to** `Properties`, not inside it. Which property names does `AWS::S3::Bucket` take for versioning, encryption and public access? The resource reference page lists them all.
+    - |-
+      `VersioningConfiguration` takes a `Status`. `BucketEncryption` holds a list `ServerSideEncryptionConfiguration` of rules, each with a `ServerSideEncryptionByDefault`. `PublicAccessBlockConfiguration` has four booleans. Outputs use the intrinsic functions `!Ref` (for a bucket: its name) and `!GetAtt Bucket.Arn`.
+    - |-
+      ```yaml
+        ReportsBucket:
+          Type: AWS::S3::Bucket
+          DeletionPolicy: Retain
+          UpdateReplacePolicy: Retain
+          Properties:
+            VersioningConfiguration: { Status: ... }
+            BucketEncryption:
+              ServerSideEncryptionConfiguration:
+                - ServerSideEncryptionByDefault: { SSEAlgorithm: ... }
+            PublicAccessBlockConfiguration:
+              BlockPublicAcls: true
+              # ... three more
+      Outputs:
+        BucketName: { Value: !Ref ReportsBucket }
+        BucketArn: { Value: !GetAtt ... }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your templates are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-aws runner image
+    image: dojo-aws
+    why: The container with cfn-lint, cfn-guard, the dojo's IAM policy evaluator, boto3 and moto that checks your AWS work offline.

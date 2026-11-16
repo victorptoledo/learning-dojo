@@ -1,0 +1,51 @@
+questions:
+  - id: pillars
+    prompt: "Which of these is NOT one of the six Well-Architected pillars?"
+    options: ["Sustainability", "Performance efficiency", "Scalability", "Operational excellence"]
+    answer: 2
+    explanation: "The pillars are operational excellence, security, reliability, performance efficiency, cost optimization and sustainability."
+  - id: reliability-principle
+    prompt: "Which design principle belongs to the reliability pillar?"
+    options:
+      - "Test recovery procedures"
+      - "Keep people away from data"
+      - "Adopt a consumption model"
+      - "Experiment more often"
+    answer: 0
+    explanation: "Recovery that has never been tested is a guess; the others are security, cost and performance principles."
+  - id: tradeoff
+    prompt: "A team adds provisioned concurrency to remove cold starts. Which pillar pays for the performance gain?"
+    answers: ["cost optimization", "cost", "cost optimisation"]
+    explanation: "Provisioned environments are billed whether used or not; record the trade-off."
+  - id: hri
+    prompt: "What does the Well-Architected Tool call a missing best practice with serious business impact?"
+    options: ["A finding", "A high risk issue (HRI)", "A lens", "A milestone"]
+    answer: 1
+    explanation: "Reviews produce high and medium risks, which feed the improvement plan."
+  - id: lens
+    prompt: "What is a lens in the Well-Architected Tool?"
+    options:
+      - "A dashboard of CloudWatch metrics"
+      - "An extra set of questions and best practices for a domain such as serverless or SaaS"
+      - "A pricing calculator"
+      - "A security scanner"
+    answer: 1
+    explanation: "AWS publishes lenses for many domains, and you can write custom lenses."
+  - id: review-nature
+    prompt: "What is a Well-Architected review?"
+    options:
+      - "A compliance audit with pass or fail"
+      - "A structured conversation about one workload that surfaces risks and builds an improvement plan"
+      - "An automated scan of every account"
+      - "A certification exam"
+    answer: 1
+    explanation: "It is guidance, not certification; its value is in the prioritised improvements."
+  - id: sustainability
+    prompt: "Which change helps the sustainability pillar most directly?"
+    options:
+      - "Running idle instances all weekend"
+      - "Raising utilisation with right-sizing, managed services and Graviton"
+      - "Replicating every bucket to every region"
+      - "Keeping logs forever"
+    answer: 1
+    explanation: "Using fewer, more efficient resources for the same work reduces impact (and usually cost)."

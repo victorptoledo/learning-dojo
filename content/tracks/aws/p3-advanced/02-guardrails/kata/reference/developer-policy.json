@@ -1,0 +1,37 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BuildApps",
+      "Effect": "Allow",
+      "Action": ["s3:*", "dynamodb:*", "sqs:*", "lambda:*", "logs:*", "cloudwatch:*"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CreateAppRolesOnlyWithTheBoundary",
+      "Effect": "Allow",
+      "Action": ["iam:CreateRole", "iam:PutRolePolicy", "iam:AttachRolePolicy"],
+      "Resource": "arn:aws:iam::111122223333:role/app/*",
+      "Condition": {
+        "StringEquals": {
+          "iam:PermissionsBoundary": "arn:aws:iam::111122223333:policy/app-boundary"
+        }
+      }
+    },
+    {
+      "Sid": "PassOnlyAppRoles",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "arn:aws:iam::111122223333:role/app/*"
+    },
+    {
+      "Sid": "NeverLoosenTheBoundary",
+      "Effect": "Deny",
+      "Action": [
+        "iam:DeleteRolePermissionsBoundary", "iam:PutRolePermissionsBoundary",
+        "iam:CreatePolicyVersion", "iam:DeletePolicy", "iam:SetDefaultPolicyVersion"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

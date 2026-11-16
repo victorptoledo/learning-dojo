@@ -1,0 +1,57 @@
+# The platform team's security rules for every CloudFormation template.
+# cfn-guard validate --rules security.guard --data template.yaml
+
+let buckets = Resources.*[ Type == 'AWS::S3::Bucket' ]
+let security_groups = Resources.*[ Type == 'AWS::EC2::SecurityGroup' ]
+let databases = Resources.*[ Type == 'AWS::RDS::DBInstance' ]
+let tables = Resources.*[ Type == 'AWS::DynamoDB::Table' ]
+let roles = Resources.*[ Type == 'AWS::IAM::Role' ]
+
+rule s3_buckets_are_private_and_encrypted when %buckets !empty {
+    %buckets.Properties.PublicAccessBlockConfiguration {
+        BlockPublicAcls == true
+        IgnorePublicAcls == true
+        BlockPublicPolicy == true
+        RestrictPublicBuckets == true
+        <<Buckets block all four kinds of public access>>
+    }
+    %buckets.Properties.BucketEncryption.ServerSideEncryptionConfiguration[*] {
+        ServerSideEncryptionByDefault.SSEAlgorithm in ['AES256', 'aws:kms', 'aws:kms:dsse']
+        <<Buckets encrypt new objects by default>>
+    }
+}
+
+rule no_ssh_or_rdp_from_the_internet when %security_groups !empty {
+    %security_groups.Properties.SecurityGroupIngress[
+        CidrIp == '0.0.0.0/0' or CidrIpv6 == '::/0' ] {
+        IpProtocol != '-1'
+        <<Never open all traffic to the internet>>
+        FromPort > 22 or ToPort < 22
+        <<Port 22 is never open to the internet>>
+        FromPort > 3389 or ToPort < 3389
+        <<Port 3389 is never open to the internet>>
+    }
+}
+
+rule databases_are_encrypted_private_and_protected when %databases !empty {
+    %databases.Properties {
+        StorageEncrypted == true
+        <<RDS storage is encrypted>>
+        PubliclyAccessible not exists or PubliclyAccessible == false
+        <<RDS instances are not publicly accessible>>
+        DeletionProtection == true
+        <<RDS instances have deletion protection>>
+    }
+}
+
+rule tables_have_point_in_time_recovery when %tables !empty {
+    %tables.Properties.PointInTimeRecoverySpecification.PointInTimeRecoveryEnabled == true
+    <<DynamoDB tables keep point-in-time recovery on>>
+}
+
+rule roles_grant_no_wildcard_admin when %roles !empty {
+    %roles.Properties.Policies[*].PolicyDocument.Statement[ Effect == 'Allow' ] {
+        Action[*] != '*'
+        <<Inline role policies never Allow Action "*">>
+    }
+}

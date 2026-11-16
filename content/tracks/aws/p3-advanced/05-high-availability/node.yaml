@@ -1,0 +1,25 @@
+id: aws.p3.high-availability
+kind: lesson
+status: draft
+title: "High Availability and Disaster Recovery: ELB, Route 53, CloudFront and Backups"
+summary: "Designing for failure: multi-AZ architectures, Elastic Load Balancing (ALB, NLB) and health checks, Route 53 routing policies and failover, CloudFront and Global Accelerator, AWS Backup, RTO and RPO, and the four disaster recovery strategies from backup and restore to multi-site active-active."
+objectives:
+  - { id: o1, text: "Build a multi-AZ architecture with load balancers, health checks and Auto Scaling, and choose ALB or NLB", skills: [aws.high-availability] }
+  - { id: o2, text: "Route users with Route 53 policies (failover, latency, weighted) and serve them from the edge with CloudFront", skills: [aws.high-availability] }
+  - { id: o3, text: "Define RTO and RPO and pick a disaster recovery strategy: backup and restore, pilot light, warm standby or multi-site", skills: [aws.high-availability] }
+  - { id: o4, text: "Back up with AWS Backup, test restores, and avoid single points of failure such as one NAT gateway or a zonal dependency", skills: [aws.high-availability] }
+prerequisites: [aws.p3.guard-rules]
+difficulty: 4
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "The orders platform (an ALB, ECS services, Aurora PostgreSQL and S3) runs in eu-west-1. The business now asks for: no more than 15 minutes of lost orders and back online within 1 hour if the whole region fails, and no downtime at all when one AZ fails. Describe the architecture in the primary region, the disaster recovery strategy and what runs in the second region, how traffic moves over, how data is copied, and how you prove it works."
+  criteria:
+    - "States RTO 1 hour and RPO 15 minutes and picks a matching strategy (pilot light or warm standby), explaining why backup and restore or multi-site would be too slow or too costly"
+    - "Makes the primary region multi-AZ: ALB across AZs, ECS tasks spread over at least two AZs with health checks, Aurora with a replica in another AZ, a NAT gateway per AZ"
+    - "Copies data to the second region: Aurora Global Database (or cross-region snapshots within the RPO), S3 cross-region replication, images in ECR replication, infrastructure as code ready to deploy"
+    - "Moves traffic with Route 53 failover records and health checks (or Application Recovery Controller), noting DNS TTLs and that failover should be a deliberate, rehearsed decision"
+    - "Proves it with regular game days or AWS Fault Injection Service experiments and timed restore tests, and backs up with AWS Backup including a copy in another account or region"

@@ -1,0 +1,59 @@
+questions:
+  - id: deny-wins
+    prompt: "An identity policy allows s3:* on a bucket, and the bucket policy denies s3:DeleteObject for that role. Can the role delete objects?"
+    options:
+      - "Yes: the identity policy allows s3:*"
+      - "No: an explicit deny in any applicable policy wins"
+      - "Yes, because identity policies are evaluated last"
+      - "Only with MFA"
+    answer: 1
+    explanation: "Evaluation looks for an explicit deny first; if one applies, no allow can override it."
+  - id: implicit-deny
+    prompt: "A new role has a trust policy but no permissions policies. What may it do?"
+    options:
+      - "Everything in its account"
+      - "Read-only actions"
+      - "Nothing: every request is implicitly denied"
+      - "Only what the root user allows"
+    answer: 2
+    explanation: "Requests start denied; without an allow, nothing is permitted."
+  - id: list-bucket
+    prompt: "A policy allows s3:ListBucket on arn:aws:s3:::reports/*. Why does listing the bucket fail?"
+    options:
+      - "ListBucket needs MFA"
+      - "ListBucket acts on the bucket ARN arn:aws:s3:::reports, not on object ARNs"
+      - "S3 ARNs need a region"
+      - "ListBucket is a resource-based action only"
+    answer: 1
+    explanation: "Bucket-level actions use the bucket ARN; object-level actions such as GetObject use bucket/key ARNs."
+  - id: role-credentials
+    prompt: "What does assuming an IAM role give the caller?"
+    options:
+      - "A permanent access key"
+      - "The role's password"
+      - "Temporary credentials (key, secret, session token) that expire"
+      - "Root access for one hour"
+    answer: 2
+    explanation: "STS returns short-lived credentials; nothing long-lived exists that could leak."
+  - id: trust-policy
+    prompt: "Which policy of a role says who may assume it?"
+    answers: ["trust policy", "the trust policy", "role trust policy", "assume role policy"]
+    explanation: "The trust policy is a resource-based policy on the role, with a Principal and sts:AssumeRole."
+  - id: condition-logic
+    prompt: "A Condition block has StringEquals with aws:RequestedRegion [\"eu-west-1\", \"eu-central-1\"] and Bool aws:SecureTransport true. When does it match?"
+    options:
+      - "When either key matches"
+      - "When the region is one of the two values AND the request uses TLS"
+      - "Only when the region is both values"
+      - "Always, conditions are advisory"
+    answer: 1
+    explanation: "Values of one key are ORed; different keys and operators are ANDed."
+  - id: not-action
+    prompt: "What does a statement with Effect Deny and NotAction [\"s3:GetObject\"] on Resource \"*\" do?"
+    options:
+      - "Denies only s3:GetObject"
+      - "Denies every action on every resource except s3:GetObject"
+      - "Allows s3:GetObject"
+      - "Nothing, NotAction is only for Allow"
+    answer: 1
+    explanation: "NotAction matches everything except the listed actions; with Deny it is a very wide statement."

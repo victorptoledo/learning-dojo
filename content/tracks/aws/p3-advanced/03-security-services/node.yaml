@@ -1,0 +1,25 @@
+id: aws.p3.security-services
+kind: lesson
+status: draft
+title: "Security Services: KMS, Secrets Manager, CloudTrail, Config, GuardDuty and Security Hub"
+summary: "Encryption with KMS (keys, key policies, envelope encryption, grants), secrets with Secrets Manager and Parameter Store, the audit trail of CloudTrail, compliance with AWS Config, threat detection with GuardDuty, Inspector and Macie, Security Hub, and the edge: WAF, Shield and certificates."
+objectives:
+  - { id: o1, text: "Use KMS keys and key policies, explain envelope encryption, and choose AWS managed or customer managed keys", skills: [aws.security-services] }
+  - { id: o2, text: "Store and rotate secrets with Secrets Manager, and know when Parameter Store is enough", skills: [aws.security-services] }
+  - { id: o3, text: "Set up the audit and detection stack: CloudTrail, Config, GuardDuty, Inspector, Macie and Security Hub", skills: [aws.security-services] }
+  - { id: o4, text: "Protect the edge with WAF, Shield and ACM, and enforce rules preventively with cfn-guard and Config", skills: [aws.security-services] }
+prerequisites: [aws.p3.guardrails]
+difficulty: 4
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "An auditor asks the orders team five questions: Who can decrypt customer data, and can you prove who did? Where is the database password, and when did it last change? If an access key leaked tonight, how would you know? How do you know every bucket is still encrypted and private next month? What stops a SQL injection attack at the edge? Answer each one with the AWS services and settings you would use."
+  criteria:
+    - "Uses a customer managed KMS key with a key policy limiting kms:Decrypt to named roles, and CloudTrail records of every Decrypt call as proof"
+    - "Keeps the password in Secrets Manager with automatic rotation (or RDS ManageMasterUserPassword), read by the app through its role, never in code or templates"
+    - "Detects a leaked key with GuardDuty findings (anomalous API calls, known bad IPs), CloudTrail, and alerts routed through EventBridge and Security Hub"
+    - "Continuously checks resources with AWS Config rules or conformance packs (and Security Hub standards), plus preventive checks such as cfn-guard in CI or SCPs"
+    - "Puts AWS WAF with managed rule groups (SQL injection, known bad inputs) on CloudFront, the ALB or API Gateway, with Shield Standard included and Shield Advanced for high-value targets"

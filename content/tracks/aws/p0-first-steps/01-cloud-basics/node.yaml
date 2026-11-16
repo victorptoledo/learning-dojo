@@ -1,0 +1,25 @@
+id: aws.p0.cloud-basics
+kind: lesson
+status: draft
+title: "The Cloud, the Shared Responsibility Model, Regions and Accounts"
+summary: "What AWS sells and why, who secures what under the shared responsibility model, regions and Availability Zones, accounts and the root user, and how you talk to AWS: console, CLI, SDKs and infrastructure as code."
+objectives:
+  - { id: o1, text: "Explain what the cloud changes: on-demand capacity, pay per use, managed services and APIs for everything", skills: [aws.cloud-basics] }
+  - { id: o2, text: "Split responsibilities between AWS and the customer for EC2, RDS, Lambda and S3 under the shared responsibility model", skills: [aws.cloud-basics] }
+  - { id: o3, text: "Describe regions, Availability Zones and edge locations, and choose a region", skills: [aws.cloud-basics] }
+  - { id: o4, text: "Secure a new account: protect the root user, use IAM Identity Center, set a budget alarm", skills: [aws.cloud-basics] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 35
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Your team moves a web shop from two rented servers (a PHP app and a MySQL database) to AWS. Write a short note for the team: for three options (EC2 instances you manage, RDS for the database, and later Lambda for the app), list what AWS is responsible for and what stays yours. Then say which region you would pick for customers in Brazil and why, and the first three things you do in the new account before anyone deploys."
+  criteria:
+    - "States the model: AWS secures the cloud (facilities, hardware, hypervisor, global network), the customer secures what they put in it"
+    - "For EC2 the customer owns the guest OS, patches, firewall (security groups), app and data; for RDS AWS patches the database engine and OS, the customer keeps access, network exposure, encryption choices and data"
+    - "For Lambda AWS also runs the runtime and scaling; the customer still owns code, dependencies, IAM permissions and data"
+    - "Picks a region by data residency law (LGPD), latency, service availability and price, for example sa-east-1, and notes that it costs more than us-east-1"
+    - "Protects the root user (MFA, no access keys, used only for the few root tasks), gives people access through IAM Identity Center or IAM roles, and sets an AWS Budgets alert"

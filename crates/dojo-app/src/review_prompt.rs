@@ -83,6 +83,9 @@ const DOCKER_FILES: [&str; 5] = [
     "docker-compose.yml",
 ];
 
+/// An AWS kata mixes templates, policies, Guard rules and Python modules.
+const AWS_EXTENSIONS: [&str; 5] = ["yaml", "yml", "json", "guard", "py"];
+
 /// The learner's source files in a kata folder, relative to it: the files to attach.
 pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
     let (root, extension) = match language {
@@ -102,9 +105,16 @@ pub fn kata_files(kata_dir: &Path, language: KataLanguage) -> Vec<PathBuf> {
         KataLanguage::Go => (kata_dir.to_path_buf(), "go"),
         KataLanguage::TypeScript => (kata_dir.to_path_buf(), "ts"),
         KataLanguage::Cpp => return cpp_sources(kata_dir),
+        KataLanguage::Aws => (kata_dir.to_path_buf(), ""),
     };
     let mut found = Vec::new();
-    collect(&root, extension, &mut found);
+    if language == KataLanguage::Aws {
+        for extension in AWS_EXTENSIONS {
+            collect(&root, extension, &mut found);
+        }
+    } else {
+        collect(&root, extension, &mut found);
+    }
     let mut files: Vec<PathBuf> = found
         .into_iter()
         .filter_map(|path| path.strip_prefix(kata_dir).ok().map(Path::to_path_buf))
@@ -184,6 +194,7 @@ pub fn kata_prompt(kata: &KataContext) -> String {
         KataLanguage::Go => "Go",
         KataLanguage::TypeScript => "TypeScript",
         KataLanguage::Cpp => "modern C++ (C++23)",
+        KataLanguage::Aws => "AWS (CloudFormation, IAM policies, cfn-guard rules and boto3)",
     };
     let files = kata
         .files
@@ -371,6 +382,32 @@ mod tests {
         std::fs::write(dir.path().join("__pycache__/cart.py"), "x").unwrap();
         let files = kata_files(dir.path(), KataLanguage::Python);
         assert_eq!(files, vec![PathBuf::from("cart.py")]);
+    }
+
+    #[test]
+    fn kata_files_lists_aws_templates_policies_rules_and_modules_but_not_tests() {
+        let dir = tempfile::TempDir::new().unwrap();
+        for folder in ["tests", "policies", "__pycache__"] {
+            std::fs::create_dir_all(dir.path().join(folder)).unwrap();
+        }
+        std::fs::write(dir.path().join("template.yaml"), "Resources: {}").unwrap();
+        std::fs::write(dir.path().join("policies/app.json"), "{}").unwrap();
+        std::fs::write(dir.path().join("security.guard"), "rule x {}").unwrap();
+        std::fs::write(dir.path().join("handler.py"), "x = 1").unwrap();
+        std::fs::write(dir.path().join("README.md"), "x").unwrap();
+        std::fs::write(dir.path().join("tests/test_visible.py"), "x").unwrap();
+        std::fs::write(dir.path().join("__pycache__/handler.py"), "x").unwrap();
+        let files = kata_files(dir.path(), KataLanguage::Aws);
+        assert_eq!(
+            files,
+            [
+                "handler.py",
+                "policies/app.json",
+                "security.guard",
+                "template.yaml"
+            ]
+            .map(PathBuf::from)
+        );
     }
 
     #[test]

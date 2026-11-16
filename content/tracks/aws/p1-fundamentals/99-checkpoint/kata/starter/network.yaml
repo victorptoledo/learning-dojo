@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Two-AZ network for the orders service (public, private, NAT, security groups)
+
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.20.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags: [{ Key: Name, Value: orders }]
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  GatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref Vpc
+      InternetGatewayId: !Ref InternetGateway
+
+  # ---- subnets ----------------------------------------------------------------------
+  PublicSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: 10.20.0.0/24
+  # todo: PublicSubnetB, PrivateSubnetA and PrivateSubnetB (see the README table)
+
+  # ---- public routing ---------------------------------------------------------------
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+  PublicDefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  PublicSubnetARouteTable:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetA
+      RouteTableId: !Ref PublicRouteTable
+  # todo: associate PublicSubnetB with the public route table
+
+  # todo: one NAT gateway per AZ (each with an Elastic IP, in that AZ's public subnet)
+  # todo: one private route table per AZ, sending 0.0.0.0/0 to the NAT gateway of its AZ
+  # todo: a gateway endpoint for S3 on both private route tables
+
+  # ---- security groups --------------------------------------------------------------
+  AlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: HTTPS from the internet to the load balancer
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 443, ToPort: 443, CidrIp: 0.0.0.0/0 }
+  AppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: The API, from the load balancer only
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        # todo: only port 8080, and only from the load balancer's security group
+        - { IpProtocol: tcp, FromPort: 0, ToPort: 65535, CidrIp: 0.0.0.0/0 }
+        - { IpProtocol: tcp, FromPort: 22, ToPort: 22, CidrIp: 0.0.0.0/0 }
+  # todo: DatabaseSecurityGroup: PostgreSQL (5432) from the API's security group only
+
+Outputs:
+  VpcId:
+    Value: !Ref Vpc
+  # todo: PublicSubnetIds and PrivateSubnetIds, each a comma-separated !Join of two subnets

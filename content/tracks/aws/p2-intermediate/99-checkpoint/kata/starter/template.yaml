@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Orders service - HTTP API, Lambda, DynamoDB and an SQS queue with a dead-letter queue
+
+Globals:
+  Function:
+    Runtime: python3.14
+    CodeUri: src/
+    # todo: arm64, 256 MB, a 10-second timeout, active X-Ray tracing
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref OrdersTable
+
+Resources:
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    # todo: keep the table and its data on delete and on replacement
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+      # todo: point-in-time recovery and server-side encryption
+
+  # todo: OrderEventsDeadLetterQueue (14 days of retention) and OrderEventsQueue
+  #       (60 s visibility timeout, redrive to the dead-letter queue after 5 receives),
+  #       both with SQS-managed encryption
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: api.handler
+      # todo: QUEUE_URL environment variable
+      Policies:
+        - AmazonDynamoDBFullAccess   # todo: least privilege with SAM policy templates
+      Events:
+        CreateOrder:
+          Type: HttpApi
+          Properties: { Path: /orders, Method: POST }
+        # todo: GET /orders/{id}
+
+  # todo: WorkerFunction (worker.handler) fed by OrderEventsQueue, batches of 10,
+  #       reporting partial batch failures
+
+  # todo: a log group with 30 days of retention for each function
+
+Outputs:
+  ApiUrl:
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/"
+  # todo: DeadLetterQueueUrl

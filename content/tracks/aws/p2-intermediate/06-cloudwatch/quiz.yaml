@@ -1,0 +1,51 @@
+questions:
+  - id: percentile
+    prompt: "Average latency is 80 ms but users complain. Which statistic shows the slow requests?"
+    options: ["Average", "Minimum", "p99", "SampleCount"]
+    answer: 2
+    explanation: "A few very slow requests disappear in the average; percentiles show the tail."
+  - id: dimension
+    prompt: "Why must a user id never be a metric dimension?"
+    options:
+      - "Dimensions cannot hold strings"
+      - "Each dimension value creates a separate billed metric: millions of users, millions of metrics"
+      - "It breaks alarms"
+      - "It is not allowed by IAM"
+    answer: 1
+    explanation: "Keep dimensions low-cardinality; put ids in logs and search them with Logs Insights."
+  - id: retention
+    prompt: "What happens to Lambda's log group if you never set retention?"
+    options:
+      - "Logs expire after a day"
+      - "Logs are kept forever and billed for storage"
+      - "Logs are not written"
+      - "Logs move to S3 Glacier"
+    answer: 1
+    explanation: "Declare the log group with RetentionInDays in the template."
+  - id: datapoints
+    prompt: "An alarm with EvaluationPeriods 5 and DatapointsToAlarm 3 goes to ALARM when..."
+    options:
+      - "Any single datapoint breaches"
+      - "3 of the last 5 datapoints breach"
+      - "All 5 datapoints breach"
+      - "The metric has no data"
+    answer: 1
+    explanation: "M of N evaluation ignores single spikes but still catches sustained problems."
+  - id: log-to-metric
+    prompt: "Which CloudWatch Logs feature turns matching log lines into a metric you can alarm on?"
+    answers: ["metric filter", "metric filters", "a metric filter"]
+    explanation: "Metric filters count or extract values from log events; the embedded metric format is the other way."
+  - id: cloudtrail
+    prompt: "Who deleted the production bucket yesterday? Where do you look?"
+    options: ["CloudWatch metrics", "CloudTrail", "X-Ray", "Logs Insights on the app's logs"]
+    answer: 1
+    explanation: "CloudTrail records every AWS API call with the principal, time, source IP and parameters."
+  - id: missing-data
+    prompt: "A Lambda function stops being invoked at all. What does an alarm on its Errors metric see?"
+    options:
+      - "Errors = 0 datapoints"
+      - "No datapoints: what happens depends on TreatMissingData"
+      - "A breach"
+      - "An automatic ALARM"
+    answer: 1
+    explanation: "No invocations means no data; alarm on Invocations too if silence is a failure."

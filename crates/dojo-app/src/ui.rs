@@ -372,6 +372,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::Cpp => {
                 "2. Edit the .cpp and .hpp files in the kata folder (not tests/). Each function that still throws std::logic_error(\"todo ...\") is yours to write:"
             }
+            KataLanguage::Aws => {
+                "2. Edit the templates, policies, rules or .py modules in the kata folder. Lines marked \"todo\" and functions that still raise NotImplementedError(\"todo ...\") are yours to write:"
+            }
             KataLanguage::TypeScript => {
                 "2. Edit the .ts modules in the kata folder. Each function that still throws new Error(\"todo ...\") and each type marked todo is yours to write:"
             }
@@ -403,6 +406,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             }
             KataLanguage::Cpp => {
                 "   that throw is a placeholder; GCC 16 builds it with warnings on, GoogleTest runs the tests under the sanitizers, and clang-tidy and clang-format must be happy."
+            }
+            KataLanguage::Aws => {
+                "   no AWS account needed: cfn-lint, cfn-guard, an IAM policy evaluator and moto check your files offline."
             }
             KataLanguage::TypeScript => {
                 "   that throw is a placeholder; tsc must find no type errors, then node:test runs the tests."

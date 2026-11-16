@@ -113,6 +113,9 @@ pub enum KataLanguage {
     /// C++23 sources compiled by GCC 16 and tested with GoogleTest under the sanitizers, plus
     /// compiler warnings, clang-tidy and clang-format, in `dojo-cpp`.
     Cpp,
+    /// CloudFormation templates, IAM policies, Guard rules and boto3 code checked offline
+    /// by `dojo-aws` with cfn-lint, cfn-guard, an IAM policy evaluator and moto.
+    Aws,
 }
 
 impl Kata {
@@ -127,6 +130,7 @@ impl Kata {
             "dojo-go" => KataLanguage::Go,
             "dojo-node" => KataLanguage::TypeScript,
             "dojo-cpp" => KataLanguage::Cpp,
+            "dojo-aws" => KataLanguage::Aws,
             _ => KataLanguage::Rust,
         }
     }
@@ -364,6 +368,7 @@ mod tests {
 
         assert_eq!(kata("dojo-docker").language(), KataLanguage::Docker);
         assert_eq!(kata("dojo-k8s").language(), KataLanguage::Kubernetes);
+        assert_eq!(kata("dojo-aws").language(), KataLanguage::Aws);
         assert_eq!(kata("dojo-linux").language(), KataLanguage::Bash);
         assert_eq!(kata("dojo-rust").language(), KataLanguage::Rust);
         assert_eq!(kata("dojo-data").language(), KataLanguage::Python);

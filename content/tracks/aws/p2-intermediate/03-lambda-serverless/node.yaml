@@ -1,0 +1,25 @@
+id: aws.p2.lambda-serverless
+kind: lesson
+status: draft
+title: "Lambda and Serverless: API Gateway, SQS, SNS, EventBridge and Step Functions"
+summary: "The Lambda execution model (environments, cold starts, concurrency, timeouts and memory), invocation types and event sources, API Gateway, SQS, SNS and EventBridge for decoupling, Step Functions for workflows, and SAM for packaging it all."
+objectives:
+  - { id: o1, text: "Explain execution environments, cold starts, concurrency, memory and timeouts, and write a handler that reuses clients", skills: [aws.lambda-serverless] }
+  - { id: o2, text: "Tell synchronous, asynchronous and poll-based invocations apart, with their retries and failure destinations", skills: [aws.lambda-serverless] }
+  - { id: o3, text: "Choose between SQS, SNS and EventBridge, and use Step Functions for multi-step workflows", skills: [aws.lambda-serverless] }
+  - { id: o4, text: "Package a serverless application with SAM: functions, events, policy templates and globals", skills: [aws.lambda-serverless] }
+prerequisites: [aws.p2.dynamodb-access]
+difficulty: 3
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "When an order is placed, five things must happen: charge the card, reserve stock, email the customer, update analytics and, if the charge fails, release the stock. Today a single API request does all of it and times out under load. Redesign it with serverless building blocks: what stays in the API request, which services carry the events, which steps are a workflow, how each step retries and where failures end up."
+  criteria:
+    - "Keeps the API request short: validate, store the order, publish an event, return 202 or 201"
+    - "Uses EventBridge or SNS to fan out the OrderPlaced event to independent consumers (email, analytics), each with its own SQS queue or retry policy"
+    - "Uses Step Functions (or a saga) for the dependent steps (charge, reserve, compensate by releasing stock), with retries and catch states"
+    - "Makes consumers idempotent because delivery is at least once, and sends repeated failures to dead-letter queues or failure destinations with alarms"
+    - "Mentions Lambda limits that shape the design: the 15-minute timeout, concurrency limits and reserved concurrency, and cold starts on the API path"

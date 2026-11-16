@@ -1,0 +1,25 @@
+id: aws.p1.cloudformation
+kind: lesson
+status: draft
+title: "Infrastructure as Code: CloudFormation and CDK"
+summary: "Templates and stacks, parameters, mappings, conditions and outputs, intrinsic functions, change sets and drift, deletion policies, nested stacks and exports, SAM, and the AWS CDK, which synthesises CloudFormation from Java, Python, TypeScript, C# or Go."
+objectives:
+  - { id: o1, text: "Write a template with parameters, conditions, intrinsic functions and outputs", skills: [aws.cloudformation] }
+  - { id: o2, text: "Update stacks safely: change sets, replacement, deletion and update-replace policies, drift detection and rollback", skills: [aws.cloudformation] }
+  - { id: o3, text: "Split infrastructure into stacks with exports, nested stacks or StackSets", skills: [aws.cloudformation] }
+  - { id: o4, text: "Explain what the CDK adds (constructs, synth, deploy) and lint templates with cfn-lint and cfn-guard", skills: [aws.cloudformation] }
+prerequisites: [aws.p1.vpc-subnets]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Your team creates every AWS resource by hand in the console, and staging and production have drifted apart. Write a plan to move to infrastructure as code: CloudFormation directly or the CDK (and why for your team), how the code is split into stacks, how a change goes from a pull request to production, how you protect the database and buckets from accidental deletion, and how you bring the existing resources under management."
+  criteria:
+    - "Chooses CloudFormation YAML or the CDK with reasons (CDK: real language, constructs, tests; YAML: no build step, simple reviews), noting the CDK still deploys CloudFormation"
+    - "Splits stacks by lifecycle and ownership (network, data, app per service) and shares values with exports, SSM parameters or CDK cross-stack references, with parameters per environment"
+    - "Runs cfn-lint (and cfn-guard or cdk-nag) in CI, reviews a change set (or cdk diff) before deploying, and deploys the same templates to staging then production"
+    - "Protects stateful resources with DeletionPolicy and UpdateReplacePolicy Retain or Snapshot, stack termination protection and a stack policy, and checks the change set for Replacement"
+    - "Imports existing resources with resource import (or the IaC generator), then uses drift detection to find manual changes"

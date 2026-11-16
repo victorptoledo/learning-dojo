@@ -1,0 +1,86 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Orders worker with its alarms, error-log metric, on-call topic, budget and cost tags
+
+Parameters:
+  OnCallEmail:
+    Type: String
+    Description: Where alarms and budget alerts go
+  MonthlyBudgetUsd:
+    Type: Number
+    Default: 200
+
+Resources:
+  # ---- the service, as it already runs ------------------------------------------------
+  # todo: tag every taggable resource with service=orders and cost-center=cc-1042
+  WorkerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
+
+  OrdersDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+      SqsManagedSseEnabled: true
+  OrdersQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 60
+      SqsManagedSseEnabled: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt OrdersDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
+  WorkerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.14
+      Architectures: [arm64]
+      Handler: index.handler
+      Timeout: 10
+      MemorySize: 256
+      Role: !GetAtt WorkerRole.Arn
+      LoggingConfig:
+        LogFormat: JSON
+        LogGroup: !Ref WorkerLogGroup
+      Code:
+        ZipFile: |
+          import json
+          def handler(event, context):
+              for record in event["Records"]:
+                  print(json.dumps({"level": "INFO", "message": "order", "body": record["body"]}))
+              return {"batchItemFailures": []}
+  WorkerEvents:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      FunctionName: !Ref WorkerFunction
+      EventSourceArn: !GetAtt OrdersQueue.Arn
+      BatchSize: 10
+      FunctionResponseTypes: [ReportBatchItemFailures]
+
+  # ---- logs ---------------------------------------------------------------------------
+  WorkerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/orders-worker
+      # todo: keep logs for 30 days
+  # todo: ErrorLogsMetricFilter: count JSON log lines with level ERROR as Acme/Orders ErrorLogs
+
+  # todo: OnCallTopic (encrypted with alias/aws/sns, an email subscription to OnCallEmail)
+  #       and OnCallTopicPolicy letting AWS Budgets publish, for this account only
+
+  # todo: ErrorRateAlarm, SlowWorkerAlarm, QueueBacklogAlarm, DeadLettersAlarm, ErrorLogsAlarm
+
+  # todo: OrdersBudget: monthly cost budget of MonthlyBudgetUsd for the tag service=orders,
+  #       alerting at 80 % actual and 100 % forecasted
+
+Outputs:
+  WorkerFunctionName:
+    Value: !Ref WorkerFunction

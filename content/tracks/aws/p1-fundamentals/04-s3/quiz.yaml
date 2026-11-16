@@ -1,0 +1,59 @@
+questions:
+  - id: folders
+    prompt: "In S3, what is `invoices/2026/` in the key `invoices/2026/0042.pdf`?"
+    options:
+      - "A real directory that must be created first"
+      - "A prefix: part of the key, shown as a folder by the console"
+      - "A separate bucket"
+      - "A storage class"
+    answer: 1
+    explanation: "S3 has a flat key space; prefixes are used for listing, IAM conditions and performance."
+  - id: consistency
+    prompt: "Right after a successful PUT of a new object, a GET of the same key..."
+    options:
+      - "May return 404 for a few seconds"
+      - "Returns the new object: S3 is strongly consistent"
+      - "Returns the object only in the same AZ"
+      - "Needs a LIST first"
+    answer: 1
+    explanation: "Since December 2020 S3 gives strong read-after-write consistency for PUTs, DELETEs and LISTs."
+  - id: public-content
+    prompt: "How should a team serve public images from a bucket?"
+    options:
+      - "Turn off Block Public Access and add a public-read policy"
+      - "Keep the bucket private and serve it through CloudFront with origin access control"
+      - "Make every object public with ACLs"
+      - "Share the access key with the browser"
+    answer: 1
+    explanation: "CloudFront reads the private bucket with its own identity, caches at the edge and keeps Block Public Access on."
+  - id: versioning
+    prompt: "With versioning enabled, what does a DELETE without a version id do?"
+    options:
+      - "Deletes every version"
+      - "Adds a delete marker; earlier versions stay and can be restored"
+      - "Fails"
+      - "Moves the object to Glacier"
+    answer: 1
+    explanation: "Removing the delete marker brings the object back; lifecycle rules can expire noncurrent versions."
+  - id: presigned
+    prompt: "What does a backend give a browser so it can upload one file straight to S3 for five minutes?"
+    answers: ["presigned url", "a presigned url", "pre-signed url", "presigned urls", "presigned post"]
+    explanation: "It is signed with the backend's credentials and allows only that operation on that key until it expires."
+  - id: archive-class
+    prompt: "Audit exports are read maybe once in seven years and may take hours to restore. Which class is cheapest?"
+    options:
+      - "S3 Standard"
+      - "S3 Standard-IA"
+      - "S3 Glacier Deep Archive"
+      - "S3 Express One Zone"
+    answer: 2
+    explanation: "Deep Archive is the cheapest class, with restores in hours and a 180-day minimum."
+  - id: sse-kms
+    prompt: "What does SSE-KMS add over SSE-S3?"
+    options:
+      - "Nothing, they are the same"
+      - "A KMS key you control: its key policy, a separate kms:Decrypt permission and CloudTrail records of every use"
+      - "Client-side encryption in the browser"
+      - "Faster uploads"
+    answer: 1
+    explanation: "Readers need both S3 and KMS permissions, and every decrypt is auditable; Bucket Keys reduce the KMS calls."

@@ -1,0 +1,25 @@
+id: aws.p4.operations
+kind: lesson
+status: draft
+title: "Running AWS in Production: Landing Zones, Deployments and Incidents"
+summary: "Operating AWS at scale: a landing zone with Control Tower and account vending, CI/CD with safe deployment strategies and automatic rollback, Systems Manager for fleet operations, quotas and limits, incident response with runbooks and AWS Health, chaos engineering, and blameless post-incident reviews."
+objectives:
+  - { id: o1, text: "Describe a production landing zone: accounts, guardrails, networking, logging and account vending", skills: [aws.operations] }
+  - { id: o2, text: "Deploy safely: pipelines across accounts, canary, linear and blue/green strategies, alarms that roll back", skills: [aws.operations] }
+  - { id: o3, text: "Operate fleets with Systems Manager, and manage service quotas and AWS Health events", skills: [aws.operations] }
+  - { id: o4, text: "Run an incident on AWS from detection to post-incident review, with runbooks and fault injection practice", skills: [aws.operations] }
+prerequisites: [aws.p4.observable-stack]
+difficulty: 4
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "At 09:12 on Black Friday, the orders API starts returning 5xx for 30 % of requests. A deployment went out at 09:05, DynamoDB throttling alarms are firing, and the AWS Health Dashboard shows nothing. Write the incident timeline you would follow: who does what in the first 15 minutes, which signals you check and in what order, how you decide between rolling back and scaling, how you communicate, and what the post-incident review produces."
+  criteria:
+    - "Declares an incident with clear roles (incident commander, operations, communications) and opens a channel and a timeline, possibly with AWS Systems Manager Incident Manager"
+    - "Mitigates before diagnosing: the recent deployment is the prime suspect, so rolls back (or relies on automatic alarm-based rollback) quickly rather than debugging in production"
+    - "Checks signals in order: the alarms and dashboards, deployment history, DynamoDB throttling metrics and hot keys, Lambda errors and throttles, service quotas, and AWS Health for service events"
+    - "Communicates status to stakeholders at a fixed cadence, and escalates to AWS Support with a case if an AWS service is suspected"
+    - "Ends with a blameless post-incident review: impact, timeline, contributing factors, and action items with owners (for example pre-scaled capacity or on-demand mode, canary deployments, load tests before peak events)"

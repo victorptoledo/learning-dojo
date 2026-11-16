@@ -1,8 +1,15 @@
 ---
 from: java
 status: draft
-concept: "Cloud access control"
-from_way: "Hardcoding `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in configuration files."
-native_way: "Attach an IAM role to the workload (e.g. IRSA for pods) so it receives temporary, auto-rotated credentials."
-sensei_tip: "Static keys leaked on GitHub are found by bots within minutes and can produce huge crypto-mining bills."
+concept: "Deny by default, allow exactly what is needed"
+from_way: "Spring Security grants roles with `@PreAuthorize(\"hasRole('ADMIN')\")`, and the app often connects as one all-powerful database user."
+native_way: "IAM decides every API call from policies: explicit deny first, then allow, otherwise implicit deny; each workload gets its own role with exact actions and ARNs."
+sensei_tip: "On EKS use IRSA or EKS Pod Identity and on ECS a task role, so each Spring Boot service gets its own role; never a shared access key in `application.yml`."
 ---
+
+| Java world | AWS |
+| --- | --- |
+| `hasAuthority("orders:read")` | `"Action": "dynamodb:GetItem"` on one table ARN |
+| a JAAS realm | an IAM role and its trust policy |
+| `AccessDeniedException` | `AccessDenied` (implicit or explicit deny) |
+| the security config of one app | identity, resource and boundary policies combined |

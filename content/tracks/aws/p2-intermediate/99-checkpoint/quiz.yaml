@@ -1,0 +1,97 @@
+pass_percent: 80
+questions:
+  - id: multi-az
+    skills: [aws.databases]
+    prompt: "What does RDS Multi-AZ (one standby instance) give you?"
+    options:
+      - "More read capacity"
+      - "Automatic failover to a synchronous standby in another AZ, with the same endpoint"
+      - "A copy in another region"
+      - "Lower cost"
+    answer: 1
+    explanation: "The standby takes no reads; read replicas (asynchronous) are the way to scale reads."
+  - id: dynamo-keys
+    skills: [aws.databases]
+    prompt: "In DynamoDB, where do you start designing a table?"
+    options:
+      - "From a normalised entity-relationship model"
+      - "From the access patterns: the queries the application must answer"
+      - "From the item size"
+      - "From the number of indexes allowed"
+    answer: 1
+    explanation: "Keys and indexes are chosen so each access pattern is a GetItem or a Query."
+  - id: hot-partition
+    skills: [aws.databases]
+    prompt: "Every write uses the partition key value `TODAY`. What goes wrong?"
+    options:
+      - "Nothing, DynamoDB spreads it automatically"
+      - "All writes land on one partition and throttle: choose a high-cardinality key"
+      - "The table is deleted at midnight"
+      - "Queries become eventually consistent"
+    answer: 1
+    explanation: "Throughput is per partition; spread writes over many key values (or add a suffix)."
+  - id: cold-start
+    skills: [aws.lambda-serverless]
+    prompt: "What is a Lambda cold start?"
+    options:
+      - "A function that failed"
+      - "The time to create a new execution environment and run the init code before the first invocation"
+      - "A function running in a cold region"
+      - "An invocation from a schedule"
+    answer: 1
+    explanation: "Warm environments are reused; SnapStart, provisioned concurrency and small packages shrink cold starts."
+  - id: visibility
+    skills: [aws.lambda-serverless]
+    prompt: "Why should an SQS queue's visibility timeout be at least six times the consuming function's timeout?"
+    options:
+      - "It is a billing rule"
+      - "So messages do not become visible again, and get processed twice, while a batch is still being retried"
+      - "To make the queue FIFO"
+      - "So the DLQ fills faster"
+    answer: 1
+    explanation: "AWS recommends six times the function timeout to leave room for retries and throttling."
+  - id: dlq
+    skills: [aws.lambda-serverless]
+    prompt: "Where does a message go after it fails maxReceiveCount times?"
+    answers: ["dead-letter queue", "the dead-letter queue", "dlq", "the dlq", "dead letter queue"]
+    explanation: "The redrive policy moves it to the DLQ, where you inspect it and redrive it when fixed."
+  - id: task-role
+    skills: [aws.containers]
+    prompt: "In ECS, which role does your application code use to call S3?"
+    options:
+      - "The task execution role"
+      - "The task role"
+      - "The instance role of the cluster"
+      - "The service-linked role"
+    answer: 1
+    explanation: "The execution role pulls images and writes logs for ECS; the task role is your app's identity."
+  - id: fargate
+    skills: [aws.containers]
+    prompt: "What does Fargate remove from your responsibilities?"
+    options:
+      - "Writing a task definition"
+      - "Managing and patching the EC2 instances that run the containers"
+      - "Choosing CPU and memory"
+      - "IAM"
+    answer: 1
+    explanation: "You still define tasks, networking and IAM; AWS runs the hosts."
+  - id: alarm-on
+    skills: [aws.cloudwatch]
+    prompt: "Which alarm best tells you users are hurting?"
+    options:
+      - "CPU above 70 %"
+      - "The share of 5xx responses or p99 latency above the SLO, over several periods"
+      - "Disk free below 90 %"
+      - "Any log line containing WARN"
+    answer: 1
+    explanation: "Alarm on symptoms users feel; use resource metrics to explain them."
+  - id: log-retention
+    skills: [aws.cloudwatch]
+    prompt: "What is the default retention of a new CloudWatch Logs log group?"
+    options:
+      - "1 day"
+      - "30 days"
+      - "Never expire"
+      - "1 year"
+    answer: 2
+    explanation: "Logs are kept and billed forever unless you set RetentionInDays."

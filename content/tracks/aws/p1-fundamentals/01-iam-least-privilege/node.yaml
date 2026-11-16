@@ -3,12 +3,24 @@ legacy_id: aws-01-iam-least-privilege
 kind: lesson
 status: draft
 title: "IAM: Roles, Policies and Least Privilege"
-summary: "Never use the root account. Roles assumed by instances and services, without static keys."
+summary: "Principals, users, groups and roles; policy documents (Effect, Action, Resource, Condition); how AWS evaluates a request; and least privilege with roles instead of static keys."
 objectives:
-  - { id: o1, text: "Never use the root account. Roles assumed by instances and services, without static keys.", skills: [aws.iam-least-privilege] }
-prerequisites: []
+  - { id: o1, text: "Tell users, groups, roles and their temporary credentials apart, and know when each fits", skills: [aws.iam-least-privilege] }
+  - { id: o2, text: "Read and write a policy document: Effect, Action, Resource, Condition and policy variables", skills: [aws.iam-least-privilege] }
+  - { id: o3, text: "Evaluate a request: explicit deny, then allow, otherwise implicit deny", skills: [aws.iam-least-privilege] }
+  - { id: o4, text: "Apply least privilege: scoped actions and resources, trust policies, no long-lived keys, Access Analyzer", skills: [aws.iam-least-privilege] }
+prerequisites: [aws.p0.first-template]
 difficulty: 2
-estimated_minutes: 30
+estimated_minutes: 45
 xp: 150
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A CI pipeline deploys a static site: it uploads files to the bucket `acme-site-prod` and then invalidates a CloudFront distribution. Today it uses an IAM user with an access key and the AdministratorAccess policy. Describe how you would replace that setup: which identity the pipeline should use and how it gets credentials, the permissions policy (actions and resources, as JSON or a precise list), the trust policy, and how you would check that nothing more is allowed."
+  criteria:
+    - "Replaces the IAM user and static key with a role assumed with temporary credentials, for example through OIDC federation from the CI provider (sts:AssumeRoleWithWebIdentity)"
+    - "Writes a trust policy that names the identity provider as Principal and restricts the repository or branch with conditions on the token claims"
+    - "Grants only s3:PutObject (and s3:ListBucket or s3:DeleteObject if syncing) on the one bucket, with object actions on arn:aws:s3:::acme-site-prod/* and bucket actions on the bucket ARN, plus cloudfront:CreateInvalidation on the one distribution"
+    - "Explains that anything not allowed is implicitly denied, and an explicit deny would win over any allow"
+    - "Verifies with the IAM policy simulator, IAM Access Analyzer (policy validation and unused access) or CloudTrail logs of what the pipeline actually calls"

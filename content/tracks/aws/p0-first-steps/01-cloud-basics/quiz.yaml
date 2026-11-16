@@ -1,0 +1,59 @@
+questions:
+  - id: shared-ec2
+    prompt: "You run your app on EC2. Who patches the guest operating system?"
+    options:
+      - "AWS, as part of the service"
+      - "You: on EC2 the guest OS and everything above it are yours"
+      - "Nobody: EC2 instances do not need patches"
+      - "AWS Support, when you open a ticket"
+    answer: 1
+    explanation: "AWS secures the hardware and the hypervisor; the OS, its patches and what you install are on your side of the line."
+  - id: shared-rds
+    prompt: "Which of these stays your responsibility on Amazon RDS?"
+    options:
+      - "Patching the database engine binaries"
+      - "Replacing failed disks"
+      - "Who can connect, and whether the instance is reachable from the internet"
+      - "Securing the data centre"
+    answer: 2
+    explanation: "AWS patches the engine (in your maintenance window) and runs the hardware; access, network exposure and data stay yours."
+  - id: az
+    prompt: "What is an Availability Zone?"
+    options:
+      - "Another name for a region"
+      - "One or more isolated data centres inside a region, with their own power and network"
+      - "A CloudFront edge location"
+      - "A billing unit inside an account"
+    answer: 1
+    explanation: "Regions hold three or more AZs linked by low-latency links; spreading over AZs survives a data-centre failure."
+  - id: root-user
+    prompt: "What should you do with the root user of a new account?"
+    options:
+      - "Use it for daily work, it has every permission"
+      - "Create access keys for it so CI can deploy"
+      - "Turn on MFA, keep no access keys, and use it only for the few tasks that need it"
+      - "Delete it after creating an IAM user"
+    answer: 2
+    explanation: "No IAM policy limits root inside its account, so it must be locked away; people use IAM Identity Center or IAM roles."
+  - id: whoami
+    prompt: "Which CLI command tells you which identity your credentials belong to?"
+    answers: ["aws sts get-caller-identity", "sts get-caller-identity", "get-caller-identity"]
+    explanation: "It works with any valid credentials and needs no permissions, so it is the first thing to run when access fails."
+  - id: region-choice
+    prompt: "A health app stores data of EU patients. What should decide its region first?"
+    options:
+      - "The cheapest region"
+      - "Data residency law (GDPR) and where the data may live, then latency, services and price"
+      - "The region with the most services, us-east-1"
+      - "It does not matter: AWS copies data to every region"
+    answer: 1
+    explanation: "Data stays in the region you choose; the law comes first, then latency, availability of services and price."
+  - id: code-credentials
+    prompt: "How should code running on EC2, ECS or Lambda get AWS credentials?"
+    options:
+      - "Access keys in an environment variable"
+      - "Access keys in the Git repository, encrypted"
+      - "From the role attached to it, through the SDK's default credential chain"
+      - "By calling the console login page"
+    answer: 2
+    explanation: "Instance profiles, task roles and execution roles give short-lived credentials that rotate by themselves."

@@ -4,9 +4,9 @@ name: "AWS Cloud Architecture"
 archetype: platform
 category: "Infrastructure & Tools"
 icon: "☁️"
-description: "Amazon Web Services: IAM, VPC, EC2, S3, RDS, ECS/EKS, Lambda and the Well-Architected Framework."
-status: draft
-bridges_available: [java]
+description: "Amazon Web Services without an AWS bill: the shared responsibility model, IAM and least privilege, EC2, S3, VPC networking, CloudFormation and CDK, RDS and DynamoDB, Lambda and serverless, ECS and EKS, CloudWatch, multi-account guardrails, security services, high availability, cost and the Well-Architected Framework. Every kata is checked offline, with no account and no credentials."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Console Clicker" }
   - { name: "Yellow Belt", required_xp: 300, title: "S3 & EC2 Deployer" }
@@ -16,8 +16,8 @@ belts:
   - { name: "Black Belt", required_xp: 4000, title: "AWS Solutions Architect" }
   - { name: "Sensei", required_xp: 6000, title: "Cloud Mastermind" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install it, run a first command and see why it exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core commands, objects and basic configuration" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Composition, configuration, troubleshooting and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, security and automation" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production operation, high availability and incident handling" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the cloud is, the shared responsibility model, regions and accounts, and a first CloudFormation template" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "IAM and least privilege, EC2, S3, VPC networking and infrastructure as code with CloudFormation and CDK" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "RDS and DynamoDB, Lambda and serverless messaging, ECS and EKS, and CloudWatch observability" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Multi-account IAM and guardrails, security services, high availability and disaster recovery, and cost" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "The Well-Architected Framework, observable stacks and running AWS in production" }

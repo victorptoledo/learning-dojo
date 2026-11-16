@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Private, encrypted and versioned bucket for the dojo's reports
+
+Resources:
+  ReportsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: project
+          Value: dojo
+
+Outputs:
+  BucketName:
+    Description: The name CloudFormation generated for the bucket
+    Value: !Ref ReportsBucket
+  BucketArn:
+    Description: The bucket's ARN, for IAM policies
+    Value: !GetAtt ReportsBucket.Arn

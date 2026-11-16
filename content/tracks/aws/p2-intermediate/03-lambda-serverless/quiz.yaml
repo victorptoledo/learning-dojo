@@ -1,0 +1,51 @@
+questions:
+  - id: init-code
+    prompt: "Where should a Lambda function create its boto3 client?"
+    options:
+      - "Inside the handler, for every invocation"
+      - "At module level (init), so warm invocations reuse it"
+      - "In a layer only"
+      - "In the event"
+    answer: 1
+    explanation: "Init code runs once per execution environment; reusing clients and connections saves time on every warm call."
+  - id: concurrency
+    prompt: "A function takes 200 ms and receives 500 requests per second. About how many concurrent executions does it need?"
+    options: ["5", "100", "500", "2,500"]
+    answer: 1
+    explanation: "Concurrency is requests per second times duration: 500 × 0.2 s = 100."
+  - id: async-retries
+    prompt: "An S3 event invokes a function asynchronously and it keeps failing. What does Lambda do?"
+    options:
+      - "Retries forever"
+      - "Retries twice, then sends the event to the on-failure destination or DLQ if configured"
+      - "Deletes the S3 object"
+      - "Returns the error to S3"
+    answer: 1
+    explanation: "Async invocations have their own retry settings and failure destinations; configure them."
+  - id: long-work
+    prompt: "A job takes 40 minutes. Where should it run?"
+    options:
+      - "One Lambda function with a longer timeout"
+      - "ECS/Fargate, AWS Batch, or split into steps orchestrated by Step Functions"
+      - "API Gateway"
+      - "SNS"
+    answer: 1
+    explanation: "Lambda's timeout is at most 15 minutes."
+  - id: fan-out
+    prompt: "Three teams each need every OrderPlaced event, with their own retries. What fits?"
+    options:
+      - "One SQS queue that all three poll"
+      - "An EventBridge rule (or SNS topic) delivering to one SQS queue per team"
+      - "A DynamoDB table they scan"
+      - "Synchronous calls from the order service"
+    answer: 1
+    explanation: "Competing consumers on one queue would split the events; fan out to a queue per consumer."
+  - id: reserved
+    prompt: "Which setting caps a function's concurrency to protect a small database?"
+    answers: ["reserved concurrency", "reserved concurrency limit", "ReservedConcurrentExecutions"]
+    explanation: "Reserved concurrency both guarantees and caps the number of concurrent executions."
+  - id: saga
+    prompt: "Which service runs a multi-step order flow with retries and a compensating step when payment fails?"
+    options: ["SQS FIFO", "AWS Step Functions", "CloudWatch Logs", "API Gateway"]
+    answer: 1
+    explanation: "State machines express Retry and Catch per step and keep the full execution history."

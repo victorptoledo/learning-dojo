@@ -1,0 +1,48 @@
+id: aws.p3.guardrails
+kind: kata
+status: draft
+title: "Organization Guardrails: SCPs, Boundaries and Cross-Account Access"
+summary: "Write the four policies of a multi-account setup: an SCP that keeps work in EU regions and protects CloudTrail, a developer policy that may create roles only with a permissions boundary, the boundary itself, and a bucket policy that shares data with one role of another account inside the organization."
+objectives:
+  - { id: o1, text: "Write an SCP with NotAction exemptions for global services and a break-glass role, as a deny-list next to FullAWSAccess", skills: [aws.multi-account-iam] }
+  - { id: o2, text: "Delegate role creation safely with iam:PermissionsBoundary conditions and a boundary that caps every app role", skills: [aws.multi-account-iam, aws.iam-least-privilege] }
+  - { id: o3, text: "Share a bucket across accounts: a named principal, aws:PrincipalOrgID and TLS denies, and the caller's own allow", skills: [aws.multi-account-iam] }
+prerequisites: [aws.p3.multi-account-iam]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-aws, timeout_secs: 90 }
+  hints:
+    - |-
+      Take the files one at a time and, for each, ask which policy type it is and how it is evaluated. An SCP never grants anything: it sits next to `FullAWSAccess` and only denies. A boundary never grants either: it caps what identity policies give. A bucket policy across accounts is only half the story: the caller's account must allow too.
+    - |-
+      SCP: one `Deny` with `NotAction` listing the global services, `StringNotEquals` on `aws:RequestedRegion` and `ArnNotLike` on `aws:PrincipalArn` for `arn:aws:iam::*:role/OrgAdmin` (both conditions must hold for the deny to apply). Developer policy: allow `iam:CreateRole` on `role/app/*` only with `"StringEquals": { "iam:PermissionsBoundary": "<boundary ARN>" }`, and deny the actions that would remove or rewrite the boundary. Bucket: name `arn:aws:iam::444455556666:role/analytics` as the principal and add two `Deny` statements with `"Principal": "*"`.
+    - |-
+      ```json
+      { "Sid": "DenyOutsideEuRegions", "Effect": "Deny",
+        "NotAction": ["iam:*", "sts:*", "organizations:*", "cloudfront:*", "route53:*", "support:*"],
+        "Resource": "*",
+        "Condition": {
+          "StringNotEquals": { "aws:RequestedRegion": ["eu-west-1", "eu-central-1"] },
+          "ArnNotLike": { "aws:PrincipalArn": "arn:aws:iam::*:role/OrgAdmin" } } }
+      ```
+      ```json
+      { "Sid": "DenyOutsideTheOrganization", "Effect": "Deny", "Principal": "*", "Action": "s3:*",
+        "Resource": ["arn:aws:s3:::acme-shared-datasets", "arn:aws:s3:::acme-shared-datasets/*"],
+        "Condition": { "StringNotEquals": { "aws:PrincipalOrgID": "o-acme1234567" } } }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your policies are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-aws runner image
+    image: dojo-aws
+    why: The container with cfn-lint, cfn-guard, the dojo's IAM policy evaluator, boto3 and moto that checks your AWS work offline.

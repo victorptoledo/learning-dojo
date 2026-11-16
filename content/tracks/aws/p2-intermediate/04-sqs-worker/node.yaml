@@ -1,0 +1,45 @@
+id: aws.p2.sqs-worker
+kind: kata
+status: draft
+title: "An Idempotent SQS Worker in Lambda"
+summary: "Write a Lambda handler for SQS batches that validates messages, applies each payment exactly once with a DynamoDB transaction, and reports partial batch failures so only the failed messages are retried."
+objectives:
+  - { id: o1, text: "Handle at-least-once delivery with an idempotency marker written in the same transaction as the effect", skills: [aws.lambda-serverless, aws.databases] }
+  - { id: o2, text: "Return batchItemFailures so one bad or throttled message does not fail the whole batch", skills: [aws.lambda-serverless] }
+  - { id: o3, text: "Reuse SDK clients across invocations of one execution environment", skills: [aws.lambda-serverless] }
+prerequisites: [aws.p2.lambda-serverless]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-aws, timeout_secs: 120 }
+  hints:
+    - |-
+      Split the work: `parse_payment` only validates (`ValueError` on anything wrong), `apply_payment` only writes, and `handle` loops over `event["Records"]`, catching errors per record. What makes a second delivery of the same payment harmless?
+    - |-
+      `transact_write_items` takes a list of up to 100 actions that all succeed or all fail. Put the marker `PAYMENT#<id>` with `ConditionExpression: attribute_not_exists(pk)` and `Update` the account with `ADD balance_cents :amount`. When the condition fails, boto3 raises a `ClientError` with code `TransactionCanceledException` and `error.response["CancellationReasons"][0]["Code"] == "ConditionalCheckFailed"`: that is a duplicate, not an error. Remember `isinstance(True, int)` is `True` in Python.
+    - |-
+      ```python
+      def handle(event, context):
+          failures = []
+          for record in event.get("Records", []):
+              try:
+                  apply_payment(parse_payment(record["body"]))
+              except (ValueError, ClientError) as error:
+                  failures.append({"itemIdentifier": record["messageId"]})
+          return {"batchItemFailures": failures}
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your code is tested inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-aws runner image
+    image: dojo-aws
+    why: The container with cfn-lint, cfn-guard, the dojo's IAM policy evaluator, boto3 and moto that checks your AWS work offline.
