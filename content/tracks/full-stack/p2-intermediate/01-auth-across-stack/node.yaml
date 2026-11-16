@@ -1,0 +1,25 @@
+id: full-stack.p2.auth-across-stack
+kind: lesson
+status: reviewed
+title: "Authentication Across the Stack: Cookies, CSRF, CORS and OIDC"
+summary: "How a logged-in user travels from the login form to every API call: sessions in HttpOnly cookies versus tokens in JavaScript, CSRF and its defences, the backend-for-frontend pattern with OIDC, and authorization that the UI shows and the server enforces."
+objectives:
+  - { id: o1, text: "Choose where a browser keeps its credentials, and explain the XSS and CSRF trade-offs of each choice", skills: [full-stack.auth, backend.auth-security] }
+  - { id: o2, text: "Defend cookie sessions against CSRF with SameSite, tokens and origin checks", skills: [full-stack.auth] }
+  - { id: o3, text: "Explain the OIDC authorization code flow with PKCE and the backend-for-frontend pattern", skills: [full-stack.auth, backend.auth-security] }
+  - { id: o4, text: "Show permissions in the UI while enforcing them on the server", skills: [full-stack.auth] }
+prerequisites: [full-stack.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your React SPA keeps a JWT from the identity provider in localStorage and sends it as a Bearer header to your API on another subdomain. A security review asks you to move to a safer design. Describe the design you would adopt (where the login happens, where tokens live, what the browser keeps, how CSRF and CORS are handled, how logout and expiry work) and what changes in the SPA''s code.'
+  criteria:
+    - 'Explains why tokens readable by JavaScript are exposed to XSS'
+    - 'Proposes a session cookie (Secure, HttpOnly, SameSite) or a backend-for-frontend that keeps tokens server-side'
+    - 'Uses the authorization code flow with PKCE against the identity provider'
+    - 'Adds CSRF protection (SameSite plus a token or origin check) for state-changing requests'
+    - 'Covers logout (server-side invalidation) and session or token expiry'

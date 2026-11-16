@@ -1,0 +1,23 @@
+id: full-stack.p0.the-role
+kind: lesson
+status: reviewed
+title: "The Full Stack Role and the Journey of a Request"
+summary: "What a full stack developer owns, the pillars of the role, and what happens between a click in the browser and a row in the database and back."
+objectives:
+  - { id: o1, text: "Describe the pillars of the role and where it overlaps with frontend, backend and operations", skills: [full-stack.role] }
+  - { id: o2, text: "Trace a request from the browser through DNS, TLS, a CDN, the server and the database, and back", skills: [full-stack.role, system-design.fundamentals] }
+  - { id: o3, text: "Name the failure points of that journey and where you would look for each one", skills: [full-stack.role] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 30
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Pick a feature of an app you use (for example "add a comment" or "mark an order as paid"). Write the journey of that one action from the click to the database and back to the screen, naming each component it passes through, what can fail at each step, and which signal (browser console, network tab, server log, metric, database) would tell you.'
+  criteria:
+    - 'Covers browser, network (DNS, TLS), edge or CDN, server, database and the way back to the UI'
+    - 'Names at least one realistic failure per layer'
+    - 'Says where each failure would be visible'
+    - 'Mentions what the user sees while the request is in flight or after it fails'

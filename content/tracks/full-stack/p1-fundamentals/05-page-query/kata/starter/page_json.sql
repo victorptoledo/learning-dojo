@@ -1,0 +1,2 @@
+-- todo: one row with one jsonb value: { customer, orders: [ { id, placedAt, totalCents,
+-- items: [ { product, quantity, unitPriceCents } ] } ], nextCursor } (see README.md).

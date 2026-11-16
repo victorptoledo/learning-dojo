@@ -1,0 +1,38 @@
+questions:
+  - id: ssg
+    prompt: "Documentation pages change only when a new version is released. Which strategy fits?"
+    answers: ["SSG", "static site generation", "static generation", "static"]
+    explanation: "Build them once per release and serve them from a CDN."
+  - id: isr
+    prompt: "What does ISR add to SSG?"
+    options: ["Client-side routing", "Regenerating pages after a TTL or on demand, without a full rebuild", "Server-side sessions"]
+    answer: 1
+    explanation: "Static speed with periodic or on-demand freshness."
+  - id: hydration
+    prompt: "What is hydration?"
+    options:
+      - "Compressing HTML"
+      - "Re-running components in the browser to attach event handlers and state to server-rendered HTML"
+      - "Loading data from the cache"
+    answer: 1
+    explanation: "Until hydration finishes, server-rendered buttons do nothing."
+  - id: rsc
+    prompt: "What is special about a React Server Component?"
+    options: ["It runs on the server only and ships no JavaScript of its own", "It renders faster in the browser", "It cannot fetch data"]
+    answer: 0
+    explanation: "Only client components ship code and hydrate."
+  - id: personal
+    prompt: "An SSR page greets the user by name. May a CDN cache it for 60 seconds for everyone?"
+    options: ["Yes", "No: personal pages must be private or render the personal part on the client"]
+    answer: 1
+    explanation: "Shared caching of personal pages leaks data to other users."
+  - id: inp
+    prompt: "Which Core Web Vital suffers most from heavy hydration?"
+    options: ["LCP", "INP", "CLS"]
+    answer: 1
+    explanation: "The main thread is busy running JavaScript when the user first interacts."
+  - id: streaming
+    prompt: "A product page waits 2 s for a slow reviews query before sending anything. What helps?"
+    options: ["Streaming SSR with a Suspense boundary around the reviews", "A bigger server", "Turning off gzip"]
+    answer: 0
+    explanation: "Send the shell and the product now, stream the reviews when ready."

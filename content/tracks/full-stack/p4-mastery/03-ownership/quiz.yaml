@@ -1,0 +1,40 @@
+questions:
+  - id: rename
+    prompt: "Why not simply rename a column in one migration and deploy the new code?"
+    options: ["SQL cannot rename columns", "Old instances, cached bundles and old mobile apps still use the old name during and after the deploy", "Renames are slow"]
+    answer: 1
+    explanation: "Several versions run at once; changes must be compatible."
+  - id: expand-first
+    prompt: "What is the first step of expand and contract?"
+    options: ["Drop the old column", "Add the new structure alongside the old one", "Update every client"]
+    answer: 1
+    explanation: "Expand, migrate readers and writers, then contract."
+  - id: backfill
+    prompt: "How should a backfill of 50 million rows run?"
+    options: ["One UPDATE in one transaction", "In batches of limited size, with pauses, outside the deploy", "During a maintenance window only"]
+    answer: 1
+    explanation: "Small transactions avoid long locks and replication lag."
+  - id: concurrently
+    prompt: "Which clause builds a PostgreSQL index without blocking writes?"
+    answers: ["CONCURRENTLY", "CREATE INDEX CONCURRENTLY", "concurrently"]
+    explanation: "Slower, but writes continue during the build."
+  - id: kill-switch
+    prompt: "A new recommendations widget overloads the database. What stops it fastest?"
+    options: ["A hotfix deploy", "Turning off its ops flag (kill switch)", "Restarting the database"]
+    answer: 1
+    explanation: "Flags change behaviour without a deploy."
+  - id: mitigate
+    prompt: "Errors spike right after a deploy. What comes first?"
+    options: ["Finding the root cause in the code", "Mitigating: roll back or turn off the flag, then investigate", "Writing the postmortem"]
+    answer: 1
+    explanation: "Restore service first."
+  - id: blameless
+    prompt: "What makes a postmortem 'blameless'?"
+    options: ["Nobody writes it", "It looks at systems and contributing factors, not at punishing people, so people share what really happened", "It has no action items"]
+    answer: 1
+    explanation: "Honest timelines need safety; the output is owned action items."
+  - id: flag-debt
+    prompt: "A release flag reached 100 % of users two months ago. What should happen?"
+    options: ["Keep it forever, just in case", "Remove the flag and the old code path", "Set it back to 50 %"]
+    answer: 1
+    explanation: "Stale flags are debt and hidden branches in the code."

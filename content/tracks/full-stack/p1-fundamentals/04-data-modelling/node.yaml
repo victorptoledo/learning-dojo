@@ -1,0 +1,24 @@
+id: full-stack.p1.data-modelling
+kind: lesson
+status: reviewed
+title: "From Screens to Tables: Data Modelling, Migrations and Page Queries"
+summary: "Derive tables from what the screens show and the rules they enforce, keep the schema in versioned migrations, choose between an ORM and SQL, avoid N+1 queries, and paginate with keysets."
+objectives:
+  - { id: o1, text: "Derive entities, keys and constraints from screens and business rules", skills: [full-stack.data-modelling, sql.constraints-keys, sql.normalisation] }
+  - { id: o2, text: "Change a schema with versioned, reviewable migrations", skills: [full-stack.data-modelling] }
+  - { id: o3, text: "Load a page of data without N+1 queries, with keyset pagination and the index that serves it", skills: [full-stack.data-modelling, sql.indexes-plans, sql.json] }
+prerequisites: [full-stack.p1.typed-contract]
+difficulty: 3
+estimated_minutes: 55
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A "team tasks" screen lists tasks of a project, newest first, 20 at a time, each with its assignee''s name, its labels and a comment count; tasks can be filtered by status. Model the tables (with keys and constraints), write the migration that would add the labels feature to an existing schema, and describe how the API loads one page without N+1 queries, which index serves it, and how the next page is requested.'
+  criteria:
+    - 'Tables with primary and foreign keys, NOT NULL and CHECK or enum constraints where rules exist'
+    - 'Models labels as a many-to-many with a join table and a unique pair'
+    - 'Loads the page with joins, batched queries or JSON aggregation instead of one query per task'
+    - 'Uses keyset pagination with a tie-breaker and names a composite index matching filter and sort'
+    - 'Keeps the migration additive and reviewable (new tables, no destructive change)'

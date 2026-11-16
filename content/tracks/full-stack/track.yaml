@@ -4,20 +4,29 @@ name: "Full Stack Developer"
 archetype: role
 category: "Careers & Roles"
 icon: "🌐"
-description: "Client, server, database and deployment together: building digital products end to end."
-status: draft
-bridges_available: [java]
+description: "The end-to-end slice of a product: browser and server talking over HTTP, typed contracts, data modelling to UI, authentication across the stack, caching, deployment, observability and a full feature from database to page, practised in TypeScript on Node.js, Spring Boot, SQL and Compose. Take TypeScript, SQL and Backend Developer alongside or before it."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Page Builder" }
   - { name: "Yellow Belt", required_xp: 300, title: "REST Connector" }
   - { name: "Green Belt", required_xp: 800, title: "Fullstack Integrator" }
-  - { name: "Purple Belt", required_xp: 1500, title: "SSR / Jamstack Pro" }
-  - { name: "Brown Belt", required_xp: 2500, title: "Serverless Specialist" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Session Keeper" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Production Shipper" }
   - { name: "Black Belt", required_xp: 4000, title: "End-to-End Architect" }
   - { name: "Sensei", required_xp: 6000, title: "Fullstack Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does and the tools of the trade" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The minimum of each pillar of the role" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Integrating the pillars into working features" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Scale, performance and architecture decisions" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production ownership, reliability and leadership topics" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does, the web platform and a first page talking to a server" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "HTTP between browser and server, typed contracts, data modelling and rendering UI" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Authentication across the stack, data fetching and caching, rendering strategies and a full feature" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Deploying the stack, observability end to end, performance and real-time" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Architecture choices, testing strategy and production ownership" }
+requirements:
+  - kind: tool
+    name: Node.js 26 (node)
+    command: node
+    version_args: ["--version"]
+    min_version: "26"
+    required: false
+    why: Runs the TypeScript katas and their visible tests on your machine. The grading checks run in Docker and do not need it.
+    install_hint: "install Node.js 26 LTS: winget install OpenJS.NodeJS.LTS, then reopen the terminal"

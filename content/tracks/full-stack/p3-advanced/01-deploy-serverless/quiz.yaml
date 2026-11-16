@@ -1,0 +1,35 @@
+questions:
+  - id: build-once
+    prompt: "Why should production run the same image that passed staging, not a fresh build?"
+    options: ["Builds are slow", "A rebuild may differ (dependencies, base image), so what you tested is not what you ship", "Registries charge per build"]
+    answer: 1
+    explanation: "Build once, promote the tested artifact."
+  - id: bundle-secret
+    prompt: "An API key is put in VITE_PAYMENT_SECRET at build time. Who can read it?"
+    options: ["Only the server", "Every visitor, in the JavaScript bundle", "Nobody, Vite encrypts it"]
+    answer: 1
+    explanation: "Front-end build variables end up in public files."
+  - id: migrations
+    prompt: "When should schema migrations run in a rolling deploy?"
+    options: ["From every new instance as it starts", "Once, before the new version, and compatible with the old one", "After the old version is gone"]
+    answer: 1
+    explanation: "One runner, before the release, so old and new code both work."
+  - id: pooler
+    prompt: "Serverless functions exhaust PostgreSQL connections under load. What is the usual fix?"
+    answers: ["a connection pooler", "connection pooler", "PgBouncer", "RDS Proxy", "pooler"]
+    explanation: "Put a pooler (or an HTTP serverless driver) between functions and the database."
+  - id: cold-start
+    prompt: "What is a cold start?"
+    options: ["A database restart", "The extra latency when a new function instance loads its runtime and code", "A failed deploy"]
+    answer: 1
+    explanation: "Small bundles and provisioned concurrency reduce it."
+  - id: readiness
+    prompt: "Which check should say 'not ready' while the database is unreachable?"
+    options: ["Liveness", "Readiness"]
+    answer: 1
+    explanation: "Readiness removes the instance from traffic; liveness restarts a stuck process."
+  - id: old-assets
+    prompt: "After a deploy, open tabs get 404s for app.old123.js. What prevents that?"
+    options: ["Keeping the previous release's hashed assets available for a while", "Shorter cache headers on assets", "Disabling the CDN"]
+    answer: 0
+    explanation: "Old pages still reference old chunks until reloaded."

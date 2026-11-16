@@ -1,0 +1,40 @@
+questions:
+  - id: link
+    prompt: "What links a user's error message, the API's log lines and a distributed trace?"
+    options: ["The timestamp", "The trace id carried in every signal", "The user's IP address"]
+    answer: 1
+    explanation: "Show it to the user, log it, and search by it."
+  - id: label
+    prompt: "Which label is safe on a request-latency metric?"
+    options: ["path=\"/api/orders/48213\"", "route=\"/api/orders/:id\"", "user_id=\"9921\""]
+    answer: 1
+    explanation: "Route templates have few values; raw paths and user ids explode cardinality."
+  - id: percentile
+    prompt: "Why record latency as a histogram instead of an average?"
+    options: ["It uses less memory", "Percentiles such as p95 show the slow tail that averages hide", "Prometheus has no gauges"]
+    answer: 1
+    explanation: "Users feel the tail; histograms aggregate across instances."
+  - id: traceparent
+    prompt: "Which HTTP header carries a W3C trace between services?"
+    answers: ["traceparent"]
+    explanation: "traceparent: version-traceid-parentid-flags."
+  - id: propagate
+    prompt: "An API received traceparent with parent span P and calls the inventory. Which parent id does it send?"
+    options: ["P, unchanged", "Its own span id for this request", "A new trace id"]
+    answer: 1
+    explanation: "Same trace id; the parent is the caller's current span."
+  - id: red
+    prompt: "What do the RED metrics stand for?"
+    options: ["Requests, Errors, Duration (rate, errors, latency)", "Reads, Edits, Deletes", "Redis, Elastic, Datadog"]
+    answer: 0
+    explanation: "Rate, errors and duration per route."
+  - id: never-log
+    prompt: "Which of these must never appear in logs?"
+    options: ["The route template", "The session cookie or a bearer token", "The response status"]
+    answer: 1
+    explanation: "Credentials in logs let anyone with log access impersonate users."
+  - id: alert
+    prompt: "Which alert is best?"
+    options: ["CPU above 80 %", "Checkout error rate above 1 % for 10 minutes", "Any error log line"]
+    answer: 1
+    explanation: "Alert on symptoms users feel, tied to an SLO."

@@ -1,0 +1,37 @@
+questions:
+  - id: origin
+    prompt: "Are https://app.example.com and https://api.example.com the same origin?"
+    options: ["Yes, same domain", "No: the host differs", "Only for GET requests"]
+    answer: 1
+    explanation: "An origin is scheme, host and port; a different subdomain is a different origin."
+  - id: curl
+    prompt: "A request fails with a CORS error in the browser but works from curl. Why?"
+    options: ["curl sends a better User-Agent", "CORS is enforced by browsers, not by servers or curl", "curl uses HTTP/1.0"]
+    answer: 1
+    explanation: "The server answered; the browser refused to let the page read the answer."
+  - id: preflight
+    prompt: "Which request does the browser send before a cross-origin PUT with a JSON body?"
+    answers: ["OPTIONS", "an OPTIONS preflight", "preflight", "a preflight"]
+    explanation: "A preflight OPTIONS asks whether that method and those headers are allowed."
+  - id: star
+    prompt: "The SPA calls the API with credentials: \"include\". May the API answer Access-Control-Allow-Origin: *?"
+    options: ["Yes", "No: with credentials it must echo the exact origin and allow credentials"]
+    answer: 1
+    explanation: "Browsers refuse a wildcard origin on credentialed requests."
+  - id: httponly
+    prompt: "Which cookie attribute keeps JavaScript, including an injected script, from reading a session cookie?"
+    answers: ["HttpOnly", "httponly"]
+    explanation: "HttpOnly cookies are sent with requests but hidden from document.cookie."
+  - id: samesite
+    prompt: "Which SameSite value do browsers apply by default, and suits most session cookies?"
+    options: ["None", "Lax", "Strict"]
+    answer: 1
+    explanation: "Lax blocks cross-site POSTs and subresources but keeps top-level navigation working."
+  - id: avoid
+    prompt: "What removes the need for CORS between an SPA and its API?"
+    options:
+      - "Serving both from one origin, for example /api through a reverse proxy"
+      - "Using PATCH instead of PUT"
+      - "Sending the cookie in a header"
+    answer: 0
+    explanation: "Same-origin requests need no CORS headers and no preflights."

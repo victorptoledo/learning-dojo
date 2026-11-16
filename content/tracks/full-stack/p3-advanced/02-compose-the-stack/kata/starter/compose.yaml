@@ -1,0 +1,35 @@
+# The shop as it runs on a laptop today. It starts, mostly.
+# todo: turn it into the stack described in README.md
+services:
+  web:
+    image: ghcr.io/dojo-example/shop-web:latest
+    ports:
+      - "8080:8080"
+    environment:
+      API_URL: http://localhost:3000
+
+  api:
+    image: ghcr.io/dojo-example/shop-api:latest
+    command: ["sh", "-c", "node migrate.js && node server.js"]
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://shop:shop-pass-2026@db:5432/shop
+      CORS_ORIGIN: "*"
+    depends_on:
+      - db
+
+  seed:
+    image: ghcr.io/dojo-example/shop-api:latest
+    command: ["node", "seed.js"]
+    environment:
+      DATABASE_URL: postgres://shop:shop-pass-2026@db:5432/shop
+
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: shop
+      POSTGRES_DB: shop
+      POSTGRES_PASSWORD: shop-pass-2026

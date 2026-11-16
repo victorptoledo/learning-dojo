@@ -1,0 +1,53 @@
+id: full-stack.p1.checkpoint
+kind: checkpoint
+status: reviewed
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata, a notes app from a SQLite table to a server-rendered page with a search box, a Post/Redirect/Get form and a JSON API that share one validation."
+objectives:
+  - { id: o1, text: "Explain HTTP between browser and server, API contracts, data modelling and rendering choices in your own words", skills: [full-stack.client-server, full-stack.api-contracts, full-stack.data-modelling, full-stack.rendering] }
+  - { id: o2, text: "Build a feature end to end: a table, a repository with parameterised queries, one validation, an escaped page, a form and a JSON API", skills: [full-stack.data-modelling, full-stack.rendering, full-stack.client-server] }
+prerequisites: [full-stack.p1.rendering-ui]
+difficulty: 3
+estimated_minutes: 85
+xp: 350
+closes_phase: p1
+covers_skills: [full-stack.client-server, full-stack.api-contracts, full-stack.data-modelling, full-stack.rendering]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 120 }
+  hints:
+    - |-
+      Build it from the bottom up and run the tests after each layer: `validateNote`, then the repository, then `notesPage`, then the routes. In the routes, both the form and the JSON endpoint must end in the same validation and the same `repo.create`: what differs between them is only how the body is parsed and how the answer is shaped (redirect and HTML, or status and JSON).
+    - |-
+      `new URLSearchParams(body)` parses a form body; `Object.fromEntries(...)` turns it into an object for `validateNote`. A valid form answers `303` with `Location: /` and an empty body; an invalid one renders the page again with `422`, the errors and the typed values. In SQLite, `title LIKE ? ESCAPE '\'` with the search text wrapped in `%...%` and its `\`, `%` and `_` escaped makes the wildcards literal; LIKE already ignores ASCII case. Map each row to `{ id, title, body }`.
+    - |-
+      ```ts
+      // db.ts
+      const matching = db.prepare("SELECT id, title, body FROM notes WHERE title LIKE ? ESCAPE '\\' ORDER BY id DESC");
+      const pattern = `%${search.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+
+      // app.ts, the form
+      const form = Object.fromEntries(new URLSearchParams(await readBody(request)));
+      const result = validateNote(form);
+      if (!result.ok) {
+        sendHtml(response, 422, notesPage({ notes: repo.list(), errors: result.errors, values: form }));
+        return;
+      }
+      repo.create(result.note);
+      response.writeHead(303, { Location: "/" });
+      response.end();
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container (with node:sqlite) and TypeScript 7 that type-checks your code and runs the tests.

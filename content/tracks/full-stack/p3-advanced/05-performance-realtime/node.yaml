@@ -1,0 +1,24 @@
+id: full-stack.p3.performance-realtime
+kind: lesson
+status: reviewed
+title: "Performance and Real-Time: Budgets, CDNs, N+1, WebSockets and SSE"
+summary: "Making the whole stack fast and live: performance budgets and Core Web Vitals, bundle and image weight, CDNs and compression, server latency from N+1 to pools, and pushing updates with polling, Server-Sent Events and WebSockets at scale."
+objectives:
+  - { id: o1, text: "Set a performance budget and find the biggest cost along the request path", skills: [full-stack.performance, system-design.dns-cdn] }
+  - { id: o2, text: "Reduce front-end weight and server latency with code splitting, image and CDN settings, query fixes and pools", skills: [full-stack.performance] }
+  - { id: o3, text: "Choose between polling, Server-Sent Events and WebSockets, and scale them behind load balancers", skills: [full-stack.performance] }
+prerequisites: [full-stack.p3.traced-requests]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An order-tracking page takes 5 seconds to become usable on a mid-range phone, and the team wants it to show status changes live. Describe how you would measure where the time goes, three concrete fixes you would expect to matter most (front end and back end), and how you would push live status updates, including how it works with several API instances behind a load balancer.'
+  criteria:
+    - 'Measures with field data (RUM, Web Vitals) and lab tools (Lighthouse, the network and performance panels, traces)'
+    - 'Names front-end fixes such as code splitting, image sizing, fewer render-blocking resources'
+    - 'Names back-end fixes such as removing N+1, an index, caching or parallel calls'
+    - 'Chooses SSE or WebSockets (or polling) with a justification'
+    - 'Handles fan-out across instances with a pub/sub such as Redis or the database, and reconnection'

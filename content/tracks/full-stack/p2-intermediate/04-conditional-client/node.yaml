@@ -1,0 +1,48 @@
+id: full-stack.p2.conditional-client
+kind: kata
+status: reviewed
+title: "Conditional Requests: a Product Page That Revalidates"
+summary: "ETags on the server, If-None-Match revalidation with 304 and If-Match updates with 412 and 428, and a client cache that revalidates instead of downloading and turns a lost update into a visible conflict."
+objectives:
+  - { id: o1, text: "Compute strong ETags and answer If-None-Match with 304 Not Modified", skills: [full-stack.data-fetching, full-stack.client-server] }
+  - { id: o2, text: "Prevent lost updates with If-Match, 412 Precondition Failed and 428 Precondition Required", skills: [full-stack.data-fetching] }
+  - { id: o3, text: "Write a client cache that revalidates and surfaces conflicts to the UI", skills: [full-stack.data-fetching] }
+prerequisites: [full-stack.p2.data-fetching]
+difficulty: 3
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 90 }
+  hints:
+    - |-
+      Write `etagOf` and `matches` first: the server's four answers are then a few `if`s on top of them. On the client, what must you remember per path so that the next `get` can ask "has it changed?", and the next `update` can say "I am editing this version"?
+    - |-
+      `createHash("sha256").update(body).digest("base64url").slice(0, 16)` inside quotes is the ETag. `matches` splits the header on commas, trims each tag, drops a leading `W/` on both sides and compares; `*` matches anything. On the server, compute the ETag of the current product before deciding: `GET` with a matching `If-None-Match` is a 304 with no body; `PUT` checks `If-Match` presence (428) and match (412, with the current body and ETag) before changing anything. The client keeps `{ etag, body }` per path in a `Map`.
+    - |-
+      ```ts
+      async get<T>(path: string): Promise<T> {
+        const cached = this.cache.get(path);
+        const response = await this.fetchFn(`${this.baseUrl}${path}`, {
+          headers: cached ? { "If-None-Match": cached.etag } : {},
+        });
+        if (response.status === 304 && cached) {
+          this.stats.revalidated += 1;
+          return cached.body as T;
+        }
+        // not ok: throw; otherwise read the JSON, count a download and remember { etag, body }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

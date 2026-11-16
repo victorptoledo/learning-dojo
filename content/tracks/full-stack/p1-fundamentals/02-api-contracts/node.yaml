@@ -1,0 +1,24 @@
+id: full-stack.p1.api-contracts
+kind: lesson
+status: reviewed
+title: "Typed API Contracts Between Client and Server"
+summary: "Keep both sides of an API in agreement: resource design for a UI, one source of truth for types (OpenAPI, shared schemas, tRPC), runtime validation at both edges, problem details for errors, and evolving a contract without breaking old clients."
+objectives:
+  - { id: o1, text: "Design resources and payloads that serve the screens without leaking the database", skills: [full-stack.api-contracts, backend.api-design] }
+  - { id: o2, text: "Keep one source of truth for types with OpenAPI generation, shared schemas or RPC, and validate at runtime on both sides", skills: [full-stack.api-contracts, typescript.runtime-validation] }
+  - { id: o3, text: "Report errors with RFC 9457 problem details and evolve a contract compatibly", skills: [full-stack.api-contracts] }
+prerequisites: [full-stack.p1.client-server]
+difficulty: 2
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A React front end and a Spring Boot API share a "product" resource; renaming priceCents to price in the API broke the UI in production. Propose how the team should keep the two in agreement from now on: where the contract lives, how each side gets its types, what is validated at runtime where, how errors are shaped, and how the rename should have been rolled out.'
+  criteria:
+    - 'Names one source of truth (OpenAPI spec, shared schema package or RPC) and how types are generated or shared'
+    - 'Validates input on the server and, at least for critical data, answers on the client'
+    - 'Uses a consistent error shape such as problem details with field errors'
+    - 'Describes an additive, expand-then-contract rollout (add the new field, migrate clients, remove later) or versioning'
+    - 'Mentions a check in CI (contract tests or type generation) that would have caught it'

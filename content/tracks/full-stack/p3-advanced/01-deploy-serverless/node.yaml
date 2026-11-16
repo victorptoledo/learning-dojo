@@ -1,14 +1,25 @@
 id: full-stack.p3.deploy-serverless
 legacy_id: fs-03-deploy-serverless
 kind: lesson
-status: draft
-title: "Continuous Deployment, Edge Functions and Serverless Databases"
-summary: "Running code at the edge and using serverless databases."
+status: reviewed
+title: "Deploying the Stack: Containers, Environments, CD and Serverless"
+summary: "Getting the whole product to users and keeping it there: build once and promote, configuration and secrets per environment, migrations in the pipeline, containers and Compose, static hosting for front ends, serverless and edge functions and their database connections."
 objectives:
-  - { id: o1, text: "Running code at the edge and using serverless databases.", skills: [full-stack.deploy-serverless] }
-prerequisites: [full-stack.p2.ssr-ssg]
-difficulty: 4
-estimated_minutes: 30
-xp: 350
+  - { id: o1, text: "Design a pipeline that builds one artifact per commit and promotes it through environments", skills: [full-stack.deploy-serverless, backend.delivery] }
+  - { id: o2, text: "Keep configuration and secrets out of images and code, and run migrations as a pipeline step", skills: [full-stack.deploy-serverless, docker.compose] }
+  - { id: o3, text: "Compare containers, platform services, static hosting, serverless and edge functions, including their database connection limits", skills: [full-stack.deploy-serverless] }
+prerequisites: [full-stack.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 55
+xp: 300
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Describe the path from a merged pull request to production for a product with a React front end, a Node.js or Spring Boot API and PostgreSQL. Cover what is built and where it is stored, how configuration and secrets reach each environment, when migrations run, how a release is verified and rolled back, and what would change if the API moved to serverless functions.'
+  criteria:
+    - 'Builds once (an image and a static bundle) tagged by commit and promotes the same artifacts'
+    - 'Configuration from the environment and secrets from a secret store, never baked into images'
+    - 'Migrations as a separate step before the new version, compatible with the old one'
+    - 'A health check or smoke test, and a rollback that does not depend on undoing the database'
+    - 'For serverless: cold starts and connection pooling (a pooler or a serverless driver)'

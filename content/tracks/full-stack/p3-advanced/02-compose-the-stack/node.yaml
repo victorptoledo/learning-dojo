@@ -1,0 +1,55 @@
+id: full-stack.p3.compose-the-stack
+kind: kata
+status: reviewed
+title: "Compose the Whole Stack"
+summary: "Turn a laptop-only Compose file into the shop's stack: pinned releases, one published port, internal networks, a shared secret, a one-shot migration service, health-based start order and a dev-only seed profile."
+objectives:
+  - { id: o1, text: "Wire web, api and database with service names, networks and one published entry point", skills: [full-stack.deploy-serverless, docker.compose, docker.networking] }
+  - { id: o2, text: "Run migrations as a one-shot service and order the start with health checks and completion", skills: [full-stack.deploy-serverless, docker.compose] }
+  - { id: o3, text: "Keep secrets out of the file and demo data out of the default profile", skills: [full-stack.deploy-serverless, docker.runtime-security] }
+prerequisites: [full-stack.p3.deploy-serverless]
+difficulty: 3
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 120 }
+  hints:
+    - |-
+      Draw the stack before editing: which service talks to which, and which one must a browser reach? That gives the networks and the single published port. Then the start-up story: what must have happened before the API may serve its first request, and how does Compose know each step is done?
+    - |-
+      A network with `internal: true` has no route out, and services only see the networks they join, so `web` on `frontend` alone cannot reach `db`. `depends_on` takes conditions: `service_healthy` needs a `healthcheck` on the other service, `service_completed_successfully` waits for a one-shot container to exit 0. `profiles: [dev]` keeps a service out of a plain `docker compose up`. A YAML anchor (`x-database: &database`, then `environment: *database` or `<<: *database`) avoids repeating the database settings.
+    - |-
+      ```yaml
+      services:
+        api:
+          image: ghcr.io/dojo-example/shop-api:2.3.0
+          command: ["node", "server.js"]
+          networks: [frontend, backend]
+          secrets: [db_password]
+          depends_on:
+            db: { condition: service_healthy }
+            migrate: { condition: service_completed_successfully }
+          healthcheck:
+            test: ["CMD", "node", "healthcheck.js"]
+        migrate:
+          image: ghcr.io/dojo-example/shop-api:2.3.0
+          command: ["node", "migrate.js"]
+          restart: "no"
+          # networks, secrets, environment, depends_on db healthy
+      networks:
+        backend: { internal: true }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your Compose file is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with docker-compose (config only), jq and bats that reads your normalised Compose file.

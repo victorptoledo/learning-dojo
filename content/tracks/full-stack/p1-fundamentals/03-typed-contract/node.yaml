@@ -1,0 +1,49 @@
+id: full-stack.p1.typed-contract
+kind: kata
+status: reviewed
+title: "A Typed Contract Between Client and Server"
+summary: "One zod contract for a to-do API: the server validates requests and answers with RFC 9457 problems, the client validates answers, and TypeScript derives every type from the schemas."
+objectives:
+  - { id: o1, text: "Write one schema that both sides use, and derive the request and response types from it", skills: [full-stack.api-contracts, typescript.runtime-validation] }
+  - { id: o2, text: "Answer refused input with 400, 415 and 422 problem details that name each field", skills: [full-stack.api-contracts, full-stack.client-server] }
+  - { id: o3, text: "Refuse server answers that break the contract on the client instead of passing bad data to the UI", skills: [full-stack.api-contracts] }
+prerequisites: [full-stack.p1.api-contracts]
+difficulty: 2
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 90 }
+  hints:
+    - |-
+      Do the contract first: every other test leans on it. Which zod method trims before checking the length? Which object constructor refuses keys it does not know? Then the server has four ways to answer a POST: in which order must you check media type, JSON syntax and the schema, so that each refusal has the right status?
+    - |-
+      `z.string().trim().min(1).max(120)` trims, then checks. `z.strictObject` refuses unknown keys, and `z.iso.date()` checks that a `YYYY-MM-DD` date exists. On the server: the media type is `contentType?.split(";")[0]?.trim()`, then `JSON.parse` in a `try` (400), then `NewTodo.safeParse` (422 with `toFieldErrors(parsed.error)`). On the client, parse every answer with `Todo` or `Problem` and turn a failed `safeParse` into a `ContractError`.
+    - |-
+      ```ts
+      export function toFieldErrors(error: z.ZodError): FieldError[] {
+        return error.issues.map((issue) => ({ path: issue.path.map(String).join("."), message: issue.message }));
+      }
+
+      // client.ts
+      const body = await response.json();
+      if (response.ok) {
+        const todo = Todo.safeParse(body);
+        if (!todo.success) throw new ContractError(todo.error.message);
+        return { ok: true, todo: todo.data };
+      }
+      // the same with Problem for { ok: false, problem }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 and zod that type-checks your code and runs the tests.

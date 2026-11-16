@@ -1,0 +1,52 @@
+id: full-stack.p2.spa-session-api
+kind: kata
+status: reviewed
+title: "A Session API for a Single-Page App"
+summary: "Spring Security for an SPA on another origin: a server-side session in an HttpOnly cookie, a JSON login and logout, SPA-style CSRF tokens, a JSON 401 and CORS with credentials for one origin."
+objectives:
+  - { id: o1, text: "Log users in to a server-side session from a JSON endpoint and save the security context", skills: [full-stack.auth, spring.security] }
+  - { id: o2, text: "Protect state-changing requests with a CSRF token read from a cookie and sent in a header", skills: [full-stack.auth, spring.security] }
+  - { id: o3, text: "Allow one origin with credentials through CORS and refuse the rest, and set the session cookie's flags", skills: [full-stack.auth, full-stack.client-server] }
+prerequisites: [full-stack.p2.auth-across-stack]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 240 }
+  hints:
+    - |-
+      Separate three questions: who may call which endpoint (authorization rules), how an unauthenticated call is answered (an entry point), and which cross-site requests are allowed at all (CSRF and CORS). The login endpoint is public, but is it exempt from CSRF? And after `authenticate(...)` succeeds, what makes the next request of the same session still logged in?
+    - |-
+      `csrf(csrf -> csrf.spa())` sets up the `XSRF-TOKEN` cookie and the `X-XSRF-TOKEN` header. `exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) -> ...))` writes the JSON 401. Disable `formLogin`, `httpBasic` and `logout` with `AbstractHttpConfigurer::disable`. `cors(Customizer.withDefaults())` uses your `CorsConfigurationSource` bean; `setAllowCredentials(true)` with one origin in `setAllowedOrigins`. In the controller, a `CsrfToken` parameter gives the token, and `new HttpSessionSecurityContextRepository().saveContext(context, request, response)` stores the login.
+    - |-
+      ```java
+      @PostMapping("/api/login")
+      ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest login,
+                                                HttpServletRequest request, HttpServletResponse response) {
+          Authentication auth;
+          try {
+              auth = authenticationManager.authenticate(
+                      UsernamePasswordAuthenticationToken.unauthenticated(login.username(), login.password()));
+          } catch (AuthenticationException e) {
+              return ResponseEntity.status(401).body(Map.of("error", "bad credentials"));
+          }
+          SecurityContext context = SecurityContextHolder.getContextHolderStrategy().createEmptyContext();
+          context.setAuthentication(auth);
+          // set it on the holder strategy and save it with an HttpSessionSecurityContextRepository
+          return ResponseEntity.ok(Map.of("username", auth.getName()));
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4, Spring Security and JUnit 6 that runs the grading tests.

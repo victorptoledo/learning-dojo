@@ -1,0 +1,48 @@
+id: full-stack.p1.page-query
+kind: kata
+status: reviewed
+title: "From Tables to a Page: the \"My Orders\" Screen"
+summary: "Replace an N+1 screen with one PostgreSQL query that returns the page as the JSON the UI renders, with keyset pagination and a next cursor, plus the migration and index the screen needs."
+objectives:
+  - { id: o1, text: "Add a constrained column and the index that matches a screen's sort order in a migration", skills: [full-stack.data-modelling, sql.constraints-keys, sql.indexes-plans] }
+  - { id: o2, text: "Paginate with a keyset cursor and a tie-breaker instead of OFFSET", skills: [full-stack.data-modelling, sql.window-functions] }
+  - { id: o3, text: "Shape nested JSON for the UI in one query with jsonb_build_object and jsonb_agg", skills: [full-stack.data-modelling, sql.json] }
+prerequisites: [full-stack.p1.data-modelling]
+difficulty: 3
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with `order_page.sql`, without JSON: which rows, in which order, how many? Orders 4 and 5 were placed at the same time: what makes "after the cursor" well defined when two rows share `placed_at`? Then think of `page_json.sql` as layers: the page of orders, then the items of each order, then the document around them.
+    - |-
+      A row comparison `(o.placed_at, o.id) < (r.after_placed_at, r.after_id)` with `ORDER BY placed_at DESC, id DESC` is the keyset condition. Join `page_request` to read the parameters, and `LIMIT (SELECT page_size FROM page_request)`. For the JSON, `jsonb_agg(jsonb_build_object(...) ORDER BY ...)` builds a sorted array, `coalesce(..., '[]'::jsonb)` turns an empty page into `[]`, and `to_char(placed_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')` formats the time. Fetch `page_size + 1` candidates to know whether a next page exists.
+    - |-
+      ```sql
+      WITH r AS (SELECT * FROM page_request),
+      candidates AS (   -- one more than the page
+          SELECT o.id, o.placed_at, row_number() OVER (ORDER BY o.placed_at DESC, o.id DESC) AS position
+          FROM r JOIN orders AS o ON o.customer_id = r.customer_id
+          WHERE r.after_id IS NULL OR (o.placed_at, o.id) < (r.after_placed_at, r.after_id)
+          ORDER BY o.placed_at DESC, o.id DESC
+          LIMIT (SELECT page_size + 1 FROM r)
+      ),
+      page AS (SELECT * FROM candidates WHERE position <= (SELECT page_size FROM r))
+      -- shaped: one jsonb per order with its items; then the document with customer,
+      -- orders (coalesce to '[]') and nextCursor (CASE on the number of candidates)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: A throwaway PostgreSQL 17 that loads the fixture and runs your queries against the tests.

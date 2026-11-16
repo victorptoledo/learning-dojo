@@ -1,0 +1,35 @@
+questions:
+  - id: fetch-404
+    prompt: "What does `await fetch('/api/x')` do when the server answers 404?"
+    options: ["It rejects with an error", "It resolves with a response whose ok is false", "It retries"]
+    answer: 1
+    explanation: "fetch only rejects when there is no response; check response.ok yourself."
+  - id: encoding
+    prompt: "A plain HTML form with method=\"post\" and no file input sends its fields as..."
+    options: ["application/json", "application/x-www-form-urlencoded", "text/plain"]
+    answer: 1
+    explanation: "urlencoded is the default; multipart/form-data needs enctype, JSON needs JavaScript."
+  - id: search-method
+    prompt: "Which method should a search form use?"
+    answers: ["GET", "get"]
+    explanation: "A search does not change anything, and its URL can be bookmarked and shared."
+  - id: prg
+    prompt: "After a successful form POST, which status lets a reload of the result page not post again?"
+    options: ["200 with the result page", "303 See Other to the result page", "201 Created"]
+    answer: 1
+    explanation: "Post/Redirect/Get: the browser follows 303 with a GET."
+  - id: xss
+    prompt: "Which line is safe for a comment typed by a user?"
+    options: ["el.innerHTML = comment", "el.textContent = comment", "document.write(comment)"]
+    answer: 1
+    explanation: "textContent inserts text; the other two parse it as HTML and can run scripts."
+  - id: server-validate
+    prompt: "The input has `required` and `min=\"1\"`. Does the server still need to validate?"
+    options: ["No, the browser enforces it", "Yes: any client can send any request", "Only for GET"]
+    answer: 1
+    explanation: "Client-side checks are for the user's comfort; the server is the boundary."
+  - id: once
+    prompt: "Can you call both `response.json()` and `response.text()` on the same response?"
+    options: ["Yes", "No: the body stream can be read once"]
+    answer: 1
+    explanation: "Reading the body consumes it; clone the response if you really need both."

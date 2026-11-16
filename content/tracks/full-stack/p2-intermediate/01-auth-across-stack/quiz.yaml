@@ -1,0 +1,40 @@
+questions:
+  - id: localstorage
+    prompt: "What does an XSS bug let an attacker do with an access token kept in localStorage?"
+    options: ["Nothing, localStorage is sandboxed", "Copy it and use it from anywhere until it expires", "Only read it while the page is open"]
+    answer: 1
+    explanation: "Any script on the page can read localStorage and send the token away."
+  - id: csrf-why
+    prompt: "Why are cookie sessions exposed to CSRF while Bearer tokens in headers are not?"
+    options: ["Cookies are unencrypted", "The browser attaches cookies automatically, even to requests started by other sites", "Bearer tokens are longer"]
+    answer: 1
+    explanation: "Automatic sending is the convenience and the risk."
+  - id: csrf-header
+    prompt: "In the SPA pattern, the CSRF token is read from a cookie and sent back in which kind of place?"
+    options: ["The URL query string", "A request header such as X-XSRF-TOKEN", "A second cookie"]
+    answer: 1
+    explanation: "Another site cannot read the cookie, so it cannot put the value in a header."
+  - id: login-csrf
+    prompt: "Should the login endpoint be exempt from CSRF protection?"
+    options: ["Yes, nobody is logged in yet", "No: login CSRF signs the victim in to the attacker's account"]
+    answer: 1
+    explanation: "Protect the login request like any other state change."
+  - id: pkce
+    prompt: "Which OAuth 2 / OIDC flow should a browser-based app use?"
+    answers: ["authorization code with PKCE", "authorization code flow with PKCE", "code with PKCE", "PKCE"]
+    explanation: "Implicit and password flows are deprecated."
+  - id: bff
+    prompt: "In the backend-for-frontend pattern, where do the access and refresh tokens live?"
+    options: ["In localStorage", "On the server; the browser only gets an HttpOnly session cookie", "In the URL"]
+    answer: 1
+    explanation: "The BFF exchanges the code and keeps the tokens out of JavaScript."
+  - id: spa-401
+    prompt: "An SPA's fetch to the API is not logged in. What should the API answer?"
+    options: ["302 to the login page", "401 with a JSON body", "200 with an empty list"]
+    answer: 1
+    explanation: "fetch cannot use an HTML redirect; the SPA decides how to send the user to log in."
+  - id: hidden-button
+    prompt: "The delete button is hidden for users who may not delete. Is the endpoint safe?"
+    options: ["Yes", "No: the server must check every request itself"]
+    answer: 1
+    explanation: "Hiding is UX; anyone can send the request directly."

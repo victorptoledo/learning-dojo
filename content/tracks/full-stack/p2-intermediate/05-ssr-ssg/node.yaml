@@ -1,0 +1,25 @@
+id: full-stack.p2.ssr-ssg
+legacy_id: fs-02-ssr-ssg
+kind: lesson
+status: reviewed
+title: "Rendering Strategies: SSR, SSG, ISR and React Server Components"
+summary: "When to render at build time, on each request or in the browser: static generation, incremental regeneration, server-side rendering with hydration, streaming, islands and React Server Components, judged by Core Web Vitals and by where the data comes from."
+objectives:
+  - { id: o1, text: "Compare CSR, SSR, SSG and ISR by freshness, cost, first paint and interactivity", skills: [full-stack.ssr-ssg] }
+  - { id: o2, text: "Explain hydration, its costs, and how streaming, islands and server components reduce them", skills: [full-stack.ssr-ssg] }
+  - { id: o3, text: "Choose a strategy per route from its data and its audience, measured with Core Web Vitals", skills: [full-stack.ssr-ssg, full-stack.performance] }
+prerequisites: [full-stack.p2.conditional-client]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A news site has: the home page (changes every few minutes), article pages (written once, edited rarely, millions of views), a "my saved articles" page behind a login, and a live comment thread under each article. Pick a rendering strategy for each and justify it in terms of data freshness, server cost, first paint and SEO. Then explain what hydration costs on the article page and one technique to reduce it.'
+  criteria:
+    - 'Article pages: static generation or ISR with on-demand revalidation when edited'
+    - 'Home page: ISR or SSR with short CDN caching'
+    - 'Saved articles: SSR with private data or CSR behind the login, never shared-cached'
+    - 'Comments: client-side fetching or streaming, not blocking the article'
+    - 'Explains hydration (JavaScript re-running to attach handlers) and a reduction such as islands, server components or partial hydration'

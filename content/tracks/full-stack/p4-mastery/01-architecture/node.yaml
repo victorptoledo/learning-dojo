@@ -1,0 +1,24 @@
+id: full-stack.p4.architecture
+kind: lesson
+status: reviewed
+title: "Full Stack Architecture: Monoliths, BFFs and Monorepos"
+summary: "Architecture decisions a full stack lead makes: modular monolith versus services, backend-for-frontend and API gateways, monorepos with shared contracts, vertical slices and team boundaries, and recording decisions in ADRs."
+objectives:
+  - { id: o1, text: "Argue for a modular monolith or for services from concrete forces, not fashion", skills: [full-stack.architecture, backend.architecture] }
+  - { id: o2, text: "Place a backend-for-frontend or gateway where several clients need different shapes of the same data", skills: [full-stack.architecture] }
+  - { id: o3, text: "Organise code and teams by feature in a monorepo with shared contracts and enforced boundaries, and record decisions in ADRs", skills: [full-stack.architecture, typescript.monorepos] }
+prerequisites: [full-stack.p3.performance-realtime]
+difficulty: 4
+estimated_minutes: 50
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your company has one Spring Boot or Node.js monolith, a React web app and a new mobile app, and three teams (checkout, catalogue, accounts). The CTO suggests splitting into microservices "to move faster". Write a short ADR: the context, the options you considered (including a modular monolith and a BFF for mobile), your decision, and its consequences, including how the teams will own code and how the web and mobile clients get the data they need.'
+  criteria:
+    - 'States the forces (team count, deploy friction, scaling needs, data coupling) instead of fashion'
+    - 'Considers a modular monolith with enforced module boundaries'
+    - 'Places a BFF or tailored endpoints for the mobile client with a justification'
+    - 'Describes ownership by feature or domain, and how contracts are shared (monorepo, generated types)'
+    - 'Lists consequences and what would make the team revisit the decision'

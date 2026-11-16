@@ -1,0 +1,35 @@
+questions:
+  - id: n-plus-one
+    prompt: "A page loads 50 orders with one query, then runs one query per order for its items. How many queries is that?"
+    answers: ["51", "fifty-one"]
+    explanation: "1 + N: the N+1 problem. Use a join, one batched query or JSON aggregation."
+  - id: price-copy
+    prompt: "Why does order_items store unit_price_cents when products already has a price?"
+    options: ["To save a join", "So a later price change does not rewrite what customers paid", "PostgreSQL requires it"]
+    answer: 1
+    explanation: "The line records the price at checkout; it is a fact of the order."
+  - id: keyset
+    prompt: "Which condition continues a newest-first page after the row (placed_at = T, id = 4)?"
+    options: ["WHERE placed_at < T", "WHERE (placed_at, id) < (T, 4)", "OFFSET 4"]
+    answer: 1
+    explanation: "The row comparison with id as tie-breaker keeps rows with the same placed_at."
+  - id: index
+    prompt: "Which index serves WHERE customer_id = $1 ORDER BY placed_at DESC, id DESC LIMIT 21?"
+    options: ["(placed_at)", "(customer_id, placed_at DESC, id DESC)", "(id, customer_id)"]
+    answer: 1
+    explanation: "Equality column first, then the sort columns in the same order."
+  - id: migration-order
+    prompt: "When should a migration that adds a column run?"
+    options: ["After the new code is live", "Before the new code starts, as one step, compatible with the old code", "From every instance at start-up, concurrently"]
+    answer: 1
+    explanation: "Run once before the release, and keep it compatible with the code still running."
+  - id: constraint
+    prompt: "Validation in the API already checks quantity > 0. Why also add CHECK (quantity > 0)?"
+    options: ["It is faster", "The database refuses bad data from any path: bugs, scripts, other services", "ORMs need it"]
+    answer: 1
+    explanation: "Constraints protect the data regardless of which code writes it."
+  - id: cursor
+    prompt: "Who should build the pagination cursor?"
+    options: ["The client, from the last row's fields", "The server, as an opaque string the client sends back"]
+    answer: 1
+    explanation: "Opaque cursors let the server change how it paginates without breaking clients."
