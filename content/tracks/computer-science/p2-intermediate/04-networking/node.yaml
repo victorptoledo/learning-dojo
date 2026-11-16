@@ -1,0 +1,24 @@
+id: computer-science.p2.networking
+kind: lesson
+status: draft
+title: "Networking Fundamentals: Layers, TCP/IP and DNS"
+summary: "How bytes cross the world: the layered model and encapsulation, Ethernet and MAC addresses, IP addressing, subnets and routing, UDP and TCP with the handshake, reliability, flow and congestion control, ports and sockets, DNS resolution and caching, and what happens on a single HTTPS request."
+objectives:
+  - { id: o1, text: "Explain the layers of the TCP/IP model and how encapsulation puts headers around application data", skills: [computer-science.networking] }
+  - { id: o2, text: "Explain IP addressing and routing, and how TCP provides a reliable, ordered byte stream over IP (handshake, sequence numbers, retransmission, flow and congestion control)", skills: [computer-science.networking] }
+  - { id: o3, text: "Trace a DNS resolution and the full sequence of round trips of an HTTPS request, and estimate its latency", skills: [computer-science.networking, computer-science.foundations] }
+prerequisites: [computer-science.p2.file-systems]
+difficulty: 3
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A mobile app in Brazil calls an API hosted in Virginia (USA) with a round-trip time of 120 ms. Each screen opens a fresh connection and makes one HTTPS request with TLS 1.3, after resolving the API''s hostname. (1) List every round trip before the first byte of the response arrives (DNS, TCP, TLS, HTTP), and estimate the total, stating your assumptions about DNS caching. (2) The response is 300 KB. Explain why downloading it on a fresh connection takes several more round trips even on a fast link (what limits TCP at the start). (3) Propose three changes that cut the latency, and estimate the gain of each.'
+  criteria:
+    - 'Counts the round trips: DNS (0 if cached, about 1 RTT or more if not), TCP handshake 1 RTT, TLS 1.3 handshake 1 RTT, HTTP request and response 1 RTT; about 360–480 ms in total'
+    - 'Explains TCP slow start: the congestion window starts at about 10 segments (~14 KB) and roughly doubles each RTT, so 300 KB needs about 4–5 round trips on a new connection'
+    - 'Proposes reusing connections (keep-alive, HTTP/2 or HTTP/3 connection pooling), saving the TCP and TLS round trips on later requests'
+    - 'Proposes moving the endpoint closer (a CDN or a region in South America, edge TLS termination), cutting the RTT itself'
+    - 'Mentions at least one more: TLS session resumption or 0-RTT, HTTP/3 over QUIC (combined transport and TLS handshake), DNS caching or prefetching, compressing or shrinking the response'

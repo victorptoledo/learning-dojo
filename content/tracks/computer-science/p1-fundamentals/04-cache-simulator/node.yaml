@@ -1,0 +1,49 @@
+id: computer-science.p1.cache-simulator
+kind: kata
+status: draft
+title: "Cache Simulator"
+summary: "A set-associative, write-back cache with LRU replacement in Rust: address splitting, hits, misses, evictions and write-backs, trace parsing, and the row-versus-column matrix walk measured in misses."
+objectives:
+  - { id: o1, text: "Split addresses into tag, set index and offset for any power-of-two cache shape", skills: [computer-science.memory-hierarchy] }
+  - { id: o2, text: "Implement LRU replacement with write-back and write-allocate, and count hits, misses, evictions and write-backs", skills: [computer-science.memory-hierarchy] }
+  - { id: o3, text: "Use the simulator to explain why access order changes the miss rate", skills: [computer-science.memory-hierarchy] }
+prerequisites: [computer-science.p1.memory-hierarchy]
+difficulty: 3
+estimated_minutes: 70
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with `new` and `split`. Store `offset_bits = line_size.trailing_zeros()` and `index_bits = sets.trailing_zeros()`. Then `offset = address & (line_size - 1)`, `index = (address >> offset_bits) & (sets - 1)` and `tag = address >> (offset_bits + index_bits)`. What do you need to keep per line to answer a hit, an eviction and a write-back?
+    - |-
+      A line needs only its `tag` and a `dirty` flag; its position in the set's `Vec` can be its recency (index 0 = most recent). On a hit, `remove` it and `insert(0, ...)` it again. On a miss with a full set, `pop()` the last one: rebuild its address as `((tag << index_bits) | index) << offset_bits`. Writes set `dirty`, both on hits and on the newly loaded line.
+    - |-
+      ```rust
+      let (tag, index, _) = self.split(address);
+      let set = &mut self.sets[index];
+      if let Some(pos) = set.iter().position(|line| line.tag == tag) {
+          let mut line = set.remove(pos);
+          line.dirty |= write;
+          set.insert(0, line);
+          self.stats.hits += 1;
+          return Outcome::Hit;
+      }
+      self.stats.misses += 1;
+      // full set? pop the victim, count the eviction and the write-back, build the Outcome
+      set.insert(0, Line { tag, dirty: write });
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-rust runner image
+    image: dojo-rust
+    why: The Rust container that runs cargo test on your kata.

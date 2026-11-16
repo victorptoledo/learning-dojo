@@ -1,0 +1,36 @@
+questions:
+  - id: dfa-time
+    prompt: "How long does a DFA take to decide whether a string of length n is in its language?"
+    options: ["O(n²)", "O(n): one transition per symbol", "O(2ⁿ)", "It depends on the number of states exponentially"]
+    answer: 1
+    explanation: "Each symbol is one table lookup; memory stays constant."
+  - id: div3
+    prompt: "In the DFA that tracks the remainder mod 3 of a binary number, which state follows r2 on input 1?"
+    options: ["r0", "r1", "r2"]
+    answer: 2
+    explanation: "(2 × 2 + 1) mod 3 = 5 mod 3 = 2."
+  - id: nfa-equivalence
+    prompt: "Which statement about NFAs and DFAs is true?"
+    options: ["NFAs recognise more languages than DFAs", "They recognise exactly the same languages, but the equivalent DFA can have exponentially more states", "DFAs recognise more languages", "NFAs cannot be simulated efficiently"]
+    answer: 1
+    explanation: "The subset construction turns m NFA states into at most 2ᵐ DFA states."
+  - id: not-regular
+    prompt: "Which language is NOT regular?"
+    options: ["Binary strings with an even number of 1s", "Strings of a's followed by the same number of b's", "Identifiers that start with a letter", "Strings that end in .txt"]
+    answer: 1
+    explanation: "aⁿbⁿ needs unbounded counting; the pumping lemma proves it."
+  - id: thompson
+    prompt: "What does Thompson's construction produce from a regular expression?"
+    options: ["A minimal DFA", "An NFA with ε-transitions, about two states per symbol of the pattern", "A context-free grammar", "A Turing machine"]
+    answer: 1
+    explanation: "It is linear in the size of the pattern, and the NFA can be simulated directly."
+  - id: redos
+    prompt: "Why can `(a+)+$` freeze a Java or Python program on an input such as `aaaaaaaaaaaaaaaaaaaaaaaa!`?"
+    options: ["The pattern is invalid", "A backtracking engine tries exponentially many ways to split the a's before it fails", "The input is too long for a regex", "The `$` anchor is slow"]
+    answer: 1
+    explanation: "Catastrophic backtracking; an automaton-based engine would answer in linear time."
+  - id: backreference
+    prompt: "Why do linear-time engines such as RE2 not support backreferences like `(a+)\\1`?"
+    options: ["Nobody asked for them", "Backreferences need memory of the matched text, beyond finite automata; matching with them is NP-hard", "They are deprecated", "They are slower to parse"]
+    answer: 1
+    explanation: "Languages with backreferences are not regular."

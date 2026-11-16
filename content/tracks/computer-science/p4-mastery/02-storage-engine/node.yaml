@@ -1,0 +1,52 @@
+id: computer-science.p4.storage-engine
+kind: kata
+status: draft
+title: "Storage Engine"
+summary: "A crash-safe key-value store in Java: a write-ahead log of CRC-checked frames forced to disk, recovery that replays the log and truncates a torn tail, atomic batches, and checkpoints with an atomic snapshot rename, tested by corrupting the files between runs."
+objectives:
+  - { id: o1, text: "Write a write-ahead log with length-prefixed, checksummed frames and force it to disk before acknowledging", skills: [computer-science.database-internals, computer-science.file-systems] }
+  - { id: o2, text: "Recover after a crash by replaying valid frames and truncating a damaged tail, keeping batches all-or-nothing", skills: [computer-science.database-internals] }
+  - { id: o3, text: "Checkpoint safely with a temporary file, fsync and an atomic rename", skills: [computer-science.database-internals, computer-science.file-systems] }
+prerequisites: [computer-science.p4.database-internals]
+difficulty: 4
+estimated_minutes: 100
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Keep the data in a `TreeMap` in memory: the files are only for durability. Then write two private helpers first, `byte[] frame(List<Mutation>)` and `List<Mutation> readFrame(ByteBuffer)` (returning null for a missing or damaged frame), and check that they round-trip. Everything else (put, apply, recovery, the snapshot) is built from those two. Where must the position of the buffer be when `readFrame` gives up?
+    - |-
+      Open the log with `FileChannel.open(path, CREATE, READ, WRITE)`. To recover, read the whole file into a `ByteBuffer`, call `readFrame` until it returns null, remember the position after the last good frame, then `truncate` the channel there and `position` it there for the next writes. In `apply`, validate every mutation first, write the frame, `force(false)`, and only then update the map.
+    - |-
+      ```java
+      private static List<Mutation> parseFrame(ByteBuffer buffer) {
+          if (buffer.remaining() < 8) return null;
+          int length = buffer.getInt();
+          int checksum = buffer.getInt();
+          if (length < 4 || length > buffer.remaining()) return null;
+          byte[] body = new byte[length];
+          buffer.get(body);
+          CRC32 crc = new CRC32();
+          crc.update(body);
+          if ((int) crc.getValue() != checksum) return null;
+          // parse count and mutations from ByteBuffer.wrap(body); any leftover bytes = damaged
+          ...
+      }
+      // readFrame: remember the start position, call parseFrame inside try/catch,
+      // and on null or an exception put the position back to the start.
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

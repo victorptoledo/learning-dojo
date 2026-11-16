@@ -1,0 +1,34 @@
+questions:
+  - id: layer-of-tcp
+    prompt: "At which layer of the TCP/IP model do ports live?"
+    options: ["Link", "Internet", "Transport", "Application"]
+    answer: 2
+    explanation: "TCP and UDP add ports to tell processes apart on one host."
+  - id: cidr
+    prompt: "How many IPv4 addresses does the block 192.168.4.0/24 contain?"
+    answers: ["256"]
+    explanation: "32 − 24 = 8 host bits: 2⁸ = 256 addresses (254 usable hosts)."
+  - id: handshake
+    prompt: "Which packets make up the TCP three-way handshake?"
+    options: ["GET, 200 OK, ACK", "SYN, SYN-ACK, ACK", "HELLO, KEY, DONE", "FIN, ACK, FIN"]
+    answer: 1
+    explanation: "It costs one round trip before data can flow."
+  - id: slow-start
+    prompt: "Why does a large download on a brand new TCP connection not reach full speed immediately?"
+    options: ["DNS is slow", "Slow start: the congestion window begins small and grows each round trip", "The receiver window is always zero at first", "Routers throttle new connections"]
+    answer: 1
+    explanation: "About 10 segments at first, doubling every RTT until loss or the receive window limits it."
+  - id: udp-use
+    prompt: "Which property makes UDP a good fit for a video call?"
+    options: ["It retransmits lost packets", "It has no retransmission or ordering delays, so late data can simply be skipped", "It encrypts data", "It guarantees delivery"]
+    answer: 1
+    explanation: "A retransmitted video frame would arrive too late to be useful."
+  - id: dns-ttl
+    prompt: "You change the A record of api.example.com but many clients keep using the old address for an hour. Why?"
+    options: ["DNS changes need a server restart", "Resolvers and clients cache the old answer until its TTL expires", "IP addresses cannot change", "BGP has not converged"]
+    answer: 1
+    explanation: "Lower the TTL before a planned change."
+  - id: https-rtts
+    prompt: "On a fresh connection with a cached DNS answer, about how many round trips pass before the first byte of an HTTPS response with TLS 1.3?"
+    answers: ["3", "three"]
+    explanation: "TCP handshake, TLS handshake, then the request and response."

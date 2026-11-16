@@ -1,0 +1,283 @@
+# Placement test of the Computer Science track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How much computer science have you studied?
+  options:
+    - { label: "Little: I write programs but have not studied how computers or operating systems work", start_phase: p0, test: false }
+    - { label: "I know binary, two's complement, floating point and the basics of CPUs, caches and processes", start_phase: p1, test: true }
+    - { label: "I also know virtual memory, file systems, TCP/IP and how compilers parse code", start_phase: p2, test: true }
+    - { label: "I have studied automata, computability, P versus NP and concurrency theory", start_phase: p3, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-twos-range
+    phase: p1
+    skills: [computer-science.data-representation]
+    difficulty: 2
+    prompt: "What is the range of a signed 16-bit two's complement integer?"
+    options: ["0 to 65,535", "−32,768 to 32,767", "−32,767 to 32,767", "−65,536 to 65,535"]
+    answer: 1
+    explanation: "−2¹⁵ to 2¹⁵ − 1: one more negative value than positive."
+  - id: p1-float-compare
+    phase: p1
+    skills: [computer-science.data-representation]
+    difficulty: 2
+    prompt: "Which is the right way to test whether two computed doubles a and b are equal for practical purposes?"
+    options: ["a == b", "Math.abs(a - b) <= a tolerance scaled to their magnitude", "Compare their string forms", "Cast both to int"]
+    answer: 1
+    explanation: "Rounding makes exact equality fragile; compare within a relative or absolute tolerance."
+  - id: p1-utf8-length
+    phase: p1
+    skills: [computer-science.data-representation]
+    difficulty: 2
+    prompt: "How many bytes does the string \"naïve\" take in UTF-8?"
+    answers: ["6"]
+    explanation: "Four ASCII letters take one byte each; ï (U+00EF) takes two."
+  - id: p1-xor
+    phase: p1
+    skills: [computer-science.logic-circuits]
+    difficulty: 2
+    prompt: "What is 0b1100 XOR 0b1010?"
+    options: ["0b1110", "0b1000", "0b0110", "0b0010"]
+    answer: 2
+    explanation: "XOR is 1 where the bits differ."
+  - id: p1-shift-divide
+    phase: p1
+    skills: [computer-science.logic-circuits, computer-science.cpu-architecture]
+    difficulty: 3
+    prompt: "Why do compilers replace x / 16 on unsigned integers with x >> 4?"
+    options: ["They give different results", "A shift is a few wires or one cheap instruction, while division takes tens of cycles", "Shifts use less memory", "Division is not supported by CPUs"]
+    answer: 1
+    explanation: "For signed values they add a small fix-up so negative numbers still round toward zero."
+  - id: p1-pipeline-stall
+    phase: p1
+    skills: [computer-science.cpu-architecture]
+    difficulty: 3
+    prompt: "An instruction needs the result of a load issued just before it. What does a pipelined CPU typically do?"
+    options: ["Uses the old register value", "Stalls for a cycle or more (or forwards the value when it arrives)", "Raises an exception", "Skips the instruction"]
+    answer: 1
+    explanation: "A load-use data hazard: forwarding cannot deliver data before the memory stage has it."
+  - id: p1-cache-tag
+    phase: p1
+    skills: [computer-science.memory-hierarchy]
+    difficulty: 3
+    prompt: "A cache has 128 sets and 64-byte lines. How many bits of a 32-bit address form the tag?"
+    answers: ["19"]
+    explanation: "Offset 6 bits, index 7 bits: 32 − 13 = 19."
+  - id: p1-locality
+    phase: p1
+    skills: [computer-science.memory-hierarchy]
+    difficulty: 2
+    prompt: "Why is iterating over an array of 10 million ints usually much faster than over a linked list of the same ints?"
+    options: ["Arrays use fewer instructions per element", "The array is contiguous, so each cache line brings many elements and the prefetcher helps; list nodes are scattered", "Linked lists are stored on disk", "The compiler cannot optimise lists"]
+    answer: 1
+    explanation: "Spatial locality and prefetching versus pointer chasing with a miss per node."
+  - id: p1-preemption
+    phase: p1
+    skills: [computer-science.processes-scheduling]
+    difficulty: 2
+    prompt: "What distinguishes a preemptive scheduler?"
+    options: ["It never switches threads", "It can take the CPU away from a running thread, for example when its time slice ends", "It runs jobs strictly in arrival order", "It only schedules processes, not threads"]
+    answer: 1
+    explanation: "A timer interrupt lets the kernel switch even if the thread never yields."
+  - id: p1-rr-quantum
+    phase: p1
+    skills: [computer-science.processes-scheduling]
+    difficulty: 3
+    prompt: "What happens to round robin if the quantum is made much larger than every job?"
+    options: ["It becomes shortest job first", "It behaves like first come, first served", "It starves long jobs", "It needs no context switches at all"]
+    answer: 1
+    explanation: "Every job finishes within its first slice, in queue order."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-page-count
+    phase: p2
+    skills: [computer-science.virtual-memory]
+    difficulty: 2
+    prompt: "With 4 KiB pages, how many pages does a 1 MiB buffer span if it starts on a page boundary?"
+    answers: ["256"]
+    explanation: "1,048,576 / 4,096 = 256."
+  - id: p2-huge-pages
+    phase: p2
+    skills: [computer-science.virtual-memory, computer-science.memory-hierarchy]
+    difficulty: 3
+    prompt: "Why can 2 MiB huge pages speed up a database with a 64 GiB buffer pool?"
+    options: ["They compress memory", "Each TLB entry covers 512 times more memory, so far fewer TLB misses and page walks", "They avoid the page cache", "They make memory non-volatile"]
+    answer: 1
+    explanation: "TLB reach grows with page size."
+  - id: p2-segfault
+    phase: p2
+    skills: [computer-science.virtual-memory]
+    difficulty: 2
+    prompt: "A C program writes to a string literal stored in a read-only page. What happens?"
+    options: ["The write succeeds", "The MMU raises a protection fault and the kernel sends SIGSEGV", "The page is copied silently", "The kernel swaps the page out"]
+    answer: 1
+    explanation: "The page table entry is not writable."
+  - id: p2-hardlink
+    phase: p2
+    skills: [computer-science.file-systems]
+    difficulty: 3
+    prompt: "You create a hard link b to file a, then delete a. What happens to the data?"
+    options: ["It is deleted", "It remains reachable through b, because the inode's link count is still 1", "b becomes a dangling link", "b becomes empty"]
+    answer: 1
+    explanation: "Names are directory entries; the inode lives while it has links (or open descriptors)."
+  - id: p2-group-commit
+    phase: p2
+    skills: [computer-science.file-systems]
+    difficulty: 3
+    prompt: "A logger calls fsync after every line and handles 500 lines per second. Which change raises throughput the most while keeping a bounded loss window?"
+    options: ["Use a bigger disk", "Buffer lines and fsync every few milliseconds or every N lines", "Remove fsync entirely", "Write each line to a new file"]
+    answer: 1
+    explanation: "One flush covers many lines: group commit."
+  - id: p2-ttl
+    phase: p2
+    skills: [computer-science.networking]
+    difficulty: 2
+    prompt: "What does traceroute rely on to discover the routers on a path?"
+    options: ["DNS", "Packets with increasing IP TTL values, each router reporting when TTL reaches 0", "TCP retransmissions", "ARP"]
+    answer: 1
+    explanation: "Each hop decrements TTL and sends back an ICMP Time Exceeded message."
+  - id: p2-udp-dns
+    phase: p2
+    skills: [computer-science.networking]
+    difficulty: 2
+    prompt: "Why does DNS normally use UDP rather than TCP?"
+    options: ["UDP encrypts data", "Queries and answers are small, and avoiding a handshake saves a round trip", "TCP cannot carry text", "Routers block TCP"]
+    answer: 1
+    explanation: "It falls back to TCP for large responses and zone transfers."
+  - id: p2-assoc
+    phase: p2
+    skills: [computer-science.compilers]
+    difficulty: 3
+    prompt: "In a recursive-descent parser, how is a left-associative operator such as - usually implemented?"
+    options: ["With a left-recursive rule", "With a loop that keeps combining the result so far with the next operand", "With a right-recursive rule", "In the lexer"]
+    answer: 1
+    explanation: "expr := term ('-' term)* builds ((a − b) − c)."
+  - id: p2-semantic
+    phase: p2
+    skills: [computer-science.compilers]
+    difficulty: 2
+    prompt: "Which compiler phase reports \"undefined variable x\"?"
+    options: ["The lexer", "Semantic analysis (name resolution with a symbol table)", "Code generation", "The linker"]
+    answer: 1
+    explanation: "The parser only knows the shape; names are resolved afterwards."
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-dfa-states
+    phase: p3
+    skills: [computer-science.automata]
+    difficulty: 3
+    prompt: "What is the minimum number of states of a DFA over {0, 1} that accepts strings with an odd number of 1s?"
+    answers: ["2", "two"]
+    explanation: "One state for even, one for odd; odd is accepting."
+  - id: p3-lexer-automaton
+    phase: p3
+    skills: [computer-science.automata, computer-science.compilers]
+    difficulty: 3
+    prompt: "Why can a lexer be implemented as a finite automaton but a parser for arithmetic expressions cannot?"
+    options: ["Lexers are older", "Tokens are regular languages, while nested parentheses need unbounded memory (a stack)", "Parsers must be written by hand", "Finite automata are too slow"]
+    answer: 1
+    explanation: "Nesting is context free, not regular."
+  - id: p3-turing-complete
+    phase: p3
+    skills: [computer-science.computability]
+    difficulty: 3
+    prompt: "Which of these is NOT Turing complete?"
+    options: ["SQL with recursive common table expressions", "Python", "Regular expressions without backreferences", "Conway's Game of Life"]
+    answer: 2
+    explanation: "Regular expressions describe regular languages: finite automata."
+  - id: p3-equivalence
+    phase: p3
+    skills: [computer-science.computability]
+    difficulty: 4
+    prompt: "Why can no tool decide, for every pair of Java methods, whether they compute the same function?"
+    options: ["Java is too slow", "Program equivalence is a non-trivial semantic property, undecidable by Rice's theorem (it would solve halting)", "It requires a quantum computer", "Methods may have side effects"]
+    answer: 1
+    explanation: "Compare P with a method that loops forever: equivalence would decide whether P halts."
+  - id: p3-np-check
+    phase: p3
+    skills: [computer-science.complexity-classes]
+    difficulty: 3
+    prompt: "Why is Sudoku (generalised to n² × n² grids) in NP?"
+    options: ["It needs exponential time", "A filled grid can be checked against the rules in polynomial time", "It has no solution", "It is a decision about halting"]
+    answer: 1
+    explanation: "Generalised Sudoku is in fact NP-complete."
+  - id: p3-2sat
+    phase: p3
+    skills: [computer-science.complexity-classes]
+    difficulty: 4
+    prompt: "Which is solvable in polynomial time?"
+    options: ["3-SAT", "2-SAT", "Graph 3-colouring", "Subset sum with large numbers"]
+    answer: 1
+    explanation: "2-SAT reduces to strongly connected components of an implication graph."
+  - id: p3-atomic-increment
+    phase: p3
+    skills: [computer-science.concurrency]
+    difficulty: 3
+    prompt: "Which change makes a shared counter incremented by many threads correct?"
+    options: ["Declaring it volatile", "Using an atomic fetch-and-add (or a CAS loop, or a lock)", "Incrementing it twice", "Reading it before writing"]
+    answer: 1
+    explanation: "volatile gives visibility, not atomic read-modify-write."
+  - id: p3-lock-order
+    phase: p3
+    skills: [computer-science.concurrency]
+    difficulty: 3
+    prompt: "Thread 1 locks A then B; thread 2 locks B then A. What is the simplest fix for the resulting deadlock risk?"
+    options: ["Add sleeps", "Make both threads acquire A before B", "Use more threads", "Use volatile variables"]
+    answer: 1
+    explanation: "A consistent lock order removes circular wait."
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-wal-order
+    phase: p4
+    skills: [computer-science.database-internals]
+    difficulty: 3
+    prompt: "A database writes a modified data page to disk before the log record describing the change. What can go wrong?"
+    options: ["Nothing", "After a crash, recovery may find a change it cannot undo, breaking atomicity", "The page is compressed", "The query planner gets confused"]
+    answer: 1
+    explanation: "That violates the write-ahead rule."
+  - id: p4-crc-tail
+    phase: p4
+    skills: [computer-science.database-internals, computer-science.file-systems]
+    difficulty: 3
+    prompt: "Why do write-ahead logs put a length and a checksum in front of every record?"
+    options: ["To compress the log", "So recovery can detect a record torn by a crash and stop replaying there", "To encrypt the data", "To sort the records"]
+    answer: 1
+    explanation: "A partially written tail fails the checksum and is discarded."
+  - id: p4-lsm-reads
+    phase: p4
+    skills: [computer-science.database-internals]
+    difficulty: 3
+    prompt: "What helps an LSM tree avoid reading every SSTable for a key that does not exist?"
+    options: ["A B+tree root", "A Bloom filter per SSTable", "A larger memtable", "Two-phase locking"]
+    answer: 1
+    explanation: "A Bloom filter answers \"definitely not here\" without I/O."
+  - id: p4-snapshot-isolation
+    phase: p4
+    skills: [computer-science.database-internals, computer-science.concurrency]
+    difficulty: 4
+    prompt: "Under snapshot isolation, which anomaly can still happen?"
+    options: ["Dirty reads", "Write skew", "Lost commits after a crash", "Reading uncommitted deletes"]
+    answer: 1
+    explanation: "Two transactions read overlapping data and write disjoint rows."
+  - id: p4-littles-law
+    phase: p4
+    skills: [computer-science.systems-thinking]
+    difficulty: 3
+    prompt: "A connection pool has 10 connections and each query holds one for 20 ms. What is the maximum sustainable query rate?"
+    answers: ["500", "500 per second", "500/s"]
+    explanation: "Little's law: λ = L / W = 10 / 0.02 s = 500 queries per second."
+  - id: p4-tail-cause
+    phase: p4
+    skills: [computer-science.systems-thinking]
+    difficulty: 3
+    prompt: "p50 latency is steady but p99 doubles once a minute for about a second. Which cause fits best?"
+    options: ["A slow network link for every request", "A periodic event such as a GC pause, a checkpoint or a cron job competing for resources", "A wrong index for every query", "DNS being slow for every request"]
+    answer: 1
+    explanation: "Periodic tails point to periodic work; a constant cause would move p50 too."

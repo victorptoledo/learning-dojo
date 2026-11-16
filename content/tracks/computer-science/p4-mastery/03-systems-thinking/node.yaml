@@ -1,0 +1,23 @@
+id: computer-science.p4.systems-thinking
+kind: lesson
+status: draft
+title: "Systems Thinking Across the Layers"
+summary: "Putting the track together: one request traced through every layer from the keyboard to the disk and back, back-of-the-envelope estimates, Amdahl's and Little's laws, tail latency, how bugs cross layers (and how to find them with the right tool at each layer), and the recurring ideas of computer science: abstraction, caching, indirection, logging, batching and trading time for space."
+objectives:
+  - { id: o1, text: "Trace one request through the application, runtime, OS, network, storage and hardware, naming what each layer does and costs", skills: [computer-science.systems-thinking, computer-science.foundations] }
+  - { id: o2, text: "Estimate performance with latency numbers, Amdahl's law and Little's law, and explain tail latency", skills: [computer-science.systems-thinking] }
+  - { id: o3, text: "Diagnose a problem by moving between layers with the right observation tool at each", skills: [computer-science.systems-thinking] }
+prerequisites: [computer-science.p4.storage-engine]
+difficulty: 4
+estimated_minutes: 55
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An order API''s p50 latency is 20 ms but its p99 has grown to 900 ms since last week. Each request does 1 DNS lookup (cached), 3 queries to PostgreSQL in the same data centre, and writes one log line synchronously to a network file system. The service runs 4 instances with a thread pool of 50 each and receives 600 requests per second at peak. (1) Use Little''s law to estimate how many requests are in flight at peak, and whether the thread pools can hold them at the p50 and at the p99 latency. (2) List at least five possible causes of the p99 growth in different layers (runtime, OS, network, storage, database, hardware), and for each the tool or measurement that would confirm or rule it out. (3) The team wants to parallelise the three queries. If they take 70% of the p50 time, what is the best possible speed-up of the whole request by Amdahl''s law? (4) Name two of the recurring ideas from this track that a fix would most likely use.'
+  criteria:
+    - 'Little''s law: L = λ × W; at p50 600 × 0.02 = 12 requests in flight, far below 200 threads; if a large share of requests take ~0.9 s, demand approaches 600 × 0.9 = 540, beyond the 200 threads, so requests queue and latency grows further'
+    - 'Lists at least five causes across layers, each with a matching tool: GC pauses (GC logs, JFR), CPU throttling or noisy neighbours (cgroup throttling stats, perf), lock contention or pool exhaustion (thread dumps, pool metrics), network retransmits (ss, tcpdump, retransmit counters), slow fsync on the network file system (iostat, strace -T), database lock waits or a bad plan (pg_stat_activity, EXPLAIN ANALYZE), DNS cache expiry'
+    - 'Amdahl: three equal queries in parallel take a third of 70%, so the new time is 0.3 + 0.7/3 ≈ 0.53, a speed-up of about 1.9× (at most 1/0.3 ≈ 3.3× even with infinitely fast queries)'
+    - 'Names recurring ideas such as caching, batching or asynchronous logging, moving work off the critical path, timeouts and back-pressure, or measuring before optimising'

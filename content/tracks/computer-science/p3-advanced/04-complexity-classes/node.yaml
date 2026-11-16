@@ -1,0 +1,23 @@
+id: computer-science.p3.complexity-classes
+kind: lesson
+status: draft
+title: "Complexity Classes: P, NP and Intractability"
+summary: "Which problems are feasible: decision problems and polynomial time, the classes P and NP as finding versus checking, polynomial reductions, NP-completeness from Cook-Levin and SAT to the classic catalogue, NP-hard optimisation, what P versus NP would mean, PSPACE and EXPTIME, and how engineers cope: special cases, approximation, heuristics, SAT and ILP solvers, and the cryptography that relies on hardness."
+objectives:
+  - { id: o1, text: "Define P and NP and explain the difference between finding a solution and checking one", skills: [computer-science.complexity-classes] }
+  - { id: o2, text: "Explain polynomial reductions and NP-completeness, and recognise common NP-complete problems in disguise", skills: [computer-science.complexity-classes] }
+  - { id: o3, text: "Choose a practical strategy for an NP-hard problem: exact for small inputs, special structure, approximation, heuristics or a solver", skills: [computer-science.complexity-classes] }
+prerequisites: [computer-science.p3.computability]
+difficulty: 4
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team must build a scheduler that assigns 300 university exams to 20 time slots so that no student has two exams in the same slot, and a colleague has spent a week looking for a fast exact algorithm. (1) Show that the problem is graph colouring in disguise, and what that implies (name the complexity class and what NP-completeness means for the colleague''s search). (2) Explain why checking a proposed timetable is easy even though finding one may be hard, and relate that to the definition of NP. (3) Propose a practical approach for the real instance (with 300 exams), naming at least two techniques, and say what guarantees you lose with each. (4) Explain in two sentences what would change for this problem, and for HTTPS, if someone proved P = NP with a fast algorithm.'
+  criteria:
+    - 'Models exams as vertices and shared students as edges; a valid timetable is a colouring with 20 colours; k-colouring (k ≥ 3) is NP-complete, so a polynomial exact algorithm for all instances would prove P = NP'
+    - 'Explains that a timetable is a certificate checkable in polynomial time (scan each edge), which is the definition of NP'
+    - 'Proposes practical techniques such as a greedy or DSatur heuristic, local search or simulated annealing, a SAT, constraint or ILP solver with a time limit, or exploiting structure, and notes the loss of optimality guarantees or of bounded running time'
+    - 'Explains that a fast P = NP algorithm would make such scheduling efficiently solvable and would break public-key cryptography whose security rests on problems in NP (finding keys is checkable), such as RSA and elliptic curves'

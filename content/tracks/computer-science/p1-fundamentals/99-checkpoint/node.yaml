@@ -1,0 +1,56 @@
+id: computer-science.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz on data representation, logic, the CPU, caches, processes and scheduling, and a toy 16-bit machine that decodes, executes and counts cycles through a cache."
+objectives:
+  - { id: o1, text: "Explain number representation, gates, instruction execution, caches and scheduling, and estimate their costs", skills: [computer-science.data-representation, computer-science.logic-circuits, computer-science.cpu-architecture, computer-science.memory-hierarchy, computer-science.processes-scheduling] }
+  - { id: o2, text: "Build a machine that decodes signed instruction fields, executes a load-store ISA and counts cycles with a direct-mapped cache", skills: [computer-science.data-representation, computer-science.cpu-architecture, computer-science.memory-hierarchy] }
+prerequisites: [computer-science.p1.cpu-scheduler]
+difficulty: 3
+estimated_minutes: 90
+xp: 350
+closes_phase: p1
+covers_skills: [computer-science.data-representation, computer-science.logic-circuits, computer-science.cpu-architecture, computer-science.memory-hierarchy, computer-science.processes-scheduling]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Split the work in three: `decode` is pure bit work (shift, mask, sign-extend), `disassemble` only formats a decoded `Instruction`, and `run` is a loop over decoded instructions. Write a helper that sign-extends the low n bits of a value; you need it for 6-, 9- and 12-bit immediates and for wrapping register values to 16 bits. Which bits hold rd, rs and rt?
+    - |-
+      `opcode = word >> 12`, `rd = word >> 9 & 7`, `rs = word >> 6 & 7`, `rt = word >> 3 & 7`. Sign-extend with `v &= (1 << n) - 1; v - (1 << n) if v >> (n - 1) else v`. In `run`, keep `regs = [0] * 8`, a dict for memory, a list of `cache_lines` tags (None = empty), and write registers through one function that ignores r0 and wraps to 16 bits. For a load or store, `line = address // line_words`, `slot = line % cache_lines`, `tag = line // cache_lines`.
+    - |-
+      ```python
+      while True:
+          if not 0 <= pc < len(decoded):
+              raise MachineError(f"pc {pc} is outside the program")
+          if result.instructions == max_steps:
+              raise MachineError("no halt")
+          i = decoded[pc]
+          result.trace.append(pc)
+          result.instructions += 1
+          result.cycles += 1
+          next_pc = pc + 1
+          match i.op:
+              case "halt":
+                  break
+              case "addi":
+                  write(i.rd, regs[i.rs] + i.imm)
+              # ... the other instructions; a taken branch sets next_pc and adds 2 cycles
+          pc = next_pc
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

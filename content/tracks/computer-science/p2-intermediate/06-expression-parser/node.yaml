@@ -1,0 +1,58 @@
+id: computer-science.p2.expression-parser
+kind: kata
+status: draft
+title: "Expression Parser"
+summary: "A lexer with token positions, a recursive-descent parser for arithmetic with precedence, associativity, unary minus and function calls, an AST printer and a tree-walking evaluator, checked against Python on random expressions."
+objectives:
+  - { id: o1, text: "Tokenize source text with positions and reject invalid characters", skills: [computer-science.compilers] }
+  - { id: o2, text: "Parse a grammar by recursive descent into an AST, with precise syntax error positions", skills: [computer-science.compilers] }
+  - { id: o3, text: "Evaluate an AST with a tree-walking interpreter and report run-time errors", skills: [computer-science.compilers] }
+prerequisites: [computer-science.p2.compilers-interpreters]
+difficulty: 3
+estimated_minutes: 75
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Do the lexer first and test it alone: one loop over the characters with a branch per token kind, and always an `eof` token at the end. Then the parser is a small class holding the token list and an index, with `peek()`, `advance()` and `expect(text)`, plus one method per grammar rule. Which rule does `parse` start from, and what must be true of the next token when it returns?
+    - |-
+      Each rule method returns a node. A left-associative level is a loop: `node = self.term(); while next is + or -: node = Binary(op, node, self.term())`. The right-associative `^` is not a loop: `base = self.atom(); if next is ^: return Binary("^", base, self.unary())`. Errors use the position of the token you are looking at: `ParseError("expected ')'", self.peek().pos)`. After `expr()` in `parse`, anything but `eof` is an error.
+    - |-
+      ```python
+      def atom(self):
+          token = self.advance()
+          if token.kind == "number":
+              return Num(float(token.text) if "." in token.text else int(token.text))
+          if token.kind == "ident":
+              if not self.at("("):
+                  return Var(token.text)
+              self.advance()
+              args = []
+              if not self.at(")"):
+                  args.append(self.expr())
+                  while self.at(","):
+                      self.advance()
+                      args.append(self.expr())
+              self.expect(")")
+              return Call(token.text, tuple(args))
+          if token.kind == "op" and token.text == "(":
+              node = self.expr()
+              self.expect(")")
+              return node
+          raise ParseError("expected a number, a name or '('", token.pos)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

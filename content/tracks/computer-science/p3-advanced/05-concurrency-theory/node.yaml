@@ -1,0 +1,24 @@
+id: computer-science.p3.concurrency-theory
+kind: lesson
+status: draft
+title: "Concurrency Theory: Races, Mutual Exclusion, Deadlock and Memory Models"
+summary: "Why concurrent programs are hard and how to reason about them: interleavings and atomicity, race conditions and data races, critical sections and mutual exclusion (Peterson's algorithm), hardware atomics and compare-and-swap, locks, semaphores, monitors and condition variables, deadlock and the Coffman conditions, livelock and starvation, memory models and happens-before, linearizability, lock-free structures and the ABA problem, and message passing."
+objectives:
+  - { id: o1, text: "Explain interleavings, race conditions and why a single statement such as count++ is not atomic", skills: [computer-science.concurrency] }
+  - { id: o2, text: "Use the Coffman conditions to explain and prevent deadlock, and distinguish deadlock, livelock and starvation", skills: [computer-science.concurrency] }
+  - { id: o3, text: "Explain memory models, happens-before and linearizability, and when to use locks, atomics or message passing", skills: [computer-science.concurrency, computer-science.cpu-architecture] }
+prerequisites: [computer-science.p3.complexity-classes]
+difficulty: 4
+estimated_minutes: 60
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A bank service transfers money with `transfer(from, to, amount) { lock(from); lock(to); from.balance -= amount; to.balance += amount; unlock(to); unlock(from); }`. Under load it sometimes hangs forever, and a separate "fast path" that reads `balance` without a lock occasionally reports totals that never existed. (1) Show an interleaving of two transfers that deadlocks, and name the four Coffman conditions as they appear here. (2) Fix the deadlock in two different ways and say which condition each one breaks. (3) Explain why the unlocked read can see an inconsistent total, and what a data race and the memory model of your language say about it. (4) Explain whether replacing the locks with an atomic compare-and-swap on each balance would make a transfer correct.'
+  criteria:
+    - 'Shows the deadlock: T1 = transfer(A, B) locks A while T2 = transfer(B, A) locks B; each waits for the other forever'
+    - 'Names the Coffman conditions: mutual exclusion, hold and wait, no preemption, circular wait'
+    - 'Gives two fixes such as a global lock order (lock the account with the smaller id first: breaks circular wait) and tryLock with timeout and back-off (breaks hold and wait), or one lock for both, or a single-threaded actor'
+    - 'Explains that the reader can see the debit of a transfer but not yet the credit (no atomic snapshot across two accounts), and that without synchronisation there is no happens-before edge, so in Java, C# or Go it is a data race with weak guarantees (and undefined behaviour in C/C++)'
+    - 'Explains that per-account CAS makes each update atomic but not the transfer as a whole: the two updates must be atomic together (a lock, a transaction, or a single owner)'

@@ -1,0 +1,36 @@
+questions:
+  - id: lexer-output
+    prompt: "What does a lexer produce?"
+    options: ["An abstract syntax tree", "A sequence of tokens, without whitespace and comments", "Machine code", "A symbol table"]
+    answer: 1
+    explanation: "The parser then builds the tree from the tokens."
+  - id: longest-match
+    prompt: "Why does a lexer read `>=` as one token instead of `>` followed by `=`?"
+    options: ["Because of operator precedence", "Because of the longest-match rule", "Because `=` is not a valid token", "Because the parser asks for it"]
+    answer: 1
+    explanation: "Lexers take the longest prefix that matches a token rule."
+  - id: precedence
+    prompt: "In the grammar expr := term ('+' term)*, term := atom ('*' atom)*, why does `*` bind tighter than `+`?"
+    options: ["Because `*` appears first in the source", "Because term is a lower level: each operand of `+` is a whole term, so multiplications are grouped first", "Because the lexer sorts operators", "It does not; they are equal"]
+    answer: 1
+    explanation: "Precedence is encoded by layering the rules."
+  - id: right-assoc
+    prompt: "Which tree does a right-associative `^` give for 2 ^ 3 ^ 2?"
+    options: ["(2 ^ 3) ^ 2 = 64", "2 ^ (3 ^ 2) = 512", "An error", "2 ^ 3 and 3 ^ 2 separately"]
+    answer: 1
+    explanation: "Right associativity groups from the right, as in mathematics."
+  - id: left-recursion
+    prompt: "Why can a recursive-descent parser not use the rule expr := expr '-' term directly?"
+    options: ["It is ambiguous", "expr would call itself before consuming any token: infinite recursion", "It needs an LR table", "Subtraction is not context free"]
+    answer: 1
+    explanation: "Rewrite left recursion as a loop: expr := term ('-' term)*."
+  - id: stack-code
+    prompt: "Which stack-machine code computes (1 + 2) * x?"
+    options: ["MUL, ADD, PUSH 1, PUSH 2, LOAD x", "PUSH 1, PUSH 2, ADD, LOAD x, MUL", "PUSH 1, ADD, PUSH 2, MUL, LOAD x", "LOAD x, MUL, PUSH 1, ADD, PUSH 2"]
+    answer: 1
+    explanation: "Post-order: operands first, then the operator."
+  - id: jit
+    prompt: "What does a JIT compiler use that an ahead-of-time compiler does not have?"
+    options: ["The source code", "Profile information collected while the program runs, such as hot paths and observed types", "A parser", "The operating system"]
+    answer: 1
+    explanation: "It specialises hot code speculatively and deoptimises if an assumption breaks."

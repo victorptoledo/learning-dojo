@@ -1,0 +1,36 @@
+questions:
+  - id: pda
+    prompt: "What does a pushdown automaton add to a finite automaton?"
+    options: ["A second tape", "A stack", "Random access memory", "A clock"]
+    answer: 1
+    explanation: "A stack is enough for nested structure: the context-free languages."
+  - id: hierarchy
+    prompt: "Which machine is needed to recognise balanced parentheses?"
+    options: ["A finite automaton", "A pushdown automaton (or anything stronger)", "Only a Turing machine", "No machine can"]
+    answer: 1
+    explanation: "Balanced parentheses are context free but not regular."
+  - id: church-turing
+    prompt: "What does the Church-Turing thesis claim?"
+    options: ["P = NP", "Every effectively computable function can be computed by a Turing machine", "Every program halts", "Turing machines are faster than real computers"]
+    answer: 1
+    explanation: "All reasonable models of computation turned out equivalent to Turing machines."
+  - id: halting
+    prompt: "Which statement about the halting problem is true?"
+    options: ["It is decidable for programs under 1,000 lines", "No program can decide, for every program and input, whether it halts", "It is solved by running the program with a timeout", "It applies only to Turing machines, not real languages"]
+    answer: 1
+    explanation: "A timeout gives a guess, not a decision: the program might halt one second later."
+  - id: rice
+    prompt: "According to Rice's theorem, which question about Java methods is undecidable in general?"
+    options: ["Does the method have more than 3 parameters?", "Does the method ever return null for some input?", "Does the method contain the word `return`?", "Is the method public?"]
+    answer: 1
+    explanation: "It is a non-trivial property of behaviour; the others are syntactic."
+  - id: reduction
+    prompt: "To prove problem B undecidable by reduction, what do you show?"
+    options: ["That B reduces to an easy problem", "That a decider for B would give a decider for a known undecidable problem such as halting", "That B has no algorithm in polynomial time", "That B is not regular"]
+    answer: 1
+    explanation: "If B were decidable, the known undecidable problem would be too: contradiction."
+  - id: sound-types
+    prompt: "A type checker rejects some programs that would never actually fail at run time. Why is this unavoidable?"
+    options: ["Compilers are badly written", "Exact checking of run-time behaviour is undecidable, so a sound checker must be conservative", "Types are slow to check", "It is not unavoidable"]
+    answer: 1
+    explanation: "Soundness plus termination of the checker forces some false positives."

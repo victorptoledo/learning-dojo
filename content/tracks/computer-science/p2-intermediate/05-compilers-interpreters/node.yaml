@@ -1,0 +1,24 @@
+id: computer-science.p2.compilers-interpreters
+kind: lesson
+status: draft
+title: "Compilers and Interpreters: Lexing, Parsing, ASTs and Bytecode"
+summary: "How source text becomes running code: the compiler pipeline, lexing into tokens, grammars in BNF, precedence and associativity, recursive-descent and Pratt parsing, abstract syntax trees, semantic analysis and scopes, tree-walking interpreters, bytecode and stack virtual machines, intermediate representations, optimisation, code generation, and JIT compilation."
+objectives:
+  - { id: o1, text: "Describe the phases of a compiler and an interpreter and what each produces", skills: [computer-science.compilers] }
+  - { id: o2, text: "Write a grammar for arithmetic expressions with precedence and associativity, and parse it by recursive descent into an AST", skills: [computer-science.compilers] }
+  - { id: o3, text: "Explain how bytecode for a stack machine is generated from an AST, and how JIT compilers speed up interpreted languages", skills: [computer-science.compilers, computer-science.cpu-architecture] }
+prerequisites: [computer-science.p2.networking]
+difficulty: 3
+estimated_minutes: 60
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Take the expression `a - b - c * 2 ^ 3 ^ 2` in a language where `^` is exponentiation (right-associative, binding tighter than `*`), `*` binds tighter than `-`, and `-` is left-associative. (1) Write the token list a lexer produces. (2) Write a grammar in BNF or EBNF that encodes these precedence and associativity rules. (3) Draw the AST (as an indented tree or nested parentheses). (4) Write the bytecode a simple stack-machine compiler would emit for it (with instructions such as LOAD name, PUSH n, SUB, MUL, POW), and show the stack after each instruction when a = 10, b = 3, c = 1. (5) Explain in two or three sentences why CPython, the JVM and V8 compile to bytecode instead of interpreting the AST directly, and what a JIT adds.'
+  criteria:
+    - 'Tokens: IDENT(a) MINUS IDENT(b) MINUS IDENT(c) STAR NUMBER(2) CARET NUMBER(3) CARET NUMBER(2), with an end-of-input token or equivalent'
+    - 'Grammar with one rule per precedence level, a loop (or left recursion) for left-associative - and *, and right recursion for ^; for example expr := term ("-" term)*, term := power ("*" power)*, power := atom ("^" power)?'
+    - 'AST: ((a - b) - (c * (2 ^ (3 ^ 2)))); 3 ^ 2 is evaluated first'
+    - 'Bytecode in post-order: LOAD a, LOAD b, SUB, LOAD c, PUSH 2, PUSH 3, PUSH 2, POW, POW, MUL, SUB, with a correct stack trace ending in 10 − 3 − 512 = −505'
+    - 'Explains that bytecode is compact, linear and fast to dispatch (no tree walking, cache friendly, can be cached on disk), and that a JIT compiles hot bytecode to machine code using runtime type and profile information'

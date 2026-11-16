@@ -1,0 +1,35 @@
+questions:
+  - id: syscall
+    prompt: "How does a program in user mode ask the kernel to read a file?"
+    options: ["It calls the disk driver directly", "With a system call, a special instruction that switches to kernel mode at a fixed entry point", "By writing to the page table", "By raising its own priority"]
+    answer: 1
+    explanation: "User code cannot touch devices; the syscall instruction is the controlled door into the kernel."
+  - id: threads-share
+    prompt: "What do two threads of the same process NOT share?"
+    options: ["The heap", "Open file descriptors", "Their stacks and registers", "Global variables"]
+    answer: 2
+    explanation: "Each thread has its own stack, registers and program counter; the address space is shared."
+  - id: timer-interrupt
+    prompt: "A thread runs an infinite loop without system calls. How does the kernel get the CPU back?"
+    options: ["It cannot", "The timer interrupt enters the kernel, which can preempt the thread", "The thread must call yield", "The compiler inserts checks"]
+    answer: 1
+    explanation: "Preemptive multitasking relies on a periodic timer interrupt."
+  - id: fcfs-convoy
+    prompt: "A 100 ms job arrives just before ten 1 ms jobs. Under FCFS, what is the problem called?"
+    options: ["Starvation", "The convoy effect", "Thrashing", "Priority inversion"]
+    answer: 1
+    explanation: "Short jobs queue behind a long one, so average waiting time explodes."
+  - id: rr-response
+    prompt: "Which policy usually gives the best response time for interactive jobs?"
+    options: ["FCFS", "Non-preemptive SJF", "Round robin with a small quantum", "Longest job first"]
+    answer: 2
+    explanation: "Every ready job gets the CPU within (n − 1) × quantum."
+  - id: waiting-time
+    prompt: "A job arrives at time 2, needs 5 units of CPU and finishes at time 15. What is its waiting time?"
+    answers: ["8"]
+    explanation: "Turnaround = 15 − 2 = 13; waiting = turnaround − burst = 13 − 5 = 8."
+  - id: zombie
+    prompt: "What is a zombie process?"
+    options: ["A process using 100% CPU", "A process that has exited but whose parent has not collected its exit status yet", "A process without threads", "A process stuck in a deadlock"]
+    answer: 1
+    explanation: "It holds only its process table entry until the parent calls wait."

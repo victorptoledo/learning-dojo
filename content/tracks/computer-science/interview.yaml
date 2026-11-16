@@ -1,0 +1,240 @@
+# Technical interview questions for the computer-science track, written for the dojo.
+# The topics follow what public interview guides and university courses cover (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/computer-science"
+  - "https://github.com/jwasham/coding-interview-university"
+  - "https://pages.cs.wisc.edu/~remzi/OSTEP/"
+  - "https://csapp.cs.cmu.edu/"
+  - "https://github.com/alex/what-happens-when"
+questions:
+  - id: floats-money
+    level: junior
+    skills: [computer-science.data-representation]
+    question: "Why does 0.1 + 0.2 not equal 0.3 in most languages, and how should money be represented?"
+    key_points:
+      - "Doubles are IEEE 754 binary64: sign, exponent and a 52-bit fraction in base 2"
+      - "0.1 has no finite binary expansion, so it is rounded; every operation rounds again"
+      - "Compare floats with a tolerance, never with =="
+      - "Money: integer minor units (cents) or a decimal type (BigDecimal, Decimal, decimal) with explicit rounding"
+    follow_up: "Above which value can a double no longer represent every integer, and why does that matter for JSON ids?"
+  - id: twos-complement
+    level: junior
+    skills: [computer-science.data-representation, computer-science.logic-circuits]
+    question: "How are negative integers represented in memory, and what happens when an int overflows?"
+    key_points:
+      - "Two's complement: the top bit has negative weight; negate by inverting and adding 1"
+      - "The same adder works for signed and unsigned numbers"
+      - "Range −2ⁿ⁻¹ to 2ⁿ⁻¹ − 1; abs(MIN_VALUE) overflows"
+      - "Overflow wraps silently in Java, C# (unchecked) and Go, panics in Rust debug builds, is undefined in C for signed types"
+    follow_up: "How would you detect overflow when adding two ints without using a wider type?"
+  - id: utf8
+    level: junior
+    skills: [computer-science.data-representation]
+    question: "What is the difference between Unicode and UTF-8, and what causes text like 'JosÃ©'?"
+    key_points:
+      - "Unicode assigns code points; UTF-8 encodes each in 1 to 4 bytes, ASCII-compatible"
+      - "Java, JavaScript and C# strings are UTF-16; Go strings are UTF-8 bytes; Python str is code points"
+      - "Mojibake: UTF-8 bytes (C3 A9 for é) decoded as Latin-1 or Windows-1252"
+      - "Fix: declare and use UTF-8 explicitly at every boundary (files, HTTP, database)"
+    follow_up: "Why can reversing a string by UTF-16 code units corrupt emoji?"
+  - id: process-vs-thread
+    level: junior
+    skills: [computer-science.processes-scheduling]
+    question: "What is the difference between a process and a thread, and when would you use each?"
+    key_points:
+      - "A process has its own address space and resources; threads share the process's memory"
+      - "Each thread has its own stack, registers and program counter"
+      - "Processes isolate failures and security; threads communicate cheaply through shared memory but need synchronisation"
+      - "Mentions runtime-level threads: virtual threads, goroutines, async tasks"
+    follow_up: "What does a context switch cost, directly and indirectly?"
+  - id: stack-vs-heap
+    level: junior
+    skills: [computer-science.cpu-architecture, computer-science.virtual-memory]
+    question: "What is the difference between the stack and the heap?"
+    key_points:
+      - "The call stack holds frames (return address, saved registers, locals) and grows and shrinks with calls"
+      - "Stack allocation is a pointer bump and is freed automatically on return; its size is limited per thread"
+      - "The heap holds objects with dynamic lifetimes, managed by malloc/free or a garbage collector"
+      - "Deep recursion overflows the stack; escape analysis can move objects to the stack"
+    follow_up: "Why does each thread need its own stack but not its own heap?"
+  - id: dns-tcp-basics
+    level: junior
+    skills: [computer-science.networking]
+    question: "What happens, at the network level, when you type a URL in a browser and press Enter?"
+    key_points:
+      - "DNS resolution through caches, the recursive resolver, root, TLD and authoritative servers"
+      - "TCP three-way handshake (or QUIC), then the TLS handshake with certificate verification"
+      - "HTTP request and response; connection reuse for later requests"
+      - "Counts round trips and names where latency comes from"
+    follow_up: "Which of these steps does HTTP/3 change, and how?"
+  - id: tcp-vs-udp
+    level: junior
+    skills: [computer-science.networking]
+    question: "Compare TCP and UDP and give a use case for each."
+    key_points:
+      - "TCP: connection, ordered reliable byte stream, retransmission, flow and congestion control"
+      - "UDP: independent datagrams, no ordering or retransmission, low overhead"
+      - "TCP for HTTP/1.1–2, databases, SSH; UDP for DNS, real-time media, games, QUIC"
+      - "Head-of-line blocking as a TCP cost"
+    follow_up: "Why did QUIC build reliability on top of UDP instead of fixing TCP?"
+  - id: cache-friendly
+    level: mid
+    skills: [computer-science.memory-hierarchy]
+    question: "Why can two loops that do the same arithmetic over the same matrix differ in speed by 10×?"
+    key_points:
+      - "Caches move 64-byte lines; sequential access uses every byte of a line and helps the prefetcher"
+      - "Strided (column-wise) access touches a new line per element and causes conflict and capacity misses"
+      - "AMAT = hit time + miss rate × miss penalty; RAM is ~100× slower than L1"
+      - "Fixes: loop interchange, blocking or tiling, contiguous layouts"
+    follow_up: "What is false sharing and how do you fix it?"
+  - id: branch-prediction
+    level: mid
+    skills: [computer-science.cpu-architecture]
+    question: "Explain pipelining and branch prediction, and why sorting data can speed up a loop that does not depend on order."
+    key_points:
+      - "Pipelines overlap fetch, decode, execute; the CPU must guess branch outcomes to keep them full"
+      - "A misprediction flushes the speculative work, typically 10–20 cycles"
+      - "Random data makes a condition unpredictable; sorted data makes it predictable"
+      - "Branch-free code (conditional moves, masks) avoids the problem"
+    follow_up: "How did Spectre exploit speculative execution?"
+  - id: virtual-memory
+    level: mid
+    skills: [computer-science.virtual-memory]
+    question: "How does virtual memory work, and what happens on a page fault?"
+    key_points:
+      - "Virtual addresses are translated per page through multi-level page tables by the MMU"
+      - "The TLB caches translations; huge pages extend its reach"
+      - "Minor faults map a page on first touch; major faults read from disk; invalid accesses get SIGSEGV"
+      - "Benefits: isolation, demand paging, copy-on-write fork, mmap, shared libraries"
+    follow_up: "Why can a process's virtual size be much larger than physical memory without any problem?"
+  - id: fsync-durability
+    level: mid
+    skills: [computer-science.file-systems]
+    question: "Your application writes a file and the machine loses power a second later. Is the data there? How do you make sure?"
+    key_points:
+      - "write() returns after copying into the page cache; data reaches the disk later"
+      - "fsync forces the file's data and metadata to stable storage, including device caches"
+      - "Atomic replace: write a temp file, fsync, rename over the target, fsync the directory"
+      - "fsync is expensive; batch it (group commit) and treat its errors as fatal"
+    follow_up: "What does journaling add, and what does ext4 journal by default?"
+  - id: scheduling-tradeoffs
+    level: mid
+    skills: [computer-science.processes-scheduling]
+    question: "Compare FCFS, shortest job first and round robin. What does a general-purpose OS scheduler optimise?"
+    key_points:
+      - "FCFS suffers the convoy effect; SJF/SRTF minimise average waiting but need job lengths and can starve"
+      - "Round robin gives good response time; the quantum trades switches against latency"
+      - "Real schedulers (MLFQ, Linux CFS/EEVDF) approximate fairness and responsiveness with priorities and weights"
+      - "Metrics: throughput, turnaround, waiting, response time, fairness"
+    follow_up: "What happens to a container whose CPU quota is smaller than the parallelism of its threads?"
+  - id: compiler-pipeline
+    level: mid
+    skills: [computer-science.compilers]
+    question: "Walk through what happens between source code and execution in a compiler or interpreter of your choice."
+    key_points:
+      - "Lexing into tokens, parsing into an AST with a grammar, semantic analysis with symbol tables and types"
+      - "Lowering to an IR or bytecode, optimisation, code generation"
+      - "Interpreters walk the AST or run bytecode on a VM; JITs compile hot code using profiles"
+      - "Gives a concrete example: javac + HotSpot, CPython, V8, Roslyn + RyuJIT or the Go compiler"
+    follow_up: "How do precedence and associativity show up in a recursive-descent parser?"
+  - id: deadlock
+    level: mid
+    skills: [computer-science.concurrency]
+    question: "What is a deadlock, what conditions does it need, and how do you prevent one?"
+    key_points:
+      - "Threads waiting for each other forever"
+      - "Coffman conditions: mutual exclusion, hold and wait, no preemption, circular wait"
+      - "Prevention: global lock order, tryLock with timeout and back-off, acquire all at once, fewer shared locks"
+      - "Detection: wait-for graphs (databases abort a victim), thread dumps"
+    follow_up: "How do livelock and starvation differ from deadlock?"
+  - id: race-memory-model
+    level: senior
+    skills: [computer-science.concurrency, computer-science.cpu-architecture]
+    question: "Explain data races and the memory model of a language you use. Why is a plain boolean flag not enough to stop another thread?"
+    key_points:
+      - "Compilers and CPUs reorder and cache memory operations; a memory model defines which values reads may see"
+      - "Happens-before edges come from locks, volatile/atomic accesses, thread start and join, channels"
+      - "Data-race-free programs get sequential consistency (SC-DRF); racy ones get weak or undefined behaviour"
+      - "A non-volatile flag can be hoisted out of a loop and never observed to change"
+    follow_up: "Why does double-checked locking need a volatile field in Java?"
+  - id: regex-redos
+    level: senior
+    skills: [computer-science.automata]
+    question: "How can a regular expression take down a service, and how would you prevent it?"
+    key_points:
+      - "Backtracking engines (Java, Python, JavaScript, .NET) explore alternatives and can take exponential time with nested quantifiers"
+      - "Automaton engines (RE2, Go, Rust) simulate an NFA or lazy DFA in O(pattern × input)"
+      - "Theory: regular expressions equal finite automata; backreferences go beyond regular languages"
+      - "Prevention: unambiguous patterns, possessive quantifiers or atomic groups, input limits, timeouts, linear-time engines"
+    follow_up: "Why can't any regular expression match balanced parentheses?"
+  - id: halting-practice
+    level: senior
+    skills: [computer-science.computability]
+    question: "What is the halting problem, and what does undecidability mean for the tools you use?"
+    key_points:
+      - "No program decides for every program and input whether it halts; proof by diagonalisation"
+      - "Rice's theorem: every non-trivial semantic property of programs is undecidable"
+      - "Static analysers must be sound but incomplete (type checkers) or precise but incomplete (bug finders)"
+      - "Practical responses: restricted languages, bounded model checking, tests, timeouts"
+    follow_up: "Is checking whether a function is longer than 100 lines undecidable? Why not?"
+  - id: np-complete
+    level: senior
+    skills: [computer-science.complexity-classes]
+    question: "What does it mean for a problem to be NP-complete, and what would you do if your product needed to solve one?"
+    key_points:
+      - "NP: solutions checkable in polynomial time; NP-complete: in NP and every NP problem reduces to it"
+      - "No polynomial algorithm is known; finding one would prove P = NP"
+      - "Recognise disguises: scheduling, packing, routing, dependency resolution, colouring"
+      - "Cope: small or structured instances, approximation algorithms, heuristics, SAT/CP/ILP solvers with time limits"
+    follow_up: "Give a pair of similar problems where one is in P and the other NP-complete."
+  - id: wal-recovery
+    level: senior
+    skills: [computer-science.database-internals, computer-science.file-systems]
+    question: "How does a database guarantee that committed transactions survive a crash while keeping commits fast?"
+    key_points:
+      - "Write-ahead log: log records reach stable storage before the pages they describe; the commit record is forced before acknowledging"
+      - "Pages are written lazily (steal, no-force); checkpoints bound recovery time"
+      - "Recovery: analysis, redo from the checkpoint, undo of uncommitted transactions (ARIES)"
+      - "Group commit amortises fsync; checksums detect torn log records"
+    follow_up: "How is the same log used for replication and point-in-time recovery?"
+  - id: btree-vs-lsm
+    level: senior
+    skills: [computer-science.database-internals]
+    question: "Compare B+tree and LSM-tree storage engines. When would you choose each?"
+    key_points:
+      - "B+tree: high fan-out pages, O(log n) lookups, efficient range scans, in-place updates (random writes)"
+      - "LSM: memtable, sequential SSTable flushes, background compaction, Bloom filters"
+      - "Trade-offs in write, read and space amplification"
+      - "B+tree for read-heavy OLTP with range queries; LSM for write-heavy ingestion such as metrics and logs"
+    follow_up: "What does compaction cost, and how can it hurt tail latency?"
+  - id: isolation-mvcc
+    level: senior
+    skills: [computer-science.database-internals, computer-science.concurrency]
+    question: "Explain transaction isolation levels and how MVCC implements snapshot isolation. Which anomaly does it still allow?"
+    key_points:
+      - "Anomalies: dirty reads, non-repeatable reads, phantoms, lost updates, write skew"
+      - "MVCC keeps row versions; each transaction reads a snapshot; readers and writers do not block each other"
+      - "Snapshot isolation still allows write skew; serializable (2PL or SSI) prevents it"
+      - "Applications must retry serialization failures; SELECT ... FOR UPDATE as an explicit fix"
+    follow_up: "Why do long-running transactions cause problems for an MVCC database such as PostgreSQL?"
+  - id: layered-debugging
+    level: senior
+    skills: [computer-science.systems-thinking]
+    question: "A service's p99 latency jumped while p50 stayed flat. How do you investigate, layer by layer?"
+    key_points:
+      - "Uses percentiles and correlates the change with deploys, load and periodic jobs"
+      - "Hypotheses per layer: GC pauses, lock or pool contention, CPU throttling, page faults, network retransmits, slow fsync, database locks or plans"
+      - "Names the tool for each: profilers and GC logs, thread dumps, cgroup stats, perf, ss/tcpdump, iostat/strace, EXPLAIN and lock views"
+      - "Reasons with Little's law and utilisation; changes one thing at a time"
+    follow_up: "Why does fan-out to many back ends make tail latency worse, and what are hedged requests?"
+  - id: estimates
+    level: senior
+    skills: [computer-science.systems-thinking, computer-science.foundations]
+    question: "Estimate, without measuring, how long it takes to read 1 GB from RAM, from an NVMe SSD and over a 1 Gbit/s network, and to make 1,000 sequential queries to a database in the same data centre."
+    key_points:
+      - "RAM: tens of GB/s, so well under 0.1 s"
+      - "NVMe SSD: a few GB/s sequential, so under a second"
+      - "1 Gbit/s ≈ 125 MB/s, so about 8 s"
+      - "1,000 sequential round trips at ~0.5 ms ≈ 0.5 s, dominated by latency"
+    follow_up: "How does Amdahl's law limit what parallelising those queries can achieve?"

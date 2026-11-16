@@ -1,0 +1,48 @@
+questions:
+  - id: two-level-index
+    skills: [computer-science.virtual-memory]
+    prompt: "In a 32-bit two-level page table (10 + 10 + 12 bits), which directory index does virtual address 0x00C0_1000 use?"
+    answers: ["3"]
+    explanation: "0x00C01000 >> 22 = 3 (each directory entry covers 4 MiB = 0x400000)."
+  - id: tlb-invalidate
+    skills: [computer-science.virtual-memory]
+    prompt: "The kernel unmaps a page but forgets to invalidate its TLB entry. What can happen?"
+    options: ["Nothing, the TLB is refreshed every access", "The process can still read and write the old frame through the stale translation", "The page table is corrupted", "The CPU halts"]
+    answer: 1
+    explanation: "The TLB is a cache of translations; changing a mapping requires invalidating it."
+  - id: oom
+    skills: [computer-science.virtual-memory]
+    prompt: "A container is OOM-killed. Which number of the process mattered?"
+    options: ["Its virtual size", "Its resident memory (plus page cache charged to the cgroup) against the memory limit", "Its number of open files", "Its CPU time"]
+    answer: 1
+    explanation: "The cgroup limit counts pages actually in RAM, not reserved address space."
+  - id: fsync-dir
+    skills: [computer-science.file-systems]
+    prompt: "After writing and renaming a temporary file over the old one, what must you fsync so the rename itself survives a crash?"
+    options: ["Nothing", "The directory that contains the file", "The whole disk", "The old file"]
+    answer: 1
+    explanation: "A name lives in a directory entry; fsync the directory to make it durable."
+  - id: page-cache-read
+    skills: [computer-science.file-systems]
+    prompt: "Why is the second read of a large file much faster than the first?"
+    options: ["The disk spins faster", "The data is in the kernel's page cache", "The file was compressed", "The CPU cached the whole file"]
+    answer: 1
+    explanation: "The kernel keeps file data in free RAM and serves later reads from memory."
+  - id: tcp-reliability
+    skills: [computer-science.networking]
+    prompt: "IP may lose and reorder packets. What does TCP use to deliver an ordered, complete byte stream?"
+    options: ["Bigger packets", "Sequence numbers, acknowledgements and retransmission", "DNS", "Encryption"]
+    answer: 1
+    explanation: "The receiver reorders by sequence number and the sender resends what is not acknowledged."
+  - id: dns-resolution
+    skills: [computer-science.networking]
+    prompt: "A recursive resolver has nothing cached for api.example.com. Whom does it ask first?"
+    options: ["example.com's web server", "A root name server", "The .com TLD server", "The client's router"]
+    answer: 1
+    explanation: "Root servers refer it to .com, which refers it to example.com's authoritative servers."
+  - id: backpatch
+    skills: [computer-science.compilers]
+    prompt: "A one-pass compiler emits the conditional jump of a while loop before it has compiled the loop body. How does it know the jump target?"
+    options: ["It guesses", "It emits a placeholder and patches the target once the body is compiled (backpatching)", "It compiles the body twice", "The VM computes it at run time"]
+    answer: 1
+    explanation: "Remember the index of the jump, compile the body, then write the real target."

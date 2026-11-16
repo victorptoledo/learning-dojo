@@ -1,0 +1,23 @@
+id: computer-science.p2.virtual-memory
+kind: lesson
+status: draft
+title: "Virtual Memory, Paging and the TLB"
+summary: "How every process gets its own address space: virtual and physical addresses, pages and frames, page tables and their entries, multi-level tables, the TLB, page faults and demand paging, replacement and thrashing, copy-on-write, memory-mapped files, and what resident memory and OOM kills mean in practice."
+objectives:
+  - { id: o1, text: "Translate a virtual address to a physical one through a multi-level page table, and explain what each page table entry bit is for", skills: [computer-science.virtual-memory] }
+  - { id: o2, text: "Explain the TLB, page faults, demand paging and page replacement, and recognise thrashing", skills: [computer-science.virtual-memory, computer-science.memory-hierarchy] }
+  - { id: o3, text: "Explain copy-on-write, memory-mapped files and the memory numbers reported for a process (virtual, resident, shared)", skills: [computer-science.virtual-memory] }
+prerequisites: [computer-science.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A Java service in a container with a 2 GiB memory limit is started with -Xmx2g and keeps being killed with "OOMKilled", although its heap usage graphs never exceed 1.6 GiB. `ps` shows a virtual size (VSZ) of 9 GiB and a resident size (RSS) of 2 GiB just before the kill. (1) Explain the difference between VSZ and RSS, and why a 9 GiB virtual size by itself is harmless. (2) List what besides the Java heap occupies resident memory in such a process. (3) Explain what the kernel does when the container reaches its limit and why it kills rather than swapping. (4) Propose a configuration that stops the kills, with numbers.'
+  criteria:
+    - 'Explains that VSZ counts all reserved virtual address space (mapped but possibly never touched), while RSS counts pages actually in physical memory; untouched pages cost no RAM'
+    - 'Lists non-heap resident memory: thread stacks, metaspace and class data, JIT code cache, GC structures, direct and native buffers, memory-mapped files, the C library allocator'
+    - 'Explains that the cgroup memory limit counts resident (and page cache) pages; at the limit the kernel reclaims what it can and then the OOM killer terminates a process, as containers usually run without swap'
+    - 'Proposes leaving headroom: a heap of about 70–75% of the limit (for example -XX:MaxRAMPercentage=70 or -Xmx1400m), bounding other areas (thread count, MaxDirectMemorySize, MaxMetaspaceSize) or raising the limit'

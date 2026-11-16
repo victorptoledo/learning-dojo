@@ -1,0 +1,58 @@
+id: computer-science.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz on virtual memory, file systems, networking and compilers, and a compiler from a small language with variables, loops and conditionals to stack-machine bytecode, with the virtual machine that runs it."
+objectives:
+  - { id: o1, text: "Explain paging and the TLB, durable file updates, TCP/IP and DNS, and the phases of a compiler", skills: [computer-science.virtual-memory, computer-science.file-systems, computer-science.networking, computer-science.compilers] }
+  - { id: o2, text: "Compile a language with variables, loops and conditionals to stack bytecode with backpatched jumps, and run it on a virtual machine", skills: [computer-science.compilers, computer-science.cpu-architecture] }
+prerequisites: [computer-science.p2.expression-parser]
+difficulty: 4
+estimated_minutes: 120
+xp: 400
+closes_phase: p2
+covers_skills: [computer-science.virtual-memory, computer-science.file-systems, computer-science.networking, computer-science.compilers]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      You do not need an AST: a recursive-descent parser can emit instructions as it recognises each rule, because the order in which it finishes the sub-rules is exactly post-order. Start with a lexer that produces tokens (number, identifier, keyword, symbol, newline, end) with their line numbers, then one method per grammar rule that appends to a `List<Instr>`. Where do you store the mapping from variable names to slots?
+    - |-
+      For `while`: remember `start = code.size()`, compile the condition, `int exit = emit(JUMP_IF_ZERO, 0)`, compile the block, `emit(JUMP, start)`, then replace instruction `exit` with `JUMP_IF_ZERO code.size()`. `if`/`else` is the same trick with two placeholders. In the VM, a `long[]` stack with an index and a `long[]` of slots sized from the largest slot in the code is fast enough; loop `while (pc != code.size())`.
+    - |-
+      ```java
+      private void statement() {
+          if (at("while")) {
+              advance();
+              int start = code.size();
+              expression();
+              int exit = emit(Op.JUMP_IF_ZERO, 0);
+              block();                       // expect("{"), statements until "}", expect("}")
+              emit(Op.JUMP, start);
+              code.set(exit, Instr.of(Op.JUMP_IF_ZERO, code.size()));
+          } else if (at("let")) {
+              advance();
+              Token name = identifier();
+              if (slots.containsKey(name.text())) throw new CompileError("already declared", name.line());
+              expect("=");
+              expression();                  // before declaring: `let x = x` is an error
+              slots.put(name.text(), slots.size());
+              emit(Op.STORE, slots.get(name.text()));
+          } // ... print, if/else, assignment
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

@@ -4,20 +4,45 @@ name: "Computer Science Fundamentals"
 archetype: concept
 category: "CS Fundamentals"
 icon: "🎓"
-description: "A solid computing base: binary data, operating systems, networks, compilers and complexity."
-status: draft
-bridges_available: [java]
+description: "What happens beneath your code, from bits to whole systems: binary and floating point, logic gates, CPUs and caches, processes, scheduling and virtual memory, file systems and networks, compilers and interpreters, automata, computability, P versus NP, concurrency theory and database internals. Every lesson connects the theory to something you can see in a real program, and the katas build the machinery yourself: a float decoder, a cache simulator, a scheduler, a page table, a parser, a bytecode compiler, a regex engine and a crash-safe storage engine, in Python, Rust and Java. Data structures and algorithms have their own track."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Binary Curious" }
   - { name: "Yellow Belt", required_xp: 300, title: "Logic Gate Thinker" }
-  - { name: "Green Belt", required_xp: 800, title: "Memory Layout Apprentice" }
-  - { name: "Purple Belt", required_xp: 1500, title: "OS & Assembly Explorer" }
-  - { name: "Brown Belt", required_xp: 2500, title: "Algorithm Strategist" }
+  - { name: "Green Belt", required_xp: 800, title: "Cache Line Apprentice" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Kernel Explorer" }
+  - { name: "Brown Belt", required_xp: 2500, title: "Compiler Builder" }
   - { name: "Black Belt", required_xp: 4000, title: "Systems Theorist" }
   - { name: "Sensei", required_xp: 6000, title: "Turing Award Mind" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Why the discipline exists and the vocabulary to talk about it" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core concepts and mental models" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Trade-offs, combining concepts and common practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Advanced techniques and architecture at scale" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Real production cases, failure modes and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "The layers of abstraction of a computer, and how bits represent integers, real numbers and text" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Logic gates, the CPU, the memory hierarchy and caches, processes, threads and scheduling" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Virtual memory, file systems, networking, and how compilers and interpreters turn text into running code" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Automata and regular languages, computability, complexity classes and the theory of concurrency" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "How databases store and recover data, and reasoning about a whole system across its layers" }
+requirements:
+  - kind: tool
+    name: uv
+    command: uv
+    version_args: ["--version"]
+    min_version: "0.9"
+    required: false
+    why: Runs the visible tests of the Python katas locally. The grading checks run in Docker and do not need it.
+    install_hint: "install uv: winget install astral-sh.uv, then reopen the terminal"
+  - kind: tool
+    name: Rust toolchain (cargo)
+    command: cargo
+    min_version: "1.85"
+    required: false
+    why: Runs the visible tests of the Rust katas locally. The grading checks run in Docker and do not need it.
+    install_hint: "install rustup: winget install Rustlang.Rustup, then reopen the terminal"
+    update: [rustup, update, stable]
+  - kind: tool
+    name: JDK 25 (java)
+    command: java
+    version_args: ["--version"]
+    min_version: "25"
+    required: false
+    why: Runs the visible tests of the Java katas locally. The grading checks run in Docker and do not need it.
+    install_hint: "install Temurin 25: winget install EclipseAdoptium.Temurin.25.JDK, then reopen the terminal"

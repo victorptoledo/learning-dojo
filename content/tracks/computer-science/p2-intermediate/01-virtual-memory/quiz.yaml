@@ -1,0 +1,35 @@
+questions:
+  - id: offset-kept
+    prompt: "With 4 KiB pages, which part of a virtual address is copied unchanged into the physical address?"
+    options: ["The top 12 bits", "The low 12 bits (the offset)", "The page table index", "None of it"]
+    answer: 1
+    explanation: "2¹² = 4,096: the offset inside the page is the same in the frame; only the page number is translated."
+  - id: vpn
+    prompt: "With 4 KiB pages, what is the virtual page number of address 0x5A3C7 (in hexadecimal)?"
+    answers: ["0x5A", "5A", "0x5a", "5a"]
+    explanation: "Drop the low 12 bits (three hex digits): 0x5A3C7 >> 12 = 0x5A."
+  - id: tlb
+    prompt: "What does the TLB cache?"
+    options: ["Recently used data lines", "Recent virtual-to-physical translations", "System call results", "Disk blocks"]
+    answer: 1
+    explanation: "A TLB hit avoids walking the page table on each access."
+  - id: minor-fault
+    prompt: "A program touches a freshly allocated heap page for the first time. What usually happens?"
+    options: ["A segmentation fault", "A minor page fault: the kernel maps a zeroed frame and resumes the instruction", "A major page fault that reads from disk", "Nothing, the page was already in RAM"]
+    answer: 1
+    explanation: "Memory is assigned on demand; no disk I/O is needed for anonymous memory."
+  - id: copy-on-write
+    prompt: "Why is fork() of a large process fast?"
+    options: ["It shares the heap forever", "Pages are shared read-only and copied only when one of the processes writes to them", "It does not copy the page tables", "The child runs on the GPU"]
+    answer: 1
+    explanation: "Copy-on-write defers the copy to the first write, page by page."
+  - id: thrashing
+    prompt: "What is thrashing?"
+    options: ["Overheating of the CPU", "The working sets do not fit in RAM, so the system spends its time paging in and out", "A TLB with too many entries", "A disk filling up"]
+    answer: 1
+    explanation: "Throughput collapses; the fixes are more RAM or less work."
+  - id: rss
+    prompt: "Which number tells you how much physical memory a process uses?"
+    options: ["Virtual size (VSZ)", "Resident set size (RSS)", "The heap maximum", "The number of threads"]
+    answer: 1
+    explanation: "VSZ counts reserved address space, much of which may never be touched."

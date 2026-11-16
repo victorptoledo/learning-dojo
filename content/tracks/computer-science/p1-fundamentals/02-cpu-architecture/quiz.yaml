@@ -1,0 +1,30 @@
+questions:
+  - id: program-counter
+    prompt: "What does the program counter hold?"
+    options: ["The number of instructions executed so far", "The address of the next instruction to fetch", "The top of the stack", "The result of the last addition"]
+    answer: 1
+    explanation: "Branches and calls change the program counter; everything else just advances it."
+  - id: load-store
+    prompt: "What characterises a load-store architecture such as RISC-V?"
+    options: ["Only load and store instructions access memory; arithmetic works on registers", "It has no registers", "Every instruction can read memory", "It runs only interpreted code"]
+    answer: 0
+    explanation: "Arithmetic takes registers; data moves between memory and registers with loads and stores."
+  - id: pipeline-throughput
+    prompt: "A five-stage pipeline is full and nothing stalls. How many instructions finish per cycle?"
+    answers: ["1", "one"]
+    explanation: "Each instruction still takes five cycles, but a new one finishes every cycle."
+  - id: misprediction
+    prompt: "What happens when the CPU mispredicts a branch?"
+    options: ["The program crashes", "The speculative work after the branch is discarded and fetching restarts at the right address, costing about 10–20 cycles", "The operating system handles it", "Nothing, branches are not predicted"]
+    answer: 1
+    explanation: "The pipeline is flushed; this is why unpredictable branches are expensive."
+  - id: stack-frame
+    prompt: "Where does a function usually keep its return address and the local variables that do not fit in registers?"
+    options: ["In the heap", "In its frame on the call stack", "In the instruction cache", "In the page table"]
+    answer: 1
+    explanation: "call pushes the return address; the function's frame holds saved registers and locals."
+  - id: out-of-order
+    prompt: "What does out-of-order execution allow?"
+    options: ["Programs to give different results each run", "Independent instructions to run while an earlier one waits (for example on a cache miss), with results retired in program order", "Two programs to share a register", "Skipping instructions"]
+    answer: 1
+    explanation: "The program still sees sequential semantics; the core just hides latency."

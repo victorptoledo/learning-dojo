@@ -1,0 +1,33 @@
+questions:
+  - id: spatial-locality
+    prompt: "Why does reading one int from RAM make reading the next one fast?"
+    options: ["The CPU guesses the value", "The cache loads the whole 64-byte line containing it (spatial locality)", "RAM is faster the second time", "The compiler removes the second read"]
+    answer: 1
+    explanation: "Caches move lines, not bytes, so neighbours come along for free."
+  - id: sets
+    prompt: "A 64 KiB, 4-way set-associative cache has 64-byte lines. How many sets does it have?"
+    answers: ["256"]
+    explanation: "64 KiB / 64 B = 1,024 lines; 1,024 / 4 ways = 256 sets."
+  - id: offset-bits
+    prompt: "With 64-byte lines, how many low address bits form the offset?"
+    answers: ["6", "six"]
+    explanation: "2⁶ = 64."
+  - id: conflict-miss
+    prompt: "A direct-mapped cache has plenty of free lines, but two hot addresses keep evicting each other. What kind of miss is this?"
+    options: ["Compulsory", "Capacity", "Conflict", "Coherence"]
+    answer: 2
+    explanation: "They map to the same set; more associativity would fix it."
+  - id: amat
+    prompt: "Hit time 4 cycles, miss rate 10%, miss penalty 100 cycles. What is the average memory access time in cycles?"
+    answers: ["14", "14 cycles"]
+    explanation: "4 + 0.1 × 100 = 14."
+  - id: false-sharing
+    prompt: "Two threads update two different longs that sit in the same cache line. What is the effect called?"
+    options: ["A data race", "False sharing", "A deadlock", "Thrashing"]
+    answer: 1
+    explanation: "No data is shared logically, but the coherence protocol bounces the line between cores."
+  - id: write-back
+    prompt: "In a write-back cache, when does a modified line reach the next level?"
+    options: ["On every store", "When the line is evicted (it is marked dirty until then)", "Never", "At the next clock edge"]
+    answer: 1
+    explanation: "Write-back saves traffic by writing a dirty line once, on eviction."

@@ -1,0 +1,36 @@
+questions:
+  - id: btree-depth
+    prompt: "Why is a B+tree over a billion rows only about four levels deep?"
+    options: ["It stores only a sample of the rows", "Each node is a page with hundreds of keys, so the fan-out is very high", "It is a binary tree", "It uses hashing"]
+    answer: 1
+    explanation: "With a fan-out of ~200, 200⁴ = 1.6 × 10⁹ keys fit in four levels."
+  - id: lsm-writes
+    prompt: "What makes LSM trees good at heavy write loads?"
+    options: ["They never store data on disk", "Writes go to memory and are flushed as sorted files sequentially; compaction happens in the background", "They lock the whole table", "They skip the log"]
+    answer: 1
+    explanation: "Sequential writes are cheap; the cost moves to reads and compaction."
+  - id: wal-rule
+    prompt: "What does the write-ahead logging rule require?"
+    options: ["Data pages are written before the log", "A change's log record reaches stable storage before the modified page does, and the commit record before the commit returns", "The log is written once a day", "Every page is written at commit"]
+    answer: 1
+    explanation: "Then recovery can always redo committed work and undo the rest."
+  - id: redo-undo
+    prompt: "After a crash, what does recovery do with a transaction that had not committed?"
+    options: ["Redo it", "Undo (roll back) its changes", "Ask the user", "Leave its changes in place"]
+    answer: 1
+    explanation: "Committed transactions are redone, uncommitted ones undone: atomicity."
+  - id: write-skew
+    prompt: "Under snapshot isolation, two transactions each check that at least one other doctor is on call, then each takes a different doctor off call. What is the anomaly?"
+    options: ["Dirty read", "Write skew", "Lost update on the same row", "Phantom read"]
+    answer: 1
+    explanation: "Each read a snapshot and wrote a different row; only serializable isolation prevents it."
+  - id: mvcc
+    prompt: "What is the main benefit of MVCC?"
+    options: ["It uses less disk space", "Readers see a consistent snapshot and do not block writers, nor writers readers", "It makes deadlocks impossible", "It removes the need for a log"]
+    answer: 1
+    explanation: "Old versions serve old snapshots; the cost is cleaning them up (VACUUM)."
+  - id: group-commit
+    prompt: "How does a database commit thousands of transactions per second when each fsync takes about a millisecond?"
+    options: ["It skips fsync", "Group commit: one fsync of the log covers the commit records of many transactions", "It writes the data pages at commit", "It uses more threads"]
+    answer: 1
+    explanation: "Transactions that commit together share one flush of the sequential log."

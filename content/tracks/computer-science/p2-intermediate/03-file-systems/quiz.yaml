@@ -1,0 +1,36 @@
+questions:
+  - id: write-returns
+    prompt: "When write() returns successfully on a regular file, where is the data guaranteed to be?"
+    options: ["On the disk platter or flash", "In the kernel's page cache; it reaches the device later", "In the CPU cache", "In the journal"]
+    answer: 1
+    explanation: "Writes are lazy; only fsync (or O_SYNC) makes them durable."
+  - id: inode-name
+    prompt: "Where is a file's name stored in a Unix file system?"
+    options: ["In its inode", "In the directory entry that points to the inode", "In the superblock", "In the first data block"]
+    answer: 1
+    explanation: "That is why one inode can have several names (hard links)."
+  - id: deleted-open
+    prompt: "You delete a 10 GiB log file but df shows no space freed. What is the most likely reason?"
+    options: ["The disk is broken", "A process still has the file open, so the inode and its blocks stay allocated", "Deletion is always delayed by an hour", "The file was a symbolic link"]
+    answer: 1
+    explanation: "Blocks are freed when the link count is 0 and the last descriptor is closed."
+  - id: atomic-replace
+    prompt: "Which sequence replaces config.json so that after a crash it is either complete old or complete new?"
+    options: ["Truncate and write in place", "Write config.json.tmp, fsync it, rename it to config.json, fsync the directory", "Write in place, then fsync", "Delete config.json, then write a new one"]
+    answer: 1
+    explanation: "rename is atomic; the fsyncs make the data and then the rename durable."
+  - id: journaling
+    prompt: "What does a journaling file system write first when it changes metadata?"
+    options: ["The new data blocks only", "A description of the changes to the journal, committed before applying them in place", "Nothing, it writes in place", "A full copy of the disk"]
+    answer: 1
+    explanation: "After a crash, committed journal entries are replayed; uncommitted ones are ignored."
+  - id: dma
+    prompt: "What is DMA used for?"
+    options: ["Deciding which process runs", "Letting a device move data to or from RAM without the CPU copying each byte", "Encrypting the disk", "Mapping virtual addresses"]
+    answer: 1
+    explanation: "The CPU starts the transfer and gets an interrupt when it is done."
+  - id: epoll
+    prompt: "What lets one thread serve thousands of network connections efficiently on Linux?"
+    options: ["One blocking read per connection", "epoll: wait for readiness on many file descriptors at once", "fsync", "A larger page cache"]
+    answer: 1
+    explanation: "Event loops in Node.js, Netty and Go's runtime are built on readiness notification."

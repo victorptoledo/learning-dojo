@@ -1,0 +1,24 @@
+id: computer-science.p1.logic-gates
+kind: lesson
+status: draft
+title: "Boolean Logic, Gates and Circuits"
+summary: "From transistors to arithmetic: Boolean algebra and De Morgan's laws, the basic gates and why NAND alone is enough, half and full adders, multiplexers, combinational versus sequential logic, latches, flip-flops, registers and the clock."
+objectives:
+  - { id: o1, text: "Evaluate and simplify Boolean expressions with truth tables and De Morgan's laws", skills: [computer-science.logic-circuits] }
+  - { id: o2, text: "Build an adder from gates and explain how a ripple-carry adder and an ALU compute", skills: [computer-science.logic-circuits] }
+  - { id: o3, text: "Explain how flip-flops and a clock turn combinational logic into state: registers and memory", skills: [computer-science.logic-circuits, computer-science.cpu-architecture] }
+prerequisites: [computer-science.p0.bit-decoder]
+difficulty: 2
+estimated_minutes: 45
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design, on paper, a circuit that compares two 2-bit unsigned numbers A = a1 a0 and B = b1 b0 and outputs EQ (A equals B) and GT (A is greater than B). Give the truth table or a Boolean expression for each output, draw or describe the circuit with AND, OR, NOT and XOR (or XNOR) gates, then show how EQ alone can be built only from NAND gates (at least for one bit). Finally explain why a real 64-bit adder does not use a plain ripple-carry chain, and what limits the clock frequency of a circuit.'
+  criteria:
+    - 'EQ is correct: (a1 XNOR b1) AND (a0 XNOR b0)'
+    - 'GT is correct: (a1 AND NOT b1) OR ((a1 XNOR b1) AND a0 AND NOT b0)'
+    - 'Shows a NAND-only construction (for example NOT x = x NAND x, AND = NOT(NAND), and XNOR or XOR built from four or five NANDs)'
+    - 'Explains that in a ripple-carry adder each bit waits for the previous carry, so the delay grows linearly with the width, and that carry-lookahead (or similar) computes carries in parallel'
+    - 'States that the clock period must be longer than the slowest path (the critical path) through the combinational logic between two registers'
