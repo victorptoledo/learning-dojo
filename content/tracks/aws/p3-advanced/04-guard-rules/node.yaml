@@ -1,0 +1,53 @@
+id: aws.p3.guard-rules
+kind: kata
+status: draft
+title: "Policy as Code: Security Rules in cfn-guard"
+summary: "Write the platform team's cfn-guard rules (private and encrypted buckets, no SSH or RDP from the internet, encrypted and protected databases, point-in-time recovery, no wildcard admin roles) and prove them against compliant and broken templates."
+objectives:
+  - { id: o1, text: "Write cfn-guard rules with filters, when guards, nested blocks and custom messages", skills: [aws.security-services, aws.cloudformation] }
+  - { id: o2, text: "Express port ranges, optional properties and string-or-list values as rules", skills: [aws.security-services] }
+  - { id: o3, text: "Test rules against fixtures so each mistake breaks exactly one rule", skills: [aws.security-services] }
+prerequisites: [aws.p3.security-services]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-aws, timeout_secs: 90 }
+  hints:
+    - |-
+      Read the worked example first: `let` selects resources by `Type`, `when %x !empty` skips templates without them, and a block `%x.Properties.Something { ... }` checks several clauses on the same object. For each fixture in `tests/fixtures`, find the one line that is wrong and write the clause that catches it.
+    - |-
+      Filters go in square brackets: `SecurityGroupIngress[ CidrIp == '0.0.0.0/0' or CidrIpv6 == '::/0' ]` keeps only the rules open to the internet. A port range covers 22 unless `FromPort > 22 or ToPort < 22`. An optional property: `PubliclyAccessible not exists or PubliclyAccessible == false`. `Action[*] != '*'` works whether `Action` is a string or a list. Put a `<<message>>` right after a clause.
+    - |-
+      ```text
+      rule no_ssh_or_rdp_from_the_internet when %security_groups !empty {
+          %security_groups.Properties.SecurityGroupIngress[
+              CidrIp == '0.0.0.0/0' or CidrIpv6 == '::/0' ] {
+              IpProtocol != '-1'
+              <<Never open all traffic to the internet>>
+              FromPort > 22 or ToPort < 22
+              <<Port 22 is never open to the internet>>
+              ...
+          }
+      }
+      rule roles_grant_no_wildcard_admin when %roles !empty {
+          %roles.Properties.Policies[*].PolicyDocument.Statement[ Effect == 'Allow' ] {
+              Action[*] != '*'
+              <<...>>
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your rules are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-aws runner image
+    image: dojo-aws
+    why: The container with cfn-lint, cfn-guard, the dojo's IAM policy evaluator, boto3 and moto that checks your AWS work offline.

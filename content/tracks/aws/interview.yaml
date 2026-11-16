@@ -1,0 +1,231 @@
+# Technical interview questions for the aws track, written for the dojo.
+# The topics follow what public interview guides and the AWS certification exam guides
+# report as common (see sources); the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/aws"
+  - "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+  - "https://aws.amazon.com/certification/certified-solutions-architect-professional/"
+  - "https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html"
+  - "https://github.com/bregman-arie/devops-exercises"
+  - "https://www.geeksforgeeks.org/devops/aws-interview-questions/"
+questions:
+  - id: shared-responsibility
+    level: junior
+    skills: [aws.cloud-basics]
+    question: "Explain the shared responsibility model. What changes between EC2, RDS and Lambda?"
+    key_points:
+      - "AWS secures the cloud (facilities, hardware, hypervisor, managed service software); the customer secures what they put in it"
+      - "EC2: the customer owns the guest OS, patches, network exposure, app and data"
+      - "RDS: AWS patches the engine and OS; the customer owns access, network placement, encryption choices and data"
+      - "Lambda: AWS also runs the runtime and scaling; code, dependencies, IAM and data stay with the customer"
+    follow_up: "Which side of the line do most cloud breaches happen on, and why?"
+  - id: regions-azs
+    level: junior
+    skills: [aws.cloud-basics, aws.high-availability]
+    question: "What are regions and Availability Zones, and how do you use them for availability?"
+    key_points:
+      - "A region is an independent geographic area; most resources and data stay in one region"
+      - "AZs are isolated data centres in a region with separate power and networking, linked by low-latency links"
+      - "Production spreads every tier over at least two AZs"
+      - "Region choice: data residency law, latency, service availability, price"
+    follow_up: "Which AWS services are global rather than regional?"
+  - id: iam-basics
+    level: junior
+    skills: [aws.iam-least-privilege]
+    question: "What is the difference between an IAM user, a group and a role, and why are roles preferred?"
+    key_points:
+      - "Users have long-lived credentials; groups attach policies to users; roles are assumed and give temporary credentials"
+      - "Roles have a trust policy (who may assume) and permissions policies (what they may do)"
+      - "Workloads use instance profiles, task roles, execution roles; people use IAM Identity Center"
+      - "No long-lived keys to leak or rotate"
+    follow_up: "How would a GitHub Actions pipeline deploy to AWS without access keys?"
+  - id: s3-security
+    level: junior
+    skills: [aws.s3]
+    question: "How do you keep an S3 bucket private and its data safe?"
+    key_points:
+      - "Block Public Access on the bucket and the account; ACLs disabled (bucket owner enforced)"
+      - "Bucket policy with least privilege, plus denies for non-TLS requests"
+      - "Default encryption (SSE-S3 or SSE-KMS), versioning, Object Lock where retention is required"
+      - "Serve public content through CloudFront with origin access control; share temporarily with presigned URLs"
+    follow_up: "When would you choose SSE-KMS with a customer managed key over SSE-S3?"
+  - id: security-groups-nacls
+    level: junior
+    skills: [aws.vpc-subnets]
+    question: "Compare security groups and network ACLs."
+    key_points:
+      - "Security groups attach to ENIs, allow-only, stateful"
+      - "NACLs attach to subnets, allow and deny rules in order, stateless (return traffic needs rules)"
+      - "Security groups can reference other security groups, which scales better than CIDRs"
+      - "Most designs rely on security groups and leave NACLs at default"
+    follow_up: "How would you debug a connection that times out between two instances?"
+  - id: ec2-purchase
+    level: junior
+    skills: [aws.ec2, aws.cost]
+    question: "What are the EC2 purchase options, and which workload fits each?"
+    key_points:
+      - "On-Demand: no commitment, spiky or new workloads"
+      - "Savings Plans and Reserved Instances: 1 or 3-year commitments for a steady baseline"
+      - "Spot: up to ~90 % cheaper, interruptible with two minutes' notice: batch, CI, stateless workers"
+      - "Dedicated Hosts for licensing or compliance"
+    follow_up: "How do you make a web tier safe to run partly on Spot?"
+  - id: policy-evaluation
+    level: mid
+    skills: [aws.iam-least-privilege, aws.multi-account-iam]
+    question: "Walk me through how AWS decides whether a request is allowed."
+    key_points:
+      - "Default deny; an explicit deny in any applicable policy wins"
+      - "SCPs and RCPs on the path must allow; a permissions boundary and session policies, if present, must allow"
+      - "Same account: an allow in the identity or the resource policy; cross-account: both"
+      - "Conditions, NotAction and NotResource change what statements match"
+    follow_up: "A role has AdministratorAccess but gets AccessDenied on one bucket. What do you check, in which order?"
+  - id: vpc-design
+    level: mid
+    skills: [aws.vpc-subnets]
+    question: "Design a VPC for a three-tier web application."
+    key_points:
+      - "Non-overlapping CIDR, subnets per tier in at least two AZs"
+      - "Public subnets for load balancers and NAT gateways; private app subnets via NAT per AZ; data subnets without internet routes"
+      - "Security groups chained by reference: ALB → app → database"
+      - "Gateway endpoints for S3 and DynamoDB, interface endpoints where needed, Flow Logs"
+    follow_up: "How would you cut the NAT gateway bill?"
+  - id: dynamodb-design
+    level: mid
+    skills: [aws.databases]
+    question: "How do you design a DynamoDB table, and when would you not use DynamoDB?"
+    key_points:
+      - "Start from access patterns; choose partition and sort keys so each is a Query or GetItem"
+      - "High-cardinality partition keys to avoid hot partitions; GSIs for other patterns (eventually consistent)"
+      - "Conditional writes, transactions, streams and TTL"
+      - "Not for ad hoc queries, heavy joins or reporting; a relational database or an analytics store fits better"
+    follow_up: "How would you implement optimistic locking?"
+  - id: rds-ha
+    level: mid
+    skills: [aws.databases, aws.high-availability]
+    question: "What is the difference between Multi-AZ and read replicas in RDS?"
+    key_points:
+      - "Multi-AZ instance: synchronous standby, automatic failover with the same endpoint, no reads"
+      - "Read replicas: asynchronous, readable, in-region or cross-region, can be promoted"
+      - "Aurora: shared replicated storage, up to 15 replicas, fast failover, Global Database"
+      - "Point-in-time recovery protects against mistakes that replicate"
+    follow_up: "How do you connect thousands of Lambda invocations to RDS safely?"
+  - id: lambda-model
+    level: mid
+    skills: [aws.lambda-serverless]
+    question: "Explain cold starts, concurrency and how to make Lambda handlers efficient and safe."
+    key_points:
+      - "Execution environments are reused; init code runs once per environment; cold starts create new ones"
+      - "Concurrency = requests per second × duration; account limits and reserved concurrency"
+      - "Clients at init, small packages, SnapStart or provisioned concurrency for latency-sensitive paths"
+      - "Idempotent handlers because every event source can deliver more than once"
+    follow_up: "When would you choose ECS on Fargate over Lambda?"
+  - id: messaging
+    level: mid
+    skills: [aws.lambda-serverless]
+    question: "When do you use SQS, SNS or EventBridge?"
+    key_points:
+      - "SQS: a buffer with pull consumers, retries and DLQs; FIFO for ordering"
+      - "SNS: push fan-out to many subscribers"
+      - "EventBridge: content-based routing between services and accounts, archive and replay, schedules"
+      - "Fan-out to one SQS queue per consumer isolates retries and slow consumers"
+    follow_up: "How do visibility timeout and maxReceiveCount interact with a Lambda consumer?"
+  - id: ecs-roles
+    level: mid
+    skills: [aws.containers]
+    question: "How do you run a containerised service on ECS, and what are the task role and the execution role?"
+    key_points:
+      - "Task definition with image, CPU/memory, ports, logs, secrets, health check; service keeps N tasks behind an ALB"
+      - "Execution role: ECS pulls images, writes logs, reads secrets; task role: the application's own permissions"
+      - "Fargate or EC2 capacity; awsvpc gives each task an ENI and security group"
+      - "Rolling with circuit breaker or blue/green deployments; auto scaling on metrics"
+    follow_up: "How would you scale SQS workers on ECS?"
+  - id: iac
+    level: mid
+    skills: [aws.cloudformation]
+    question: "How do you manage infrastructure as code on AWS safely?"
+    key_points:
+      - "CloudFormation (or CDK, which synthesises it) or Terraform; everything in Git and reviewed"
+      - "Change sets or plans reviewed for replacements; DeletionPolicy/UpdateReplacePolicy Retain on stateful resources"
+      - "Linting and policy checks in CI (cfn-lint, cfn-guard, cdk-nag, Checkov)"
+      - "Stacks split by lifecycle; same templates across environments; drift detection"
+    follow_up: "What happens if you rename a DynamoDB table's logical id in a template?"
+  - id: observability
+    level: mid
+    skills: [aws.cloudwatch]
+    question: "How would you know that a serverless API is unhealthy before customers tell you?"
+    key_points:
+      - "Alarms on symptoms: error rate with metric math, p99 latency, queue age, DLQ depth"
+      - "M of N datapoints and deliberate missing-data handling; SNS to on-call"
+      - "Structured JSON logs with correlation ids and retention; Logs Insights"
+      - "Tracing with X-Ray/OpenTelemetry; CloudTrail for changes"
+    follow_up: "What would your first Logs Insights query be during an incident?"
+  - id: multi-account
+    level: senior
+    skills: [aws.multi-account-iam]
+    question: "How would you structure AWS accounts for a company with 30 teams?"
+    key_points:
+      - "Organizations with OUs by environment and function; management account without workloads; Control Tower landing zone"
+      - "Security and log archive accounts; organization CloudTrail, Config, delegated admin for GuardDuty and Security Hub"
+      - "SCP and RCP guardrails as deny-lists; IAM Identity Center permission sets"
+      - "Account vending with a baseline; network account with Transit Gateway; budgets per account"
+    follow_up: "What can SCPs not protect, and how do you cover that?"
+  - id: delegation
+    level: senior
+    skills: [aws.multi-account-iam, aws.iam-least-privilege]
+    question: "Developers want to create IAM roles for their own Lambda functions. How do you allow it safely?"
+    key_points:
+      - "A permissions boundary capping what any app role can do"
+      - "Allow iam:CreateRole only with iam:PermissionsBoundary equal to that boundary, on a role path"
+      - "Explicit denies on removing or editing the boundary; iam:PassRole limited to the path"
+      - "Access Analyzer and CloudTrail to review what was created"
+    follow_up: "How would ABAC with tags change this design?"
+  - id: dr
+    level: senior
+    skills: [aws.high-availability]
+    question: "Design disaster recovery for a critical service with an RTO of 30 minutes and an RPO of 1 minute."
+    key_points:
+      - "Warm standby or pilot light with continuous replication (Aurora Global Database, DynamoDB global tables, S3 CRR)"
+      - "Infrastructure as code and images replicated so the second region can scale quickly"
+      - "Traffic shift with Route 53 failover or Application Recovery Controller; DNS TTL caveats"
+      - "Regular game days, FIS experiments and timed failovers; backups in another account"
+    follow_up: "What would make you choose active-active instead, and what does it cost you?"
+  - id: data-perimeter
+    level: senior
+    skills: [aws.security-services, aws.multi-account-iam]
+    question: "How do you make sure company data in S3 can never be read from outside the organization?"
+    key_points:
+      - "RCPs or bucket policies denying principals whose aws:PrincipalOrgID is not yours"
+      - "SCPs limiting which resources identities can reach (aws:ResourceOrgID), and VPC endpoint policies"
+      - "Customer managed KMS keys with key policies restricting decrypt"
+      - "Access Analyzer for external access, Macie for sensitive data, CloudTrail data events"
+    follow_up: "How do AWS services acting on your behalf fit into such a perimeter?"
+  - id: cost-reduction
+    level: senior
+    skills: [aws.cost]
+    question: "The AWS bill grew 70 % in six months. How do you investigate and reduce it?"
+    key_points:
+      - "Visibility first: cost allocation tags activated, Cost Explorer and CUR by service, account, tag and usage type"
+      - "Common culprits: data transfer and NAT processing, idle resources, over-sized compute, logs and storage without lifecycle"
+      - "Right-size (Compute Optimizer), Graviton, Spot, then Savings Plans for the baseline"
+      - "Budgets, anomaly detection, showback per team and unit cost metrics"
+    follow_up: "How do you decide the size of a Savings Plan commitment?"
+  - id: well-architected
+    level: senior
+    skills: [aws.well-architected]
+    question: "Name the Well-Architected pillars and describe a trade-off you made between two of them."
+    key_points:
+      - "Operational excellence, security, reliability, performance efficiency, cost optimization, sustainability"
+      - "A concrete trade-off with context, for example provisioned concurrency (performance vs cost) or multi-region (reliability vs cost and complexity)"
+      - "Decisions recorded (ADR) and revisited; risks tracked in an improvement plan"
+      - "Security is not traded away"
+    follow_up: "How would you run a review with a team that has never done one?"
+  - id: incident
+    level: senior
+    skills: [aws.operations]
+    question: "Tell me how you would lead an incident where a deployment broke production on AWS."
+    key_points:
+      - "Declare, assign roles (incident commander, operations, communications), keep a timeline"
+      - "Mitigate first: roll back or shift traffic; automatic alarm-based rollback should already have acted"
+      - "Diagnose with alarms, deployment history, logs, traces, CloudTrail and AWS Health; open a support case if AWS is suspected"
+      - "Blameless post-incident review with owned action items: canaries, alarms, tests, guardrails"
+    follow_up: "Which changes to your deployment process would make this incident smaller next time?"

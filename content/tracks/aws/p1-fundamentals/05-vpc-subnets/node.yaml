@@ -1,0 +1,26 @@
+id: aws.p1.vpc-subnets
+legacy_id: aws-02-vpc-subnets
+kind: lesson
+status: draft
+title: "VPC: Public Subnets, Private Subnets and NAT Gateways"
+summary: "Your own network in AWS: CIDR planning, subnets per AZ, route tables, internet and NAT gateways, security groups versus network ACLs, VPC endpoints, and keeping databases and internal APIs away from the internet."
+objectives:
+  - { id: o1, text: "Plan a VPC CIDR and split it into public and private subnets across AZs", skills: [aws.vpc-subnets] }
+  - { id: o2, text: "Route traffic with route tables, an internet gateway and NAT gateways", skills: [aws.vpc-subnets] }
+  - { id: o3, text: "Filter traffic with security groups (stateful, referencing each other) and network ACLs (stateless)", skills: [aws.vpc-subnets] }
+  - { id: o4, text: "Reach AWS services privately with gateway and interface VPC endpoints, and connect VPCs", skills: [aws.vpc-subnets] }
+prerequisites: [aws.p1.s3]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Design the network for a three-tier app (a public load balancer, API containers, a PostgreSQL database) in one region, for production. Give the VPC CIDR and the subnets (with CIDRs and AZs), the route tables, the security group rules between the tiers, how the API reaches S3 and an external payment API, and what you would change to save money in a development account."
+  criteria:
+    - "Chooses a private CIDR that will not overlap other networks (for example 10.20.0.0/16) and splits it into public, private app and private data subnets in at least two AZs"
+    - "Routes public subnets to an internet gateway and private subnets to a NAT gateway in each AZ (or one NAT for dev); data subnets have no internet route"
+    - "Chains security groups by reference: ALB from 0.0.0.0/0 on 443, API only from the ALB group, database on 5432 only from the API group; no SSH from the internet"
+    - "Uses a gateway endpoint for S3 (and DynamoDB) to keep that traffic off the NAT, and the NAT gateway for the external API"
+    - "Mentions network ACLs as an optional stateless layer, VPC Flow Logs for visibility, and the dev saving of a single NAT gateway or interface endpoints instead"

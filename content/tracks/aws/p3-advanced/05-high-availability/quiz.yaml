@@ -1,0 +1,47 @@
+questions:
+  - id: rpo
+    prompt: "The business accepts losing at most 5 minutes of orders. Which number is that?"
+    answers: ["RPO", "recovery point objective", "the RPO"]
+    explanation: "RPO is how much data, in time, you may lose; RTO is how long you may be down."
+  - id: one-nat
+    prompt: "All private subnets in three AZs route through one NAT gateway in AZ a. What happens when AZ a fails?"
+    options:
+      - "Nothing, NAT gateways are regional"
+      - "Instances in AZs b and c lose outbound internet access: the NAT gateway is a zonal single point of failure"
+      - "Traffic fails over to an internet gateway"
+      - "The VPC is deleted"
+    answer: 1
+    explanation: "Run one NAT gateway per AZ and route each private subnet to its own."
+  - id: alb-nlb
+    prompt: "A game server needs UDP and static IP addresses. Which load balancer?"
+    options: ["Application Load Balancer", "Network Load Balancer", "Classic Load Balancer", "CloudFront"]
+    answer: 1
+    explanation: "NLBs work at layer 4, support UDP and give one static IP per AZ."
+  - id: failover
+    prompt: "Which Route 53 routing policy sends traffic to a secondary region only when the primary's health check fails?"
+    options: ["Weighted", "Latency", "Failover", "Multivalue"]
+    answer: 2
+    explanation: "Failover records pair a primary and a secondary with health checks."
+  - id: pilot-light
+    prompt: "Data is replicated continuously to a second region, but app servers there are off until needed. Which strategy?"
+    options: ["Backup and restore", "Pilot light", "Warm standby", "Multi-site active-active"]
+    answer: 1
+    explanation: "The core (data) is lit; the rest is started or scaled from templates during recovery."
+  - id: static-stability
+    prompt: "What does static stability mean for a multi-AZ service?"
+    options:
+      - "It never changes its configuration"
+      - "With one AZ lost, the remaining capacity keeps serving without needing to launch or change anything"
+      - "It uses only static websites"
+      - "It has no Auto Scaling"
+    answer: 1
+    explanation: "Recovery that depends on control-plane actions during an event is fragile; pre-provision instead."
+  - id: backup-proof
+    prompt: "What proves your backups meet the RTO?"
+    options:
+      - "Having AWS Backup turned on"
+      - "Regular, timed restore tests"
+      - "A green dashboard"
+      - "Vault lock"
+    answer: 1
+    explanation: "Only a restore shows the data is usable and how long recovery really takes."

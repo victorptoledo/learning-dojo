@@ -1,0 +1,25 @@
+id: aws.p2.containers
+kind: lesson
+status: draft
+title: "Containers: ECR, ECS, Fargate and EKS"
+summary: "Running containers on AWS: ECR for images, ECS task definitions, services and deployments, Fargate versus EC2 capacity, task and execution roles, load balancing and service discovery, EKS and how it maps to the Kubernetes track, and App Runner."
+objectives:
+  - { id: o1, text: "Store and scan images in ECR and write an ECS task definition with roles, logs, secrets and health checks", skills: [aws.containers] }
+  - { id: o2, text: "Run an ECS service behind an ALB with rolling or blue/green deployments and auto scaling", skills: [aws.containers] }
+  - { id: o3, text: "Choose Fargate or EC2 capacity, and ECS, EKS, App Runner or Lambda for a workload", skills: [aws.containers] }
+  - { id: o4, text: "Explain what EKS manages and how pods get AWS permissions (Pod Identity or IRSA)", skills: [aws.containers] }
+prerequisites: [aws.p2.sqs-worker]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A team has four containerised services (a web API, two workers reading SQS, and a nightly report job) and runs them with docker compose on one EC2 instance. Propose how to run them on AWS. Choose ECS or EKS and Fargate or EC2 and justify it; describe one task definition (image, CPU and memory, roles, logs, secrets, health check), how the API is exposed and deployed without downtime, how the workers scale, and how the nightly job is triggered."
+  criteria:
+    - "Chooses ECS on Fargate for a small team without Kubernetes needs (or EKS with a reason such as existing Kubernetes skills, portability or the ecosystem), and names the operational trade-off"
+    - "Gives a task definition with an ECR image pinned by tag or digest, CPU and memory, a task role for the app and an execution role for pulling images and secrets, awslogs or FireLens logging and secrets from Secrets Manager or SSM"
+    - "Exposes the API through an ALB target group with health checks, in private subnets, and deploys with rolling updates and the deployment circuit breaker or CodeDeploy blue/green"
+    - "Scales workers with Application Auto Scaling on SQS backlog per task (or the ApproximateNumberOfMessagesVisible metric), possibly on Fargate Spot"
+    - "Runs the nightly job as a scheduled ECS task with EventBridge Scheduler, not an always-on container"

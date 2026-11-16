@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Orders service - HTTP API, Lambda, DynamoDB and an SQS queue with a dead-letter queue
+
+Globals:
+  Function:
+    Runtime: python3.14
+    Architectures: [arm64]
+    CodeUri: src/
+    MemorySize: 256
+    Timeout: 10
+    Tracing: Active
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref OrdersTable
+
+Resources:
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+
+  OrderEventsDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+      SqsManagedSseEnabled: true
+
+  OrderEventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 60
+      SqsManagedSseEnabled: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt OrderEventsDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: api.handler
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref OrderEventsQueue
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref OrdersTable }
+        - SQSSendMessagePolicy: { QueueName: !GetAtt OrderEventsQueue.QueueName }
+      Events:
+        CreateOrder:
+          Type: HttpApi
+          Properties: { Path: /orders, Method: POST }
+        GetOrder:
+          Type: HttpApi
+          Properties: { Path: "/orders/{id}", Method: GET }
+
+  WorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: worker.handler
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref OrdersTable }
+      Events:
+        OrderEvents:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt OrderEventsQueue.Arn
+            BatchSize: 10
+            FunctionResponseTypes: [ReportBatchItemFailures]
+
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${ApiFunction}"
+      RetentionInDays: 30
+  WorkerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${WorkerFunction}"
+      RetentionInDays: 30
+
+Outputs:
+  ApiUrl:
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/"
+  DeadLetterQueueUrl:
+    Value: !Ref OrderEventsDeadLetterQueue

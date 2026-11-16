@@ -109,6 +109,9 @@ pub enum KataLanguage {
     Go,
     /// TypeScript modules type-checked by tsc and tested with node:test in `dojo-node`.
     TypeScript,
+    /// CloudFormation templates, IAM policies, Guard rules and boto3 code checked offline
+    /// by `dojo-aws` with cfn-lint, cfn-guard, an IAM policy evaluator and moto.
+    Aws,
 }
 
 impl Kata {
@@ -122,6 +125,7 @@ impl Kata {
             "dojo-k8s" => KataLanguage::Kubernetes,
             "dojo-go" => KataLanguage::Go,
             "dojo-node" => KataLanguage::TypeScript,
+            "dojo-aws" => KataLanguage::Aws,
             _ => KataLanguage::Rust,
         }
     }
@@ -359,6 +363,7 @@ mod tests {
 
         assert_eq!(kata("dojo-docker").language(), KataLanguage::Docker);
         assert_eq!(kata("dojo-k8s").language(), KataLanguage::Kubernetes);
+        assert_eq!(kata("dojo-aws").language(), KataLanguage::Aws);
         assert_eq!(kata("dojo-linux").language(), KataLanguage::Bash);
         assert_eq!(kata("dojo-rust").language(), KataLanguage::Rust);
     }

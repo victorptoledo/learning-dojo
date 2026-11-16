@@ -1,0 +1,59 @@
+questions:
+  - id: what-makes-public
+    prompt: "What makes a subnet public?"
+    options:
+      - "Its name contains 'public'"
+      - "Its route table sends 0.0.0.0/0 to an internet gateway"
+      - "It has a NAT gateway route"
+      - "It is in the first AZ"
+    answer: 1
+    explanation: "Public and private are only about routing; instances also need a public IP to be reachable."
+  - id: nat-direction
+    prompt: "What does a NAT gateway allow for a private subnet?"
+    options:
+      - "Inbound connections from the internet"
+      - "Outbound connections started from inside; nothing can connect in"
+      - "Traffic to other VPCs only"
+      - "Nothing, it is a firewall"
+    answer: 1
+    explanation: "Private instances can fetch updates or call APIs; the internet cannot start a connection to them."
+  - id: stateful
+    prompt: "A security group allows inbound 443. Do you need an outbound rule for the replies?"
+    options:
+      - "Yes, for ports 1024–65535"
+      - "No: security groups are stateful, replies are allowed automatically"
+      - "Only for IPv6"
+      - "Only if a NACL exists"
+    answer: 1
+    explanation: "Network ACLs are stateless and need return-traffic rules; security groups track connections."
+  - id: sg-reference
+    prompt: "What is the best source for the database security group's 5432 rule?"
+    options:
+      - "0.0.0.0/0"
+      - "The VPC CIDR"
+      - "The API tier's security group"
+      - "The public subnets' CIDRs"
+    answer: 2
+    explanation: "Referencing a group allows exactly the members of that group, however many there are and whatever their IPs."
+  - id: usable
+    prompt: "How many IP addresses does AWS reserve in every subnet?"
+    answers: ["5", "five"]
+    explanation: "The network address, the VPC router, DNS, one for future use and the broadcast address: a /24 has 251 usable."
+  - id: s3-endpoint
+    prompt: "Private instances download a lot from S3 through a NAT gateway. What cuts the cost?"
+    options:
+      - "A second NAT gateway"
+      - "A gateway VPC endpoint for S3 in the private route tables"
+      - "Moving the instances to public subnets"
+      - "An internet gateway in the private subnet"
+    answer: 1
+    explanation: "Gateway endpoints for S3 and DynamoDB are free and keep the traffic off the NAT gateway's per-GB charge."
+  - id: peering
+    prompt: "VPC A peers with B, and B peers with C. Can A reach C through B?"
+    options:
+      - "Yes, peering is transitive"
+      - "No, peering is not transitive; use a direct peering or a Transit Gateway"
+      - "Only over IPv6"
+      - "Only if the CIDRs overlap"
+    answer: 1
+    explanation: "Each pair needs its own peering connection; Transit Gateway gives hub-and-spoke routing."

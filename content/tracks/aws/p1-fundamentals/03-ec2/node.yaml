@@ -1,0 +1,25 @@
+id: aws.p1.ec2
+kind: lesson
+status: draft
+title: "EC2: Instances, AMIs, EBS and Auto Scaling"
+summary: "Virtual machines on AWS: instance families and sizes, AMIs and user data, EBS volumes and snapshots, instance profiles, the metadata service (IMDSv2), purchase options, and Auto Scaling groups with launch templates."
+objectives:
+  - { id: o1, text: "Pick an instance family, size and architecture (Graviton or x86) for a workload", skills: [aws.ec2] }
+  - { id: o2, text: "Launch from an AMI with user data and an instance profile, and require IMDSv2", skills: [aws.ec2] }
+  - { id: o3, text: "Choose EBS volume types, snapshots and instance store, and know what survives a stop", skills: [aws.ec2] }
+  - { id: o4, text: "Run a fleet with a launch template and an Auto Scaling group across AZs", skills: [aws.ec2] }
+prerequisites: [aws.p1.least-privilege-policy]
+difficulty: 2
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A Java API runs on one hand-built m5.xlarge instance in one AZ, with its uploads on the instance's own disk and an access key in a properties file. It fell over twice last month. Propose how to run it on EC2 properly: instance type and purchase option, how instances are built and started, where the uploads go, how the app gets AWS credentials, and how the fleet survives an instance or AZ failure."
+  criteria:
+    - "Builds instances from an AMI (baked with a pipeline or a standard AMI plus user data) through a launch template, instead of a hand-built server"
+    - "Runs an Auto Scaling group across at least two AZs behind a load balancer, with health checks that replace failed instances, and scaling on a metric such as CPU or request count"
+    - "Moves uploads off the instance (S3 for objects, or EFS for a shared file system), noting that instance store is lost on stop and EBS is tied to one AZ"
+    - "Replaces the access key with an instance profile (an IAM role) read by the SDK, and requires IMDSv2 for the metadata service"
+    - "Justifies the instance choice (for example a Graviton m7g or m8g size from CloudWatch metrics) and the purchase option: On-Demand or Savings Plans for the baseline, Spot only for interruptible extra capacity"

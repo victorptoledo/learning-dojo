@@ -1,0 +1,259 @@
+# Placement test of the AWS track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with AWS?
+  options:
+    - { label: "Never used it, or only clicked around the console", start_phase: p0, test: false }
+    - { label: "I deploy to EC2, S3 or RDS and write IAM policies now and then", start_phase: p1, test: true }
+    - { label: "I build with Lambda, DynamoDB, ECS and CloudFormation or the CDK", start_phase: p2, test: true }
+    - { label: "I run multi-account AWS in production: guardrails, security tooling, DR and cost", start_phase: p3, test: true }
+phases:
+  p1: { items_per_phase: 7, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-object-arn
+    phase: p1
+    skills: [aws.iam-least-privilege]
+    difficulty: 2
+    prompt: "A policy must let a role read every object in the bucket `media`. Which Resource is right for s3:GetObject?"
+    options: ["arn:aws:s3:::media", "arn:aws:s3:::media/*", "arn:aws:s3:eu-west-1:111122223333:media", "*"]
+    answer: 1
+    explanation: "Object actions act on bucket/key ARNs; the bucket ARN alone is for bucket actions such as ListBucket."
+  - id: p1-same-account
+    phase: p1
+    skills: [aws.iam-least-privilege]
+    difficulty: 3
+    prompt: "In one account, a bucket policy allows role R to GetObject; R's identity policies say nothing about S3. Can R read?"
+    options: ["No, identity policies must allow it", "Yes: within one account an allow in either the identity or the resource policy is enough", "Only with an SCP", "Only from the console"]
+    answer: 1
+    explanation: "Same-account access needs an allow in one of them and no explicit deny; cross-account needs both."
+  - id: p1-stop-start
+    phase: p1
+    skills: [aws.ec2]
+    difficulty: 2
+    prompt: "You stop and start an EC2 instance without an Elastic IP. What changes?"
+    options: ["Nothing", "Its public IPv4 address (and usually the host); EBS data stays", "Its EBS volumes are wiped", "Its instance id"]
+    answer: 1
+    explanation: "Stop/start moves the instance to new hardware and releases the auto-assigned public IP; EBS persists."
+  - id: p1-burstable
+    phase: p1
+    skills: [aws.ec2]
+    difficulty: 3
+    prompt: "A t3.medium API runs at 60 % CPU all day and gets slow every afternoon. Why?"
+    options: ["The AMI is old", "It runs out of CPU credits: burstable instances suit mostly idle work", "EBS is full", "The security group throttles it"]
+    answer: 1
+    explanation: "Sustained load above the baseline drains credits; use an m-family instance or unlimited mode."
+  - id: p1-s3-ia
+    phase: p1
+    skills: [aws.s3]
+    difficulty: 3
+    prompt: "Moving millions of 2 KB objects to Standard-IA made the bill go up. Why?"
+    options: ["IA is more expensive per GB", "IA bills a 128 KB minimum per object, a 30-day minimum and retrieval fees", "Lifecycle rules cost money per rule", "IA stores three copies"]
+    answer: 1
+    explanation: "Small objects and frequent reads suit Standard or Intelligent-Tiering, not IA."
+  - id: p1-nacl
+    phase: p1
+    skills: [aws.vpc-subnets]
+    difficulty: 3
+    prompt: "A network ACL allows inbound 443 but nothing outbound. HTTPS requests to the instance time out. Why?"
+    options: ["The security group is wrong", "NACLs are stateless: the replies on ephemeral ports need an outbound rule", "443 needs IPv6", "NACLs only apply to NAT gateways"]
+    answer: 1
+    explanation: "Unlike security groups, NACLs do not track connections."
+  - id: p1-cidr
+    phase: p1
+    skills: [aws.vpc-subnets]
+    difficulty: 2
+    prompt: "Why must a new VPC's CIDR not overlap the office network or other VPCs?"
+    options: ["AWS forbids duplicates globally", "Overlapping ranges cannot be routed to each other over peering, Transit Gateway or VPN", "It costs more", "DNS stops working"]
+    answer: 1
+    explanation: "Plan addresses up front; re-addressing a VPC later is painful."
+  - id: p1-cfn-rollback
+    phase: p1
+    skills: [aws.cloudformation]
+    difficulty: 2
+    prompt: "A stack update fails halfway. What does CloudFormation do by default?"
+    options: ["Leaves the half-updated state", "Rolls back to the last working state", "Deletes the stack", "Retries forever"]
+    answer: 1
+    explanation: "Updates are transactional at the stack level; read the events to find the failing resource."
+  - id: p1-import
+    phase: p1
+    skills: [aws.cloudformation]
+    difficulty: 3
+    prompt: "Which intrinsic function reads a value another stack exports?"
+    options: ["!Ref", "!GetAtt", "!ImportValue", "!FindInMap"]
+    answer: 2
+    explanation: "An exported output cannot be changed or deleted while another stack imports it."
+
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-aurora-failover
+    phase: p2
+    skills: [aws.databases]
+    difficulty: 3
+    prompt: "Why does Aurora usually fail over faster than RDS Multi-AZ with one standby?"
+    options: ["It has no storage", "Replicas share the cluster's replicated storage, so a replica is promoted without copying data", "It runs in one AZ", "It disables backups"]
+    answer: 1
+    explanation: "Aurora storage is replicated six ways across three AZs; promotion is a role change."
+  - id: p2-gsi-consistency
+    phase: p2
+    skills: [aws.databases]
+    difficulty: 4
+    prompt: "Right after writing an item, a Query on a GSI does not return it. Why?"
+    options: ["The write failed", "GSIs are updated asynchronously: their reads are eventually consistent", "GSIs need a Scan", "The item is too large"]
+    answer: 1
+    explanation: "Strongly consistent reads are only available on the base table and LSIs."
+  - id: p2-batch-failure
+    phase: p2
+    skills: [aws.lambda-serverless]
+    difficulty: 3
+    prompt: "An SQS-triggered function raises an exception on the 7th message of a batch of 10. Without partial batch responses, what is retried?"
+    options: ["Only message 7", "All 10 messages", "Messages 7 to 10", "Nothing"]
+    answer: 1
+    explanation: "The batch fails as a whole; ReportBatchItemFailures lets you return only the failed ids."
+  - id: p2-eventbridge
+    phase: p2
+    skills: [aws.lambda-serverless]
+    difficulty: 3
+    prompt: "Which service routes events to targets by matching patterns on their content, with archive and replay?"
+    options: ["SQS", "SNS", "EventBridge", "Kinesis Data Firehose"]
+    answer: 2
+    explanation: "EventBridge rules match fields in the event; SNS filter policies are simpler and have no replay."
+  - id: p2-fargate-ip
+    phase: p2
+    skills: [aws.containers]
+    difficulty: 3
+    prompt: "An ECS service on Fargate cannot scale past 200 tasks: tasks fail with 'no free IP addresses'. Why?"
+    options: ["Fargate's limit is 200", "Each task's ENI takes an IP from the subnet, and the subnets are too small", "The ALB is full", "The task role is missing"]
+    answer: 1
+    explanation: "awsvpc networking gives every task an IP; size app subnets for the peak."
+  - id: p2-irsa
+    phase: p2
+    skills: [aws.containers]
+    difficulty: 4
+    prompt: "On EKS, why is giving the node role S3 access a bad way to let one pod read a bucket?"
+    options: ["It does not work", "Every pod on those nodes would get the access; use Pod Identity or IRSA for a per-pod role", "Node roles cannot use S3", "It is slower"]
+    answer: 1
+    explanation: "Least privilege needs credentials per workload, not per node."
+  - id: p2-emf
+    phase: p2
+    skills: [aws.cloudwatch]
+    difficulty: 3
+    prompt: "What is the cheapest way for a Lambda function to publish a custom metric on every invocation?"
+    options: ["PutMetricData in every invocation", "The embedded metric format: a JSON log line CloudWatch turns into a metric", "An SNS message", "A DynamoDB counter"]
+    answer: 1
+    explanation: "EMF costs no extra API calls and keeps the metric's context in the log."
+  - id: p2-alarm-quiet
+    phase: p2
+    skills: [aws.cloudwatch]
+    difficulty: 4
+    prompt: "An alarm on a worker's Errors never fires, even though the worker stopped running an hour ago. Why?"
+    options: ["Alarms only check once a day", "No invocations means no datapoints; with missing data treated as not breaching, silence looks healthy", "Errors is not a real metric", "SNS is down"]
+    answer: 1
+    explanation: "Alarm on Invocations or the queue's age too, so stopping is noticed."
+
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-scp-root
+    phase: p3
+    skills: [aws.multi-account-iam]
+    difficulty: 3
+    prompt: "Does an SCP that denies s3:DeleteBucket stop the root user of a member account?"
+    options: ["No, root bypasses everything", "Yes: SCPs apply to every principal in member accounts, root included", "Only with MFA", "Only for buckets with tags"]
+    answer: 1
+    explanation: "SCPs do not apply to the management account, but they do restrict member-account root users."
+  - id: p3-external-id
+    phase: p3
+    skills: [aws.multi-account-iam]
+    difficulty: 4
+    prompt: "A SaaS vendor assumes a role in your account. Why add an sts:ExternalId condition to the trust policy?"
+    options: ["It encrypts the session", "It stops the confused deputy: another customer cannot make the vendor use your role", "It is required for all roles", "It lengthens the session"]
+    answer: 1
+    explanation: "The vendor passes your unique external id; a role ARN alone could be supplied by anyone."
+  - id: p3-kms-cross-account
+    phase: p3
+    skills: [aws.security-services]
+    difficulty: 4
+    prompt: "Another account can read your bucket's objects but gets AccessDenied on objects encrypted with your customer managed key. What is missing?"
+    options: ["Block Public Access", "The key policy (and their identity policy) allowing kms:Decrypt for that account", "A bigger bucket policy", "Versioning"]
+    answer: 1
+    explanation: "SSE-KMS objects need both S3 and KMS permissions; AWS managed keys cannot be shared at all."
+  - id: p3-guardduty-source
+    phase: p3
+    skills: [aws.security-services]
+    difficulty: 3
+    prompt: "Which data does GuardDuty analyse without you installing anything?"
+    options: ["Your application logs", "CloudTrail events, VPC Flow Logs and DNS query logs", "Database rows", "Git history"]
+    answer: 1
+    explanation: "Foundational data sources need no agents; runtime monitoring adds an agent for deeper visibility."
+  - id: p3-rto-strategy
+    phase: p3
+    skills: [aws.high-availability]
+    difficulty: 3
+    prompt: "RTO 12 hours, RPO 24 hours, tight budget. Which DR strategy fits?"
+    options: ["Multi-site active-active", "Warm standby", "Backup and restore", "Pilot light with Aurora Global Database"]
+    answer: 2
+    explanation: "Relaxed objectives allow the cheapest strategy, as long as restores are tested."
+  - id: p3-dns-ttl
+    phase: p3
+    skills: [aws.high-availability]
+    difficulty: 4
+    prompt: "Route 53 failover switched records, but some clients keep hitting the failed region for an hour. Why?"
+    options: ["Route 53 is slow", "Clients and resolvers cache the old answer for its TTL (and some ignore it); keep TTLs short or use Global Accelerator", "Health checks are global", "Failover records do not work"]
+    answer: 1
+    explanation: "DNS failover is only as fast as caches allow; anycast IPs avoid the problem."
+  - id: p3-cross-az-cost
+    phase: p3
+    skills: [aws.cost]
+    difficulty: 3
+    prompt: "A chatty service sends 200 TB a month between two AZs. What does it cost compared with the same traffic inside one AZ?"
+    options: ["The same, it is free", "More: cross-AZ traffic is billed per GB in each direction", "Less", "Only the NAT gateway charges"]
+    answer: 1
+    explanation: "Keep chatty traffic zonal where availability allows, or reduce it."
+  - id: p3-spot-mix
+    phase: p3
+    skills: [aws.cost]
+    difficulty: 4
+    prompt: "How do you use Spot safely for a stateless web tier?"
+    options: ["All instances on Spot, one instance type", "A mixed-instances ASG: an On-Demand base plus Spot across many types and AZs, with capacity rebalancing", "Spot only at night", "Spot with instance store for data"]
+    answer: 1
+    explanation: "Diversifying types and AZs lowers interruption risk; the On-Demand base keeps minimum capacity."
+
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-pillar-tradeoff
+    phase: p4
+    skills: [aws.well-architected]
+    difficulty: 3
+    prompt: "Moving from one region to active-active in two regions mostly trades which pillars?"
+    options: ["Security for sustainability", "More reliability for higher cost and operational complexity", "Performance for security", "Nothing, it is free"]
+    answer: 1
+    explanation: "Write the trade-off down; most workloads need multi-AZ, fewer need multi-region."
+  - id: p4-review-output
+    phase: p4
+    skills: [aws.well-architected]
+    difficulty: 3
+    prompt: "What should a Well-Architected review produce?"
+    options: ["A certificate", "A list of high and medium risks and a prioritised improvement plan with owners", "A new architecture diagram only", "A support case"]
+    answer: 1
+    explanation: "Value comes from fixing the risks, measured at the next milestone."
+  - id: p4-canary-alarms
+    phase: p4
+    skills: [aws.operations]
+    difficulty: 4
+    prompt: "A Lambda canary deployment shifts 10 % of traffic, error rate doubles, and nothing happens. What is missing?"
+    options: ["A bigger canary", "Alarms attached to the deployment so CodeDeploy rolls back automatically", "Provisioned concurrency", "A second region"]
+    answer: 1
+    explanation: "Progressive delivery without alarms just hurts users more slowly."
+  - id: p4-cells
+    phase: p4
+    skills: [aws.operations]
+    difficulty: 5
+    prompt: "What does a cell-based architecture limit?"
+    options: ["Cost", "The blast radius: a bad deployment or a poison request affects only one cell's share of customers", "The number of AZs", "Latency"]
+    answer: 1
+    explanation: "Independent cells with a thin routing layer contain failures and let you deploy cell by cell."

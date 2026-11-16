@@ -1,0 +1,47 @@
+id: aws.p1.least-privilege-policy
+kind: kata
+status: draft
+title: "Least Privilege: Tighten a Role's Policies"
+summary: "Replace a wildcard policy and an open trust policy with exact actions, exact ARNs, a TLS guard and a trust policy only ECS tasks of one account can use, checked against a matrix of allowed and denied requests."
+objectives:
+  - { id: o1, text: "Write an identity policy with exact actions and resource ARNs for S3, DynamoDB and SQS", skills: [aws.iam-least-privilege] }
+  - { id: o2, text: "Use conditions: an s3:prefix on ListBucket and an explicit deny without TLS", skills: [aws.iam-least-privilege] }
+  - { id: o3, text: "Write a trust policy for a service principal, protected against the confused deputy", skills: [aws.iam-least-privilege] }
+prerequisites: [aws.p1.iam-least-privilege]
+difficulty: 2
+estimated_minutes: 40
+xp: 200
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-aws, timeout_secs: 90 }
+  hints:
+    - |-
+      Go down the README table one line at a time. For each line, ask: which exact API action is it, and which ARN does that action act on? S3 object actions act on `bucket/key` ARNs; `s3:ListBucket` acts on the bucket ARN itself. A DynamoDB `Query` on an index acts on the index ARN.
+    - |-
+      Use one statement per resource family. Limit `ListBucket` with `"Condition": { "StringLike": { "s3:prefix": ["invoices/*"] } }`. The TLS guard is a separate `Deny` statement with `"Bool": { "aws:SecureTransport": "false" }`. In the trust policy, the principal is `{ "Service": "ecs-tasks.amazonaws.com" }`, and the conditions `aws:SourceAccount` and `aws:SourceArn` say for whom ECS may assume it.
+    - |-
+      ```json
+      { "Sid": "InvoiceTable", "Effect": "Allow",
+        "Action": ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:Query"],
+        "Resource": ["arn:aws:dynamodb:eu-west-1:111122223333:table/Invoices",
+                     "arn:aws:dynamodb:eu-west-1:111122223333:table/Invoices/index/*"] }
+      ```
+      ```json
+      "Condition": {
+        "StringEquals": { "aws:SourceAccount": "111122223333" },
+        "ArnLike": { "aws:SourceArn": "arn:aws:ecs:eu-west-1:111122223333:*" }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your policies are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-aws runner image
+    image: dojo-aws
+    why: The container with cfn-lint, cfn-guard, the dojo's IAM policy evaluator, boto3 and moto that checks your AWS work offline.

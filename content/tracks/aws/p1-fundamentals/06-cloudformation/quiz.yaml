@@ -1,0 +1,59 @@
+questions:
+  - id: ref-vs-getatt
+    prompt: "For an AWS::S3::Bucket, what do !Ref Bucket and !GetAtt Bucket.Arn return?"
+    options:
+      - "Both return the ARN"
+      - "!Ref returns the bucket name, !GetAtt Bucket.Arn its ARN"
+      - "!Ref returns the logical id"
+      - "!GetAtt returns the region"
+    answer: 1
+    explanation: "Each resource type documents what Ref returns and which attributes GetAtt offers."
+  - id: replacement
+    prompt: "A change set shows Replacement: True for your RDS instance. What does that mean?"
+    options:
+      - "Only a tag changes"
+      - "CloudFormation will create a new database and delete the old one, unless you protect it or change the plan"
+      - "The instance is rebooted"
+      - "The change set failed"
+    answer: 1
+    explanation: "Some properties cannot be updated in place; read the Replacement column before executing."
+  - id: retain
+    prompt: "Which two attributes keep a stateful resource when it is deleted or replaced?"
+    options:
+      - "DependsOn and Condition"
+      - "DeletionPolicy and UpdateReplacePolicy"
+      - "Metadata and CreationPolicy"
+      - "Export and ImportValue"
+    answer: 1
+    explanation: "Set them to Retain (or Snapshot for databases and volumes) on everything that holds data."
+  - id: sub
+    prompt: "Which intrinsic function builds a string such as arn:aws:s3:::${BucketName}/*?"
+    answers: ["!Sub", "Fn::Sub", "sub", "Sub"]
+    explanation: "!Sub replaces ${Name} with parameters, resources' Ref values, attributes and pseudo parameters."
+  - id: secrets
+    prompt: "How should a template pass a database password to a resource?"
+    options:
+      - "As a parameter Default"
+      - "In plain text in Properties"
+      - "With a dynamic reference to Secrets Manager, or ManageMasterUserPassword so RDS creates the secret"
+      - "In the stack description"
+    answer: 2
+    explanation: "Dynamic references are resolved at deploy time, so the secret never lives in the template or the console."
+  - id: cdk
+    prompt: "What does `cdk synth` produce?"
+    options:
+      - "Terraform state"
+      - "A CloudFormation template (and assets) from your CDK code"
+      - "A running stack"
+      - "A Docker image"
+    answer: 1
+    explanation: "The CDK is a generator: CloudFormation still creates and updates the resources."
+  - id: drift
+    prompt: "Someone changed a security group in the console. Which CloudFormation feature finds it?"
+    options:
+      - "Change sets"
+      - "Drift detection"
+      - "StackSets"
+      - "Outputs"
+    answer: 1
+    explanation: "Drift detection compares the live resources with the template's expected configuration."

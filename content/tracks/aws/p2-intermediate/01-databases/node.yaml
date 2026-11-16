@@ -1,0 +1,25 @@
+id: aws.p2.databases
+kind: lesson
+status: draft
+title: "Databases: RDS, Aurora and DynamoDB"
+summary: "Managed relational databases (RDS and Aurora: Multi-AZ, read replicas, backups, proxies) and DynamoDB (keys from access patterns, single-table design, GSIs, capacity modes, conditional writes, transactions, streams and TTL), and how to choose between them."
+objectives:
+  - { id: o1, text: "Run RDS or Aurora safely: Multi-AZ, read replicas, backups and point-in-time recovery, RDS Proxy, IAM authentication and secrets", skills: [aws.databases] }
+  - { id: o2, text: "Design DynamoDB keys and secondary indexes from access patterns", skills: [aws.databases] }
+  - { id: o3, text: "Use conditional writes, transactions, streams and TTL, and choose a capacity mode", skills: [aws.databases] }
+  - { id: o4, text: "Choose between a relational database, DynamoDB, ElastiCache and others for a workload", skills: [aws.databases] }
+prerequisites: [aws.p1.checkpoint]
+difficulty: 3
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A ticketing service sells seats for concerts. It needs: look up an event and its remaining seats, list a customer's tickets newest first, never sell the same seat twice, show sales per event to the organiser, and survive an AZ failure. Pick a database (RDS/Aurora PostgreSQL or DynamoDB, or both) and justify it. If you pick DynamoDB, give the key design and indexes for each access pattern; if relational, give the main tables, the constraint that prevents double selling and the HA setup."
+  criteria:
+    - "Lists the access patterns first and chooses the store from them, naming the trade-offs (flexible queries and joins versus predictable scale and latency)"
+    - "Prevents double selling with a unique constraint or SELECT ... FOR UPDATE in SQL, or a conditional write (attribute_not_exists) or transaction in DynamoDB"
+    - "For DynamoDB, gives partition and sort keys (for example pk EVENT#id / sk SEAT#n, pk CUSTOMER#id / sk TICKET#time) and a GSI for any pattern the base table cannot answer; avoids scans"
+    - "Covers availability: Multi-AZ RDS or Aurora replicas across AZs, or DynamoDB's built-in replication across three AZs, plus backups or point-in-time recovery"
+    - "Handles the organiser's reporting with read replicas, DynamoDB Streams into an aggregate, or an export to S3 and Athena rather than heavy queries on the primary"

@@ -1,0 +1,62 @@
+id: aws.p4.observable-stack
+kind: kata
+status: draft
+title: "An Observable, Cost-Aware Stack"
+summary: "Take a running queue worker and make it operable: cost allocation tags, log retention and an error-log metric, an encrypted on-call topic with a least-privilege topic policy, alarms on symptoms with metric math and percentiles, and a tag-filtered budget."
+objectives:
+  - { id: o1, text: "Alarm on user-facing symptoms: an error rate with metric math, p99 latency, queue age and dead letters, with deliberate missing-data handling", skills: [aws.cloudwatch, aws.operations] }
+  - { id: o2, text: "Turn structured logs into a metric with a metric filter, and keep logs for a bounded time", skills: [aws.cloudwatch] }
+  - { id: o3, text: "Make cost visible: allocation tags on every resource and a budget with actual and forecast alerts", skills: [aws.cost, aws.well-architected] }
+prerequisites: [aws.p4.well-architected]
+difficulty: 4
+estimated_minutes: 75
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-aws, timeout_secs: 120 }
+  hints:
+    - |-
+      Work from the README table top to bottom; each row is one resource. For every alarm, decide four things: which metric (namespace, name, dimension), which statistic, what threshold for how many datapoints, and what happens when there is no data at all.
+    - |-
+      Metric math alarms use `Metrics` (a list with one returned `Expression` and the `MetricStat` inputs with `ReturnData: false`) instead of `MetricName`. Percentiles use `ExtendedStatistic: p99` instead of `Statistic`. SQS alarms use the dimension `QueueName` with `!GetAtt Queue.QueueName`. A JSON metric filter pattern looks like `{ $.level = "ERROR" }`. A budget filters on a cost allocation tag with `CostFilters: { TagKeyValue: ["user:service$orders"] }`.
+    - |-
+      ```yaml
+        OnCallTopicPolicy:
+          Type: AWS::SNS::TopicPolicy
+          Properties:
+            Topics: [!Ref OnCallTopic]
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Principal: { Service: budgets.amazonaws.com }
+                  Action: sns:Publish
+                  Resource: !Ref OnCallTopic
+                  Condition:
+                    StringEquals: { "aws:SourceAccount": !Ref AWS::AccountId }
+        ErrorRateAlarm:
+          Type: AWS::CloudWatch::Alarm
+          Properties:
+            Metrics:
+              - { Id: rate, Expression: "100 * errors / MAX([errors, invocations])" }
+              - Id: errors
+                ReturnData: false
+                MetricStat:
+                  Metric: { Namespace: AWS/Lambda, MetricName: Errors, Dimensions: [...] }
+                  Period: 60
+                  Stat: Sum
+              # ... invocations, then threshold, periods, actions
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your template is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-aws runner image
+    image: dojo-aws
+    why: The container with cfn-lint, cfn-guard, the dojo's IAM policy evaluator, boto3 and moto that checks your AWS work offline.

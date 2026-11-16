@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Reports bucket for the dojo  # todo: keep or improve the description
+
+Resources:
+  ReportsBucket:
+    Type: AWS::S3::Bucket
+    # todo: keep the bucket (and its data) when the stack is deleted or the bucket replaced
+    Properties:
+      # todo: turn on versioning
+      # todo: default encryption with SSE-S3 (AES256)
+      # todo: block every kind of public access (four settings)
+      Tags:
+        - Key: project
+          Value: todo
+
+# todo: an Outputs section with BucketName (the bucket's name) and BucketArn (its ARN)

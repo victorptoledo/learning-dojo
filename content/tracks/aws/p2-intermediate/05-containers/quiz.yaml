@@ -1,0 +1,59 @@
+questions:
+  - id: two-roles
+    prompt: "An ECS task cannot pull its image from ECR. Which role is missing a permission?"
+    options:
+      - "The task role"
+      - "The task execution role"
+      - "The ALB's role"
+      - "The root user"
+    answer: 1
+    explanation: "The ECS agent uses the execution role for image pulls, logs and secrets; the task role is the app's identity."
+  - id: awsvpc
+    prompt: "With awsvpc networking, what does each ECS task get?"
+    options:
+      - "The host's IP and a port range"
+      - "Its own ENI with a private IP and its own security groups"
+      - "A public IP always"
+      - "No network"
+    answer: 1
+    explanation: "Each task is a first-class VPC citizen, filtered by its own security groups."
+  - id: circuit-breaker
+    prompt: "A new task definition revision crashes on start. What rolls the ECS service back automatically?"
+    answers: ["deployment circuit breaker", "the deployment circuit breaker", "circuit breaker"]
+    explanation: "With rollback on, the circuit breaker returns the service to the last revision that reached steady state."
+  - id: fargate
+    prompt: "When does EC2 capacity beat Fargate for ECS?"
+    options:
+      - "For a small API with variable traffic"
+      - "For GPU workloads or very large steady fleets where packing and instance discounts pay off"
+      - "Always, Fargate is deprecated"
+      - "When you do not want to patch hosts"
+    answer: 1
+    explanation: "Fargate removes host management; EC2 gives control and price at scale."
+  - id: pod-identity
+    prompt: "How should a pod on EKS get permissions to read one S3 bucket?"
+    options:
+      - "Through the node's instance role"
+      - "With EKS Pod Identity (or IRSA): its ServiceAccount is mapped to a dedicated IAM role"
+      - "With access keys in a Kubernetes Secret"
+      - "By running as root"
+    answer: 1
+    explanation: "Per-pod roles keep least privilege; the node role would give every pod the same rights."
+  - id: worker-scaling
+    prompt: "Which metric scales an ECS service of SQS workers best?"
+    options:
+      - "ALB requests per target"
+      - "Queue backlog per task (visible messages divided by running tasks)"
+      - "Disk usage"
+      - "The number of task definitions"
+    answer: 1
+    explanation: "Backlog per task tracks how much work each worker has; CPU may stay low while the queue grows."
+  - id: scheduled-task
+    prompt: "How do you run a container once a night without leaving it running?"
+    options:
+      - "A service with desired count 1 and a sleep loop"
+      - "An ECS task run by EventBridge Scheduler"
+      - "A Lambda function that waits 24 hours"
+      - "A CloudFront behaviour"
+    answer: 1
+    explanation: "Scheduled tasks start on a cron or rate expression and stop when the container exits."

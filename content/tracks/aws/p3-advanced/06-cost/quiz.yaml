@@ -1,0 +1,59 @@
+questions:
+  - id: transfer
+    prompt: "Which traffic is usually free?"
+    options:
+      - "Data out to the internet"
+      - "Data into AWS from the internet"
+      - "Traffic between AZs"
+      - "Traffic through a NAT gateway"
+    answer: 1
+    explanation: "Inbound transfer is free; outbound, inter-region, cross-AZ and NAT processing are charged."
+  - id: savings-plans
+    prompt: "Which commitment covers EC2 of any family and region, Fargate and Lambda?"
+    answers: ["Compute Savings Plans", "compute savings plan", "a compute savings plan", "Compute Savings Plan"]
+    explanation: "EC2 Instance Savings Plans are tied to a family and region; Compute Savings Plans are flexible."
+  - id: commit-when
+    prompt: "When should you buy a 3-year Savings Plan?"
+    options:
+      - "Before migrating, sized for the peak"
+      - "After right-sizing, for the steady baseline you will run anyway"
+      - "Never"
+      - "Only for Spot instances"
+    answer: 1
+    explanation: "Committing to waste locks it in; right-size first, then cover the baseline."
+  - id: tags
+    prompt: "You tagged every resource with team, but Cost Explorer cannot group by it. What is missing?"
+    options:
+      - "Nothing, tags take a year to appear"
+      - "Activating the tag as a cost allocation tag in the billing console"
+      - "A Savings Plan"
+      - "A new account"
+    answer: 1
+    explanation: "Only activated cost allocation tags appear in billing data, and only from activation onwards."
+  - id: nat-cost
+    prompt: "Private instances copy 50 TB a month from S3 through a NAT gateway. What saves the most?"
+    options:
+      - "A bigger NAT gateway"
+      - "A gateway VPC endpoint for S3"
+      - "Moving to Glacier"
+      - "A second NAT gateway"
+    answer: 1
+    explanation: "Gateway endpoints are free and remove the per-GB NAT processing charge."
+  - id: spot-fit
+    prompt: "Which workload should NOT run on Spot alone?"
+    options:
+      - "A CI build fleet"
+      - "Image rendering jobs with retries"
+      - "The only instance of a stateful primary database"
+      - "Stateless SQS workers"
+    answer: 2
+    explanation: "Spot can be reclaimed with two minutes' notice; keep single stateful components on On-Demand."
+  - id: unit-cost
+    prompt: "The bill grew 40 % while orders doubled. What does that tell you?"
+    options:
+      - "Costs are out of control"
+      - "Cost per order fell: unit cost is the number to track"
+      - "Nothing useful"
+      - "A Savings Plan expired"
+    answer: 1
+    explanation: "Unit cost relates spend to business value; total spend alone can mislead."

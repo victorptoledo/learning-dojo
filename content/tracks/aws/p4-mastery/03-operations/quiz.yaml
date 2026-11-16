@@ -1,0 +1,51 @@
+questions:
+  - id: mitigate-first
+    prompt: "Errors spike five minutes after a deployment. What comes first?"
+    options:
+      - "Find the root cause in the code"
+      - "Mitigate: roll back the deployment, then diagnose"
+      - "Write the post-incident review"
+      - "Wait for the next deployment"
+    answer: 1
+    explanation: "Restore service first; the change is the prime suspect and rolling back is usually fastest."
+  - id: canary
+    prompt: "Which deployment sends 10 % of traffic to the new Lambda version for 5 minutes, then the rest?"
+    options: ["All at once", "Canary10Percent5Minutes", "Linear10PercentEvery1Minute", "Blue/green with DNS"]
+    answer: 1
+    explanation: "CodeDeploy canary configurations shift a slice first and roll back on alarms."
+  - id: auto-rollback
+    prompt: "What should roll back a bad deployment without a human?"
+    answers: ["alarms", "cloudwatch alarms", "an alarm", "deployment alarms"]
+    explanation: "Attach error-rate and latency alarms to the deployment (CodeDeploy, ECS, CloudFormation rollback triggers)."
+  - id: quotas
+    prompt: "A launch will need 5,000 concurrent Lambda executions. When do you ask for the quota increase?"
+    options:
+      - "During the launch, when throttling starts"
+      - "Weeks before, after checking usage against Service Quotas"
+      - "Never, Lambda has no limits"
+      - "After the post-incident review"
+    answer: 1
+    explanation: "Quotas protect AWS and you; raising them takes time and should be part of launch readiness."
+  - id: blameless
+    prompt: "What makes a post-incident review useful?"
+    options:
+      - "Finding the person who made the mistake"
+      - "A blameless account of impact, timeline and contributing factors, with owned action items tracked to done"
+      - "A long document nobody reads"
+      - "Closing the ticket quickly"
+    answer: 1
+    explanation: "Blame hides information; systems thinking and tracked actions prevent the next incident."
+  - id: account-vending
+    prompt: "How does a landing zone give every new account the same baseline?"
+    options:
+      - "A wiki page of manual steps"
+      - "Account Factory in Control Tower (or AFT), applying guardrails, access, logging and networking automatically"
+      - "Copying the root password"
+      - "One shared account for everything"
+    answer: 1
+    explanation: "Vending accounts from code keeps them consistent and auditable."
+  - id: fis
+    prompt: "Which service runs controlled experiments such as an AZ power interruption, with stop conditions?"
+    options: ["AWS Config", "AWS Fault Injection Service", "Amazon Inspector", "AWS Backup"]
+    answer: 1
+    explanation: "FIS lets teams practise failure safely; stop conditions end the experiment when alarms fire."

@@ -1,0 +1,59 @@
+questions:
+  - id: replica-vs-standby
+    prompt: "Reads overload an RDS PostgreSQL primary. What helps?"
+    options:
+      - "Enabling Multi-AZ with one standby"
+      - "Adding read replicas and sending read-only queries to them"
+      - "Turning on deletion protection"
+      - "A bigger maintenance window"
+    answer: 1
+    explanation: "A Multi-AZ instance standby takes no traffic; replicas serve reads asynchronously."
+  - id: pitr
+    prompt: "Someone ran DELETE without WHERE at 14:03. What restores the data as of 14:02?"
+    options:
+      - "Multi-AZ failover"
+      - "Point-in-time recovery from automated backups, into a new instance"
+      - "A read replica"
+      - "RDS Proxy"
+    answer: 1
+    explanation: "Failover and replicas copy the mistake too; PITR replays logs up to the chosen second."
+  - id: lambda-rds
+    prompt: "A Lambda function at high concurrency exhausts the database's connections. What fixes it?"
+    answers: ["RDS Proxy", "rds proxy", "a connection pool", "Amazon RDS Proxy"]
+    explanation: "RDS Proxy pools and shares connections across many short-lived function environments."
+  - id: query
+    prompt: "Which DynamoDB call fetches all orders of one customer, stored with pk CUSTOMER#17 and sk ORDER#...?"
+    options:
+      - "Scan with a filter on pk"
+      - "Query with KeyConditionExpression pk = :pk AND begins_with(sk, :order)"
+      - "GetItem with pk only"
+      - "BatchGetItem with every possible sk"
+    answer: 1
+    explanation: "A Query reads one item collection, in sort-key order; a Scan reads the whole table."
+  - id: gsi
+    prompt: "What is a global secondary index for?"
+    options:
+      - "Backing up the table"
+      - "Answering an access pattern that needs a different partition key, with eventually consistent reads"
+      - "Making writes transactional"
+      - "Encrypting attributes"
+    answer: 1
+    explanation: "A GSI keeps a re-keyed copy of the attributes you project, updated asynchronously."
+  - id: create-only
+    prompt: "Which condition makes PutItem create an item only if it does not exist yet?"
+    options:
+      - "attribute_exists(pk)"
+      - "attribute_not_exists(pk)"
+      - "size(pk) > 0"
+      - "pk <> :empty"
+    answer: 1
+    explanation: "If an item with that key exists, the write fails with ConditionalCheckFailedException."
+  - id: on-demand
+    prompt: "A new app's traffic is unknown and spiky. Which DynamoDB capacity mode fits?"
+    options:
+      - "Provisioned without auto scaling"
+      - "On-demand"
+      - "Reserved capacity"
+      - "Global tables"
+    answer: 1
+    explanation: "On-demand bills per request and absorbs spikes; move to provisioned when traffic is steady and known."

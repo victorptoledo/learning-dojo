@@ -1,0 +1,40 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "InvoiceObjects",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject"],
+      "Resource": "arn:aws:s3:::acme-invoices/invoices/*"
+    },
+    {
+      "Sid": "ListInvoicePrefix",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::acme-invoices",
+      "Condition": { "StringLike": { "s3:prefix": ["invoices/*"] } }
+    },
+    {
+      "Sid": "InvoiceTable",
+      "Effect": "Allow",
+      "Action": ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:Query"],
+      "Resource": [
+        "arn:aws:dynamodb:eu-west-1:111122223333:table/Invoices",
+        "arn:aws:dynamodb:eu-west-1:111122223333:table/Invoices/index/*"
+      ]
+    },
+    {
+      "Sid": "InvoiceEvents",
+      "Effect": "Allow",
+      "Action": "sqs:SendMessage",
+      "Resource": "arn:aws:sqs:eu-west-1:111122223333:invoice-events"
+    },
+    {
+      "Sid": "DenyWithoutTls",
+      "Effect": "Deny",
+      "Action": ["s3:*", "dynamodb:*", "sqs:*"],
+      "Resource": "*",
+      "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+    }
+  ]
+}

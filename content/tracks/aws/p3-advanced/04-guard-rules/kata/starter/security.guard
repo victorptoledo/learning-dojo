@@ -1,0 +1,43 @@
+# The platform team's security rules for every CloudFormation template.
+# cfn-guard validate --rules security.guard --data template.yaml
+
+let buckets = Resources.*[ Type == 'AWS::S3::Bucket' ]
+let security_groups = Resources.*[ Type == 'AWS::EC2::SecurityGroup' ]
+let databases = Resources.*[ Type == 'AWS::RDS::DBInstance' ]
+let tables = Resources.*[ Type == 'AWS::DynamoDB::Table' ]
+let roles = Resources.*[ Type == 'AWS::IAM::Role' ]
+
+# A worked example: every bucket blocks public access.
+rule s3_buckets_are_private_and_encrypted when %buckets !empty {
+    %buckets.Properties.PublicAccessBlockConfiguration {
+        BlockPublicAcls == true
+        IgnorePublicAcls == true
+        BlockPublicPolicy == true
+        RestrictPublicBuckets == true
+        <<Buckets block all four kinds of public access>>
+    }
+    # todo: every rule of BucketEncryption.ServerSideEncryptionConfiguration sets an
+    #       SSEAlgorithm of AES256, aws:kms or aws:kms:dsse
+}
+
+rule no_ssh_or_rdp_from_the_internet when %security_groups !empty {
+    # todo: for ingress rules from 0.0.0.0/0 or ::/0: not all traffic (IpProtocol -1),
+    #       and the port range covers neither 22 nor 3389
+    Resources exists
+}
+
+rule databases_are_encrypted_private_and_protected when %databases !empty {
+    # todo: StorageEncrypted, not PubliclyAccessible, DeletionProtection
+    Resources exists
+}
+
+rule tables_have_point_in_time_recovery when %tables !empty {
+    # todo: PointInTimeRecoverySpecification.PointInTimeRecoveryEnabled
+    Resources exists
+}
+
+rule roles_grant_no_wildcard_admin when %roles !empty {
+    # todo: no Allow statement of an inline policy (Policies[*].PolicyDocument) has
+    #       Action "*", whether Action is a string or a list
+    Resources exists
+}

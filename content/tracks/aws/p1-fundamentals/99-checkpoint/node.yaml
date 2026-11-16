@@ -1,0 +1,60 @@
+id: aws.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata that writes the production network of a three-tier service in CloudFormation."
+objectives:
+  - { id: o1, text: "Explain IAM evaluation, EC2, S3, VPC routing and CloudFormation in your own words", skills: [aws.iam-least-privilege, aws.ec2, aws.s3, aws.vpc-subnets, aws.cloudformation] }
+  - { id: o2, text: "Write a two-AZ VPC template with public and private subnets, NAT per AZ, an S3 endpoint and chained security groups", skills: [aws.vpc-subnets, aws.cloudformation] }
+prerequisites: [aws.p1.cloudformation]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+closes_phase: p1
+covers_skills: [aws.iam-least-privilege, aws.ec2, aws.s3, aws.vpc-subnets, aws.cloudformation]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-aws, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with the subnets: copy `PublicSubnetA` three times and change the logical id, CIDR and AZ index. Then follow one packet at a time: from a private subnet to the internet (association → route table → route → NAT gateway → public subnet → internet gateway), and from the internet to the database (which security group lets it in?).
+    - |-
+      A NAT gateway needs an `AWS::EC2::EIP` (`Domain: vpc`) and sits in a **public** subnet: `AllocationId: !GetAtt NatAddressA.AllocationId`, `SubnetId: !Ref PublicSubnetA`. Each private subnet gets its own route table with `0.0.0.0/0` and `NatGatewayId`. The S3 endpoint is an `AWS::EC2::VPCEndpoint` with `VpcEndpointType: Gateway` and the two private route tables in `RouteTableIds`. A security group rule from another group uses `SourceSecurityGroupId: !Ref ...` instead of `CidrIp`.
+    - |-
+      ```yaml
+        NatGatewayA:
+          Type: AWS::EC2::NatGateway
+          Properties:
+            AllocationId: !GetAtt NatAddressA.AllocationId
+            SubnetId: !Ref PublicSubnetA
+        PrivateRouteTableA:
+          Type: AWS::EC2::RouteTable
+          Properties: { VpcId: !Ref Vpc }
+        PrivateDefaultRouteA:
+          Type: AWS::EC2::Route
+          Properties:
+            RouteTableId: !Ref PrivateRouteTableA
+            DestinationCidrBlock: 0.0.0.0/0
+            NatGatewayId: !Ref NatGatewayA
+        S3Endpoint:
+          Type: AWS::EC2::VPCEndpoint
+          Properties:
+            VpcId: !Ref Vpc
+            ServiceName: !Sub "com.amazonaws.${AWS::Region}.s3"
+            VpcEndpointType: Gateway
+            RouteTableIds: [!Ref PrivateRouteTableA, !Ref PrivateRouteTableB]
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your template is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-aws runner image
+    image: dojo-aws
+    why: The container with cfn-lint, cfn-guard, the dojo's IAM policy evaluator, boto3 and moto that checks your AWS work offline.

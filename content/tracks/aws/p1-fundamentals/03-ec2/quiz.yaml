@@ -1,0 +1,59 @@
+questions:
+  - id: instance-store
+    prompt: "An app writes its cache to the instance store of an i4i instance. What happens to it when the instance is stopped and started?"
+    options:
+      - "It is kept, like an EBS volume"
+      - "It is lost: instance store lives on the host and does not survive a stop"
+      - "It moves to S3"
+      - "It is snapshotted automatically"
+    answer: 1
+    explanation: "Instance store is ephemeral; after a stop the instance usually starts on another host with empty disks."
+  - id: imdsv2
+    prompt: "Why require IMDSv2 on every instance?"
+    options:
+      - "It is faster than IMDSv1"
+      - "It needs a session token from a PUT request, which blocks SSRF attacks that steal the role's credentials"
+      - "It encrypts EBS volumes"
+      - "It is needed for user data"
+    answer: 1
+    explanation: "A simple GET forwarded by a vulnerable app cannot get the token, so the credentials URL stays out of reach."
+  - id: ebs-az
+    prompt: "Where can an EBS volume be attached?"
+    options:
+      - "To any instance in the region"
+      - "Only to instances in the same Availability Zone"
+      - "To instances in any region"
+      - "Only to the instance that created it"
+    answer: 1
+    explanation: "EBS volumes live in one AZ; to move one, take a snapshot and restore it elsewhere."
+  - id: spot
+    prompt: "Which workload suits Spot Instances best?"
+    options:
+      - "The single primary database"
+      - "A CI build fleet and batch jobs that can be retried"
+      - "A license server that must never restart"
+      - "A stateful app with data on instance store"
+    answer: 1
+    explanation: "Spot capacity can be reclaimed with two minutes' notice; it fits interruptible, stateless or retryable work."
+  - id: instance-profile
+    prompt: "How does an application on EC2 get its IAM role's credentials?"
+    answers: ["instance profile", "an instance profile", "from the instance profile", "instance metadata service", "imds"]
+    explanation: "The instance profile attaches the role; the SDK reads temporary credentials from the instance metadata service."
+  - id: asg-health
+    prompt: "An instance in an Auto Scaling group behind an ALB fails its load-balancer health check. With ELB health checks turned on, what does the group do?"
+    options:
+      - "Nothing until a person reacts"
+      - "Marks it unhealthy, terminates it and launches a replacement from the launch template"
+      - "Reboots it forever"
+      - "Moves it to another region"
+    answer: 1
+    explanation: "Auto Scaling replaces unhealthy instances to keep the desired capacity."
+  - id: session-manager
+    prompt: "What is the recommended way to get a shell on an instance for debugging?"
+    options:
+      - "Open port 22 to 0.0.0.0/0"
+      - "Systems Manager Session Manager: no inbound port, IAM-controlled and logged"
+      - "Share one SSH key in the team chat"
+      - "Use the root user"
+    answer: 1
+    explanation: "Session Manager needs no open port or keys, and every session can be logged to CloudWatch or S3."

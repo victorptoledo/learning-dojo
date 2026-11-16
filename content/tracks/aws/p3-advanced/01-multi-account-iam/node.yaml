@@ -1,0 +1,25 @@
+id: aws.p3.multi-account-iam
+kind: lesson
+status: draft
+title: "Multi-Account IAM: Organizations, SCPs, Boundaries and Cross-Account Access"
+summary: "Why one account is not enough; AWS Organizations, OUs and the management account; SCPs and RCPs as guardrails; IAM Identity Center; permissions boundaries for delegation; cross-account roles and resource policies; ABAC with tags; and the complete policy evaluation logic."
+objectives:
+  - { id: o1, text: "Design an account structure with OUs, a management account and dedicated security and log accounts", skills: [aws.multi-account-iam] }
+  - { id: o2, text: "Write SCPs and RCPs as deny-list guardrails and know what they cannot do", skills: [aws.multi-account-iam] }
+  - { id: o3, text: "Delegate safely with permissions boundaries, and give people access through IAM Identity Center permission sets", skills: [aws.multi-account-iam] }
+  - { id: o4, text: "Grant cross-account access with roles or resource policies, and evaluate a request through every policy type", skills: [aws.multi-account-iam] }
+prerequisites: [aws.p2.checkpoint]
+difficulty: 4
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A 40-person company runs everything in one AWS account, with IAM users for each developer and a shared admin user for emergencies. Production was broken last month by a test script run against the wrong resources. Propose the target setup: the accounts and OUs, how people sign in and what they can do in each account, two or three SCPs you would attach and where, how a CI pipeline in a tooling account deploys to production, and how the security team sees every account's logs."
+  criteria:
+    - "Separates workloads into accounts by environment (and team) under OUs, with a management account kept free of workloads and dedicated security/audit and log archive accounts, for example with Control Tower"
+    - "Replaces IAM users with IAM Identity Center: groups mapped to permission sets per account (read-only in prod for developers, admin in sandbox), short-lived credentials, MFA"
+    - "Gives concrete SCPs as deny-lists next to FullAWSAccess: region restriction with exemptions, protecting CloudTrail/Config/GuardDuty, denying root user actions or leaving the organization, and notes that SCPs do not grant and do not affect the management account"
+    - "Has CI assume a deploy role in the production account whose trust policy names the tooling account's pipeline role (with conditions), instead of keys"
+    - "Centralises an organization CloudTrail trail and Config into the log archive account, with delegated administrator for GuardDuty and Security Hub in the security account"

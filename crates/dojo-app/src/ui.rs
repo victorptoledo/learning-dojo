@@ -369,6 +369,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             KataLanguage::Go => {
                 "2. Edit the .go files in the kata folder (not the _test.go ones). Each function that still calls panic(\"todo ...\") is yours to write:"
             }
+            KataLanguage::Aws => {
+                "2. Edit the templates, policies, rules or .py modules in the kata folder. Lines marked \"todo\" and functions that still raise NotImplementedError(\"todo ...\") are yours to write:"
+            }
             KataLanguage::TypeScript => {
                 "2. Edit the .ts modules in the kata folder. Each function that still throws new Error(\"todo ...\") and each type marked todo is yours to write:"
             }
@@ -397,6 +400,9 @@ fn kata_steps(dir: &std::path::Path, language: KataLanguage) -> Vec<Line<'static
             }
             KataLanguage::Go => {
                 "   that panic is a placeholder; go test runs the tests with the race detector, and go vet and gofmt must be happy."
+            }
+            KataLanguage::Aws => {
+                "   no AWS account needed: cfn-lint, cfn-guard, an IAM policy evaluator and moto check your files offline."
             }
             KataLanguage::TypeScript => {
                 "   that throw is a placeholder; tsc must find no type errors, then node:test runs the tests."

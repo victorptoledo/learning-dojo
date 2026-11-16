@@ -1,0 +1,25 @@
+id: aws.p3.cost
+kind: lesson
+status: draft
+title: "Cost: Pricing Models, Savings Plans, Spot, Tags and Budgets"
+summary: "How AWS bills (compute, storage, requests and data transfer), the purchase options (On-Demand, Savings Plans, Reserved Instances, Spot), visibility with cost allocation tags, Cost Explorer, CUR and Budgets, and the common savings: right-sizing, Graviton, storage tiers, NAT and data transfer, and turning things off."
+objectives:
+  - { id: o1, text: "Read a bill: the dimensions services charge for, including data transfer and NAT gateway processing", skills: [aws.cost] }
+  - { id: o2, text: "Choose purchase options: On-Demand, Compute and EC2 Instance Savings Plans, Reserved Instances and Spot", skills: [aws.cost] }
+  - { id: o3, text: "Make cost visible with cost allocation tags, Cost Explorer, the Cost and Usage Report, Budgets and anomaly detection", skills: [aws.cost] }
+  - { id: o4, text: "Find savings: right-sizing, Graviton, storage classes and lifecycle, endpoints instead of NAT, and schedules for idle environments", skills: [aws.cost] }
+prerequisites: [aws.p3.high-availability]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "The AWS bill of a 20-service platform went from 18,000 to 31,000 USD a month in half a year, and nobody can say why. You have two weeks. Describe how you find where the money goes, the five savings you would look for first (with the service and the change), how you buy commitments safely, and what you put in place so this does not happen again."
+  criteria:
+    - "Makes cost visible first: activates cost allocation tags (service, team, environment) with a tag policy, groups Cost Explorer or the Cost and Usage Report with Athena by tag, service and usage type"
+    - "Checks data transfer and NAT gateway processing charges, and replaces S3/DynamoDB traffic through NAT with gateway endpoints"
+    - "Right-sizes with Compute Optimizer, moves suitable workloads to Graviton, sets log retention and S3 lifecycle rules or Intelligent-Tiering, deletes idle resources (unattached volumes, old snapshots, idle load balancers)"
+    - "Buys Compute Savings Plans for the steady baseline only after right-sizing, sized from usage history, and uses Spot for interruptible work"
+    - "Prevents recurrence with AWS Budgets and Cost Anomaly Detection alerts per team, schedules to stop non-production at night, and makes cost a review item (FinOps) with each team seeing its own spend"

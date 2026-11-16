@@ -1,0 +1,21 @@
+# Organisation-wide network rules, written in cfn-guard. The tests run them on network.yaml.
+
+let security_groups = Resources.*[ Type == 'AWS::EC2::SecurityGroup' ]
+
+rule no_admin_ports_from_the_internet when %security_groups !empty {
+    %security_groups.Properties.SecurityGroupIngress[*] {
+        when CidrIp exists {
+            when CidrIp == '0.0.0.0/0' {
+                FromPort == 443 or FromPort == 80
+                ToPort == FromPort
+                <<Only HTTP and HTTPS may be open to 0.0.0.0/0, one port per rule>>
+            }
+        }
+    }
+}
+
+rule every_security_group_is_described when %security_groups !empty {
+    %security_groups.Properties.GroupDescription exists
+    %security_groups.Properties.VpcId exists
+    <<Security groups need a GroupDescription and a VpcId>>
+}

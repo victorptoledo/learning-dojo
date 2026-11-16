@@ -1,0 +1,59 @@
+questions:
+  - id: scp-grants
+    prompt: "An account has only an SCP that allows s3:*, and a role whose identity policy allows nothing. What can the role do?"
+    options:
+      - "Everything in S3"
+      - "Nothing: SCPs never grant permissions, they only set the maximum"
+      - "Read-only S3"
+      - "Everything, SCPs are ignored"
+    answer: 1
+    explanation: "A request needs an IAM allow and no block from any SCP on the path."
+  - id: scp-management
+    prompt: "Which principals are NOT affected by SCPs?"
+    options:
+      - "The root user of a member account"
+      - "Principals in the management account, and service-linked roles"
+      - "Roles in a child OU"
+      - "IAM users in member accounts"
+    answer: 1
+    explanation: "Keep workloads out of the management account precisely because SCPs cannot restrict it."
+  - id: boundary
+    prompt: "A role's identity policy allows s3:* and ec2:*; its permissions boundary allows s3:* and dynamodb:*. What may it do?"
+    options:
+      - "s3, ec2 and dynamodb"
+      - "Only s3: the intersection"
+      - "Only dynamodb"
+      - "Only ec2"
+    answer: 1
+    explanation: "Effective permissions are what both the identity policies and the boundary allow."
+  - id: cross-account-both
+    prompt: "A role in account B reads a bucket in account A. Which policies must allow it?"
+    options:
+      - "Only the bucket policy in A"
+      - "Only the role's identity policy in B"
+      - "Both: the role's identity policy in B and the bucket policy in A"
+      - "An SCP in A"
+    answer: 2
+    explanation: "Across accounts, each side must allow; within one account either side is enough."
+  - id: org-condition
+    prompt: "Which condition key allows 'any principal of our organization' in a bucket policy?"
+    answers: ["aws:PrincipalOrgID", "PrincipalOrgID", "aws:principalorgid"]
+    explanation: "aws:PrincipalOrgID matches the organization id of the caller's account, without listing accounts."
+  - id: people-access
+    prompt: "How should 40 developers get access to 15 accounts?"
+    options:
+      - "An IAM user per developer in each account"
+      - "IAM Identity Center groups assigned to permission sets per account"
+      - "One shared admin user"
+      - "Root credentials in a password manager"
+    answer: 1
+    explanation: "Identity Center gives short-lived credentials from your IdP and manages access by group."
+  - id: delegation
+    prompt: "How do you let developers create Lambda roles without letting them create an admin role?"
+    options:
+      - "Trust them"
+      - "Allow iam:CreateRole only with iam:PermissionsBoundary set to an app boundary, and deny removing it"
+      - "Give them AdministratorAccess in production"
+      - "Use an SCP that allows iam:CreateRole"
+    answer: 1
+    explanation: "The boundary caps every role they create; the explicit denies stop them removing it."

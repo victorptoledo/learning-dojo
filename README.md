@@ -46,7 +46,7 @@ of your choice.
 
 ### Tracks
 
-15 tracks are complete, with 353 lessons and checkpoints and 124 katas between them:
+16 tracks are complete, with 378 lessons and checkpoints and 133 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
@@ -65,11 +65,12 @@ of your choice.
 | Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |
 | Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
 | Design Patterns | principles and patterns in modern Java | 24 | 10 | `dojo-java` (refactoring katas) |
+| AWS Cloud Architecture | IAM, VPC, EC2, S3, CloudFormation, serverless, containers, security, cost | 25 | 9 | `dojo-aws` (cfn-lint, cfn-guard, IAM policy evaluator, moto; no AWS account) |
 
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
 Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
-Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
+Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL and Computer Science.
 
 ## Requirements
 
@@ -155,6 +156,14 @@ the `dojo-k8s` image renders them (`kustomize build`, `helm template`), validate
 kubeconform against the Kubernetes 1.36 schemas and checks them with bats policies (selectors match
 labels, Services reach a declared port, probes and resources, restricted Pod security, least-privilege
 RBAC), all offline.
+
+**AWS katas** need no AWS account and no credentials, and never reach AWS: the `dojo-aws` image runs
+with no network. CloudFormation and SAM templates are linted by cfn-lint (the AWS resource schemas)
+and checked by pytest tests over the parsed template and by cfn-guard rules; IAM policies (identity,
+trust, bucket, SCP, boundary) are sent a matrix of requests through the dojo's own policy evaluator,
+which follows AWS's documented evaluation logic and is self-tested when the image is built; Python
+code that calls AWS with boto3 runs against moto, an in-memory DynamoDB, SQS and S3. In one kata you
+write the cfn-guard rules yourself and they are tested against compliant and broken templates.
 
 **SQL katas** run against a throwaway PostgreSQL 17. To try your queries on a kata's tables, run
 this from the kata folder:
@@ -268,7 +277,8 @@ content/
 runner-images/    one image per kata runtime: rust/, java/ (JUnit 6, Spring Boot), linux/ (bats, ShellCheck, git),
                   docker/ (hadolint, bats), sql/ (PostgreSQL 17), python/ (pytest, ruff),
                   go/ (go test -race, go vet, gofmt), node/ (TypeScript 7, node:test),
-                  k8s/ (kubeconform, kustomize, helm, bats)
+                  k8s/ (kubeconform, kustomize, helm, bats),
+                  aws/ (cfn-lint, cfn-guard, IAM policy evaluator, boto3 + moto)
 docs/
   architecture.md the full design and its decisions; examples/ shows every file format
 ```

@@ -1,0 +1,25 @@
+id: aws.p2.cloudwatch
+kind: lesson
+status: draft
+title: "Observability: CloudWatch Metrics, Logs, Alarms and X-Ray"
+summary: "CloudWatch metrics (namespaces, dimensions, statistics and percentiles, custom metrics and the embedded metric format), Logs (groups, retention, Logs Insights, metric filters, subscriptions), alarms and composite alarms, dashboards, X-Ray and OpenTelemetry traces, and CloudTrail for the API audit log."
+objectives:
+  - { id: o1, text: "Read and publish metrics: namespaces, dimensions, statistics, percentiles and the embedded metric format", skills: [aws.cloudwatch] }
+  - { id: o2, text: "Manage logs: structured JSON, retention, Logs Insights queries, metric filters and subscriptions", skills: [aws.cloudwatch] }
+  - { id: o3, text: "Write alarms on symptoms with the right period, datapoints and missing-data treatment, and route them with SNS", skills: [aws.cloudwatch] }
+  - { id: o4, text: "Trace requests with X-Ray or OpenTelemetry, and tell CloudWatch from CloudTrail", skills: [aws.cloudwatch] }
+prerequisites: [aws.p2.containers]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "The orders API (API Gateway, Lambda, DynamoDB, SQS) went down for 40 minutes last night and nobody noticed until customers complained. Write the observability plan: which alarms you create (metric, statistic, threshold, period and datapoints) and who they notify, what the logs must contain and how long they are kept, one Logs Insights query you would run first, and how you would see where the time goes in a slow request."
+  criteria:
+    - "Alarms on user-facing symptoms: API Gateway 5XXError rate or Lambda Errors and p99 Duration or latency against the SLO, plus SQS ApproximateAgeOfOldestMessage and DLQ depth"
+    - "Chooses periods and M-of-N datapoints to avoid flapping, treats missing data deliberately, and routes alarms through SNS to on-call (PagerDuty, Chatbot, email)"
+    - "Writes structured JSON logs with a request or correlation id, level and key fields, sets retention on every log group, and avoids logging secrets or personal data"
+    - "Gives a Logs Insights query such as filtering level = ERROR, grouping by error type with stats count(*) by bin(5m)"
+    - "Uses X-Ray or OpenTelemetry tracing (Lambda active tracing, the SDK instrumented) to see time per downstream call, and mentions CloudTrail for who changed what"

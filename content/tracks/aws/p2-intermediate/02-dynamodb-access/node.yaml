@@ -1,0 +1,52 @@
+id: aws.p2.dynamodb-access
+kind: kata
+status: draft
+title: "DynamoDB Access Patterns with boto3"
+summary: "Implement an order repository over a single-table design: conditional writes, queries newest first with pagination, a global secondary index and a conditional state change, tested against moto's in-memory DynamoDB."
+objectives:
+  - { id: o1, text: "Write items with a key layout designed from access patterns, and never overwrite with a condition expression", skills: [aws.databases] }
+  - { id: o2, text: "Query a partition and a GSI, in either order, following LastEvaluatedKey, without scans", skills: [aws.databases] }
+  - { id: o3, text: "Change state safely with a conditional update and translate ConditionalCheckFailedException", skills: [aws.databases] }
+prerequisites: [aws.p2.databases]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-aws, timeout_secs: 120 }
+  hints:
+    - |-
+      Each method is one DynamoDB call (plus a loop for pages): `put_item`, `get_item`, `query` on the table, `query` with `IndexName`, `update_item`. Which one needs a `ConditionExpression`, and what does DynamoDB raise when the condition is false?
+    - |-
+      Keys are `{"pk": {"S": f"CUSTOMER#{customer_id}"}, "sk": {"S": f"ORDER#{order_id}"}}`. `ScanIndexForward=False` returns the sort keys in descending order. A query returns `LastEvaluatedKey` while more pages remain: pass it back as `ExclusiveStartKey`. A failed condition is a `botocore.exceptions.ClientError` whose `error.response["Error"]["Code"]` is `ConditionalCheckFailedException`; `raise OrderExists(...) from error`. In an update, `status` is a reserved word: use `ExpressionAttributeNames={"#status": "status"}`.
+    - |-
+      ```python
+      def _query(self, **request):
+          orders = []
+          while True:
+              page = self.client.query(TableName=self.table_name, **request)
+              orders.extend(... for item in page["Items"])
+              if "LastEvaluatedKey" not in page:
+                  return orders
+              request["ExclusiveStartKey"] = page["LastEvaluatedKey"]
+
+      self.client.update_item(
+          TableName=self.table_name, Key=...,
+          UpdateExpression="SET #status = :shipped, gsi1pk = :index",
+          ConditionExpression="attribute_exists(pk) AND #status = :placed",
+          ExpressionAttributeNames={"#status": "status"},
+          ExpressionAttributeValues={...})
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your code is tested inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-aws runner image
+    image: dojo-aws
+    why: The container with cfn-lint, cfn-guard, the dojo's IAM policy evaluator, boto3 and moto that checks your AWS work offline.

@@ -1,0 +1,60 @@
+id: aws.p2.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz over databases, serverless, containers and observability, and an integration kata that writes a complete serverless orders service as a SAM template."
+objectives:
+  - { id: o1, text: "Explain RDS and DynamoDB, Lambda and its event sources, ECS and EKS, and CloudWatch in your own words", skills: [aws.databases, aws.lambda-serverless, aws.containers, aws.cloudwatch] }
+  - { id: o2, text: "Write a SAM template with an HTTP API, two functions, a protected table, a queue with a dead-letter queue, least-privilege policies and log retention", skills: [aws.lambda-serverless, aws.databases, aws.cloudwatch, aws.cloudformation] }
+prerequisites: [aws.p2.cloudwatch]
+difficulty: 4
+estimated_minutes: 75
+xp: 400
+closes_phase: p2
+covers_skills: [aws.databases, aws.lambda-serverless, aws.containers, aws.cloudwatch]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-aws, timeout_secs: 120 }
+  hints:
+    - |-
+      SAM keeps serverless templates short: `Globals.Function` sets defaults for every function, `Events` on a function create the API routes and the SQS event source mapping, and `Policies` take SAM **policy templates** that expand into exact IAM statements. Which policy template gives CRUD on one table, and which one lets a function send to one queue?
+    - |-
+      `DynamoDBCrudPolicy: { TableName: !Ref OrdersTable }` and `SQSSendMessagePolicy: { QueueName: !GetAtt OrderEventsQueue.QueueName }`. The queue's `RedrivePolicy` takes `deadLetterTargetArn` and `maxReceiveCount`. An SQS event has `Type: SQS` and `Properties` with `Queue` (the ARN), `BatchSize` and `FunctionResponseTypes`. A log group for a function is named `!Sub "/aws/lambda/${ApiFunction}"`.
+    - |-
+      ```yaml
+        WorkerFunction:
+          Type: AWS::Serverless::Function
+          Properties:
+            Handler: worker.handler
+            Policies:
+              - DynamoDBCrudPolicy: { TableName: !Ref OrdersTable }
+            Events:
+              OrderEvents:
+                Type: SQS
+                Properties:
+                  Queue: !GetAtt OrderEventsQueue.Arn
+                  BatchSize: 10
+                  FunctionResponseTypes: [ReportBatchItemFailures]
+        OrderEventsQueue:
+          Type: AWS::SQS::Queue
+          Properties:
+            VisibilityTimeout: 60
+            SqsManagedSseEnabled: true
+            RedrivePolicy:
+              deadLetterTargetArn: !GetAtt OrderEventsDeadLetterQueue.Arn
+              maxReceiveCount: 5
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your template is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-aws runner image
+    image: dojo-aws
+    why: The container with cfn-lint, cfn-guard, the dojo's IAM policy evaluator, boto3 and moto that checks your AWS work offline.

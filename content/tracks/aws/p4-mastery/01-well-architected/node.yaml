@@ -1,0 +1,25 @@
+id: aws.p4.well-architected
+kind: lesson
+status: draft
+title: "The Well-Architected Framework"
+summary: "The six pillars (operational excellence, security, reliability, performance efficiency, cost optimization, sustainability), their design principles and trade-offs, how a Well-Architected review runs with the Tool and lenses, and how to turn findings into a prioritised improvement plan."
+objectives:
+  - { id: o1, text: "Explain the six pillars and the main design principles of each", skills: [aws.well-architected] }
+  - { id: o2, text: "Reason about trade-offs between pillars for a concrete workload", skills: [aws.well-architected] }
+  - { id: o3, text: "Run a Well-Architected review with the Tool and lenses, and record high and medium risks", skills: [aws.well-architected] }
+  - { id: o4, text: "Turn review findings into a prioritised, measurable improvement plan", skills: [aws.well-architected] }
+prerequisites: [aws.p3.cost]
+difficulty: 4
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Run a short Well-Architected review of the serverless orders service you built in Checkpoint 2 (HTTP API, two Lambda functions, DynamoDB, SQS with a dead-letter queue). For each of the six pillars, name one thing the design already does well and one risk, with its severity. Then pick the three improvements you would make first, explain the trade-off each one makes against another pillar, and say how you would measure that it worked."
+  criteria:
+    - "Covers all six pillars with a concrete strength and a concrete risk each (for example: reliability strength DLQ and partial batch failures, risk no alarms on DLQ depth; security strength least-privilege policy templates, risk no WAF or throttling on the API)"
+    - "Rates risks as high or medium with a reason tied to business impact, as the Well-Architected Tool does"
+    - "Prioritises three improvements by risk and effort, not by pillar order"
+    - "States a trade-off per improvement (for example provisioned concurrency improves latency but costs more; multi-region improves reliability but adds cost and complexity)"
+    - "Gives a measure for each improvement: an alarm, an SLO, a cost per order, a restore test or a game day result"

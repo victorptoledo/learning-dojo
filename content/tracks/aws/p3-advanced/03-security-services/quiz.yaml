@@ -1,0 +1,51 @@
+questions:
+  - id: envelope
+    prompt: "In envelope encryption, what does KMS encrypt?"
+    options:
+      - "Every byte of your data, sent to KMS"
+      - "The data key; the data itself is encrypted locally with that data key"
+      - "Nothing; it only stores passwords"
+      - "The TLS connection"
+    answer: 1
+    explanation: "Only the small data key goes to KMS, so large data never leaves the service and every decrypt is logged."
+  - id: key-policy
+    prompt: "What must every KMS key have?"
+    answers: ["key policy", "a key policy", "the key policy"]
+    explanation: "Access to a key always starts from its resource-based key policy."
+  - id: cmk-why
+    prompt: "Why choose a customer managed key over an AWS managed key for customer data?"
+    options:
+      - "It is free"
+      - "You control its key policy (who may decrypt), rotation and deletion, and can share it across accounts"
+      - "It is faster"
+      - "AWS managed keys are not encrypted"
+    answer: 1
+    explanation: "Control and audit are the reasons; customer managed keys cost a small monthly fee and per request."
+  - id: trail
+    prompt: "Who stopped the CloudTrail trail? What should have prevented it?"
+    options:
+      - "Nothing can prevent it"
+      - "An SCP denying cloudtrail:StopLogging and DeleteTrail, with an organization trail in a protected log account"
+      - "A larger S3 bucket"
+      - "GuardDuty"
+    answer: 1
+    explanation: "Protect the audit trail preventively; GuardDuty would also flag the call."
+  - id: guardduty
+    prompt: "An EC2 instance starts talking to known crypto-mining pools. Which service reports it?"
+    options: ["AWS Config", "Amazon GuardDuty", "Amazon Macie", "AWS WAF"]
+    answer: 1
+    explanation: "GuardDuty analyses VPC Flow Logs, DNS logs and CloudTrail for threats."
+  - id: config
+    prompt: "Which service tells you that a security group allowed 0.0.0.0/0 on port 22 last Tuesday, and flags it as non-compliant?"
+    options: ["AWS Config", "Amazon Inspector", "AWS Shield", "KMS"]
+    answer: 0
+    explanation: "Config records configuration history and evaluates rules such as restricted-ssh."
+  - id: secrets
+    prompt: "Where should a database password that must rotate every 30 days live?"
+    options:
+      - "In the Lambda environment variables"
+      - "In Secrets Manager with automatic rotation"
+      - "In the CloudFormation template parameters' default"
+      - "In the Git repository, encrypted"
+    answer: 1
+    explanation: "Secrets Manager rotates, versions and audits secrets; apps read them through their role."
