@@ -5,9 +5,9 @@ status: reviewed
 title: "HTTP Between Browser and Server"
 summary: "What the browser adds to every request and enforces on every answer: methods and status codes from the client's side, cookies and their flags, the same-origin policy, CORS and preflights, and where to put the API."
 objectives:
-  - { id: o1, text: "Choose methods and status codes so that browsers, caches and clients behave correctly", skills: [full-stack.client-server, backend.protocols] }
-  - { id: o2, text: "Explain cookies and their Secure, HttpOnly, SameSite, Domain and Path attributes", skills: [full-stack.client-server] }
-  - { id: o3, text: "Explain the same-origin policy, CORS, preflight requests and credentials, and avoid CORS with a same-origin setup", skills: [full-stack.client-server] }
+  - { id: o1, text: "Choose methods and status codes so that browsers, caches and clients behave correctly", skills: [full-stack.client-server, backend.protocols, api-design.http-semantics, api-design.status-codes] }
+  - { id: o2, text: "Explain cookies and their Secure, HttpOnly, SameSite, Domain and Path attributes", skills: [full-stack.client-server, frontend.security] }
+  - { id: o3, text: "Explain the same-origin policy, CORS, preflight requests and credentials, and avoid CORS with a same-origin setup", skills: [full-stack.client-server, frontend.security] }
 prerequisites: [full-stack.p0.hello-fullstack]
 difficulty: 2
 estimated_minutes: 50

@@ -92,3 +92,4 @@ keep them to logic that needs no database, or use a globally replicated store.
 - AWS documentation, "Lambda execution environment lifecycle" (cold starts): <https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html>
 - PgBouncer documentation: <https://www.pgbouncer.org/usage.html>
 - Martin Fowler, "BlueGreenDeployment": <https://martinfowler.com/bliki/BlueGreenDeployment.html>
+- In the dojo: the DevOps & Cloud track's *CI Pipelines*, *Release Strategies* and *DevSecOps*, and the AWS track's *Lambda and Serverless* and *Containers*.

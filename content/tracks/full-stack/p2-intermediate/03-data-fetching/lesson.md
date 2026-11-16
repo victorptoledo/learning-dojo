@@ -111,3 +111,4 @@ per user, and decide how each cache is **invalidated** when the data changes, be
 - MDN, "HTTP conditional requests": <https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Conditional_requests>
 - TanStack Query documentation, "Important Defaults": <https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults>
 - web.dev, "Love your cache": <https://web.dev/articles/love-your-cache>
+- In the dojo: the React track's *Data Fetching, Races and Server State* and *State Management at Scale*, and the API Design track's *HTTP Caching and Conditional Requests*.

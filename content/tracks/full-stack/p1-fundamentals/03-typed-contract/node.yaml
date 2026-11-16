@@ -5,7 +5,7 @@ title: "A Typed Contract Between Client and Server"
 summary: "One zod contract for a to-do API: the server validates requests and answers with RFC 9457 problems, the client validates answers, and TypeScript derives every type from the schemas."
 objectives:
   - { id: o1, text: "Write one schema that both sides use, and derive the request and response types from it", skills: [full-stack.api-contracts, typescript.runtime-validation] }
-  - { id: o2, text: "Answer refused input with 400, 415 and 422 problem details that name each field", skills: [full-stack.api-contracts, full-stack.client-server] }
+  - { id: o2, text: "Answer refused input with 400, 415 and 422 problem details that name each field", skills: [full-stack.api-contracts, full-stack.client-server, api-design.errors] }
   - { id: o3, text: "Refuse server answers that break the contract on the client instead of passing bad data to the UI", skills: [full-stack.api-contracts] }
 prerequisites: [full-stack.p1.api-contracts]
 difficulty: 2

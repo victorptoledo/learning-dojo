@@ -6,8 +6,8 @@ title: "Rendering Strategies: SSR, SSG, ISR and React Server Components"
 summary: "When to render at build time, on each request or in the browser: static generation, incremental regeneration, server-side rendering with hydration, streaming, islands and React Server Components, judged by Core Web Vitals and by where the data comes from."
 objectives:
   - { id: o1, text: "Compare CSR, SSR, SSG and ISR by freshness, cost, first paint and interactivity", skills: [full-stack.ssr-ssg] }
-  - { id: o2, text: "Explain hydration, its costs, and how streaming, islands and server components reduce them", skills: [full-stack.ssr-ssg] }
-  - { id: o3, text: "Choose a strategy per route from its data and its audience, measured with Core Web Vitals", skills: [full-stack.ssr-ssg, full-stack.performance] }
+  - { id: o2, text: "Explain hydration, its costs, and how streaming, islands and server components reduce them", skills: [full-stack.ssr-ssg, react.server-components, react.suspense-transitions] }
+  - { id: o3, text: "Choose a strategy per route from its data and its audience, measured with Core Web Vitals", skills: [full-stack.ssr-ssg, full-stack.performance, frontend.web-vitals] }
 prerequisites: [full-stack.p2.conditional-client]
 difficulty: 3
 estimated_minutes: 50

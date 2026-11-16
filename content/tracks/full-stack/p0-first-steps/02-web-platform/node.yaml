@@ -4,9 +4,9 @@ status: reviewed
 title: "The Web Platform: HTML, Forms, the DOM and fetch"
 summary: "The minimum of the browser a full stack developer relies on: semantic HTML, forms that work without JavaScript, the DOM, events and fetch, and why text from users must be escaped."
 objectives:
-  - { id: o1, text: "Write semantic HTML and forms that submit with the right method and encoding", skills: [full-stack.web-platform] }
-  - { id: o2, text: "Update the DOM from data fetched with fetch, handling loading, errors and non-2xx answers", skills: [full-stack.web-platform] }
-  - { id: o3, text: "Explain why user text must be escaped or set as text, never as HTML", skills: [full-stack.web-platform, full-stack.rendering] }
+  - { id: o1, text: "Write semantic HTML and forms that submit with the right method and encoding", skills: [full-stack.web-platform, frontend.html-semantics, frontend.forms] }
+  - { id: o2, text: "Update the DOM from data fetched with fetch, handling loading, errors and non-2xx answers", skills: [full-stack.web-platform, frontend.dom-events, frontend.fetch-async] }
+  - { id: o3, text: "Explain why user text must be escaped or set as text, never as HTML", skills: [full-stack.web-platform, full-stack.rendering, frontend.security] }
 prerequisites: [full-stack.p0.the-role]
 difficulty: 1
 estimated_minutes: 40

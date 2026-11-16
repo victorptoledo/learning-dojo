@@ -4,8 +4,8 @@ status: reviewed
 title: "Full Stack Architecture: Monoliths, BFFs and Monorepos"
 summary: "Architecture decisions a full stack lead makes: modular monolith versus services, backend-for-frontend and API gateways, monorepos with shared contracts, vertical slices and team boundaries, and recording decisions in ADRs."
 objectives:
-  - { id: o1, text: "Argue for a modular monolith or for services from concrete forces, not fashion", skills: [full-stack.architecture, backend.architecture] }
-  - { id: o2, text: "Place a backend-for-frontend or gateway where several clients need different shapes of the same data", skills: [full-stack.architecture] }
+  - { id: o1, text: "Argue for a modular monolith or for services from concrete forces, not fashion", skills: [full-stack.architecture, backend.architecture, software-architect.modular-monolith, software-architect.microservices] }
+  - { id: o2, text: "Place a backend-for-frontend or gateway where several clients need different shapes of the same data", skills: [full-stack.architecture, software-architect.integration-patterns] }
   - { id: o3, text: "Organise code and teams by feature in a monorepo with shared contracts and enforced boundaries, and record decisions in ADRs", skills: [full-stack.architecture, typescript.monorepos] }
 prerequisites: [full-stack.p3.performance-realtime]
 difficulty: 4

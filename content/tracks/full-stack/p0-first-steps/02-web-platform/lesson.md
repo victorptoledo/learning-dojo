@@ -101,3 +101,4 @@ A **Content-Security-Policy** header adds a second line of defence, but escaping
 - MDN, "Using the Fetch API": <https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch>
 - MDN, "Introduction to the DOM": <https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction>
 - OWASP, "Cross Site Scripting Prevention Cheat Sheet": <https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html>
+- In the dojo: the Frontend track's *Semantic HTML*, *Forms*, *The DOM and Events* and *fetch, async Code and Cancellation in the Browser*.

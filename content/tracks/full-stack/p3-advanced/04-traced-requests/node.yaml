@@ -4,8 +4,8 @@ status: reviewed
 title: "Traced Requests: Logs, Metrics and Traces That Line Up"
 summary: "Instrument an API by hand: continue or start a W3C trace per request, propagate it to a dependency, write one structured log line per request, put the trace id in error bodies and expose a Prometheus latency histogram labelled by route template."
 objectives:
-  - { id: o1, text: "Parse, continue and propagate W3C traceparent headers", skills: [full-stack.observability] }
-  - { id: o2, text: "Write one structured JSON log line per request that carries the trace id", skills: [full-stack.observability, backend.sre] }
+  - { id: o1, text: "Parse, continue and propagate W3C traceparent headers", skills: [full-stack.observability, nodejs.async-context] }
+  - { id: o2, text: "Write one structured JSON log line per request that carries the trace id", skills: [full-stack.observability, backend.sre, nodejs.async-context] }
   - { id: o3, text: "Expose a latency histogram with cumulative buckets and low-cardinality labels", skills: [full-stack.observability, backend.sre] }
 prerequisites: [full-stack.p3.observability]
 difficulty: 4

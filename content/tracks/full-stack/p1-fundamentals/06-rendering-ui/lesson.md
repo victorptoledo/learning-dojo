@@ -88,3 +88,4 @@ exploit.
 - MDN, "Client-side form validation": <https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Form_validation>
 - OWASP, "Cross Site Scripting Prevention Cheat Sheet": <https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html>
 - MDN, "Content Security Policy (CSP)": <https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP>
+- In the dojo: the Frontend track's *Forms* and *Browser Security*, and the React track's *JSX and Function Components* and *Forms*.

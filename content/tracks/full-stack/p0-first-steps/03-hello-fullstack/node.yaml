@@ -4,7 +4,7 @@ status: reviewed
 title: "Hello, Full Stack: a Guestbook"
 summary: "Both halves of a web app with no framework: a node:http server with a JSON API and a server-rendered page, and a fetch client that renders entries as escaped HTML."
 objectives:
-  - { id: o1, text: "Serve JSON and HTML from one server with the right status codes, headers and methods", skills: [full-stack.client-server, full-stack.web-platform] }
+  - { id: o1, text: "Serve JSON and HTML from one server with the right status codes, headers and methods", skills: [full-stack.client-server, full-stack.web-platform, nodejs.http] }
   - { id: o2, text: "Call the API with fetch, handle non-2xx answers and escape user text before it becomes HTML", skills: [full-stack.web-platform, full-stack.rendering] }
 prerequisites: [full-stack.p0.web-platform]
 difficulty: 1

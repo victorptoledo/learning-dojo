@@ -4,9 +4,9 @@ status: reviewed
 title: "Data Fetching and Caching: HTTP Caches, Client Caches and Optimistic Updates"
 summary: "Every layer that can answer before your server does, and how to keep them right: Cache-Control and validators, CDN caching, client caches such as TanStack Query and SWR, invalidation after writes, optimistic updates and lost updates."
 objectives:
-  - { id: o1, text: "Choose Cache-Control directives and validators for each kind of response", skills: [full-stack.data-fetching, system-design.caching-strategies] }
-  - { id: o2, text: "Explain client-side server-state caches: stale-while-revalidate, deduplication and invalidation after mutations", skills: [full-stack.data-fetching] }
-  - { id: o3, text: "Implement optimistic updates with rollback and prevent lost updates with conditional requests", skills: [full-stack.data-fetching] }
+  - { id: o1, text: "Choose Cache-Control directives and validators for each kind of response", skills: [full-stack.data-fetching, system-design.caching-strategies, api-design.caching] }
+  - { id: o2, text: "Explain client-side server-state caches: stale-while-revalidate, deduplication and invalidation after mutations", skills: [full-stack.data-fetching, react.data-fetching, react.state-management] }
+  - { id: o3, text: "Implement optimistic updates with rollback and prevent lost updates with conditional requests", skills: [full-stack.data-fetching, react.data-fetching] }
 prerequisites: [full-stack.p2.spa-session-api]
 difficulty: 3
 estimated_minutes: 55

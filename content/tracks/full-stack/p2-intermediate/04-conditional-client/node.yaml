@@ -4,8 +4,8 @@ status: reviewed
 title: "Conditional Requests: a Product Page That Revalidates"
 summary: "ETags on the server, If-None-Match revalidation with 304 and If-Match updates with 412 and 428, and a client cache that revalidates instead of downloading and turns a lost update into a visible conflict."
 objectives:
-  - { id: o1, text: "Compute strong ETags and answer If-None-Match with 304 Not Modified", skills: [full-stack.data-fetching, full-stack.client-server] }
-  - { id: o2, text: "Prevent lost updates with If-Match, 412 Precondition Failed and 428 Precondition Required", skills: [full-stack.data-fetching] }
+  - { id: o1, text: "Compute strong ETags and answer If-None-Match with 304 Not Modified", skills: [full-stack.data-fetching, full-stack.client-server, api-design.caching] }
+  - { id: o2, text: "Prevent lost updates with If-Match, 412 Precondition Failed and 428 Precondition Required", skills: [full-stack.data-fetching, api-design.caching] }
   - { id: o3, text: "Write a client cache that revalidates and surfaces conflicts to the UI", skills: [full-stack.data-fetching] }
 prerequisites: [full-stack.p2.data-fetching]
 difficulty: 3

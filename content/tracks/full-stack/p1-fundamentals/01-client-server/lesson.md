@@ -107,3 +107,4 @@ different domains or a public API.
 - MDN, "Cross-Origin Resource Sharing (CORS)": <https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS>
 - MDN, "Same-origin policy": <https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy>
 - RFC 9110, "HTTP Semantics": <https://www.rfc-editor.org/rfc/rfc9110>
+- In the dojo: the API Design track's *HTTP Semantics* and *Choosing HTTP Status Codes*, and the Frontend track's *Browser Security*.

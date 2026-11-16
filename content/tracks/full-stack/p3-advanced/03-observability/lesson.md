@@ -100,3 +100,4 @@ service has the RED metrics per route, dependency latency and the deploy markers
 - Prometheus documentation, "Metric and label naming": <https://prometheus.io/docs/practices/naming/>
 - Google SRE book, "Monitoring Distributed Systems": <https://sre.google/sre-book/monitoring-distributed-systems/>
 - OWASP, "Logging Cheat Sheet": <https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html>
+- In the dojo: the DevOps & Cloud track's *Observability* and *SLIs, SLOs, Error Budgets and Burn-Rate Alerting*, the Node.js track's *AsyncLocalStorage, Logging and Observability* and the Frontend track's *Frontend in Production*.

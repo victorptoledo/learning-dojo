@@ -88,3 +88,4 @@ later, "why do we have a BFF?" has an answer, and so does "what would make us re
 - Spring Modulith reference documentation: <https://docs.spring.io/spring-modulith/reference/>
 - Nx documentation, "Enforce Module Boundaries": <https://nx.dev/docs/features/enforce-module-boundaries>
 - Michael Nygard, "Documenting Architecture Decisions": <https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions>
+- In the dojo: the Software Architecture track's *The Modular Monolith*, *Microservices and Their Costs* and *Integration Patterns, Sagas and API Gateways*.

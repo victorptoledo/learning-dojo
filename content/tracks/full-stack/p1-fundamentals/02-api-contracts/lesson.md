@@ -100,3 +100,4 @@ this shape.
 - Zod documentation: <https://zod.dev>
 - tRPC, "Concepts": <https://trpc.io/docs/concepts>
 - Martin Fowler, "TolerantReader": <https://martinfowler.com/bliki/TolerantReader.html>
+- In the dojo: the API Design track's *Resources and REST*, *Errors as Problem Details*, *Versioning and Evolving an API Without Breaking Clients* and *OpenAPI as a Contract*.

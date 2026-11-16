@@ -81,3 +81,4 @@ The performance lesson of phase 3 shows how to collect them from real users.
 - Next.js documentation, "Incremental Static Regeneration (ISR)": <https://nextjs.org/docs/app/guides/incremental-static-regeneration>
 - Astro documentation, "Islands architecture": <https://docs.astro.build/en/concepts/islands/>
 - web.dev, "Web Vitals": <https://web.dev/articles/vitals>
+- In the dojo: the React track's *Server Components, Server Functions and Frameworks* and *Suspense, use, Transitions and Error Boundaries*, and the Frontend track's *Core Web Vitals*.

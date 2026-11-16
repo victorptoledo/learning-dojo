@@ -4,10 +4,10 @@ status: reviewed
 title: "Observability End to End: Logs, Metrics, Traces and Real User Monitoring"
 summary: "Seeing the whole journey of a request: structured logs with correlation ids, RED metrics and histograms with low-cardinality labels, distributed traces with W3C Trace Context and OpenTelemetry, front-end errors and real-user monitoring, and alerts on symptoms."
 objectives:
-  - { id: o1, text: "Write structured logs that carry a trace id and never secrets or personal data", skills: [full-stack.observability, backend.sre] }
-  - { id: o2, text: "Choose RED metrics and histograms with low-cardinality labels", skills: [full-stack.observability, backend.sre] }
-  - { id: o3, text: "Propagate traces from the browser through services with W3C Trace Context and OpenTelemetry", skills: [full-stack.observability, spring.observability] }
-  - { id: o4, text: "Collect front-end errors and real-user metrics, and alert on user-facing symptoms", skills: [full-stack.observability] }
+  - { id: o1, text: "Write structured logs that carry a trace id and never secrets or personal data", skills: [full-stack.observability, backend.sre, nodejs.async-context] }
+  - { id: o2, text: "Choose RED metrics and histograms with low-cardinality labels", skills: [full-stack.observability, backend.sre, devops.observability-sre] }
+  - { id: o3, text: "Propagate traces from the browser through services with W3C Trace Context and OpenTelemetry", skills: [full-stack.observability, spring.observability, devops.observability-sre] }
+  - { id: o4, text: "Collect front-end errors and real-user metrics, and alert on user-facing symptoms", skills: [full-stack.observability, devops.slo-alerting, frontend.production] }
 prerequisites: [full-stack.p3.compose-the-stack]
 difficulty: 4
 estimated_minutes: 55
