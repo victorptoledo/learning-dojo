@@ -1,0 +1,24 @@
+id: full-stack.p1.rendering-ui
+kind: lesson
+status: reviewed
+title: "Rendering UI: Server Pages, SPAs, Forms and Escaping"
+summary: "Two ways to put data on a screen, server-rendered pages and client-rendered SPAs; forms with Post/Redirect/Get and errors under fields; UI state; escaping and Content-Security-Policy."
+objectives:
+  - { id: o1, text: "Compare server-rendered pages and single-page apps, and choose per screen", skills: [full-stack.rendering] }
+  - { id: o2, text: "Handle forms end to end: Post/Redirect/Get, errors under fields, keeping what the user typed", skills: [full-stack.rendering, full-stack.web-platform] }
+  - { id: o3, text: "Render user data safely with contextual escaping and a Content-Security-Policy", skills: [full-stack.rendering] }
+prerequisites: [full-stack.p1.page-query]
+difficulty: 2
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A product team wants two things: a public catalogue that must load fast on phones and be indexed by search engines, and an internal back-office with drag-and-drop planning boards. For each, choose server-rendered pages, an SPA or a mix, and justify it. Then describe how the catalogue''s "contact us" form handles a validation error and a success, and how both apps keep user-supplied text from becoming script.'
+  criteria:
+    - 'Chooses server rendering (or static) for the public catalogue with reasons (first paint, SEO, little JavaScript)'
+    - 'Chooses an SPA or rich client for the board with reasons (interaction, state)'
+    - 'Describes PRG: 303 on success, the page again with errors and the typed values on failure'
+    - 'Mentions escaping by default in templates or frameworks and avoiding raw HTML insertion'
+    - 'Mentions a Content-Security-Policy as defence in depth'

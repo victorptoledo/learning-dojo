@@ -1,0 +1,50 @@
+id: full-stack.p2.checkpoint
+kind: checkpoint
+status: reviewed
+title: "📋 Checkpoint 2: Intermediate"
+summary: "Prove the intermediate phase: a quiz and an integration kata, a comments feature from a JPA entity to the page's needs, with opaque cursors, field-level validation errors and a canDelete flag the server still enforces."
+objectives:
+  - { id: o1, text: "Explain authentication across the stack, data fetching and caching, and rendering strategies in your own words", skills: [full-stack.auth, full-stack.data-fetching, full-stack.ssr-ssg] }
+  - { id: o2, text: "Build a feature from the database to what the page needs: keyset pages, errors per field and permissions shown and enforced", skills: [full-stack.auth, full-stack.data-modelling, full-stack.api-contracts, spring.data-jpa] }
+prerequisites: [full-stack.p2.ssr-ssg]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+closes_phase: p2
+covers_skills: [full-stack.auth, full-stack.data-fetching, full-stack.ssr-ssg]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 240 }
+  hints:
+    - |-
+      Start with the read path, since every other test lists comments: two repository methods (first page, page after a cursor), then the controller. How do you know whether a "Show more" button is needed without counting all the comments? Then `canDelete`: it depends on the comment and on who is looking, so where does the viewer come from in a controller method, including when nobody is logged in?
+    - |-
+      Spring Data derives `findByArticleSlugOrderByIdDesc(String slug, Limit limit)` and `findByArticleSlugAndIdLessThanOrderByIdDesc(String slug, long id, Limit limit)`; ask for `Limit.of(limit + 1)` and the extra row tells you a next page exists. The cursor is `Base64.getUrlEncoder().withoutPadding()` of the last id; decoding errors (an `IllegalArgumentException`, which `NumberFormatException` is) become a `ResponseStatusException` 400. An `Authentication` parameter is `null` for anonymous readers. In `ApiErrors`, override `handleMethodArgumentNotValid` and put a field-to-message map in `problem.setProperty("errors", ...)`.
+    - |-
+      ```java
+      @GetMapping("/api/articles/{slug}/comments")
+      Page list(@PathVariable String slug, @RequestParam(defaultValue = "10") int limit,
+                @RequestParam(required = false) String cursor, Authentication viewer) {
+          // 400 when limit is outside 1..50
+          List<Comment> found = cursor == null
+                  ? comments.findByArticleSlugOrderByIdDesc(slug, Limit.of(limit + 1))
+                  : comments.findByArticleSlugAndIdLessThanOrderByIdDesc(slug, decode(cursor), Limit.of(limit + 1));
+          List<Comment> page = found.subList(0, Math.min(limit, found.size()));
+          String next = found.size() > limit ? encode(page.getLast().getId()) : null;
+          return new Page(page.stream().map(c -> view(c, viewer)).toList(), next);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4, JPA on H2, Spring Security and JUnit 6 that runs the grading tests.

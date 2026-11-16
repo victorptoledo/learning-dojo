@@ -1,0 +1,36 @@
+questions:
+  - id: scope
+    prompt: "What best describes the full stack role?"
+    options:
+      - "The deepest expert in every layer of the stack"
+      - "Someone who can take a feature from the page to the database and production, and knows when to call a specialist"
+      - "A frontend developer who also writes SQL"
+    answer: 1
+    explanation: "Breadth across layers and the judgement to make them fit, not maximum depth everywhere."
+  - id: dns
+    prompt: "A domain's DNS record points to an old IP address. Where does the request fail?"
+    options: ["In your server's router", "Before your code runs: the browser connects to the wrong place or nowhere", "In the database"]
+    answer: 1
+    explanation: "DNS resolution happens before any connection to your server."
+  - id: cert
+    prompt: "The TLS certificate expired last night. What do your server logs show?"
+    options: ["A 500 for each request", "Usually nothing: browsers refuse the connection before any request reaches the app", "A 401"]
+    answer: 1
+    explanation: "The TLS handshake fails in the browser, so no HTTP request is ever logged by the app."
+  - id: cors
+    prompt: "The console shows a CORS error for a POST. What is true?"
+    options:
+      - "The server certainly never received the request"
+      - "The browser blocked reading the answer; depending on the request, the server may already have processed it"
+      - "CORS errors only happen with GET"
+    answer: 1
+    explanation: "CORS is enforced by the browser on the response; simple requests still reach the server."
+  - id: first-look
+    prompt: "A button does nothing when clicked. Where do you look first?"
+    options: ["The database slow-query log", "The browser's console and network tab", "The load balancer's configuration"]
+    answer: 1
+    explanation: "If no request is sent, the problem is in the page; the network tab tells you at once."
+  - id: monolith
+    prompt: "Which architecture is the sensible default for a new product with one team?"
+    answers: ["monolith", "a monolith", "modular monolith", "a modular monolith"]
+    explanation: "One deployable and one database until a concrete problem asks for more."

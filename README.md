@@ -49,6 +49,7 @@ of your choice.
 16 tracks are complete, with 378 lessons and checkpoints and 133 katas between them:
 16 tracks are complete, with 378 lessons and checkpoints and 132 katas between them:
 16 tracks are complete, with 376 lessons and checkpoints and 133 katas between them:
+16 tracks are complete, with 377 lessons and checkpoints and 133 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
@@ -83,6 +84,12 @@ Node.js, Software Architecture, Prompt Engineering, PostgreSQL, AWS and Computer
 Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL and AWS.
 Node.js, Software Architecture, API Design, PostgreSQL, AWS and Computer Science.
 Node.js, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
+| Full Stack Developer | browser to database: contracts, auth, caching, deploys, observability | 24 | 9 | `dojo-node`, `dojo-java`, `dojo-sql`, `dojo-docker` |
+
+Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
+languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
+Frontend, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
+Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 
 ## Requirements
 

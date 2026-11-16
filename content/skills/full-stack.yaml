@@ -1,5 +1,17 @@
 namespace: full-stack
 skills:
-  - { id: full-stack.client-server, title: "Type-Safe Communication Between Client and Server" }
-  - { id: full-stack.ssr-ssg, title: "SSR, SSG, ISR and React Server Components" }
-  - { id: full-stack.deploy-serverless, title: "Continuous Deployment, Edge Functions and Serverless Databases" }
+  - { id: full-stack.role, title: "The Full Stack Role and the Journey of a Request" }
+  - { id: full-stack.web-platform, title: "The Web Platform: HTML, Forms, the DOM and fetch" }
+  - { id: full-stack.client-server, title: "Client and Server over HTTP: Requests, Cookies, CORS and fetch" }
+  - { id: full-stack.api-contracts, title: "Typed API Contracts Between Client and Server" }
+  - { id: full-stack.data-modelling, title: "From Screens to Tables: Data Modelling, Migrations and Page Queries" }
+  - { id: full-stack.rendering, title: "Rendering UI: Server Pages, SPAs, Forms and Escaping" }
+  - { id: full-stack.auth, title: "Authentication Across the Stack: Cookies, CSRF, CORS and OIDC" }
+  - { id: full-stack.data-fetching, title: "Data Fetching and Caching: HTTP Caches, Client Caches and Optimistic Updates" }
+  - { id: full-stack.ssr-ssg, title: "Rendering Strategies: SSR, SSG, ISR and React Server Components" }
+  - { id: full-stack.deploy-serverless, title: "Deploying the Stack: Containers, Environments, CD and Serverless" }
+  - { id: full-stack.observability, title: "Observability End to End: Logs, Metrics, Traces and Real User Monitoring" }
+  - { id: full-stack.performance, title: "Performance and Real-Time: Budgets, CDNs, N+1, WebSockets and SSE" }
+  - { id: full-stack.architecture, title: "Full Stack Architecture: Monoliths, BFFs and Monorepos" }
+  - { id: full-stack.testing, title: "Testing Across the Stack: Unit, Contract, Integration and End-to-End" }
+  - { id: full-stack.ownership, title: "Production Ownership: Safe Migrations, Feature Flags and Incidents" }

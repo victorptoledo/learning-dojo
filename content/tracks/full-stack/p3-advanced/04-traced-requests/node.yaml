@@ -1,0 +1,49 @@
+id: full-stack.p3.traced-requests
+kind: kata
+status: reviewed
+title: "Traced Requests: Logs, Metrics and Traces That Line Up"
+summary: "Instrument an API by hand: continue or start a W3C trace per request, propagate it to a dependency, write one structured log line per request, put the trace id in error bodies and expose a Prometheus latency histogram labelled by route template."
+objectives:
+  - { id: o1, text: "Parse, continue and propagate W3C traceparent headers", skills: [full-stack.observability] }
+  - { id: o2, text: "Write one structured JSON log line per request that carries the trace id", skills: [full-stack.observability, backend.sre] }
+  - { id: o3, text: "Expose a latency histogram with cumulative buckets and low-cardinality labels", skills: [full-stack.observability, backend.sre] }
+prerequisites: [full-stack.p3.observability]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 90 }
+  hints:
+    - |-
+      Do `trace.ts` and `metrics.ts` first: they are pure functions and half of the tests. Then think of the app as one wrapper around every route: what must be known before the route runs (the trace, the start time), and what can only be done after the answer is sent (the duration, the log line, the observation)? Which label goes into the metric when no route matched?
+    - |-
+      One regular expression `^([0-9a-f]{2})-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$` checks the shape and the lower case; then refuse version `ff` and all-zero ids. For the histogram, keep per label set the count of each bucket (not cumulative) plus sum and count, and accumulate while rendering. In the app, build `span = { traceId: incoming?.traceId ?? newTraceId(), spanId: newSpanId(), flags: incoming?.flags ?? "01" }`, pass `formatTraceparent(span)` to the inventory, catch the handler's exception to answer 500, and log and observe after `response.end`.
+    - |-
+      ```ts
+      async function handle(request: IncomingMessage, response: ServerResponse): Promise<void> {
+        const started = options.now();
+        const incoming = parseTraceparent(request.headers["traceparent"] as string | undefined);
+        const span = { traceId: incoming?.traceId ?? newTraceId(), spanId: newSpanId(), flags: incoming?.flags ?? "01" };
+        let label = "unmatched";
+        let answer = json(404, { error: "not found" });
+        // find the route, set label, run it in try/catch (500 with span.traceId)
+        response.writeHead(answer.status, { "Content-Type": answer.contentType ?? "application/json", "X-Trace-Id": span.traceId });
+        response.end(answer.body);
+        const durationMs = options.now() - started;
+        // histogram.observe(...) and options.log({ level, msg: "request", ... })
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

@@ -1,0 +1,59 @@
+questions:
+  - id: token-storage
+    skills: [full-stack.auth]
+    prompt: "Why is a session id in an HttpOnly cookie safer against XSS than a token in localStorage?"
+    options: ["It is encrypted", "Injected scripts cannot read it, so they cannot take it away", "It never expires"]
+    answer: 1
+    explanation: "XSS can still act in the page, but cannot exfiltrate the credential."
+  - id: csrf-defence
+    skills: [full-stack.auth]
+    prompt: "Which pair of defences protects a cookie session against CSRF?"
+    options: ["CORS and HTTPS", "SameSite cookies and a CSRF token checked on state-changing requests", "A longer session id and a captcha"]
+    answer: 1
+    explanation: "CORS controls reading answers, not sending requests."
+  - id: bff-tokens
+    skills: [full-stack.auth]
+    prompt: "In a backend-for-frontend, what does the browser hold?"
+    options: ["The access and refresh tokens", "Only an HttpOnly session cookie", "The client secret"]
+    answer: 1
+    explanation: "The BFF keeps the tokens and calls APIs for the user."
+  - id: owner-check
+    skills: [full-stack.auth]
+    prompt: "The page hides 'Delete' from non-authors. What must DELETE /api/comments/{id} still do?"
+    options: ["Nothing more", "Check that the caller is the author or an admin", "Check the Referer header"]
+    answer: 1
+    explanation: "The server enforces; the UI only reflects."
+  - id: etag-304
+    skills: [full-stack.data-fetching]
+    prompt: "Which request header lets a client revalidate its cached copy by ETag?"
+    answers: ["If-None-Match", "if-none-match"]
+    explanation: "A match gives 304 Not Modified."
+  - id: precondition
+    skills: [full-stack.data-fetching]
+    prompt: "A PUT carries an If-Match that no longer matches. Which status?"
+    answers: ["412", "412 Precondition Failed"]
+    explanation: "The client edited an old version; it must reload."
+  - id: stale-while-revalidate
+    skills: [full-stack.data-fetching]
+    prompt: "What does stale-while-revalidate give the user?"
+    options: ["Always fresh data, slowly", "The cached data at once, updated when the background refetch finishes", "No network calls"]
+    answer: 1
+    explanation: "Fast first render with eventual freshness."
+  - id: route-strategy
+    skills: [full-stack.ssr-ssg]
+    prompt: "Product pages with millions of views and rare edits. Which strategy?"
+    options: ["SSR on every request", "ISR with on-demand revalidation when a product is edited", "CSR only"]
+    answer: 1
+    explanation: "Static speed; regenerate when the data changes."
+  - id: hydration-cost
+    skills: [full-stack.ssr-ssg]
+    prompt: "What reduces hydration cost on a mostly static article page?"
+    options: ["Islands or server components, so only interactive parts ship JavaScript", "Disabling the CDN", "More client-side routing"]
+    answer: 0
+    explanation: "Ship and hydrate only what is interactive."
+  - id: next-page
+    skills: [full-stack.data-modelling, full-stack.data-fetching]
+    prompt: "How can an API know that a 'Show more' button is needed without counting every row?"
+    options: ["It cannot", "Fetch one row more than the page size", "Use OFFSET"]
+    answer: 1
+    explanation: "If the extra row exists, another page follows."

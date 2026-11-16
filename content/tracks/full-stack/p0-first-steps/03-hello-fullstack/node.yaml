@@ -1,0 +1,51 @@
+id: full-stack.p0.hello-fullstack
+kind: kata
+status: reviewed
+title: "Hello, Full Stack: a Guestbook"
+summary: "Both halves of a web app with no framework: a node:http server with a JSON API and a server-rendered page, and a fetch client that renders entries as escaped HTML."
+objectives:
+  - { id: o1, text: "Serve JSON and HTML from one server with the right status codes, headers and methods", skills: [full-stack.client-server, full-stack.web-platform] }
+  - { id: o2, text: "Call the API with fetch, handle non-2xx answers and escape user text before it becomes HTML", skills: [full-stack.web-platform, full-stack.rendering] }
+prerequisites: [full-stack.p0.web-platform]
+difficulty: 1
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 90 }
+  hints:
+    - |-
+      Start from the routing question: for each request you need its method and its path (without the query string). Which object gives you the path of `request.url`? And for the client: what does `fetch` do when the server answers 400: does it throw, or does it hand you a response whose `ok` is false?
+    - |-
+      `new URL(request.url ?? "/", "http://localhost").pathname` gives the path. For `POST`, read the body with the `readBody` helper, `JSON.parse` it inside `try`/`catch` (a failure is the 400), then check that `name` and `message` are strings that are not blank after `trim()`. `fetch` only rejects on network errors: check `response.ok` yourself and read `response.json()` for the server's `error`.
+    - |-
+      ```ts
+      return createServer((request, response) => {
+        const path = new URL(request.url ?? "/", "http://localhost").pathname;
+        if (path === "/" && request.method === "GET") {
+          response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+          response.end(`<!doctype html>...<ul id="entries">${renderEntries(entries)}</ul>...`);
+        } else if (path === "/api/entries" && request.method === "GET") {
+          sendJson(response, 200, { entries });
+        } else if (path === "/api/entries" && request.method === "POST") {
+          // readBody, JSON.parse, validate, push, 201 with Location
+        } else if (path === "/api/entries") {
+          sendJson(response, 405, { error: "method not allowed" }, { Allow: "GET, POST" });
+        } else {
+          sendJson(response, 404, { error: "not found" });
+        }
+      });
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

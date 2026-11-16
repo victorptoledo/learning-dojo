@@ -1,0 +1,35 @@
+questions:
+  - id: real-db
+    prompt: "Why run repository tests against a real PostgreSQL in a container instead of a mock?"
+    options: ["It is faster", "They catch wrong SQL, constraint violations and transaction bugs that mocks hide", "Mocks are not allowed"]
+    answer: 1
+    explanation: "Mocking the database tests the mock."
+  - id: msw
+    prompt: "What should UI component tests mock?"
+    options: ["The components they render", "The network, returning the API's real shapes", "Nothing, they need the real API"]
+    answer: 1
+    explanation: "Mock at the network boundary with MSW and contract-shaped fixtures."
+  - id: gap
+    prompt: "Both the UI's and the API's tests pass, yet production breaks on a renamed field. Which kind of test closes this gap?"
+    answers: ["contract test", "contract tests", "contract", "consumer-driven contract"]
+    explanation: "Contracts (generated types, schema checks or Pact) check that both sides agree."
+  - id: e2e-scope
+    prompt: "What should the end-to-end suite cover?"
+    options: ["Every validation rule of every form", "A few critical journeys such as sign-up, login and checkout", "Only the home page"]
+    answer: 1
+    explanation: "Few, valuable, reliable; details belong to faster levels."
+  - id: selectors
+    prompt: "Which selector keeps an end-to-end test stable?"
+    options: ["div > div:nth-child(3) > button", "getByRole('button', { name: 'Checkout' })", "an XPath with absolute indices"]
+    answer: 1
+    explanation: "Roles and labels follow what users see and survive layout changes."
+  - id: flaky
+    prompt: "An end-to-end test fails one run in ten. What should the team do?"
+    options: ["Add retries until it passes", "Quarantine it and fix the cause (timing, shared data) right away", "Ignore it"]
+    answer: 1
+    explanation: "Flaky tests destroy trust in the whole suite."
+  - id: trophy
+    prompt: "The testing trophy puts most of the effort into which level?"
+    options: ["Unit", "Integration", "End-to-end"]
+    answer: 1
+    explanation: "Most bugs in web apps happen where pieces meet."

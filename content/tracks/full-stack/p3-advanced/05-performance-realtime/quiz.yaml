@@ -1,0 +1,34 @@
+questions:
+  - id: field-lab
+    prompt: "Lighthouse scores 98 but users complain the page is slow. What should you trust?"
+    options: ["Lighthouse", "Field data from real users (RUM, Web Vitals at p75)", "The server's CPU graph"]
+    answer: 1
+    explanation: "Lab tests one device and network; field data is what users get."
+  - id: js-cost
+    prompt: "Why is a kilobyte of JavaScript costlier than a kilobyte of image?"
+    options: ["It is not compressed", "It must also be parsed and executed on the main thread", "Browsers download it last"]
+    answer: 1
+    explanation: "Parsing and executing block interaction."
+  - id: lcp-image
+    prompt: "Which attribute tells the browser to fetch the hero (LCP) image early?"
+    answers: ["fetchpriority=\"high\"", "fetchpriority", "fetchpriority=high"]
+    explanation: "fetchpriority=high on the LCP image; lazy-load the rest."
+  - id: sse
+    prompt: "Order status updates only flow from server to browser. Which technique is simplest?"
+    answers: ["SSE", "Server-Sent Events", "server sent events", "EventSource"]
+    explanation: "One long GET with text/event-stream; EventSource reconnects by itself."
+  - id: fanout
+    prompt: "A user's SSE connection is on instance A, but the status changes on instance B. What delivers the event?"
+    options: ["Sticky sessions alone", "A pub/sub such as Redis or PostgreSQL LISTEN/NOTIFY that every instance subscribes to", "A bigger load balancer"]
+    answer: 1
+    explanation: "Publish once, every instance pushes to its own connections."
+  - id: reconnect
+    prompt: "A phone loses its connection for 30 s. What must the client do?"
+    options: ["Nothing", "Reconnect with backoff and catch up on missed events or refetch the state", "Reload the page"]
+    answer: 1
+    explanation: "Live connections drop constantly; catching up is part of the design."
+  - id: parallel
+    prompt: "An endpoint calls three independent services one after another (300 ms each). What helps most?"
+    options: ["Calling them in parallel", "A faster JSON serializer", "HTTP/1.0"]
+    answer: 0
+    explanation: "Parallel calls take about as long as the slowest one."

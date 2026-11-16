@@ -1,0 +1,23 @@
+id: full-stack.p0.web-platform
+kind: lesson
+status: reviewed
+title: "The Web Platform: HTML, Forms, the DOM and fetch"
+summary: "The minimum of the browser a full stack developer relies on: semantic HTML, forms that work without JavaScript, the DOM, events and fetch, and why text from users must be escaped."
+objectives:
+  - { id: o1, text: "Write semantic HTML and forms that submit with the right method and encoding", skills: [full-stack.web-platform] }
+  - { id: o2, text: "Update the DOM from data fetched with fetch, handling loading, errors and non-2xx answers", skills: [full-stack.web-platform] }
+  - { id: o3, text: "Explain why user text must be escaped or set as text, never as HTML", skills: [full-stack.web-platform, full-stack.rendering] }
+prerequisites: [full-stack.p0.the-role]
+difficulty: 1
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Sketch the HTML for a "new comment" form (one textarea, a submit button, a place for errors) and the JavaScript that sends it with fetch instead of a page reload. Show how the page reports a failed request, a 422 with a message, and success, and explain which line keeps a comment containing <script> from running.'
+  criteria:
+    - 'Uses a real form with labelled controls, method and action, so it also works without JavaScript'
+    - 'Handles network failure, non-2xx statuses and success separately'
+    - 'Inserts user text with textContent or escaping, never innerHTML'
+    - 'Disables or marks the button while the request is in flight'

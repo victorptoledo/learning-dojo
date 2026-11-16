@@ -1,0 +1,24 @@
+id: full-stack.p4.testing
+kind: lesson
+status: reviewed
+title: "Testing Across the Stack: Unit, Contract, Integration and End-to-End"
+summary: "A testing strategy for a whole product: what each kind of test proves, the testing trophy, integration tests against real databases with Testcontainers, contract tests between UI and API, a few end-to-end tests with Playwright, and keeping the suite fast and trustworthy."
+objectives:
+  - { id: o1, text: "Choose the level of each test by what it proves and what it costs", skills: [full-stack.testing, typescript.testing-linting] }
+  - { id: o2, text: "Test the API with a real database and the UI against a mocked network", skills: [full-stack.testing, spring.testing] }
+  - { id: o3, text: "Guard the contract between UI and API and keep a small, reliable end-to-end suite", skills: [full-stack.testing] }
+prerequisites: [full-stack.p4.architecture]
+difficulty: 4
+estimated_minutes: 50
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write the test plan for the comments feature you built in checkpoint 2, from the database to the page. Say which tests you would write at each level (unit, integration with a real database, API, UI component, contract, end-to-end), what each one proves, what it mocks and what it does not, and what runs on every pull request versus nightly.'
+  criteria:
+    - 'Unit tests for pure logic such as cursor encoding and permission rules'
+    - 'Integration tests of the repository and endpoints against a real database (Testcontainers or similar)'
+    - 'UI tests that mock the network (for example MSW) and check loading, error and permission states'
+    - 'A contract check between UI and API (generated types, schema validation or consumer-driven contracts)'
+    - 'A few end-to-end journeys with a browser, and a plan for flaky tests and run frequency'

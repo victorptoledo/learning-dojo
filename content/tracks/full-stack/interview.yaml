@@ -1,0 +1,244 @@
+# Technical interview questions for the full stack track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/questions/full-stack"
+  - "https://www.interviewbit.com/full-stack-developer-interview-questions/"
+  - "https://www.geeksforgeeks.org/full-stack-developer-interview-questions-and-answers/"
+  - "https://web.dev/articles/rendering-on-the-web"
+  - "https://cheatsheetseries.owasp.org/"
+questions:
+  - id: url-to-page
+    level: junior
+    skills: [full-stack.role]
+    question: "What happens between typing a URL in the browser and seeing the page?"
+    key_points:
+      - "DNS lookup, TCP and TLS handshake"
+      - "HTTP request through CDN or proxy and load balancer to the server"
+      - "Server work: routing, auth, database"
+      - "Response, parsing HTML, loading CSS and JS, rendering"
+    follow_up: "Where would you put a cache in that path, and what would you cache there?"
+  - id: fetch-errors
+    level: junior
+    skills: [full-stack.web-platform, full-stack.client-server]
+    question: "How do you call an API from the browser and handle its errors correctly?"
+    key_points:
+      - "fetch with method, headers and a JSON body"
+      - "fetch rejects only on network errors; check response.ok and the status"
+      - "Loading, error and success states in the UI"
+      - "Show validation errors next to the fields"
+    follow_up: "How do you cancel a request when the user leaves the page?"
+  - id: xss
+    level: junior
+    skills: [full-stack.rendering, full-stack.web-platform]
+    question: "What is cross-site scripting and how do you prevent it in a full stack app?"
+    key_points:
+      - "Attacker-controlled input executed as script in other users' pages"
+      - "Escape by context; textContent or framework escaping by default"
+      - "Review raw-HTML escape hatches such as innerHTML or dangerouslySetInnerHTML"
+      - "Content-Security-Policy and HttpOnly cookies as defence in depth"
+    follow_up: "Why is escaping not enough for a user-supplied link?"
+  - id: http-status
+    level: junior
+    skills: [full-stack.client-server]
+    question: "Which status codes should an API return for: created, invalid input, not logged in, forbidden, not found, conflict?"
+    key_points:
+      - "201 with Location for created"
+      - "400 or 422 for invalid input"
+      - "401 for not authenticated, 403 for not allowed"
+      - "404 and 409 or 412 for conflicts"
+    follow_up: "Why should a GET never change data?"
+  - id: cors
+    level: junior
+    skills: [full-stack.client-server]
+    question: "What is CORS, why does it exist, and how do you fix a CORS error properly?"
+    key_points:
+      - "Same-origin policy: pages can send requests but not read cross-origin answers"
+      - "The server opts in with Access-Control-Allow-* headers"
+      - "Preflight OPTIONS for non-simple requests"
+      - "Exact origin and Allow-Credentials with cookies; or avoid it with one origin and a proxy"
+    follow_up: "Why does the same request work from curl?"
+  - id: sql-vs-orm
+    level: junior
+    skills: [full-stack.data-modelling]
+    question: "When would you use an ORM and when plain SQL?"
+    key_points:
+      - "ORM for CRUD and simple queries, productivity"
+      - "SQL for reports, complex pages and performance-critical queries"
+      - "Always read the SQL the ORM generates"
+      - "N+1 queries as the classic ORM trap"
+    follow_up: "How do you detect N+1 queries before production?"
+  - id: forms-prg
+    level: junior
+    skills: [full-stack.rendering]
+    question: "Walk me through handling a form submission end to end, including errors."
+    key_points:
+      - "Validate on the server, client-side checks only for comfort"
+      - "Invalid: show errors per field and keep the typed values (422)"
+      - "Valid: 303 redirect (Post/Redirect/Get) or update the UI in an SPA"
+      - "Prevent double submission"
+    follow_up: "How does the same validation serve both an HTML form and a JSON API?"
+  - id: api-contract
+    level: mid
+    skills: [full-stack.api-contracts]
+    question: "How do you keep the front end and the back end in agreement about the API?"
+    key_points:
+      - "One source of truth: OpenAPI or shared schemas, or RPC like tRPC"
+      - "Generated or inferred types, checked in CI"
+      - "Runtime validation at the boundaries"
+      - "Consistent error format such as problem details"
+    follow_up: "How would you roll out the rename of a field used by a mobile app?"
+  - id: pagination
+    level: mid
+    skills: [full-stack.data-modelling, full-stack.data-fetching]
+    question: "How would you paginate an infinite-scroll feed?"
+    key_points:
+      - "Keyset or cursor pagination instead of OFFSET"
+      - "A tie-breaker column and a matching composite index"
+      - "Opaque cursors returned by the server"
+      - "Fetch one extra row to know whether more exists"
+    follow_up: "When is OFFSET pagination still fine?"
+  - id: session-vs-token
+    level: mid
+    skills: [full-stack.auth]
+    question: "Sessions in cookies or tokens in the browser: which do you choose for a web app and why?"
+    key_points:
+      - "HttpOnly, Secure, SameSite session cookies keep credentials away from scripts"
+      - "Tokens in localStorage are exposed to XSS exfiltration"
+      - "Cookies need CSRF protection"
+      - "BFF pattern keeps OAuth tokens on the server"
+    follow_up: "How do you log a user out everywhere at once?"
+  - id: csrf
+    level: mid
+    skills: [full-stack.auth]
+    question: "Explain CSRF and the defences you would use for an SPA with cookie sessions."
+    key_points:
+      - "Other sites trigger requests that carry the user's cookies"
+      - "SameSite cookies"
+      - "CSRF token from a cookie sent back in a header, or a form field"
+      - "Origin or Sec-Fetch-Site checks, no state changes on GET, login CSRF"
+    follow_up: "Why does an API that only accepts Bearer tokens not need CSRF protection?"
+  - id: caching-layers
+    level: mid
+    skills: [full-stack.data-fetching]
+    question: "Which caches can sit between a user and your database, and how do you control each?"
+    key_points:
+      - "Browser HTTP cache and CDN through Cache-Control and Vary"
+      - "Validators: ETag with If-None-Match (304)"
+      - "Client server-state cache with invalidation after mutations"
+      - "Server-side caches with keys per user and an invalidation plan"
+    follow_up: "What happens if a per-user response is marked public?"
+  - id: rendering-choice
+    level: mid
+    skills: [full-stack.ssr-ssg, full-stack.rendering]
+    question: "When do you choose client rendering, server rendering or static generation?"
+    key_points:
+      - "SSG or ISR for content that rarely changes"
+      - "SSR for fresh or personalised content and SEO"
+      - "CSR for highly interactive screens behind a login"
+      - "Hydration cost and Core Web Vitals as the measure"
+    follow_up: "What are React Server Components trying to fix?"
+  - id: deploy-pipeline
+    level: mid
+    skills: [full-stack.deploy-serverless]
+    question: "Describe how you would deploy a front end, an API and its database changes safely."
+    key_points:
+      - "Build once per commit, promote the same artifacts"
+      - "Configuration from the environment, secrets from a store, nothing secret in the bundle"
+      - "Compatible migrations run once before the new version"
+      - "Health checks, gradual rollout and a rollback that does not touch the schema"
+    follow_up: "What changes when the API runs on serverless functions?"
+  - id: lost-update
+    level: mid
+    skills: [full-stack.data-fetching]
+    question: "Two users edit the same record at the same time. How do you stop one from silently overwriting the other?"
+    key_points:
+      - "Optimistic concurrency with a version or ETag"
+      - "If-Match on writes, 412 on mismatch, 428 when missing"
+      - "The UI shows the newer version and lets the user decide"
+      - "Version column in the database (for example @Version)"
+    follow_up: "When would you choose pessimistic locking instead?"
+  - id: observability
+    level: senior
+    skills: [full-stack.observability]
+    question: "A user reports that checkout 'sometimes hangs'. How do you make that diagnosable?"
+    key_points:
+      - "Structured logs with a trace id shown in user-facing errors"
+      - "RED metrics with latency histograms per route template"
+      - "Distributed tracing with W3C traceparent and OpenTelemetry"
+      - "Front-end error reporting and real-user monitoring"
+      - "Alerts on symptoms against SLOs"
+    follow_up: "What must never appear in your logs?"
+  - id: performance
+    level: senior
+    skills: [full-stack.performance]
+    question: "A page takes 5 seconds to become usable on phones. How do you approach it?"
+    key_points:
+      - "Measure field data (Web Vitals at p75) and lab data, find the biggest cost"
+      - "Front end: JavaScript weight, code splitting, images, render-blocking resources"
+      - "Back end: N+1, indexes, parallel calls, payload size"
+      - "Set a budget and check it in CI"
+    follow_up: "Which Core Web Vital does heavy hydration hurt, and why?"
+  - id: realtime
+    level: senior
+    skills: [full-stack.performance]
+    question: "How would you add live updates to an app that runs on several API instances?"
+    key_points:
+      - "Polling, SSE or WebSockets, chosen by direction and frequency"
+      - "Pub/sub (Redis, LISTEN/NOTIFY, a broker) to fan out across instances"
+      - "Heartbeats and load balancer timeouts"
+      - "Reconnect with backoff and catch up on missed events; authenticate and check Origin"
+    follow_up: "Why is SSE often enough?"
+  - id: monolith-services
+    level: senior
+    skills: [full-stack.architecture]
+    question: "Your CTO wants to split the monolith into microservices. How do you respond?"
+    key_points:
+      - "Name the forces: team independence, scaling, isolation, technology"
+      - "Costs: network failures, distributed data, operations, contracts"
+      - "Modular monolith with enforced boundaries as the first step"
+      - "Extract one module where the forces are real; record the decision in an ADR"
+    follow_up: "What is a distributed monolith, and how do you recognise one?"
+  - id: bff
+    level: senior
+    skills: [full-stack.architecture, full-stack.auth]
+    question: "What is a backend-for-frontend, and when is it worth it?"
+    key_points:
+      - "A thin backend per client type that shapes and aggregates data"
+      - "Owned by the client team"
+      - "Can hold OAuth tokens so the browser only has a session cookie"
+      - "Cost: one more service; meta-framework server code can play the role"
+    follow_up: "How is it different from an API gateway?"
+  - id: test-strategy
+    level: senior
+    skills: [full-stack.testing]
+    question: "How would you design the test suite of a full stack product?"
+    key_points:
+      - "Static checks and unit tests for logic"
+      - "Integration tests against a real database (Testcontainers)"
+      - "UI tests with a mocked network and real shapes"
+      - "Contract checks between UI and API"
+      - "A few reliable end-to-end journeys; fight flakiness"
+    follow_up: "What runs on every pull request, and what nightly?"
+  - id: zero-downtime-migration
+    level: senior
+    skills: [full-stack.ownership, full-stack.data-modelling]
+    question: "How do you rename a heavily used column without downtime?"
+    key_points:
+      - "Expand: add the new column; dual write"
+      - "Backfill in batches"
+      - "Switch reads, possibly behind a flag; keep old clients working"
+      - "Contract after measuring that nothing uses the old column"
+      - "Concurrent index builds and lock timeouts"
+    follow_up: "How do cached SPA bundles and old mobile apps change your plan?"
+  - id: incident
+    level: senior
+    skills: [full-stack.ownership]
+    question: "Errors spike right after your deploy on a Friday afternoon. What do you do?"
+    key_points:
+      - "Declare an incident and assign roles"
+      - "Mitigate first: roll back or switch off the flag"
+      - "Communicate on a schedule"
+      - "Confirm recovery with the same signals"
+      - "Blameless postmortem with owned action items"
+    follow_up: "What would make the same incident impossible, or at least smaller, next time?"

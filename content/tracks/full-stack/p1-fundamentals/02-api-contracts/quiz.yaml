@@ -1,0 +1,41 @@
+questions:
+  - id: types-runtime
+    prompt: "The client declares `const order: Order = await response.json()`. What has been checked at runtime?"
+    options: ["That the body matches Order", "Nothing: the annotation is erased", "Only the field names"]
+    answer: 1
+    explanation: "Types vanish at runtime; parse with a schema to check the data."
+  - id: source-of-truth
+    prompt: "A Spring Boot API and a TypeScript SPA. Which keeps their types in sync automatically?"
+    options:
+      - "Copying the DTOs into TypeScript by hand"
+      - "Exporting OpenAPI from the server in CI and generating a typed client"
+      - "Using any on the client"
+    answer: 1
+    explanation: "One source of truth plus generation in CI turns a rename into a build failure."
+  - id: problem-type
+    prompt: "Which media type marks an RFC 9457 error body?"
+    answers: ["application/problem+json"]
+    explanation: "application/problem+json tells clients the body is a problem details object."
+  - id: compatible
+    prompt: "Which change is backwards compatible for existing clients?"
+    options: ["Renaming priceCents to price", "Adding an optional field discount", "Making an optional field required"]
+    answer: 1
+    explanation: "Tolerant readers ignore new fields; renames and new requirements break them."
+  - id: expand-contract
+    prompt: "What is the safe order to rename a field that clients use?"
+    options:
+      - "Rename it and deploy server and client together"
+      - "Add the new field, move all clients to it, check the old one is unused, then remove it"
+      - "Remove the old one first so clients notice"
+    answer: 1
+    explanation: "Expand and contract: old clients keep working until nobody uses the old field."
+  - id: timestamps
+    prompt: "Which timestamp format is the safest for an API?"
+    options: ["\"15/01/2026 08:15\"", "\"2026-01-15T08:15:00Z\"", "the local time without zone"]
+    answer: 1
+    explanation: "ISO-8601 in UTC is unambiguous; the browser formats it for the reader."
+  - id: who-validates
+    prompt: "Which side must validate the input of a request?"
+    options: ["Only the client", "The server, always; the client too for a better UX", "Neither, the database does"]
+    answer: 1
+    explanation: "The server is the trust boundary; client checks are a convenience."

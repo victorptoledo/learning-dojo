@@ -1,0 +1,332 @@
+# Placement test of the Full Stack Developer track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How much full stack work have you done?
+  options:
+    - { label: "None yet: I know one side (front end or back end) at most", start_phase: p0, test: false }
+    - { label: "I build features with a page, an API and a database", start_phase: p1, test: true }
+    - { label: "I ship and run full stack products (auth, caching, deploys, incidents)", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-fetch-status
+    phase: p1
+    skills: [full-stack.client-server]
+    difficulty: 2
+    prompt: "A page's code does `const data = await (await fetch('/api/cart')).json()` and shows data.items. The server answers 500 with an HTML error page. What happens?"
+    options:
+      - "fetch rejects with a 500 error"
+      - "fetch resolves, and .json() throws because the body is HTML"
+      - "data.items is an empty list"
+    answer: 1
+    explanation: "fetch does not reject on HTTP errors; check response.ok before reading the body."
+  - id: p1-preflight
+    phase: p1
+    skills: [full-stack.client-server]
+    difficulty: 3
+    prompt: "A cross-origin DELETE shows a CORS error, and the network tab has an OPTIONS request answered 404. What is wrong?"
+    options:
+      - "The DELETE handler has a bug"
+      - "The server does not answer the preflight with the CORS headers"
+      - "DELETE cannot be sent cross-origin"
+    answer: 1
+    explanation: "The browser never sends the DELETE when the preflight is not allowed."
+  - id: p1-samesite-none
+    phase: p1
+    skills: [full-stack.client-server]
+    difficulty: 3
+    prompt: "Which attribute must accompany SameSite=None on a cookie?"
+    answers: ["Secure"]
+    explanation: "Browsers reject SameSite=None cookies that are not Secure."
+  - id: p1-schema-type
+    phase: p1
+    skills: [full-stack.api-contracts]
+    difficulty: 2
+    prompt: "With zod, how do you get the TypeScript type of `const Order = z.object({...})` without writing it twice?"
+    answers: ["z.infer<typeof Order>", "z.infer", "infer"]
+    explanation: "The static type is derived from the runtime schema."
+  - id: p1-problem-fields
+    phase: p1
+    skills: [full-stack.api-contracts]
+    difficulty: 2
+    prompt: "A sign-up form must show each validation message under its field. What should the API's 422 body contain?"
+    options:
+      - "A single message string"
+      - "Problem details with a list or map of errors that name the field of each message"
+      - "An HTML fragment"
+    answer: 1
+    explanation: "Field-level errors let the UI place each message."
+  - id: p1-breaking
+    phase: p1
+    skills: [full-stack.api-contracts]
+    difficulty: 3
+    prompt: "A mobile app version from three months ago is still widely used. Which API change is safe to ship today?"
+    options:
+      - "Making the optional field `phone` required"
+      - "Adding a new optional field `nickname` to responses"
+      - "Changing `price` from a number of cents to a string"
+    answer: 1
+    explanation: "Tolerant clients ignore new fields; the other two break old apps."
+  - id: p1-keyset-tie
+    phase: p1
+    skills: [full-stack.data-modelling]
+    difficulty: 3
+    prompt: "A feed paginates with WHERE created_at < :last_created_at ORDER BY created_at DESC LIMIT 20. Posts imported in bulk share the same created_at. What goes wrong?"
+    options:
+      - "Nothing"
+      - "Posts with the same timestamp as the last one on a page are skipped"
+      - "The query becomes slow"
+    answer: 1
+    explanation: "Add a tie-breaker: (created_at, id) < (:t, :id) and ORDER BY created_at DESC, id DESC."
+  - id: p1-n1-orm
+    phase: p1
+    skills: [full-stack.data-modelling]
+    difficulty: 2
+    prompt: "A list endpoint gets slower in proportion to the number of rows, and the SQL log shows the same SELECT repeated with different ids. What is it called?"
+    answers: ["N+1", "n+1", "N+1 queries", "the N+1 problem"]
+    explanation: "One query for the list plus one per row; batch or join instead."
+  - id: p1-json-agg
+    phase: p1
+    skills: [full-stack.data-modelling]
+    difficulty: 4
+    prompt: "In PostgreSQL, which aggregate builds a JSON array of objects, one per grouped row?"
+    answers: ["jsonb_agg", "json_agg"]
+    explanation: "jsonb_agg(jsonb_build_object(...) ORDER BY ...) shapes nested data in one query."
+  - id: p1-prg-reload
+    phase: p1
+    skills: [full-stack.rendering]
+    difficulty: 2
+    prompt: "After posting an order form, the user presses reload and the browser asks to resend the form. What did the server answer to the POST?"
+    options: ["303 See Other", "200 with the confirmation page", "201 Created with a Location"]
+    answer: 1
+    explanation: "Answering 200 to a POST makes the result page a POST result; PRG answers 303."
+  - id: p1-attribute-xss
+    phase: p1
+    skills: [full-stack.rendering]
+    difficulty: 3
+    prompt: "A template writes <input value={{name}}> without quotes around the attribute, with HTML escaping on. Is that safe?"
+    options: ["Yes, the value is escaped", "No: without quotes, a space ends the value and the rest becomes new attributes such as onfocus=..."]
+    answer: 1
+    explanation: "Always quote attributes; escaping alone does not protect unquoted ones."
+
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-xss-cookie
+    phase: p2
+    skills: [full-stack.auth]
+    difficulty: 3
+    prompt: "An XSS bug is found in a page of an app that uses HttpOnly session cookies. What can the attacker's script do?"
+    options:
+      - "Nothing, HttpOnly blocks XSS"
+      - "Send requests as the user while the page is open, but not read the cookie itself"
+      - "Read the cookie and reuse it elsewhere"
+    answer: 1
+    explanation: "HttpOnly prevents theft of the credential, not actions inside the page."
+  - id: p2-csrf-json
+    phase: p2
+    skills: [full-stack.auth]
+    difficulty: 4
+    prompt: "An API uses a session cookie with SameSite=Lax and accepts form-encoded POSTs. A page on another site of the same registrable domain (blog.example.com) posts to it. Does SameSite stop it?"
+    options:
+      - "Yes, always"
+      - "No: subdomains of the same site are same-site, so the cookie is sent; a CSRF token or origin check is still needed"
+    answer: 1
+    explanation: "SameSite is about sites, not origins; a compromised sibling subdomain bypasses it."
+  - id: p2-oidc-state
+    phase: p2
+    skills: [full-stack.auth]
+    difficulty: 4
+    prompt: "In the OIDC authorization code flow, which parameter does PKCE add to the authorization request?"
+    answers: ["code_challenge", "code challenge"]
+    explanation: "The client later proves it started the flow with the matching code_verifier."
+  - id: p2-session-fixation
+    phase: p2
+    skills: [full-stack.auth]
+    difficulty: 3
+    prompt: "What should happen to the session id when a user logs in?"
+    options: ["Nothing", "It should change, so a session id planted before login is useless (session fixation)", "It should be shown to the user"]
+    answer: 1
+    explanation: "Rotate the session id on authentication."
+  - id: p2-cache-private
+    phase: p2
+    skills: [full-stack.data-fetching]
+    difficulty: 3
+    prompt: "GET /api/me returns the logged-in user and has Cache-Control: public, max-age=300 behind a CDN. What can happen?"
+    options: ["Nothing", "The CDN serves one user's profile to other users", "The browser refuses to cache it"]
+    answer: 1
+    explanation: "Per-user responses must be private or no-store."
+  - id: p2-412
+    phase: p2
+    skills: [full-stack.data-fetching]
+    difficulty: 3
+    prompt: "Two tabs edit the same document; the second save sends If-Match with an old ETag. What should the API answer, and what should the UI do?"
+    options:
+      - "200 and overwrite"
+      - "412, and the UI shows the newer version and lets the user merge or retry"
+      - "500"
+    answer: 1
+    explanation: "Conditional writes turn lost updates into visible conflicts."
+  - id: p2-swr
+    phase: p2
+    skills: [full-stack.data-fetching]
+    difficulty: 2
+    prompt: "A client cache shows the last known data at once and refetches in the background. What is the strategy called?"
+    answers: ["stale-while-revalidate", "stale while revalidate", "SWR"]
+    explanation: "Fast first render, eventual freshness."
+  - id: p2-rollback
+    phase: p2
+    skills: [full-stack.data-fetching]
+    difficulty: 3
+    prompt: "An optimistic 'mark as done' fails on the server. What must the UI do?"
+    options: ["Keep showing it as done", "Roll back to the previous state and tell the user", "Reload the page"]
+    answer: 1
+    explanation: "Optimistic updates need a rollback path."
+  - id: p2-ssr-personal
+    phase: p2
+    skills: [full-stack.ssr-ssg]
+    difficulty: 3
+    prompt: "A blog post page is static (SSG) but must show 'Hello, Ada' when logged in. What keeps it cacheable?"
+    options:
+      - "Render the whole page per request"
+      - "Keep the page static and render the greeting on the client (or in a small private fragment)"
+      - "Cache it per user at the CDN"
+    answer: 1
+    explanation: "Static shell, personal bits fetched separately."
+  - id: p2-hydration-mismatch
+    phase: p2
+    skills: [full-stack.ssr-ssg]
+    difficulty: 4
+    prompt: "A server-rendered component prints new Date().toLocaleTimeString(). React warns about a hydration mismatch. Why?"
+    options:
+      - "Dates are not serialisable"
+      - "The browser renders a different time (and locale) than the server did, so the HTML does not match"
+      - "Server components cannot use Date"
+    answer: 1
+    explanation: "Hydration expects identical output; render such values on the client or pass them from the server."
+
+  # ---- P3 Advanced -------------------------------------------------------------
+  - id: p3-env-bundle
+    phase: p3
+    skills: [full-stack.deploy-serverless]
+    difficulty: 2
+    prompt: "The same SPA bundle must run in staging and production with different API URLs, without rebuilding. How?"
+    options:
+      - "Two builds with different environment variables"
+      - "Load a small runtime config (for example /config.json) served per environment"
+      - "Detect the environment from the user agent"
+    answer: 1
+    explanation: "Build once; configure at run time."
+  - id: p3-migrate-rolling
+    phase: p3
+    skills: [full-stack.deploy-serverless]
+    difficulty: 3
+    prompt: "During a rolling deploy, old and new API versions run together. Which migration is safe before it?"
+    options: ["Dropping a column the old version reads", "Adding a nullable column the new version will use", "Renaming a table"]
+    answer: 1
+    explanation: "Additive changes are compatible with the code still running."
+  - id: p3-compose-healthy
+    phase: p3
+    skills: [full-stack.deploy-serverless]
+    difficulty: 3
+    prompt: "In Compose, which depends_on condition waits for a one-shot migration container to exit with code 0?"
+    answers: ["service_completed_successfully"]
+    explanation: "service_healthy waits for a health check; this one waits for completion."
+  - id: p3-cardinality
+    phase: p3
+    skills: [full-stack.observability]
+    difficulty: 3
+    prompt: "A metric is labelled with the full request URL, including order ids. What happens over time?"
+    options: ["Nothing special", "A new time series per id: memory and cost explode in the metrics backend", "The metric is dropped"]
+    answer: 1
+    explanation: "Use route templates; put ids in logs and traces."
+  - id: p3-trace-parent
+    phase: p3
+    skills: [full-stack.observability]
+    difficulty: 4
+    prompt: "How many lower-case hex digits does the trace id of a W3C traceparent have?"
+    answers: ["32", "thirty-two"]
+    explanation: "16 bytes as 32 hex digits; the parent span id has 16."
+  - id: p3-user-ref
+    phase: p3
+    skills: [full-stack.observability]
+    difficulty: 2
+    prompt: "What should a 500 error page show the user, so support can find the failing request?"
+    options: ["The stack trace", "A short reference such as the trace id", "Nothing"]
+    answer: 1
+    explanation: "The trace id links the report to logs and traces without leaking internals."
+  - id: p3-sse-scale
+    phase: p3
+    skills: [full-stack.performance]
+    difficulty: 4
+    prompt: "SSE notifications work with one API instance but get lost with three. What is missing?"
+    options: ["HTTP/2", "A pub/sub that delivers each event to every instance holding connections", "A longer timeout"]
+    answer: 1
+    explanation: "The event and the connection are often on different instances."
+  - id: p3-lcp
+    phase: p3
+    skills: [full-stack.performance]
+    difficulty: 3
+    prompt: "The LCP element is a hero image marked loading=\"lazy\". What is the effect?"
+    options: ["Faster LCP", "Slower LCP: the browser delays the most important image", "No effect"]
+    answer: 1
+    explanation: "Lazy-load below the fold only; give the LCP image fetchpriority=high."
+
+  # ---- P4 Mastery --------------------------------------------------------------
+  - id: p4-extract
+    phase: p4
+    skills: [full-stack.architecture]
+    difficulty: 4
+    prompt: "Which is the strongest sign that a module of a monolith should become its own service?"
+    options:
+      - "It has the most code"
+      - "It needs to scale and deploy on a different schedule, owned by a separate team, with little shared data"
+      - "It uses a newer framework version"
+    answer: 1
+    explanation: "Independent forces and weak data coupling make extraction pay off."
+  - id: p4-bff-owner
+    phase: p4
+    skills: [full-stack.architecture]
+    difficulty: 3
+    prompt: "Who should own a backend-for-frontend?"
+    options: ["The team of the client it serves", "The database team", "Nobody, it is generated"]
+    answer: 0
+    explanation: "The client team shapes its own data without waiting on core teams."
+  - id: p4-contract-test
+    phase: p4
+    skills: [full-stack.testing]
+    difficulty: 3
+    prompt: "In consumer-driven contract testing, who publishes the contract?"
+    options: ["The API provider", "The consumer (for example the web app), and the provider verifies it", "A QA team"]
+    answer: 1
+    explanation: "Consumers state what they rely on; providers check before deploying."
+  - id: p4-e2e-data
+    phase: p4
+    skills: [full-stack.testing]
+    difficulty: 3
+    prompt: "How should an end-to-end test of 'checkout' get a product in the cart?"
+    options: ["Click through the catalogue each time", "Seed it through the API or database, then test the checkout steps in the UI", "Reuse yesterday's data"]
+    answer: 1
+    explanation: "Seed fast and deterministically; drive only the journey under test through the UI."
+  - id: p4-lock-timeout
+    phase: p4
+    skills: [full-stack.ownership]
+    difficulty: 5
+    prompt: "An ALTER TABLE waits for a lock behind a long transaction, and soon every query on that table queues behind it. Which setting on the migration's session prevents the pile-up?"
+    answers: ["lock_timeout", "SET lock_timeout"]
+    explanation: "The migration fails fast and can be retried instead of blocking traffic."
+  - id: p4-flag-cleanup
+    phase: p4
+    skills: [full-stack.ownership]
+    difficulty: 3
+    prompt: "What is the first goal during an incident?"
+    options: ["Find the root cause", "Restore service (mitigate), then investigate", "Write the postmortem"]
+    answer: 1
+    explanation: "Roll back or switch off first; analyse afterwards."

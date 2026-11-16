@@ -1,0 +1,3 @@
+-- todo: the page of orders that page_request asks for: id, placed_at, item_count, total_cents.
+-- Newest first, id descending on ties, strictly after the cursor when there is one,
+-- at most page_size rows.

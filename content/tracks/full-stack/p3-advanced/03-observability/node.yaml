@@ -1,0 +1,25 @@
+id: full-stack.p3.observability
+kind: lesson
+status: reviewed
+title: "Observability End to End: Logs, Metrics, Traces and Real User Monitoring"
+summary: "Seeing the whole journey of a request: structured logs with correlation ids, RED metrics and histograms with low-cardinality labels, distributed traces with W3C Trace Context and OpenTelemetry, front-end errors and real-user monitoring, and alerts on symptoms."
+objectives:
+  - { id: o1, text: "Write structured logs that carry a trace id and never secrets or personal data", skills: [full-stack.observability, backend.sre] }
+  - { id: o2, text: "Choose RED metrics and histograms with low-cardinality labels", skills: [full-stack.observability, backend.sre] }
+  - { id: o3, text: "Propagate traces from the browser through services with W3C Trace Context and OpenTelemetry", skills: [full-stack.observability, spring.observability] }
+  - { id: o4, text: "Collect front-end errors and real-user metrics, and alert on user-facing symptoms", skills: [full-stack.observability] }
+prerequisites: [full-stack.p3.compose-the-stack]
+difficulty: 4
+estimated_minutes: 55
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Users say checkout "sometimes hangs" and support has nothing to go on. Describe what you would add, from the browser to the database, so that the next report can be diagnosed in minutes: which logs, metrics and traces, how they are linked, what the user sees when it fails, which dashboards and alerts you would create, and what you must not log.'
+  criteria:
+    - 'Structured logs with a trace or request id, and the id shown to the user in error messages'
+    - 'RED metrics (rate, errors, duration as a histogram) per route template'
+    - 'Trace propagation (traceparent) from browser or edge to the API and its dependencies, including database spans'
+    - 'Front-end error reporting and real-user monitoring (Web Vitals)'
+    - 'Alerts on symptoms such as error rate or latency SLOs, and no secrets or personal data in logs'

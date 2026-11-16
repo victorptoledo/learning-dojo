@@ -1,0 +1,37 @@
+questions:
+  - id: no-cache
+    prompt: "What does Cache-Control: no-cache mean?"
+    options: ["Never store the response", "Store it, but revalidate with the server before each use", "Cache for one hour"]
+    answer: 1
+    explanation: "no-store forbids storing; no-cache requires revalidation."
+  - id: immutable
+    prompt: "Which header suits app.3f9a1c.js, whose name changes with every build?"
+    options: ["no-store", "public, max-age=31536000, immutable", "private, no-cache"]
+    answer: 1
+    explanation: "Content-hashed names can be cached forever."
+  - id: cart
+    prompt: "A user's cart must never be served by a CDN. Which directive ensures that?"
+    answers: ["private", "no-store", "Cache-Control: private"]
+    explanation: "private keeps it out of shared caches (no-store also works, more strictly)."
+  - id: not-modified
+    prompt: "A request with If-None-Match matches the current ETag. What is the answer?"
+    answers: ["304", "304 Not Modified"]
+    explanation: "Not modified: no body, the cached copy is still good."
+  - id: lost-update
+    prompt: "Which header makes a PUT fail if someone else changed the resource since it was loaded?"
+    answers: ["If-Match", "if-match"]
+    explanation: "If-Match with the ETag you edited; a mismatch is 412."
+  - id: invalidate
+    prompt: "After 'add to cart' succeeds in an SPA with TanStack Query, the cart still shows the old count. What was forgotten?"
+    options: ["A bigger staleTime", "Invalidating or updating the cart query after the mutation", "A service worker"]
+    answer: 1
+    explanation: "Mutations must invalidate or update the queries whose data they change."
+  - id: optimistic
+    prompt: "Which action is a good fit for an optimistic update?"
+    options: ["Charging a card", "Liking a review", "Reserving the last seat on a flight"]
+    answer: 1
+    explanation: "Low-risk, almost always successful, easy to roll back."
+  - id: vary
+    prompt: "An API answers different CORS headers per Origin and is behind a CDN. Which header must it send?"
+    answers: ["Vary: Origin", "Vary"]
+    explanation: "Without Vary: Origin a cache can serve one origin's headers to another."

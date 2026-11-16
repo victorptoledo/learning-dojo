@@ -1,0 +1,24 @@
+id: full-stack.p4.ownership
+kind: lesson
+status: reviewed
+title: "Production Ownership: Safe Migrations, Feature Flags and Incidents"
+summary: "Owning a product in production: zero-downtime schema changes with expand and contract, feature flags and progressive delivery, incident response from the first alert to the postmortem, and the habits that make a team trustworthy."
+objectives:
+  - { id: o1, text: "Plan a breaking schema change as a sequence of zero-downtime deploys", skills: [full-stack.ownership, backend.delivery] }
+  - { id: o2, text: "Release features progressively with flags, and retire the flags afterwards", skills: [full-stack.ownership] }
+  - { id: o3, text: "Lead an incident from detection to a blameless postmortem with follow-up actions", skills: [full-stack.ownership, git.workflows] }
+prerequisites: [full-stack.p4.testing]
+difficulty: 5
+estimated_minutes: 55
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'The product must split users.full_name into first_name and last_name, used by the API, the web app (cached in browsers) and a mobile app (users update slowly), with no downtime. Write the release plan as a numbered list of deploys and migrations, say where a feature flag helps, how you would know each step is safe, and what you would do if step 3 caused errors in production.'
+  criteria:
+    - 'Expand first: add the new nullable columns, write both, backfill in batches'
+    - 'Switch reads behind a flag or in a separate deploy, with old clients still served'
+    - 'Contract only after measuring that no client uses the old field'
+    - 'Names the signals that show each step is safe (errors, metrics, logs)'
+    - 'Rollback by turning off the flag or redeploying the previous version, without a destructive migration'

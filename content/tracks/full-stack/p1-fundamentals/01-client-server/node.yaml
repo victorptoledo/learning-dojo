@@ -1,14 +1,25 @@
 id: full-stack.p1.client-server
 legacy_id: fs-01-client-server
 kind: lesson
-status: draft
-title: "Type-Safe Communication Between Client and Server"
-summary: "Shared data contracts, tRPC, OpenAPI and generated typed clients."
+status: reviewed
+title: "HTTP Between Browser and Server"
+summary: "What the browser adds to every request and enforces on every answer: methods and status codes from the client's side, cookies and their flags, the same-origin policy, CORS and preflights, and where to put the API."
 objectives:
-  - { id: o1, text: "Shared data contracts, tRPC, OpenAPI and generated typed clients.", skills: [full-stack.client-server] }
-prerequisites: []
+  - { id: o1, text: "Choose methods and status codes so that browsers, caches and clients behave correctly", skills: [full-stack.client-server, backend.protocols] }
+  - { id: o2, text: "Explain cookies and their Secure, HttpOnly, SameSite, Domain and Path attributes", skills: [full-stack.client-server] }
+  - { id: o3, text: "Explain the same-origin policy, CORS, preflight requests and credentials, and avoid CORS with a same-origin setup", skills: [full-stack.client-server] }
+prerequisites: [full-stack.p0.hello-fullstack]
 difficulty: 2
-estimated_minutes: 30
-xp: 150
+estimated_minutes: 50
+xp: 200
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your SPA is served from https://app.example.com and its API from https://api.example.com. A PUT /api/profile with a JSON body and a session cookie fails in the browser with a CORS error but works from curl. Explain step by step what the browser sends (including any preflight), which response headers the API must return, which cookie attributes the session cookie needs, and one alternative deployment that avoids CORS entirely.'
+  criteria:
+    - 'Explains why curl works: CORS is enforced by browsers only'
+    - 'Describes the OPTIONS preflight with Origin, Access-Control-Request-Method and -Headers'
+    - 'Lists Access-Control-Allow-Origin with the exact origin (not *), -Allow-Credentials, -Allow-Methods and -Allow-Headers'
+    - 'Mentions credentials: "include" on fetch and the cookie attributes (Secure, HttpOnly, SameSite)'
+    - 'Offers a same-origin alternative such as a reverse proxy serving /api under the app origin'

@@ -1,0 +1,60 @@
+questions:
+  - id: get-safe
+    skills: [full-stack.client-server]
+    prompt: "An email contains a link GET /newsletter/42/unsubscribe that unsubscribes at once. What goes wrong?"
+    options: ["Nothing", "Mail scanners and link previews follow it and unsubscribe people", "GET cannot have three path segments"]
+    answer: 1
+    explanation: "GET must be safe; use a confirmation page that POSTs."
+  - id: cookie-flags
+    skills: [full-stack.client-server]
+    prompt: "Which attributes suit a session cookie?"
+    options: ["Secure; HttpOnly; SameSite=Lax", "SameSite=None only", "No attributes, for compatibility"]
+    answer: 0
+    explanation: "HTTPS only, hidden from scripts, not sent on cross-site POSTs."
+  - id: cors-credentials
+    skills: [full-stack.client-server]
+    prompt: "An SPA on another origin sends cookies with fetch. Which Access-Control-Allow-Origin value works?"
+    options: ["*", "the SPA's exact origin, with Access-Control-Allow-Credentials: true", "null"]
+    answer: 1
+    explanation: "Credentialed CORS needs the exact origin and the credentials flag."
+  - id: contract-check
+    skills: [full-stack.api-contracts]
+    prompt: "What turns a renamed API field into a build failure instead of a production bug?"
+    options: ["Code review alone", "Generating or sharing types from one contract and type-checking the client in CI", "Using any"]
+    answer: 1
+    explanation: "One source of truth plus a CI check catches drift before users do."
+  - id: status-422
+    skills: [full-stack.api-contracts]
+    prompt: "Well-formed JSON whose title is blank. Which status fits?"
+    answers: ["422", "422 Unprocessable Content", "400"]
+    explanation: "The syntax is fine but the content breaks the rules: 422 (400 is also used by many APIs)."
+  - id: injection
+    skills: [full-stack.data-modelling]
+    prompt: "A search builds \"... WHERE title LIKE '%\" + q + \"%'\". What is the fix?"
+    options: ["Escape quotes by hand", "Pass q as a query parameter and escape LIKE wildcards if they must be literal", "Limit q to 20 characters"]
+    answer: 1
+    explanation: "Parameters keep data out of the SQL text; wildcards are a separate concern."
+  - id: n1
+    skills: [full-stack.data-modelling]
+    prompt: "Which change fixes an N+1 on a list page?"
+    options: ["A bigger connection pool", "One join or one batched query for all rows of the page", "Caching each row for one second"]
+    answer: 1
+    explanation: "Load the related rows for the whole page in one go."
+  - id: offset
+    skills: [full-stack.data-modelling]
+    prompt: "Why do feeds prefer keyset pagination to OFFSET?"
+    options: ["OFFSET is not standard SQL", "OFFSET scans the skipped rows and duplicates or skips rows when new ones arrive", "Keysets need no index"]
+    answer: 1
+    explanation: "Keysets stay fast and stable; they need an index matching the sort."
+  - id: keep-values
+    skills: [full-stack.rendering]
+    prompt: "After an invalid form post, what must the page show?"
+    options: ["An empty form", "The errors next to their fields and what the user typed", "A generic error page"]
+    answer: 1
+    explanation: "Keep the input; say what to fix."
+  - id: escape-context
+    skills: [full-stack.rendering]
+    prompt: "A user's name goes into <input value=\"...\">. What must be escaped?"
+    options: ["Nothing inside attributes", "&, <, > and the quotes", "Only spaces"]
+    answer: 1
+    explanation: "Quotes end the attribute; escaping them is what keeps the value a value."

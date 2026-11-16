@@ -1,0 +1,34 @@
+questions:
+  - id: seo
+    prompt: "A public product catalogue must show content fast on slow phones and be indexed. Which model fits best?"
+    options: ["A client-rendered SPA", "Server-rendered or statically generated pages", "A canvas app"]
+    answer: 1
+    explanation: "The HTML arrives with the content, with little JavaScript to download first."
+  - id: invalid-form
+    prompt: "A form post fails validation. What should the server answer?"
+    options: ["303 to an error page", "422 with the page, the messages next to their fields and the typed values", "200 with an alert"]
+    answer: 1
+    explanation: "Keep the user's input and say exactly what to fix."
+  - id: valid-form
+    prompt: "And when the form post succeeds?"
+    answers: ["303", "303 See Other"]
+    explanation: "Post/Redirect/Get: the browser loads the result with a GET."
+  - id: href
+    prompt: "A profile link is rendered as <a href=\"${website}\"> with HTML escaping. What is still dangerous?"
+    options: ["Nothing", "A javascript: URL, which runs code when clicked", "Uppercase letters"]
+    answer: 1
+    explanation: "URLs need a scheme check (http/https) on top of attribute escaping."
+  - id: escape-hatch
+    prompt: "Which of these bypasses React's automatic escaping?"
+    options: ["{comment}", "dangerouslySetInnerHTML={{ __html: comment }}", "comment.toString()"]
+    answer: 1
+    explanation: "Raw-HTML escape hatches need sanitising and a review."
+  - id: csp
+    prompt: "Which header makes the browser refuse inline scripts as a second line of defence?"
+    answers: ["Content-Security-Policy", "content-security-policy", "CSP"]
+    explanation: "A CSP without 'unsafe-inline' blocks injected inline scripts."
+  - id: states
+    prompt: "Which list of states should a screen that loads data design for?"
+    options: ["Success only", "Empty, loading, error, partial and success", "Loading and success"]
+    answer: 1
+    explanation: "Every state happens in production; undesigned ones look broken."

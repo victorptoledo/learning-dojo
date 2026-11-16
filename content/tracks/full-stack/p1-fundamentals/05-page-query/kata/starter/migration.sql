@@ -1,0 +1,2 @@
+-- todo: add orders.status (text, NOT NULL, default 'placed', one of 'placed', 'shipped',
+-- 'delivered', 'cancelled') and the index orders_page_idx on (customer_id, placed_at DESC, id DESC).
