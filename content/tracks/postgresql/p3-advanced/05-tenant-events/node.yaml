@@ -1,0 +1,47 @@
+id: postgresql.p3.tenant-events
+kind: kata
+status: reviewed
+title: "Tenant Events: Partitions and Row-Level Security"
+summary: "Build a monthly range-partitioned events table with a default partition and a cascading index, a least-privilege API role with row-level security that fails closed, a retention job with ATTACH and DETACH, and a report that the policy filters and the planner prunes."
+objectives:
+  - { id: o1, text: "Create a range-partitioned table with a default partition, a key that includes the partition key and a cascading index, and run retention with DETACH and DROP", skills: [postgresql.partitioning] }
+  - { id: o2, text: "Isolate tenants with a least-privilege role and forced row-level security that treats a missing tenant as no rows", skills: [postgresql.security] }
+  - { id: o3, text: "Write a query that RLS filters and the planner prunes to one partition", skills: [postgresql.partitioning, postgresql.security] }
+prerequisites: [postgresql.p3.security]
+difficulty: 4
+estimated_minutes: 75
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 120 }
+  hints:
+    - |-
+      Which clause makes a table partitioned, and which clause creates one of its partitions? Why can the primary key not be `(id)` alone? For security: which two `ALTER TABLE` statements turn row-level security on for everyone, including the owner? A policy has two expressions, one for the rows you can see and one for the rows you may write: which is which? What does `current_setting` return when the setting is missing, and how do you turn `''` into NULL?
+    - |-
+      `CREATE TABLE events (...) PARTITION BY RANGE (at)`, `PRIMARY KEY (id, at)`, then `CREATE TABLE events_2026_11 PARTITION OF events FOR VALUES FROM ('2026-11-01 00:00+00') TO ('2026-12-01 00:00+00')` and `... PARTITION OF events DEFAULT`. `GRANT SELECT, INSERT ON events TO app_api`, `ENABLE` and `FORCE ROW LEVEL SECURITY`, and a policy with `USING (...)` and `WITH CHECK (...)` on `tenant_id = nullif(current_setting('app.tenant_id', true), '')::integer`. Retention is `CREATE TABLE ... PARTITION OF`, `ALTER TABLE events DETACH PARTITION ...` and `DROP TABLE ...`.
+    - |-
+      ```sql
+      -- security.sql
+      CREATE ROLE app_api NOLOGIN;
+      GRANT USAGE ON SCHEMA public TO app_api;
+      GRANT SELECT ON tenants TO app_api;
+      GRANT SELECT, INSERT ON events TO app_api;
+      ALTER TABLE events ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE events FORCE ROW LEVEL SECURITY;
+      CREATE POLICY tenant_isolation ON events
+          USING (...)
+          WITH CHECK (...);
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

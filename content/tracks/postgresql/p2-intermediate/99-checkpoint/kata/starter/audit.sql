@@ -1,0 +1,2 @@
+-- todo: keep updated_at right and write every real change and every delete of a ticket to
+-- audit_log.

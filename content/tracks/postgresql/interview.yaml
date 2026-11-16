@@ -1,0 +1,229 @@
+# Technical interview questions for the postgresql track, written for the dojo.
+# The topics follow what public interview guides and the PostgreSQL documentation report as
+# common (see sources); the wording, key points and follow-ups are our own.
+sources:
+  - "https://www.postgresql.org/docs/17/index.html"
+  - "https://roadmap.sh/postgresql-dba"
+  - "https://github.com/nilbuild/developer-roadmap/tree/master/roadmaps/postgresql-dba/content"
+  - "https://wiki.postgresql.org/wiki/Main_Page"
+  - "https://postgrespro.com/community/books/internals"
+questions:
+  - id: cluster-database-schema
+    level: junior
+    skills: [postgresql.architecture]
+    question: "What are a cluster, a database and a schema in PostgreSQL, and what does one connection see?"
+    key_points:
+      - "A cluster is one server instance with one data directory and one set of roles"
+      - "A connection is bound to one database; other databases need postgres_fdw or dblink"
+      - "Schemas are namespaces inside a database that one query can mix; search_path picks unqualified names"
+      - "Each connection is a separate backend process"
+    follow_up: "Why do many idle connections hurt a PostgreSQL server?"
+  - id: catalogs
+    level: junior
+    skills: [postgresql.architecture]
+    question: "How would you find the ten largest tables of a database, with their index sizes, without any external tool?"
+    key_points:
+      - "Query pg_class (relkind r and p) joined to pg_namespace, excluding system schemas"
+      - "pg_total_relation_size includes indexes and TOAST; pg_indexes_size gives the indexes; pg_size_pretty formats"
+      - "Mentions \\dt+ or \\d+ in psql, and psql -E to see the queries behind them"
+    follow_up: "What is TOAST, and why can a table's total size be much larger than its main file?"
+  - id: mvcc
+    level: junior
+    skills: [postgresql.mvcc]
+    question: "Explain MVCC in PostgreSQL. What happens physically when you UPDATE a row?"
+    key_points:
+      - "Each row version is a tuple with xmin (creator) and xmax (deleter); an UPDATE writes a new tuple and sets xmax on the old one"
+      - "Each statement or transaction reads from a snapshot of committed transactions, so readers do not block writers"
+      - "Writers of the same row still wait for each other"
+      - "Old versions become dead tuples that VACUUM must remove"
+    follow_up: "Why can a long-running transaction make the whole database bloat?"
+  - id: vacuum-basics
+    level: junior
+    skills: [postgresql.vacuum]
+    question: "What do VACUUM, VACUUM FULL and ANALYZE do, and which of them would you run on a busy production table?"
+    key_points:
+      - "VACUUM removes dead tuples for reuse, updates the visibility map and freezes old tuples, without blocking reads and writes"
+      - "VACUUM FULL rewrites the table and gives space back, under an ACCESS EXCLUSIVE lock"
+      - "ANALYZE refreshes planner statistics"
+      - "Autovacuum normally runs VACUUM and ANALYZE; pg_repack is the online alternative to VACUUM FULL"
+    follow_up: "Why does a table stay large after VACUUM deleted most of its dead tuples?"
+  - id: data-types
+    level: junior
+    skills: [postgresql.data-types]
+    question: "Which PostgreSQL types would you use for money, points in time, tags and booking periods, and why?"
+    key_points:
+      - "numeric (or integer cents) for money, never float"
+      - "timestamptz stores an instant and converts with the session time zone"
+      - "text[] for small tag lists read with the row, or a join table when tags need their own data"
+      - "tstzrange with [) bounds for periods, and an exclusion constraint to forbid overlaps"
+    follow_up: "How does an exclusion constraint differ from a unique constraint?"
+  - id: explain-basics
+    level: junior
+    skills: [postgresql.query-planner]
+    question: "A query is slow. How do you use EXPLAIN to find out why?"
+    key_points:
+      - "EXPLAIN shows the plan and estimates; EXPLAIN (ANALYZE, BUFFERS) runs it and adds actual rows, time, loops and buffers"
+      - "Compare estimated and actual rows to find where estimates go wrong"
+      - "Look for Seq Scans with many Rows Removed by Filter, sorts spilling to disk, nested loops with many loops"
+      - "Wrap EXPLAIN ANALYZE of writes in BEGIN ... ROLLBACK"
+    follow_up: "Why are actual rows shown per loop, and how does that mislead people?"
+  - id: hot-updates
+    level: mid
+    skills: [postgresql.mvcc]
+    question: "What is a HOT update, and how would you design a table whose rows are updated many times a second?"
+    key_points:
+      - "A heap-only tuple update writes the new version on the same page and touches no index"
+      - "It requires that no indexed column changes and that the page has free space"
+      - "Keep frequently updated columns out of indexes and lower the fillfactor (for example 80)"
+      - "Measure with n_tup_hot_upd versus n_tup_upd in pg_stat_user_tables"
+    follow_up: "Why does fillfactor only help pages written after you change it?"
+  - id: autovacuum-tuning
+    level: mid
+    skills: [postgresql.vacuum, postgresql.configuration]
+    question: "When does autovacuum vacuum a table, and how would you tune it for a table with a billion rows?"
+    key_points:
+      - "It triggers when dead tuples exceed autovacuum_vacuum_threshold + autovacuum_vacuum_scale_factor × reltuples (50 + 20% by default)"
+      - "Lower the scale factor per table with ALTER TABLE ... SET (autovacuum_vacuum_scale_factor = ...)"
+      - "Raise autovacuum_vacuum_cost_limit so it runs fast enough; never disable it"
+      - "Insert-only tables are vacuumed by the insert thresholds since PostgreSQL 13"
+    follow_up: "What can stop VACUUM from removing dead tuples even when it runs?"
+  - id: lock-queue
+    level: mid
+    skills: [postgresql.locking]
+    question: "A migration ran ALTER TABLE orders ADD COLUMN and the whole API went down for minutes, although the ALTER itself is instant. What happened, and how do you prevent it?"
+    key_points:
+      - "The ALTER needed ACCESS EXCLUSIVE and waited behind a long transaction holding a lock on orders"
+      - "Every later query queued behind the waiting ALTER, filling the connection pool"
+      - "Set lock_timeout in migrations and retry; end long and idle-in-transaction sessions; idle_in_transaction_session_timeout"
+      - "Find the chain with pg_stat_activity and pg_blocking_pids"
+    follow_up: "How would you add a NOT NULL constraint to a huge table without a long lock?"
+  - id: index-types
+    level: mid
+    skills: [postgresql.indexes-advanced]
+    question: "Which index type would you choose for: a jsonb containment filter, an append-only time series, a case-insensitive email lookup and a queue of pending jobs?"
+    key_points:
+      - "GIN (jsonb_path_ops) for @> on jsonb"
+      - "BRIN for a time column that follows the physical order"
+      - "A unique B-tree on lower(email), used by queries that compare lower(email)"
+      - "A partial index WHERE status = 'pending' on the column the queue sorts by"
+    follow_up: "How do you find indexes that cost writes but are never used?"
+  - id: extended-statistics
+    level: mid
+    skills: [postgresql.query-planner]
+    question: "Where does the planner get its row estimates, and how do you fix an estimate that is wrong because two columns are related?"
+    key_points:
+      - "ANALYZE samples rows into pg_statistic (pg_stats): null fraction, n_distinct, most common values, histograms, correlation"
+      - "For several conditions it multiplies selectivities as if the columns were independent"
+      - "CREATE STATISTICS (dependencies, mcv, ndistinct) on the columns, then ANALYZE"
+      - "Also stale statistics after big loads, and expressions on columns"
+    follow_up: "When would you raise a column's statistics target?"
+  - id: jsonb-design
+    level: mid
+    skills: [postgresql.jsonb]
+    question: "When would you store data in a jsonb column instead of normal columns, and how do you query and index it well?"
+    key_points:
+      - "Good for varying attributes, payloads stored as they are, sparse optional fields"
+      - "Bad for fields you join on, constrain, aggregate often or update field by field"
+      - "Query with @>, ? and jsonpath so a GIN index can be used; ->> comparisons need an expression index"
+      - "Generated columns can pull hot fields out of the document"
+    follow_up: "What does an UPDATE of one key in a 1 MB jsonb document cost?"
+  - id: full-text
+    level: mid
+    skills: [postgresql.full-text-search]
+    question: "How would you implement search over article titles and bodies in PostgreSQL, ranked by relevance?"
+    key_points:
+      - "A stored generated tsvector with setweight on title and body and an explicit configuration, indexed with GIN"
+      - "websearch_to_tsquery for user input, @@ to match, ts_rank or ts_rank_cd to order, ts_headline for snippets"
+      - "pg_trgm for typos and fragments"
+      - "Knows when a dedicated search engine is worth it"
+    follow_up: "Why must the configuration be named in a generated column's expression?"
+  - id: triggers
+    level: mid
+    skills: [postgresql.plpgsql]
+    question: "How would you build an audit trail of every change to a table, and what are the risks of doing it with triggers?"
+    key_points:
+      - "An AFTER INSERT OR UPDATE OR DELETE row trigger writing TG_OP, OLD and NEW (to_jsonb) and the user to an audit table"
+      - "Statement triggers with transition tables for bulk changes"
+      - "Triggers catch every client, including psql and bulk updates"
+      - "Risks: hidden logic, slower writes, recursion, ordering by name, TRUNCATE not firing DELETE triggers"
+    follow_up: "When is a function IMMUTABLE, STABLE or VOLATILE, and why does it matter?"
+  - id: partitioning
+    level: senior
+    skills: [postgresql.partitioning]
+    question: "When would you partition a table, and what does partitioning cost you?"
+    key_points:
+      - "For time-based retention (DETACH and DROP instead of DELETE), maintenance per partition and pruning when queries filter on the key"
+      - "Unique keys must include the partition key; there are no global indexes"
+      - "Queries without the key read every partition; too many partitions slow planning"
+      - "Future partitions must be created ahead (pg_partman or a job); a default partition must stay empty"
+    follow_up: "How would you convert an existing 2 TB table to a partitioned one with little downtime?"
+  - id: multi-tenant-rls
+    level: senior
+    skills: [postgresql.security]
+    question: "Design tenant isolation for a SaaS that keeps all tenants in shared tables."
+    key_points:
+      - "A migrator role owns the tables; the API connects as a role that owns nothing, with only the needed privileges and default privileges"
+      - "Row-level security policies with USING and WITH CHECK on tenant_id against a setting such as app.tenant_id"
+      - "FORCE ROW LEVEL SECURITY; superusers and BYPASSRLS roles bypass; test as the API role"
+      - "Set the tenant with SET LOCAL per transaction behind a transaction-mode pooler; a missing setting must mean no rows"
+    follow_up: "What are the alternatives (schema per tenant, database per tenant) and their trade-offs?"
+  - id: connection-pooling
+    level: senior
+    skills: [postgresql.connection-pooling]
+    question: "Your application scaled to 60 instances and the database now has 1,500 connections and high CPU. What do you do?"
+    key_points:
+      - "Each connection is a process; throughput peaks with active connections near a small multiple of the cores"
+      - "Shrink application pools and put PgBouncer (or the provider's pooler) in transaction mode in front"
+      - "Transaction mode breaks session state: SET, session advisory locks, LISTEN, temp tables, and prepared statements on old PgBouncer versions"
+      - "Measures with pg_stat_activity by state before and after"
+    follow_up: "Why does idle_in_transaction matter more than idle?"
+  - id: replication
+    level: senior
+    skills: [postgresql.replication]
+    question: "Explain streaming replication, replication slots and synchronous commit, and how you would set up a highly available PostgreSQL."
+    key_points:
+      - "Standbys replay the primary's WAL continuously; same major version; read-only hot standby"
+      - "Slots keep WAL for a consumer; an abandoned slot fills the disk; monitor and cap with max_slot_wal_keep_size"
+      - "Synchronous replication waits for standbys; ANY 1 of two or more to avoid hanging commits"
+      - "Automated failover with Patroni, an operator or a managed service; fencing to avoid split brain; client redirection"
+    follow_up: "When would you use logical replication instead?"
+  - id: backups
+    level: senior
+    skills: [postgresql.backup-recovery]
+    question: "How do you make sure you can recover a production database to the moment before someone deleted data by mistake?"
+    key_points:
+      - "Physical base backups plus continuous WAL archiving (pgBackRest, Barman, WAL-G) to separate storage"
+      - "Point-in-time recovery to a separate server with recovery_target_time and pause, then copy the data back"
+      - "Replicas and pg_dump alone do not meet this goal"
+      - "Defines RPO and RTO and tests restores automatically"
+    follow_up: "How would you upgrade a 5 TB database to the next major version with minimal downtime?"
+  - id: wraparound
+    level: senior
+    skills: [postgresql.vacuum, postgresql.mvcc]
+    question: "What is transaction id wraparound, how do you monitor it, and what would you do if a database were close to it?"
+    key_points:
+      - "Transaction ids are 32 bits; tuples older than about 2 billion transactions would look like they are in the future"
+      - "VACUUM freezes old tuples; relfrozenxid and datfrozenxid track the oldest unfrozen id; autovacuum_freeze_max_age triggers aggressive vacuums"
+      - "Monitor age(datfrozenxid) and the oldest tables; near the limit PostgreSQL stops assigning transaction ids"
+      - "Find what blocks freezing (long transactions, slots, prepared transactions), then run VACUUM on the oldest tables"
+    follow_up: "Why can a forgotten prepared transaction cause this?"
+  - id: tuning-method
+    level: senior
+    skills: [postgresql.monitoring-tuning, postgresql.configuration]
+    question: "You are asked to make a PostgreSQL server faster. How do you approach it?"
+    key_points:
+      - "Measure first: pg_stat_statements by total time, the statistics views, logs and auto_explain"
+      - "Fix the top queries (indexes, estimates, rewrites) before touching configuration"
+      - "Then autovacuum, memory (shared_buffers, effective_cache_size, work_mem per role), random_page_cost on SSD, checkpoints, connections"
+      - "One change at a time, measured, and recorded"
+    follow_up: "What would you put on a PostgreSQL dashboard, with alert thresholds?"
+  - id: incident
+    level: senior
+    skills: [postgresql.monitoring-tuning, postgresql.locking]
+    question: "At 3 a.m. the application reports database timeouts. Walk through your first ten minutes."
+    key_points:
+      - "Check that the server accepts connections and how many connections exist by state"
+      - "Look at pg_stat_activity for long transactions, idle in transaction and lock waits; pg_blocking_pids for chains"
+      - "Ask what changed (deploys, migrations, jobs, traffic) and read the logs"
+      - "Stop the bleeding (cancel or terminate the blocker, pause the job), then fix the cause and add a timeout or alert"
+    follow_up: "Which usual suspects would you check if nothing is blocked but every query is slow?"

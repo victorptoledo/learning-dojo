@@ -1,0 +1,1 @@
+-- todo: the other sessions that stop VACUUM from removing dead tuples.

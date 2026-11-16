@@ -1,0 +1,23 @@
+id: postgresql.p4.backup-recovery
+kind: lesson
+status: reviewed
+title: "Backups, Point-in-Time Recovery and Upgrades"
+summary: "Logical dumps with pg_dump and pg_restore, physical base backups with continuous WAL archiving, point-in-time recovery step by step, pgBackRest, Barman and WAL-G, RPO, RTO and restore tests, data checksums, and major-version upgrades with pg_upgrade or logical replication."
+objectives:
+  - { id: o1, text: "Choose between logical and physical backups and use pg_dump, pg_restore and pg_dumpall correctly", skills: [postgresql.backup-recovery] }
+  - { id: o2, text: "Explain WAL archiving and perform a point-in-time recovery to a target time, xid or restore point", skills: [postgresql.backup-recovery] }
+  - { id: o3, text: "Define RPO and RTO, test restores, and plan a major-version upgrade", skills: [postgresql.backup-recovery] }
+prerequisites: [postgresql.p4.wal-replication]
+difficulty: 4
+estimated_minutes: 55
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A 2 TB PostgreSQL 16 database is backed up by a nightly pg_dump to the same server''s disk, and it has one streaming standby. Management asks for "at most 5 minutes of lost data and 1 hour to recover", and wants to move to PostgreSQL 17 next quarter with minimal downtime. Explain why the current setup meets neither goal, design the backup setup you would build (tools, archiving, schedule, storage, retention), describe how you would recover from an accidental DELETE at 14:30 yesterday, how you would know the backups work, and how you would do the upgrade.'
+  criteria:
+    - 'Explains that a nightly dump means up to 24 hours of loss and a multi-hour restore, that the standby replicates mistakes, and that a backup on the same server is lost with it'
+    - 'Designs physical backups with continuous WAL archiving (pgBackRest, Barman or WAL-G) to separate, encrypted storage, with full plus incremental or differential backups sized for the RTO'
+    - 'Describes PITR to a separate server with recovery_target_time just before 14:30 and recovery_target_action = pause, then copying the rows back'
+    - 'Sets up automated restore tests, and plans the upgrade with pg_upgrade --link (rehearsed, followed by ANALYZE) or logical replication for a short switchover, checking extensions and release notes'

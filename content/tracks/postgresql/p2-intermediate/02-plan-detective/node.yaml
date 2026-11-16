@@ -1,0 +1,47 @@
+id: postgresql.p2.plan-detective
+kind: kata
+status: reviewed
+title: "Plan Detective: Fixing Row Estimates"
+summary: "Fix the estimate of filters on two related columns with extended statistics (checked through EXPLAIN), read a column's most common values from pg_stats, and find the node with the worst estimate in plans captured as JSON."
+objectives:
+  - { id: o1, text: "Choose between dependencies and mcv extended statistics and verify the planner's estimate with EXPLAIN", skills: [postgresql.query-planner] }
+  - { id: o2, text: "Read most_common_vals and most_common_freqs from pg_stats", skills: [postgresql.query-planner] }
+  - { id: o3, text: "Walk an EXPLAIN (FORMAT JSON) tree and compare estimated and actual rows", skills: [postgresql.query-planner, postgresql.jsonb] }
+prerequisites: [postgresql.p2.query-planner]
+difficulty: 3
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 90 }
+  hints:
+    - |-
+      Why does the planner multiply the selectivity of `city` by that of `country`? Which statement tells it that the two columns are related, and which of its kinds stores the actual **combinations** of values, so that a pair that never occurs gets a low estimate? What must run after it before the planner can use it? For the frequencies, which view shows `most_common_vals`?
+    - |-
+      `CREATE STATISTICS name (dependencies, mcv) ON city, country FROM addresses;` followed by `ANALYZE addresses;`. In `pg_stats`, `most_common_vals` is an `anyarray`: `most_common_vals::text::text[]` makes it usable, and `unnest(a, b)` walks two arrays side by side. For the plans, compute the ratio `greatest(plan, actual) / greatest(least(plan, actual), 1)` for every node and keep the largest per `id` with `DISTINCT ON (id) ... ORDER BY id, ratio DESC`.
+    - |-
+      ```sql
+      -- worst_estimate.sql
+      SELECT DISTINCT ON (p.id)
+             p.id,
+             node ->> 'Node Type' AS node_type,
+             node ->> 'Relation Name' AS relation_name,
+             (node ->> 'Plan Rows')::bigint AS plan_rows,
+             (node ->> 'Actual Rows')::bigint AS actual_rows
+      FROM captured_plans AS p,
+           jsonb_path_query(p.plan, 'strict $.** ? (exists (@."Node Type"))') AS node
+      ORDER BY p.id, ... DESC;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

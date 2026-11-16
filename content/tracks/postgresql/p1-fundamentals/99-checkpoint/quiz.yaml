@@ -1,0 +1,50 @@
+pass_percent: 85
+questions:
+  - id: connection-cost
+    skills: [postgresql.architecture]
+    prompt: "Why do PostgreSQL deployments with many application instances usually need a connection pool?"
+    options: ["Because connections are not encrypted otherwise", "Because each connection is a separate server process with its own memory", "Because PostgreSQL allows only 10 connections", "Because the catalogs are locked per connection"]
+    answer: 1
+    explanation: "One process per connection: hundreds of mostly idle connections cost memory and context switches."
+  - id: catalog-columns
+    skills: [postgresql.architecture]
+    prompt: "In pg_attribute, how are system columns such as xmin and ctid told apart from user columns?"
+    options: ["attisdropped is true", "attnum is negative", "attname starts with pg_", "They are not stored there"]
+    answer: 1
+    explanation: "User columns have attnum > 0; system columns have negative numbers, and dropped columns have attisdropped."
+  - id: exclusion
+    skills: [postgresql.data-types]
+    prompt: "Which constraint forbids two confirmed bookings of the same room with overlapping periods?"
+    options: ["UNIQUE (room_id, during) WHERE status = 'confirmed'", "EXCLUDE USING gist (room_id WITH =, during WITH &&) WHERE (status = 'confirmed')", "CHECK (during && during)", "A trigger is the only way"]
+    answer: 1
+    explanation: "An exclusion constraint compares every pair of rows with the given operators; it holds under concurrency."
+  - id: enum-vs-check
+    skills: [postgresql.data-types]
+    prompt: "A status list changes every few months and values are sometimes retired. Which representation is easiest to evolve?"
+    options: ["A PostgreSQL ENUM", "text with a CHECK constraint (or a lookup table)", "An integer code without constraints", "A boolean per status"]
+    answer: 1
+    explanation: "Enum values cannot simply be removed; a CHECK is changed with one ALTER TABLE, and a lookup table with a row."
+  - id: dead-tuple
+    skills: [postgresql.mvcc]
+    prompt: "After UPDATE t SET x = x + 1 on 1,000 rows commits, how many dead tuples does t have, at least until VACUUM or pruning?"
+    options: ["0", "1,000", "2,000", "It depends on the isolation level"]
+    answer: 1
+    explanation: "Each update leaves the previous version behind as a dead tuple."
+  - id: hot
+    skills: [postgresql.mvcc]
+    prompt: "A table's updates are never HOT. Which change is most likely to fix that?"
+    options: ["Adding an index on the updated column", "Removing the index on the frequently updated column and lowering fillfactor", "Raising work_mem", "Running VACUUM FULL every night"]
+    answer: 1
+    explanation: "HOT needs the updated columns to be in no index and free space on the page."
+  - id: wraparound
+    skills: [postgresql.vacuum]
+    prompt: "What does PostgreSQL do when a database gets very close to transaction id wraparound?"
+    options: ["Deletes the oldest rows", "Restarts", "Stops assigning new transaction ids until the database is vacuumed", "Switches to 64-bit ids"]
+    answer: 2
+    explanation: "It refuses new write transactions to protect the data; anti-wraparound vacuums are meant to prevent ever getting there."
+  - id: settings-level
+    skills: [postgresql.configuration]
+    prompt: "Which statement gives only the reporting role a larger work_mem, for all its future sessions?"
+    options: ["SET work_mem = '256MB'", "ALTER SYSTEM SET work_mem = '256MB'", "ALTER ROLE reporting SET work_mem = '256MB'", "SET LOCAL work_mem = '256MB'"]
+    answer: 2
+    explanation: "Role settings apply to every new session of that role; SET and SET LOCAL only to the current session or transaction."

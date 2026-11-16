@@ -1,0 +1,23 @@
+id: postgresql.p4.wal-replication
+kind: lesson
+status: reviewed
+title: "WAL, Replication and High Availability"
+summary: "The WAL, LSNs and checkpoints, synchronous_commit and what it risks, streaming replication with pg_basebackup and its monitoring, replica conflicts, replication slots and their danger, synchronous replication, logical replication and its limits, and automated failover without split brain."
+objectives:
+  - { id: o1, text: "Explain WAL records, LSNs, checkpoints and the durability trade-offs of synchronous_commit and fsync", skills: [postgresql.replication] }
+  - { id: o2, text: "Set up and monitor streaming replication, replication slots and synchronous standbys", skills: [postgresql.replication] }
+  - { id: o3, text: "Choose between physical and logical replication and describe automated failover", skills: [postgresql.replication] }
+prerequisites: [postgresql.p3.extensions-pooling]
+difficulty: 4
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your company runs one PostgreSQL 17 primary with one asynchronous streaming standby used for reports. Last month the primary''s disk filled up because pg_wal grew to 400 GB, and the business now says "we can never lose a committed payment". Explain the most likely cause of the full disk and how to prevent it, design a replication setup that loses no committed payment if the primary dies without making every commit hang when one server is down, say what changes for report queries on the standby, and describe how a failover should happen.'
+  criteria:
+    - 'Identifies an inactive or lagging replication slot (or failed archiving) as the cause of WAL growth, checks pg_replication_slots retained WAL, and proposes max_slot_wal_keep_size and monitoring'
+    - 'Proposes synchronous replication with at least two standbys and synchronous_standby_names = ''ANY 1 (...)'', and explains the commit latency cost'
+    - 'Explains replica query conflicts, max_standby_streaming_delay and hot_standby_feedback (and its bloat cost), or a separate standby for reports'
+    - 'Describes automated failover with a cluster manager such as Patroni or a managed service, fencing to avoid split brain, client redirection, and rebuilding the old primary (pg_rewind)'

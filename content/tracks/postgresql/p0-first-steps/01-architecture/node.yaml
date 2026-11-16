@@ -1,0 +1,23 @@
+id: postgresql.p0.architecture
+kind: lesson
+status: reviewed
+title: "Inside a PostgreSQL Server: Clusters, Processes, psql and the Catalogs"
+summary: "How a PostgreSQL server is built (one cluster, many databases, schemas, a process per connection, shared buffers and the WAL), how versions are supported, how to work in psql, and how the system catalogs describe every object."
+objectives:
+  - { id: o1, text: "Describe a cluster, its databases and schemas, the postmaster and its backend and background processes, shared buffers and the WAL", skills: [postgresql.architecture] }
+  - { id: o2, text: 'Work in psql with its meta-commands (\d, \x, \timing, \gexec, \watch) and know what each one queries', skills: [postgresql.architecture] }
+  - { id: o3, text: "Query pg_catalog (pg_class, pg_attribute, pg_constraint, pg_settings, pg_stat_activity) and the size functions to answer questions about a database", skills: [postgresql.architecture] }
+prerequisites: []
+difficulty: 2
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A developer says: "our app opens 800 connections to PostgreSQL, one per worker thread, and the database has 5 databases for 5 customers; we sometimes connect to the wrong one". Explain what each of those 800 connections costs on the server, what a cluster, a database and a schema are and which of them a single connection can see, and write the catalog query you would use to list the ten largest tables of the current database with their total size (table, indexes and TOAST).'
+  criteria:
+    - 'Explains that each connection is a separate backend process forked by the postmaster, with its own memory (work_mem per sort or hash, catalog caches), so hundreds of idle connections cost memory and CPU'
+    - 'Explains that a cluster is one server instance with one data directory, that a connection is bound to one database, and that schemas are namespaces inside a database that one connection can mix'
+    - 'Suggests a pool or fewer connections, and schemas or separate clusters for tenants as a trade-off'
+    - 'Gives a query over pg_class (relkind r or p) with pg_total_relation_size and pg_size_pretty, joined to pg_namespace to skip pg_catalog and information_schema, ordered by size with LIMIT 10'

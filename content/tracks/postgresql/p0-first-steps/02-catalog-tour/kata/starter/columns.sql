@@ -1,0 +1,2 @@
+-- todo: the columns of shop.orders in table order, with their type as psql shows it and
+-- whether they are NOT NULL.

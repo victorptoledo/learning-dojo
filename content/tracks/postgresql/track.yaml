@@ -4,20 +4,20 @@ name: "PostgreSQL"
 archetype: platform
 category: "Databases"
 icon: "🐘"
-description: "The most advanced open source relational database: B-Tree/GIN indexes, EXPLAIN ANALYZE, JSONB and tuning."
-status: draft
-bridges_available: [java]
+description: "PostgreSQL 17 from the inside, after the SQL track: the catalog and psql, its own types, MVCC, VACUUM and HOT updates, configuration, the planner and EXPLAIN ANALYZE, locks, JSONB and full-text search, PL/pgSQL and triggers, every index type, partitioning, roles and row-level security, extensions and connection pooling, WAL and replication, backups and point-in-time recovery, monitoring, tuning and incidents."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
-  - { name: "White Belt", required_xp: 0, title: "Select Star Novice" }
-  - { name: "Yellow Belt", required_xp: 300, title: "Index Crafter" }
-  - { name: "Green Belt", required_xp: 800, title: "Query Optimizer" }
-  - { name: "Purple Belt", required_xp: 1500, title: "JSONB Hybrid Master" }
+  - { name: "White Belt", required_xp: 0, title: "Elephant Keeper" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Catalog Reader" }
+  - { name: "Green Belt", required_xp: 800, title: "Vacuum Tamer" }
+  - { name: "Purple Belt", required_xp: 1500, title: "Query Plan Whisperer" }
   - { name: "Brown Belt", required_xp: 2500, title: "MVCC & Lock Specialist" }
   - { name: "Black Belt", required_xp: 4000, title: "Database Reliability Titan" }
   - { name: "Sensei", required_xp: 6000, title: "Postgres Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install it, run a first command and see why it exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Core commands, objects and basic configuration" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Composition, configuration, troubleshooting and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, security and automation" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production operation, high availability and incident handling" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "How a PostgreSQL cluster is built, psql, and asking the system catalogs about the database" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "PostgreSQL's own types, MVCC, VACUUM and HOT updates, and configuration" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "The planner and EXPLAIN ANALYZE, locks, JSONB and full-text search, PL/pgSQL and triggers" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Every index type, partitioning, roles and row-level security, extensions and connection pooling" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "WAL and replication, backups and recovery, monitoring and tuning, and handling incidents" }

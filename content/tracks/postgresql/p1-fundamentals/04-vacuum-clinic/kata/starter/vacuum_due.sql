@@ -1,0 +1,2 @@
+-- todo: the tables of stats_snapshot that autovacuum should be vacuuming: relname,
+-- n_dead_tup, vacuum_at and autovacuum_disabled, by relname.

@@ -1,0 +1,35 @@
+questions:
+  - id: replica-not-backup
+    prompt: "A developer runs DROP TABLE invoices on the primary by mistake. What does a streaming standby give you?"
+    options: ["The table, because standbys lag by a day", "Nothing: the drop is replicated within seconds", "The table, if hot_standby is on", "A pg_dump of the table"]
+    answer: 1
+    explanation: "Replication copies mistakes too; recovering needs a backup and point-in-time recovery."
+  - id: pitr-needs
+    prompt: "What does point-in-time recovery to 14:29:59 need?"
+    options: ["A pg_dump from 14:00", "A base backup taken before 14:29:59 and the archived WAL from then up to the target", "A standby", "The current data directory"]
+    answer: 1
+    explanation: "The base backup is the starting point; replaying archived WAL carries it to the chosen moment."
+  - id: globals
+    prompt: "Which command saves the roles that pg_dump of a database does not include?"
+    answers: ["pg_dumpall --globals-only", "pg_dumpall -g"]
+    explanation: "Roles and tablespaces are cluster-wide; pg_dump only dumps one database."
+  - id: archive-fail
+    prompt: "archive_command has been failing for a day. What happens?"
+    options: ["Nothing", "WAL segments pile up in pg_wal until the disk fills, and the archive has a gap", "The server stops archiving and deletes the WAL", "Replication stops"]
+    answer: 1
+    explanation: "WAL is kept until archived; monitor pg_stat_archiver.failed_count and the disk."
+  - id: rpo
+    prompt: "What does RPO measure?"
+    options: ["How long a restore takes", "How much data, in time, you may lose", "How many backups you keep", "The size of the backup"]
+    answer: 1
+    explanation: "Recovery point objective: the gap between the last recoverable moment and the failure. RTO is the downtime."
+  - id: pg-upgrade
+    prompt: "What must you run after pg_upgrade to PostgreSQL 17, before sending traffic?"
+    options: ["VACUUM FULL", "ANALYZE, because planner statistics are not carried over", "REINDEX DATABASE", "pg_resetwal"]
+    answer: 1
+    explanation: "Without statistics the planner chooses badly; vacuumdb --analyze-in-stages makes it fast. PostgreSQL 18 keeps statistics."
+  - id: restore-test
+    prompt: "Which practice proves a backup works?"
+    options: ["Checking that the backup file exists", "Automatically restoring it to a scratch server and checking the data, regularly", "Keeping three copies", "Using pg_dump instead of a physical backup"]
+    answer: 1
+    explanation: "Only a successful restore shows that the backup and the WAL archive are complete and usable."

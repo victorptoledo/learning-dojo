@@ -1,0 +1,36 @@
+questions:
+  - id: timestamptz-storage
+    prompt: "What does a timestamptz column store for the value '2026-11-15 09:00-03'?"
+    options: ["The text with its offset", "The instant, in UTC; the offset is used for conversion and not kept", "The local time and the zone name", "Only the date"]
+    answer: 1
+    explanation: "timestamptz stores an instant and shows it in the session's TimeZone. The original offset is not kept."
+  - id: array-contains
+    prompt: "Which condition is true when tags contains both 'postgres' and 'sql', and can use a GIN index?"
+    options: ["tags = ARRAY['postgres', 'sql']", "tags @> ARRAY['postgres', 'sql']", "tags && ARRAY['postgres', 'sql']", "'postgres' = ANY (tags) OR 'sql' = ANY (tags)"]
+    answer: 1
+    explanation: "@> is containment (all of them). && is overlap (any of them). = compares the whole array in order."
+  - id: enum-remove
+    prompt: "An enum order_status has a value you no longer want. What does removing it take?"
+    options: ["ALTER TYPE ... DROP VALUE", "Nothing: just stop using it", "Creating a new type and converting every column, which rewrites the tables", "DELETE FROM pg_enum"]
+    answer: 2
+    explanation: "PostgreSQL has no DROP VALUE for enums. That is why a CHECK constraint or a lookup table suits lists that change."
+  - id: range-touch
+    prompt: "Do the ranges [10:00, 11:00) and [11:00, 12:00) overlap (&&)?"
+    options: ["Yes, at 11:00", "No: the first excludes 11:00", "Only for tstzrange", "It depends on the time zone"]
+    answer: 1
+    explanation: "Half-open ranges let consecutive periods touch without overlapping, which is what bookings need."
+  - id: exclusion-sqlstate
+    prompt: "Which constraint forbids two bookings of the same room whose periods overlap?"
+    options: ["UNIQUE (room_id, during)", "CHECK (during && during)", "EXCLUDE USING gist (room_id WITH =, during WITH &&)", "A foreign key on during"]
+    answer: 2
+    explanation: "UNIQUE only rejects equal values. EXCLUDE rejects pairs of rows where every listed operator is true; btree_gist provides = for GiST."
+  - id: generated-now
+    prompt: "Why is GENERATED ALWAYS AS (now() - created_at) STORED rejected?"
+    options: ["Intervals cannot be stored", "The expression must be immutable, and now() is not", "Generated columns cannot use other columns", "STORED is not supported"]
+    answer: 1
+    explanation: "A stored generated column is computed at write time and must give the same result for the same row forever."
+  - id: domain-reuse
+    prompt: "What is the main advantage of a DOMAIN email over a CHECK constraint on each email column?"
+    options: ["It is faster", "The rule is declared once and every column of that type follows it", "It creates an index", "It allows NULL"]
+    answer: 1
+    explanation: "A domain is a reusable type with constraints; changing it updates the rule everywhere."

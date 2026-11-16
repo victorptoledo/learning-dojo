@@ -1,0 +1,35 @@
+questions:
+  - id: precedence
+    prompt: "postgresql.conf has work_mem = 4MB and someone ran ALTER ROLE reporting SET work_mem = '256MB'. Which value does a new session of reporting get?"
+    options: ["4MB", "256MB", "The larger of the two is used per query", "It depends on the database"]
+    answer: 1
+    explanation: "Role settings are applied at connection and win over the configuration files (a database-level setting would lose to the role, too)."
+  - id: restart
+    prompt: "Which change needs a server restart?"
+    options: ["work_mem", "log_min_duration_statement", "shared_buffers", "autovacuum_vacuum_scale_factor"]
+    answer: 2
+    explanation: "shared_buffers has the postmaster context: it is allocated at startup. The others take effect with SET or a reload."
+  - id: reload
+    prompt: "Which SQL function makes the server re-read its configuration files?"
+    answers: ["pg_reload_conf()", "pg_reload_conf", "SELECT pg_reload_conf()"]
+    explanation: "pg_reload_conf() sends SIGHUP to the postmaster; sighup-context settings change without a restart."
+  - id: work-mem
+    prompt: "Why is setting work_mem = '1GB' in postgresql.conf on a server with 200 connections risky?"
+    options: ["work_mem is per connection and 200 GB is too much", "work_mem is per sort or hash operation, so one query can use several times it, in every connection", "It requires a restart", "It disables parallel queries"]
+    answer: 1
+    explanation: "Raise work_mem per role or with SET LOCAL for the queries that need it; spills show as external merge in EXPLAIN ANALYZE."
+  - id: effective-cache
+    prompt: "What does effective_cache_size do?"
+    options: ["Allocates a second buffer cache", "Tells the planner how much data is likely cached, which makes index scans look cheaper", "Limits the OS file cache", "Sets the WAL buffer size"]
+    answer: 1
+    explanation: "It allocates nothing; it is an estimate the planner uses."
+  - id: idle-in-tx
+    prompt: "Which setting ends sessions that sit inside an open transaction doing nothing?"
+    options: ["statement_timeout", "lock_timeout", "idle_in_transaction_session_timeout", "tcp_keepalives_idle"]
+    answer: 2
+    explanation: "statement_timeout only covers running statements; an idle open transaction runs no statement."
+  - id: source
+    prompt: "How do you find out whether a setting's value came from postgresql.conf, ALTER SYSTEM, a role or the session?"
+    options: ["SHOW setting VERBOSE", "The source and sourcefile columns of pg_settings", "pg_stat_activity", "It is not possible"]
+    answer: 1
+    explanation: "pg_settings has source (default, configuration file, database, user, session ...), sourcefile and sourceline."

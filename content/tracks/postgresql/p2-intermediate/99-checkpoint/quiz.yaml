@@ -1,0 +1,50 @@
+pass_percent: 85
+questions:
+  - id: per-loop
+    skills: [postgresql.query-planner]
+    prompt: "A plan node shows rows=1 (estimated) and actual rows=2 loops=40000. What is the real problem?"
+    options: ["None: 1 and 2 are close", "The node ran 40,000 times, so the step feeding it was underestimated and a nested loop was chosen", "The index is missing", "work_mem is too low"]
+    answer: 1
+    explanation: "Per-loop numbers can look fine; multiply by loops and find the outer node whose estimate was wrong."
+  - id: extended-stats
+    skills: [postgresql.query-planner]
+    prompt: "Which object fixes the estimate of WHERE city = 'Porto' AND country = 'PT' when city implies country?"
+    options: ["A composite index", "CREATE STATISTICS on (city, country), followed by ANALYZE", "A higher random_page_cost", "A partial index"]
+    answer: 1
+    explanation: "Extended statistics (dependencies, mcv) record how the columns relate; ANALYZE fills them."
+  - id: lock-queue
+    skills: [postgresql.locking]
+    prompt: "Why should migrations set lock_timeout?"
+    options: ["To make ALTER TABLE faster", "So a waiting ACCESS EXCLUSIVE request gives up instead of making every later query queue behind it", "To avoid deadlocks entirely", "Because DDL is not transactional"]
+    answer: 1
+    explanation: "A waiting strong lock request blocks new conflicting requests; failing fast and retrying keeps the application running."
+  - id: root-blocker
+    skills: [postgresql.locking]
+    prompt: "The root of a blocking chain is a session idle in transaction. Which call ends it?"
+    options: ["pg_cancel_backend(pid)", "pg_terminate_backend(pid)", "pg_advisory_unlock_all()", "SET lock_timeout"]
+    answer: 1
+    explanation: "An idle session runs no statement to cancel; terminating it rolls back its transaction and releases its locks."
+  - id: gin-arrow
+    skills: [postgresql.jsonb]
+    prompt: "metadata has a GIN index. Which filter can use it?"
+    options: ["metadata ->> 'plan' = 'pro'", "metadata @> '{\"customer\": {\"plan\": \"pro\"}}'", "metadata::text LIKE '%pro%'", "jsonb_typeof(metadata) = 'object'"]
+    answer: 1
+    explanation: "GIN serves containment, key existence and jsonpath operators, not ->> comparisons."
+  - id: fts-query
+    skills: [postgresql.full-text-search]
+    prompt: "Which pair matches 'Users are logging in' with a search for 'log in'?"
+    options: ["body LIKE '%log in%'", "to_tsvector('english', body) @@ websearch_to_tsquery('english', 'log in')", "to_tsvector('simple', body) @@ to_tsquery('simple', 'log')", "body ~ 'log in'"]
+    answer: 1
+    explanation: "The english stemmer reduces logging to log and drops the stop word in; LIKE and the simple configuration do not stem."
+  - id: trigger-timing
+    skills: [postgresql.plpgsql]
+    prompt: "Which trigger sets updated_at on the row being written?"
+    options: ["AFTER UPDATE FOR EACH ROW", "BEFORE UPDATE FOR EACH ROW, assigning NEW.updated_at and returning NEW", "AFTER UPDATE FOR EACH STATEMENT", "An event trigger"]
+    answer: 1
+    explanation: "Only a BEFORE row trigger can change the row before it is stored."
+  - id: stable
+    skills: [postgresql.plpgsql]
+    prompt: "A function returns rows from the tickets table. Which volatility is honest?"
+    options: ["IMMUTABLE", "STABLE", "VOLATILE is required", "PARALLEL SAFE"]
+    answer: 1
+    explanation: "It reads tables, so its result can change between statements but not within one: STABLE."

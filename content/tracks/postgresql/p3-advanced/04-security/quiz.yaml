@@ -1,0 +1,40 @@
+questions:
+  - id: hba-order
+    prompt: "pg_hba.conf has two lines that match a connection: first 'host all all 10.0.0.0/8 reject', then 'host shop api 10.1.0.0/16 scram-sha-256'. What happens when api connects from 10.1.2.3?"
+    options: ["It authenticates with scram-sha-256", "It is rejected: the first matching line decides", "Both lines are combined", "It depends on the database"]
+    answer: 1
+    explanation: "pg_hba.conf is read top to bottom and the first match wins, so put specific lines before general ones."
+  - id: default-privileges
+    prompt: "GRANT SELECT ON ALL TABLES IN SCHEMA billing TO reporting worked yesterday, but today's new table is not readable. Why?"
+    options: ["The grant expired", "ON ALL TABLES only covers tables that existed at the time; ALTER DEFAULT PRIVILEGES covers future ones", "reporting lost its LOGIN", "New tables are always private to superusers"]
+    answer: 1
+    explanation: "Default privileges, set for the role that creates the tables, apply to objects created later."
+  - id: schema-usage
+    prompt: "A role has SELECT on billing.invoices but gets 'permission denied for schema billing'. What is missing?"
+    answers: ["USAGE", "GRANT USAGE ON SCHEMA billing", "usage"]
+    explanation: "Objects in a schema can only be reached with USAGE on the schema."
+  - id: rls-default
+    prompt: "RLS is enabled on invoices but no policy exists yet. What does a non-owner role see?"
+    options: ["Every row", "No rows", "Only rows it inserted", "An error"]
+    answer: 1
+    explanation: "Row-level security denies by default: without a policy that allows rows, none are visible."
+  - id: rls-owner
+    prompt: "Policies on invoices work for the api role but the table's owner still sees every tenant. Why?"
+    options: ["The policy has a bug", "Table owners bypass RLS unless the table has FORCE ROW LEVEL SECURITY", "Owners are superusers", "RLS only applies to INSERT"]
+    answer: 1
+    explanation: "ALTER TABLE ... FORCE ROW LEVEL SECURITY applies the policies to the owner too; superusers and BYPASSRLS roles always bypass."
+  - id: with-check
+    prompt: "Which part of a policy rejects an INSERT of a row for another tenant?"
+    options: ["USING", "WITH CHECK", "FOR SELECT", "TO PUBLIC"]
+    answer: 1
+    explanation: "USING filters existing rows; WITH CHECK validates new and updated rows and raises an error when they fail."
+  - id: pooler-tenant
+    prompt: "Behind PgBouncer in transaction mode, how should each request set the tenant for RLS?"
+    options: ["SET app.tenant_id once per connection", "SET LOCAL app.tenant_id inside each transaction (or set_config(..., true))", "A different database per tenant", "ALTER ROLE api SET app.tenant_id"]
+    answer: 1
+    explanation: "Session settings leak to the next client of the same server connection; transaction-local settings end with the transaction."
+  - id: app-role
+    prompt: "Which role design limits the damage of a SQL injection in the API?"
+    options: ["The API connects as a superuser", "The API connects as the owner of the tables", "The API connects as a role that owns nothing and has only the DML privileges it needs", "The API uses the postgres role with a strong password"]
+    answer: 2
+    explanation: "A role that owns nothing cannot DROP or ALTER tables; keep ownership with a migrator role."

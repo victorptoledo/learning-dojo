@@ -1,0 +1,35 @@
+questions:
+  - id: pk-key
+    prompt: "events is PARTITION BY RANGE (at). Why does PRIMARY KEY (id) fail?"
+    options: ["Partitioned tables cannot have primary keys", "Uniqueness is enforced per partition, so a unique key must include the partition key, as in PRIMARY KEY (id, at)", "id must be a uuid", "Only list partitioning supports keys"]
+    answer: 1
+    explanation: "PostgreSQL has no global indexes; each partition enforces its own part of the key."
+  - id: pruning
+    prompt: "Which query reads only one monthly partition of events?"
+    options: ["SELECT * FROM events WHERE id = 42", "SELECT * FROM events WHERE at >= '2026-11-10' AND at < '2026-11-11'", "SELECT count(*) FROM events", "SELECT * FROM events WHERE tenant = 7"]
+    answer: 1
+    explanation: "Pruning needs a condition on the partition key; the others read every partition."
+  - id: no-partition
+    prompt: "A row is inserted with a date for which no partition exists and there is no DEFAULT partition. What happens?"
+    options: ["A partition is created", "The row goes to the last partition", "The insert fails", "The row is stored in the parent"]
+    answer: 2
+    explanation: "Inserts that fit no partition fail with a check violation; create future partitions ahead of time."
+  - id: retention
+    prompt: "What is the fastest way to remove all events of November 2025 from a monthly partitioned table?"
+    options: ["DELETE FROM events WHERE at < '2025-12-01'", "TRUNCATE events", "ALTER TABLE events DETACH PARTITION events_2025_11, then DROP TABLE events_2025_11", "VACUUM FULL events"]
+    answer: 2
+    explanation: "Detaching and dropping is a catalog change: no per-row WAL, no dead tuples."
+  - id: detach-concurrently
+    prompt: "Which option lets DETACH PARTITION run without blocking queries on the parent (PostgreSQL 14+)?"
+    answers: ["CONCURRENTLY", "concurrently"]
+    explanation: "DETACH PARTITION ... CONCURRENTLY uses weaker locks in two transactions; it cannot run inside a transaction block."
+  - id: hash
+    prompt: "Which strategy spreads rows evenly over a fixed number of partitions when there is no natural range or list?"
+    options: ["RANGE", "LIST", "HASH", "DEFAULT"]
+    answer: 2
+    explanation: "HASH uses MODULUS and REMAINDER of the key's hash."
+  - id: bad-reason
+    prompt: "Which is a poor reason to partition a table?"
+    options: ["Dropping old months instantly", "Most queries filter on the key and only recent data is hot", "The table has 50 million rows and the slow query does not filter on any candidate key", "Vacuuming one partition at a time"]
+    answer: 2
+    explanation: "Without a filter on the key, every partition is read; the slow query needs an index or a rewrite."

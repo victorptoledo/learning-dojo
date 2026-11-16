@@ -1,0 +1,40 @@
+questions:
+  - id: analyze-runs
+    prompt: "What is the difference between EXPLAIN and EXPLAIN ANALYZE for a DELETE?"
+    options: ["None", "EXPLAIN ANALYZE really runs the DELETE, so wrap it in BEGIN ... ROLLBACK", "EXPLAIN ANALYZE only shows more statistics", "EXPLAIN runs the query without committing"]
+    answer: 1
+    explanation: "ANALYZE executes the statement to measure it. Data changes are real unless rolled back."
+  - id: loops
+    prompt: "An Index Scan node shows actual rows=4 loops=25000. How many rows did it produce in total?"
+    options: ["4", "25,000", "100,000", "6,250"]
+    answer: 2
+    explanation: "Actual rows and time are per loop. The node ran 25,000 times (the inner side of a nested loop)."
+  - id: first-check
+    prompt: "A query is slow. In EXPLAIN ANALYZE, what should you compare first?"
+    options: ["The costs of the nodes", "The estimated rows with the actual rows of each node", "The planning time with the execution time", "The widths"]
+    answer: 1
+    explanation: "Wrong estimates cause wrong scans and joins. Find the lowest node where they diverge."
+  - id: correlated
+    prompt: "WHERE city = 'Porto' AND country = 'PT' is estimated at 200 rows but returns 1,000. What fixes the estimate?"
+    options: ["An index on city", "CREATE STATISTICS ... (dependencies) ON city, country, then ANALYZE", "SET enable_seqscan = off", "VACUUM FULL"]
+    answer: 1
+    explanation: "The planner assumes independent columns and multiplies selectivities. Extended statistics capture the dependency."
+  - id: bitmap
+    prompt: "Which plan reads matching rows' pages in physical order and can combine two indexes with BitmapOr?"
+    options: ["Index Scan", "Index Only Scan", "Bitmap Heap Scan", "Seq Scan"]
+    answer: 2
+    explanation: "A bitmap scan first collects row addresses from the indexes, then reads each page once."
+  - id: spill
+    prompt: "A Sort node shows Sort Method: external merge Disk: 80000kB. What does it mean?"
+    options: ["The index is corrupt", "The sort did not fit in work_mem and spilled to temporary files", "The result was written to the WAL", "The sort ran in parallel"]
+    answer: 1
+    explanation: "Raise work_mem for that query (SET LOCAL) or avoid the sort with an index."
+  - id: pg-stats
+    prompt: "Which view shows a column's most common values, their frequencies and its histogram?"
+    answers: ["pg_stats"]
+    explanation: "pg_stats is the readable view over pg_statistic, refreshed by ANALYZE."
+  - id: enable-flags
+    prompt: "A nested loop is slow because its outer side was estimated at 1 row but returns 50,000. What is the right fix?"
+    options: ["SET enable_nestloop = off in postgresql.conf", "Fix the estimate: ANALYZE, extended statistics or a higher statistics target", "Add more indexes everywhere", "Increase random_page_cost"]
+    answer: 1
+    explanation: "enable_* settings are for experiments. The planner chose a nested loop because of the estimate."

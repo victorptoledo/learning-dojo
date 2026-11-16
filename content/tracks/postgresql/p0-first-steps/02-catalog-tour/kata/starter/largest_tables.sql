@@ -1,0 +1,2 @@
+-- todo: every table of the schemas shop and audit with its total size (table, TOAST and
+-- indexes) and the size of its indexes, in bytes, largest first.

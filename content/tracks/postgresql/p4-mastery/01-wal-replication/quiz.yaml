@@ -1,0 +1,35 @@
+questions:
+  - id: commit-durability
+    prompt: "What must be on disk when COMMIT returns with synchronous_commit = on?"
+    options: ["Every changed data page", "The WAL up to the commit record", "A checkpoint", "A copy on a standby"]
+    answer: 1
+    explanation: "Durability comes from the flushed WAL; pages are written later by the checkpointer and background writer."
+  - id: async-commit
+    prompt: "What can SET synchronous_commit = off lose in a crash?"
+    options: ["Nothing", "The last few hundred milliseconds of commits, without corrupting the database", "The whole database", "Only uncommitted transactions"]
+    answer: 1
+    explanation: "Commits return before the WAL flush; a crash may lose them, but recovery stays consistent. fsync = off is what risks corruption."
+  - id: slot-danger
+    prompt: "A standby was shut down for good, but its replication slot still exists. What happens on the primary?"
+    options: ["Nothing", "WAL is kept for the slot until pg_wal fills the disk", "Replication switches to logical", "VACUUM stops at once"]
+    answer: 1
+    explanation: "A slot retains WAL until its consumer reads it; drop abandoned slots and cap them with max_slot_wal_keep_size."
+  - id: replica-lag
+    prompt: "Which view on the primary shows each standby's sent and replayed LSNs and lag?"
+    answers: ["pg_stat_replication"]
+    explanation: "pg_stat_replication has sent_lsn, write_lsn, flush_lsn, replay_lsn and the lag intervals."
+  - id: sync-hang
+    prompt: "synchronous_standby_names = 'standby_a' and standby_a goes down. What happens to commits on the primary?"
+    options: ["They continue asynchronously", "They wait (hang) until a synchronous standby is back or the setting changes", "They fail with an error", "The primary promotes itself"]
+    answer: 1
+    explanation: "Use ANY 1 (a, b) with two or more standbys so one failure does not stop writes."
+  - id: logical-upgrade
+    prompt: "Why is logical replication used for major-version upgrades with little downtime?"
+    options: ["It is faster than physical replication", "It replicates rows between different major versions, so a new-version server can catch up and take over", "It copies the configuration", "It replicates DDL automatically"]
+    answer: 1
+    explanation: "Physical standbys must run the same major version; logical subscribers need not. DDL and sequences must be handled separately."
+  - id: split-brain
+    prompt: "Why is failover usually automated with Patroni, an operator or a managed service?"
+    options: ["pg_promote() does not exist", "Someone must make sure only one node accepts writes, fence the old primary and redirect clients, quickly and correctly", "Standbys cannot be promoted by hand", "Replication stops without it"]
+    answer: 1
+    explanation: "Two primaries accepting writes (split brain) is the worst outcome; cluster managers use a consensus store to decide the leader."

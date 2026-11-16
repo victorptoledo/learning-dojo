@@ -1,0 +1,2 @@
+-- todo: clean up the double bookings, then add the email domain, the status and period
+-- checks and the constraint that forbids overlapping confirmed bookings.

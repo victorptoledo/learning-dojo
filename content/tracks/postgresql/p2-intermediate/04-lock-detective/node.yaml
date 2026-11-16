@@ -1,0 +1,44 @@
+id: postgresql.p2.lock-detective
+kind: kata
+status: reviewed
+title: "Lock Detective: Blocking Chains, Safe Migrations and Advisory Locks"
+summary: "With real sessions holding and waiting for locks: list every blocked session with its blockers, terminate only the root blockers, write a migration with lock_timeout and a separately validated check, and make a job a singleton with a transaction-level advisory lock."
+objectives:
+  - { id: o1, text: "Find blocking chains and root blockers with pg_stat_activity and pg_blocking_pids, and end them with pg_terminate_backend", skills: [postgresql.locking] }
+  - { id: o2, text: "Write a migration that fails fast with lock_timeout and adds a check NOT VALID before validating it", skills: [postgresql.locking] }
+  - { id: o3, text: "Use pg_try_advisory_xact_lock for application-level mutual exclusion", skills: [postgresql.locking] }
+prerequisites: [postgresql.p2.locking]
+difficulty: 4
+estimated_minutes: 70
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 120 }
+  hints:
+    - |-
+      Which function takes a process id and returns the ones blocking it? It returns an array: how do you get one row per element and join it back to `pg_stat_activity`? A root blocker blocks someone (it appears in somebody's array) and is blocked by nobody (its own array is empty). For the migration, which setting limits how long a statement waits for a lock, and how do you set it for this transaction only?
+    - |-
+      `CROSS JOIN LATERAL unnest(pg_blocking_pids(w.pid)) AS blocker(pid)` then `JOIN pg_stat_activity AS b ON b.pid = blocker.pid`. For root blockers, `EXISTS (... WHERE b.pid = ANY (pg_blocking_pids(w.pid)))` and `cardinality(pg_blocking_pids(b.pid)) = 0`, and `pg_terminate_backend(b.pid)`: an idle-in-transaction session runs nothing to cancel. The migration starts with `SET LOCAL lock_timeout = '2s'`, then `ADD COLUMN ... DEFAULT 'EUR'`, `ADD CONSTRAINT ... CHECK (...) NOT VALID` and `VALIDATE CONSTRAINT`. The singleton is one call to `pg_try_advisory_xact_lock`.
+    - |-
+      ```sql
+      -- root_blockers.sql
+      SELECT b.application_name, pg_terminate_backend(b.pid) AS terminated
+      FROM pg_stat_activity AS b
+      WHERE b.pid <> pg_backend_pid()
+        AND EXISTS (SELECT 1 FROM pg_stat_activity AS w WHERE ...)
+        AND ...
+      ORDER BY b.application_name;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

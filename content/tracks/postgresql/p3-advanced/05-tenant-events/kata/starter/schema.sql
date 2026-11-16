@@ -1,0 +1,1 @@
+-- todo: the events table, partitioned by month of at, with its partitions and index.

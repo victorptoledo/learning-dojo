@@ -1,0 +1,23 @@
+id: postgresql.p1.data-types
+kind: lesson
+status: reviewed
+title: "PostgreSQL Types: Arrays, Ranges, Enums, Domains and More"
+summary: "The PostgreSQL types that replace tables or application code: arrays, enums, domains, ranges and multiranges, exclusion constraints against overlaps, generated columns, and how timestamptz and UUIDs really behave."
+objectives:
+  - { id: o1, text: "Choose between text, numeric, timestamptz, identity and uuid columns, and explain what timestamptz stores", skills: [postgresql.data-types] }
+  - { id: o2, text: "Use arrays, enums and domains, and say when a CHECK constraint, a lookup table or a join table is the better choice", skills: [postgresql.data-types] }
+  - { id: o3, text: "Model periods with ranges and forbid overlaps with an exclusion constraint", skills: [postgresql.data-types] }
+prerequisites: [postgresql.p0.catalog-tour]
+difficulty: 2
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'You are designing the tables of a meeting-room booking service. A booking has a room, an organiser email, a status (requested, confirmed, cancelled, and maybe more later), a period with a start and an end, and a list of attendee emails. Choose a PostgreSQL type for each of these, explain your choice against at least one alternative for the status and the attendees, and write the constraint that makes two confirmed bookings of the same room impossible when their periods overlap, even when two requests arrive at the same moment.'
+  criteria:
+    - 'Uses tstzrange (or two timestamptz columns turned into a range) with half-open bounds, and explains why [) lets back-to-back bookings touch'
+    - 'Chooses a status representation (CHECK on text, enum or lookup table) and justifies it by how often the list changes'
+    - 'Discusses attendees as an array of a domain or text versus a join table, choosing the join table if attendees need their own data or keys'
+    - 'Writes EXCLUDE USING gist (room_id WITH =, during WITH &&) WHERE (status = ''confirmed''), mentions btree_gist, and explains that a SELECT-then-INSERT check in the application can race'

@@ -1,0 +1,23 @@
+id: postgresql.p3.security
+kind: lesson
+status: reviewed
+title: "Roles, Privileges and Row-Level Security"
+summary: "pg_hba.conf and SCRAM, roles, membership and predefined roles, privileges on databases, schemas, tables, columns and sequences, default privileges and PUBLIC, a least-privilege role layout, and row-level security policies for tenant isolation with their traps."
+objectives:
+  - { id: o1, text: "Configure authentication in pg_hba.conf and design roles with membership, attributes and predefined roles", skills: [postgresql.security] }
+  - { id: o2, text: "Grant least privilege on schemas, tables and sequences, including default privileges for future objects", skills: [postgresql.security] }
+  - { id: o3, text: "Isolate tenants with row-level security policies (USING, WITH CHECK, FORCE) and test them as the application role", skills: [postgresql.security] }
+prerequisites: [postgresql.p3.partitioning]
+difficulty: 4
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A multi-tenant SaaS keeps every customer''s data in shared tables with a tenant_id column. The API connects as the role that owns all the tables, and tenant filtering is a WHERE clause added by the ORM. Last month a bug in one endpoint returned another tenant''s invoices. Design the roles (who owns the tables, who the API connects as, who reports read with), write the grants including default privileges, write the RLS policy for invoices, and explain how the API sets the current tenant behind a transaction-mode pooler and how you would test that the isolation holds.'
+  criteria:
+    - 'Separates a migrator owner role from an API role that owns nothing, plus a read-only role, with GRANT USAGE on the schema, DML grants, sequence grants and ALTER DEFAULT PRIVILEGES for future tables'
+    - 'Writes ENABLE ROW LEVEL SECURITY and a policy with USING and WITH CHECK on tenant_id = current_setting(''app.tenant_id'')::integer (or a similar setting), and mentions FORCE ROW LEVEL SECURITY for the owner'
+    - 'Sets the tenant with SET LOCAL or set_config(..., true) inside each transaction, explaining why a session-level SET is unsafe with transaction pooling'
+    - 'Tests as the API role (SET ROLE), not as the owner or a superuser, checking that other tenants'' rows are invisible and that inserting for another tenant fails'

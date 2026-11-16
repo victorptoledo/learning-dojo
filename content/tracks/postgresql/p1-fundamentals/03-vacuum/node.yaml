@@ -1,0 +1,23 @@
+id: postgresql.p1.vacuum
+kind: lesson
+status: reviewed
+title: "VACUUM, Autovacuum, Bloat and Wraparound"
+summary: "What VACUUM, VACUUM FULL and ANALYZE do, when autovacuum runs and how to tune it per table, what holds back the cleanup of dead tuples, how to measure bloat, and how freezing protects the database from transaction id wraparound."
+objectives:
+  - { id: o1, text: "Explain what VACUUM, VACUUM FULL, ANALYZE and pg_repack do and which locks they take", skills: [postgresql.vacuum] }
+  - { id: o2, text: "Compute when autovacuum triggers and tune it per table with storage parameters and the cost limit", skills: [postgresql.vacuum] }
+  - { id: o3, text: "Find what holds back the xmin horizon, and monitor freezing and wraparound with age(relfrozenxid)", skills: [postgresql.vacuum, postgresql.mvcc] }
+prerequisites: [postgresql.p1.mvcc]
+difficulty: 3
+estimated_minutes: 55
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A 400 GB orders table (800 million rows) is three times larger than a fresh copy of its data would be, its queries got slower over months, and pg_stat_user_tables shows 90 million dead tuples and a last_autovacuum from two weeks ago. A colleague wants to run VACUUM FULL tonight and set autovacuum = off for the table "because it never finishes anyway". Explain why autovacuum has not run, what VACUUM FULL would do to the application, what you would check first, and what you would change. Include the statements.'
+  criteria:
+    - 'Computes that the default trigger (50 + 0.2 × 800 million = 160 million dead tuples) has not been reached and proposes a per-table autovacuum_vacuum_scale_factor (and threshold) with ALTER TABLE ... SET'
+    - 'Explains that VACUUM FULL takes an ACCESS EXCLUSIVE lock for the whole rewrite and needs room for a second copy, and proposes pg_repack (or a maintenance window) instead'
+    - 'Checks what holds back the xmin horizon: long or idle-in-transaction sessions in pg_stat_activity, replication slots, prepared transactions, replica feedback'
+    - 'Rejects disabling autovacuum, mentions raising the cost limit and monitoring age(relfrozenxid) for wraparound'

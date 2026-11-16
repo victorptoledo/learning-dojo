@@ -1,14 +1,24 @@
 id: postgresql.p3.indexes-advanced
 legacy_id: pg-02-indexes-advanced
 kind: lesson
-status: draft
+status: reviewed
 title: "Advanced Indexes: GIN, BRIN, Partial and Expression Indexes"
-summary: "Choosing the right index for full-text search, JSONB and time series."
+summary: "PostgreSQL's six index types and when each wins (B-tree with INCLUDE, Hash, GIN, GiST, SP-GiST, BRIN), partial and expression indexes, the write cost of every index, and how to find unused and invalid ones."
 objectives:
-  - { id: o1, text: "Choosing the right index for full-text search, JSONB and time series.", skills: [postgresql.indexes-advanced] }
-prerequisites: [postgresql.p2.query-planner]
+  - { id: o1, text: "Choose between B-tree, GIN, GiST, SP-GiST, BRIN and Hash for a query and its data", skills: [postgresql.indexes-advanced] }
+  - { id: o2, text: "Write partial, partial unique, expression and covering (INCLUDE) indexes that the planner can use", skills: [postgresql.indexes-advanced] }
+  - { id: o3, text: "Find unused and invalid indexes and rebuild bloated ones concurrently", skills: [postgresql.indexes-advanced] }
+prerequisites: [postgresql.p2.checkpoint]
 difficulty: 4
-estimated_minutes: 30
-xp: 300
+estimated_minutes: 60
+xp: 250
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A metrics service has a samples table (id, device_id, taken_at, value, labels jsonb, status) with 2 billion rows inserted in taken_at order. Its queries are: (1) samples of the last hour by time range; (2) samples whose labels contain {"region": "eu"}; (3) the few samples with status = ''error'' (0.01% of rows), newest first; (4) devices looked up by lower(serial) in a devices table. Today there is a B-tree on every column and the indexes are larger than the table. Propose the indexes you would keep, add or drop, with the CREATE INDEX statements, and justify each by its type and size.'
+  criteria:
+    - 'BRIN on taken_at for the time-range query, justified by the insert order (correlation) and its tiny size'
+    - 'GIN on labels (jsonb_path_ops for containment) for query 2'
+    - 'A partial index on (taken_at DESC) WHERE status = ''error'' for query 3'
+    - 'An expression index on lower(serial) (or citext) for query 4; drops the unused single-column B-trees after checking idx_scan in pg_stat_user_indexes, mentioning the write cost of every index and CREATE INDEX CONCURRENTLY'

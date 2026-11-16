@@ -1,0 +1,35 @@
+questions:
+  - id: total-vs-mean
+    prompt: "In pg_stat_statements, query A takes 2 ms and runs 5 million times a day; query B takes 4 s and runs 50 times. Which costs the server more time?"
+    options: ["B", "A: 10,000 s a day against 200 s", "They are equal", "It cannot be told from pg_stat_statements"]
+    answer: 1
+    explanation: "Sort by total_exec_time to find the server's cost; mean_exec_time shows what a single user waits for."
+  - id: normalised
+    prompt: "Why do WHERE id = 1 and WHERE id = 2 appear as one row in pg_stat_statements?"
+    options: ["A bug", "Queries are normalised: constants become parameters, so a query shape is counted once", "Only the first is tracked", "Because of the plan cache"]
+    answer: 1
+    explanation: "The queryid identifies the normalised query text."
+  - id: monitor-role
+    prompt: "Which predefined role should a monitoring agent use instead of a superuser?"
+    answers: ["pg_monitor"]
+    explanation: "pg_monitor can read all statistics views and settings without the power to change data."
+  - id: first-tuning
+    prompt: "A server is slow. What usually gives the biggest gain?"
+    options: ["Doubling shared_buffers", "Fixing the queries at the top of pg_stat_statements", "Raising max_connections", "Turning off autovacuum"]
+    answer: 1
+    explanation: "Configuration rarely beats a missing index or a bad query; measure first."
+  - id: ssd-cost
+    prompt: "On SSD storage, which change stops the planner from avoiding index scans for no reason?"
+    options: ["seq_page_cost = 10", "random_page_cost = 1.1", "work_mem = 1GB", "jit = on"]
+    answer: 1
+    explanation: "The default random_page_cost of 4 models spinning disks; on SSDs random reads cost about the same as sequential ones."
+  - id: sequence-limit
+    prompt: "Inserts suddenly fail with 'nextval: reached maximum value of sequence'. What happened?"
+    options: ["The table is full", "An integer (int4) key reached 2,147,483,647", "The WAL is full", "Autovacuum stopped"]
+    answer: 1
+    explanation: "Monitor pg_sequences against the type's maximum and use bigint keys."
+  - id: incident-first
+    prompt: "In the middle of an incident, which view do you query first to see what is running and waiting?"
+    options: ["pg_stats", "pg_stat_activity", "pg_settings", "pg_class"]
+    answer: 1
+    explanation: "pg_stat_activity shows each session's state, wait event, transaction start and query."

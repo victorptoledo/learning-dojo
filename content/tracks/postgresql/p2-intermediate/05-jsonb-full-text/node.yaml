@@ -1,0 +1,23 @@
+id: postgresql.p2.jsonb-full-text
+kind: lesson
+status: reviewed
+title: "JSONB and Full-Text Search"
+summary: "JSONB containment, key and jsonpath operators, updating documents, GIN and expression indexes and when to keep fields in columns; full-text search with tsvector, tsquery, configurations, weights, ranking and a stored GIN-indexed vector; and pg_trgm for typos and fragments."
+objectives:
+  - { id: o1, text: "Query and update JSONB with @>, ?, jsonpath, jsonb_set and ||, and choose a GIN or expression index for a query", skills: [postgresql.jsonb] }
+  - { id: o2, text: "Search text with to_tsvector, websearch_to_tsquery and @@, rank with weights and ts_rank, and store an indexed tsvector", skills: [postgresql.full-text-search] }
+  - { id: o3, text: "Use pg_trgm similarity and trigram indexes for typos, fragments and ILIKE", skills: [postgresql.full-text-search] }
+prerequisites: [postgresql.p2.lock-detective]
+difficulty: 3
+estimated_minutes: 65
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A help desk stores tickets with a title, a body, and a metadata jsonb column such as {"customer": {"plan": "pro"}, "tags": ["billing", "urgent"], "browser": "Firefox"}. Support wants (1) a search box over title and body that understands word forms and quoted phrases, with title matches ranked higher, and (2) filters like "pro customers tagged urgent". Today both are done with ILIKE ''%...%'' and ->> comparisons, and each search reads the whole table. Write the schema changes (columns and indexes) and the two queries, and explain why each index is used.'
+  criteria:
+    - 'Adds a stored generated tsvector with setweight on title (A) and body (B) and an explicit configuration, and a GIN index on it'
+    - 'Searches with websearch_to_tsquery and @@, orders by ts_rank, and limits the rows before calling ts_headline'
+    - 'Filters metadata with containment, metadata @> ''{"customer": {"plan": "pro"}, "tags": ["urgent"]}'', and indexes it with GIN (jsonb_path_ops or jsonb_ops), explaining that ->> comparisons cannot use a GIN index'
+    - 'Mentions pg_trgm for fragments or typos, or a B-tree on an expression for one hot field, as alternatives'

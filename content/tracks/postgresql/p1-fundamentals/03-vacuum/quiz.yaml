@@ -1,0 +1,35 @@
+questions:
+  - id: vacuum-size
+    prompt: "After VACUUM orders removes a million dead tuples, what happens to the size of the table's file?"
+    options: ["It shrinks by the dead tuples' size", "It mostly stays the same; the space is reused by later writes", "It doubles", "It is rewritten compactly"]
+    answer: 1
+    explanation: "Plain VACUUM records free space for reuse and only truncates empty pages at the end. VACUUM FULL or pg_repack rewrite the table."
+  - id: vacuum-full-lock
+    prompt: "Why is VACUUM FULL dangerous on a busy production table?"
+    options: ["It deletes live rows", "It takes an ACCESS EXCLUSIVE lock, blocking even SELECTs, for the whole rewrite", "It disables autovacuum", "It cannot be cancelled"]
+    answer: 1
+    explanation: "VACUUM FULL rewrites the table under the strongest lock. pg_repack does the same online with only a brief lock."
+  - id: trigger-formula
+    prompt: "With the defaults (threshold 50, scale factor 0.2), how many dead tuples must a table of 1,000,000 rows accumulate before autovacuum vacuums it?"
+    options: ["50", "1,000", "200,050", "1,000,000"]
+    answer: 2
+    explanation: "50 + 0.2 × 1,000,000 = 200,050. That is why big tables need a smaller per-table scale factor."
+  - id: per-table
+    prompt: "How do you make autovacuum vacuum the table events after 1% of its rows are dead, without changing other tables?"
+    options: ["SET autovacuum_vacuum_scale_factor = 0.01", "ALTER SYSTEM SET autovacuum_vacuum_scale_factor = 0.01", "ALTER TABLE events SET (autovacuum_vacuum_scale_factor = 0.01)", "VACUUM events WITH 0.01"]
+    answer: 2
+    explanation: "Per-table autovacuum settings are storage parameters, stored in pg_class.reloptions."
+  - id: horizon
+    prompt: "VACUUM VERBOSE reports 'dead but not yet removable' tuples. Which of these is a likely cause?"
+    options: ["A missing index", "A session that has been idle in transaction for hours", "Too many autovacuum workers", "fillfactor 80"]
+    answer: 1
+    explanation: "An old snapshot holds back the xmin horizon. Replication slots, replica feedback and prepared transactions can do the same."
+  - id: freeze
+    prompt: "Why must VACUUM freeze old tuples?"
+    options: ["To compress them", "Because 32-bit transaction ids wrap around, and an unfrozen old tuple would look like it was created in the future", "To move them to TOAST", "To make them read-only for users"]
+    answer: 1
+    explanation: "Freezing marks a tuple as visible forever, so its xmin stops mattering before the id counter wraps."
+  - id: freeze-max-age
+    prompt: "Which setting decides when autovacuum starts an anti-wraparound vacuum on a table, by the age of its relfrozenxid?"
+    answers: ["autovacuum_freeze_max_age"]
+    explanation: "200 million by default. It runs even when autovacuum is disabled for the table."

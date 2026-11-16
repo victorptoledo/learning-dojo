@@ -1,0 +1,1 @@
+-- todo: when room 1 is busy on 2026-11-16, with touching bookings merged into one period.

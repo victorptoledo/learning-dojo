@@ -1,0 +1,40 @@
+questions:
+  - id: before-return
+    prompt: "A BEFORE INSERT row trigger function returns NULL. What happens to the row?"
+    options: ["It is inserted with NULL columns", "It is not inserted, silently", "The statement fails", "It is inserted unchanged"]
+    answer: 1
+    explanation: "A BEFORE row trigger returns the row to write; NULL skips the operation for that row."
+  - id: immutable
+    prompt: "Which volatility must a function have to be used in an index expression?"
+    answers: ["IMMUTABLE", "immutable"]
+    explanation: "The index stores the function's results, so they must never change for the same input."
+  - id: lying-immutable
+    prompt: "A function that reads the table exchange_rates is marked IMMUTABLE. What can go wrong?"
+    options: ["Nothing", "The planner may evaluate it once and reuse a stale result, and an index on it will disagree with the table", "It cannot be called from SQL", "It runs in parallel"]
+    answer: 1
+    explanation: "It reads data that can change, so it is at most STABLE."
+  - id: security-definer
+    prompt: "What must a SECURITY DEFINER function always set?"
+    options: ["STRICT", "A fixed search_path (SET search_path = ...)", "PARALLEL SAFE", "COST 1"]
+    answer: 1
+    explanation: "Otherwise a caller can shadow a table or function name in a schema earlier in their search_path and run code with the owner's privileges."
+  - id: procedure-commit
+    prompt: "Why write a batch purge as a PROCEDURE rather than a FUNCTION?"
+    options: ["Procedures are faster", "A procedure can COMMIT between batches, keeping each transaction short", "Functions cannot delete", "Procedures run in parallel"]
+    answer: 1
+    explanation: "Functions always run inside the caller's transaction; procedures called with CALL can control transactions."
+  - id: exception-cost
+    prompt: "What does every entry into a PL/pgSQL block with an EXCEPTION clause cost?"
+    options: ["Nothing", "A subtransaction", "A full table lock", "A new connection"]
+    answer: 1
+    explanation: "The block must be able to roll back its own work, so it starts a subtransaction. Avoid it inside big loops."
+  - id: when-clause
+    prompt: "How do you make an AFTER UPDATE trigger run only when status changed?"
+    options: ["Check inside the function and return", "Add WHEN (OLD.status IS DISTINCT FROM NEW.status) to CREATE TRIGGER", "Use FOR EACH STATEMENT", "Use a BEFORE trigger"]
+    answer: 1
+    explanation: "The WHEN clause is evaluated before calling the function, so the call is skipped entirely."
+  - id: transition-tables
+    prompt: "An UPDATE changes 200,000 rows and a row-level audit trigger makes it slow. What is the alternative?"
+    options: ["A BEFORE trigger", "A statement-level trigger with REFERENCING OLD TABLE ... NEW TABLE, which runs once and inserts all audit rows in one statement", "Disable the trigger", "An INSTEAD OF trigger"]
+    answer: 1
+    explanation: "Transition tables expose all changed rows to one call of a statement trigger."
