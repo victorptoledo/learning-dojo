@@ -279,7 +279,7 @@ fn leaving_a_quiz_with_esc_records_nothing() {
 #[test]
 fn a_lesson_without_document_and_quiz_is_under_construction() {
     let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
-    h.app.selector_cursor = h.app.catalog.track_index("nodejs").unwrap();
+    h.app.selector_cursor = h.app.catalog.track_index("react").unwrap();
     h.app.confirm_selection();
 
     h.app.activate_selected();

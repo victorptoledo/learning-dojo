@@ -1,0 +1,258 @@
+# Technical interview questions for the nodejs track, written for the dojo.
+# The topics follow what public interview guides report as common (see sources);
+# the wording, key points and follow-ups are our own.
+sources:
+  - "https://roadmap.sh/nodejs"
+  - "https://roadmap.sh/questions/nodejs"
+  - "https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick"
+  - "https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop"
+  - "https://nodejs.org/en/learn/modules/backpressuring-in-streams"
+  - "https://github.com/goldbergyoni/nodebestpractices"
+  - "https://www.geeksforgeeks.org/node-js/node-interview-questions-and-answers/"
+questions:
+  - id: what-is-node
+    level: junior
+    skills: [nodejs.runtime]
+    question: "What is Node.js, and how can a single-threaded runtime handle thousands of concurrent connections?"
+    key_points:
+      - "A runtime: V8 runs JavaScript, libuv provides the event loop and async I/O, plus a standard library"
+      - "JavaScript runs on one thread, but I/O is non-blocking: the OS and libuv wait, callbacks run when results arrive"
+      - "Waiting costs no thread, so many connections can be open at once"
+      - "CPU-bound work blocks everything and needs workers or other processes"
+    follow_up: "Which kinds of services would you not write in Node.js, or not on the main thread?"
+  - id: esm-cjs
+    level: junior
+    skills: [nodejs.modules-npm]
+    question: "What is the difference between ES modules and CommonJS in Node.js, and how does Node.js decide which one a file is?"
+    key_points:
+      - "ESM: import/export, static, async loading, top-level await; CJS: require/module.exports, synchronous, at runtime"
+      - ".mjs/.cjs are explicit; .js follows the type field of the nearest package.json"
+      - "ESM imports name files with extensions and built-ins with node:"
+      - "Interop: ESM can import CJS; require of ESM works without top-level await (Node.js 22.12+)"
+    follow_up: "How do you get the current module's folder in an ES module?"
+  - id: lockfile
+    level: junior
+    skills: [nodejs.modules-npm]
+    question: "What do the ^ and ~ in package.json versions mean, and why do teams commit package-lock.json and run npm ci?"
+    key_points:
+      - "^1.2.3 allows minor and patch updates below 2.0.0; ~1.2.3 only patches below 1.3.0"
+      - "Ranges make installs drift over time"
+      - "The lockfile pins exact versions and integrity hashes of the whole tree"
+      - "npm ci installs exactly the lockfile and fails if it disagrees with package.json"
+    follow_up: "What goes in dependencies and what in devDependencies for a service?"
+  - id: event-loop-phases
+    level: mid
+    skills: [nodejs.event-loop-libuv]
+    question: "Walk me through the phases of the Node.js event loop. Where do process.nextTick and promise callbacks fit?"
+    key_points:
+      - "Timers, pending callbacks, poll (wait for I/O and run its callbacks), check (setImmediate), close callbacks"
+      - "After every callback the nextTick queue is drained, then the microtask (promise) queue"
+      - "Inside an I/O callback setImmediate runs before setTimeout(0)"
+      - "Recursive nextTick or microtasks can starve I/O"
+    follow_up: "What is the output order of setTimeout 0, setImmediate, nextTick and a resolved promise scheduled from an fs callback?"
+  - id: thread-pool
+    level: mid
+    skills: [nodejs.event-loop-libuv]
+    question: "Which operations use libuv's thread pool, and how can it become a bottleneck?"
+    key_points:
+      - "Most fs operations, dns.lookup, heavy crypto (pbkdf2, scrypt), zlib"
+      - "Network sockets do not: they use the OS's non-blocking APIs"
+      - "Default size 4; concurrent heavy tasks queue behind each other"
+      - "UV_THREADPOOL_SIZE raises it (set before start), but cores stay the limit"
+    follow_up: "Why can slow DNS resolution make file reads slow?"
+  - id: callbacks-promises
+    level: junior
+    skills: [nodejs.async-patterns]
+    question: "Compare error-first callbacks, promises and async/await. What happens when a promise rejects and nobody handles it?"
+    key_points:
+      - "Callbacks: (err, value), errors do not propagate, nesting grows"
+      - "Promises compose, propagate errors, and Promise.all/allSettled combine them"
+      - "async/await reads sequentially and works with try/catch"
+      - "Unhandled rejections end the process by default since Node.js 15"
+    follow_up: "Why is items.forEach(async (x) => await save(x)) a bug?"
+  - id: concurrency-limit
+    level: mid
+    skills: [nodejs.async-patterns]
+    question: "You must call an API for 50,000 ids. How do you do it quickly without overloading the API or your process?"
+    key_points:
+      - "Not sequentially (too slow) and not Promise.all on all of them (50,000 sockets and promises at once)"
+      - "A worker pool or p-limit with a fixed concurrency"
+      - "Timeouts with AbortSignal, retries with backoff for transient errors"
+      - "Collect results and failures (allSettled-style) and respect rate limits"
+    follow_up: "How would you stop the whole batch on Ctrl+C?"
+  - id: event-emitter
+    level: junior
+    skills: [nodejs.events]
+    question: "How does EventEmitter work, and what is special about the error event?"
+    key_points:
+      - "on/once/off/emit; listeners run synchronously in order"
+      - "An error event with no listener throws and usually crashes the process"
+      - "Do not emit before callers can listen (defer with nextTick)"
+      - "MaxListenersExceededWarning usually means a listener leak"
+    follow_up: "How do you wait for one event with a timeout?"
+  - id: fs-errors
+    level: junior
+    skills: [nodejs.fs-path]
+    question: "How do you read a configuration file next to your module safely and handle the case where it is missing?"
+    key_points:
+      - "Build the path from import.meta.dirname, not ./ (process.cwd())"
+      - "fs/promises readFile, sync only at startup"
+      - "Check error.code === \"ENOENT\" for the missing case, rethrow others"
+      - "Avoid check-then-act with existsSync"
+    follow_up: "How would you write that file so a crash never leaves it half written?"
+  - id: process-signals
+    level: mid
+    skills: [nodejs.process-cli]
+    question: "What should a well-behaved Node.js command-line tool do about stdout, stderr, exit codes and signals?"
+    key_points:
+      - "Data on stdout, messages and errors on stderr"
+      - "Exit code 0 for success, non-zero for failure; set process.exitCode rather than process.exit()"
+      - "Handle SIGINT/SIGTERM and EPIPE cleanly"
+      - "Parse arguments with util.parseArgs and validate environment variables"
+    follow_up: "Why can process.exit() lose output?"
+  - id: streams-backpressure
+    level: mid
+    skills: [nodejs.streams-buffers]
+    question: "What are streams in Node.js, and what is backpressure? What happens if you ignore it?"
+    key_points:
+      - "Readable, Writable, Duplex, Transform; byte or object mode"
+      - "Process data in chunks with bounded memory"
+      - "Backpressure: write() returns false when the buffer passes highWaterMark; wait for drain"
+      - "Ignoring it buffers unboundedly and memory grows with the data size"
+      - "pipeline handles backpressure and errors"
+    follow_up: "Why prefer stream/promises pipeline over .pipe()?"
+  - id: buffer-encoding
+    level: mid
+    skills: [nodejs.streams-buffers]
+    question: "What is a Buffer, and what can go wrong when you convert a stream of chunks to text?"
+    key_points:
+      - "Raw bytes (a Uint8Array subclass); text needs an encoding"
+      - "Multi-byte UTF-8 characters can be split between chunks"
+      - "Use a StringDecoder or setEncoding to decode across chunks"
+      - "Buffer.byteLength, not string length, for Content-Length"
+    follow_up: "How would you split a byte stream into lines correctly?"
+  - id: http-server
+    level: mid
+    skills: [nodejs.http]
+    question: "What does node:http give you, and what do you need to add (or get from Express or Fastify) for a production API?"
+    key_points:
+      - "req is a readable stream with method, url and headers; res is a writable stream"
+      - "Routing, body parsing with limits, validation, error handling are not included"
+      - "One response per request; headers before the body"
+      - "Timeouts (headersTimeout, requestTimeout, keepAliveTimeout) and limits"
+      - "Catch async handler errors centrally; never leak details in a 500"
+    follow_up: "What happens when an async request listener throws and nothing catches it?"
+  - id: fetch-client
+    level: mid
+    skills: [nodejs.http]
+    question: "What should you watch out for when calling other services with fetch from Node.js?"
+    key_points:
+      - "No overall timeout by default: pass AbortSignal.timeout"
+      - "It does not reject on 4xx/5xx: check response.ok"
+      - "Consume or cancel the body so the connection is reused"
+      - "Validate the response; retry only idempotent requests, with backoff"
+    follow_up: "How do you cancel an outgoing call when the incoming request is aborted?"
+  - id: error-handling
+    level: mid
+    skills: [nodejs.errors-testing]
+    question: "How do you handle errors in a Node.js service? What do you do in uncaughtException?"
+    key_points:
+      - "Operational errors (timeouts, bad input, missing files) are handled where they happen"
+      - "Programmer errors are bugs: log and crash, let a supervisor restart"
+      - "Add context with Error cause, check codes and instanceof"
+      - "uncaughtException/unhandledRejection: log and exit, never keep running"
+    follow_up: "Why is an empty uncaughtException handler dangerous?"
+  - id: testing
+    level: mid
+    skills: [nodejs.errors-testing]
+    question: "How would you test a Node.js HTTP service and code that depends on timers, without extra libraries?"
+    key_points:
+      - "node:test with describe/test, hooks and node:assert/strict"
+      - "Start the real server on port 0 and call it with fetch"
+      - "Inject dependencies; t.mock.fn and t.mock.method for collaborators"
+      - "t.mock.timers to advance time, or an injected clock"
+      - "Coverage and watch mode are built in"
+    follow_up: "What do you lose and gain compared with mocking node:http?"
+  - id: worker-threads
+    level: senior
+    skills: [nodejs.worker-threads]
+    question: "When would you use worker threads, child processes or the cluster module, and how do workers communicate?"
+    key_points:
+      - "Worker threads for CPU-bound JavaScript inside a service; not for I/O"
+      - "Messages are structured clones; transfer ArrayBuffers; SharedArrayBuffer plus Atomics for shared memory"
+      - "Reuse workers in a bounded pool; handle error and exit"
+      - "Child processes for other programs or stronger isolation; cluster or replicas to use all cores for a server"
+    follow_up: "How would you keep a pool from accepting unlimited work?"
+  - id: child-process-safety
+    level: mid
+    skills: [nodejs.child-processes, nodejs.security]
+    question: "How do you run an external program from Node.js safely and reliably?"
+    key_points:
+      - "spawn or execFile with an argument array; no shell, so no command injection"
+      - "Stream output instead of buffering; close stdin; read stdout and stderr"
+      - "Check exit code and signal on close; handle the error event (ENOENT)"
+      - "Timeouts: SIGTERM, then SIGKILL after a grace period; kill on cancellation"
+    follow_up: "Why is exec with a template string dangerous?"
+  - id: security-node
+    level: senior
+    skills: [nodejs.security]
+    question: "Which security risks are specific to or common in Node.js applications, and how do you mitigate them?"
+    key_points:
+      - "Validate external input at the boundary; types are erased"
+      - "Prototype pollution through unsafe merges; path traversal through ..; ReDoS blocking the loop"
+      - "Supply chain: lockfile, npm ci, npm audit, --ignore-scripts, fewer dependencies"
+      - "Secrets: timingSafeEqual, scrypt/argon2, randomBytes, never logged"
+      - "Non-root, patched LTS, HTTP limits, the --permission model"
+    follow_up: "Show how you would check that a requested file stays inside an uploads folder."
+  - id: graceful-shutdown
+    level: senior
+    skills: [nodejs.production]
+    question: "Describe a graceful shutdown for a Node.js service on Kubernetes."
+    key_points:
+      - "SIGTERM arrives while endpoints are being removed; the grace period then SIGKILL"
+      - "Readiness to 503, optionally wait for load balancers, then server.close()"
+      - "closeIdleConnections, let in-flight requests finish, close pools and consumers in order"
+      - "A forced exit before the grace period; node as PID 1 with exec-form CMD"
+      - "Liveness stays simple; readiness reflects dependencies and shutdown"
+    follow_up: "What breaks if the Dockerfile uses CMD npm start?"
+  - id: async-local-storage
+    level: senior
+    skills: [nodejs.async-context]
+    question: "How do you get a request id into every log line of a request across async code and services?"
+    key_points:
+      - "AsyncLocalStorage.run with the request context; getStore() anywhere below"
+      - "A logger mixin or child logger adds it to each JSON line"
+      - "Accept a safe x-request-id or traceparent at the edge, return it, forward it on outgoing calls"
+      - "OpenTelemetry uses the same context for traces"
+    follow_up: "Why does a module-level currentRequestId variable not work?"
+  - id: observability
+    level: senior
+    skills: [nodejs.async-context, nodejs.performance-scaling]
+    question: "Which metrics would you put on the dashboard of a Node.js service, and why is event loop delay special?"
+    key_points:
+      - "Request rate, errors, latency percentiles (p50, p95, p99)"
+      - "Event loop delay or utilisation: shows blocking and CPU saturation before latency explodes"
+      - "Heap used vs limit, GC pauses, RSS"
+      - "Connection and pool usage of dependencies"
+    follow_up: "Which alert would you set on event loop delay?"
+  - id: memory-leak
+    level: senior
+    skills: [nodejs.performance-scaling]
+    question: "A Node.js service's memory grows until it is OOM-killed. How do you find and fix the leak?"
+    key_points:
+      - "Confirm heapUsed grows under steady load (not just RSS or a big working set)"
+      - "Heap snapshots minutes apart (DevTools, writeHeapSnapshot, --heapsnapshot-near-heap-limit), compare, follow retainers"
+      - "Usual causes: unbounded caches, listeners and timers never removed, closures, global queues"
+      - "Fix with bounded caches, cleanup on close; set --max-old-space-size below the container limit"
+    follow_up: "Why is a WeakMap sometimes the right cache and sometimes not?"
+  - id: scaling
+    level: senior
+    skills: [nodejs.performance-scaling]
+    question: "Your Node.js API needs to handle five times the traffic. How do you approach it?"
+    key_points:
+      - "Measure with a load test; profile with --cpu-prof to find hot spots"
+      - "Make requests cheaper: caching, fewer queries, no per-request compilation, keep-alive to dependencies"
+      - "Scale out with more stateless replicas (or cluster), state in Redis or the database"
+      - "Move slow work to queues and CPU work to workers"
+      - "Know when another tool fits better for a CPU-heavy part"
+    follow_up: "What changes when you add replicas to a service that keeps sessions in memory?"

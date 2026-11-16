@@ -1,0 +1,42 @@
+questions:
+  - id: when-workers
+    prompt: "Which task benefits from worker threads?"
+    options: ["Calling three REST APIs at once", "Reading 1,000 small files", "Generating a 300-page PDF in pure JavaScript", "Waiting for a database query"]
+    answer: 2
+    explanation: "Workers help CPU-bound JavaScript. I/O is already asynchronous on the main thread."
+  - id: shared-objects
+    prompt: "The main thread posts an object to a worker, and the worker changes a property. Does the main thread see the change?"
+    options: ["Yes: workers share memory", "No: the message was a structured clone, a copy", "Only for arrays"]
+    answer: 1
+    explanation: "Messages are copied (or transferred). Only SharedArrayBuffer memory is shared."
+  - id: transfer
+    prompt: "How do you send a 100 MB ArrayBuffer to a worker without copying it?"
+    options:
+      - "postMessage(buffer)"
+      - "postMessage(buffer, [buffer]): it is transferred, and the sender's copy becomes empty"
+      - "JSON.stringify the buffer first"
+      - "Write it to a temporary file"
+    answer: 1
+    explanation: "The transfer list moves ownership of the memory instead of cloning it."
+  - id: worker-error
+    prompt: "A worker throws an uncaught exception. The main thread has no \"error\" listener on the Worker. What happens?"
+    options: ["Only the worker stops", "The error is emitted on the Worker object with no listener, so it crashes the main process too", "The worker restarts itself"]
+    answer: 1
+    explanation: "Worker is an EventEmitter: an unhandled error event throws. Always listen to error and exit."
+  - id: pool-why
+    prompt: "Why do services reuse a pool of workers instead of starting a worker per task?"
+    options:
+      - "Node.js allows only one worker per process"
+      - "Starting a worker costs time and memory (a new V8 isolate), and unbounded workers overload the machine"
+      - "Workers cannot run twice"
+    answer: 1
+    explanation: "A pool of about availableParallelism() workers with a queue keeps the cost and the load bounded."
+  - id: exit-in-worker
+    prompt: "What does `process.exit(3)` do inside a worker thread?"
+    options: ["Stops the whole process with code 3", "Ends only that worker; the Worker object emits exit with code 3", "Nothing"]
+    answer: 1
+    explanation: "In a worker, process.exit ends the thread, not the process."
+  - id: cores-http
+    prompt: "An HTTP API is I/O-bound but one process saturates one core. What is the usual way to use 8 cores in containers?"
+    answers: ["more replicas", "replicas", "several processes", "multiple processes", "run more replicas", "cluster"]
+    explanation: "Run several processes: more container replicas behind a load balancer, or the cluster module on one machine."

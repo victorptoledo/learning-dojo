@@ -1,0 +1,24 @@
+id: nodejs.p0.runtime
+kind: lesson
+status: draft
+title: "The Node.js Runtime: V8, libuv and Running TypeScript"
+summary: "What Node.js is and is not, how V8 and libuv divide the work, why one thread can serve thousands of connections, the LTS release lines, the REPL and node --watch, and running TypeScript files on Node.js 26 with type stripping."
+objectives:
+  - { id: o1, text: "Explain what Node.js adds to JavaScript: V8 runs the code, libuv does the I/O, and the standard library exposes the operating system", skills: [nodejs.runtime] }
+  - { id: o2, text: "Say when Node.js is a good fit (I/O-bound services) and when it is not (long CPU-bound work on the main thread)", skills: [nodejs.runtime] }
+  - { id: o3, text: "Run JavaScript and TypeScript files with node, knowing that type stripping removes types without checking them, and pick an LTS release for production", skills: [nodejs.runtime] }
+prerequisites: []
+difficulty: 1
+estimated_minutes: 40
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Your team must choose a runtime for two new services: (a) an API gateway that receives 5,000 requests per second, checks a token and forwards each request to other services, and (b) a nightly job that resizes 200,000 images. A colleague says \"Node.js is single-threaded, so it cannot handle (a)\" and another says \"Node.js is fast, so (b) is fine on the main thread\". Explain what is right and wrong in each claim, using V8, libuv and the event loop, and say how you would run each service on Node.js 26 (which release line, and how CPU work would be handled)."
+  criteria:
+    - "Explains that JavaScript runs on one thread but I/O is asynchronous: libuv and the operating system wait for sockets and files, so one process can serve many concurrent requests"
+    - "Recognises (a) as I/O-bound and a good fit for Node.js"
+    - "Explains that CPU-bound work on the main thread blocks every other callback, so (b) needs worker threads, child processes or several processes"
+    - "Mentions an LTS release line for production rather than a Current release"
+    - "Does not claim that Node.js is multi-threaded for JavaScript code by default, nor that it cannot use several cores"

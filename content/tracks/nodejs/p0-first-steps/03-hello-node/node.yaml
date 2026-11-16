@@ -1,0 +1,50 @@
+id: nodejs.p0.hello-node
+kind: kata
+status: draft
+title: "Hello, Node: a Real Command-Line Program"
+summary: "Write a command-line greeter with util.parseArgs in strict mode, a --help, a default from an environment variable, errors on stderr and exit codes, tested through an injected Io and the real process."
+objectives:
+  - { id: o1, text: "Parse command-line options with util.parseArgs and turn its errors into values", skills: [nodejs.runtime, nodejs.process-cli] }
+  - { id: o2, text: "Report errors on stderr with exit code 2, read a default from the environment and set process.exitCode", skills: [nodejs.process-cli] }
+  - { id: o3, text: "Run TypeScript files and node:test tests on Node.js 26 with npm scripts", skills: [nodejs.runtime, nodejs.modules-npm] }
+prerequisites: [nodejs.p0.modules-npm]
+difficulty: 1
+estimated_minutes: 35
+xp: 150
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with `greeting`: it is one template literal with `WORDS[lang]`. For `parseOptions`, read the Node.js docs of `util.parseArgs`: which three settings do you need (`args`, `options`, and one that allows names that are not options)? What does `parseArgs` do in strict mode when it meets `--loud`, and how do you turn that into `{ ok: false, error }`?
+    - |-
+      Declare the options as `{ lang: { type: "string", short: "l" }, times: { type: "string", short: "t" }, shout: { type: "boolean", short: "s", default: false }, help: { type: "boolean", short: "h", default: false } }` with `allowPositionals: true` and `strict: true`, and wrap the call in `try`/`catch`: it throws a `TypeError` for unknown options and missing values. `--times` arrives as a string: `Number(text)` plus `Number.isInteger` and a range check. For the language, `values.lang ?? (defaultLang || "en")` treats an empty variable as unset.
+    - |-
+      ```ts
+      export function main(argv: readonly string[], io: Io): number {
+        const parsed = parseOptions(argv, io.env.HELLO_LANG);
+        if (!parsed.ok) {
+          io.stderr(`error: ${parsed.error}`);
+          io.stderr(USAGE);
+          return 2;
+        }
+        const { options } = parsed;
+        // --help: USAGE on stdout, return 0
+        // for each round of options.times, for each name: greeting(name, options.lang),
+        // upper-cased when options.shout
+        return 0;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

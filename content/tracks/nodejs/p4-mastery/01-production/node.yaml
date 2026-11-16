@@ -1,0 +1,24 @@
+id: nodejs.p4.production
+kind: lesson
+status: draft
+title: "Node.js in Production: Lifecycle, Signals and Graceful Shutdown"
+summary: "What a production Node.js process looks like: built and started without dev tooling, configured from the environment, supervised by Docker, systemd or Kubernetes, with liveness and readiness checks, signal handling as PID 1, graceful shutdown that drains connections and closes resources, logging to stdout, and safe deploys and upgrades."
+objectives:
+  - { id: o1, text: "Package and start a Node.js service for production: npm ci --omit=dev, NODE_ENV, a small non-root image, node as the direct process", skills: [nodejs.production] }
+  - { id: o2, text: "Implement liveness and readiness checks and a graceful shutdown on SIGTERM that drains requests and closes resources in order", skills: [nodejs.production] }
+  - { id: o3, text: "Explain how orchestrators stop processes (SIGTERM, grace period, SIGKILL) and plan deploys and Node.js upgrades", skills: [nodejs.production] }
+prerequisites: [nodejs.p3.security]
+difficulty: 4
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Every deploy of an API on Kubernetes produces a burst of 502 errors and a few half-written database rows. The Dockerfile ends with `CMD npm start`, the app has no signal handlers, and the pod has `terminationGracePeriodSeconds: 30` and a liveness probe on `/health` that also checks the database. Explain why each detail contributes to the errors, and describe the fixed setup: the Dockerfile's start command, the shutdown sequence in the app (with the order of steps and timeouts), and the probes."
+  criteria:
+    - "Explains that npm (or a shell) as PID 1 may not forward SIGTERM to node, so the app is killed with SIGKILL after the grace period; starts node directly (exec form CMD [\"node\", ...]) or uses an init such as tini"
+    - "Describes the shutdown: mark not ready, keep serving while the load balancer stops routing, stop accepting, finish in-flight requests, close the database pool, then exit, all within the grace period"
+    - "Separates liveness (the process is alive, no dependency checks) from readiness (can take traffic, false during shutdown)"
+    - "Explains that a liveness probe that checks the database restarts every pod when the database has a hiccup"
+    - "Mentions a forced exit before the grace period ends so cleanup logs are written instead of a SIGKILL"

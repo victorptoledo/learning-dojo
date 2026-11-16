@@ -1,0 +1,48 @@
+id: nodejs.p3.run-command
+kind: kata
+status: draft
+title: "Run Command: Child Processes without Surprises"
+summary: "Wrap spawn into a safe run(): no shell so arguments cannot inject commands, stdin closed or fed, output bounded, a timeout with SIGTERM then SIGKILL, exit codes and signals reported; plus runOrThrow with clear errors and a two-command pipe."
+objectives:
+  - { id: o1, text: "Run programs with spawn and an argument array instead of a shell string, and explain why that prevents command injection", skills: [nodejs.child-processes, nodejs.security] }
+  - { id: o2, text: "Collect bounded output, feed or close stdin, and stop a hung child with SIGTERM then SIGKILL", skills: [nodejs.child-processes] }
+  - { id: o3, text: "Connect the stdout of one process to the stdin of another with pipeline and report every exit code", skills: [nodejs.child-processes, nodejs.streams-buffers] }
+prerequisites: [nodejs.p3.child-processes]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 90 }
+  hints:
+    - |-
+      `run` returns `new Promise((resolve, reject) => { ... })` around `spawn(command, args, { cwd, env, stdio: ["pipe", "pipe", "pipe"] })`. Which child event tells you it could not start, and which one fires only after the exit **and** the end of stdout and stderr? What must happen to stdin when there is no `input`?
+    - |-
+      Listen to `"error"` (reject) and `"close"` (resolve with `code` and `signal`). Call `child.stdin.end(input)` in both cases (`end(undefined)` just closes it), and add an `"error"` listener on stdin for the `EPIPE` of a child that never reads. Collect each output stream with `on("data")` into an array of `Buffer`s, keeping only the bytes that still fit. For the timeout, one `setTimeout` that sets `timedOut`, calls `child.kill("SIGTERM")` and starts a second timer for `"SIGKILL"`; clear both on `"close"` and `"error"`.
+    - |-
+      ```ts
+      export async function pipeCommands(first: Command, second: Command) {
+        const left = spawn(first.command, first.args ?? [], { stdio: ["ignore", "pipe", "inherit"] });
+        const right = spawn(second.command, second.args ?? [], { stdio: ["pipe", "pipe", "inherit"] });
+        const exited = (child: ChildProcess) =>
+          new Promise<number | null>((resolve, reject) => {
+            child.once("error", reject);
+            child.once("close", (code) => resolve(code));
+          });
+        // collect right.stdout as text; pipeline(left.stdout, right.stdin).catch(() => {})
+        // await both exits and the pipeline, then return { stdout, codes: [leftCode, rightCode] }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

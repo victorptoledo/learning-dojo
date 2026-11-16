@@ -3,12 +3,23 @@ legacy_id: node-01-event-loop-libuv
 kind: lesson
 status: draft
 title: "The Node.js Event Loop and libuv"
-summary: "The phases of the event loop: timers, pending callbacks, poll, check (`setImmediate`) and close."
+summary: "The phases of the event loop (timers, pending callbacks, poll, check, close), the nextTick and microtask queues that run between every callback, setTimeout vs setImmediate, the libuv thread pool, and how to find and avoid blocking the loop."
 objectives:
-  - { id: o1, text: "The phases of the event loop: timers, pending callbacks, poll, check (`setImmediate`) and close.", skills: [nodejs.event-loop-libuv] }
-prerequisites: []
+  - { id: o1, text: "Name the phases of the event loop and say which callbacks run in each: timers, pending callbacks, poll, check (setImmediate) and close", skills: [nodejs.event-loop-libuv] }
+  - { id: o2, text: "Predict the order of synchronous code, process.nextTick, promise microtasks, setImmediate and timers", skills: [nodejs.event-loop-libuv] }
+  - { id: o3, text: "Recognise code that blocks the event loop or starves it with microtasks, and fix it by chunking work or moving it off the main thread", skills: [nodejs.event-loop-libuv] }
+prerequisites: [nodejs.p0.hello-node]
 difficulty: 2
-estimated_minutes: 30
-xp: 200
+estimated_minutes: 50
+xp: 100
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "An Express service has p99 latency spikes of 800 ms every few minutes, while CPU use is low on average. You find three suspects: (1) a /report endpoint that runs `JSON.parse` on a 60 MB string, (2) a cache warm-up that calls `crypto.pbkdf2Sync` 500 times, and (3) a recursive function that reschedules itself with `process.nextTick` until a queue is empty. For each, explain in terms of the event loop phases and queues why it causes the spikes, how you would confirm it (name a tool or API), and how you would fix it."
+  criteria:
+    - "Explains that synchronous work (the parse, the Sync crypto calls) runs on the main thread and delays every other callback until it ends"
+    - "Explains that the nextTick queue is drained completely before the loop continues, so recursive nextTick starves I/O and timers"
+    - "Names a way to measure it: perf_hooks monitorEventLoopDelay, the --cpu-prof flag or a profiler, or event loop lag metrics"
+    - "Fixes (2) with the async pbkdf2 (thread pool) or a worker thread, and (1) with streaming parsing, a worker, or smaller payloads"
+    - "Fixes (3) by yielding with setImmediate between batches instead of process.nextTick"

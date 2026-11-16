@@ -4,20 +4,34 @@ name: "Node.js"
 archetype: language
 category: "Programming Languages"
 icon: "🟢"
-description: "High-performance JavaScript/TypeScript backends: V8, libuv, the event loop, streams and clusters."
-status: draft
-bridges_available: [java]
+description: "Node.js 26 backends written in TypeScript: V8 and libuv, the event loop, modules and npm, events, the file system, streams and backpressure, HTTP servers, errors and testing, worker threads, child processes, security, graceful shutdown, AsyncLocalStorage and performance."
+status: reviewed
+bridges_available: [java, python, javascript, csharp, go]
 belts:
   - { name: "White Belt", required_xp: 0, title: "Console Logger" }
-  - { name: "Yellow Belt", required_xp: 300, title: "Express Route Builder" }
+  - { name: "Yellow Belt", required_xp: 300, title: "Callback Tamer" }
   - { name: "Green Belt", required_xp: 800, title: "Async/Await Navigator" }
   - { name: "Purple Belt", required_xp: 1500, title: "Stream Piper" }
   - { name: "Brown Belt", required_xp: 2500, title: "Event Loop Doctor" }
-  - { name: "Black Belt", required_xp: 4000, title: "V8 Performance Architect" }
+  - { name: "Black Belt", required_xp: 4000, title: "Production Node Architect" }
   - { name: "Sensei", required_xp: 6000, title: "Node.js Grandmaster" }
 phases:
-  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
-  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
-  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
-  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }
+  - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "See what Node.js is, run TypeScript on Node.js 26, use modules and npm, and write a first command-line program" }
+  - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The event loop, async patterns, events, the file system and processes" }
+  - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Streams and backpressure, HTTP servers, error handling and testing" }
+  - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Worker threads, child processes and secure Node.js code" }
+  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production lifecycle, request context and observability, performance and scaling" }
+requirements:
+  - kind: tool
+    name: Node.js 26 (node)
+    command: node
+    version_args: ["--version"]
+    min_version: "26"
+    required: false
+    why: Runs the katas' .ts files and their visible tests locally (npm test). The grading checks run in Docker and do not need it.
+    install_hint: "install Node.js 26 LTS: winget install OpenJS.NodeJS.LTS, then reopen the terminal"
+  - kind: vscode-extension
+    name: TypeScript 7 for VS Code
+    id: typescriptteam.native-preview
+    required: false
+    why: Uses the native TypeScript 7 language server for errors as you type, completions and refactorings.

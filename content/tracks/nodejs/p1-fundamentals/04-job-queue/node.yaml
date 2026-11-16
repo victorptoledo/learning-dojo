@@ -1,0 +1,53 @@
+id: nodejs.p1.job-queue
+kind: kata
+status: draft
+title: "Job Queue: Events and the Event Loop"
+summary: "Predict the order of nextTick, promises, setImmediate and timers, build a typed EventEmitter job queue with limited concurrency that never emits error, wait for an event with a timeout, and split long synchronous work into chunks that let the event loop turn."
+objectives:
+  - { id: o1, text: "Predict the order in which nextTick, microtasks, setImmediate and timers run from an I/O callback", skills: [nodejs.event-loop-libuv] }
+  - { id: o2, text: "Build a typed EventEmitter that emits asynchronously, reports failures without an error event and signals when it is idle", skills: [nodejs.events, nodejs.async-patterns] }
+  - { id: o3, text: "Wait for an event with events.once and an AbortSignal, and yield to the event loop between chunks of work", skills: [nodejs.events, nodejs.event-loop-libuv] }
+prerequisites: [nodejs.p1.events]
+difficulty: 2
+estimated_minutes: 60
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      For the prediction: synchronous code first, then the nextTick queue, then the promise microtasks, and only then does the loop move on. You are inside an I/O callback (the poll phase): which phase comes right after poll, check (setImmediate) or timers? For `JobQueue`, keep a private array of waiting jobs and a running counter; `push` only stores the job and schedules the start for later.
+    - |-
+      In `push`, `process.nextTick(() => this.#startJobs())` defers the start, so listeners added after `push()` still see `start`. `#startJobs` loops while `running < concurrency` and a job is waiting: shift it, increment, emit `start`, and call the worker with `.then(onDone, onFailed)`; both handlers decrement, emit, call `#startJobs` again and emit `drain` when nothing is left. `idle()` is `await once(this, "drain")` unless the queue is already idle. `waitFor` is `once(emitter, event, { signal: AbortSignal.timeout(ms) })` with a `catch` that checks `signal.aborted`.
+    - |-
+      ```ts
+      export async function processInChunks<T>(
+        items: readonly T[],
+        fn: (item: T, index: number) => void,
+        chunkSize: number,
+      ): Promise<number> {
+        // RangeError for a bad chunkSize
+        let chunks = 0;
+        for (let start = 0; start < items.length; start += chunkSize) {
+          if (chunks > 0) {
+            await setImmediate(); // from "node:timers/promises": the loop turns here
+          }
+          // call fn for items[start] ... items[start + chunkSize - 1]
+          chunks += 1;
+        }
+        return chunks;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

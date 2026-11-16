@@ -1,0 +1,24 @@
+id: nodejs.p2.errors-testing
+kind: lesson
+status: draft
+title: "Error Handling, Configuration and Testing with node:test"
+summary: "Operational errors vs programmer errors, Error with cause and error codes, uncaughtException and unhandledRejection as last resorts, validated configuration at startup, and testing with node:test: describe and test, assert/strict, hooks, mocks and fake timers, testing HTTP servers, coverage and watch mode."
+objectives:
+  - { id: o1, text: "Tell operational errors from programmer errors, handle the first, crash on the second, and add context with cause", skills: [nodejs.errors-testing] }
+  - { id: o2, text: "Load and validate configuration once at startup and fail fast with a clear message", skills: [nodejs.errors-testing, nodejs.process-cli] }
+  - { id: o3, text: "Write tests with node:test and node:assert, using hooks, mocks, fake timers and a real server on a random port", skills: [nodejs.errors-testing] }
+prerequisites: [nodejs.p2.notes-api]
+difficulty: 3
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A colleague adds this to the entry point of a service: `process.on(\"uncaughtException\", (e) => console.log(\"ignored\", e)); process.on(\"unhandledRejection\", () => {});` \"so it never crashes again\". Explain why this is dangerous, what operational and programmer errors are, and what the process should do with each. Then describe the tests you would write with node:test for a function `sendReminder(user)` that calls an email client and must retry once after 30 seconds on a timeout, without waiting 30 real seconds."
+  criteria:
+    - "Explains that after an uncaught exception the process may be in an unknown state (half-finished work, leaked resources), so it should log and exit, letting a supervisor restart it"
+    - "Defines operational errors (expected failures such as a timeout, ENOENT, invalid input) as handled where they happen, and programmer errors (bugs) as crashing"
+    - "Mentions that silencing unhandled rejections hides failures that were never handled"
+    - "Uses mock.fn or mock.method for the email client and mock.timers to advance 30 seconds"
+    - "Asserts the number of calls and the arguments, and checks both the success after retry and the final failure"

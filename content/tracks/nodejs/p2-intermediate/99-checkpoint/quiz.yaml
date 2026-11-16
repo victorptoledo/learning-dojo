@@ -1,0 +1,62 @@
+pass_percent: 85
+questions:
+  - id: memory-bounded
+    skills: [nodejs.streams-buffers]
+    prompt: "`await pipeline(createReadStream(\"20GB.csv\"), parseCsv(), toJson(), res)` runs for a client on a slow connection. What keeps memory from growing?"
+    options:
+      - "Node.js compresses the buffers"
+      - "Backpressure: when the response's buffer is full, the stages above pause and the file is not read further"
+      - "Nothing: memory grows until the file is read"
+    answer: 1
+    explanation: "Each stream buffers up to its highWaterMark; pipeline pauses the readers when the writer is full."
+  - id: pipe-leak
+    skills: [nodejs.streams-buffers]
+    prompt: "A service uses `source.pipe(gzip).pipe(res)`. When the client disconnects, file descriptors stay open. Why?"
+    options:
+      - "pipe() does not forward errors or destroy the other streams; pipeline() does"
+      - "gzip streams cannot be closed"
+      - "The client must send a close frame"
+    answer: 0
+    explanation: "Use pipeline from node:stream/promises so a failure anywhere cleans up every stream."
+  - id: transform-mode
+    skills: [nodejs.streams-buffers]
+    prompt: "A Transform receives row objects and outputs CSV text. Which option does it need?"
+    options: ["readableObjectMode: true", "writableObjectMode: true", "objectMode: true", "encoding: \"utf8\""]
+    answer: 1
+    explanation: "Objects come in on the writable side; strings or bytes go out on the readable side."
+  - id: one-response
+    skills: [nodejs.http]
+    prompt: "A handler sends 404 when an item is missing, but the logs show \"Cannot set headers after they are sent\". What is the usual cause?"
+    options:
+      - "The 404 is sent, but the code goes on and sends a 200 as well (a missing return)"
+      - "404 responses cannot have a body"
+      - "The client closed the connection"
+    answer: 0
+    explanation: "Every request needs exactly one response; return after answering."
+  - id: status-choice
+    skills: [nodejs.http]
+    prompt: "A POST body is valid JSON but `quantity` is -5. Which status fits best?"
+    options: ["400 Bad Request", "415 Unsupported Media Type", "422 Unprocessable Content", "500 Internal Server Error"]
+    answer: 2
+    explanation: "400 for malformed input, 422 for well-formed input that breaks the rules, 415 for the wrong content type."
+  - id: outbound-timeout
+    skills: [nodejs.http]
+    prompt: "Requests to your service hang because a dependency accepts connections but never answers. What fixes it?"
+    options: ["fetch(url, { signal: AbortSignal.timeout(2000) }) and an answer of 504 or a fallback", "Raising server.keepAliveTimeout", "More libuv threads", "await fetch(url) inside try/catch"]
+    answer: 0
+    explanation: "fetch has no overall deadline by default; without one, the try/catch never sees an error."
+  - id: error-policy
+    skills: [nodejs.errors-testing]
+    prompt: "`TypeError: Cannot read properties of undefined (reading 'id')` reaches the uncaughtException handler. What should happen?"
+    options: ["Ignore it and keep serving", "Log it and exit with a non-zero code so a fresh process starts", "Retry the last request"]
+    answer: 1
+    explanation: "A bug leaves the process in an unknown state. Crash, restart, fix."
+  - id: test-timer
+    skills: [nodejs.errors-testing]
+    prompt: "How do you test that a cache entry expires after 10 minutes without waiting 10 minutes?"
+    options:
+      - "Set the expiry to 1 ms in the test"
+      - "t.mock.timers.enable() (or inject a clock) and advance time by 10 minutes"
+      - "Skip the test"
+    answer: 1
+    explanation: "Fake timers or an injected clock keep the real code path and run instantly."

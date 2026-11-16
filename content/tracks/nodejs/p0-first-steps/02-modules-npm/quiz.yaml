@@ -1,0 +1,50 @@
+questions:
+  - id: type-module
+    prompt: "A project's package.json has `\"type\": \"module\"`. How is `src/app.js` loaded?"
+    options: ["As a CommonJS module", "As an ES module", "It depends on whether it uses require", "As a browser script"]
+    answer: 1
+    explanation: "With type module, .js and .ts files are ES modules; .cjs files stay CommonJS."
+  - id: extension
+    prompt: "In an ES module, which import of the local file `./util.ts` works?"
+    options: ["import { f } from \"./util\"", "import { f } from \"./util.ts\"", "import { f } from \"util\"", "require(\"./util\")"]
+    answer: 1
+    explanation: "ES module resolution does not guess extensions; a bare name like \"util\" is looked up as a package (or a built-in)."
+  - id: caret
+    prompt: "Which versions does the range `^4.18.0` accept?"
+    options: ["Exactly 4.18.0", "4.18.x only", "Any 4.x.y from 4.18.0 up, but not 5.0.0", "Any version from 4.18.0 up, 5.x included"]
+    answer: 2
+    explanation: "The caret allows minor and patch updates within the same major."
+  - id: npm-ci
+    prompt: "Why should a CI pipeline run `npm ci` instead of `npm install`?"
+    options:
+      - "It is the only command that installs devDependencies"
+      - "It installs exactly the versions in the lockfile and fails if the lockfile does not match package.json"
+      - "It updates every package to the latest version"
+      - "It skips downloading from the registry"
+    answer: 1
+    explanation: "npm ci gives reproducible installs; npm install may resolve ranges to newer versions and rewrite the lockfile."
+  - id: dev-deps
+    prompt: "Where does `typescript` belong in a service that runs `.ts` files with Node.js and type-checks in CI?"
+    options: ["dependencies", "devDependencies", "peerDependencies", "Nowhere: it is built into Node.js"]
+    answer: 1
+    explanation: "It is only needed to check (or build) the code, not to run it in production."
+  - id: node-prefix
+    prompt: "What does the `node:` in `import { readFile } from \"node:fs/promises\"` do?"
+    options:
+      - "Downloads the module from npm"
+      - "Marks it as a built-in module, so it can never be confused with a package in node_modules"
+      - "Loads the CommonJS version of the module"
+    answer: 1
+    explanation: "The prefix is explicit about built-ins and is required for some newer ones such as node:test."
+  - id: exports-field
+    prompt: "A library's package.json has `\"exports\": { \".\": \"./dist/index.js\" }`. What happens with `import x from \"lib/dist/internal.js\"`?"
+    options:
+      - "It works: any file inside the package can be imported"
+      - "It fails: only the entry points listed in exports can be imported"
+      - "It loads dist/index.js instead"
+    answer: 1
+    explanation: "exports defines the public surface of a package; unlisted subpaths are blocked (ERR_PACKAGE_PATH_NOT_EXPORTED)."
+  - id: dirname
+    prompt: "In an ES module, what replaces CommonJS's `__dirname`?"
+    answers: ["import.meta.dirname"]
+    explanation: "import.meta.dirname and import.meta.filename are available in ES modules since Node.js 20.11."

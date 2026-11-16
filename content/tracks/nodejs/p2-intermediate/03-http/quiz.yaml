@@ -1,0 +1,41 @@
+questions:
+  - id: req-res
+    prompt: "In `createServer((req, res) => ...)`, what are req and res?"
+    options:
+      - "Plain objects with the parsed body"
+      - "req is a readable stream of the request body with method, url and headers; res is a writable stream for the response"
+      - "Promises"
+    answer: 1
+    explanation: "The body is not parsed for you: read the req stream."
+  - id: headers-sent
+    prompt: "What causes \"Cannot set headers after they are sent to the client\"?"
+    options:
+      - "Too many headers"
+      - "Writing a status or header after the response has started, often because two code paths answer the same request"
+      - "A missing Content-Type"
+    answer: 1
+    explanation: "Each request gets exactly one response; return after sending, and check res.headersSent in error handlers."
+  - id: url-parse
+    prompt: "`req.url` is `/search?q=node`. How do you read q?"
+    options: ["req.query.q", "new URL(req.url, \"http://localhost\").searchParams.get(\"q\")", "req.params.q", "JSON.parse(req.url).q"]
+    answer: 1
+    explanation: "req.url is only the path and query; the URL class needs a base to parse it. req.query is an Express addition."
+  - id: async-handler
+    prompt: "An `async` request listener throws. Without any `.catch`, what does Node.js do?"
+    options: ["Answers 500 automatically", "The rejection is unhandled and the process exits by default", "Retries the request"]
+    answer: 1
+    explanation: "node:http ignores the promise the listener returns. Catch errors in one place and answer 500."
+  - id: status-413
+    prompt: "Which status code answers a request body larger than your limit?"
+    answers: ["413", "413 Content Too Large", "413 Payload Too Large"]
+    explanation: "413 Content Too Large (formerly Payload Too Large)."
+  - id: fetch-errors
+    prompt: "`await fetch(url)` gets a 503 from the server. What happens?"
+    options: ["fetch rejects with an error", "fetch resolves; response.ok is false and response.status is 503", "fetch retries three times"]
+    answer: 1
+    explanation: "fetch rejects only on network errors and aborts. Check response.ok."
+  - id: fetch-timeout
+    prompt: "What is the default timeout of fetch for a server that accepts the connection but never answers?"
+    options: ["5 seconds", "30 seconds", "There is no overall request timeout: pass a signal such as AbortSignal.timeout(ms)", "The server's keepAliveTimeout"]
+    answer: 2
+    explanation: "Always set a deadline on outgoing calls."

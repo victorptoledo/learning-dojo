@@ -1,0 +1,53 @@
+id: nodejs.p1.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 1: Fundamentals"
+summary: "Prove the fundamentals: a quiz over the whole phase and an integration kata, dupes, a command-line tool that walks a folder with an async generator, hashes files, reports duplicates and turns system errors into exit codes."
+objectives:
+  - { id: o1, text: "Explain the event loop, async patterns, events, the file system and processes in your own words", skills: [nodejs.event-loop-libuv, nodejs.async-patterns, nodejs.events, nodejs.fs-path, nodejs.process-cli] }
+  - { id: o2, text: "Build a command-line tool that walks the file system asynchronously, handles system error codes and reports its result with exit codes", skills: [nodejs.fs-path, nodejs.process-cli, nodejs.async-patterns] }
+prerequisites: [nodejs.p1.process-cli]
+difficulty: 3
+estimated_minutes: 80
+xp: 300
+closes_phase: p1
+covers_skills: [nodejs.event-loop-libuv, nodejs.async-patterns, nodejs.events, nodejs.fs-path, nodejs.process-cli]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Build it bottom up: `formatReport` (pure, no I/O), then `hashFile`, then `walk`, then `findDuplicates`, and `main` last. `walk` is an `async function*`: how does it visit a sub-folder, and which `readdir` option tells you whether an entry is a file, a folder or a symbolic link without another `stat`?
+    - |-
+      `readdir(dir, { withFileTypes: true })` returns `Dirent` objects with `isFile()`, `isDirectory()` and `isSymbolicLink()`; a link is neither a file nor a folder for a `Dirent`, so checking `isFile()` and `isDirectory()` skips links for free. Recurse with an inner `async function* visit(relative)` and `yield* visit(child)`, building `child` with a template string so the separator is always `/`; join it with `path.join(root, relative)` only to read from disk. `hashFile`: `createHash("sha256").update(await readFile(file)).digest("hex")`. In `main`, the error of a failed `readdir` has a `code` property: `(error as NodeJS.ErrnoException).code`.
+    - |-
+      ```ts
+      export async function findDuplicates(root: string, options: FindOptions = {}): Promise<DuplicateGroup[]> {
+        const minSize = options.minSize ?? 1;
+        const bySize = new Map<number, string[]>();
+        for await (const file of walk(root, options)) {
+          const { size } = await stat(path.join(root, file));
+          // keep files with size >= minSize, grouped by size
+        }
+        const groups: DuplicateGroup[] = [];
+        for (const [size, files] of bySize) {
+          // skip sizes with one file; group the others by hashFile(...);
+          // every hash with two or more files is a group (files sorted)
+        }
+        return groups.sort((a, b) => b.size - a.size || (a.files[0] ?? "").localeCompare(b.files[0] ?? ""));
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

@@ -1,0 +1,42 @@
+questions:
+  - id: types-erased
+    prompt: "A handler declares `const body = req.body as CreateUser`. What does that guarantee at runtime?"
+    options: ["That body matches CreateUser", "Nothing: types are erased; the body must be validated with code", "That body is not null"]
+    answer: 1
+    explanation: "A cast only silences the compiler. Validate external data with a schema."
+  - id: proto
+    prompt: "What does `{\"__proto__\": {\"isAdmin\": true}}` attack when it is merged deeply into an object?"
+    options: ["SQL injection", "Prototype pollution: the property lands on Object.prototype and every object inherits it", "Path traversal", "Nothing"]
+    answer: 1
+    explanation: "Skip __proto__, constructor and prototype in merges, validate known keys, or use Map/Object.create(null)."
+  - id: traversal
+    prompt: "Which check stops path traversal for `name` under the folder `root`?"
+    options:
+      - "if (!name.includes(\"..\"))"
+      - "const full = path.resolve(root, name); if (!full.startsWith(path.resolve(root) + path.sep)) reject"
+      - "path.join(root, name)"
+      - "encodeURIComponent(name)"
+    answer: 1
+    explanation: "Resolve first, then check the result; string checks miss encodings and absolute paths."
+  - id: redos
+    prompt: "Why is `/^(a+)+$/` dangerous in a Node.js server?"
+    options:
+      - "It is a syntax error"
+      - "Nested quantifiers can take exponential time on some inputs, blocking the single event loop for every user"
+      - "It matches too much"
+    answer: 1
+    explanation: "Regular expression denial of service (ReDoS). Simplify the pattern and limit input length."
+  - id: timing
+    prompt: "Which function should compare an API key received in a request with the expected key?"
+    answers: ["crypto.timingSafeEqual", "timingSafeEqual"]
+    explanation: "=== can stop at the first different character, leaking information through timing."
+  - id: install-scripts
+    prompt: "Which npm setting stops dependencies from running postinstall scripts during installation?"
+    options: ["--omit=dev", "--ignore-scripts", "--audit", "--prefer-offline"]
+    answer: 1
+    explanation: "Install scripts run with your user's permissions; disable them unless a package really needs one."
+  - id: permission
+    prompt: "What does `node --permission --allow-fs-read=/srv/app app.js` do when the app tries to spawn a child process?"
+    options: ["Allows it", "Denies it: child processes need --allow-child-process", "Asks the user"]
+    answer: 1
+    explanation: "With --permission, anything not allowed explicitly (fs paths, child processes, workers, addons) is denied."

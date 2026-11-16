@@ -1,0 +1,24 @@
+id: nodejs.p0.modules-npm
+kind: lesson
+status: draft
+title: "ES Modules, package.json and npm"
+summary: "ES modules and CommonJS side by side, the type field and file extensions, how imports are resolved, package.json fields (scripts, dependencies, exports, engines), semantic versioning, lockfiles and npm ci, and the node: prefix for built-in modules."
+objectives:
+  - { id: o1, text: "Write ES modules with import and export, and recognise CommonJS require/module.exports and how the two interoperate", skills: [nodejs.modules-npm] }
+  - { id: o2, text: "Read and write a package.json: type, scripts, dependencies vs devDependencies, exports and engines", skills: [nodejs.modules-npm] }
+  - { id: o3, text: "Explain semantic version ranges, why the lockfile is committed and why CI runs npm ci", skills: [nodejs.modules-npm] }
+prerequisites: [nodejs.p0.runtime]
+difficulty: 1
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A service's package.json has `\"express\": \"^4.18.0\"` and `\"typescript\": \"^5.4.0\"` under `dependencies`, no lockfile in git, and CI runs `npm install`. One morning the build breaks although nobody changed the code, and the production image is 300 MB bigger than expected. Explain what most likely happened and how semver ranges caused it, then rewrite the setup: what goes in dependencies and devDependencies, what to commit, which command CI and the Dockerfile should run, and how to pin the Node.js version."
+  criteria:
+    - "Explains that ^4.18.0 accepts any 4.x.y at or above 4.18.0, so without a lockfile a new minor or patch was installed"
+    - "Says the lockfile (package-lock.json) must be committed so every install gets the same versions"
+    - "Uses npm ci in CI and in the image build, which installs exactly the lockfile and fails if it does not match package.json"
+    - "Moves build-only tools such as typescript to devDependencies and installs production dependencies only in the image (npm ci --omit=dev)"
+    - "Pins the Node.js version with engines and/or a .nvmrc or similar file"

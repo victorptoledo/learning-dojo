@@ -1,0 +1,38 @@
+questions:
+  - id: phase-immediate
+    prompt: "In which phase of the event loop do `setImmediate` callbacks run?"
+    options: ["timers", "poll", "check", "close callbacks"]
+    answer: 2
+    explanation: "The check phase comes right after poll; that is why setImmediate runs before timers when called from an I/O callback."
+  - id: order-io
+    prompt: "Inside an fs.readFile callback the code schedules `setTimeout(a, 0)`, `setImmediate(b)`, `process.nextTick(c)` and `Promise.resolve().then(d)`. In which order do a, b, c and d run?"
+    options: ["a b c d", "c d b a", "d c a b", "c d a b"]
+    answer: 1
+    explanation: "nextTick queue, then microtasks, then the check phase (b), then the timers of the next turn (a)."
+  - id: main-module
+    prompt: "From the top level of the main module, does `setTimeout(f, 0)` or `setImmediate(g)` run first?"
+    options: ["Always f", "Always g", "It is not deterministic", "Neither runs"]
+    answer: 2
+    explanation: "It depends on whether the 1 ms timer has expired when the loop starts. Inside an I/O callback, setImmediate always wins."
+  - id: starvation
+    prompt: "A function processes one item and schedules itself again with `process.nextTick` until 1,000,000 items are done. What happens to a timer set for 10 ms?"
+    options:
+      - "It runs after about 10 ms, as usual"
+      - "It waits until all items are done, because the nextTick queue is drained before the loop moves on"
+      - "Node.js throws a RangeError"
+    answer: 1
+    explanation: "nextTick (and microtask) queues starve the loop. setImmediate lets timers and I/O run between items."
+  - id: thread-pool-size
+    prompt: "How many threads does libuv's thread pool have by default?"
+    answers: ["4", "four"]
+    explanation: "UV_THREADPOOL_SIZE changes it, up to 1024, before the process starts."
+  - id: pool-users
+    prompt: "Which of these does NOT use libuv's thread pool?"
+    options: ["fs.readFile", "crypto.pbkdf2", "dns.lookup", "Reading from a TCP socket"]
+    answer: 3
+    explanation: "Sockets use the operating system's non-blocking APIs (epoll, kqueue, IOCP) directly in the poll phase."
+  - id: measure
+    prompt: "Which built-in API measures how late the event loop runs its callbacks?"
+    options: ["process.memoryUsage()", "perf_hooks.monitorEventLoopDelay()", "os.loadavg()", "process.hrtime()"]
+    answer: 1
+    explanation: "monitorEventLoopDelay gives a histogram of the loop's delay; a high p99 means something blocks it."

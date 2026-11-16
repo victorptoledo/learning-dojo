@@ -1,0 +1,44 @@
+questions:
+  - id: percentiles
+    prompt: "After a change, the average latency is the same but users complain. Which number should you look at?"
+    options: ["The minimum latency", "High percentiles such as p99", "The number of requests per day", "The size of node_modules"]
+    answer: 1
+    explanation: "Averages hide the tail; a blocked event loop or GC pauses show up in p95/p99 first."
+  - id: cpu-prof
+    prompt: "Which node flag writes a CPU profile you can open as a flame graph?"
+    answers: ["--cpu-prof", "node --cpu-prof"]
+    explanation: "The .cpuprofile opens in Chrome DevTools or speedscope; wide frames are where time goes."
+  - id: shape
+    prompt: "Which habit helps V8 optimise code that handles many order objects?"
+    options:
+      - "Adding properties to each object when they are first needed and deleting them afterwards"
+      - "Creating every order the same way (same properties in the same order), for example with a class"
+      - "Using eval to build objects"
+    answer: 1
+    explanation: "Stable shapes (hidden classes) keep property access and calls monomorphic and fast."
+  - id: leak-reachable
+    prompt: "Why does an ever-growing Map leak memory even though JavaScript has a garbage collector?"
+    options:
+      - "The GC does not collect Maps"
+      - "Its entries are still reachable from the Map, so the GC must keep them"
+      - "Maps are stored outside the heap"
+    answer: 1
+    explanation: "GC frees only unreachable objects. Bound caches with LRU or TTL limits."
+  - id: heap-limit
+    prompt: "A service runs in a container with a 1 GB memory limit. What is a sensible --max-old-space-size?"
+    options: ["4096", "1024", "About 700-800, leaving room for non-heap memory (buffers, code, stacks)", "0"]
+    answer: 2
+    explanation: "RSS is more than the heap. A heap limit at the container limit gets the process OOM-killed instead of a clean error."
+  - id: snapshots
+    prompt: "How do you find what is leaking?"
+    options:
+      - "Restart the service every night"
+      - "Take heap snapshots minutes apart under load and compare what grew and what retains it"
+      - "Increase the memory limit"
+    answer: 1
+    explanation: "Comparison views in DevTools show the objects that accumulate and the references that keep them."
+  - id: scale-out
+    prompt: "An I/O-bound API is at 100% of one core. What is the usual next step in a container platform?"
+    options: ["Raise UV_THREADPOOL_SIZE", "Run more replicas behind the load balancer, with shared state in Redis or a database", "Rewrite it with worker threads"]
+    answer: 1
+    explanation: "One process uses one core for JavaScript; scale horizontally and keep processes stateless."

@@ -1,0 +1,44 @@
+questions:
+  - id: injection
+    prompt: "Which call is safe when `file` comes from a user?"
+    options: ["exec(`wc -l ${file}`)", "execFile(\"wc\", [\"-l\", file])", "exec(\"wc -l \" + JSON.stringify(file))", "spawn(`wc -l ${file}`, { shell: true })"]
+    answer: 1
+    explanation: "execFile and spawn with an argument array run no shell, so the value is one argument, never code. Quoting by hand is fragile."
+  - id: buffered
+    prompt: "A program prints 500 MB to stdout. Why is `execFile` a bad choice?"
+    options:
+      - "execFile cannot read stdout"
+      - "It buffers all output in memory and fails when it passes maxBuffer (1 MiB by default); spawn streams it"
+      - "It only works on Linux"
+    answer: 1
+    explanation: "Use spawn and process stdout as a stream."
+  - id: close-vs-exit
+    prompt: "You need all of a child's output and its exit code. Which event do you wait for?"
+    answers: ["close", "\"close\""]
+    explanation: "exit can fire before the stdio streams are drained; close comes after both."
+  - id: code-null
+    prompt: "The close event gives `code === null` and `signal === \"SIGKILL\"`. What happened?"
+    options: ["The program succeeded", "A signal killed the program before it could exit by itself", "The program could not be found"]
+    answer: 1
+    explanation: "When a signal ends a process there is no exit code. A missing program gives an error event with ENOENT instead."
+  - id: hang-stdin
+    prompt: "`spawn(\"sort\")` never finishes, though you read its stdout. What is the most likely cause?"
+    options: ["sort is slow", "Its stdin is a pipe that was never closed, so sort waits for more input", "stdout is too small"]
+    answer: 1
+    explanation: "Call child.stdin.end() (after writing the input, if any)."
+  - id: sigterm-sigkill
+    prompt: "Why does a careful wrapper send SIGTERM first and SIGKILL only after a grace period?"
+    options:
+      - "SIGKILL is not allowed in Node.js"
+      - "SIGTERM lets the program clean up (temporary files, children); SIGKILL cannot be caught, so it is the last resort"
+      - "SIGTERM is faster"
+    answer: 1
+    explanation: "Ask nicely, then force. Programs may also ignore SIGTERM."
+  - id: env-replace
+    prompt: "`spawn(\"npm\", [\"test\"], { env: { CI: \"1\" } })` fails with \"npm: not found\" or strange errors. Why?"
+    options:
+      - "env replaces the whole environment, so PATH and the rest are gone; spread process.env"
+      - "CI must be a number"
+      - "npm cannot run in a child process"
+    answer: 0
+    explanation: "Use env: { ...process.env, CI: \"1\" }."

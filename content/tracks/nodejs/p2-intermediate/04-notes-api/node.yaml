@@ -1,0 +1,58 @@
+id: nodejs.p2.notes-api
+kind: kata
+status: draft
+title: "Notes API: an HTTP Server with node:http"
+summary: "Write a JSON API with node:http and no framework: routing on URL and method, a body reader with a size limit and content-type check, validation with 400, 413, 415 and 422, 404 and 405 with Allow, Location on 201, and one central error handler."
+objectives:
+  - { id: o1, text: "Route requests by method and path with node:http and the URL class, answering with the right status codes and headers", skills: [nodejs.http] }
+  - { id: o2, text: "Read a request body as a stream with a size limit, check its content type and parse it safely", skills: [nodejs.http, nodejs.streams-buffers] }
+  - { id: o3, text: "Turn errors into HTTP responses in one place and keep unexpected errors from crashing the process", skills: [nodejs.http, nodejs.errors-testing] }
+prerequisites: [nodejs.p2.http]
+difficulty: 3
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with `validateNote` (no I/O) and `readJson`. A request is a readable stream: `for await (const chunk of req)` gives you `Buffer`s. Then write `createApp` as `createServer((req, res) => route(req, res).catch(...))`, where `route` is an `async` function. How do you get the path and the `?q=` parameter from `req.url`?
+    - |-
+      `new URL(req.url ?? "/", "http://localhost")` gives `pathname` and `searchParams`. Match `/notes/:id` with `/^\/notes\/(\d+)$/`. Inside `route`, `throw new HttpError(404, ...)` (or 405 with `{ allow: "GET, POST" }`) for every failure, and let the `.catch` in the request listener turn an `HttpError` into `sendJson(res, error.status, { error: error.message }, { ...error.headers })` and anything else into a 500. In `readJson`, add up `chunk.length`, keep chunks only while the total is within the limit, and throw 413 after the loop.
+    - |-
+      ```ts
+      export function createApp(): Server {
+        const notes = new Map<number, Note>();
+        let nextId = 1;
+
+        async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
+          const url = new URL(req.url ?? "/", "http://localhost");
+          const method = req.method ?? "GET";
+          if (url.pathname === "/health") {
+            if (method !== "GET") throw new HttpError(405, "method not allowed", { allow: "GET" });
+            sendJson(res, 200, { status: "ok" });
+            return;
+          }
+          // /notes (GET, POST), /^\/notes\/(\d+)$/ (GET, DELETE), else 404
+        }
+
+        return createServer((req, res) => {
+          route(req, res).catch((error: unknown) => {
+            // HttpError: its status and headers; anything else: log it, 500
+          });
+        });
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

@@ -3,12 +3,23 @@ legacy_id: node-02-streams-buffers
 kind: lesson
 status: draft
 title: "Streams and Buffers: Processing Files Without Exhausting Memory"
-summary: "Readable, Writable and Transform streams, `.pipe()` and backpressure."
+summary: "Buffers and encodings, the four kinds of streams (Readable, Writable, Duplex, Transform), object mode, consuming streams with for await, writing your own Transform, pipeline from stream/promises instead of pipe, backpressure and highWaterMark, and Web Streams."
 objectives:
-  - { id: o1, text: "Readable, Writable and Transform streams, `.pipe()` and backpressure.", skills: [nodejs.streams-buffers] }
-prerequisites: [nodejs.p1.event-loop-libuv]
+  - { id: o1, text: "Work with Buffers and encodings, and explain why a UTF-8 character can be split across chunks", skills: [nodejs.streams-buffers] }
+  - { id: o2, text: "Read, write and transform data with Readable, Writable and Transform streams, in byte and object mode", skills: [nodejs.streams-buffers] }
+  - { id: o3, text: "Connect streams with pipeline so that errors are propagated and backpressure keeps memory bounded", skills: [nodejs.streams-buffers] }
+prerequisites: [nodejs.p1.checkpoint]
 difficulty: 3
-estimated_minutes: 30
-xp: 300
+estimated_minutes: 60
+xp: 100
 lesson: lesson.md
 bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "An export endpoint builds a CSV of every order: `const rows = await db.allOrders(); const csv = rows.map(toCsvLine).join(\"\\n\"); res.end(gzipSync(csv));`. With 2 million orders the process uses 3 GB of memory and is killed. Redesign it with streams: describe each stage from the database to the socket (which stream type each one is, byte or object mode), how they are connected, what happens when the client downloads slowly, and what happens when the client disconnects halfway or the database cursor fails."
+  criteria:
+    - "Reads the rows as a stream or cursor (object mode) instead of loading them all"
+    - "Uses a Transform (object mode in, strings or bytes out) to turn rows into CSV lines, and zlib.createGzip as a Transform"
+    - "Connects the stages with pipeline from stream/promises into the response"
+    - "Explains backpressure: when the socket is slow, write returns false and the upstream stages pause, so memory stays bounded"
+    - "Explains that pipeline destroys all streams and rejects when the client disconnects or the cursor fails, closing the database cursor"

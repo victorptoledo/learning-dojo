@@ -1,0 +1,38 @@
+questions:
+  - id: operational
+    prompt: "Which of these is a programmer error rather than an operational error?"
+    options: ["The database refuses the connection", "A user sends invalid JSON", "Calling a function with undefined where an object is required, because of a typo", "A downstream service times out"]
+    answer: 2
+    explanation: "A bug cannot be handled at runtime; fix the code. The others are expected failures to handle."
+  - id: uncaught
+    prompt: "What should an `uncaughtException` handler do?"
+    options: ["Log the error and continue serving requests", "Log the error and exit, so a supervisor starts a clean process", "Nothing: it should be empty", "Restart the event loop"]
+    answer: 1
+    explanation: "After an uncaught exception the process state is unknown; continuing can corrupt data or hang."
+  - id: cause
+    prompt: "How do you add context to an error without losing the original one?"
+    options: ["throw new Error(\"loading failed: \" + error)", "throw new Error(\"loading failed\", { cause: error })", "error.message += \" (loading)\"", "console.error(error); throw new Error(\"loading failed\")"]
+    answer: 1
+    explanation: "cause keeps the original error and its stack; loggers and Node.js print the chain."
+  - id: fail-fast
+    prompt: "DATABASE_URL is missing. When should the service find out?"
+    options: ["On the first request that needs the database", "At startup, before it listens, so it fails fast with a clear message", "Never: use a default"]
+    answer: 1
+    explanation: "Validate configuration once at startup; a deploy with a bad config then fails at once and visibly."
+  - id: strict-assert
+    prompt: "With `import assert from \"node:assert/strict\"`, what does `assert.equal(1, \"1\")` do?"
+    options: ["Passes", "Fails: strict mode compares with ===", "Throws a TypeError"]
+    answer: 1
+    explanation: "The strict variant uses strictEqual and deepStrictEqual semantics."
+  - id: fake-timers
+    prompt: "Which node:test feature lets a test skip a 30-second setTimeout without waiting?"
+    answers: ["mock.timers", "t.mock.timers", "mock timers", "t.mock.timers.tick"]
+    explanation: "t.mock.timers.enable() and then tick(ms) advances fake time."
+  - id: test-server
+    prompt: "What is the usual way to test an HTTP server with node:test?"
+    options:
+      - "Start it on port 0, call it with fetch, close it in an after hook"
+      - "Mock node:http completely"
+      - "Run it on port 80 in every test"
+    answer: 0
+    explanation: "Port 0 picks a free port, so tests can run in parallel; the server is real, so routing and headers are tested."

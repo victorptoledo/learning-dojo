@@ -1,0 +1,53 @@
+id: nodejs.p3.worker-pool
+kind: kata
+status: draft
+title: "Worker Pool: CPU Work off the Event Loop"
+summary: "Write a worker thread that answers typed messages and a fixed-size pool that queues tasks, matches replies by id, keeps the main thread responsive, replaces crashed workers and closes cleanly."
+objectives:
+  - { id: o1, text: "Move CPU-bound work to worker threads that talk to the main thread with postMessage", skills: [nodejs.worker-threads] }
+  - { id: o2, text: "Build a pool that queues tasks, runs one per worker and matches replies to tasks by id", skills: [nodejs.worker-threads, nodejs.async-patterns] }
+  - { id: o3, text: "Handle worker failures: errors as replies, crashed workers replaced, and a clean close", skills: [nodejs.worker-threads, nodejs.errors-testing] }
+prerequisites: [nodejs.p3.worker-threads]
+difficulty: 4
+estimated_minutes: 90
+xp: 350
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 90 }
+  hints:
+    - |-
+      Write `worker.ts` first: `countPrimes`, then `parentPort?.on("message", ({ id, task }: Request) => ...)` with a `switch` on `task.kind` and a `try`/`catch` that turns a thrown error into `{ id, ok: false, error }`. For the pool, what does it need to remember for each worker, and for each task that is waiting?
+    - |-
+      Keep `slots: { worker: Worker; job: Job | undefined }[]` and `queue: Job[]`, where a `Job` holds `id`, `task`, `resolve` and `reject` (captured in `new Promise` inside `run`). A `#dispatch()` method gives the first queued job to every slot whose `job` is undefined and posts `{ id, task }`. On `"message"`, check `reply.id === slot.job.id`, settle the job, clear the slot and dispatch again. On `"exit"` or `"error"`, reject the slot's job, put a new slot in its place and dispatch. Ignore exits once `close()` has started.
+    - |-
+      ```ts
+      #spawn(): Slot {
+        const slot: Slot = { worker: new Worker(this.#file), job: undefined };
+        slot.worker.on("message", (reply: Reply) => {
+          const job = slot.job;
+          if (job === undefined || job.id !== reply.id) return;
+          slot.job = undefined;
+          if (reply.ok) job.resolve(reply.value);
+          else job.reject(new Error(reply.error));
+          this.#dispatch();
+        });
+        slot.worker.on("error", (error: unknown) => this.#replace(slot, error instanceof Error ? error : new Error(String(error))));
+        slot.worker.on("exit", (code) => this.#replace(slot, new Error(`worker exited with code ${code}`)));
+        return slot;
+      }
+      // #replace: if closed or the slot is no longer in #slots, return; reject slot.job,
+      // remove the old worker's listeners, put this.#spawn() at its index, dispatch
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

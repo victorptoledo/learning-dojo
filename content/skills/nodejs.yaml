@@ -1,4 +1,18 @@
 namespace: nodejs
 skills:
+  - { id: nodejs.runtime, title: "The Node.js Runtime: V8, libuv and Running TypeScript" }
+  - { id: nodejs.modules-npm, title: "ES Modules, package.json and npm" }
   - { id: nodejs.event-loop-libuv, title: "The Node.js Event Loop and libuv" }
+  - { id: nodejs.async-patterns, title: "Callbacks, Promises and async/await in Node.js" }
+  - { id: nodejs.events, title: "EventEmitter and Event-Driven Code" }
+  - { id: nodejs.fs-path, title: "The File System, Paths and URLs" }
+  - { id: nodejs.process-cli, title: "Processes, Environment and Command-Line Programs" }
   - { id: nodejs.streams-buffers, title: "Streams and Buffers: Processing Files Without Exhausting Memory" }
+  - { id: nodejs.http, title: "HTTP Servers and Clients with node:http and fetch" }
+  - { id: nodejs.errors-testing, title: "Error Handling, Configuration and Testing with node:test" }
+  - { id: nodejs.worker-threads, title: "Worker Threads for CPU-Bound Work" }
+  - { id: nodejs.child-processes, title: "Child Processes: spawn, exec and Pipes" }
+  - { id: nodejs.security, title: "Secure Node.js: Input, Paths, Dependencies and the Permission Model" }
+  - { id: nodejs.production, title: "Node.js in Production: Lifecycle, Signals and Graceful Shutdown" }
+  - { id: nodejs.async-context, title: "AsyncLocalStorage, Logging and Observability" }
+  - { id: nodejs.performance-scaling, title: "Performance, Profiling, Memory and Scaling" }

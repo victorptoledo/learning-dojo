@@ -46,7 +46,7 @@ of your choice.
 
 ### Tracks
 
-15 tracks are complete, with 353 lessons and checkpoints and 124 katas between them:
+16 tracks are complete, with 378 lessons and checkpoints and 133 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
@@ -62,6 +62,7 @@ of your choice.
 | Modern Python | Python 3.15 | 24 | 7 | `dojo-python` (pytest, ruff) |
 | Go | Go 1.27 | 23 | 8 | `dojo-go` (go test -race, go vet, gofmt) |
 | TypeScript | TypeScript 7 on Node.js 26 | 23 | 9 | `dojo-node` (tsc, node:test) |
+| Node.js | Node.js 26 backends in TypeScript | 25 | 9 | `dojo-node` (tsc, node:test; real servers, workers and child processes) |
 | Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |
 | Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
 | Design Patterns | principles and patterns in modern Java | 24 | 10 | `dojo-java` (refactoring katas) |
@@ -69,7 +70,7 @@ of your choice.
 Every complete track has two checkpoints, a placement test, an interview bank and bridges from five
 languages. **Drafts** (their nodes show as "under construction" 🚧 until they are written):
 Frontend, Full Stack, DevOps & Cloud, AI Engineer, Data Engineer, Cyber Security, React, Modern C++,
-Node.js, Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
+Software Architecture, API Design, Prompt Engineering, PostgreSQL, AWS and Computer Science.
 
 ## Requirements
 

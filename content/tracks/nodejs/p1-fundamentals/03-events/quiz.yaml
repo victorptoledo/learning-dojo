@@ -1,0 +1,38 @@
+questions:
+  - id: sync-emit
+    prompt: "When do the listeners of an event run after `emitter.emit(\"x\")`?"
+    options: ["On the next tick", "Synchronously, before emit returns", "In the check phase", "In a worker thread"]
+    answer: 1
+    explanation: "emit calls every listener immediately, in the order they were added."
+  - id: error-no-listener
+    prompt: "An emitter emits \"error\" and nobody listens to \"error\". What happens?"
+    options: ["Nothing", "A warning is printed", "emit throws the error, which usually ends the process", "The error is queued until a listener is added"]
+    answer: 2
+    explanation: "error is the one event that throws when unhandled. Always listen to it on sockets, streams and servers."
+  - id: constructor-emit
+    prompt: "A class emits \"ready\" inside its constructor. The caller does `new Thing().on(\"ready\", f)`. Is f called?"
+    options: ["Yes", "No: the event was emitted before the listener existed", "Only once per process"]
+    answer: 1
+    explanation: "Defer the emit with process.nextTick so callers can add listeners first."
+  - id: max-listeners
+    prompt: "What does \"MaxListenersExceededWarning ... 11 listeners\" usually mean?"
+    options:
+      - "The emitter is too slow"
+      - "Listeners are being added repeatedly (for example per request) and never removed: a leak"
+      - "Node.js only allows 10 listeners"
+    answer: 1
+    explanation: "Raising the limit hides the leak; use once, off, or a signal to remove listeners."
+  - id: once-promise
+    prompt: "Which function waits for the next \"listening\" event of a server as a promise?"
+    answers: ["events.once", "once", "once(server, \"listening\")", "once(server, 'listening')"]
+    explanation: "events.once(emitter, name) resolves with the event's arguments and rejects on error."
+  - id: off-function
+    prompt: "`emitter.on(\"data\", (d) => log(d))` is followed by `emitter.off(\"data\", (d) => log(d))`. Is the listener removed?"
+    options: ["Yes", "No: off needs the same function object, and this is a new arrow function"]
+    answer: 1
+    explanation: "Keep a reference to the listener, or use once or a signal."
+  - id: typed-map
+    prompt: "With `class Q extends EventEmitter<{ done: [id: number] }>`, which call is a type error?"
+    options: ["q.emit(\"done\", 1)", "q.emit(\"done\", \"1\")", "q.on(\"done\", (id) => id + 1)"]
+    answer: 1
+    explanation: "The event map says done carries one number."

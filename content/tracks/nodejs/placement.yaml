@@ -1,0 +1,284 @@
+# Placement test of the Node.js track (see docs/architecture.md, section 7).
+# The questions are different from the lesson quizzes, so passing them shows the skill,
+# not a memorised answer.
+entry_question:
+  prompt: How familiar are you with Node.js?
+  options:
+    - { label: "Never used it (or only JavaScript in the browser)", start_phase: p0, test: false }
+    - { label: "I write Node.js scripts and small servers: npm, async/await, fs", start_phase: p1, test: true }
+    - { label: "I run Node.js services at work: streams, HTTP, errors, tests", start_phase: p2, test: true }
+phases:
+  p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
+  p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+early_stop: { wrong_in_first: 2, of: 3 }
+skill_placed_out_threshold: 0.75
+weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
+max_items: 25
+items:
+  # ---- P1 Fundamentals ---------------------------------------------------------
+  - id: p1-order-main
+    phase: p1
+    skills: [nodejs.event-loop-libuv]
+    difficulty: 2
+    prompt: "What does this print?"
+    code: |
+      console.log("1");
+      setImmediate(() => console.log("2"));
+      queueMicrotask(() => console.log("3"));
+      process.nextTick(() => console.log("4"));
+      console.log("5");
+    options: ["1 5 4 3 2", "1 5 3 4 2", "1 2 3 4 5", "1 4 3 5 2"]
+    answer: 0
+    explanation: "Synchronous code, then the nextTick queue, then microtasks, then the check phase."
+  - id: p1-sync-crypto
+    phase: p1
+    skills: [nodejs.event-loop-libuv]
+    difficulty: 2
+    prompt: "A login handler calls `crypto.scryptSync(password, salt, 64)`, which takes 80 ms. What happens with 50 logins per second?"
+    options:
+      - "Nothing special: scryptSync runs on the thread pool"
+      - "The event loop is blocked about 4 seconds per second of traffic, so every request queues up"
+      - "Node.js starts more threads automatically"
+    answer: 1
+    explanation: "Sync crypto runs on the main thread. The async crypto.scrypt uses the thread pool."
+  - id: p1-promise-all-fail
+    phase: p1
+    skills: [nodejs.async-patterns]
+    difficulty: 2
+    prompt: "`await Promise.all([a(), b(), c()])` and b() rejects after 10 ms while a() and c() take 1 s. What happens?"
+    options:
+      - "It waits 1 s and rejects"
+      - "It rejects after about 10 ms; a() and c() keep running in the background"
+      - "It cancels a() and c()"
+      - "It resolves with undefined for b"
+    answer: 1
+    explanation: "Promise.all rejects at the first rejection and cancels nothing; use allSettled to wait for all."
+  - id: p1-promisify
+    phase: p1
+    skills: [nodejs.async-patterns]
+    difficulty: 1
+    prompt: "Which module gives promise versions of the file system functions?"
+    answers: ["node:fs/promises", "fs/promises"]
+    explanation: "import { readFile } from \"node:fs/promises\"."
+  - id: p1-once-error
+    phase: p1
+    skills: [nodejs.events]
+    difficulty: 2
+    prompt: "`await once(server, \"listening\")` and the port is already in use, so the server emits \"error\". What does the await do?"
+    options: ["Waits forever", "Rejects with the error", "Resolves with undefined", "Crashes the process even though once is used"]
+    answer: 1
+    explanation: "events.once also listens to error and rejects with it."
+  - id: p1-emit-sync
+    phase: p1
+    skills: [nodejs.events]
+    difficulty: 2
+    prompt: "What is printed?"
+    code: |
+      const e = new EventEmitter();
+      e.on("x", () => console.log("listener"));
+      console.log("before");
+      e.emit("x");
+      console.log("after");
+    options: ["before after listener", "before listener after", "listener before after"]
+    answer: 1
+    explanation: "emit calls the listeners synchronously."
+  - id: p1-readdir-types
+    phase: p1
+    skills: [nodejs.fs-path]
+    difficulty: 2
+    prompt: "Which error code does `mkdir(\"logs\")` give when the folder already exists (without recursive)?"
+    answers: ["EEXIST"]
+    explanation: "With { recursive: true } mkdir does not fail on an existing folder."
+  - id: p1-path-resolve
+    phase: p1
+    skills: [nodejs.fs-path]
+    difficulty: 2
+    prompt: "The process was started in /home/ada/app. What is `path.resolve(\"data\", \"../logs\")`?"
+    options: ["data/../logs", "/home/ada/app/logs", "/home/ada/logs", "/logs"]
+    answer: 1
+    explanation: "resolve starts from process.cwd() and normalises the .. segment."
+  - id: p1-exit-code
+    phase: p1
+    skills: [nodejs.process-cli]
+    difficulty: 1
+    prompt: "A script ends normally after setting `process.exitCode = 3`. What exit status does the shell see?"
+    answers: ["3"]
+    explanation: "exitCode is used when the process ends on its own."
+  - id: p1-parseargs
+    phase: p1
+    skills: [nodejs.process-cli]
+    difficulty: 2
+    prompt: "`parseArgs({ args: [\"--port\", \"8080\"], options: { port: { type: \"string\" } } })`. What is `values.port`?"
+    options: ["8080 (a number)", "\"8080\" (a string)", "true", "undefined"]
+    answer: 1
+    explanation: "parseArgs only knows strings and booleans; convert and validate numbers yourself."
+  # ---- P2 Intermediate ---------------------------------------------------------
+  - id: p2-highwatermark
+    phase: p2
+    skills: [nodejs.streams-buffers]
+    difficulty: 3
+    prompt: "In an object-mode stream, what does `highWaterMark: 16` limit?"
+    options: ["16 bytes", "16 kilobytes", "16 objects in the buffer", "16 chunks per second"]
+    answer: 2
+    explanation: "In object mode highWaterMark counts objects, in byte mode it counts bytes."
+  - id: p2-for-await
+    phase: p2
+    skills: [nodejs.streams-buffers]
+    difficulty: 2
+    prompt: "What is the simplest correct way to process every chunk of a readable stream, with backpressure?"
+    options: ["stream.on(\"data\", handle) with async work inside", "for await (const chunk of stream) { await handle(chunk) }", "await stream.toArray() then loop"]
+    answer: 1
+    explanation: "for await pulls the next chunk only after the previous iteration finished; toArray loads everything."
+  - id: p2-transform-flush
+    phase: p2
+    skills: [nodejs.streams-buffers]
+    difficulty: 3
+    prompt: "A Transform that splits text into lines must emit the last line even when the input does not end with a newline. Which method handles that?"
+    answers: ["flush", "flush()"]
+    explanation: "flush(callback) runs after the last chunk, before the readable side ends."
+  - id: p2-headers-lowercase
+    phase: p2
+    skills: [nodejs.http]
+    difficulty: 1
+    prompt: "A client sends `Content-Type: application/json`. How do you read it in node:http?"
+    options: ["req.headers[\"Content-Type\"]", "req.headers[\"content-type\"]", "req.contentType", "req.getHeader(\"Content-Type\")"]
+    answer: 1
+    explanation: "Incoming header names are lower-cased."
+  - id: p2-201-location
+    phase: p2
+    skills: [nodejs.http]
+    difficulty: 2
+    prompt: "A POST creates an order with id 42. Which answer is the most precise?"
+    options: ["200 with the order", "201 with the order and Location: /orders/42", "204 with no body", "202 with no body"]
+    answer: 1
+    explanation: "201 Created plus a Location header pointing at the new resource."
+  - id: p2-keepalive
+    phase: p2
+    skills: [nodejs.http]
+    difficulty: 3
+    prompt: "A load balancer keeps idle connections for 60 s, the Node.js server's keepAliveTimeout is 5 s. Users see occasional 502s. Why?"
+    options:
+      - "The server closes idle connections the balancer still reuses; set the server's keep-alive timeout above the balancer's"
+      - "HTTP/1.1 does not support keep-alive"
+      - "The balancer needs HTTP/2"
+    answer: 0
+    explanation: "The side that closes first must be the one in front: the balancer's idle timeout should be shorter."
+  - id: p2-operational
+    phase: p2
+    skills: [nodejs.errors-testing]
+    difficulty: 2
+    prompt: "Which reaction fits an ECONNREFUSED from the cache server during a request?"
+    options: ["Crash the process", "Treat it as an operational error: fall back to the database or answer 503, and log it", "Ignore it silently"]
+    answer: 1
+    explanation: "An expected failure of a dependency is operational: handle it."
+  - id: p2-mock-method
+    phase: p2
+    skills: [nodejs.errors-testing]
+    difficulty: 2
+    prompt: "In node:test, which call replaces `mailer.send` for one test and restores it afterwards?"
+    options: ["mailer.send = () => {}", "t.mock.method(mailer, \"send\", async () => \"ok\")", "jest.spyOn(mailer, \"send\")", "assert.mock(mailer.send)"]
+    answer: 1
+    explanation: "Mocks created with t.mock are restored when the test ends."
+  # ---- P3 Advanced ---------------------------------------------------------------
+  - id: p3-worker-io
+    phase: p3
+    skills: [nodejs.worker-threads]
+    difficulty: 3
+    prompt: "A teammate moves database queries into worker threads \"to make them parallel\". What is the effect?"
+    options:
+      - "Queries run much faster"
+      - "Little or none: the queries were already asynchronous I/O; workers add cost and copying"
+      - "The database accepts more connections"
+    answer: 1
+    explanation: "Workers help CPU-bound JavaScript, not I/O."
+  - id: p3-structured-clone
+    phase: p3
+    skills: [nodejs.worker-threads]
+    difficulty: 3
+    prompt: "Which value cannot be sent to a worker with postMessage?"
+    options: ["A Map of strings", "A Date", "A function", "A Uint8Array"]
+    answer: 2
+    explanation: "Functions cannot be structured-cloned; send data and keep code in the worker."
+  - id: p3-maxbuffer
+    phase: p3
+    skills: [nodejs.child-processes]
+    difficulty: 3
+    prompt: "`execFile(\"mysqldump\", args)` fails on a big database with \"stdout maxBuffer length exceeded\". What is the fix?"
+    options: ["Retry", "Use spawn and stream stdout to a file with pipeline", "Use exec instead", "Set shell: true"]
+    answer: 1
+    explanation: "execFile buffers output in memory; spawn streams it."
+  - id: p3-shell-true
+    phase: p3
+    skills: [nodejs.child-processes, nodejs.security]
+    difficulty: 2
+    prompt: "`spawn(\"tar\", [\"-czf\", out, dir], { shell: true })` with a user-chosen `dir`. Is it safe?"
+    options: ["Yes, arguments are in an array", "No: with shell: true the arguments are joined into a shell command again", "Only on Linux"]
+    answer: 1
+    explanation: "shell: true brings back injection; drop it."
+  - id: p3-json-proto
+    phase: p3
+    skills: [nodejs.security]
+    difficulty: 3
+    prompt: "Which way of building a lookup table keyed by user-provided names avoids prototype problems such as the key \"__proto__\"?"
+    options: ["const table = {}", "const table = new Map()", "const table = []", "const table = Object.prototype"]
+    answer: 1
+    explanation: "A Map has no prototype keys; Object.create(null) also works."
+  - id: p3-npm-ci-scripts
+    phase: p3
+    skills: [nodejs.security]
+    difficulty: 2
+    prompt: "Why is `npm ci --ignore-scripts` recommended in CI where possible?"
+    options: ["It is faster", "Dependencies cannot run install scripts, a common way for malicious packages to steal secrets", "It skips devDependencies"]
+    answer: 1
+    explanation: "Install scripts run arbitrary code with the CI job's permissions."
+  # ---- P4 Mastery ----------------------------------------------------------------
+  - id: p4-close-idle
+    phase: p4
+    skills: [nodejs.production]
+    difficulty: 3
+    prompt: "During shutdown, `server.close(cb)` is called but cb only runs minutes later. What is the usual cause?"
+    options:
+      - "close() is slow"
+      - "Idle keep-alive connections stay open; call server.closeIdleConnections() (and force closeAllConnections after a timeout)"
+      - "The event loop is blocked"
+    answer: 1
+    explanation: "close() waits for every connection to end; idle keep-alive connections need to be closed."
+  - id: p4-exec-form
+    phase: p4
+    skills: [nodejs.production]
+    difficulty: 3
+    prompt: "Which Dockerfile line lets the Node.js process receive SIGTERM directly?"
+    options: ["CMD npm start", "CMD node server.js", "CMD [\"node\", \"server.js\"]", "RUN node server.js"]
+    answer: 2
+    explanation: "The exec form makes node PID 1; the shell form and npm put another process in between."
+  - id: p4-als-mixin
+    phase: p4
+    skills: [nodejs.async-context]
+    difficulty: 3
+    prompt: "How do all log lines of a request get its id without passing it to every function?"
+    options:
+      - "A global variable set at the start of each request"
+      - "AsyncLocalStorage.run({ requestId }, handler) and a logger that reads getStore() on each line"
+      - "process.env.REQUEST_ID"
+    answer: 1
+    explanation: "The store follows the async flow of that request only."
+  - id: p4-p99
+    phase: p4
+    skills: [nodejs.performance-scaling]
+    difficulty: 3
+    prompt: "p50 latency is unchanged but p99 doubled after adding a synchronous 30 ms computation to 2% of requests. Why does p99 move so much?"
+    options:
+      - "Only the slow requests are affected"
+      - "While those requests compute, every other request waits on the blocked event loop, so the tail of all requests grows"
+      - "p99 is measured wrongly"
+    answer: 1
+    explanation: "Blocking work hurts everyone queued behind it, and the tail shows it first."
+  - id: p4-heap-snapshot
+    phase: p4
+    skills: [nodejs.performance-scaling]
+    difficulty: 4
+    prompt: "Memory grows steadily under constant load. Which tool shows which objects accumulate and what keeps them alive?"
+    answers: ["heap snapshot", "heap snapshots", "heapsnapshot", "v8.writeHeapSnapshot"]
+    explanation: "Compare two heap snapshots taken minutes apart and follow the retainers."

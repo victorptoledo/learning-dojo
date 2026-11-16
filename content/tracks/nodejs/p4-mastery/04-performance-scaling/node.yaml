@@ -1,0 +1,24 @@
+id: nodejs.p4.performance-scaling
+kind: lesson
+status: draft
+title: "Performance, Profiling, Memory and Scaling"
+summary: "Measuring before optimising (load tests, percentiles), CPU profiling with --cpu-prof and flame graphs, V8 and the JIT (hidden classes, deoptimisation), memory: the heap limit, GC, heap snapshots and the usual leaks, and scaling: more processes or replicas, cluster, caching, queues and when Node.js is the wrong tool."
+objectives:
+  - { id: o1, text: "Measure a service's performance with a load test and latency percentiles, and find hot spots with a CPU profile", skills: [nodejs.performance-scaling] }
+  - { id: o2, text: "Explain the V8 heap and garbage collector, find a memory leak with heap snapshots, and size the heap for a container", skills: [nodejs.performance-scaling] }
+  - { id: o3, text: "Scale a Node.js service horizontally and with caching and queues, and recognise workloads that need another tool", skills: [nodejs.performance-scaling] }
+prerequisites: [nodejs.p4.graceful-server]
+difficulty: 4
+estimated_minutes: 60
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "After a release, a Node.js API in a 512 MB container is OOM-killed every 6 hours, and its p99 latency doubled from 120 ms to 250 ms while p50 stayed the same. The release added an in-memory cache of user profiles (a Map that never shrinks), a `setInterval` per WebSocket connection, and JSON schema compilation on every request. Describe step by step how you would investigate both problems (the tools, what you would look for in each), which change you expect behind each symptom and why, and how you would fix them. Also say how you would set the heap limit for this container."
+  criteria:
+    - "Uses heap snapshots (taken some time apart and compared) or --heapsnapshot-near-heap-limit to find what grows, and mentions the heap growing steadily as the leak signature"
+    - "Identifies the unbounded Map and the intervals that are never cleared (keeping connections alive) as leaks, and fixes them with a bounded LRU/TTL cache and clearInterval on close"
+    - "Uses a CPU profile (--cpu-prof or a profiler) and a load test to find the per-request schema compilation, fixed by compiling once at startup"
+    - "Explains that more GC work and CPU per request raise tail latency (p99) more than the median"
+    - "Sets --max-old-space-size below the container limit (leaving room for non-heap memory), or relies on Node.js reading the container limit"

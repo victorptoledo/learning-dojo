@@ -1,0 +1,23 @@
+id: nodejs.p1.events
+kind: lesson
+status: draft
+title: "EventEmitter and Event-Driven Code"
+summary: "The EventEmitter API (on, once, off, emit), typed events in TypeScript, the special error event, synchronous emission and the Zalgo problem, listener leaks and the MaxListeners warning, events.once and events.on with promises and AbortSignal, and EventTarget."
+objectives:
+  - { id: o1, text: "Use EventEmitter to emit and listen to events, and type them with an event map in TypeScript", skills: [nodejs.events] }
+  - { id: o2, text: "Explain why an unhandled error event crashes the process, why listeners run synchronously, and how to avoid listener leaks", skills: [nodejs.events] }
+  - { id: o3, text: "Turn events into promises and async iterators with events.once and events.on, with a signal to stop waiting", skills: [nodejs.events, nodejs.async-patterns] }
+prerequisites: [nodejs.p1.async-patterns]
+difficulty: 2
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A `Downloader extends EventEmitter` emits \"progress\", \"done\" and \"error\". In production you see three problems: (1) the process sometimes dies with `Error: connect ECONNREFUSED` and an \"Unhandled 'error' event\" stack, (2) the log shows \"MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 progress listeners\", and (3) a caller does `const d = new Downloader(url); d.on('done', show)` but `show` is never called for cached files, which the constructor answers at once. Explain the cause of each problem and how to fix it, and show a typed event map for this class."
+  criteria:
+    - "Explains that an error event with no listener is thrown, and fixes it with an error listener (or by not using the error event for expected failures)"
+    - "Explains that listeners added per request or per call and never removed leak, and fixes it with once, off/removeListener, or a signal"
+    - "Explains that emit is synchronous, so emitting inside the constructor happens before the caller can add listeners, and defers it with process.nextTick or queueMicrotask"
+    - "Writes an event map type such as { progress: [percent: number]; done: [path: string]; error: [error: Error] } used as EventEmitter<Events>"

@@ -1,0 +1,24 @@
+id: nodejs.p3.security
+kind: lesson
+status: draft
+title: "Secure Node.js: Input, Paths, Dependencies and the Permission Model"
+summary: "The Node.js-specific attack surface: validating untrusted input at the boundary, prototype pollution, path traversal, ReDoS and other ways to block the event loop, injection into shells, SQL and HTML, secrets and crypto basics, supply-chain risks in npm (lockfiles, audit, install scripts), HTTP hardening, and the Node.js permission model."
+objectives:
+  - { id: o1, text: "Validate untrusted input at the boundary and recognise prototype pollution, path traversal, ReDoS and injection in Node.js code", skills: [nodejs.security] }
+  - { id: o2, text: "Reduce supply-chain risk: lockfiles, npm audit, install scripts, few and well-chosen dependencies", skills: [nodejs.security, nodejs.modules-npm] }
+  - { id: o3, text: "Harden a process: secrets, timing-safe comparisons, HTTP limits and headers, running without privileges, and the --permission flag", skills: [nodejs.security] }
+prerequisites: [nodejs.p3.run-command]
+difficulty: 3
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Review this download endpoint for security problems and rewrite it: `app.get('/files', (req, res) => { const opts = Object.assign({}, defaults, JSON.parse(req.query.opts ?? '{}')); if (/^(\\w+\\s?)*$/.test(req.query.name)) { res.sendFile(path.join('/srv/uploads', req.query.name)) } })`. The service runs as root, its API key is compared with `===`, and its package.json uses `\"*\"` for two dependencies. Name every problem, the attack it allows, and the fix."
+  criteria:
+    - "Finds path traversal (name = ../../etc/passwd) and fixes it by resolving the path and checking it stays inside the uploads folder (or by using ids instead of names)"
+    - "Finds the ReDoS risk of the nested quantifier (\\w+\\s?)* and replaces it with a simple, anchored pattern plus a length limit"
+    - "Finds prototype pollution through merging parsed JSON (__proto__) and fixes it with validation, an allow list of keys, or Object.create(null)/structuredClone"
+    - "Recommends running as a non-root user and comparing secrets with crypto.timingSafeEqual"
+    - "Replaces \"*\" ranges with pinned or caret ranges plus a committed lockfile, and mentions npm audit"

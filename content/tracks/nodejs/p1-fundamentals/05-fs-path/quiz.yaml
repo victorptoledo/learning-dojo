@@ -1,0 +1,45 @@
+questions:
+  - id: sync-when
+    prompt: "When is `readFileSync` acceptable in a web service?"
+    options: ["Inside request handlers, for small files", "At startup, before the server starts listening", "Never", "Only in worker threads"]
+    answer: 1
+    explanation: "Blocking at startup harms nobody; blocking during requests delays every other request."
+  - id: enoent
+    prompt: "Which error code means the file or folder does not exist?"
+    answers: ["ENOENT"]
+    explanation: "Error NO ENTry. Check error.code, not the message."
+  - id: check-then-act
+    prompt: "Why is `if (existsSync(f)) data = await readFile(f)` a weak pattern?"
+    options:
+      - "existsSync is deprecated"
+      - "The file can disappear between the check and the read, so the read must handle ENOENT anyway"
+      - "readFile cannot read files found by existsSync"
+    answer: 1
+    explanation: "A race between check and use. Try the operation and handle its error code."
+  - id: atomic
+    prompt: "How do you replace a file so that a crash never leaves it half written?"
+    options:
+      - "writeFile with the flag \"w\""
+      - "Write a temporary file in the same folder, then rename it over the original"
+      - "Delete the old file first, then write the new one"
+      - "Use appendFile"
+    answer: 1
+    explanation: "rename on the same file system is atomic: readers see the old or the new file."
+  - id: relative-path
+    prompt: "A module reads `readFile(\"./templates/mail.html\")`. It works with `npm start` but fails when started from another folder. Why?"
+    options:
+      - "Relative paths are resolved against process.cwd(), not the module's folder"
+      - "readFile only accepts absolute paths"
+      - "Templates must be imported"
+    answer: 0
+    explanation: "Use path.join(import.meta.dirname, \"templates\", \"mail.html\")."
+  - id: path-join
+    prompt: "What does `path.join(\"a\", \"b\", \"../c\")` return on Linux?"
+    options: ["a/b/../c", "a/c", "/a/c", "c"]
+    answer: 1
+    explanation: "join adds separators and normalises .. segments; resolve would also make it absolute."
+  - id: dirent
+    prompt: "How do you list a folder and know which entries are folders without calling stat on each one?"
+    options: ["readdir(dir, { withFileTypes: true })", "readdir(dir, { stats: true })", "stat(dir).entries", "glob(dir)"]
+    answer: 0
+    explanation: "Dirent objects have isFile(), isDirectory() and isSymbolicLink()."

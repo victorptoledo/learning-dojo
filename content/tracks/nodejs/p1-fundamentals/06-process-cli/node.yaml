@@ -1,0 +1,24 @@
+id: nodejs.p1.process-cli
+kind: lesson
+status: draft
+title: "Processes, Environment and Command-Line Programs"
+summary: "The process object: argv and util.parseArgs, environment variables and --env-file, stdin, stdout and stderr, exit codes with process.exitCode vs process.exit, signals, the bin field of package.json, and readline for interactive input."
+objectives:
+  - { id: o1, text: "Parse command-line arguments with util.parseArgs and read configuration from environment variables and .env files", skills: [nodejs.process-cli] }
+  - { id: o2, text: "Write output to stdout and errors to stderr, and end with a meaningful exit code without cutting output short", skills: [nodejs.process-cli] }
+  - { id: o3, text: "Read standard input as a stream or line by line, react to signals, and publish a command with the bin field", skills: [nodejs.process-cli] }
+prerequisites: [nodejs.p1.fs-path]
+difficulty: 2
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Design a command-line tool `csv2json` for your team: it reads CSV from a file argument or from stdin, writes JSON to stdout, and is used in shell pipelines and CI jobs. Describe its options (with parseArgs), how it reads input in both cases, where messages and errors go, which exit codes it uses and why, how it behaves on Ctrl+C and when the downstream command closes the pipe (`csv2json big.csv | head`), and what you put in package.json so that `npx csv2json` works."
+  criteria:
+    - "Uses util.parseArgs with declared options (and short forms), and reads stdin when no file is given or the file is -"
+    - "Writes only the data to stdout, and logs, warnings and errors to stderr, so pipes stay clean"
+    - "Defines exit codes: 0 success, non-zero for errors (for example 1 for bad data, 2 for wrong usage), set with process.exitCode"
+    - "Handles SIGINT or EPIPE on stdout so the tool exits cleanly instead of printing a stack trace"
+    - "Adds a bin entry in package.json pointing to an executable file with a #!/usr/bin/env node shebang"

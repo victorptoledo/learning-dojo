@@ -1,0 +1,44 @@
+questions:
+  - id: why-streams
+    prompt: "Why stream a 4 GB file instead of reading it with readFile?"
+    options:
+      - "Streams are always faster"
+      - "Memory stays at a few chunks instead of the whole file, and processing starts with the first chunk"
+      - "readFile cannot read binary files"
+    answer: 1
+    explanation: "readFile holds the whole file in memory; a stream holds only its buffers."
+  - id: byte-length
+    prompt: "What is `Buffer.byteLength(\"olá\")` in UTF-8?"
+    options: ["3", "4", "6", "It depends on the platform"]
+    answer: 1
+    explanation: "á takes two bytes in UTF-8. Content-Length must count bytes, not characters."
+  - id: split-char
+    prompt: "A stream of UTF-8 text is decoded with `chunk.toString()` on each chunk, and some characters come out as �. Why?"
+    options:
+      - "The file is not UTF-8"
+      - "A multi-byte character was split between two chunks; a StringDecoder or setEncoding keeps the partial bytes"
+      - "toString() uses Latin-1 by default"
+    answer: 1
+    explanation: "Chunk boundaries ignore characters; decode across chunks."
+  - id: transform-type
+    prompt: "Which stream type is `zlib.createGzip()`?"
+    options: ["Readable", "Writable", "Transform", "Object mode Readable"]
+    answer: 2
+    explanation: "Bytes go in, compressed bytes come out: a Transform (a kind of Duplex)."
+  - id: pipe-vs-pipeline
+    prompt: "What does `pipeline(a, b, c)` do that `a.pipe(b).pipe(c)` does not?"
+    options:
+      - "It runs faster"
+      - "It forwards errors: a failure in any stream destroys all of them and rejects (or calls back) with the error"
+      - "It handles backpressure"
+    answer: 1
+    explanation: "Both handle backpressure; only pipeline handles errors and cleanup."
+  - id: write-false
+    prompt: "`writable.write(chunk)` returns false. What should the producer do?"
+    options: ["Retry the write at once", "Stop writing until the \"drain\" event", "Close the stream", "Ignore it: the chunk was lost"]
+    answer: 1
+    explanation: "false means the buffer is above highWaterMark. The chunk was accepted, but keep writing and memory grows."
+  - id: object-mode
+    prompt: "A stream emits one parsed row object per chunk. What is it called?"
+    answers: ["object mode", "objectMode", "an object mode stream"]
+    explanation: "objectMode streams carry any value; highWaterMark then counts objects (16 by default)."

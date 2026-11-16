@@ -1,0 +1,44 @@
+questions:
+  - id: pid1
+    prompt: "A Dockerfile ends with `CMD npm start`. On `docker stop`, the app's SIGTERM handler never runs and the container is killed after 10 s. Why?"
+    options:
+      - "Docker does not send SIGTERM"
+      - "npm is PID 1 and may not forward the signal to node; start node directly with the exec form, or use an init"
+      - "SIGTERM handlers only work on Linux"
+    answer: 1
+    explanation: "Use CMD [\"node\", \"src/main.ts\"] (exec form) so node receives the signal."
+  - id: liveness
+    prompt: "Why should a liveness probe NOT check the database?"
+    options:
+      - "It would be too slow"
+      - "A database outage would make every replica fail liveness and be restarted at once, which does not fix the database"
+      - "Probes cannot open connections"
+    answer: 1
+    explanation: "Liveness asks whether the process itself is stuck; dependency checks belong in readiness."
+  - id: readiness-shutdown
+    prompt: "What should the readiness endpoint answer once shutdown has started?"
+    answers: ["503", "503 Service Unavailable", "not ready", "false"]
+    explanation: "Failing readiness tells the platform to stop routing new traffic to this replica."
+  - id: order
+    prompt: "In which order should a graceful shutdown run?"
+    options:
+      - "Close the database, then stop the HTTP server"
+      - "Mark not ready, stop accepting connections, let in-flight requests finish, close resources, exit"
+      - "process.exit(0) at once"
+    answer: 1
+    explanation: "Stop taking new work before closing what in-flight work still needs."
+  - id: grace
+    prompt: "Kubernetes has `terminationGracePeriodSeconds: 30`. What happens if the app is still shutting down after 30 seconds?"
+    options: ["Kubernetes waits", "The container gets SIGKILL: no more cleanup", "The pod is marked healthy again"]
+    answer: 1
+    explanation: "Keep the shutdown shorter than the grace period, with a forced exit as a safety net."
+  - id: omit-dev
+    prompt: "Which install command belongs in a production image?"
+    options: ["npm install", "npm ci --omit=dev", "npm update", "npm ci --include=dev"]
+    answer: 1
+    explanation: "Exactly the lockfile, without devDependencies."
+  - id: logs
+    prompt: "Where should a containerised Node.js service write its logs?"
+    options: ["To /var/log/app.log with rotation", "To stdout (and stderr), one JSON object per line, collected by the platform", "Only to an external service over HTTP"]
+    answer: 1
+    explanation: "The twelve-factor way: the process writes an event stream, the platform routes it."

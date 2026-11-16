@@ -1,0 +1,40 @@
+questions:
+  - id: argv
+    prompt: "For `node tool.ts --fast input.csv`, what is `process.argv.slice(2)`?"
+    options: ["[\"tool.ts\", \"--fast\", \"input.csv\"]", "[\"--fast\", \"input.csv\"]", "[\"input.csv\"]", "{ fast: true }"]
+    answer: 1
+    explanation: "argv[0] is the node binary and argv[1] the script; the arguments start at index 2."
+  - id: env-strings
+    prompt: "With `FEATURE=false node app.ts`, what does `if (process.env.FEATURE) enable()` do?"
+    options: ["Does not call enable()", "Calls enable(): \"false\" is a non-empty string, so it is truthy", "Throws a TypeError"]
+    answer: 1
+    explanation: "Environment variables are strings; compare explicitly, for example === \"true\"."
+  - id: stderr
+    prompt: "A CLI prints its JSON result and a \"processing 3 files...\" progress message. Where should each go?"
+    options: ["Both to stdout", "JSON to stdout, the progress message to stderr", "Both to stderr", "JSON to stderr, progress to stdout"]
+    answer: 1
+    explanation: "Keep stdout for data, so tool > out.json and tool | jq receive only the JSON."
+  - id: exit-code
+    prompt: "Why prefer `process.exitCode = 1` over `process.exit(1)`?"
+    options:
+      - "exit() is deprecated"
+      - "exit() stops at once, so output still being written (for example to a pipe) can be lost"
+      - "exitCode makes the process exit faster"
+    answer: 1
+    explanation: "With exitCode, the process ends normally when the event loop is empty, with that code."
+  - id: ctrl-c-code
+    prompt: "By convention, which exit code does a process report when Ctrl+C (SIGINT, signal 2) stopped it?"
+    answers: ["130"]
+    explanation: "128 + the signal number: 130 for SIGINT, 143 for SIGTERM."
+  - id: env-file
+    prompt: "Which built-in node flag loads variables from a .env file?"
+    answers: ["--env-file", "--env-file=.env", "node --env-file=.env"]
+    explanation: "Available since Node.js 20.6; the dotenv package is no longer required for that."
+  - id: keeps-alive
+    prompt: "A script finished its work but does not exit. What is the most likely cause?"
+    options:
+      - "Node.js waits for process.exit() to be called"
+      - "Something still keeps the event loop alive, such as an interval, an open server or socket"
+      - "stdout was not flushed"
+    answer: 1
+    explanation: "The process exits when the loop has nothing to do; clear the timer, close the handle or unref() it."

@@ -1,0 +1,24 @@
+id: nodejs.p4.async-context
+kind: lesson
+status: draft
+title: "AsyncLocalStorage, Logging and Observability"
+summary: "Carrying request context through async code with AsyncLocalStorage, request ids and correlation across services, structured JSON logging with levels, child loggers and redaction, metrics that matter for Node.js (event loop delay, heap, latency percentiles), diagnostics_channel, and distributed tracing with OpenTelemetry."
+objectives:
+  - { id: o1, text: "Use AsyncLocalStorage to make a request id (or user, tenant, trace) available anywhere below a request handler", skills: [nodejs.async-context] }
+  - { id: o2, text: "Write structured JSON logs with levels, context and redaction, and correlate them across services with a request id", skills: [nodejs.async-context] }
+  - { id: o3, text: "Choose the metrics and traces that show a Node.js service's health, including event loop delay, and explain how OpenTelemetry instruments Node.js", skills: [nodejs.async-context, nodejs.production] }
+prerequisites: [nodejs.p4.production]
+difficulty: 4
+estimated_minutes: 50
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A checkout request fails for one customer and you only have this log line: `Error: payment declined`. The service calls three others, logs with `console.log` in 40 places, and passes nothing but arguments between functions. Design the observability you would add so that next time you can find every log line of that request, in all four services, and see where its time went. Cover: how the id is created and propagated (within the process and between services), what a log line contains, what must never be logged, which metrics you would add for the Node.js process itself, and where traces fit."
+  criteria:
+    - "Creates or accepts a request id at the edge (an x-request-id or traceparent header), returns it in the response and forwards it on outgoing calls"
+    - "Uses AsyncLocalStorage (directly or through a logger mixin) so every log line gets the id without passing it as an argument"
+    - "Describes structured JSON logs with level, time, message, request id and fields, and redaction of secrets and personal data (authorization, passwords, card numbers)"
+    - "Names Node.js process metrics such as event loop delay, heap usage, GC, request rate, errors and latency percentiles"
+    - "Explains that OpenTelemetry traces (W3C traceparent) show the time spent in each service and call, and that logs can carry the trace id"

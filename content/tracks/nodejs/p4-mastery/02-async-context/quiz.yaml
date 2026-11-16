@@ -1,0 +1,40 @@
+questions:
+  - id: why-als
+    prompt: "Why can't a module-level variable `let currentRequestId` hold the current request in a Node.js server?"
+    options:
+      - "Module variables are read-only"
+      - "Requests interleave on one thread: after an await another request may have overwritten it"
+      - "It works fine"
+    answer: 1
+    explanation: "AsyncLocalStorage keeps a separate store per async flow."
+  - id: run-store
+    prompt: "Inside `als.run({ id: \"a\" }, async () => { await sleep(10); f() })`, what does `als.getStore()` return in f?"
+    options: ["undefined", "{ id: \"a\" }", "The store of whichever request ran last"]
+    answer: 1
+    explanation: "The store follows the async flow across await, timers and callbacks."
+  - id: outside
+    prompt: "What does `getStore()` return when called outside any `run()`?"
+    answers: ["undefined"]
+    explanation: "Code must cope with no context, for example at startup or in background jobs."
+  - id: structured
+    prompt: "Which log line is the most useful at scale?"
+    options:
+      - "console.log(\"Order \" + id + \" failed for user \" + user)"
+      - "{\"level\":\"error\",\"msg\":\"order failed\",\"orderId\":\"o-1\",\"requestId\":\"r-9\",\"err\":{...}}"
+      - "console.log(\"ERROR!!!\")"
+    answer: 1
+    explanation: "Structured fields can be searched and aggregated; the request id joins the lines of one request."
+  - id: redact
+    prompt: "Which of these should never appear in logs?"
+    options: ["The request path", "The response status", "The Authorization header", "The duration in milliseconds"]
+    answer: 2
+    explanation: "Tokens, passwords and personal data must be redacted."
+  - id: node-metric
+    prompt: "Which metric shows that something is blocking the event loop?"
+    options: ["Request rate", "Event loop delay (or event loop utilisation)", "Disk usage", "Number of npm dependencies"]
+    answer: 1
+    explanation: "A rising event loop delay means callbacks wait: CPU-bound work or saturation."
+  - id: traceparent
+    prompt: "Which standard HTTP header carries trace context between services in OpenTelemetry?"
+    answers: ["traceparent"]
+    explanation: "W3C Trace Context: traceparent (and tracestate)."

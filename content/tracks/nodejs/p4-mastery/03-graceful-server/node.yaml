@@ -1,0 +1,57 @@
+id: nodejs.p4.graceful-server
+kind: kata
+status: draft
+title: "Graceful Server: Request Context and Shutdown"
+summary: "Make an HTTP service production-ready: request ids carried by AsyncLocalStorage into JSON log lines, safe 500s, an access log, a readiness endpoint, and a graceful shutdown on SIGTERM that drains in-flight requests, closes idle connections and forces an exit after a timeout or a second signal."
+objectives:
+  - { id: o1, text: "Carry a request id through async code with AsyncLocalStorage and add it to structured JSON logs", skills: [nodejs.async-context] }
+  - { id: o2, text: "Answer unexpected errors with a safe 500 that has a request id, and log every request", skills: [nodejs.async-context, nodejs.errors-testing] }
+  - { id: o3, text: "Shut a server down gracefully on SIGTERM: readiness off, connections drained, a forced exit after a timeout", skills: [nodejs.production] }
+prerequisites: [nodejs.p4.async-context]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with `currentRequestId` (`requestContext.getStore()?.requestId`) and `createLogger`, then `createService` without shutdown in mind, and `installShutdown` last. In `createService`, where must `requestContext.run` start so that the handler, its errors and the access log line all see the id?
+    - |-
+      In the `"request"` listener: pick the id, `res.setHeader("x-request-id", id)`, then `requestContext.run({ requestId: id }, () => { ... })`. Inside it, register `res.on("finish", ...)` for the access log, answer `/ready` yourself, and call the handler with `Promise.resolve().then(() => handler(req, res)).catch(...)`, which catches both a throw and a rejection. For the shutdown, `server.close(callback)` plus `closeIdleConnections()`, and a `setTimeout` that calls `closeAllConnections()` and finishes with 1; a `done` flag makes sure `exit` runs once.
+    - |-
+      ```ts
+      const shutdown = (reason: string): Promise<number> => {
+        if (finished !== undefined) return finished;
+        service.ready = false;
+        logger.info("shutting down", { reason });
+        finished = new Promise<number>((resolve) => {
+          let done = false;
+          const finish = (code: number) => {
+            if (done) return;
+            done = true;
+            clearTimeout(timer);
+            exit(code);
+            resolve(code);
+          };
+          const timer = setTimeout(() => { service.server.closeAllConnections(); finish(1); }, timeoutMs);
+          service.server.close(() => finish(0));
+          service.server.closeIdleConnections();
+          // keep a way for a second signal to close everything and finish(1)
+        });
+        return finished;
+      };
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

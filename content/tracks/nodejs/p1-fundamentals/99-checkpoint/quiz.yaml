@@ -1,0 +1,68 @@
+pass_percent: 85
+questions:
+  - id: microtask-order
+    skills: [nodejs.event-loop-libuv]
+    prompt: "What does this print?"
+    code: |
+      setTimeout(() => console.log("A"), 0);
+      Promise.resolve().then(() => console.log("B"));
+      process.nextTick(() => console.log("C"));
+      console.log("D");
+    options: ["D C B A", "D B C A", "A B C D", "C D B A"]
+    answer: 0
+    explanation: "Synchronous code first, then the nextTick queue, then microtasks, then the timers phase."
+  - id: pool-saturation
+    skills: [nodejs.event-loop-libuv]
+    prompt: "A server hashes passwords with the async `crypto.pbkdf2`. With 20 logins at the same moment, why do most of them take much longer than one login alone?"
+    options:
+      - "pbkdf2 blocks the main thread"
+      - "pbkdf2 runs on libuv's thread pool, which has 4 threads by default, so the others queue"
+      - "Node.js limits HTTP requests to 4 at a time"
+    answer: 1
+    explanation: "The async version does not block the loop, but the pool is small. UV_THREADPOOL_SIZE or worker threads change that."
+  - id: callback-error
+    skills: [nodejs.async-patterns]
+    prompt: "Which version reports a failed read to the caller of `load()`?"
+    options:
+      - "function load() { try { readFile(f, (err, d) => { if (err) throw err }) } catch (e) { return null } }"
+      - "async function load() { try { return await readFile(f, \"utf8\") } catch (e) { return null } }"
+      - "function load() { readFile(f, (err, d) => { return err }) }"
+    answer: 1
+    explanation: "Only with promises and await does the error travel back to a try/catch in the caller's flow."
+  - id: floating
+    skills: [nodejs.async-patterns]
+    prompt: "A route handler calls `audit.write(entry)` (an async function) without `await` or `.catch`, and the audit database is down. What happens?"
+    options:
+      - "Nothing: the error is ignored"
+      - "The rejection is unhandled and, by default, the Node.js process exits"
+      - "The handler receives the error"
+    answer: 1
+    explanation: "Unhandled rejections end the process since Node.js 15. Await it, or handle it explicitly."
+  - id: error-event
+    skills: [nodejs.events]
+    prompt: "Which line prevents `Error: connect ECONNREFUSED` from crashing a process that uses `const socket = net.connect(port)`?"
+    options: ["socket.on(\"error\", handle)", "socket.on(\"close\", handle)", "socket.setMaxListeners(0)", "try { net.connect(port) } catch {}"]
+    answer: 0
+    explanation: "Connection errors arrive later as an error event; without a listener emit throws."
+  - id: enoent-vs-eacces
+    skills: [nodejs.fs-path]
+    prompt: "`readFile(\"/etc/app/secret.key\")` fails. Which code means the file exists but the process may not read it?"
+    options: ["ENOENT", "EACCES", "EISDIR", "EEXIST"]
+    answer: 1
+    explanation: "EACCES (or EPERM) is a permission problem; ENOENT means the file is not there."
+  - id: module-relative
+    skills: [nodejs.fs-path]
+    prompt: "Which path always points to `schema.json` next to the current ES module, whatever the working directory?"
+    options: ["\"./schema.json\"", "path.resolve(\"schema.json\")", "path.join(import.meta.dirname, \"schema.json\")", "path.join(process.cwd(), \"schema.json\")"]
+    answer: 2
+    explanation: "Relative paths and resolve use process.cwd(); import.meta.dirname is the module's own folder."
+  - id: exit-and-streams
+    skills: [nodejs.process-cli]
+    prompt: "A linter finds 3 problems. It prints them and must tell CI that the check failed. What is the best ending?"
+    options:
+      - "console.log the problems, then process.exit(0)"
+      - "console.log the problems to stdout, then process.exitCode = 1"
+      - "throw new Error(\"3 problems\")"
+      - "console.error the problems, then process.exit(1) immediately after the last write"
+    answer: 1
+    explanation: "A non-zero exit code fails the CI step; exitCode lets the output finish writing."

@@ -1,0 +1,48 @@
+questions:
+  - id: what-is-node
+    prompt: "What is Node.js?"
+    options:
+      - "A JavaScript framework for building web servers, like Express"
+      - "A runtime: the V8 engine plus libuv and a standard library that let JavaScript use files, sockets and processes"
+      - "A new programming language that compiles to JavaScript"
+      - "A browser without a window"
+    answer: 1
+    explanation: "Node.js runs JavaScript outside the browser. Express is a framework built on top of it."
+  - id: libuv-role
+    prompt: "Which part of Node.js runs the event loop and talks to the operating system for I/O?"
+    options: ["V8", "libuv", "npm", "The JIT compiler"]
+    answer: 1
+    explanation: "V8 runs JavaScript and manages memory; libuv runs the event loop, the non-blocking sockets and the thread pool."
+  - id: thread-pool
+    prompt: "A program reads many files with `fs.readFile`. Where does the actual reading happen?"
+    options:
+      - "On the main JavaScript thread, which blocks until each file is read"
+      - "On libuv's thread pool; the callback then runs on the main thread"
+      - "In a new process for each file"
+    answer: 1
+    explanation: "Most file operations have no portable async kernel API, so libuv runs them on its pool (4 threads by default)."
+  - id: blocking
+    prompt: "An HTTP server spends 2 seconds in a synchronous loop that parses a huge JSON. What happens to the other requests during those 2 seconds?"
+    options:
+      - "They are handled on other threads as usual"
+      - "They wait: no other callback can run until the loop ends"
+      - "Node.js pauses the loop to serve them"
+    answer: 1
+    explanation: "JavaScript runs on one thread. CPU-bound work blocks the event loop; move it to a worker thread."
+  - id: lts
+    prompt: "Which Node.js releases become Long Term Support (LTS) releases?"
+    options: ["Odd majors (23, 25 ...)", "Even majors (22, 24, 26 ...)", "Every major", "Only releases ending in .0"]
+    answer: 1
+    explanation: "Even majors enter LTS in October and get fixes for about 30 months; use one of them in production."
+  - id: strip-check
+    prompt: "`node app.ts` runs a file that passes a number where a string is expected. What happens?"
+    options:
+      - "Node.js refuses to run it and prints the type error"
+      - "Node.js strips the types and runs it; nothing reports the error"
+      - "Node.js converts the number to a string"
+    answer: 1
+    explanation: "Type stripping removes annotations without checking them. Run tsc (or rely on the editor) to find type errors."
+  - id: watch-flag
+    prompt: "Which node flag reruns your program whenever one of its files changes?"
+    answers: ["--watch", "node --watch"]
+    explanation: "node --watch is built in since Node.js 18.11 (stable since 22); nodemon is no longer needed for that."

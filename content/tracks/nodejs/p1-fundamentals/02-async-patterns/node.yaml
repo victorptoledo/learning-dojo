@@ -1,0 +1,24 @@
+id: nodejs.p1.async-patterns
+kind: lesson
+status: draft
+title: "Callbacks, Promises and async/await in Node.js"
+summary: "Error-first callbacks and why they led to promises, util.promisify and the promise APIs (fs/promises, timers/promises), async/await with sequential and concurrent work, unhandled rejections, AbortSignal for cancellation, and async iteration."
+objectives:
+  - { id: o1, text: "Read error-first callback APIs and convert them to promises with util.promisify or the /promises modules", skills: [nodejs.async-patterns] }
+  - { id: o2, text: "Write async code that runs independent work concurrently, limits it when needed and never leaves a promise floating", skills: [nodejs.async-patterns] }
+  - { id: o3, text: "Explain what Node.js does on an unhandled rejection, cancel work with AbortSignal and consume async iterables with for await", skills: [nodejs.async-patterns] }
+prerequisites: [nodejs.p1.event-loop-libuv]
+difficulty: 2
+estimated_minutes: 50
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Review this handler and rewrite it with async/await: `app.get('/dashboard', (req, res) => { db.getUser(req.userId, (err, user) => { if (err) throw err; db.getOrders(user.id, (err2, orders) => { db.getRecommendations(user.id, (err3, recs) => { res.json({ user, orders, recs }) }) }) }) })`. List every bug you see first. Your version must report errors to the client with a 500, run the two independent queries at the same time, and give up on the recommendations (returning an empty list) if they take longer than 300 ms."
+  criteria:
+    - "Notices that `throw err` inside a callback cannot be caught by the caller and crashes the process (or is lost), and that err2 and err3 are ignored"
+    - "Converts the callback API with util.promisify (or uses a promise API) and uses try/catch around await to send a 500"
+    - "Runs getOrders and getRecommendations concurrently with Promise.all or allSettled after getUser"
+    - "Uses AbortSignal.timeout, Promise.race with a timer, or similar to limit the recommendations to 300 ms and falls back to []"
+    - "Does not leave floating promises (every promise is awaited or handled)"

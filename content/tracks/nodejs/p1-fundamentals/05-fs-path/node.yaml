@@ -1,0 +1,23 @@
+id: nodejs.p1.fs-path
+kind: lesson
+status: draft
+title: "The File System, Paths and URLs"
+summary: "node:fs in its three styles (sync, callback, promises), reading and writing files, folders with readdir and Dirent, stat, error codes such as ENOENT and EACCES, atomic writes, file handles, glob and watch, and portable paths with node:path, file URLs and import.meta.dirname."
+objectives:
+  - { id: o1, text: "Read, write, list and inspect files and folders with node:fs/promises, choosing sync APIs only at startup", skills: [nodejs.fs-path] }
+  - { id: o2, text: "Handle file system errors by their code (ENOENT, EACCES, EEXIST, ENOTDIR) and write files atomically", skills: [nodejs.fs-path] }
+  - { id: o3, text: "Build portable paths with node:path, convert between paths and file URLs, and resolve files relative to the module", skills: [nodejs.fs-path] }
+prerequisites: [nodejs.p1.job-queue]
+difficulty: 2
+estimated_minutes: 45
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "A service stores its settings in `settings.json` next to its code and saves them on every change with `fs.writeFileSync(\"./settings.json\", JSON.stringify(settings))`. Users report three problems: the file is not found when the service is started from another folder, the file is sometimes empty or cut in half after a crash, and the request that saves settings freezes the API for a moment. Explain each cause and write the fixed `loadSettings()` and `saveSettings(settings)` with node:fs/promises, including what happens when the file does not exist yet."
+  criteria:
+    - "Explains that ./settings.json is relative to the current working directory, not to the module, and builds the path from import.meta.dirname (or import.meta.url) with path.join"
+    - "Writes atomically: to a temporary file in the same folder, then rename over the real file"
+    - "Uses the async fs/promises API in request handling instead of writeFileSync"
+    - "Handles a missing file in loadSettings by checking error.code === \"ENOENT\" and returning defaults, and rethrows other errors"

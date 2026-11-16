@@ -1,0 +1,24 @@
+id: nodejs.p2.http
+kind: lesson
+status: draft
+title: "HTTP Servers and Clients with node:http and fetch"
+summary: "How node:http works (the request and response streams, headers, status codes), routing with the URL class, reading bodies safely with limits, keep-alive and server timeouts, the fetch client with timeouts, and what frameworks such as Express and Fastify add on top."
+objectives:
+  - { id: o1, text: "Write an HTTP server with node:http: route by method and path, send status codes, headers and JSON", skills: [nodejs.http] }
+  - { id: o2, text: "Read request bodies as streams with a size limit and a content-type check, and configure server timeouts", skills: [nodejs.http, nodejs.streams-buffers] }
+  - { id: o3, text: "Call other services with fetch and a timeout, and explain what frameworks like Express and Fastify add", skills: [nodejs.http] }
+prerequisites: [nodejs.p2.log-pipeline]
+difficulty: 3
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "Your service exposes `POST /webhooks/payment` written with node:http, and calls a payment provider with fetch to confirm each event. During an incident you see: requests hanging forever when the provider is slow, the process memory climbing when someone posts a 2 GB body, a crash \"Cannot set headers after they are sent to the client\", and clients reporting 200 OK for malformed JSON. Explain each problem and describe the fixes in the handler and in the server configuration, with the status codes you would answer."
+  criteria:
+    - "Adds a timeout to the outgoing fetch with AbortSignal.timeout and answers 502 or 504 when the provider fails or is too slow"
+    - "Limits the request body size while reading the stream and answers 413, and checks the content type (415)"
+    - "Explains that headers were sent twice (two code paths writing a response, or writing after an error) and ensures exactly one response per request, for example with return after sending or a headersSent check"
+    - "Parses JSON in try/catch and answers 400 (or 422 for valid JSON with wrong fields)"
+    - "Mentions server-level timeouts such as server.requestTimeout or headersTimeout"

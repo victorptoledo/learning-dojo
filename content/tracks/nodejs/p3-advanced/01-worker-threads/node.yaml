@@ -1,0 +1,24 @@
+id: nodejs.p3.worker-threads
+kind: lesson
+status: draft
+title: "Worker Threads for CPU-Bound Work"
+summary: "When to use worker threads (CPU-bound work) and when not (I/O), creating workers and exchanging messages with postMessage and the structured clone algorithm, transferring ArrayBuffers, SharedArrayBuffer and Atomics, worker errors and exits, pools such as Piscina, and how workers compare with child processes and the cluster module."
+objectives:
+  - { id: o1, text: "Decide between the main thread, worker threads, child processes and several processes for a given workload", skills: [nodejs.worker-threads] }
+  - { id: o2, text: "Start workers, send messages both ways, transfer buffers instead of copying them, and handle worker errors and exits", skills: [nodejs.worker-threads] }
+  - { id: o3, text: "Explain why real programs reuse workers in a pool and what SharedArrayBuffer and Atomics are for", skills: [nodejs.worker-threads] }
+prerequisites: [nodejs.p2.checkpoint]
+difficulty: 3
+estimated_minutes: 55
+xp: 100
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: "An image service receives uploads and makes three thumbnails of each with a pure JavaScript resizing library; each upload takes about 400 ms of CPU. Under load, health checks time out and the service gets restarted. A teammate proposes `new Worker(\"./resize.js\")` for every upload. Explain why the health checks fail, what is wrong with one new worker per upload, and design the fix: how many workers, how images travel to and from them without copying, what happens when a worker crashes, and how the service avoids accepting more work than it can do."
+  criteria:
+    - "Explains that 400 ms of synchronous CPU work per upload blocks the event loop, so health checks and other requests wait"
+    - "Explains that starting a worker costs tens of milliseconds and memory, so a fixed pool (about the number of cores) is reused instead"
+    - "Transfers the image buffers (transfer list / ArrayBuffer) instead of copying them with structured clone"
+    - "Handles a worker's error or exit by failing that job and replacing the worker"
+    - "Limits the queue (or answers 503/429 when it is full) so memory and latency stay bounded"

@@ -1,0 +1,44 @@
+questions:
+  - id: error-first
+    prompt: "In Node.js's callback convention, what is the first parameter of the callback?"
+    options: ["The result", "An error, or null when there is none", "The event name", "A done() function"]
+    answer: 1
+    explanation: "Error-first callbacks: (err, value). Check err before using value."
+  - id: throw-in-callback
+    prompt: "Code inside an fs.readFile callback does `throw err`. A `try { readFile(...) } catch {}` surrounds the call. What happens?"
+    options:
+      - "The catch block handles the error"
+      - "The error is not caught there: it becomes an uncaught exception and the process stops"
+      - "readFile retries the read"
+    answer: 1
+    explanation: "The callback runs later, from the event loop, long after the try block has ended."
+  - id: promisify
+    prompt: "Which function turns an error-first callback API into one that returns a promise?"
+    answers: ["util.promisify", "promisify"]
+    explanation: "util.promisify(fn) works for any function whose last argument is an error-first callback."
+  - id: concurrent
+    prompt: "`getOrders(id)` and `getInvoices(id)` each take 200 ms and do not depend on each other. Which code takes about 200 ms in total?"
+    options:
+      - "const a = await getOrders(id); const b = await getInvoices(id);"
+      - "const [a, b] = await Promise.all([getOrders(id), getInvoices(id)]);"
+      - "for (const f of [getOrders, getInvoices]) await f(id);"
+    answer: 1
+    explanation: "Sequential awaits add up the waits; Promise.all starts both and waits for the slower one."
+  - id: unhandled
+    prompt: "What does Node.js 26 do by default when a promise rejects and nothing handles it?"
+    options: ["Ignores it silently", "Prints a warning and continues", "Raises it as an uncaught exception, which ends the process", "Retries the promise"]
+    answer: 2
+    explanation: "The default --unhandled-rejections=throw mode, since Node.js 15."
+  - id: foreach-async
+    prompt: "`items.forEach(async (item) => { await save(item) })` is followed by `console.log(\"done\")`. What is wrong?"
+    options:
+      - "Nothing"
+      - "forEach does not wait for the async callbacks: \"done\" prints before the saves finish, and their errors are unhandled"
+      - "async callbacks are not allowed in forEach"
+    answer: 1
+    explanation: "Use for...of with await, or await Promise.all(items.map(save))."
+  - id: abort
+    prompt: "Which expression gives a signal that aborts automatically after 2 seconds?"
+    options: ["new AbortController(2000)", "AbortSignal.timeout(2000)", "setTimeout(abort, 2000)", "Promise.timeout(2000)"]
+    answer: 1
+    explanation: "AbortSignal.timeout(ms) aborts with a TimeoutError; fetch and many Node.js APIs accept it."
