@@ -1,0 +1,13 @@
+id: spring-boot.sidequest.wallet
+level: 2
+title: "Wallet with transfers"
+summary: "A wallet API on Spring Data JPA and H2: accounts that survive a restart, transfers that move money all or nothing and stay right under concurrent requests, a paged ledger, monthly statements and reversals."
+statement: README.md
+requires: ["spring-boot:P2", "sql:P1"]
+skills: [spring.data-jpa, spring.jpa-queries, spring.validation-errors, spring.testing, sql.transactions, sql.constraints-keys]
+runner: { image: dojo-java, timeout_secs: 300 }
+stages:
+  - { id: accounts, title: "Accounts in the database" }
+  - { id: transfers, title: "Transfers, all or nothing, under load" }
+  - { id: ledger, title: "A paged ledger and a report in few queries" }
+  - { id: statements-and-reversals, title: "Monthly statements and reversals" }
