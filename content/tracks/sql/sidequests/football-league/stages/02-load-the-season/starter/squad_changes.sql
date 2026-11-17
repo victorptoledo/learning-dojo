@@ -1,0 +1,1 @@
+-- todo: apply import_squad_changes to players in one INSERT ... ON CONFLICT.

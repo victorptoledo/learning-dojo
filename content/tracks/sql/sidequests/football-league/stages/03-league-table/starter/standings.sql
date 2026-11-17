@@ -1,0 +1,1 @@
+-- todo: the league table, one row per team, in the order of the standings.
