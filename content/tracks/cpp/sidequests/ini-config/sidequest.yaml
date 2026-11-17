@@ -1,0 +1,13 @@
+id: cpp.sidequest.ini-config
+level: 2
+title: "INI config reader"
+summary: "A `Config` that parses INI text into std::expected with the line of each error, reads typed values through a concept, follows @include files without cycles, and writes and merges documents."
+statement: README.md
+requires: ["cpp:P2"]
+skills: [cpp.error-handling, cpp.templates-concepts, cpp.move-semantics, cpp.raii-memory, cpp.containers-algorithms]
+runner: { image: dojo-cpp, timeout_secs: 180 }
+stages:
+  - { id: parse, title: "Sections, keys and errors with their line" }
+  - { id: typed-values, title: "Typed values through a concept" }
+  - { id: files-and-includes, title: "Files and @include without cycles" }
+  - { id: write-and-merge, title: "Writing, setting and merging" }
