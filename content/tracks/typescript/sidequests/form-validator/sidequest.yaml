@@ -1,0 +1,12 @@
+id: typescript.sidequest.form-validator
+level: 1
+title: "Form validator"
+summary: "A small validation library for form data: rules as a discriminated union with one message each, a typed schema that knows its field names, then rules that compare fields and rules of your own."
+statement: README.md
+requires: ["typescript:P1"]
+skills: [typescript.unions-narrowing, typescript.generics, typescript.interfaces-classes, typescript.structural-typing]
+runner: { image: dojo-node, timeout_secs: 90 }
+stages:
+  - { id: field-rules, title: "Rules and messages for one field" }
+  - { id: form-schema, title: "A typed schema for the whole form" }
+  - { id: cross-field-rules, title: "Rules that compare fields, and your own rules" }
