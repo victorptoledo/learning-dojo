@@ -1,0 +1,14 @@
+id: sql.sidequest.seat-booking
+level: 4
+title: "Seat booking"
+summary: "A theatre's box office that never oversells under concurrent sessions: unique and exclusion constraints, ON CONFLICT, row locks on the right row, SKIP LOCKED, and tests that race real sessions against each other."
+statement: README.md
+requires: ["sql:P4"]
+skills: [sql.transactions, sql.constraints-keys, sql.dml, sql.applications, postgresql.mvcc]
+runner: { image: dojo-sql, timeout_secs: 240 }
+stages:
+  - { id: book-a-seat, title: "Book a seat, once" }
+  - { id: standing-room, title: "Standing room without overselling" }
+  - { id: ticket-limit, title: "Four tickets per customer" }
+  - { id: rehearsal-rooms, title: "Rehearsal rooms by the hour" }
+  - { id: waiting-list, title: "A waiting list two box offices share" }
