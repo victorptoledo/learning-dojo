@@ -1,0 +1,13 @@
+id: spring-boot.sidequest.secure-api
+level: 3
+title: "Secure API"
+summary: "Spring Security for a real API: sign-up with BCrypt passwords, session login with CSRF tokens and session fixation protection, roles and ownership rules, then lockout after failed logins, an audit trail, password change and security headers."
+statement: README.md
+requires: ["spring-boot:P3", "cyber-security:P1"]
+skills: [spring.security, spring.validation-errors, spring.async-caching, cyber-security.authn-access-control, cyber-security.cryptography-secrets, cyber-security.web-hardening]
+runner: { image: dojo-java, timeout_secs: 300 }
+stages:
+  - { id: users-and-passwords, title: "Sign-up and passwords that are never stored" }
+  - { id: sessions-and-csrf, title: "Session login, logout and CSRF tokens" }
+  - { id: roles-and-ownership, title: "Roles, owners and members" }
+  - { id: hardening, title: "Lockout, audit, password change and headers" }
