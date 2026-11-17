@@ -1,0 +1,13 @@
+id: go.sidequest.backup-cli
+level: 2
+title: "Backup CLI"
+summary: "A `backup` command that copies a folder, then only what changed, keeps permissions and times, restores an identical copy, verifies it, and skips what a .backupignore lists."
+statement: README.md
+requires: ["go:P2", "linux:P1", "git:P1"]
+skills: [go.errors-idiomatic, go.interfaces-duck-typing, go.testing, linux.files, linux.permissions-posix, git.staging-commits]
+runner: { image: dojo-go, timeout_secs: 150 }
+stages:
+  - { id: copy, title: "Copy a folder" }
+  - { id: incremental, title: "Only what changed" }
+  - { id: restore-and-verify, title: "Restore and verify" }
+  - { id: ignore-file, title: "A .backupignore like .gitignore" }

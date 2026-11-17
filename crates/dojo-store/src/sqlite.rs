@@ -290,6 +290,12 @@ impl EventRow {
                 xp,
                 on,
             }),
+            "sidequest_stage_passed" => Ok(ProgressEvent::SidequestStagePassed {
+                track_id,
+                stage_id: node_id,
+                xp,
+                on,
+            }),
             other => Err(format!("unknown event kind `{other}`").into()),
         }
     }
@@ -383,6 +389,12 @@ fn insert_event(connection: &Connection, event: &ProgressEvent) -> Result<(), St
             xp,
             on,
         } => NewRow::plain("practice_completed", track_id, practice_id, *xp, *on),
+        ProgressEvent::SidequestStagePassed {
+            track_id,
+            stage_id,
+            xp,
+            on,
+        } => NewRow::plain("sidequest_stage_passed", track_id, stage_id, *xp, *on),
     };
     connection.execute(
         "INSERT INTO event (kind, track_id, node_id, xp, occurred_on, recorded_at,

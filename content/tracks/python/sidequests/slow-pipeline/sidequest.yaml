@@ -1,0 +1,14 @@
+id: python.sidequest.slow-pipeline
+level: 4
+title: "The slow pipeline made fast"
+summary: "A correct but painfully slow orders pipeline: measure it, find each bottleneck, fix it, and prove the result is identical and within a time or memory budget."
+statement: README.md
+requires: ["python:P4"]
+skills: [python.performance, python.generators-memory, python.collections, python.internals]
+runner: { image: dojo-python, timeout_secs: 240 }
+stages:
+  - { id: dedup, title: "Unique customers" }
+  - { id: join, title: "The join" }
+  - { id: counting, title: "Counting products" }
+  - { id: streaming, title: "Reading without loading" }
+  - { id: remote-calls, title: "Fewer calls to a slow service" }

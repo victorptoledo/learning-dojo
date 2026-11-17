@@ -444,3 +444,174 @@ fn every_rust_node_is_ready_for_learners() {
 
     assert!(unfinished.is_empty(), "{unfinished:?}");
 }
+
+// ---- sidequests ---------------------------------------------------------------
+
+fn sidequest_yaml(id: &str, level: u8, requires: &str, stages: &[&str]) -> String {
+    let stages: String = stages
+        .iter()
+        .map(|stage| format!("  - {{ id: {stage}, title: Stage {stage} }}\n"))
+        .collect();
+    format!(
+        "id: {id}\nlevel: {level}\ntitle: A project\nsummary: Build it.\nstatement: README.md\nrequires: [{requires}]\nskills: [demo.basics]\nrunner: {{ image: dojo-rust, timeout_secs: 60 }}\nstages:\n{stages}"
+    )
+}
+
+/// A sidequest with stages `one`, `two`, `three`; `test_names` gives each stage's test file.
+fn write_sidequest(fixture: &Fixture, slug: &str, yaml: &str, test_names: [&str; 3]) {
+    let dir = format!("tracks/demo/sidequests/{slug}");
+    fixture.write(&format!("{dir}/sidequest.yaml"), yaml);
+    fixture.write(&format!("{dir}/README.md"), "# Project\n");
+    for (index, (stage, test)) in ["one", "two", "three"].iter().zip(test_names).enumerate() {
+        let stage_dir = format!("{dir}/stages/{:02}-{stage}", index + 1);
+        fixture.write(&format!("{stage_dir}/README.md"), &format!("## {stage}\n"));
+        fixture.write(&format!("{stage_dir}/tests/{test}"), "#[test] fn t() {}\n");
+        fixture.write(
+            &format!("{stage_dir}/reference/src/main.rs"),
+            "fn main() {}\n",
+        );
+    }
+    fixture.write(
+        &format!("{dir}/stages/01-one/starter/Cargo.toml"),
+        "[package]\n",
+    );
+}
+
+/// A node in phase p1, so `demo:P1` has evidence (a phase without a checkpoint).
+fn track_with_p1(fixture: &Fixture) {
+    fixture.node(
+        "p1-fundamentals/01-loops",
+        &node_yaml("demo.p1.loops", &[], "demo.basics"),
+    );
+}
+
+#[test]
+fn a_sidequest_loads_with_its_stages_in_order() {
+    let fixture = Fixture::new();
+    track_with_p1(&fixture);
+    write_sidequest(
+        &fixture,
+        "calculator",
+        &sidequest_yaml(
+            "demo.sidequest.calculator",
+            1,
+            "demo:P1",
+            &["one", "two", "three"],
+        ),
+        ["one.rs", "two.rs", "three.rs"],
+    );
+
+    let content = fixture.load();
+    let errors = errors(&content);
+    assert!(errors.is_empty(), "{errors:?}");
+    let quest = content
+        .catalog
+        .sidequest("demo.sidequest.calculator")
+        .unwrap();
+    assert_eq!(quest.track_id, "demo");
+    assert_eq!(quest.level, 1);
+    assert_eq!(quest.statement, "# Project\n");
+    let ids: Vec<&str> = quest.stages.iter().map(|stage| stage.id.as_str()).collect();
+    assert_eq!(
+        ids,
+        [
+            "demo.sidequest.calculator.one",
+            "demo.sidequest.calculator.two",
+            "demo.sidequest.calculator.three"
+        ]
+    );
+    assert!(quest.stages[0].kata.starter_dir.is_dir());
+    assert!(
+        !quest.stages[1].kata.starter_dir.exists(),
+        "later starters are optional"
+    );
+    assert_eq!(quest.stages[2].kata.statement, "## three\n");
+    assert_eq!(quest.requires[0].to_string(), "demo:P1");
+}
+
+#[test]
+fn sidequest_rules_catch_ids_levels_requirements_and_clashing_tests() {
+    let fixture = Fixture::new();
+    track_with_p1(&fixture);
+    write_sidequest(
+        &fixture,
+        "first",
+        &sidequest_yaml(
+            "demo.sidequest.wrong",
+            2,
+            "demo:P1, nope:P1, demo:P2",
+            &["one", "two", "three"],
+        ),
+        ["same.rs", "same.rs", "three.rs"],
+    );
+
+    let errors = errors(&fixture.load()).join("\n");
+    for expected in [
+        "must be `demo.sidequest.first`",
+        "the first requirement must be `demo:P2`",
+        "`nope:P1`: unknown track",
+        "track `demo` is required twice",
+        "`demo:P2`: the track has no node for it",
+        "stages `one` and `two` both have tests/same.rs",
+    ] {
+        assert!(
+            errors.contains(expected),
+            "missing {expected:?} in:\n{errors}"
+        );
+    }
+}
+
+#[test]
+fn a_sidequest_needs_every_stage_folder_and_a_first_starter() {
+    let fixture = Fixture::new();
+    track_with_p1(&fixture);
+    let dir = "tracks/demo/sidequests/broken";
+    fixture.write(
+        &format!("{dir}/sidequest.yaml"),
+        &sidequest_yaml(
+            "demo.sidequest.broken",
+            1,
+            "demo:P1",
+            &["one", "two", "three"],
+        ),
+    );
+    fixture.write(&format!("{dir}/README.md"), "# Project\n");
+    fixture.write(&format!("{dir}/stages/01-one/README.md"), "one\n");
+    fixture.write(&format!("{dir}/stages/01-one/tests/a.rs"), "x\n");
+    fixture.write(&format!("{dir}/stages/01-one/reference/a.rs"), "x\n");
+
+    let content = fixture.load();
+    let errors = errors(&content).join("\n");
+    assert!(
+        errors.contains("kata starter folder is missing"),
+        "{errors}"
+    );
+    assert!(
+        errors.contains("stages/02-two: stage folder is missing"),
+        "{errors}"
+    );
+    assert!(
+        content.catalog.sidequests.is_empty(),
+        "a broken sidequest is skipped"
+    );
+}
+
+#[test]
+fn sidequest_tracks_have_one_sidequest_per_level_with_contract_stages() {
+    let content = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../content");
+    let catalog = load(&content).unwrap().catalog;
+    for track in ["rust", "java", "python", "go"] {
+        let quests = catalog.sidequests_of(track);
+        let levels: Vec<u8> = quests.iter().map(|quest| quest.level).collect();
+        assert_eq!(levels, [1, 2, 3, 4], "{track}");
+        let sizes: Vec<usize> = quests.iter().map(|quest| quest.stages.len()).collect();
+        assert_eq!(sizes, [3, 4, 4, 5], "{track}");
+        for quest in quests {
+            assert_eq!(quest.requires[0].track, track);
+            for stage in &quest.stages {
+                assert!(stage.kata.tests_dir.is_dir(), "{}", stage.id);
+                assert!(stage.kata.reference_dir.is_dir(), "{}", stage.id);
+            }
+        }
+    }
+}

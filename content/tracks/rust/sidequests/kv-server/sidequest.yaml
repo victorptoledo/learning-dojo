@@ -1,0 +1,14 @@
+id: rust.sidequest.kv-server
+level: 4
+title: "TCP key-value server"
+summary: "`kvd`, a key-value server with its own line protocol, many clients at once, a crash-safe data file, expiry, limits and a clean shutdown."
+statement: README.md
+requires: ["rust:P4", "linux:P1"]
+skills: [rust.concurrency, rust.production, rust.option-result, linux.files, linux.permissions-posix]
+runner: { image: dojo-rust, timeout_secs: 300 }
+stages:
+  - { id: protocol, title: "A line protocol over TCP" }
+  - { id: many-clients, title: "Many clients at once" }
+  - { id: persistence, title: "A data file that survives a crash" }
+  - { id: expiry-and-limits, title: "Expiry and limits" }
+  - { id: operations, title: "Stats, shutdown and configuration" }

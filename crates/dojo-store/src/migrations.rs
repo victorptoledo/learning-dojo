@@ -100,6 +100,29 @@ const MIGRATIONS: &[&str] = &[
      DROP TABLE event;
      ALTER TABLE event_v6 RENAME TO event;
      CREATE INDEX event_by_node ON event (track_id, node_id);",
+    // 7: sidequest stages passed. node_id holds the stage id.
+    "CREATE TABLE event_v7 (
+         id          INTEGER PRIMARY KEY AUTOINCREMENT,
+         kind        TEXT    NOT NULL CHECK (kind IN ('node_completed', 'node_reset',
+                         'node_placed_out', 'belt_exam_assigned', 'placement_revoked',
+                         'hint_revealed', 'review_answered', 'practice_completed',
+                         'sidequest_stage_passed')),
+         track_id    TEXT    NOT NULL,
+         node_id     TEXT    NOT NULL,
+         xp          INTEGER NOT NULL CHECK (xp >= 0),
+         occurred_on TEXT    NOT NULL,
+         recorded_at TEXT    NOT NULL,
+         hint_level  INTEGER CHECK (hint_level >= 1),
+         question_id TEXT,
+         correct     INTEGER CHECK (correct IN (0, 1))
+     );
+     INSERT INTO event_v7 (id, kind, track_id, node_id, xp, occurred_on, recorded_at,
+                           hint_level, question_id, correct)
+         SELECT id, kind, track_id, node_id, xp, occurred_on, recorded_at,
+                hint_level, question_id, correct FROM event;
+     DROP TABLE event;
+     ALTER TABLE event_v7 RENAME TO event;
+     CREATE INDEX event_by_node ON event (track_id, node_id);",
 ];
 
 pub fn apply(connection: &mut Connection) -> Result<()> {

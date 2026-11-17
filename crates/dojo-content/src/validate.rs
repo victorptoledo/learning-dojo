@@ -14,6 +14,7 @@ pub fn check_catalog(catalog: &Catalog, report: &mut Report) {
     check_unique_nodes(catalog, report);
     check_skill_mappings(catalog, report);
     check_careers(catalog, report);
+    check_sidequests(catalog, report);
     for track in &catalog.tracks {
         check_phases(track, report);
         check_belts(track, report);
@@ -87,6 +88,141 @@ fn check_career_requirement(
 
 fn track_location(track: &Track) -> String {
     format!("tracks/{}", track.id)
+}
+
+/// Stages by sidequest level: N1 is small, N2 and N3 medium, N4 large.
+const STAGES_BY_LEVEL: [usize; 4] = [3, 4, 4, 5];
+
+/// Sidequests (D030): one per level and track, unlocked by `track:PN` requirements whose
+/// main track comes first at the sidequest's own level and the others at most that.
+fn check_sidequests(catalog: &Catalog, report: &mut Report) {
+    let mut levels = BTreeSet::new();
+    for quest in &catalog.sidequests {
+        let location = format!(
+            "tracks/{}/sidequests/{}/sidequest.yaml",
+            quest.track_id, quest.slug
+        );
+        if catalog.track(&quest.track_id).is_none() {
+            report.error(&location, format!("unknown track `{}`", quest.track_id));
+        }
+        if !levels.insert((quest.track_id.as_str(), quest.level)) {
+            report.error(
+                &location,
+                format!(
+                    "track `{}` already has a level {} sidequest",
+                    quest.track_id, quest.level
+                ),
+            );
+        }
+        check_sidequest_requirements(catalog, quest, &location, report);
+        for skill in &quest.skills {
+            if !catalog.skills.contains_key(skill) {
+                report.error(&location, format!("unknown skill `{skill}`"));
+            }
+        }
+        let expected = STAGES_BY_LEVEL[usize::from(quest.level.clamp(1, 4)) - 1];
+        if quest.stages.len() != expected {
+            report.warning(
+                &location,
+                format!(
+                    "a level {} sidequest should have {expected} stages, not {}",
+                    quest.level,
+                    quest.stages.len()
+                ),
+            );
+        }
+        check_stage_test_names(quest, &location, report);
+    }
+}
+
+fn check_sidequest_requirements(
+    catalog: &Catalog,
+    quest: &dojo_core::Sidequest,
+    location: &str,
+    report: &mut Report,
+) {
+    match quest.requires.first() {
+        Some(main) if main.track == quest.track_id && main.milestone.level() == quest.level => {}
+        _ => report.error(
+            location,
+            format!(
+                "the first requirement must be `{}:P{}` (the main track at the sidequest's level)",
+                quest.track_id, quest.level
+            ),
+        ),
+    }
+    let mut tracks = BTreeSet::new();
+    for requirement in &quest.requires {
+        if !tracks.insert(requirement.track.as_str()) {
+            report.error(
+                location,
+                format!("track `{}` is required twice", requirement.track),
+            );
+        }
+        let Some(track) = catalog.track(&requirement.track) else {
+            report.error(
+                location,
+                format!("requirement `{requirement}`: unknown track"),
+            );
+            continue;
+        };
+        if requirement.milestone.level() > quest.level {
+            report.error(
+                location,
+                format!(
+                    "requirement `{requirement}` is above the sidequest's level {}",
+                    quest.level
+                ),
+            );
+        }
+        if requirement.evidence(track).is_empty() {
+            report.error(
+                location,
+                format!("requirement `{requirement}`: the track has no node for it"),
+            );
+        }
+    }
+}
+
+/// Stages checked in the same image run their tests together, so two stages must not
+/// ship a test file with the same path.
+fn check_stage_test_names(quest: &dojo_core::Sidequest, location: &str, report: &mut Report) {
+    let mut seen: BTreeMap<(String, std::path::PathBuf), &str> = BTreeMap::new();
+    for stage in &quest.stages {
+        for file in relative_files(&stage.kata.tests_dir) {
+            let key = (stage.kata.runner.image.clone(), file.clone());
+            if let Some(other) = seen.insert(key, &stage.slug) {
+                report.error(
+                    location,
+                    format!(
+                        "stages `{other}` and `{}` both have tests/{}",
+                        stage.slug,
+                        file.display()
+                    ),
+                );
+            }
+        }
+    }
+}
+
+fn relative_files(dir: &std::path::Path) -> Vec<std::path::PathBuf> {
+    let mut files = Vec::new();
+    let mut pending = vec![dir.to_path_buf()];
+    while let Some(current) = pending.pop() {
+        let Ok(entries) = std::fs::read_dir(&current) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                pending.push(path);
+            } else if let Ok(relative) = path.strip_prefix(dir) {
+                files.push(relative.to_path_buf());
+            }
+        }
+    }
+    files.sort();
+    files
 }
 
 fn node_location(track: &Track, node_id: &str) -> String {

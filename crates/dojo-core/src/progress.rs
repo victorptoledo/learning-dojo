@@ -107,6 +107,14 @@ pub enum ProgressEvent {
         xp: u32,
         on: NaiveDate,
     },
+    /// A sidequest stage passed for the first time. It gives sidequest XP, opens the next
+    /// stage and changes nothing else: no completion, no unlocking, no belt.
+    SidequestStagePassed {
+        track_id: String,
+        stage_id: String,
+        xp: u32,
+        on: NaiveDate,
+    },
 }
 
 /// Why a hint cannot be opened.
@@ -183,6 +191,8 @@ pub struct Profile {
     pub last_trained: Option<NaiveDate>,
     /// XP from spaced reviews and practice katas; it never counts towards belts.
     pub practice_xp: u32,
+    /// XP from sidequest stages; it never counts towards belts either.
+    pub sidequest_xp: u32,
     current_streak: u32,
     completed: HashMap<String, HashMap<String, Completion>>,
     placed_out: HashMap<String, HashSet<String>>,
@@ -193,6 +203,8 @@ pub struct Profile {
     cards: HashMap<CardKey, Card>,
     /// Practice (remedial) katas passed at least once, by id.
     practice_done: HashSet<String>,
+    /// Sidequest stages passed at least once, by id.
+    stages_passed: HashSet<String>,
 }
 
 impl Profile {
@@ -204,6 +216,7 @@ impl Profile {
             best_streak: baseline.best,
             last_trained: baseline.last_trained,
             practice_xp: 0,
+            sidequest_xp: 0,
             current_streak: baseline.current,
             completed: HashMap::new(),
             placed_out: HashMap::new(),
@@ -211,7 +224,28 @@ impl Profile {
             hints: HashMap::new(),
             cards: HashMap::new(),
             practice_done: HashSet::new(),
+            stages_passed: HashSet::new(),
         }
+    }
+
+    pub fn stage_passed(&self, stage_id: &str) -> bool {
+        self.stages_passed.contains(stage_id)
+    }
+
+    /// The event for passing sidequest stage `stage_id`, or `None` when it was already
+    /// passed (sidequest XP is given once per stage).
+    pub fn pass_stage(
+        &self,
+        track_id: &str,
+        stage_id: &str,
+        on: NaiveDate,
+    ) -> Option<ProgressEvent> {
+        (!self.stage_passed(stage_id)).then(|| ProgressEvent::SidequestStagePassed {
+            track_id: track_id.to_string(),
+            stage_id: stage_id.to_string(),
+            xp: crate::sidequest::SIDEQUEST_STAGE_XP,
+            on,
+        })
     }
 
     pub fn practice_done(&self, practice_id: &str) -> bool {
@@ -336,6 +370,14 @@ impl Profile {
             } => {
                 if self.practice_done.insert(practice_id.clone()) {
                     self.practice_xp += xp;
+                }
+                self.record_training(*on);
+            }
+            ProgressEvent::SidequestStagePassed {
+                stage_id, xp, on, ..
+            } => {
+                if self.stages_passed.insert(stage_id.clone()) {
+                    self.sidequest_xp += xp;
                 }
                 self.record_training(*on);
             }

@@ -1,0 +1,22 @@
+# Half the lookups miss, all the time: the alert must fire once `for` has passed.
+rule_files: [../alerts.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'cache_hits_total{job="api"}'
+        values: '0+50x30'
+      - series: 'cache_misses_total{job="api"}'
+        values: '0+50x30'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: CacheHitRatioLow
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: CacheHitRatioLow
+        exp_alerts:
+          - exp_labels:
+              job: api
+              severity: ticket
+            exp_annotations:
+              summary: api cache hit ratio below 80%

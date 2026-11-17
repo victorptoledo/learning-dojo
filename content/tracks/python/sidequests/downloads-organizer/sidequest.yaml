@@ -1,0 +1,12 @@
+id: python.sidequest.downloads-organizer
+level: 1
+title: "Downloads organizer"
+summary: "A command that tidies a downloads folder into one folder per kind of file, handles name clashes and dry runs, and reports what is there."
+statement: README.md
+requires: ["python:P1"]
+skills: [python.collections, python.functions, python.classes, python.data-model]
+runner: { image: dojo-python, timeout_secs: 120 }
+stages:
+  - { id: sort-by-type, title: "One folder per kind of file" }
+  - { id: clashes-and-dry-run, title: "Name clashes, dry runs and errors" }
+  - { id: rules-and-report, title: "Your own rules and a report" }

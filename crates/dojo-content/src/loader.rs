@@ -2,8 +2,8 @@ use crate::front_matter;
 use crate::manifest::{
     BeltManifest, BridgeFrontMatter, CareerManifest, CareerRequirementManifest, InterviewManifest,
     KataManifest, NodeManifest, ObjectiveManifest, PhaseManifest, PlacementManifest,
-    QuestionManifest, QuizManifest, RemedialManifest, RequirementManifest, SkillsManifest,
-    TrackManifest,
+    QuestionManifest, QuizManifest, RemedialManifest, RequirementManifest, RunnerManifest,
+    SidequestManifest, SkillsManifest, TrackManifest,
 };
 use crate::report::Report;
 use crate::schema::{self, Schemas};
@@ -11,8 +11,8 @@ use anyhow::{Result, bail};
 use dojo_core::{
     Belt, Bridge, Career, CareerRequirement, Catalog, DEFAULT_PASS_PERCENT, EarlyStop, EntryOption,
     Exercise, Kata, Node, Objective, Phase, PhaseRule, PlacementConfig, PlacementItem, Question,
-    QuestionKind, Quiz, Remedial, Requirement, RequirementKind, RunnerSpec, Skill, SkillId, Stage,
-    Track,
+    QuestionKind, Quiz, Remedial, Requirement, RequirementKind, RunnerSpec, Sidequest,
+    SidequestRequirement, SidequestStage, Skill, SkillId, Stage, Track,
 };
 use regex::Regex;
 use serde::de::DeserializeOwned;
@@ -27,6 +27,11 @@ static NODE_FOLDER: LazyLock<Regex> =
 static REMEDIAL_SLUG: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^[a-z0-9]+(?:-[a-z0-9]+)*$").expect("valid regex"));
 
+/// The folder of a track that holds its sidequests, one subfolder each.
+pub const SIDEQUESTS_FOLDER: &str = "sidequests";
+/// The statement of a sidequest stage, inside its folder.
+const STAGE_STATEMENT: &str = "README.md";
+
 #[derive(Clone, Copy)]
 enum FileKind {
     Track,
@@ -37,6 +42,7 @@ enum FileKind {
     Placement,
     Interview,
     Career,
+    Sidequest,
 }
 
 pub fn load_catalog(root: &Path, report: &mut Report) -> Result<Catalog> {
@@ -52,10 +58,12 @@ pub fn load_catalog(root: &Path, report: &mut Report) -> Result<Catalog> {
     let skills = reader.load_skills();
     let tracks = reader.load_tracks();
     let careers = reader.load_careers();
+    let sidequests = reader.load_sidequests();
     Ok(Catalog {
         tracks,
         skills,
         careers,
+        sidequests,
     })
 }
 
@@ -466,6 +474,143 @@ impl ContentReader<'_> {
             .collect()
     }
 
+    // ---- sidequests ---------------------------------------------------------
+
+    /// Every `tracks/<track>/sidequests/<slug>/sidequest.yaml`.
+    fn load_sidequests(&mut self) -> Vec<Sidequest> {
+        subdirectories(&self.root.join("tracks"))
+            .into_iter()
+            .flat_map(|track_dir| subdirectories(&track_dir.join(SIDEQUESTS_FOLDER)))
+            .filter_map(|dir| self.load_sidequest(&dir))
+            .collect()
+    }
+
+    fn load_sidequest(&mut self, dir: &Path) -> Option<Sidequest> {
+        let manifest_path = dir.join("sidequest.yaml");
+        if !manifest_path.is_file() {
+            self.report
+                .error(self.relative(dir), "missing sidequest.yaml");
+            return None;
+        }
+        let manifest: SidequestManifest =
+            self.read_manifest(&manifest_path, FileKind::Sidequest)?;
+        let location = self.relative(&manifest_path);
+        let slug = folder_name(dir);
+        let track_id = dir
+            .parent()
+            .and_then(Path::parent)
+            .map(folder_name)
+            .unwrap_or_default();
+        let expected_id = format!("{track_id}.sidequest.{slug}");
+        if manifest.id != expected_id {
+            self.report.error(
+                &location,
+                format!(
+                    "sidequest id `{}` must be `{expected_id}` (track.sidequest.folder)",
+                    manifest.id
+                ),
+            );
+        }
+        let requires = manifest
+            .requires
+            .iter()
+            .filter_map(|text| {
+                let parsed = SidequestRequirement::parse(text);
+                if parsed.is_none() {
+                    self.report.error(
+                        &location,
+                        format!("requirement `{text}` must be `track:P1`..`P4`"),
+                    );
+                }
+                parsed
+            })
+            .collect();
+        let statement = self.read_text(&dir.join(&manifest.statement))?;
+        let stages = self.load_stages(dir, &manifest)?;
+        Some(Sidequest {
+            id: manifest.id,
+            slug,
+            track_id,
+            level: manifest.level,
+            title: manifest.title,
+            summary: manifest.summary,
+            statement,
+            skills: manifest.skills,
+            requires,
+            stages,
+        })
+    }
+
+    /// Stage N is `stages/NN-<id>/`; the first one must have a starter, the project
+    /// the learner begins from. `None` when any stage is broken.
+    fn load_stages(
+        &mut self,
+        dir: &Path,
+        manifest: &SidequestManifest,
+    ) -> Option<Vec<SidequestStage>> {
+        let mut stages = Vec::new();
+        let mut broken = false;
+        let mut seen = std::collections::BTreeSet::new();
+        for (index, item) in manifest.stages.iter().enumerate() {
+            if !seen.insert(item.id.as_str()) {
+                self.report.error(
+                    self.relative(&dir.join("sidequest.yaml")),
+                    format!("stage id `{}` is repeated", item.id),
+                );
+                broken = true;
+                continue;
+            }
+            let stage_dir = dir
+                .join("stages")
+                .join(format!("{:02}-{}", index + 1, item.id));
+            let runner = item.runner.as_ref().unwrap_or(&manifest.runner);
+            match self.load_stage(&stage_dir, index == 0, runner) {
+                Some(kata) => stages.push(SidequestStage {
+                    id: format!("{}.{}", manifest.id, item.id),
+                    slug: item.id.clone(),
+                    title: item.title.clone(),
+                    kata,
+                }),
+                None => broken = true,
+            }
+        }
+        (!broken).then_some(stages)
+    }
+
+    fn load_stage(
+        &mut self,
+        stage_dir: &Path,
+        first: bool,
+        runner: &RunnerManifest,
+    ) -> Option<Kata> {
+        if !stage_dir.is_dir() {
+            self.report.error(
+                self.relative(stage_dir),
+                "stage folder is missing (stage N lives in `stages/NN-<stage id>`)",
+            );
+            return None;
+        }
+        let statement = self.read_text(&stage_dir.join(STAGE_STATEMENT));
+        let tests_dir = self.existing_dir(stage_dir, "tests", "tests");
+        let reference_dir = self.existing_dir(stage_dir, "reference", "reference");
+        let starter_dir = if first {
+            self.existing_dir(stage_dir, "starter", "starter")
+        } else {
+            Some(stage_dir.join("starter"))
+        };
+        Some(Kata {
+            statement: statement?,
+            starter_dir: starter_dir?,
+            tests_dir: tests_dir?,
+            reference_dir: reference_dir?,
+            runner: RunnerSpec {
+                image: runner.image.clone(),
+                timeout_secs: runner.timeout_secs,
+            },
+            hints: Vec::new(),
+        })
+    }
+
     // ---- file helpers -------------------------------------------------------
 
     fn read_manifest<T: DeserializeOwned>(&mut self, path: &Path, kind: FileKind) -> Option<T> {
@@ -516,6 +661,7 @@ impl ContentReader<'_> {
             FileKind::Placement => &self.schemas.placement,
             FileKind::Career => &self.schemas.career,
             FileKind::Interview => &self.schemas.interview,
+            FileKind::Sidequest => &self.schemas.sidequest,
         }
     }
 

@@ -1,0 +1,14 @@
+id: go.sidequest.job-scheduler
+level: 4
+title: "Job scheduler"
+summary: "A job scheduler on goroutines: a fixed pool of workers, retries and timeouts through context, jobs that wait for others, priorities, and a clean shutdown with a deadline."
+statement: README.md
+requires: ["go:P4", "system-design:P2"]
+skills: [go.goroutines-concurrency, go.channels-select, go.sync-memory-model, go.context-lifecycle, go.production, system-design.resilience]
+runner: { image: dojo-go, timeout_secs: 180 }
+stages:
+  - { id: workers, title: "A pool of workers" }
+  - { id: retries-and-timeouts, title: "Retries and timeouts" }
+  - { id: dependencies, title: "Jobs that wait for others" }
+  - { id: priorities, title: "Priorities" }
+  - { id: shutdown, title: "A clean shutdown" }

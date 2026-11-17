@@ -1,0 +1,13 @@
+id: python.sidequest.async-feed-reader
+level: 2
+title: "Async feed reader"
+summary: "Read many RSS and Atom feeds at once with asyncio: a limit on concurrency, timeouts and retries, and failures that never sink the other feeds."
+statement: README.md
+requires: ["python:P2"]
+skills: [python.errors, python.generators-memory, python.testing, python.asyncio-gil]
+runner: { image: dojo-python, timeout_secs: 120 }
+stages:
+  - { id: parse, title: "Parse an RSS feed" }
+  - { id: fetch-all, title: "Many feeds at once, failures apart" }
+  - { id: timeouts-and-retries, title: "Timeouts and retries" }
+  - { id: atom-and-digest, title: "Atom feeds and a digest" }

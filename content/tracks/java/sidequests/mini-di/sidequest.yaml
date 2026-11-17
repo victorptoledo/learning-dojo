@@ -1,0 +1,14 @@
+id: java.sidequest.mini-di
+level: 4
+title: "Mini dependency injection"
+summary: "A small DI container built on annotations and reflection: constructor injection, singletons and bindings, cycle detection, qualifiers and providers, then a lifecycle and classpath scanning."
+statement: README.md
+requires: ["java:P4", "design-patterns:P1"]
+skills: [java.design-patterns, java.generics-lambdas, java.errors, java.production]
+runner: { image: dojo-java, timeout_secs: 180 }
+stages:
+  - { id: constructor-injection, title: "Constructor injection" }
+  - { id: singletons-and-bindings, title: "Singletons and bindings" }
+  - { id: cycles-and-errors, title: "Cycles and errors that explain themselves" }
+  - { id: qualifiers-and-providers, title: "Qualifiers and providers" }
+  - { id: lifecycle-and-scanning, title: "Lifecycle and classpath scanning" }

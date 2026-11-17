@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learning-dojo.local/schemas/sidequest.schema.json",
+  "title": "Sidequest manifest (tracks/<track>/sidequests/<slug>/sidequest.yaml)",
+  "description": "An optional project of a track, built in stages graded by contract tests. Stage N lives in `stages/NN-<stage id>/` with `README.md`, `tests/`, `reference/` and, for the first stage at least, `starter/`.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "level",
+    "title",
+    "summary",
+    "statement",
+    "requires",
+    "skills",
+    "runner",
+    "stages"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "`<track>.sidequest.<folder name>`.",
+      "pattern": "^[a-z0-9-]+\\.sidequest\\.[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4,
+      "description": "N1..N4. Level N asks for `<track>:PN` on its own track."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "statement": {
+      "type": "string",
+      "pattern": "\\.md$",
+      "description": "The project brief, relative to the sidequest folder."
+    },
+    "requires": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Evidence that unlocks it: the main track first, then the others. P1/P2 = that checkpoint done, P3 = every node of phase p3, P4 = the whole track.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]+:P[1-4]$"
+      }
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "runner": {
+      "$ref": "#/$defs/runner"
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runner": {
+            "$ref": "#/$defs/runner",
+            "description": "Another image for this stage only; its tests run there, the others keep the sidequest's runner."
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "runner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "image",
+        "timeout_secs"
+      ],
+      "properties": {
+        "image": {
+          "type": "string",
+          "pattern": "^dojo-[a-z0-9-]+$"
+        },
+        "timeout_secs": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 600
+        }
+      }
+    }
+  }
+}

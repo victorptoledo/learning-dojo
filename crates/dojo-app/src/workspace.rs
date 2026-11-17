@@ -1,8 +1,8 @@
 //! The learner's solutions folder: one directory per kata, committed to git when it passes.
 
 use anyhow::{Context, Result};
-use dojo_core::{CheckReport, Kata, Node, Phase, Track};
-use dojo_runner::copy_dir;
+use dojo_core::{CheckReport, Kata, Node, Phase, Sidequest, Track};
+use dojo_runner::{copy_dir, copy_missing};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -10,6 +10,8 @@ use std::process::Command;
 pub const STATEMENT_FILE: &str = "README.md";
 /// The folder of a track (next to its phases) that holds its practice katas.
 pub const PRACTICE_FOLDER: &str = "practice";
+/// The folder of a track (next to its phases) that holds its sidequest projects.
+pub const SIDEQUESTS_FOLDER: &str = "sidequests";
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Prepared {
@@ -54,6 +56,36 @@ impl Workspace {
             .join(&track.id)
             .join(PRACTICE_FOLDER)
             .join(format!("{}-{node_slug}-{slug}", phase.id))
+    }
+
+    /// `<root>/<track>/sidequests/<slug>`: one project folder for every stage.
+    pub fn sidequest_dir(&self, quest: &Sidequest) -> PathBuf {
+        self.root
+            .join(&quest.track_id)
+            .join(SIDEQUESTS_FOLDER)
+            .join(&quest.slug)
+    }
+
+    /// Brings a sidequest folder up to date after `passed` stages: creates it the first
+    /// time, adds the starter files of every open stage without touching the learner's
+    /// files, and rewrites `README.md` with the brief and the open stages.
+    pub fn prepare_sidequest(&self, quest: &Sidequest, passed: usize) -> Result<Prepared> {
+        let dir = self.sidequest_dir(quest);
+        let prepared = if dir.exists() {
+            Prepared::AlreadyThere
+        } else {
+            Prepared::Created
+        };
+        for stage in quest.stages.iter().take(passed + 1) {
+            copy_missing(&stage.kata.starter_dir, &dir)
+                .with_context(|| format!("cannot add the starter of stage `{}`", stage.slug))?;
+        }
+        std::fs::create_dir_all(&dir)
+            .with_context(|| format!("cannot create {}", dir.display()))?;
+        let statement = dir.join(STATEMENT_FILE);
+        std::fs::write(&statement, sidequest_readme(quest, passed))
+            .with_context(|| format!("cannot write {}", statement.display()))?;
+        Ok(prepared)
     }
 
     /// Copies the starter the first time; never overwrites an existing solution.
@@ -111,6 +143,32 @@ impl Workspace {
             Err(String::from_utf8_lossy(&output.stderr).trim().to_string())
         }
     }
+}
+
+/// The brief and every stage opened after `passed` stages; later ones stay hidden.
+pub fn sidequest_readme(quest: &Sidequest, passed: usize) -> String {
+    let total = quest.stages.len();
+    let mut text = format!(
+        "<!-- Written by the dojo: it is rewritten when a stage opens. -->\n\n{}\n",
+        quest.statement.trim_end()
+    );
+    for (index, stage) in quest.stages.iter().enumerate().take(passed + 1) {
+        let mark = if index < passed { "✓ " } else { "" };
+        text.push_str(&format!(
+            "\n---\n\n## {mark}Stage {} of {total}: {}\n\n{}\n",
+            index + 1,
+            stage.title,
+            stage.kata.statement.trim_end()
+        ));
+    }
+    if passed < total {
+        text.push_str(&format!(
+            "\n---\n\nSave any file to check stage {}. The contract tests of the earlier stages keep running; {} more stage(s) open after this one.\n",
+            passed + 1,
+            total - passed - 1
+        ));
+    }
+    text
 }
 
 fn relative_kata_path(track: &Track, phase: &Phase, node: &Node) -> PathBuf {

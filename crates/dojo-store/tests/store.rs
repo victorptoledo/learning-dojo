@@ -54,6 +54,7 @@ fn catalog() -> Catalog {
     };
     Catalog {
         careers: vec![],
+        sidequests: vec![],
         tracks: vec![Track {
             id: "rust".into(),
             name: "Rust".into(),
@@ -78,7 +79,7 @@ fn new_store_has_no_settings_and_no_events() {
 
     assert!(store.load_settings().unwrap().is_none());
     assert!(store.load_events().unwrap().is_empty());
-    assert_eq!(store.schema_version().unwrap(), 6);
+    assert_eq!(store.schema_version().unwrap(), 7);
 }
 
 #[test]
@@ -320,6 +321,12 @@ fn hint_and_review_events_round_trip() {
             track_id: "rust".into(),
             practice_id: "rust.p1.word-counter.practice.letter-frequency".into(),
             xp: 25,
+            on,
+        },
+        ProgressEvent::SidequestStagePassed {
+            track_id: "rust".into(),
+            stage_id: "rust.sidequest.terminal-calculator.numbers".into(),
+            xp: 30,
             on,
         },
     ];

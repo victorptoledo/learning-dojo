@@ -2,8 +2,10 @@
 //! happens when a check finishes (history, completion, auto-commit).
 
 use crate::app::{App, NodeKey, checkpoint_missing_part, refusal_message};
-use crate::checks::{CheckTarget, FinishedCheck};
-use crate::workspace::{CommitOutcome, PRACTICE_FOLDER, Prepared, STATEMENT_FILE};
+use crate::checks::{CheckTarget, FinishedCheck, TargetKind};
+use crate::workspace::{
+    CommitOutcome, PRACTICE_FOLDER, Prepared, SIDEQUESTS_FOLDER, STATEMENT_FILE,
+};
 use chrono::Utc;
 use dojo_core::{CheckRecord, CheckReport, Evidence, Kata, Node, Refusal, Track};
 use std::path::{Component, Path, PathBuf};
@@ -80,7 +82,11 @@ impl App {
 
     /// Opens the kata folder with its statement and code, and says what happened.
     pub(crate) fn open_kata_folder(&self, dir: &Path) -> String {
-        let mut files = vec![dir.join(STATEMENT_FILE), dir.join("src").join("lib.rs")];
+        let mut files = vec![
+            dir.join(STATEMENT_FILE),
+            dir.join("src").join("lib.rs"),
+            dir.join("src").join("main.rs"),
+        ];
         files.extend(java_sources(&dir.join("src").join("main").join("java")));
         files.extend(shell_scripts(dir));
         files.extend(["Dockerfile", "compose.yaml"].map(|name| dir.join(name)));
@@ -117,7 +123,7 @@ impl App {
             track_id: selected.track.id.clone(),
             node_id: selected.node.id.clone(),
             kata_dir: selected.dir.clone(),
-            practice: false,
+            kind: TargetKind::Node,
         };
         let kata = selected.kata.clone();
         self.start_check(target, kata);
@@ -159,6 +165,10 @@ impl App {
             }
             return;
         }
+        if phase_id == SIDEQUESTS_FOLDER {
+            self.check_sidequest_folder(&track_id, &slug);
+            return;
+        }
         let node_id = format!("{track_id}.{phase_id}.{slug}");
         let Some(track) = self.catalog.track(&track_id) else {
             return;
@@ -177,7 +187,7 @@ impl App {
                 track_id,
                 node_id,
                 kata_dir,
-                practice: false,
+                kind: TargetKind::Node,
             },
             kata,
         );
@@ -230,8 +240,10 @@ impl App {
             .map_or(0, |(_, attempts)| *attempts)
             + 1;
         self.check_history.insert(key.clone(), (record, attempts));
-        self.status_message = Some(if report.is_pass() && target.practice {
+        self.status_message = Some(if report.is_pass() && target.kind == TargetKind::Practice {
             self.reward_practice(&target, &report)
+        } else if report.is_pass() && target.kind == TargetKind::Stage {
+            self.reward_stage(&target, &report)
         } else if report.is_pass() {
             self.reward_pass(&target, &report)
         } else {

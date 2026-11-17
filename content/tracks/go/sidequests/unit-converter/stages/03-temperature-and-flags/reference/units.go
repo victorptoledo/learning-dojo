@@ -1,0 +1,149 @@
+// Package units converts between units of measure.
+package units
+
+import (
+	"errors"
+	"flag"
+	"fmt"
+	"io"
+	"math"
+	"slices"
+	"strconv"
+	"strings"
+)
+
+// A unit belongs to a category and converts to that category's base unit.
+type unit struct {
+	category string
+	toBase   func(float64) float64
+	fromBase func(float64) float64
+}
+
+func linear(category string, factor float64) unit {
+	return unit{
+		category: category,
+		toBase:   func(v float64) float64 { return v * factor },
+		fromBase: func(v float64) float64 { return v / factor },
+	}
+}
+
+var table = map[string]unit{
+	"mm": linear("length", 0.001),
+	"cm": linear("length", 0.01),
+	"m":  linear("length", 1),
+	"km": linear("length", 1000),
+	"in": linear("length", 0.0254),
+	"ft": linear("length", 0.3048),
+	"yd": linear("length", 0.9144),
+	"mi": linear("length", 1609.344),
+	"mg": linear("mass", 0.001),
+	"g":  linear("mass", 1),
+	"kg": linear("mass", 1000),
+	"oz": linear("mass", 28.349523125),
+	"lb": linear("mass", 453.59237),
+	// Temperatures go through kelvin.
+	"K": {"temperature", func(v float64) float64 { return v }, func(v float64) float64 { return v }},
+	"C": {"temperature", func(v float64) float64 { return v + 273.15 }, func(v float64) float64 { return v - 273.15 }},
+	"F": {"temperature",
+		func(v float64) float64 { return (v-32)*5/9 + 273.15 },
+		func(v float64) float64 { return (v-273.15)*9/5 + 32 }},
+}
+
+// Errors a user caused, reported with exit code 1. A usage error gets exit code 2.
+var errUsage = errors.New("usage")
+
+type unknownUnitError struct{ name string }
+
+func (e unknownUnitError) Error() string { return fmt.Sprintf("unknown unit %q", e.name) }
+
+var errBelowZero = errors.New("below absolute zero")
+
+const usage = "usage: units convert [--precision n] [--] <value> <from> <to> | units list"
+
+func format(v float64, precision int) string {
+	scale := math.Pow(10, float64(precision))
+	rounded := math.Round(v*scale) / scale
+	if rounded == 0 {
+		rounded = 0 // no "-0"
+	}
+	return strconv.FormatFloat(rounded, 'f', -1, 64)
+}
+
+func convert(value float64, from, to string) (float64, error) {
+	source, ok := table[from]
+	if !ok {
+		return 0, unknownUnitError{from}
+	}
+	target, ok := table[to]
+	if !ok {
+		return 0, unknownUnitError{to}
+	}
+	if source.category != target.category {
+		return 0, fmt.Errorf("cannot convert %s to %s", source.category, target.category)
+	}
+	base := source.toBase(value)
+	if source.category == "temperature" && base < 0 {
+		return 0, errBelowZero
+	}
+	return target.fromBase(base), nil
+}
+
+func list(stdout io.Writer) {
+	for _, category := range []string{"length", "mass", "temperature"} {
+		var names []string
+		for name, u := range table {
+			if u.category == category {
+				names = append(names, name)
+			}
+		}
+		slices.Sort(names)
+		fmt.Fprintf(stdout, "%s: %s\n", category, strings.Join(names, " "))
+	}
+}
+
+func runConvert(args []string, stdout io.Writer) error {
+	precision := 4
+	flags := flag.NewFlagSet("convert", flag.ContinueOnError)
+	flags.SetOutput(io.Discard)
+	flags.IntVar(&precision, "precision", 4, "decimals")
+	if err := flags.Parse(args); err != nil || precision < 0 || precision > 10 {
+		return errUsage
+	}
+	args = flags.Args()
+	if len(args) != 3 {
+		return errUsage
+	}
+	value, err := strconv.ParseFloat(args[0], 64)
+	if err != nil {
+		return fmt.Errorf("not a number: %q", args[0])
+	}
+	result, err := convert(value, args[1], args[2])
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(stdout, "%s %s = %s %s\n", format(value, precision), args[1], format(result, precision), args[2])
+	return nil
+}
+
+// Run runs the command line `args` (without the program name) and returns its exit code.
+func Run(args []string, stdout, stderr io.Writer) int {
+	var err error
+	switch {
+	case len(args) > 0 && args[0] == "convert":
+		err = runConvert(args[1:], stdout)
+	case len(args) == 1 && args[0] == "list":
+		list(stdout)
+	default:
+		fmt.Fprintln(stderr, usage)
+		return 2
+	}
+	if errors.Is(err, errUsage) {
+		fmt.Fprintln(stderr, usage)
+		return 2
+	}
+	if err != nil {
+		fmt.Fprintf(stderr, "error: %v\n", err)
+		return 1
+	}
+	return 0
+}

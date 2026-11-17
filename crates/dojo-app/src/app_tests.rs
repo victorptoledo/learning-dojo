@@ -524,6 +524,179 @@ fn f_explains_when_there_is_no_practice_kata() {
     );
 }
 
+const CALCULATOR: &str = "rust.sidequest.terminal-calculator";
+
+fn status(app: &App) -> &str {
+    app.status_message.as_deref().unwrap_or_default()
+}
+
+#[test]
+fn a_locked_sidequest_says_what_is_missing_and_ignores_saves() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "rust.p0.setup");
+    assert!(screen_text(&h.app).contains("[S] sidequests"));
+
+    h.app.open_sidequests();
+    assert_eq!(h.app.screen, Screen::Sidequests);
+    let screen = screen_text(&h.app);
+    assert!(screen.contains("Terminal calculator"), "{screen}");
+    assert!(screen.contains("Missing: Checkpoint 1 of Rust"), "{screen}");
+
+    h.app.start_sidequest();
+    assert!(status(&h.app).contains("is locked"), "{}", status(&h.app));
+    let dir = h
+        .workspace
+        .path()
+        .join("rust/sidequests/terminal-calculator");
+    assert!(!dir.exists(), "a locked sidequest creates no folder");
+
+    std::fs::create_dir_all(dir.join("src")).unwrap();
+    std::fs::write(dir.join("src/main.rs"), "fn main() {}").unwrap();
+    h.app.on_workspace_change(&dir.join("src/main.rs"));
+    assert!(h.app.checks.running().is_none(), "no check while locked");
+
+    h.app.close_sidequests();
+    assert_eq!(h.app.screen, Screen::TrackView);
+}
+
+#[test]
+fn a_sidequest_opens_its_stages_one_at_a_time_and_earns_its_badge() {
+    let mut h = harness(
+        memory_store(),
+        Mode::Learner,
+        FakeRunner::returning(&[
+            CheckOutcome::TestsFailed,
+            CheckOutcome::Passed,
+            CheckOutcome::Passed,
+            CheckOutcome::Passed,
+            CheckOutcome::Passed,
+        ]),
+    );
+    init_repo(h.workspace.path());
+    select(&mut h.app, "rust.p0.setup");
+    h.app
+        .profile
+        .apply(&dojo_core::ProgressEvent::NodeCompleted {
+            track_id: "rust".into(),
+            node_id: "rust.p1.checkpoint".into(),
+            xp: 0,
+            on: App::today(),
+        });
+    let track_xp = h.app.profile.total_xp;
+
+    h.app.open_sidequests();
+    assert_eq!(h.app.selected_sidequest().unwrap().id, CALCULATOR);
+    h.app.start_sidequest();
+    let dir = h
+        .workspace
+        .path()
+        .join("rust/sidequests/terminal-calculator");
+    assert!(dir.join("Cargo.toml").is_file(), "{}", status(&h.app));
+    assert!(dir.join("src/main.rs").is_file());
+    let readme = || std::fs::read_to_string(dir.join("README.md")).unwrap();
+    assert!(readme().contains("Stage 1 of 3: Numbers and the four operators"));
+    assert!(
+        !readme().contains("Stage 2 of 3"),
+        "later stages stay hidden"
+    );
+
+    let save = |h: &mut Harness, stage: &str| {
+        h.app.quiet_kata = None;
+        h.app.on_workspace_change(&dir.join("src/main.rs"));
+        assert!(
+            h.app.is_checking("rust", &format!("{CALCULATOR}.{stage}")),
+            "{}",
+            status(&h.app)
+        );
+        let finished = h.app.checks.wait().unwrap();
+        h.app.finish_check(finished);
+    };
+
+    save(&mut h, "arithmetic");
+    assert_eq!(
+        h.app.profile.sidequest_xp, 0,
+        "a failing check earns nothing"
+    );
+    assert!(screen_text(&h.app).contains("Last check: 1/2 tests passed"));
+
+    save(&mut h, "arithmetic");
+    assert_eq!(h.app.profile.sidequest_xp, 30);
+    assert!(
+        status(&h.app).contains("Stage 2 of 3 opened"),
+        "{}",
+        status(&h.app)
+    );
+    assert!(readme().contains("✓ Stage 1 of 3"));
+    assert!(readme().contains("Stage 2 of 3: Parentheses"));
+    assert!(
+        git(h.workspace.path(), &["log", "-1", "--format=%s"])
+            .starts_with("rust/sidequests/terminal-calculator: passed")
+    );
+
+    save(&mut h, "parentheses-and-errors");
+    save(&mut h, "repl");
+    assert!(
+        status(&h.app).contains("Badge earned"),
+        "{}",
+        status(&h.app)
+    );
+    let quest = h.app.catalog.sidequest(CALCULATOR).unwrap().clone();
+    assert!(quest.is_done(&h.app.profile));
+    assert_eq!(h.app.profile.sidequest_xp, 90);
+    assert_eq!(
+        h.app.profile.total_xp, track_xp,
+        "sidequests never give track XP"
+    );
+    assert!(
+        !h.app.profile.is_completed("rust", "rust.p2.checkpoint"),
+        "and complete no node"
+    );
+    assert!(screen_text(&h.app).contains("🏅"));
+
+    // Saving again re-checks the last stage and gives nothing more.
+    save(&mut h, "repl");
+    assert!(status(&h.app).contains("no more XP"), "{}", status(&h.app));
+    assert_eq!(h.app.profile.sidequest_xp, 90);
+}
+
+#[test]
+fn passed_stages_survive_a_restart() {
+    let dir = TempDir::new().unwrap();
+    let path = dir.path().join("dojo.db");
+    {
+        let mut store = SqliteStore::open(&path).unwrap();
+        store
+            .append_event(&dojo_core::ProgressEvent::SidequestStagePassed {
+                track_id: "rust".into(),
+                stage_id: format!("{CALCULATOR}.arithmetic"),
+                xp: 30,
+                on: App::today(),
+            })
+            .unwrap();
+    }
+    let h = harness(
+        SqliteStore::open(&path).unwrap(),
+        Mode::Learner,
+        FakeRunner::returning(&[]),
+    );
+    let quest = h.app.catalog.sidequest(CALCULATOR).unwrap();
+    assert_eq!(quest.current_stage(&h.app.profile), Some(1));
+    assert_eq!(h.app.profile.sidequest_xp, 30);
+}
+
+#[test]
+fn s_explains_a_track_without_sidequests() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    select(&mut h.app, "typescript.p0.hello-dojo");
+    h.app.open_sidequests();
+    assert_eq!(h.app.screen, Screen::TrackView);
+    assert!(
+        status(&h.app).contains("No sidequests for TypeScript"),
+        "{}",
+        status(&h.app)
+    );
+}
+
 #[test]
 fn creating_a_kata_folder_does_not_trigger_a_check() {
     let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));

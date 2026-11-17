@@ -333,6 +333,7 @@ mod tests {
         go.id = "go".into();
         Catalog {
             careers: vec![],
+            sidequests: vec![],
             tracks: vec![rust, go],
             skills: Default::default(),
         }

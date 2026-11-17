@@ -274,3 +274,26 @@ pub struct BridgeFrontMatter {
     pub native_way: String,
     pub sensei_tip: String,
 }
+
+/// `tracks/<track>/sidequests/<slug>/sidequest.yaml`.
+#[derive(Debug, Deserialize)]
+pub struct SidequestManifest {
+    pub id: String,
+    pub level: u8,
+    pub title: String,
+    pub summary: String,
+    pub statement: String,
+    pub requires: Vec<String>,
+    pub skills: Vec<String>,
+    pub runner: RunnerManifest,
+    pub stages: Vec<SidequestStageManifest>,
+}
+
+/// A stage, laid out in `stages/NN-<id>/` (README.md, tests/, reference/, starter/).
+#[derive(Debug, Deserialize)]
+pub struct SidequestStageManifest {
+    pub id: String,
+    pub title: String,
+    #[serde(default)]
+    pub runner: Option<RunnerManifest>,
+}

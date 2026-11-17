@@ -1,6 +1,6 @@
 //! Runs kata checks on a background thread so the TUI stays responsive.
 
-use dojo_core::{CheckReport, Kata, KataRunner};
+use dojo_core::{CheckPart, CheckReport, Kata, KataRunner};
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::mpsc::{self, Receiver, Sender, TryRecvError};
@@ -10,11 +10,21 @@ use std::thread;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CheckTarget {
     pub track_id: String,
-    /// The node id, or the practice kata id when `practice` is set.
+    /// The node id, the practice kata id or the sidequest stage id, by `kind`.
     pub node_id: String,
     pub kata_dir: PathBuf,
-    /// A practice (remedial) kata: passing it gives practice XP, never a completion.
-    pub practice: bool,
+    pub kind: TargetKind,
+}
+
+/// What a passing check earns.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TargetKind {
+    /// A track node: completion and track XP.
+    Node,
+    /// A practice (remedial) kata: practice XP, never a completion.
+    Practice,
+    /// A sidequest stage: sidequest XP and the next stage, never a completion.
+    Stage,
 }
 
 pub struct FinishedCheck {
@@ -47,6 +57,12 @@ impl CheckQueue {
 
     /// Starts a check unless one is already running. Returns whether it started.
     pub fn start(&mut self, target: CheckTarget, kata: Kata) -> bool {
+        let tests_dirs = vec![kata.tests_dir.clone()];
+        self.start_parts(target, vec![CheckPart { kata, tests_dirs }])
+    }
+
+    /// Starts a check made of several runs (a sidequest stage) unless one is running.
+    pub fn start_parts(&mut self, target: CheckTarget, parts: Vec<CheckPart>) -> bool {
         if self.running.is_some() {
             return false;
         }
@@ -54,9 +70,13 @@ impl CheckQueue {
         let runner = Arc::clone(&self.runner);
         let sender = self.sender.clone();
         thread::spawn(move || {
-            let result = runner
-                .check(&kata, &target.kata_dir)
-                .map_err(|error| error.to_string());
+            let result = match parts.as_slice() {
+                [single] if single.tests_dirs == [single.kata.tests_dir.clone()] => {
+                    runner.check(&single.kata, &target.kata_dir)
+                }
+                _ => dojo_runner::check_parts(runner.as_ref(), &parts, &target.kata_dir),
+            }
+            .map_err(|error| error.to_string());
             let _ = sender.send(FinishedCheck { target, result });
         });
         true

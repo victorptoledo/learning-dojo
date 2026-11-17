@@ -1,0 +1,15 @@
+id: java.sidequest.task-queue
+level: 3
+title: "Resilient task queue"
+summary: "A task queue with at-least-once delivery, leases, exponential backoff and a dead-letter list, safe under many workers, then backed by a PostgreSQL schema."
+statement: README.md
+requires: ["java:P3", "postgresql:P1", "system-design:P1"]
+skills: [java.concurrency, java.design-patterns, java.errors, postgresql.data-types, postgresql.mvcc]
+runner: { image: dojo-java, timeout_secs: 180 }
+stages:
+  - { id: at-least-once, title: "Leases and at-least-once delivery" }
+  - { id: backoff-and-dead-letters, title: "Backoff and dead letters" }
+  - { id: idempotency-and-workers, title: "Idempotent enqueue and many workers" }
+  - id: durable-schema
+    title: "A PostgreSQL schema for the queue"
+    runner: { image: dojo-sql, timeout_secs: 120 }

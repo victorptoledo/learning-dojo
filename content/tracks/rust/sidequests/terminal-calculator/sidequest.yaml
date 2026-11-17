@@ -1,0 +1,12 @@
+id: rust.sidequest.terminal-calculator
+level: 1
+title: "Terminal calculator"
+summary: "A `calc` command that parses arithmetic, reports bad input as values, and grows into a small REPL with variables."
+statement: README.md
+requires: ["rust:P1"]
+skills: [rust.structs-enums, rust.ownership-basics, rust.collections, rust.borrowing-references]
+runner: { image: dojo-rust, timeout_secs: 180 }
+stages:
+  - { id: arithmetic, title: "Numbers and the four operators" }
+  - { id: parentheses-and-errors, title: "Parentheses, negatives and errors as values" }
+  - { id: repl, title: "A REPL with variables" }

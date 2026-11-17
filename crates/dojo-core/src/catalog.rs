@@ -1,4 +1,5 @@
 use crate::career::Career;
+use crate::sidequest::Sidequest;
 use crate::track::Track;
 use std::collections::BTreeMap;
 
@@ -13,13 +14,15 @@ pub struct Skill {
     pub maps_to: Vec<SkillId>,
 }
 
-/// Everything the dojo can teach: tracks, the skill taxonomy they reference, and the
-/// career paths built from them.
+/// Everything the dojo can teach: tracks, the skill taxonomy they reference, the
+/// career paths built from them and the sidequests.
 #[derive(Debug, Clone, Default)]
 pub struct Catalog {
     pub tracks: Vec<Track>,
     pub skills: BTreeMap<SkillId, Skill>,
     pub careers: Vec<Career>,
+    /// Optional projects, each listed on its main track.
+    pub sidequests: Vec<Sidequest>,
 }
 
 impl Catalog {

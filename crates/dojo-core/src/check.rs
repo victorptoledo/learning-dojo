@@ -70,6 +70,47 @@ impl CheckReport {
     }
 }
 
+impl CheckReport {
+    /// One report for a check made of several runs (a sidequest stage checked in more
+    /// than one image). The worst outcome wins: a compile error, then a timeout, then a
+    /// failing test. Each run's details get a header naming it.
+    pub fn combine(parts: Vec<(String, CheckReport)>) -> CheckReport {
+        if parts.len() == 1
+            && let Some((_, report)) = parts.first()
+        {
+            return report.clone();
+        }
+        let rank = |outcome: CheckOutcome| match outcome {
+            CheckOutcome::CompileError => 3,
+            CheckOutcome::TimedOut => 2,
+            CheckOutcome::TestsFailed => 1,
+            CheckOutcome::Passed => 0,
+        };
+        let mut combined = CheckReport {
+            outcome: CheckOutcome::Passed,
+            tests: Vec::new(),
+            details: String::new(),
+            duration_ms: 0,
+        };
+        for (label, report) in parts {
+            if rank(report.outcome) > rank(combined.outcome) {
+                combined.outcome = report.outcome;
+            }
+            if !report.details.trim().is_empty() {
+                if !combined.details.is_empty() {
+                    combined.details.push('\n');
+                }
+                combined
+                    .details
+                    .push_str(&format!("── {label} ──\n{}", report.details));
+            }
+            combined.tests.extend(report.tests);
+            combined.duration_ms += report.duration_ms;
+        }
+        combined
+    }
+}
+
 /// A stored check run (attempt history).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CheckRecord {
@@ -120,6 +161,33 @@ mod tests {
             details: String::new(),
             duration_ms: 10,
         }
+    }
+
+    #[test]
+    fn combined_reports_keep_every_test_and_the_worst_outcome() {
+        let mut rust = report(CheckOutcome::TestsFailed, &[true, false]);
+        rust.details = "assertion failed".into();
+        let devops = report(CheckOutcome::Passed, &[true]);
+        let combined = CheckReport::combine(vec![
+            ("dojo-rust".into(), rust.clone()),
+            ("dojo-devops".into(), devops.clone()),
+        ]);
+        assert_eq!(combined.outcome, CheckOutcome::TestsFailed);
+        assert_eq!(combined.summary(), "2/3 tests passed");
+        assert_eq!(combined.duration_ms, 20);
+        assert!(
+            combined
+                .details
+                .starts_with("── dojo-rust ──\nassertion failed")
+        );
+
+        let broken = report(CheckOutcome::CompileError, &[]);
+        let combined =
+            CheckReport::combine(vec![("a".into(), devops.clone()), ("b".into(), broken)]);
+        assert_eq!(combined.outcome, CheckOutcome::CompileError);
+
+        let single = CheckReport::combine(vec![("a".into(), rust.clone())]);
+        assert_eq!(single, rust, "one run is reported as it is");
     }
 
     #[test]

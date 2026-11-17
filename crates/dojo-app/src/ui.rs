@@ -35,6 +35,7 @@ pub fn render(frame: &mut Frame, app: &App) {
         Screen::Career => crate::career_view::render_careers(frame, app, frame.area()),
         Screen::TopicStudy => crate::topic_study::render_topic_study(frame, app, frame.area()),
         Screen::Interview => crate::interview_sim::render_interview(frame, app, frame.area()),
+        Screen::Sidequests => crate::sidequest_view::render_sidequests(frame, app, frame.area()),
         Screen::BridgePicker => {
             crate::bridge_picker::render_bridge_picker(frame, app, frame.area())
         }
@@ -59,9 +60,18 @@ fn render_header(frame: &mut Frame, app: &App, area: Rect) {
     });
     let track_info = vec![
         Line::from(
-            format!(" {} {}  [M] switch track", track.icon, track.name)
-                .bold()
-                .cyan(),
+            format!(
+                " {} {}  [M] switch track{}",
+                track.icon,
+                track.name,
+                if app.catalog.sidequests_of(&track.id).is_empty() {
+                    ""
+                } else {
+                    " · [S] sidequests"
+                }
+            )
+            .bold()
+            .cyan(),
         ),
         Line::from(vec![
             Span::raw(" 🥋 "),
@@ -87,7 +97,11 @@ fn render_header(frame: &mut Frame, app: &App, area: Rect) {
         Line::from(vec![
             Span::raw(" Total XP: "),
             app.profile.total_xp.to_string().bold().green(),
-            format!(" · 🔁 {}", app.profile.practice_xp).dark_gray(),
+            format!(
+                " · 🔁 {} · ⚔ {}",
+                app.profile.practice_xp, app.profile.sidequest_xp
+            )
+            .dark_gray(),
         ]),
     ];
     frame.render_widget(

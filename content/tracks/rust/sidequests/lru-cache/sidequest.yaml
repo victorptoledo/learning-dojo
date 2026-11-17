@@ -1,0 +1,15 @@
+id: rust.sidequest.lru-cache
+level: 3
+title: "LRU cache with metrics"
+summary: "A thread-safe LRU cache library that counts hits and misses, exposes Prometheus metrics, and ships with a CI workflow and an alert rule."
+statement: README.md
+requires: ["rust:P3", "devops:P1"]
+skills: [rust.smart-pointers, rust.concurrency, rust.traits-generics, devops.cicd-pipelines]
+runner: { image: dojo-rust, timeout_secs: 240 }
+stages:
+  - { id: lru, title: "Least recently used, evicted first" }
+  - { id: metrics, title: "Hits, misses and Prometheus metrics" }
+  - { id: concurrency, title: "Shared between threads" }
+  - id: ship-it
+    title: "CI workflow and an alert rule"
+    runner: { image: dojo-devops, timeout_secs: 120 }

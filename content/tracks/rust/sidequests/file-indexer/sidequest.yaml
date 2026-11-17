@@ -1,0 +1,13 @@
+id: rust.sidequest.file-indexer
+level: 2
+title: "File indexer"
+summary: "`findex` searches text in folders, reports errors with typed exit codes, and builds an index file it can query without the source."
+statement: README.md
+requires: ["rust:P2"]
+skills: [rust.iterators-closures, rust.option-result, rust.traits-generics, rust.modules-testing]
+runner: { image: dojo-rust, timeout_secs: 240 }
+stages:
+  - { id: search, title: "Search a folder" }
+  - { id: typed-errors, title: "Errors with exit codes" }
+  - { id: index-and-query, title: "An index file you can query" }
+  - { id: filters, title: "Filters and multi-word queries" }

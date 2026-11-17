@@ -48,6 +48,7 @@ pub enum Screen {
     BridgePicker,
     TopicStudy,
     Interview,
+    Sidequests,
 }
 
 /// Everything the TUI shows and the actions it can take. Rendering lives in `ui`.
@@ -62,6 +63,8 @@ pub struct App {
     pub career_cursor: usize,
     /// Highlighted language in the bridge picker.
     pub bridge_cursor: usize,
+    /// Highlighted sidequest on the sidequest screen.
+    pub sidequest_cursor: usize,
     /// The study-a-topic screen while it is open.
     pub topic_study: Option<crate::topic_study::TopicStudy>,
     /// The mock interview while it runs.
@@ -131,6 +134,7 @@ impl App {
             selector_cursor: active_track,
             career_cursor: 0,
             bridge_cursor: 0,
+            sidequest_cursor: 0,
             topic_study: None,
             interview: None,
             status_message: None,
@@ -225,7 +229,8 @@ impl App {
             | ProgressEvent::PlacementRevoked { .. }
             | ProgressEvent::HintRevealed { .. }
             | ProgressEvent::ReviewAnswered { .. }
-            | ProgressEvent::PracticeCompleted { .. } => return,
+            | ProgressEvent::PracticeCompleted { .. }
+            | ProgressEvent::SidequestStagePassed { .. } => return,
         };
         self.status_message = Some(message);
     }
@@ -360,6 +365,22 @@ fn load_check_history(
                     .check_count(&track.id, &node.id)
                     .map_err(|error| anyhow!(error))?;
                 history.insert((track.id.clone(), node.id.clone()), (record, attempts));
+            }
+        }
+    }
+    for quest in &catalog.sidequests {
+        for stage in &quest.stages {
+            let latest = store
+                .latest_check(&quest.track_id, &stage.id)
+                .map_err(|error| anyhow!(error))?;
+            if let Some(record) = latest {
+                let attempts = store
+                    .check_count(&quest.track_id, &stage.id)
+                    .map_err(|error| anyhow!(error))?;
+                history.insert(
+                    (quest.track_id.clone(), stage.id.clone()),
+                    (record, attempts),
+                );
             }
         }
     }

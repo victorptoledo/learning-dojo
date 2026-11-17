@@ -1,0 +1,14 @@
+# 95% of the lookups hit: the alert stays silent.
+rule_files: [../alerts.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'cache_hits_total{job="api"}'
+        values: '0+95x30'
+      - series: 'cache_misses_total{job="api"}'
+        values: '0+5x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: CacheHitRatioLow
+        exp_alerts: []

@@ -1,0 +1,13 @@
+id: python.sidequest.task-api
+level: 3
+title: "Task API"
+summary: "A FastAPI service for a to-do list: CRUD with clear status codes, Pydantic validation, SQLite storage written in plain SQL, then filters, pagination and sorting."
+statement: README.md
+requires: ["python:P3", "sql:P1"]
+skills: [python.modern-typing-pydantic, python.testing, python.errors, sql.select-basics, sql.dml]
+runner: { image: dojo-python, timeout_secs: 150 }
+stages:
+  - { id: crud, title: "Create, read and list" }
+  - { id: validation-and-errors, title: "Validation, updates and deletes" }
+  - { id: sqlite, title: "SQLite storage and filters" }
+  - { id: pagination-and-sort, title: "Pagination and sorting" }

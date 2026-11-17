@@ -37,6 +37,11 @@ of your choice.
 - **Mentoring without AI.** Kata hints that cost a little XP, practice katas on the same skills
   when you want more drill (Rust for now), spaced review of past quiz questions, and career paths
   that recommend your next step.
+- **Sidequests.** Optional projects built from an almost empty folder, four per track (Rust,
+  Java, Python and Go for now). Each unlocks on its own once you reach the checkpoints or phases it asks for,
+  even of other tracks, and opens one stage at a time; contract tests check what your program
+  does, not how you wrote it. Every stage gives sidequest XP and the last one a badge, never a
+  belt.
 - **Study a topic.** Search every track for a subject that came up at work, open its lessons and
   katas (even in phases you have not reached, as practice) and take a quiz on it.
 - **Mock technical interviews.** 20+ interview questions per track, from junior to senior. You
@@ -53,7 +58,7 @@ All 30 tracks are complete, with 721 lessons and checkpoints and 258 katas betwe
 | :--- | :--- | ---: | ---: | :--- |
 | Rust | Rust 2024 edition | 22 | 7 | `dojo-rust` (cargo test) |
 | Modern Java | Java 25 | 22 | 7 | `dojo-java` (JUnit 6) |
-| Modern Python | Python 3.15 | 24 | 7 | `dojo-python` (pytest, ruff) |
+| Modern Python | Python 3.15 | 24 | 7 | `dojo-python` (pytest, ruff; FastAPI for a sidequest) |
 | Go | Go 1.27 | 23 | 8 | `dojo-go` (go test -race, go vet, gofmt) |
 | TypeScript | TypeScript 7 on Node.js 26 | 23 | 9 | `dojo-node` (tsc, node:test) |
 | Node.js | Node.js 26 backends in TypeScript | 25 | 9 | `dojo-node` (tsc, node:test; real servers, workers and child processes) |
@@ -153,6 +158,11 @@ To update later, run `git pull` and start the dojo again; it rebuilds itself.
    unlock the next phase.
 5. **Keep it fresh.** Questions from finished lessons come back after 1, 3, 7, 21 and 60 days:
    press `R` when the footer shows reviews are due.
+6. **Take a sidequest.** `S` lists the four sidequests of the track. A locked one says what is
+   missing ("Checkpoint 1 of Linux"); `Enter` on an unlocked one creates its project folder in
+   `<workspace>/<track>/sidequests/` and opens it. Saving a file checks the open stage, and the
+   tests of the stages you already passed keep running. A pass gives 30 sidequest XP, commits
+   the folder and adds the next stage to its `README.md`.
 
 Nothing is ticked by hand: a lesson is completed by its quiz and a kata by its tests.
 
@@ -243,6 +253,7 @@ The footer of each screen lists its keys. On the track screen:
 | `C` | Check the kata now |
 | `H` | Reveal the next kata hint |
 | `F` | Open the next practice kata of a kata or checkpoint |
+| `S` | Sidequests of the track (`Enter` starts or opens one, `C` checks its open stage) |
 | `A` | Copy an AI review prompt for the kata or the lesson exercise |
 | `R` | Spaced review of due questions |
 | `P` | Placement test (on a track you have not started) |
@@ -268,7 +279,7 @@ AI to evaluate your written answers. `P` copies the interview for an AI intervie
 .\dojo doctor rust              # check that this machine has everything the Rust track needs
 .\dojo runner build             # build the kata images in runner-images/
 .\dojo content validate         # check every track against the schemas and rules (--strict: warnings fail)
-.\dojo content verify-katas     # every kata: the reference must pass and the starter must fail (--track <id>)
+.\dojo content verify-katas     # every kata and sidequest stage: the reference must pass and the starter must fail (--track <id>, --only <text>)
 .\dojo --dev                    # dev mode: tick or undo any node, ignoring the rules
 ```
 

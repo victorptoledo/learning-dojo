@@ -13,6 +13,7 @@ pub mod progress;
 pub mod quiz;
 pub mod requirement;
 pub mod review;
+pub mod sidequest;
 pub mod track;
 
 pub use career::{
@@ -38,6 +39,9 @@ pub use requirement::{
     Requirement, RequirementKind, merge as merge_requirements, version_at_least,
 };
 pub use review::{Card, ReviewItem};
+pub use sidequest::{
+    CheckPart, Milestone, SIDEQUEST_STAGE_XP, Sidequest, SidequestRequirement, SidequestStage,
+};
 pub use track::{
     Archetype, Belt, Bridge, ContentStatus, Exercise, GENERIC_BRIDGE, Kata, KataLanguage, Node,
     NodeId, NodeKind, Objective, Phase, PhaseId, REMEDIAL_XP, Remedial, RunnerSpec, Track, TrackId,

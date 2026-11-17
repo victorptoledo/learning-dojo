@@ -1,0 +1,12 @@
+id: java.sidequest.contacts-book
+level: 1
+title: "Contacts book"
+summary: "A command-line contacts book with records, collections and a data file: add and list, validate and search, then tags and a CSV export."
+statement: README.md
+requires: ["java:P1"]
+skills: [java.records, java.collections, java.modern-syntax, java.pattern-matching]
+runner: { image: dojo-java, timeout_secs: 180 }
+stages:
+  - { id: add-and-list, title: "Add and list, saved in a file" }
+  - { id: validate-and-search, title: "Validation, search and removal" }
+  - { id: tags-and-export, title: "Tags and a CSV export" }

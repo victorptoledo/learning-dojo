@@ -8,9 +8,11 @@
 mod docker;
 mod image_check;
 mod libtest;
+mod stages;
 mod staging;
 mod tar_list;
 
 pub use docker::{DockerRunner, build_images};
 pub use libtest::parse_cargo_test;
+pub use stages::{check_parts, copy_missing, stage_sidequest};
 pub use staging::{copy_dir, stage_reference};

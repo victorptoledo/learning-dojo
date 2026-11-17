@@ -1,0 +1,18 @@
+# Misses spike for two minutes, then the cache is healthy again: the ratio is low for less
+# than 10 minutes, so the alert never fires.
+rule_files: [../alerts.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'cache_hits_total{job="api"}'
+        values: '0+90x30'
+      - series: 'cache_misses_total{job="api"}'
+        values: '0+10x10 190+90x1 290+10x17'
+    alert_rule_test:
+      - eval_time: 16m
+        alertname: CacheHitRatioLow
+        exp_alerts: []
+      - eval_time: 25m
+        alertname: CacheHitRatioLow
+        exp_alerts: []

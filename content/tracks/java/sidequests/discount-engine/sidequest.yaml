@@ -1,0 +1,13 @@
+id: java.sidequest.discount-engine
+level: 2
+title: "Discount engine"
+summary: "Price a cart with rules read from text: line discounts, quantity deals, cart and tier rules, then a cap and expiry dates. Sealed interfaces, pattern matching and streams fit it well."
+statement: README.md
+requires: ["java:P2"]
+skills: [java.pattern-matching, java.records, java.streams, java.errors]
+runner: { image: dojo-java, timeout_secs: 180 }
+stages:
+  - { id: line-discounts, title: "Percent and fixed discounts per line" }
+  - { id: quantity-deals, title: "Quantity deals and rule errors" }
+  - { id: cart-rules, title: "Cart and tier rules" }
+  - { id: cap-and-dates, title: "A cap and rules that expire" }

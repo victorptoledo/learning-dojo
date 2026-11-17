@@ -26,6 +26,8 @@ mod review_prompt;
 mod setup;
 mod setup_actions;
 mod setup_view;
+mod sidequest_actions;
+mod sidequest_view;
 mod single_instance;
 mod topic_study;
 mod tree;
@@ -99,11 +101,15 @@ enum ContentAction {
         #[arg(long)]
         strict: bool,
     },
-    /// Run every kata in Docker: the reference must pass and the starter must fail.
+    /// Run every kata and sidequest stage in Docker: the reference must pass and the
+    /// starter must fail.
     VerifyKatas {
         /// Only the katas of this track (e.g. `docker`).
         #[arg(long)]
         track: Option<String>,
+        /// Only the katas and sidequests whose id contains this text (e.g. `sidequest`).
+        #[arg(long)]
+        only: Option<String>,
     },
 }
 
@@ -141,8 +147,8 @@ fn main() -> Result<ExitCode> {
             action: ContentAction::Validate { strict },
         }) => validate_command::run(&cli.content, strict),
         Some(Command::Content {
-            action: ContentAction::VerifyKatas { track },
-        }) => kata_commands::verify_katas(&cli.content, track.as_deref()),
+            action: ContentAction::VerifyKatas { track, only },
+        }) => kata_commands::verify_katas(&cli.content, track.as_deref(), only.as_deref()),
         Some(Command::Runner {
             action: RunnerAction::Build { images },
         }) => kata_commands::build_runner_images(&images),

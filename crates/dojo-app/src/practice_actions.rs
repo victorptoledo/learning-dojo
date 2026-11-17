@@ -3,7 +3,7 @@
 //! never completes, unlocks or changes the node.
 
 use crate::app::App;
-use crate::checks::CheckTarget;
+use crate::checks::{CheckTarget, TargetKind};
 use crate::workspace::{CommitOutcome, Prepared};
 use dojo_core::{CheckReport, Kata, REMEDIAL_XP, Remedial};
 
@@ -72,7 +72,7 @@ impl App {
                                 track_id: track.id.clone(),
                                 node_id: remedial.id.clone(),
                                 kata_dir: dir,
-                                practice: true,
+                                kind: TargetKind::Practice,
                             },
                             remedial.kata.clone(),
                         )

@@ -1,0 +1,12 @@
+id: go.sidequest.unit-converter
+level: 1
+title: "Unit converter"
+summary: "A `units` command that converts length, mass and temperature, with flags, clear errors and Unix exit codes."
+statement: README.md
+requires: ["go:P1"]
+skills: [go.types-slices, go.structs-methods, go.errors-idiomatic, go.tooling-modules]
+runner: { image: dojo-go, timeout_secs: 120 }
+stages:
+  - { id: length, title: "Lengths" }
+  - { id: errors-and-mass, title: "Errors, exit codes and mass" }
+  - { id: temperature-and-flags, title: "Temperature, flags and a list" }

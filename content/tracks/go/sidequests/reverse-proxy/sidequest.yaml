@@ -1,0 +1,13 @@
+id: go.sidequest.reverse-proxy
+level: 3
+title: "Reverse proxy with rate limiting"
+summary: "An HTTP reverse proxy that forwards faithfully, limits each client with a token bucket, gives up on slow upstreams, routes by path, and answers errors as problem details."
+statement: README.md
+requires: ["go:P3", "api-design:P1"]
+skills: [go.http, go.context-lifecycle, go.sync-memory-model, api-design.errors, api-design.status-codes, api-design.rate-limiting]
+runner: { image: dojo-go, timeout_secs: 150 }
+stages:
+  - { id: forward, title: "Forward requests faithfully" }
+  - { id: rate-limit, title: "A token bucket per client" }
+  - { id: timeouts, title: "Timeouts and cancellation" }
+  - { id: routes-and-health, title: "Routes and a health check" }

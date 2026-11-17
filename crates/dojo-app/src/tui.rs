@@ -135,6 +135,7 @@ fn handle_key(app: &mut App, key: KeyEvent) -> Flow {
         Screen::BridgePicker => handle_bridge_key(app, key.code),
         Screen::TopicStudy => handle_topic_key(app, key.code),
         Screen::Interview => handle_interview_key(app, key.code),
+        Screen::Sidequests => handle_sidequest_key(app, key.code),
         Screen::TrackView => return handle_track_key(app, key.code),
     }
     Flow::Continue
@@ -161,6 +162,19 @@ fn handle_career_key(app: &mut App, code: KeyCode) {
         KeyCode::Down | KeyCode::Char('j') => app.career_down(),
         KeyCode::Up | KeyCode::Char('k') => app.career_up(),
         KeyCode::Enter | KeyCode::Char(' ') => app.toggle_target_career(),
+        _ => {}
+    }
+}
+
+fn handle_sidequest_key(app: &mut App, code: KeyCode) {
+    match code {
+        KeyCode::Esc | KeyCode::Char('s' | 'S' | 'q') => app.close_sidequests(),
+        KeyCode::Down | KeyCode::Char('j') => app.sidequest_down(),
+        KeyCode::Up | KeyCode::Char('k') => app.sidequest_up(),
+        KeyCode::Enter => app.start_sidequest(),
+        KeyCode::Char('c' | 'C') => app.check_selected_sidequest(),
+        KeyCode::PageDown => app.scroll_detail_down(),
+        KeyCode::PageUp => app.scroll_detail_up(),
         _ => {}
     }
 }
@@ -274,6 +288,7 @@ fn handle_track_key(app: &mut App, code: KeyCode) -> Flow {
         KeyCode::Char('p' | 'P') => app.start_placement(),
         KeyCode::Char('h' | 'H') => app.reveal_hint(),
         KeyCode::Char('f' | 'F') => app.start_practice(),
+        KeyCode::Char('s' | 'S') => app.open_sidequests(),
         KeyCode::Char('r' | 'R') => app.start_review(),
         KeyCode::Char('g' | 'G') => app.open_careers(),
         KeyCode::Char('a' | 'A') => app.ai_review_prompt(),
