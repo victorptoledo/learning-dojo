@@ -1,0 +1,13 @@
+id: typescript.sidequest.http-client
+level: 2
+title: "Typed HTTP client"
+summary: "A fetch-based HTTP client where errors are values: a request that never throws, endpoints whose path parameters and bodies are checked by the compiler, then timeouts, retries with backoff, auth and cancelling."
+statement: README.md
+requires: ["typescript:P2", "api-design:P1"]
+skills: [typescript.async-errors, typescript.utility-conditional, typescript.generics, typescript.enums-modules, api-design.http-semantics, api-design.status-codes, api-design.idempotency]
+runner: { image: dojo-node, timeout_secs: 120 }
+stages:
+  - { id: request-and-errors, title: "A request that never throws" }
+  - { id: typed-endpoints, title: "Endpoints checked by the compiler" }
+  - { id: timeouts-and-retries, title: "Timeouts and retries" }
+  - { id: auth-and-cancel, title: "Headers, auth, Retry-After and cancelling" }
