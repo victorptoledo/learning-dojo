@@ -1,0 +1,13 @@
+id: sql.sidequest.bill-of-materials
+level: 2
+title: "Bill of materials"
+summary: "A bicycle factory's parts tree: explode a bike into its components, roll the costs up, guard the tree against cycles and bad data, and plan the purchase with the cheapest current prices."
+statement: README.md
+requires: ["sql:P2"]
+skills: [sql.cte-recursive, sql.window-functions, sql.subqueries, sql.aggregation, sql.joins]
+runner: { image: dojo-sql, timeout_secs: 120 }
+stages:
+  - { id: explode, title: "Explode a bike, find where a part is used" }
+  - { id: cost-and-tree, title: "Roll the costs up and print the tree" }
+  - { id: guard-rails, title: "Cycles and bad parts" }
+  - { id: purchasing, title: "Current prices, price changes and a purchase plan" }
