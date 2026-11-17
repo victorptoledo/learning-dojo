@@ -1,0 +1,188 @@
+// A small state machine library: the transition table, typed with its literal names, and
+// actors that run it with a context, payloads checked by zod, guards and updates.
+import { z } from "zod";
+
+/** One state: the events it accepts and where each one goes. */
+export type StateNode<Names extends string = string> = { readonly on?: { readonly [event: string]: Names } };
+
+export type States = { readonly [state: string]: StateNode };
+
+export type Machine<S extends States> = { readonly initial: keyof S & string; readonly states: S };
+
+/** What every machine is assignable to (`Machine<S>` is not, because of `keyof S`). */
+export type AnyMachine = { readonly initial: string; readonly states: States };
+
+type StatesOf<M> = M extends { readonly states: infer S } ? S : never;
+
+export type StateOf<M> = keyof StatesOf<M> & string;
+
+type OnOf<M, S> = S extends keyof StatesOf<M> ? (StatesOf<M>[S] extends { readonly on: infer On } ? On : {}) : {};
+
+export type EventsOf<M, S extends StateOf<M>> = keyof OnOf<M, S> & string;
+
+export type EventOf<M> = { [S in StateOf<M>]: EventsOf<M, S> }[StateOf<M>];
+
+export type Next<M, S extends StateOf<M>, E extends EventsOf<M, S>> = OnOf<M, S>[E & keyof OnOf<M, S>];
+
+export function defineMachine<const S extends { readonly [state: string]: StateNode<keyof S & string> }>(config: {
+  initial: NoInfer<keyof S & string>;
+  states: S;
+}): Machine<S> {
+  return { initial: config.initial, states: config.states };
+}
+
+export class TransitionError extends Error {
+  readonly state: string;
+  readonly event: string;
+
+  constructor(state: string, event: string) {
+    super(`cannot ${event} in ${state}`);
+    this.name = "TransitionError";
+    this.state = state;
+    this.event = event;
+  }
+}
+
+/** The target of `event` in `state`, for names that may come from anywhere. */
+function targetOf(machine: AnyMachine, state: string, event: string): string | undefined {
+  if (!Object.hasOwn(machine.states, state)) {
+    return undefined;
+  }
+  const on = machine.states[state]?.on;
+  return on !== undefined && Object.hasOwn(on, event) ? on[event] : undefined;
+}
+
+export function transition<M extends AnyMachine, S extends StateOf<M>, E extends EventsOf<M, S>>(
+  machine: M,
+  state: S,
+  event: E,
+): Next<M, S, E> {
+  const target = targetOf(machine, state, event);
+  if (target === undefined) {
+    throw new TransitionError(state, event);
+  }
+  return target as Next<M, S, E>;
+}
+
+export function can(machine: AnyMachine, state: string, event: string): boolean {
+  return targetOf(machine, state, event) !== undefined;
+}
+
+/** The events a state accepts, in the order they are written. */
+function eventsIn(machine: AnyMachine, state: string): string[] {
+  return Object.keys(machine.states[state]?.on ?? {});
+}
+
+export function finalStates<M extends AnyMachine>(machine: M): StateOf<M>[] {
+  return Object.keys(machine.states).filter((state) => eventsIn(machine, state).length === 0) as StateOf<M>[];
+}
+
+export function reachable<M extends AnyMachine>(machine: M): StateOf<M>[] {
+  const seen: string[] = [machine.initial];
+  for (let index = 0; index < seen.length; index += 1) {
+    const state = seen[index] ?? "";
+    for (const event of eventsIn(machine, state)) {
+      const target = targetOf(machine, state, event);
+      if (target !== undefined && !seen.includes(target)) {
+        seen.push(target);
+      }
+    }
+  }
+  return seen as StateOf<M>[];
+}
+
+/** A zod schema per event that carries a payload. */
+export type EventSchemas<M> = { readonly [E in EventOf<M>]?: z.ZodType };
+
+/** `"open.PAY"` for every transition of the machine. */
+export type TransitionKey<M> = { [S in StateOf<M>]: `${S}.${EventsOf<M, S>}` }[StateOf<M>];
+
+type EventOfKey<K> = K extends `${string}.${infer E}` ? E : never;
+
+type SchemaOf<Sch, E> = E extends keyof Sch ? Exclude<Sch[E], undefined> : never;
+
+/** What a guard or an update gets: the payload as the schema parsed it. */
+export type PayloadOf<Sch, E> = [SchemaOf<Sch, E>] extends [never]
+  ? undefined
+  : SchemaOf<Sch, E> extends z.ZodType
+    ? z.output<SchemaOf<Sch, E>>
+    : undefined;
+
+type SendArgs<Sch, E> = [SchemaOf<Sch, E>] extends [never]
+  ? []
+  : SchemaOf<Sch, E> extends z.ZodType
+    ? [payload: z.input<SchemaOf<Sch, E>>]
+    : [];
+
+type Hooks<M, C, Sch, R> = {
+  readonly [K in TransitionKey<M>]?: (context: C, payload: PayloadOf<Sch, EventOfKey<K>>) => R;
+};
+
+export type ActorOptions<M, C, Sch> = {
+  context: C;
+  events?: Sch;
+  guards?: Hooks<M, C, Sch, boolean>;
+  updates?: Hooks<M, C, Sch, C>;
+};
+
+export type SendResult<M> =
+  | { ok: true; state: StateOf<M> }
+  | { ok: false; reason: "not-allowed" | "invalid-payload" | "guard" };
+
+export type Actor<M, C, Sch> = {
+  readonly state: StateOf<M>;
+  readonly context: C;
+  send<E extends EventOf<M>>(event: E, ...payload: SendArgs<Sch, E>): SendResult<M>;
+};
+
+type LooseHook = (context: unknown, payload: unknown) => unknown;
+
+/** The value of an own property, for maps whose keys come from anywhere. */
+function own<V>(map: { readonly [key: string]: V } | undefined, key: string): V | undefined {
+  return map !== undefined && Object.hasOwn(map, key) ? map[key] : undefined;
+}
+
+export function createActor<M extends AnyMachine, C, Sch extends EventSchemas<M> = {}>(
+  machine: M,
+  options: ActorOptions<M, C, Sch>,
+): Actor<M, C, Sch> {
+  let state: string = machine.initial;
+  let context = options.context;
+  const schemas = options.events as { readonly [event: string]: z.ZodType | undefined } | undefined;
+  const guards = options.guards as { readonly [key: string]: LooseHook | undefined } | undefined;
+  const updates = options.updates as { readonly [key: string]: LooseHook | undefined } | undefined;
+  return {
+    get state() {
+      return state as StateOf<M>;
+    },
+    get context() {
+      return context;
+    },
+    send(event: string, ...args: unknown[]): SendResult<M> {
+      const target = targetOf(machine, state, event);
+      if (target === undefined) {
+        return { ok: false, reason: "not-allowed" };
+      }
+      const schema = own(schemas, event);
+      let payload: unknown;
+      if (schema !== undefined) {
+        const parsed = schema.safeParse(args[0]);
+        if (!parsed.success) {
+          return { ok: false, reason: "invalid-payload" };
+        }
+        payload = parsed.data;
+      }
+      const key = `${state}.${event}`;
+      const guard = own(guards, key);
+      if (guard !== undefined && guard(context, payload) !== true) {
+        return { ok: false, reason: "guard" };
+      }
+      const update = own(updates, key);
+      if (update !== undefined) {
+        context = update(context, payload) as C;
+      }
+      state = target;
+      return { ok: true, state: target as StateOf<M> };
+    },
+  };
+}

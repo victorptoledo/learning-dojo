@@ -1,0 +1,13 @@
+id: typescript.sidequest.state-machine
+level: 3
+title: "Typed state machine"
+summary: "A small state machine library where impossible transitions do not compile: a transition table with literal types, an actor with context, payloads checked by zod, guards and updates, events and saved state from the outside world, then async effects that start and stop with their state."
+statement: README.md
+requires: ["typescript:P3"]
+skills: [typescript.utility-conditional, typescript.generics, typescript.runtime-validation, typescript.async-errors, typescript.unions-narrowing]
+runner: { image: dojo-node, timeout_secs: 120 }
+stages:
+  - { id: transitions, title: "Transitions the compiler checks" }
+  - { id: actor, title: "An actor with context, payloads, guards and updates" }
+  - { id: outside-world, title: "Events from outside, history and saved state" }
+  - { id: async-effects, title: "Async effects, subscribers and stopping" }
