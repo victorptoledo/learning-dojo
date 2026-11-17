@@ -159,6 +159,23 @@ impl Career {
         CareerProgress { stages, current }
     }
 
+    /// Index of the first stage that asks for `track`, through a track phase or a
+    /// skill of that track (skill ids start with their track id: `rust.concurrency`).
+    pub fn first_stage_with_track(&self, track: &str) -> Option<usize> {
+        self.stages.iter().position(|stage| {
+            let mut tracks = HashSet::new();
+            let mut skills = HashSet::new();
+            stage
+                .requires
+                .iter()
+                .for_each(|requirement| requirement.targets(&mut tracks, &mut skills));
+            tracks.contains(track)
+                || skills
+                    .iter()
+                    .any(|skill| skill.split('.').next() == Some(track))
+        })
+    }
+
     /// Tracks and skills of the unmet requirements of the current stage.
     fn gap(&self, catalog: &Catalog, profile: &Profile) -> (HashSet<String>, HashSet<String>) {
         let mut tracks = HashSet::new();
@@ -391,6 +408,18 @@ mod tests {
             .complete_by_evidence(track, node, evidence, day())
             .unwrap();
         profile.apply(&event);
+    }
+
+    #[test]
+    fn first_stage_with_track_looks_in_phases_skills_and_any_of() {
+        let systems = career();
+        assert_eq!(systems.first_stage_with_track("rust"), Some(0));
+        assert_eq!(systems.first_stage_with_track("go"), Some(1));
+        assert_eq!(systems.first_stage_with_track("java"), None);
+
+        let mut by_skill = career();
+        by_skill.stages.remove(0);
+        assert_eq!(by_skill.first_stage_with_track("rust"), Some(0));
     }
 
     #[test]

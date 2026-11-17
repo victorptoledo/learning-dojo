@@ -1164,6 +1164,40 @@ fn due_questions_are_reviewed_with_r_and_their_answers_recorded() {
 }
 
 #[test]
+fn the_track_selector_marks_the_tracks_of_the_target_career() {
+    let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
+    h.app.open_selector();
+    let screen = screen_text(&h.app);
+    assert!(!screen.contains("career stage"), "{screen}");
+
+    h.app.profile.settings.target_career = Some("rust-systems-engineer".into());
+    let screen = screen_text(&h.app);
+    assert!(
+        screen.contains("Rust Systems Engineer (7 tracks)"),
+        "{screen}"
+    );
+    let mut terminal = Terminal::new(TestBackend::new(160, 40)).unwrap();
+    terminal.draw(|frame| render(frame, &h.app)).unwrap();
+    let buffer = terminal.backend().buffer().clone();
+    let rows: Vec<String> = (0..buffer.area.height)
+        .map(|y| {
+            (0..buffer.area.width)
+                .map(|x| buffer[(x, y)].symbol())
+                .collect()
+        })
+        .collect();
+    let row = |name: &str| {
+        rows.iter()
+            .find(|row| row.contains(name) && row.contains("nodes ("))
+            .cloned()
+            .unwrap_or_else(|| panic!("no row for {name}"))
+    };
+    assert!(row("Git & GitHub").contains("career stage 2"), "{screen}");
+    assert!(row("Rust ").contains("career stage 1"), "{screen}");
+    assert!(!row("Modern Java").contains("career stage"), "{screen}");
+}
+
+#[test]
 fn the_career_screen_sets_a_target_that_steers_the_next_steps() {
     let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
     select(&mut h.app, "rust.p0.setup");

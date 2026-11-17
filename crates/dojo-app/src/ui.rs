@@ -667,15 +667,35 @@ fn render_footer(frame: &mut Frame, app: &App, area: Rect) {
 fn render_track_selector(frame: &mut Frame, app: &App, area: Rect) {
     let popup = centered(area, 86, 80);
     frame.render_widget(Clear, popup);
+    let career = app
+        .profile
+        .settings
+        .target_career
+        .as_deref()
+        .and_then(|id| app.catalog.careers.iter().find(|career| career.id == id));
     let items: Vec<ListItem> = app
         .catalog
         .tracks
         .iter()
         .enumerate()
-        .map(|(index, track)| selector_item(app, track, index == app.active_track_index()))
+        .map(|(index, track)| {
+            let stage = career.and_then(|career| career.first_stage_with_track(&track.id));
+            selector_item(app, track, index == app.active_track_index(), stage)
+        })
         .collect();
+    let career_note = career
+        .map(|career| {
+            let tracks = app
+                .catalog
+                .tracks
+                .iter()
+                .filter(|track| career.first_stage_with_track(&track.id).is_some())
+                .count();
+            format!("· 🎯 {} ({tracks} tracks) ", career.title)
+        })
+        .unwrap_or_default();
     let title = format!(
-        " 🥋 Tracks — {} available [{}/{}] ",
+        " 🥋 Tracks — {} available [{}/{}] {career_note}",
         app.catalog.tracks.len(),
         app.selector_cursor + 1,
         app.catalog.tracks.len()
@@ -698,10 +718,17 @@ fn render_track_selector(frame: &mut Frame, app: &App, area: Rect) {
     frame.render_stateful_widget(list, popup, &mut state);
 }
 
-fn selector_item<'a>(app: &App, track: &'a Track, is_active: bool) -> ListItem<'a> {
+/// One row of the track selector. `career_stage` is the index of the first stage of the
+/// target career that asks for this track, if any.
+fn selector_item<'a>(
+    app: &App,
+    track: &'a Track,
+    is_active: bool,
+    career_stage: Option<usize>,
+) -> ListItem<'a> {
     let completed = app.profile.completed_count(track);
     let marker = if is_active { "● " } else { "  " };
-    ListItem::new(Line::from(vec![
+    let mut spans = vec![
         Span::raw(marker),
         Span::raw(format!("{} ", track.icon)),
         format!("{:<32} ", track.name).bold().cyan(),
@@ -712,7 +739,11 @@ fn selector_item<'a>(app: &App, track: &'a Track, is_active: bool) -> ListItem<'
             app.profile.track_xp(track)
         )
         .white(),
-    ]))
+    ];
+    if let Some(stage) = career_stage {
+        spans.push(format!("  🎯 career stage {}", stage + 1).yellow().bold());
+    }
+    ListItem::new(Line::from(spans))
 }
 
 pub(crate) fn centered(area: Rect, width_percent: u16, height_percent: u16) -> Rect {
