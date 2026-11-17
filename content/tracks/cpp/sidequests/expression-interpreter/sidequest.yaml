@@ -1,0 +1,13 @@
+id: cpp.sidequest.expression-interpreter
+level: 3
+title: "Expression interpreter"
+summary: "An interpreter of arithmetic formulas: a syntax tree as a std::variant walked with std::visit, errors with their position, a simplifier that builds new trees, and a batch evaluated in parallel with std::jthread, clean under ThreadSanitizer."
+statement: README.md
+requires: ["cpp:P3"]
+skills: [cpp.polymorphism, cpp.concurrency, cpp.ranges, cpp.error-handling, cpp.raii-memory]
+runner: { image: dojo-cpp, timeout_secs: 240 }
+stages:
+  - { id: parse, title: "A syntax tree with precedence" }
+  - { id: evaluate, title: "Evaluation, variables and functions" }
+  - { id: simplify, title: "Simplifying the tree" }
+  - { id: parallel-batch, title: "A batch on several threads" }
