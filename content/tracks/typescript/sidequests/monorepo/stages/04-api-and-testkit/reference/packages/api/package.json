@@ -1,0 +1,11 @@
+{
+  "name": "@tally/api",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@tally/core": "^1.0.0"
+  }
+}

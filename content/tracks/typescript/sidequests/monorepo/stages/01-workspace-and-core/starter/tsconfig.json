@@ -1,0 +1,7 @@
+{
+  // Type-checks the whole repository for now; stage 3 turns it into a solution file.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": { "noEmit": true },
+  "include": ["packages/*/src/**/*.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", "**/dist"]
+}
