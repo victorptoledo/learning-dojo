@@ -1,0 +1,14 @@
+id: spring-boot.sidequest.ticket-sales
+level: 4
+title: "Ticket sales without overbooking"
+summary: "Sell the seats of an event to many buyers at once without ever selling one twice: JPA locks, seat holds that expire on a clock, purchases made safe by idempotency keys, and an event cancellation that refunds every order even while purchases are in flight."
+statement: README.md
+requires: ["spring-boot:P4", "sql:P3"]
+skills: [spring.data-jpa, spring.security, spring.configuration, spring.testing, spring.production, sql.transactions]
+runner: { image: dojo-java, timeout_secs: 360 }
+stages:
+  - { id: events-and-seats, title: "Events, seats and who may create them" }
+  - { id: holds, title: "Seat holds, all or nothing, under load" }
+  - { id: expiry, title: "Holds that expire" }
+  - { id: purchase, title: "Purchases with idempotency keys" }
+  - { id: cancellation, title: "Cancellation with purchases in flight, and a report" }
