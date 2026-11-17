@@ -1,0 +1,12 @@
+id: spring-boot.sidequest.room-booking
+level: 1
+title: "Room booking API"
+summary: "A REST API to book meeting rooms: rooms and bookings in memory, validation and Problem Details for every error, overlaps refused, then opening hours and limits read from validated configuration."
+statement: README.md
+requires: ["spring-boot:P1"]
+skills: [spring.rest, spring.validation-errors, spring.configuration, spring.dependency-injection]
+runner: { image: dojo-java, timeout_secs: 240 }
+stages:
+  - { id: rooms, title: "Rooms, validation and Problem Details" }
+  - { id: bookings, title: "Bookings that never overlap" }
+  - { id: opening-hours, title: "Opening hours, limits and free slots from configuration" }

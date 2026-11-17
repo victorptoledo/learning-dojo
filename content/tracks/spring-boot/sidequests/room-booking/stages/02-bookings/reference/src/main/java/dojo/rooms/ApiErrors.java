@@ -1,0 +1,61 @@
+package dojo.rooms;
+
+import java.util.Map;
+import java.util.TreeMap;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+/** Every error as a Problem Detail. */
+@RestControllerAdvice
+public class ApiErrors extends ResponseEntityExceptionHandler {
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "invalid request");
+        Map<String, String> errors = new TreeMap<>();
+        for (FieldError error : e.getBindingResult().getFieldErrors()) {
+            errors.putIfAbsent(error.getField(), error.getDefaultMessage());
+        }
+        problem.setProperty("errors", errors);
+        return handleExceptionInternal(e, problem, headers, status, request);
+    }
+
+    @ExceptionHandler(FieldException.class)
+    public ProblemDetail badField(FieldException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "invalid request");
+        problem.setProperty("errors", Map.of(e.field(), e.getMessage()));
+        return problem;
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ProblemDetail notFound(NotFoundException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ProblemDetail conflict(ConflictException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(OverlapException.class)
+    public ProblemDetail overlap(OverlapException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+        problem.setProperty("conflictsWith", e.conflictsWith());
+        return problem;
+    }
+
+    @ExceptionHandler(RuleException.class)
+    public ProblemDetail rule(RuleException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, e.getMessage());
+    }
+}
