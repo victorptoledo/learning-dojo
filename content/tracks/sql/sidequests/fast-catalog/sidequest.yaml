@@ -1,0 +1,13 @@
+id: sql.sidequest.fast-catalog
+level: 3
+title: "Fast catalog"
+summary: "Make an online shop's catalogue fast with the fewest indexes that pull their weight: composite, expression, partial and covering indexes, keyset pagination, and proof from EXPLAIN (ANALYZE, BUFFERS)."
+statement: README.md
+requires: ["sql:P3"]
+skills: [sql.indexes-plans, sql.applications, sql.anti-patterns, sql.select-basics]
+runner: { image: dojo-sql, timeout_secs: 240 }
+stages:
+  - { id: category-page, title: "The category page and the sku lookup" }
+  - { id: partial-and-covering, title: "Partial and covering indexes" }
+  - { id: keyset-pagination, title: "Pages that stay fast all the way down" }
+  - { id: index-hygiene, title: "Reviews, and the indexes nobody needs" }
