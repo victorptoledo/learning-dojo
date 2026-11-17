@@ -1,0 +1,12 @@
+id: cpp.sidequest.matrix-calculator
+level: 1
+title: "Matrix calculator"
+summary: "A `Matrix` value type with an invariant, arithmetic that reports bad shapes with std::optional, and text parsing, determinants and inverses."
+statement: README.md
+requires: ["cpp:P1"]
+skills: [cpp.classes, cpp.containers-algorithms, cpp.types-values, cpp.functions-control]
+runner: { image: dojo-cpp, timeout_secs: 180 }
+stages:
+  - { id: matrix, title: "A Matrix value with an invariant" }
+  - { id: arithmetic, title: "Arithmetic, transpose and powers" }
+  - { id: text-and-inverse, title: "Text, determinant and inverse" }
