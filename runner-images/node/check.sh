@@ -11,12 +11,13 @@ rm -rf "${out:?}"/*
 cp -r /work "$out/kata"
 cd "$out/kata" || exit 1
 
-# The packages preinstalled in the image (typescript, @types/node, zod): no network needed.
-rm -rf node_modules
-ln -s /opt/dojo/node_modules node_modules
 cp /opt/dojo/tsconfig.dojo.json tsconfig.dojo.json
 if [ ! -f package.json ]; then
     echo '{ "type": "module" }' > package.json
 fi
+# The packages preinstalled in the image (typescript, @types/node, zod): no network needed.
+# With "workspaces" in package.json, each workspace package is linked under its name too.
+rm -rf node_modules
+node /opt/dojo/link-workspaces.mjs || exit 1
 
 exec node /opt/dojo/report.mjs
