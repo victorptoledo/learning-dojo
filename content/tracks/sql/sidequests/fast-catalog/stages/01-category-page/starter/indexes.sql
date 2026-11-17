@@ -1,0 +1,1 @@
+-- todo: CREATE INDEX statements, one per query that needs one.

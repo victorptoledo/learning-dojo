@@ -1,0 +1,1 @@
+-- todo: standing_tickets, standing_left() and buy_standing().

@@ -1,0 +1,1 @@
+-- todo: DROP INDEX the fixture's indexes that do not earn their keep.

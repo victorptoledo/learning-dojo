@@ -1,0 +1,1 @@
+-- todo: fill teams, players, matches and goals from the import_* tables.

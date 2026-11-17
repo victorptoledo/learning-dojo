@@ -1,0 +1,1 @@
+-- todo: every part that is part of itself through bom.

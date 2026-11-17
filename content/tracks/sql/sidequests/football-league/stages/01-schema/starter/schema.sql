@@ -1,0 +1,1 @@
+-- todo: CREATE TABLE teams, players, matches and goals, with the rules of the stage.

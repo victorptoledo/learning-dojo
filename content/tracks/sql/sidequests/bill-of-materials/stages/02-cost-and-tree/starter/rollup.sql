@@ -1,0 +1,1 @@
+-- todo: the cost of every assembly, from the components below it.

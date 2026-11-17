@@ -1,0 +1,12 @@
+id: sql.sidequest.football-league
+level: 1
+title: "Football league"
+summary: "Model a small football league from scratch, load a season exported as text, and answer the questions fans ask: the league table, the top scorers and how each round went."
+statement: README.md
+requires: ["sql:P1"]
+skills: [sql.relational-model, sql.dml, sql.joins, sql.aggregation, sql.nulls]
+runner: { image: dojo-sql, timeout_secs: 120 }
+stages:
+  - { id: schema, title: "Teams, players, matches and goals" }
+  - { id: load-the-season, title: "Load the season from the spreadsheet" }
+  - { id: league-table, title: "The league table, top scorers and rounds" }

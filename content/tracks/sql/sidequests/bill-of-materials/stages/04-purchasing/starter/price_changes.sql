@@ -1,0 +1,1 @@
+-- todo: every price with the previous price of the same part and supplier.

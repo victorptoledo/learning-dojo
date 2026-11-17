@@ -1,0 +1,1 @@
+-- todo: how many active Kestrel products, the cheapest and the dearest price.
