@@ -1,0 +1,14 @@
+id: cpp.sidequest.http-server
+level: 4
+title: "Minimal HTTP server"
+summary: "An HTTP/1.1 server on POSIX sockets owned by RAII: routes, request parsing, a pool of workers, limits and timeouts against bad clients, keep-alive and a graceful shutdown, clean under the sanitizers."
+statement: README.md
+requires: ["cpp:P4", "linux:P2", "computer-science:P2"]
+skills: [cpp.production, cpp.concurrency, cpp.raii-memory, cpp.error-handling, cpp.performance, computer-science.networking, linux.processes]
+runner: { image: dojo-cpp, timeout_secs: 300 }
+stages:
+  - { id: hello, title: "Listen, route and answer" }
+  - { id: requests, title: "Reading requests properly" }
+  - { id: workers, title: "A pool of workers" }
+  - { id: limits-and-timeouts, title: "Limits and timeouts" }
+  - { id: keep-alive-and-shutdown, title: "Keep-alive and a graceful shutdown" }
