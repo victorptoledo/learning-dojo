@@ -1,0 +1,12 @@
+id: nodejs.sidequest.folder-mirror
+level: 1
+title: "Folder mirror"
+summary: "A command-line tool that makes one folder an exact copy of another and copies only what changed: a plan from sizes, times and hashes, safe copies through streams with a temporary file and a rename, deletes that leave no empty folders, and gitignore-like excludes."
+statement: README.md
+requires: ["nodejs:P1"]
+skills: [nodejs.fs-path, nodejs.process-cli, nodejs.async-patterns, nodejs.streams-buffers]
+runner: { image: dojo-node, timeout_secs: 120 }
+stages:
+  - { id: scan-and-plan, title: "Scan both folders and plan" }
+  - { id: apply, title: "Copy safely" }
+  - { id: excludes, title: "Excludes, an ignore file and checksums" }
