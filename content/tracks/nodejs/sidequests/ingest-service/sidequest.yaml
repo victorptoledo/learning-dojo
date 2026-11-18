@@ -1,0 +1,14 @@
+id: nodejs.sidequest.ingest-service
+level: 4
+title: "Event ingestion service"
+summary: "A production-shaped service that takes NDJSON events over HTTP: streamed line by line into batches, backpressure from the sink to the client's TCP connection and 503s when full, Prometheus metrics with a latency histogram and event loop delay, health checks and sink retries, and a graceful shutdown on SIGTERM that loses nothing."
+statement: README.md
+requires: ["nodejs:P4"]
+skills: [nodejs.streams-buffers, nodejs.http, nodejs.production, nodejs.async-context, nodejs.performance-scaling, nodejs.event-loop-libuv, nodejs.process-cli]
+runner: { image: dojo-node, timeout_secs: 180 }
+stages:
+  - { id: ingest, title: "Stream NDJSON into batches" }
+  - { id: backpressure, title: "Backpressure and load shedding" }
+  - { id: metrics, title: "Metrics in the Prometheus format" }
+  - { id: health, title: "Health checks and a sink that fails" }
+  - { id: shutdown, title: "A graceful shutdown that loses nothing" }
