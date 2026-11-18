@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { screen, within } from "@testing-library/react";
 import { ALL_MOVIES, fakeApi, last, movie, page, start, statusText, titles } from "./movie-helpers.tsx";
+import { expectAbsent } from "./movie-helpers.tsx";
 
 describe("first load", () => {
   test("asks once for the first page of every movie", () => {
@@ -15,8 +16,8 @@ describe("first load", () => {
     const { api } = fakeApi();
     start(api);
     assert.equal(statusText(), "Loading movies");
-    assert.equal(screen.queryByRole("list", { name: "Movies" }), null);
-    assert.equal(screen.queryByRole("alert"), null);
+    expectAbsent(screen.queryByRole("list", { name: "Movies" }));
+    expectAbsent(screen.queryByRole("alert"));
   });
 
   test("lists the movies with a heading and their details", async () => {
@@ -56,7 +57,7 @@ describe("first load", () => {
     start(api);
     await last(calls).answer(page([]));
     assert.equal(statusText(), "No movies found");
-    assert.equal(screen.queryByRole("list", { name: "Movies" }), null);
+    expectAbsent(screen.queryByRole("list", { name: "Movies" }));
   });
 });
 
@@ -69,7 +70,7 @@ describe("errors", () => {
     assert.ok(within(alert).getByText("Could not load movies."));
     assert.ok(within(alert).getByRole("button", { name: "Try again" }));
     assert.equal(statusText(), "");
-    assert.equal(screen.queryByRole("list", { name: "Movies" }), null);
+    expectAbsent(screen.queryByRole("list", { name: "Movies" }));
   });
 
   test("Try again asks for the same page again and can succeed", async () => {
@@ -80,7 +81,7 @@ describe("errors", () => {
     assert.equal(calls.length, 2);
     assert.deepEqual(last(calls).query, ALL_MOVIES);
     assert.equal(statusText(), "Loading movies");
-    assert.equal(screen.queryByRole("alert"), null);
+    expectAbsent(screen.queryByRole("alert"));
     await last(calls).answer(page([movie(7)]));
     assert.deepEqual(titles(), ["Movie 7"]);
   });
@@ -100,6 +101,6 @@ describe("leaving", () => {
     const { unmount } = start(api);
     unmount();
     await last(calls).answer(page([movie(1)]));
-    assert.equal(screen.queryByRole("list", { name: "Movies" }), null);
+    expectAbsent(screen.queryByRole("list", { name: "Movies" }));
   });
 });

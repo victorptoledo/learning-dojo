@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { screen, within } from "@testing-library/react";
 import { ALL_MOVIES, fakeApi, last, movie, page, start, statusText, titles } from "./movie-helpers.tsx";
+import { expectAbsent, expectFocus } from "./movie-helpers.tsx";
 
 const loadMore = () => screen.queryByRole("button", { name: "Load more" }) as HTMLButtonElement | null;
 
@@ -13,7 +14,7 @@ describe("load more", () => {
   test("is offered only while there are more pages", async () => {
     const { api, calls } = fakeApi();
     start(api);
-    assert.equal(loadMore(), null);
+    expectAbsent(loadMore());
     await last(calls).answer(firstPage());
     assert.ok(loadMore());
     assert.equal(loadMore()?.disabled, false);
@@ -23,7 +24,7 @@ describe("load more", () => {
     const { api, calls } = fakeApi();
     start(api);
     await last(calls).answer(page([movie(1)], { total: 1, page: 1, pageCount: 1 }));
-    assert.equal(loadMore(), null);
+    expectAbsent(loadMore());
   });
 
   test("asks for the next page of the same search", async () => {
@@ -66,7 +67,7 @@ describe("load more", () => {
     await user.click(loadMore() as HTMLButtonElement);
     await last(calls).answer(page([movie(3), movie(4)], { total: 5, page: 2, pageCount: 3 }));
     const list = screen.getByRole("list", { name: "Movies" });
-    assert.equal(document.activeElement, within(list).getByRole("heading", { name: "Movie 3" }));
+    expectFocus(within(list).getByRole("heading", { name: "Movie 3" }));
   });
 
   test("skips movies that are already shown", async () => {
@@ -85,7 +86,7 @@ describe("load more", () => {
     await last(calls).answer(page([movie(1)], { total: 2, page: 1, pageCount: 2 }));
     await user.click(loadMore() as HTMLButtonElement);
     await last(calls).answer(page([movie(2)], { total: 2, page: 2, pageCount: 2 }));
-    assert.equal(loadMore(), null);
+    expectAbsent(loadMore());
     assert.equal(statusText(), "Showing 2 of 2 movies");
   });
 
@@ -100,7 +101,7 @@ describe("load more", () => {
     assert.deepEqual(titles(), ["Movie 1", "Movie 2"]);
     await user.click(within(alert).getByRole("button", { name: "Try again" }));
     assert.deepEqual(last(calls).query, { ...ALL_MOVIES, page: 2 });
-    assert.equal(screen.queryByRole("alert"), null);
+    expectAbsent(screen.queryByRole("alert"));
     await last(calls).answer(page([movie(3)], { total: 5, page: 2, pageCount: 3 }));
     assert.deepEqual(titles(), ["Movie 1", "Movie 2", "Movie 3"]);
   });

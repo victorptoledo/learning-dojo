@@ -12,6 +12,7 @@ import {
   priceBox,
   start,
 } from "./bill-helpers.tsx";
+import { expectAbsent, expectFocus } from "./bill-helpers.tsx";
 
 const subtotal = (text: string) => assert.ok(screen.getByText(`Subtotal: ${text}`));
 
@@ -20,7 +21,7 @@ describe("people", () => {
     start();
     assert.ok(screen.getByRole("form", { name: "Add a person" }));
     assert.ok(screen.getByText("No people yet"));
-    assert.equal(screen.queryByRole("list", { name: "People" }), null);
+    expectAbsent(screen.queryByRole("list", { name: "People" }));
     subtotal("0.00");
   });
 
@@ -29,14 +30,14 @@ describe("people", () => {
     await addPerson(user, "  Ana ");
     await addPerson(user, "Bia");
     assert.deepEqual(namesIn("People"), ["Ana", "Bia"]);
-    assert.equal(screen.queryByText("No people yet"), null);
+    expectAbsent(screen.queryByText("No people yet"));
   });
 
   test("adding clears the name and keeps the focus on it", async () => {
     const user = start();
     await addPerson(user, "Ana");
     assert.equal((nameBox() as HTMLInputElement).value, "");
-    assert.equal(document.activeElement, nameBox());
+    expectFocus(nameBox());
   });
 
   test("Enter in the name field adds the person", async () => {
@@ -51,7 +52,7 @@ describe("people", () => {
     assert.equal(nameBox().getAttribute("aria-invalid"), "true");
     assert.equal(describedBy(nameBox()), "Enter a name");
     assert.ok(screen.getByText("Enter a name"));
-    assert.equal(document.activeElement, nameBox());
+    expectFocus(nameBox());
     assert.deepEqual(namesIn("People"), []);
   });
 
@@ -69,7 +70,7 @@ describe("people", () => {
     await addPerson(user, "Ana");
     assert.notEqual(nameBox().getAttribute("aria-invalid"), "true");
     assert.equal(describedBy(nameBox()), "");
-    assert.equal(screen.queryByText("Enter a name"), null);
+    expectAbsent(screen.queryByText("Enter a name"));
   });
 
   test("a person can be removed", async () => {
@@ -88,7 +89,7 @@ describe("items", () => {
     start();
     assert.ok(screen.getByRole("form", { name: "Add an item" }));
     assert.ok(screen.getByText("No items yet"));
-    assert.equal(screen.queryByRole("list", { name: "Items" }), null);
+    expectAbsent(screen.queryByRole("list", { name: "Items" }));
   });
 
   test("added items show their price with two decimals and add up", async () => {
@@ -99,7 +100,7 @@ describe("items", () => {
     assert.ok(screen.getByText("12.50"));
     assert.ok(screen.getByText("20.00"));
     subtotal("32.50");
-    assert.equal(screen.queryByText("No items yet"), null);
+    expectAbsent(screen.queryByText("No items yet"));
   });
 
   test("each row shows its own description and price", async () => {
@@ -115,7 +116,7 @@ describe("items", () => {
     await addItem(user, "Pizza", "10");
     assert.equal((itemBox() as HTMLInputElement).value, "");
     assert.equal((priceBox() as HTMLInputElement).value, "");
-    assert.equal(document.activeElement, itemBox());
+    expectFocus(itemBox());
   });
 
   test("both empty fields get their error, and the focus goes to the first one", async () => {
@@ -125,7 +126,7 @@ describe("items", () => {
     assert.equal(describedBy(priceBox()), "Enter a price");
     assert.equal(itemBox().getAttribute("aria-invalid"), "true");
     assert.equal(priceBox().getAttribute("aria-invalid"), "true");
-    assert.equal(document.activeElement, itemBox());
+    expectFocus(itemBox());
     assert.deepEqual(namesIn("Items"), []);
   });
 
@@ -135,7 +136,7 @@ describe("items", () => {
       await addItem(user, "Pizza", price);
       assert.equal(describedBy(priceBox()), "Enter a price like 12.50", price);
       assert.notEqual(itemBox().getAttribute("aria-invalid"), "true", price);
-      assert.equal(document.activeElement, priceBox(), price);
+      expectFocus(priceBox(), price);
     }
     assert.deepEqual(namesIn("Items"), []);
   });

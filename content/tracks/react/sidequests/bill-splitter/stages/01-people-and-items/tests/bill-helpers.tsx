@@ -1,5 +1,6 @@
 // Helpers shared by the contract tests of every stage: they act like a user and read the page
 // only through roles, labels and visible text.
+import assert from "node:assert/strict";
 import { render, screen, within } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { BillSplitter } from "../BillSplitter.tsx";
@@ -77,4 +78,32 @@ export function shares(): string[] {
   return within(list)
     .getAllByRole("listitem")
     .map((item) => (item.textContent ?? "").replace(/\s+/g, " ").trim());
+}
+
+/** A short description of an element for failure messages (never the element itself). */
+function nameOf(element: Element | null): string {
+  if (!element || element === document.body) {
+    return "nothing (the page itself)";
+  }
+  const label =
+    element.getAttribute("aria-label") ??
+    ("labels" in element ? (element as HTMLInputElement).labels?.[0]?.textContent : null) ??
+    element.textContent ??
+    "";
+  return `<${element.tagName.toLowerCase()}> "${label.replace(/\s+/g, " ").trim().slice(0, 60)}"`;
+}
+
+// Compare elements with these, not with assert.equal: when it fails, assert would print the
+// whole document, which takes minutes.
+export function expectFocus(element: Element, context?: string): void {
+  const active = document.activeElement;
+  if (active !== element) {
+    assert.fail(`${context ? `${context}: ` : ""}the focus should be on ${nameOf(element)}, but it is on ${nameOf(active)}`);
+  }
+}
+
+export function expectAbsent(element: Element | null, context?: string): void {
+  if (element !== null) {
+    assert.fail(`${context ? `${context}: ` : ""}${nameOf(element)} should not be on the page`);
+  }
 }

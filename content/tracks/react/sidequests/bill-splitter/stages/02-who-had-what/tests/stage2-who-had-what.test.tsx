@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { screen, within } from "@testing-library/react";
 import { addItem, addPerson, itemRow, shares, start, type User } from "./bill-helpers.tsx";
+import { expectAbsent } from "./bill-helpers.tsx";
 
 function boxes(item: string): HTMLInputElement[] {
   const group = within(itemRow(item)).getByRole("group", { name: `Who had ${item}?` });
@@ -96,21 +97,21 @@ describe("who had what", () => {
     const user = start();
     await table(user, "Ana");
     await addItem(user, "Pizza", "12.50");
-    assert.equal(screen.queryByText(/^Unassigned/), null);
+    expectAbsent(screen.queryByText(/^Unassigned/));
     await toggle(user, "Pizza", "Ana");
     assert.ok(within(itemRow("Pizza")).getByText("Nobody had Pizza"));
     assert.ok(screen.getByText("Unassigned: 12.50"));
     assert.deepEqual(shares(), ["Ana owes 0.00"]);
     await toggle(user, "Pizza", "Ana");
-    assert.equal(screen.queryByText("Nobody had Pizza"), null);
-    assert.equal(screen.queryByText(/^Unassigned/), null);
+    expectAbsent(screen.queryByText("Nobody had Pizza"));
+    expectAbsent(screen.queryByText(/^Unassigned/));
   });
 
   test("items added before anyone sits down are unassigned", async () => {
     const user = start();
     await addItem(user, "Bread", "5");
     assert.ok(screen.getByText("Unassigned: 5.00"));
-    assert.equal(screen.queryByRole("list", { name: "Shares" }), null);
+    expectAbsent(screen.queryByRole("list", { name: "Shares" }));
   });
 
   test("removing a person removes them from every item", async () => {

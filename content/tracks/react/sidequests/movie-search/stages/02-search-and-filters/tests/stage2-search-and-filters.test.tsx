@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { screen, within } from "@testing-library/react";
 import { ALL_MOVIES, fakeApi, last, movie, page, start, statusText, titles, type User } from "./movie-helpers.tsx";
+import { expectAbsent } from "./movie-helpers.tsx";
 
 const GENRES = ["Action", "Drama", "Horror"];
 const searchBox = () => screen.getByRole("searchbox", { name: "Search movies" });
@@ -105,7 +106,7 @@ describe("races", () => {
     await searchFor(user, "up");
     await calls[1]?.answer(page([movie(1, { title: "Up" })]));
     await calls[0]?.fail();
-    assert.equal(screen.queryByRole("alert"), null);
+    expectAbsent(screen.queryByRole("alert"));
     assert.deepEqual(titles(), ["Up"]);
   });
 

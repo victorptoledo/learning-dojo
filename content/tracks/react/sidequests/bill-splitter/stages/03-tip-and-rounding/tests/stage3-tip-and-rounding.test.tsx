@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { screen, within } from "@testing-library/react";
 import { addItem, addPerson, describedBy, itemRow, shares, start, type User } from "./bill-helpers.tsx";
+import { expectAbsent } from "./bill-helpers.tsx";
 
 const tipGroup = () => screen.getByRole("group", { name: "Tip" });
 const radio = (name: string) => within(tipGroup()).getByRole("radio", { name }) as HTMLInputElement;
@@ -64,7 +65,7 @@ describe("tip", () => {
   test("a custom tip is a whole percentage typed in its own field", async () => {
     const user = start();
     await addItem(user, "Pizza", "50");
-    assert.equal(customBox(), null);
+    expectAbsent(customBox());
     await user.click(radio("Custom"));
     const box = customBox();
     assert.ok(box);
@@ -100,7 +101,7 @@ describe("tip", () => {
     await addItem(user, "Pizza", "10");
     await user.click(radio("Custom"));
     await user.click(radio("10%"));
-    assert.equal(customBox(), null);
+    expectAbsent(customBox());
     assert.deepEqual(totals(), { tip: "Tip: 1.00", total: "Total: 11.00" });
   });
 });
@@ -138,7 +139,7 @@ describe("what each person owes", () => {
       const total = cents(totals().total);
       const owed = shares().reduce((sum, line) => sum + cents(line), 0);
       assert.equal(owed, total, tip);
-      assert.equal(screen.queryByText(/^Unassigned/), null, tip);
+      expectAbsent(screen.queryByText(/^Unassigned/), tip);
     }
     await user.click(radio("Custom"));
     const box = customBox();
