@@ -1,0 +1,13 @@
+id: nodejs.sidequest.durable-queue
+level: 3
+title: "Durable job queue"
+summary: "A job queue that survives a crash: an append-only journal replayed on start, torn writes and compaction; jobs run on a pool of worker threads with timeouts and crash recovery; retries with exponential backoff and dead letters; cancelling a running job and stopping with a deadline."
+statement: README.md
+requires: ["nodejs:P3"]
+skills: [nodejs.worker-threads, nodejs.fs-path, nodejs.events, nodejs.async-patterns, nodejs.event-loop-libuv]
+runner: { image: dojo-node, timeout_secs: 180 }
+stages:
+  - { id: journal, title: "A queue that survives a crash" }
+  - { id: workers, title: "Jobs on worker threads" }
+  - { id: retries, title: "Retries, backoff and dead letters" }
+  - { id: cancel-and-stop, title: "Cancelling, and stopping with a deadline" }
