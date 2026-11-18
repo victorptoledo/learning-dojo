@@ -687,11 +687,11 @@ fn passed_stages_survive_a_restart() {
 #[test]
 fn s_explains_a_track_without_sidequests() {
     let mut h = harness(memory_store(), Mode::Learner, FakeRunner::returning(&[]));
-    select(&mut h.app, "git.p0.first-repo");
+    select(&mut h.app, "kubernetes.p0.first-pod");
     h.app.open_sidequests();
     assert_eq!(h.app.screen, Screen::TrackView);
     assert!(
-        status(&h.app).contains("No sidequests for Git & GitHub"),
+        status(&h.app).contains("No sidequests for Kubernetes"),
         "{}",
         status(&h.app)
     );
