@@ -1,0 +1,12 @@
+id: docker.sidequest.guestbook
+level: 1
+title: "Guestbook"
+summary: "Package a small message board in a Dockerfile of your own: a clean build context, an entrypoint that takes arguments, and messages that live on a volume instead of inside the container."
+statement: README.md
+requires: ["docker:P1"]
+skills: [docker.dockerfile-basics, docker.images-layers, docker.containers, docker.volumes]
+runner: { image: dojo-docker, timeout_secs: 300 }
+stages:
+  - { id: package, title: "Build and run the board" }
+  - { id: context-and-entrypoint, title: "A clean context and an entrypoint" }
+  - { id: persistent-data, title: "Messages on a volume" }
