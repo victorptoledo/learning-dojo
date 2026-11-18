@@ -1,0 +1,13 @@
+id: nodejs.sidequest.polls-api
+level: 2
+title: "Polls API"
+summary: "A JSON API on node:http with no framework: validation that reports every field and RFC 9457 problem details, one vote per voter with Idempotency-Key retries, cursor pagination that survives new data, and ETags for caching and for edits that cannot overwrite each other."
+statement: README.md
+requires: ["nodejs:P2", "api-design:P1"]
+skills: [nodejs.http, nodejs.errors-testing, nodejs.streams-buffers, api-design.errors, api-design.status-codes, api-design.idempotency, api-design.pagination, api-design.caching]
+runner: { image: dojo-node, timeout_secs: 120 }
+stages:
+  - { id: create-and-read, title: "Create and read polls, with problem details" }
+  - { id: votes, title: "One vote per voter, and safe retries" }
+  - { id: listing, title: "Lists with cursor pagination" }
+  - { id: conditional, title: "ETags and edits that cannot collide" }
