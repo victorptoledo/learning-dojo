@@ -1,0 +1,1 @@
+-- todo: the indexes of every search, one statement after the other.

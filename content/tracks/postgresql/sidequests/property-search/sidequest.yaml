@@ -1,0 +1,13 @@
+id: postgresql.sidequest.property-search
+level: 3
+title: "Property search"
+summary: "Make a property portal's searches fast with the index each one needs, proven by a buffer budget: GIN for arrays and JSONB, trigrams for substrings and typos, GiST for the nearest homes and a radius, and a BRIN index of a few kilobytes over ten years of prices."
+statement: README.md
+requires: ["postgresql:P3"]
+skills: [postgresql.indexes-advanced, postgresql.extensions, postgresql.query-planner, postgresql.jsonb, postgresql.full-text-search]
+runner: { image: dojo-sql, timeout_secs: 240 }
+stages:
+  - { id: features, title: "Features and attributes with GIN" }
+  - { id: fuzzy-titles, title: "Substrings and typos with trigrams" }
+  - { id: nearby, title: "The nearest homes with GiST" }
+  - { id: price-history, title: "Ten years of prices with BRIN" }
