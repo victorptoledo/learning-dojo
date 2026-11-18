@@ -1,0 +1,11 @@
+.git
+.env*
+certs/
+*.key
+*.pem
+docs/
+scripts/
+testdata/
+*.md
+Dockerfile
+.dockerignore

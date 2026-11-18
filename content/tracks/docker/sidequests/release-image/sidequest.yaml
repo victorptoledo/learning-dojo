@@ -1,0 +1,14 @@
+id: docker.sidequest.release-image
+level: 4
+title: "Release image"
+summary: "Take an inventory API's image through the release checklist: a fixed non-root user, builds that reuse their cache, a scratch runtime that still has certificates, time zones and /tmp, PID 1 with a health check and a volume, and an audit of pinned digests, OCI labels and secrets."
+statement: README.md
+requires: ["docker:P4"]
+skills: [docker.production, docker.supply-chain, docker.buildkit, docker.dockerfile-security, docker.logs-debugging]
+runner: { image: dojo-docker, timeout_secs: 300 }
+stages:
+  - { id: least-privilege, title: "A user of its own" }
+  - { id: fast-builds, title: "Rebuilds in seconds" }
+  - { id: minimal-runtime, title: "Scratch, but complete" }
+  - { id: operations, title: "Ready to operate" }
+  - { id: audit, title: "The release audit" }
