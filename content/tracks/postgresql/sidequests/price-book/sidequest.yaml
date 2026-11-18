@@ -1,0 +1,12 @@
+id: postgresql.sidequest.price-book
+level: 1
+title: "Price book"
+summary: "A shop's price book that the database itself keeps honest: domains, enums and array rules, price history as ranges that never overlap or leave gaps, discount rules in JSONB checked by the table, and a view counter whose updates stay HOT and never lose a click."
+statement: README.md
+requires: ["postgresql:P1"]
+skills: [postgresql.data-types, postgresql.jsonb, postgresql.mvcc, postgresql.vacuum, sql.constraints-keys]
+runner: { image: dojo-sql, timeout_secs: 180 }
+stages:
+  - { id: catalog, title: "Products and discount rules with types of their own" }
+  - { id: price-history, title: "Price history without overlaps or gaps" }
+  - { id: view-counter, title: "A view counter that stays HOT" }

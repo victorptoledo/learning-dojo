@@ -1,0 +1,1 @@
+-- todo: the product_stats table and record_view().

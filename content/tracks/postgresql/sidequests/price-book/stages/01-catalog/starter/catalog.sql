@@ -1,0 +1,2 @@
+-- todo: the sku domain, the product_status and currency enums, and the products and discounts
+-- tables.
