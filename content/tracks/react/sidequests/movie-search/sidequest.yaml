@@ -1,0 +1,13 @@
+id: react.sidequest.movie-search
+level: 2
+title: "Movie search"
+summary: "A movie list that talks to a slow, unreliable API: loading, empty and error states, search and filters without races, Load more with focus and duplicates handled, then a cache per search and the search kept in the URL with a working Back button."
+statement: README.md
+requires: ["react:P2", "api-design:P1"]
+skills: [react.data-fetching, react.hooks-lifecycle, react.events-lists, react.forms, react.routing, react.custom-hooks, api-design.pagination, api-design.caching]
+runner: { image: dojo-react, timeout_secs: 120 }
+stages:
+  - { id: load-and-states, title: "Loading, empty and error states" }
+  - { id: search-and-filters, title: "Search and filters without races" }
+  - { id: load-more, title: "Load more" }
+  - { id: cache-and-url, title: "A cache per search and the search in the URL" }
