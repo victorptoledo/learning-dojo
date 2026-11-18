@@ -1,0 +1,13 @@
+id: docker.sidequest.url-shortener
+level: 2
+title: "Lean URL shortener"
+summary: "Take a working 900 MB image of a URL shortener down to a few megabytes: a multi-stage build, a static binary with no shell, a numeric non-root user and a clean context, then a health check and a version stamped at build time."
+statement: README.md
+requires: ["docker:P2"]
+skills: [docker.multi-stage, docker.dockerfile-security, docker.dockerfile-best-practices, docker.images-layers]
+runner: { image: dojo-docker, timeout_secs: 300 }
+stages:
+  - { id: multi-stage, title: "Build stage and runtime stage" }
+  - { id: static-and-tiny, title: "A static binary on a minimal base" }
+  - { id: least-privilege, title: "A non-root user and a clean context" }
+  - { id: health-and-version, title: "A health check and a version" }
