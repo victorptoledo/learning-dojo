@@ -1,0 +1,13 @@
+id: react.sidequest.kanban-board
+level: 3
+title: "Accessible kanban board"
+summary: "A kanban board whose state lives in a pure reducer behind a context: cards added, edited and deleted from any component, moved between columns with the keyboard alone and announced to screen readers, undo and redo, and every change saved optimistically and rolled back when the server fails."
+statement: README.md
+requires: ["react:P3", "frontend:P2"]
+skills: [react.context-reducer, react.state-management, react.testing-a11y, react.hooks-lifecycle, react.custom-hooks, frontend.accessibility, frontend.dom-events]
+runner: { image: dojo-react, timeout_secs: 150 }
+stages:
+  - { id: board-and-cards, title: "A board in a reducer behind a context" }
+  - { id: keyboard-moves, title: "Moving cards with the keyboard" }
+  - { id: undo-redo, title: "Undo and redo" }
+  - { id: save-optimistic, title: "Optimistic saving and rollback" }
