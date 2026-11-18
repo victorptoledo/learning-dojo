@@ -1,0 +1,178 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-hardened: &hardened
+  user: "10001:10001"
+  read_only: true
+  tmpfs:
+    - /tmp
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  api:
+    <<: *hardened
+    build: .
+    image: orders:2.1.0
+    env_file: [config/orders.env]
+    environment:
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    networks: [edge, backend]
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "/app/orders", "healthcheck", "api"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+    logging: *logging
+    restart: unless-stopped
+
+  worker:
+    <<: *hardened
+    image: orders:2.1.0
+    command: ["worker"]
+    env_file: [config/orders.env]
+    environment:
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    networks: [backend]
+    depends_on:
+      cache:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "/app/orders", "healthcheck", "worker"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+    logging: *logging
+    restart: unless-stopped
+
+  migrate:
+    <<: *hardened
+    image: orders:2.1.0
+    command: ["migrate"]
+    env_file: [config/orders.env]
+    environment:
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    networks: [backend]
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    restart: "no"
+
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: orders
+      POSTGRES_DB: orders
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    networks: [backend]
+    volumes:
+      - db-data:/var/lib/postgresql
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orders -d orders"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging: *logging
+    restart: unless-stopped
+
+  cache:
+    image: redis:8-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    networks: [backend]
+    volumes:
+      - cache-data:/data
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    logging: *logging
+    restart: unless-stopped
+
+  proxy:
+    image: nginxinc/nginx-unprivileged:1.29-alpine
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks: [edge]
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    logging: *logging
+    restart: unless-stopped
+
+networks:
+  edge: {}
+  backend:
+    internal: true
+
+volumes:
+  db-data: {}
+  cache-data: {}
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt

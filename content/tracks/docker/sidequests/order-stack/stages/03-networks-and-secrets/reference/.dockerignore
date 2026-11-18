@@ -1,0 +1,8 @@
+.git
+secrets/
+config/
+proxy/
+*.md
+compose.yaml
+Dockerfile
+.dockerignore

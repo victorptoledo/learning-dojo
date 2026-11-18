@@ -1,0 +1,13 @@
+id: docker.sidequest.order-stack
+level: 3
+title: "Order stack"
+summary: "Wire an order service into a five-service Compose stack: one image for the API, the worker and the migrations, health checks and start order, an internal network and a secret, then users, read-only file systems, limits and log rotation for every service."
+statement: README.md
+requires: ["docker:P3"]
+skills: [docker.compose, docker.networking, docker.buildkit, docker.runtime-security, docker.volumes]
+runner: { image: dojo-docker, timeout_secs: 300 }
+stages:
+  - { id: services, title: "One image and five services" }
+  - { id: health-and-order, title: "Health checks, migrations and start order" }
+  - { id: networks-and-secrets, title: "An internal network and a secret" }
+  - { id: hardening, title: "Users, limits and logs" }

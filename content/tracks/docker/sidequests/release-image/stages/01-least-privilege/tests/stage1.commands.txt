@@ -1,0 +1,2 @@
+# name: arguments given to `docker run --rm IMAGE` (after the image's ENTRYPOINT)
+preflight: -preflight
