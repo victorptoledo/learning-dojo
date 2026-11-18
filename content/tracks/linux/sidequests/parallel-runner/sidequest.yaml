@@ -1,0 +1,13 @@
+id: linux.sidequest.parallel-runner
+level: 2
+title: "Parallel job runner"
+summary: "A `pjobs.sh` that runs a list of commands N at a time, keeps each job's output and exit status, kills jobs that run too long (their whole process group), stops cleanly on SIGTERM, and retries and resumes failed work."
+statement: README.md
+requires: ["linux:P2"]
+skills: [linux.processes, linux.scripting, linux.redirection, linux.files]
+runner: { image: dojo-linux, timeout_secs: 240 }
+stages:
+  - { id: pool, title: "N jobs at a time" }
+  - { id: logs-and-timeouts, title: "Logs, exit statuses and timeouts" }
+  - { id: clean-stop, title: "Stop cleanly, leave no orphans" }
+  - { id: retries-and-resume, title: "Retries with backoff and resume" }

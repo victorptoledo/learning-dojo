@@ -1,0 +1,12 @@
+id: linux.sidequest.duplicate-finder
+level: 1
+title: "Duplicate finder"
+summary: "A `dupes.sh` that finds files with the same content without reading more than it must, reports the space they waste (hard links counted once) and replaces the copies with hard links, safely."
+statement: README.md
+requires: ["linux:P1"]
+skills: [linux.files, linux.redirection, linux.shell-navigation, linux.permissions-posix]
+runner: { image: dojo-linux, timeout_secs: 120 }
+stages:
+  - { id: scan, title: "Find the files with the same content" }
+  - { id: report, title: "How much space they waste" }
+  - { id: link, title: "Replace the copies with hard links" }

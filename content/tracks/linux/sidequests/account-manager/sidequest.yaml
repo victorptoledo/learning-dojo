@@ -1,0 +1,13 @@
+id: linux.sidequest.account-manager
+level: 3
+title: "Offline account manager"
+summary: "An `accounts.sh` that checks, creates, locks and deletes the users of a system image (passwd, group and shadow), writes those files safely under a lock file, and audits the accounts and homes an attacker would love."
+statement: README.md
+requires: ["linux:P3", "cyber-security:P1"]
+skills: [linux.permissions-posix, linux.security, linux.text-processing, linux.files, cyber-security.authn-access-control, cyber-security.hardening]
+runner: { image: dojo-linux, timeout_secs: 180 }
+stages:
+  - { id: check, title: "Read and check the account files" }
+  - { id: add, title: "Add a user, safely" }
+  - { id: lifecycle, title: "Lock file, locking and deleting" }
+  - { id: audit, title: "Audit accounts and homes" }

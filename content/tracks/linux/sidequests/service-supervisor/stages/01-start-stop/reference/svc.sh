@@ -1,0 +1,217 @@
+#!/usr/bin/env bash
+# Usage: svc.sh start|stop|status UNIT - a small service manager: runs the ExecStart of
+# UNIT (NAME.service) under a supervisor, in the background.
+set -uo pipefail
+export LC_ALL=C
+
+usage() {
+    echo "usage: svc.sh start|stop|restart|status|reload|logs [-n N] UNIT" >&2
+    exit 2
+}
+
+# die MESSAGE [STATUS]
+die() {
+    echo "svc.sh: $1" >&2
+    exit "${2:-2}"
+}
+
+# Seconds such as 1.5 -> microseconds, the unit of now.
+micros() {
+    local int=${1%%.*} frac=000000
+    if [[ $1 == *.* ]]; then
+        frac="${1#*.}000000"
+    fi
+    echo $(( 10#${int:-0} * 1000000 + 10#${frac:0:6} ))
+}
+
+now() {
+    echo "${EPOCHREALTIME/./}"
+}
+
+alive() {
+    [ -n "$1" ] && kill -0 "$1" 2> /dev/null
+}
+
+parse_unit() {
+    local line number=0 key value section=""
+    [ -f "$unit" ] && [ -r "$unit" ] || die "cannot read $unit"
+    case $unit in
+        *.service) ;;
+        *) die "$unit: not a .service file" ;;
+    esac
+    name=$(basename -- "$unit" .service)
+    exec_start="" timeout_stop=5
+    while IFS= read -r line || [ -n "$line" ]; do
+        number=$((number + 1))
+        line=${line%$'\r'}
+        [[ $line =~ ^[[:space:]]*([#\;]|$) ]] && continue
+        if [[ $line =~ ^\[(.*)\]$ ]]; then
+            section=${BASH_REMATCH[1]}
+            case $section in
+                Unit | Service) ;;
+                *) die "$unit:$number: unknown section [$section]" ;;
+            esac
+            continue
+        fi
+        [[ $line == *=* ]] || die "$unit:$number: expected KEY=VALUE"
+        [ -n "$section" ] || die "$unit:$number: KEY=VALUE before any [section]"
+        key=${line%%=*} value=${line#*=}
+        case $section:$key in
+            Unit:Description) ;;
+            Service:ExecStart) exec_start=$value ;;
+            Service:TimeoutStopSec) seconds && timeout_stop=$value ;;
+            *) die "$unit:$number: unknown key $key" ;;
+        esac
+    done < "$unit"
+    [ -n "$exec_start" ] || die "$unit: missing ExecStart"
+}
+
+bad_value() {
+    die "$unit:$number: bad value for $key: $value"
+}
+
+# The value being parsed is a number of seconds, decimals allowed.
+seconds() {
+    [[ $value =~ ^[0-9]+(\.[0-9]+)?$ ]] || bad_value
+}
+
+files() {
+    supervisor_file="$state/$name.supervisor" pid_file="$state/$name.pid"
+    status_file="$state/$name.status" log_file="$state/$name.log"
+}
+
+supervisor_pid() {
+    local pid
+    pid=$(cat "$supervisor_file" 2> /dev/null)
+    if alive "$pid"; then echo "$pid"; fi
+}
+
+main_pid() {
+    local pid
+    pid=$(cat "$pid_file" 2> /dev/null)
+    if alive "$pid"; then echo "$pid"; fi
+}
+
+# ---- the supervisor: a detached process that runs the service and watches it ----
+
+set_status() {
+    echo "$1" > "$status_file"
+}
+
+# TERM to the service's process group, SIGKILL after TimeoutStopSec, until the group is gone.
+stop_main() {
+    local deadline killed=false
+    deadline=$(( $(now) + $(micros "$timeout_stop") ))
+    kill -TERM -- "-$main" 2> /dev/null
+    while kill -0 -- "-$main" 2> /dev/null; do
+        if [ "$killed" = false ] && (( $(now) >= deadline )); then
+            kill -KILL -- "-$main" 2> /dev/null
+            killed=true
+        fi
+        sleep 0.05
+    done
+    wait "$main" 2> /dev/null
+}
+
+supervise() {
+    local code
+    echo "$$" > "$supervisor_file"
+    stopping=false main=""
+    # The trap only sets a flag and forwards the signal: bash runs it between commands,
+    # and `wait` returns as soon as a trapped signal arrives.
+    trap 'stopping=true; [ -z "$main" ] || kill -TERM -- "-$main" 2> /dev/null' TERM INT
+    # A session of its own: the service's pid is its process group, so stop can signal
+    # everything it started.
+    setsid bash -c "$exec_start" < /dev/null >> "$log_file" 2>&1 &
+    main=$!
+    echo "$main" > "$pid_file"
+    set_status running
+
+    wait "$main"
+    code=$?
+    while [ "$stopping" = false ] && alive "$main"; do
+        wait "$main"
+        code=$?
+    done
+    if [ "$stopping" = true ]; then
+        stop_main
+        set_status stopped
+    else
+        kill -KILL -- "-$main" 2> /dev/null
+        set_status "exited $code"
+    fi
+    rm -f -- "$supervisor_file"
+}
+
+# ---- the commands ----
+
+start_service() {
+    local pid i
+    pid=$(supervisor_pid)
+    if [ -n "$pid" ]; then
+        echo "$name is already running (pid $(main_pid))"
+        return 0
+    fi
+    rm -f -- "$pid_file"
+    setsid bash "$0" __supervise "$unit" < /dev/null > /dev/null 2>&1 &
+    for i in $(seq 100); do
+        [ -s "$pid_file" ] && break
+        sleep 0.05
+    done
+    [ -s "$pid_file" ] || die "$name did not start" 1
+    echo "started $name (pid $(cat "$pid_file"))"
+}
+
+stop_service() {
+    local pid i limit
+    pid=$(supervisor_pid)
+    if [ -z "$pid" ]; then
+        echo "$name is not running"
+        return 0
+    fi
+    kill -TERM "$pid"
+    limit=$(( ($(micros "$timeout_stop") / 1000000 + 5) * 20 ))
+    for ((i = 0; i < limit; i++)); do
+        alive "$pid" || break
+        sleep 0.05
+    done
+    alive "$pid" && die "$name did not stop" 1
+    echo "stopped $name"
+}
+
+show_status() {
+    local pid
+    if [ -n "$(supervisor_pid)" ]; then
+        pid=$(main_pid)
+        if [ -n "$pid" ]; then
+            echo "$name: active (running), pid $pid"
+            return 0
+        fi
+    fi
+    case $(cat "$status_file" 2> /dev/null) in
+        "exited "*) echo "$name: inactive ($(cat "$status_file"))" ;;
+        stopped) echo "$name: inactive (stopped)" ;;
+        *) echo "$name: inactive" ;;
+    esac
+    return 3
+}
+
+command=${1:-}
+[ "$#" -gt 0 ] && shift
+[ "$#" -eq 1 ] || usage
+unit=$1
+case $command in
+    start | stop | status | __supervise) ;;
+    *) usage ;;
+esac
+parse_unit
+state=${SVC_STATE:-${XDG_STATE_HOME:-$HOME/.local/state}/svc}
+mkdir -p -- "$state" || die "cannot create $state"
+files
+
+case $command in
+    __supervise) supervise ;;
+    start) start_service ;;
+    stop) stop_service ;;
+    status) show_status ;;
+esac

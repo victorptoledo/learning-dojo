@@ -1,0 +1,14 @@
+id: linux.sidequest.service-supervisor
+level: 4
+title: "Service supervisor"
+summary: "A `svc.sh` that runs a service from a unit file under a detached supervisor: start, status and stop with the whole process group, restart policies with a start limit, a stamped log it rotates itself, reload, restart and a readiness check."
+statement: README.md
+requires: ["linux:P4", "devops:P2"]
+skills: [linux.systemd-services, linux.processes, linux.operations, linux.scripting, devops.linux-internals, devops.observability-sre]
+runner: { image: dojo-linux, timeout_secs: 360 }
+stages:
+  - { id: start-stop, title: "Start, status and stop" }
+  - { id: restart-policy, title: "Restart policies and the start limit" }
+  - { id: logs, title: "A stamped log that rotates" }
+  - { id: reload-and-restart, title: "Reload and restart" }
+  - { id: readiness, title: "Started is not ready" }
