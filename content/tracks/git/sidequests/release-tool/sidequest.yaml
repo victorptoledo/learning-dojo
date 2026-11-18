@@ -1,0 +1,13 @@
+id: git.sidequest.release-tool
+level: 2
+title: "Release from commits"
+summary: "A `release.sh` that reads Conventional Commits since the last tag: the next semantic version, Markdown release notes, an annotated tag that refuses unsafe states with release candidates, and patch releases on release branches with a CHANGELOG."
+statement: README.md
+requires: ["git:P2"]
+skills: [git.tags-releases, git.staging-commits, git.branches, git.workflows]
+runner: { image: dojo-linux, timeout_secs: 120 }
+stages:
+  - { id: next, title: "The next version" }
+  - { id: notes, title: "Release notes" }
+  - { id: tag, title: "Annotated tags and release candidates" }
+  - { id: branches, title: "Release branches and the CHANGELOG" }
