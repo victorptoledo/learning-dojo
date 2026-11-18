@@ -1,0 +1,12 @@
+id: react.sidequest.bill-splitter
+level: 1
+title: "Bill splitter"
+summary: "Split a restaurant bill: forms that add people and items with accessible errors and focus, check boxes for who had what, a tip, and totals derived from state that always add up to the cent."
+statement: README.md
+requires: ["react:P1"]
+skills: [react.props-state, react.forms, react.events-lists, react.jsx-components, react.hooks-lifecycle]
+runner: { image: dojo-react, timeout_secs: 120 }
+stages:
+  - { id: people-and-items, title: "People, items and accessible errors" }
+  - { id: who-had-what, title: "Who had what, and what each person owes" }
+  - { id: tip-and-rounding, title: "A tip, and totals that add up to the cent" }
