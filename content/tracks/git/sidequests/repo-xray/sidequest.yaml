@@ -1,0 +1,12 @@
+id: git.sidequest.repo-xray
+level: 1
+title: "Repository X-ray"
+summary: "A `gitx.sh` that reads a repository's history from a script: commits and lines per author (with `.mailmap`), who owns each file by `git blame` and the bus factor, and the hotspots of a period, following renames."
+statement: README.md
+requires: ["git:P1"]
+skills: [git.staging-commits, git.dag-objects, git.branches]
+runner: { image: dojo-linux, timeout_secs: 120 }
+stages:
+  - { id: authors, title: "Commits and lines per author" }
+  - { id: owners, title: "Who owns the code: blame and the bus factor" }
+  - { id: hotspots, title: "Hotspots that follow renames" }
