@@ -1,0 +1,13 @@
+id: git.sidequest.history-surgeon
+level: 3
+title: "History surgeon"
+summary: "A `scrub.sh` that finds big files and leaked secrets anywhere in history, removes paths from every commit and replaces secrets in every version of a file (a home-made filter-repo on fast-export and fast-import), with a backup, a commit map, undo and a final expire."
+statement: README.md
+requires: ["git:P3"]
+skills: [git.history-rewriting, git.signing-security, git.recovery, git.dag-objects]
+runner: { image: dojo-linux, timeout_secs: 180 }
+stages:
+  - { id: find, title: "Find big files and secrets in history" }
+  - { id: purge, title: "Remove paths from every commit" }
+  - { id: redact, title: "Replace secrets in every version" }
+  - { id: backup, title: "Backup, commit map, undo and expire" }
