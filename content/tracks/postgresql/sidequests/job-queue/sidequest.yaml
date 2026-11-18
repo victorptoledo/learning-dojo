@@ -1,0 +1,13 @@
+id: postgresql.sidequest.job-queue
+level: 2
+title: "Job queue"
+summary: "A background job queue inside PostgreSQL that many workers share: claims with FOR UPDATE SKIP LOCKED that never wait, leases that expire, retries with backoff and dead jobs, idempotent enqueues through a partial unique index, and one job per group at a time with advisory locks, all raced with real sessions."
+statement: README.md
+requires: ["postgresql:P2"]
+skills: [postgresql.locking, postgresql.plpgsql, postgresql.mvcc, postgresql.query-planner]
+runner: { image: dojo-sql, timeout_secs: 240 }
+stages:
+  - { id: claim, title: "Workers that never wait for each other" }
+  - { id: leases-and-retries, title: "Leases, retries and dead jobs" }
+  - { id: enqueue-once, title: "Enqueue once" }
+  - { id: one-per-group, title: "One job per group at a time" }

@@ -1,0 +1,1 @@
+-- todo: the job_status enum, the jobs table, enqueue(), claim() and complete().

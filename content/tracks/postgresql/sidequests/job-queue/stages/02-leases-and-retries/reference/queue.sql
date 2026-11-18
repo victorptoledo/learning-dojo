@@ -1,0 +1,87 @@
+-- A job queue that workers share: claims skip the jobs other workers are taking, leases expire,
+-- and failed jobs are retried with exponential backoff until they are dead.
+
+CREATE TYPE job_status AS ENUM ('pending', 'running', 'done', 'dead');
+
+CREATE TABLE jobs (
+    id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    queue        text NOT NULL,
+    payload      jsonb NOT NULL DEFAULT '{}',
+    priority     integer NOT NULL DEFAULT 0,
+    run_at       timestamptz NOT NULL DEFAULT now(),
+    status       job_status NOT NULL DEFAULT 'pending',
+    attempts     integer NOT NULL DEFAULT 0,
+    max_attempts integer NOT NULL DEFAULT 5,
+    locked_by    text,
+    locked_until timestamptz,
+    last_error   text
+);
+
+-- Only the jobs still to run or running are indexed, in the order a claim takes them: the
+-- done and dead ones, most of the table, never get in the way.
+CREATE INDEX jobs_next ON jobs (queue, priority DESC, run_at, id) WHERE status IN ('pending', 'running');
+
+CREATE FUNCTION enqueue(p_queue text, p_payload jsonb, p_priority integer DEFAULT 0,
+                        p_run_at timestamptz DEFAULT now()) RETURNS bigint
+LANGUAGE sql AS $$
+    INSERT INTO jobs (queue, payload, priority, run_at)
+    VALUES (p_queue, p_payload, p_priority, p_run_at)
+    RETURNING id
+$$;
+
+CREATE FUNCTION claim(p_queue text, p_worker text) RETURNS bigint
+LANGUAGE plpgsql AS $$
+DECLARE
+    got bigint;
+BEGIN
+    -- Expired after their last attempt: dead. Rows another worker is taking are skipped.
+    UPDATE jobs SET status = 'dead', locked_by = NULL, locked_until = NULL
+    WHERE id IN (SELECT id FROM jobs
+                 WHERE queue = p_queue AND status = 'running'
+                   AND locked_until < now() AND attempts >= max_attempts
+                 FOR UPDATE SKIP LOCKED);
+
+    UPDATE jobs
+    SET status = 'running', locked_by = p_worker,
+        locked_until = now() + interval '30 seconds', attempts = attempts + 1
+    WHERE id = (SELECT id FROM jobs
+                WHERE queue = p_queue
+                  AND ((status = 'pending' AND run_at <= now())
+                       OR (status = 'running' AND locked_until < now() AND attempts < max_attempts))
+                ORDER BY priority DESC, run_at, id
+                LIMIT 1
+                FOR UPDATE SKIP LOCKED)
+    RETURNING id INTO got;
+    RETURN got;
+END
+$$;
+
+CREATE FUNCTION complete(p_job bigint, p_worker text) RETURNS boolean
+LANGUAGE plpgsql AS $$
+BEGIN
+    UPDATE jobs SET status = 'done', locked_by = NULL, locked_until = NULL
+    WHERE id = p_job AND status = 'running' AND locked_by = p_worker;
+    RETURN FOUND;
+END
+$$;
+
+CREATE FUNCTION heartbeat(p_job bigint, p_worker text) RETURNS boolean
+LANGUAGE plpgsql AS $$
+BEGIN
+    UPDATE jobs SET locked_until = now() + interval '30 seconds'
+    WHERE id = p_job AND status = 'running' AND locked_by = p_worker;
+    RETURN FOUND;
+END
+$$;
+
+CREATE FUNCTION fail(p_job bigint, p_worker text, p_error text) RETURNS job_status
+LANGUAGE sql AS $$
+    UPDATE jobs
+    SET status = CASE WHEN attempts < max_attempts THEN 'pending' ELSE 'dead' END::job_status,
+        run_at = CASE WHEN attempts < max_attempts
+                      THEN now() + interval '10 seconds' * 2 ^ (attempts - 1)
+                      ELSE run_at END,
+        last_error = p_error, locked_by = NULL, locked_until = NULL
+    WHERE id = p_job AND status = 'running' AND locked_by = p_worker
+    RETURNING status
+$$;
