@@ -7,8 +7,9 @@
 //! 2. Facts about the image go to a folder the grader reads at `/facts`: `image.json`
 //!    (`docker image inspect`), `history.jsonl`, `files.txt` (every path in the image,
 //!    read from `docker export`), `commands/<name>.{out,err,status}` for each line
-//!    `name: args...` of `tests/commands.txt`, and, after starting the image once,
-//!    `container.json` and `logs.txt`.
+//!    `name: args...` of `tests/commands.txt` (and of each `tests/*.commands.txt`, one per
+//!    sidequest stage), and, after starting the image once, `container.json` and
+//!    `logs.txt`.
 //! 3. The `dojo-docker` image runs hadolint and the bats tests over the kata (`/work`)
 //!    and the facts. While the learner's container is still running, the grader joins
 //!    its network namespace, so tests reach its ports on `localhost` and nothing else.
@@ -74,7 +75,7 @@ impl Drop for Cleanup<'_> {
         let _ = self
             .runner
             .docker_command()
-            .args(["rm", "--force", &self.names.container])
+            .args(["rm", "--force", "--volumes", &self.names.container])
             .output();
         let _ = self
             .runner
@@ -234,7 +235,8 @@ impl DockerRunner {
         Ok(Prepared::Ready { running })
     }
 
-    /// Runs each line of `tests/commands.txt` in a fresh container of the image.
+    /// Runs each line of the commands files (`tests/commands.txt`, then each
+    /// `tests/*.commands.txt`) in a fresh container of the image.
     /// False when the deadline passed.
     fn run_commands(
         &self,
@@ -243,9 +245,10 @@ impl DockerRunner {
         names: &Names,
         deadline: Instant,
     ) -> Result<bool, RunnerError> {
-        let Ok(text) = fs::read_to_string(staging.join("tests").join("commands.txt")) else {
+        let text = commands_text(&staging.join("tests"));
+        if text.is_empty() {
             return Ok(true);
-        };
+        }
         let dir = facts.join("commands");
         fs::create_dir_all(&dir)?;
         for (index, (name, args)) in parse_commands(&text).into_iter().enumerate() {
@@ -391,6 +394,31 @@ fn settle(status: &str, health: &str, waited: Duration) -> Settled {
     }
 }
 
+/// The commands files of a tests folder, joined: `commands.txt` first, then every
+/// `*.commands.txt` by name. Sidequest stages each bring their own file, because
+/// stages cannot share a test file.
+fn commands_text(tests: &Path) -> String {
+    let mut extra: Vec<_> = fs::read_dir(tests)
+        .into_iter()
+        .flatten()
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| {
+            path.is_file()
+                && path
+                    .file_name()
+                    .and_then(|name| name.to_str())
+                    .is_some_and(|name| name.ends_with(".commands.txt"))
+        })
+        .collect();
+    extra.sort();
+    std::iter::once(tests.join("commands.txt"))
+        .chain(extra)
+        .filter_map(|path| fs::read_to_string(path).ok())
+        .map(|text| text + "\n")
+        .collect()
+}
+
 /// `name: args...` lines; blank lines and `#` comments are skipped, and so are lines
 /// whose name is not made of lower-case letters, digits, `-` and `_`.
 fn parse_commands(text: &str) -> Vec<(String, Vec<String>)> {
@@ -500,6 +528,23 @@ mod tests {
                 ),
             ]
         );
+    }
+
+    #[test]
+    fn every_commands_file_of_the_tests_folder_is_read_in_order() {
+        let tests = tempfile::tempdir().unwrap();
+        fs::write(tests.path().join("stage2.commands.txt"), "two: b").unwrap();
+        fs::write(tests.path().join("commands.txt"), "base: a").unwrap();
+        fs::write(tests.path().join("stage1.commands.txt"), "one: c").unwrap();
+        fs::write(tests.path().join("notes.txt"), "skipped: d").unwrap();
+
+        let names: Vec<String> = parse_commands(&commands_text(tests.path()))
+            .into_iter()
+            .map(|(name, _)| name)
+            .collect();
+
+        assert_eq!(names, ["base", "one", "two"]);
+        assert_eq!(commands_text(&tests.path().join("missing")), "");
     }
 
     #[test]
