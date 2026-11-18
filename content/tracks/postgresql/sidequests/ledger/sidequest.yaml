@@ -1,0 +1,14 @@
+id: postgresql.sidequest.ledger
+level: 4
+title: "Ledger"
+summary: "A bank's double-entry ledger that PostgreSQL itself keeps correct: balanced entries checked at COMMIT by deferred constraint triggers, an append-only history with reversals, transfers that never overdraw under real concurrent sessions, a month-end interest run that commits in batches and can be rerun after a crash, and statements that row-level security keeps private."
+statement: README.md
+requires: ["postgresql:P4"]
+skills: [postgresql.plpgsql, postgresql.locking, postgresql.mvcc, postgresql.security, sql.transactions]
+runner: { image: dojo-sql, timeout_secs: 300 }
+stages:
+  - { id: double-entry, title: "Every entry balances at COMMIT" }
+  - { id: append-only, title: "History that never changes" }
+  - { id: transfers, title: "Transfers that never overdraw" }
+  - { id: interest-run, title: "A month-end run in batches" }
+  - { id: customer-statements, title: "Statements only the owner can read" }

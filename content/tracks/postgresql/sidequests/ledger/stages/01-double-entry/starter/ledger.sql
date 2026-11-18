@@ -1,0 +1,1 @@
+-- todo: the journal and postings tables, the balance rule, post() and balance().
