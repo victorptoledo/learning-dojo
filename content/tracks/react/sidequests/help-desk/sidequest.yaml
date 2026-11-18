@@ -1,0 +1,14 @@
+id: react.sidequest.help-desk
+level: 4
+title: "Help desk"
+summary: "A help desk app built on React alone: a router of your own on the History API, navigation that moves focus and is announced, a list of hundreds of tickets within a render budget, ticket pages read with use, Suspense and error boundaries behind transitions, and optimistic replies and status changes that roll back."
+statement: README.md
+requires: ["react:P4", "frontend:P3"]
+skills: [react.routing, react.testing-a11y, react.performance, react.suspense-transitions, react.forms, react.state-management, react.production, frontend.accessibility]
+runner: { image: dojo-react, timeout_secs: 180 }
+stages:
+  - { id: routes, title: "Routes on the History API" }
+  - { id: accessible-navigation, title: "Navigation that screen readers follow" }
+  - { id: fast-list, title: "A long list within a render budget" }
+  - { id: ticket-suspense, title: "Ticket pages with use, Suspense and transitions" }
+  - { id: replies-and-status, title: "Optimistic replies and status changes" }
