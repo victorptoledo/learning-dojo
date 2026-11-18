@@ -1,0 +1,14 @@
+id: git.sidequest.mini-git
+level: 4
+title: "Mini-git on plumbing"
+summary: "A `minigit.sh` that does Git's work with nothing but plumbing: object ids computed by hand with sha1sum, a folder committed to a branch without the index, log and ls-tree by walking objects, a tree diff that skips unchanged subtrees, and the list of unreachable objects, loose and packed."
+statement: README.md
+requires: ["git:P4"]
+skills: [git.dag-objects, git.large-repos, git.recovery, git.staging-commits]
+runner: { image: dojo-linux, timeout_secs: 180 }
+stages:
+  - { id: hash, title: "Object ids by hand" }
+  - { id: snapshot, title: "Commit a folder without the index" }
+  - { id: log, title: "log and ls-tree by walking objects" }
+  - { id: diff, title: "A tree diff that skips what did not change" }
+  - { id: unreachable, title: "Unreachable objects, loose and packed" }
