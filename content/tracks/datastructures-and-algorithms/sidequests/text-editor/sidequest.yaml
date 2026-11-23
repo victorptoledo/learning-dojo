@@ -1,0 +1,12 @@
+id: datastructures-and-algorithms.sidequest.text-editor
+level: 1
+title: "Text editor buffer"
+summary: "The buffer behind a text editor: a gap buffer that types in O(1) at the cursor, undo and redo with stacks that group typing by words, then linear-time find and replace and a line index."
+statement: README.md
+requires: ["datastructures-and-algorithms:P1"]
+skills: [datastructures-and-algorithms.arrays-strings, datastructures-and-algorithms.linear-structures, datastructures-and-algorithms.complexity, datastructures-and-algorithms.two-pointers]
+runner: { image: dojo-java, timeout_secs: 180 }
+stages:
+  - { id: gap-buffer, title: "A gap buffer with a cursor" }
+  - { id: undo-redo, title: "Undo and redo, grouped like an editor" }
+  - { id: find-and-lines, title: "Find, replace all and a line index" }
