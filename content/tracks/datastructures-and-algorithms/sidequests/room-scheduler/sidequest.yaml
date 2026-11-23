@@ -1,0 +1,13 @@
+id: datastructures-and-algorithms.sidequest.room-scheduler
+level: 2
+title: "Room scheduler"
+summary: "Meeting rooms for an office: bookings kept sorted for O(log n) lookups, a day planned with the fewest rooms by two heaps, the first slot free in every room by a lazy k-way merge, and weekly series that never end."
+statement: README.md
+requires: ["datastructures-and-algorithms:P2"]
+skills: [datastructures-and-algorithms.sorting-searching, datastructures-and-algorithms.trees-heaps, datastructures-and-algorithms.greedy, datastructures-and-algorithms.complexity]
+runner: { image: dojo-java, timeout_secs: 180 }
+stages:
+  - { id: bookings, title: "Bookings kept in order" }
+  - { id: room-plan, title: "Planning a day with the fewest rooms" }
+  - { id: common-free-time, title: "The first slot free in every room" }
+  - { id: recurring-series, title: "Series that repeat forever" }
