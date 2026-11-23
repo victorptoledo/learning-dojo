@@ -1,0 +1,104 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Event sign-ups, one Lambda function behind an HTTP API, with one DynamoDB table.
+
+Globals:
+  Function:
+    Runtime: python3.13
+    Architectures: [arm64]
+    MemorySize: 256
+    Timeout: 10
+
+Resources:
+  SignupsApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 100
+        ThrottlingRateLimit: 50
+
+  SignupsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: signups.handler
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref SignupsTable
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+                - dynamodb:DeleteItem
+                - dynamodb:Query
+              Resource: !GetAtt SignupsTable.Arn
+      Events:
+        CreateEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref SignupsApi
+            Method: POST
+            Path: /events
+        GetEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref SignupsApi
+            Method: GET
+            Path: /events/{id}
+        SignUp:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref SignupsApi
+            Method: POST
+            Path: /events/{id}/signups
+        Cancel:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref SignupsApi
+            Method: DELETE
+            Path: /events/{id}/signups/{email}
+        ListSignups:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref SignupsApi
+            Method: GET
+            Path: /events/{id}/signups
+
+  SignupsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${SignupsFunction}"
+      RetentionInDays: 30
+
+  SignupsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+
+Outputs:
+  ApiUrl:
+    Value: !Sub "https://${SignupsApi}.execute-api.${AWS::Region}.amazonaws.com"
+  TableName:
+    Value: !Ref SignupsTable

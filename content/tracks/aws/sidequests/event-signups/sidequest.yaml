@@ -1,0 +1,13 @@
+id: aws.sidequest.event-signups
+level: 3
+title: "Event sign-ups"
+summary: "A serverless API for meetups with limited seats: a Lambda handler over one DynamoDB table that never overbooks (TransactWriteItems with conditions), frees seats, pages with an opaque cursor and replays retried requests by idempotency key with TTL, tested against moto; then the SAM template, with permissions proven by the IAM evaluator."
+statement: README.md
+requires: ["aws:P3"]
+skills: [aws.lambda-serverless, aws.databases, aws.iam-least-privilege, aws.cloudformation, aws.cloudwatch]
+runner: { image: dojo-aws, timeout_secs: 240 }
+stages:
+  - { id: sign-up, title: "Events and sign-ups without overbooking" }
+  - { id: cancel-and-list, title: "Cancel, and list page by page" }
+  - { id: idempotency, title: "Retries that never sign up twice" }
+  - { id: sam-template, title: "The SAM template, least privilege" }

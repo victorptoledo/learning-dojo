@@ -1,0 +1,12 @@
+[project]
+name = "event-signups"
+version = "0.1.0"
+requires-python = ">=3.15"
+dependencies = ["boto3>=1.44"]
+
+[dependency-groups]
+dev = ["pytest>=9", "moto[dynamodb]>=5.2", "cfn-lint>=1.60"]
+
+[tool.pytest.ini_options]
+pythonpath = [".", "src"]
+testpaths = ["tests"]
