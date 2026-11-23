@@ -1,0 +1,12 @@
+# todo: names, labels, the type and the port come from the helpers and the values.
+apiVersion: v1
+kind: Service
+metadata:
+  name: statuspage
+spec:
+  selector:
+    app: statuspage
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

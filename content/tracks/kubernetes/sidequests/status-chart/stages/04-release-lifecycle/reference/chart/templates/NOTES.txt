@@ -1,0 +1,11 @@
+{{- if .Values.ingress.enabled }}
+Status page: {{ if .Values.ingress.tls.enabled }}https{{ else }}http{{ end }}://{{ .Values.ingress.host }}
+{{- else }}
+The status page has no Ingress. To open it from your machine:
+
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "statuspage.fullname" . }} 8080:{{ .Values.service.port }}
+
+Status page: http://localhost:8080
+{{- end }}
+
+Check the release with: helm test {{ .Release.Name }} --namespace {{ .Release.Namespace }}

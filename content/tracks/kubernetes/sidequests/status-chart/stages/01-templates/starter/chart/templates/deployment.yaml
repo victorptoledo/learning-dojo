@@ -1,0 +1,21 @@
+# todo: names, labels, the image and the replicas come from the helpers and the values.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: statuspage
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: statuspage
+  template:
+    metadata:
+      labels:
+        app: statuspage
+    spec:
+      containers:
+        - name: statuspage
+          image: ghcr.io/acme/statuspage:2.3.0
+          ports:
+            - name: http
+              containerPort: 8080

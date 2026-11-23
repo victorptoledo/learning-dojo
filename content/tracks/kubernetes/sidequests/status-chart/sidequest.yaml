@@ -1,0 +1,13 @@
+id: kubernetes.sidequest.status-chart
+level: 3
+title: "A Helm chart for the status page"
+summary: "Package the company status page as a Helm chart others can install: helpers for names and labels, a values schema that rejects bad input, optional pieces switched by values, and a release lifecycle with a migration hook, a helm test, release notes and a strict lint."
+statement: README.md
+requires: ["kubernetes:P3"]
+skills: [kubernetes.kustomize-helm, kubernetes.deployments, kubernetes.ingress-gateway, kubernetes.hpa-autoscaling, kubernetes.jobs, kubernetes.rbac]
+runner: { image: dojo-k8s, timeout_secs: 180 }
+stages:
+  - { id: templates, title: "Templates, helpers and values" }
+  - { id: validated-values, title: "Values that cannot be wrong" }
+  - { id: options, title: "Optional pieces and config-driven restarts" }
+  - { id: release-lifecycle, title: "Hooks, tests, notes and lint" }

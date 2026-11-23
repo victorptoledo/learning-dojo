@@ -1,0 +1,4 @@
+# name: command that prints the YAML to check. Other value sets are rendered by the tests
+# themselves (helm_render in helpers.sh), because only one stage may have this file.
+default: helm template sp chart
+named: helm template statuspage chart --namespace status

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "statuspage.fullname" . }}-test
+  labels:
+    {{- include "statuspage.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  containers:
+    - name: wget
+      image: busybox:1.37.0
+      command:
+        - wget
+        - -qO-
+        - http://{{ include "statuspage.fullname" . }}:{{ .Values.service.port }}/health
+      resources:
+        requests: { cpu: 10m, memory: 16Mi }
+        limits: { memory: 32Mi }

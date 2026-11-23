@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "statuspage.fullname" . }}
+  labels:
+    {{- include "statuspage.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "statuspage.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "statuspage.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: statuspage
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

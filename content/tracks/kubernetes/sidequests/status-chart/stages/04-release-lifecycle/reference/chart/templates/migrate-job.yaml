@@ -1,0 +1,30 @@
+{{- if .Values.migrations.enabled }}
+{{- /* A pre-install hook runs before the release's own objects exist: it uses none of them. */}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "statuspage.fullname" . }}-migrate
+  labels:
+    {{- include "statuspage.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 300
+  template:
+    metadata:
+      labels:
+        {{- include "statuspage.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      containers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["migrate"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+{{- end }}
