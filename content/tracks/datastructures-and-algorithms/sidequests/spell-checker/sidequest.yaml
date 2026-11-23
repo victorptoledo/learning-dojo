@@ -1,0 +1,13 @@
+id: datastructures-and-algorithms.sidequest.spell-checker
+level: 3
+title: "Spell checker"
+summary: "A spell checker on a trie: edit distance in two rows, fuzzy suggestions that walk the trie with one row of the table per node and prune hopeless branches, swapped letters, then splitting run-together text into words by dynamic programming."
+statement: README.md
+requires: ["datastructures-and-algorithms:P3"]
+skills: [datastructures-and-algorithms.tries, datastructures-and-algorithms.dynamic-programming, datastructures-and-algorithms.recursion-backtracking, datastructures-and-algorithms.complexity]
+runner: { image: dojo-java, timeout_secs: 180 }
+stages:
+  - { id: dictionary-and-distance, title: "A dictionary and the edit distance" }
+  - { id: fuzzy-search, title: "Suggestions by walking the trie" }
+  - { id: typos, title: "Swapped letters and a correction" }
+  - { id: segmentation, title: "Splitting run-together text" }
