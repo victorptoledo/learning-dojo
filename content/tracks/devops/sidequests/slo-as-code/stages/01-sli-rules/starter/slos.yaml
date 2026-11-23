@@ -1,0 +1,30 @@
+# The service level objectives of this repository. `scripts/slogen.sh generate slos.yaml .`
+# writes the rules (and, later, the dashboards) from it.
+services:
+  - name: checkout
+    job: checkout
+    runbook: https://runbooks.example.com/checkout
+    slos:
+      - name: availability
+        objective: 99.9
+        window: 30d
+        sli:
+          type: availability
+          metric: http_requests_total
+      - name: latency
+        objective: 99
+        window: 30d
+        sli:
+          type: latency
+          metric: http_request_duration_seconds
+          threshold: 0.3
+  - name: search
+    job: search
+    runbook: https://runbooks.example.com/search
+    slos:
+      - name: availability
+        objective: 99.5
+        window: 28d
+        sli:
+          type: availability
+          metric: http_requests_total
