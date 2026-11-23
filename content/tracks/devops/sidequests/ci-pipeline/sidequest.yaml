@@ -1,0 +1,12 @@
+id: devops.sidequest.ci-pipeline
+level: 1
+title: "CI for a script toolbox"
+summary: "A `ci.sh` that lints and tests a toolbox of bash scripts the same way on a laptop and in CI, then a GitHub Actions workflow around it: triggers, least privilege, concurrency, a tool cache, a matrix across runners, test reports as artifacts and one required check."
+statement: README.md
+requires: ["devops:P1", "git:P1"]
+skills: [devops.cicd-pipelines, devops.role, devops.linux-internals, git.workflows]
+runner: { image: dojo-devops, timeout_secs: 180 }
+stages:
+  - { id: local-checks, title: "One script for the checks" }
+  - { id: workflow, title: "The workflow, cached and locked down" }
+  - { id: matrix, title: "A matrix, reports and one required check" }

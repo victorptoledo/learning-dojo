@@ -1,0 +1,4 @@
+# The tool versions CI installs: name version. Change a line to upgrade a tool; the
+# cache key is the hash of this file, so the next run downloads it again.
+shellcheck 0.11.0
+bats 1.13.0

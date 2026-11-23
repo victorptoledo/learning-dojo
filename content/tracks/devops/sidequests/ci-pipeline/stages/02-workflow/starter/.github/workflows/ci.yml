@@ -1,0 +1,8 @@
+# todo: the CI workflow (see the stage statement)
+name: ci
+on: push
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "todo"

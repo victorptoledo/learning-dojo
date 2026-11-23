@@ -1,0 +1,53 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# The token can only read the repository; no job needs more.
+permissions:
+  contents: read
+
+# A new push to a pull request cancels its older run; runs on main always finish.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Cache the tools
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/toolbox
+          key: toolbox-${{ runner.os }}-${{ hashFiles('tools.lock') }}
+          restore-keys: toolbox-${{ runner.os }}-
+      - name: Install the tools
+        run: scripts/install-tools.sh >> "$GITHUB_PATH"
+      - name: Lint
+        run: scripts/ci.sh lint
+
+  test:
+    needs: lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Cache the tools
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/toolbox
+          key: toolbox-${{ runner.os }}-${{ hashFiles('tools.lock') }}
+          restore-keys: toolbox-${{ runner.os }}-
+      - name: Install the tools
+        run: scripts/install-tools.sh >> "$GITHUB_PATH"
+      - name: Test
+        run: scripts/ci.sh test
