@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: board-api
+  namespace: board
+  labels: &labels
+    app.kubernetes.io/name: board-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: noticeboard
+    app.kubernetes.io/version: "2.4.1"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: board-api
+      app.kubernetes.io/part-of: noticeboard
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/acme/board-api:2.4.1
+          ports:
+            - name: http
+              containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: board-api
+  namespace: board
+  labels:
+    app.kubernetes.io/name: board-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: noticeboard
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: board-api
+    app.kubernetes.io/part-of: noticeboard
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

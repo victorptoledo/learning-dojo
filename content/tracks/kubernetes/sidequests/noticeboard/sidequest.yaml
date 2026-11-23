@@ -1,0 +1,12 @@
+id: kubernetes.sidequest.noticeboard
+level: 1
+title: "Notice board on Kubernetes"
+summary: "Deploy a two-tier notice board (a web front end and its API) from plain manifests: Deployments and Services wired by labels and named ports, probes that match how each part starts, requests and limits chosen for a QoS class, and rollouts that never drop a request."
+statement: README.md
+requires: ["kubernetes:P1"]
+skills: [kubernetes.deployments, kubernetes.services-dns, kubernetes.probes-resources, kubernetes.config-secrets, kubernetes.pods]
+runner: { image: dojo-k8s, timeout_secs: 120 }
+stages:
+  - { id: deploy-and-expose, title: "Two Deployments and their Services" }
+  - { id: health-and-resources, title: "Probes, requests and limits" }
+  - { id: safe-rollouts, title: "Rollouts that never drop a request" }

@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: board-api-config-v1
+  namespace: board
+  labels:
+    app.kubernetes.io/name: board-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: noticeboard
+immutable: true
+data:
+  LOG_LEVEL: info
+  MAX_NOTICE_LENGTH: "500"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: board-api
+  namespace: board
+  labels: &labels
+    app.kubernetes.io/name: board-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: noticeboard
+    app.kubernetes.io/version: "2.4.1"
+spec:
+  replicas: 2
+  minReadySeconds: 10
+  progressDeadlineSeconds: 300
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: board-api
+      app.kubernetes.io/part-of: noticeboard
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      terminationGracePeriodSeconds: 40
+      containers:
+        - name: api
+          image: ghcr.io/acme/board-api:2.4.1
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef: { name: board-api-config-v1, key: LOG_LEVEL }
+            - name: MAX_NOTICE_LENGTH
+              valueFrom:
+                configMapKeyRef: { name: board-api-config-v1, key: MAX_NOTICE_LENGTH }
+          lifecycle:
+            preStop:
+              sleep: { seconds: 5 }
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 5
+            failureThreshold: 12
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests: { cpu: 250m, memory: 256Mi }
+            limits: { cpu: 250m, memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: board-api
+  namespace: board
+  labels:
+    app.kubernetes.io/name: board-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: noticeboard
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: board-api
+    app.kubernetes.io/part-of: noticeboard
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
