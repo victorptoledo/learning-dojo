@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+  namespace: shop
+  labels: &labels
+    app.kubernetes.io/name: db
+    app.kubernetes.io/part-of: storefront
+spec:
+  serviceName: db
+  replicas: 1
+  selector:
+    matchLabels: *labels
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:18.1
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: db-credentials, key: password }
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql
+          readinessProbe:
+            exec: { command: ["pg_isready", "-U", "postgres"] }
+          livenessProbe:
+            tcpSocket: { port: postgres }
+          resources:
+            requests: { cpu: 500m, memory: 1Gi }
+            limits: { memory: 2Gi }
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: shop
+  labels:
+    app.kubernetes.io/name: db
+    app.kubernetes.io/part-of: storefront
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: db
+    app.kubernetes.io/part-of: storefront
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres

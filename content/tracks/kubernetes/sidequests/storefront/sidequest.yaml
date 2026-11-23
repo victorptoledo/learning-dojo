@@ -1,0 +1,14 @@
+id: kubernetes.sidequest.storefront
+level: 4
+title: "Storefront in production"
+summary: "Take a working three-tier shop (web, API and PostgreSQL) to production: a default-deny network with one rule per flow, disruption budgets, spreading and priorities, autoscaling that reacts fast and calms down slowly, restricted Pods with read-only roots, and namespace guardrails with quotas sized for the autoscaled peak and a least-privilege deployer."
+statement: README.md
+requires: ["kubernetes:P4"]
+skills: [kubernetes.network-policy, kubernetes.production, kubernetes.scheduling, kubernetes.hpa-autoscaling, kubernetes.workload-security, kubernetes.rbac]
+runner: { image: dojo-k8s, timeout_secs: 180 }
+stages:
+  - { id: network-policy, title: "Default deny, one rule per flow" }
+  - { id: availability, title: "Budgets, spreading and priorities" }
+  - { id: autoscaling, title: "Autoscaling that behaves" }
+  - { id: pod-security, title: "Restricted Pods" }
+  - { id: guardrails, title: "Namespace guardrails and a deployer" }

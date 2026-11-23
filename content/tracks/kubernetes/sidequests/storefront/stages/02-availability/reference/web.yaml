@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: shop
+  labels: &labels
+    app.kubernetes.io/name: web
+    app.kubernetes.io/part-of: storefront
+spec:
+  replicas: 3
+  selector:
+    matchLabels: *labels
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels: *labels
+          matchLabelKeys: [pod-template-hash]
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels: *labels
+          matchLabelKeys: [pod-template-hash]
+      containers:
+        - name: web
+          image: ghcr.io/acme/shop-web:4.2.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: API_URL
+              value: http://api
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: shop
+  labels:
+    app.kubernetes.io/name: web
+    app.kubernetes.io/part-of: storefront
+spec:
+  selector:
+    app.kubernetes.io/name: web
+    app.kubernetes.io/part-of: storefront
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

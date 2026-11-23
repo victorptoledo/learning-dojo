@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+  namespace: shop
+  labels: &labels
+    app.kubernetes.io/name: db
+    app.kubernetes.io/part-of: storefront
+spec:
+  serviceName: db
+  replicas: 1
+  selector:
+    matchLabels: *labels
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      serviceAccountName: db
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      priorityClassName: shop-critical
+      containers:
+        - name: postgres
+          image: postgres:18.1
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: db-credentials, key: password }
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql
+            - { name: run, mountPath: /var/run/postgresql }
+            - { name: tmp, mountPath: /tmp }
+          readinessProbe:
+            exec: { command: ["pg_isready", "-U", "postgres"] }
+          livenessProbe:
+            tcpSocket: { port: postgres }
+          resources:
+            requests: { cpu: 500m, memory: 1Gi }
+            limits: { memory: 2Gi }
+      volumes:
+        - name: run
+          emptyDir: { sizeLimit: 16Mi }
+        - name: tmp
+          emptyDir: { sizeLimit: 64Mi }
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: shop
+  labels:
+    app.kubernetes.io/name: db
+    app.kubernetes.io/part-of: storefront
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: db
+    app.kubernetes.io/part-of: storefront
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
