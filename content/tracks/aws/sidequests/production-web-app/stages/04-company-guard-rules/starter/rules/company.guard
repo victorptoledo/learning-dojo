@@ -1,0 +1,17 @@
+# The company's rules for production stacks, checked before every deployment:
+#   cfn-guard validate --rules rules/company.guard --data app.yaml
+
+let launch_templates = Resources.*[ Type == 'AWS::EC2::LaunchTemplate' ]
+let databases = Resources.*[ Type == 'AWS::RDS::DBInstance' ]
+let keys = Resources.*[ Type == 'AWS::KMS::Key' ]
+let listeners = Resources.*[ Type == 'AWS::ElasticLoadBalancingV2::Listener' ]
+let roles = Resources.*[ Type == 'AWS::IAM::Role' ]
+
+# A worked example: every customer managed key rotates.
+rule rotating_keys when %keys !empty {
+    %keys.Properties.EnableKeyRotation == true
+    <<Customer managed keys rotate every year>>
+}
+
+# todo: imdsv2_only, encrypted_volumes, resilient_databases, no_database_passwords,
+#       https_only_listeners and scoped_role_policies (see the stage README)
