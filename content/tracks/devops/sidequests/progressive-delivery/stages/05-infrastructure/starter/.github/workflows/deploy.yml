@@ -1,0 +1,8 @@
+# todo: the deploy workflow (see the stage statement)
+name: deploy
+on: workflow_dispatch
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "todo"
