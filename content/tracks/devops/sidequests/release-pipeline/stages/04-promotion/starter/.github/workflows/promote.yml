@@ -1,0 +1,8 @@
+# todo: the promotion workflow (see the stage statement)
+name: promote
+on: workflow_dispatch
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "todo"

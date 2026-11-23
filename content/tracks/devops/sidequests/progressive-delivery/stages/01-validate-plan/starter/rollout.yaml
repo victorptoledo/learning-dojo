@@ -1,0 +1,17 @@
+# The canary rollout of checkout: `bash rollout.sh plan rollout.yaml`.
+service: checkout
+namespace: shop
+route: checkout              # the HTTPRoute that splits the traffic
+stable: checkout-stable      # the two Services it sends traffic to
+canary: checkout-canary
+deployment: checkout-canary  # the canary's Deployment
+steps:
+  - { weight: 10, pause: 2m }
+  - { weight: 50, pause: 2m }
+  - { weight: 100 }
+analysis:
+  interval: 1m
+  query: sum(rate(http_requests_total{service="checkout-canary",code=~"5.."}[1m])) / sum(rate(http_requests_total{service="checkout-canary"}[1m]))
+  max: 0.01
+  failure_limit: 2
+  inconclusive_limit: 3

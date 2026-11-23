@@ -1,0 +1,13 @@
+id: devops.sidequest.release-pipeline
+level: 2
+title: "Reproducible releases"
+summary: "Release a small CLI the supply-chain way: archives that are byte-for-byte reproducible, checksums and a manifest a verifier trusts, a tag-driven release workflow whose steps the tests run with a fake `gh`, and promotion of the same artifact from staging to production by its digest, never rebuilt."
+statement: README.md
+requires: ["devops:P2"]
+skills: [devops.cicd-pipelines, devops.cicd-gitops, devops.release-strategies, devops.delivery-metrics]
+runner: { image: dojo-devops, timeout_secs: 240 }
+stages:
+  - { id: reproducible-build, title: "The same bytes on every build" }
+  - { id: checksums, title: "Checksums, a manifest and a verifier" }
+  - { id: release-workflow, title: "A release workflow driven by tags" }
+  - { id: promotion, title: "Promote the artifact, never rebuild it" }

@@ -1,0 +1,2 @@
+usage: greet [NAME]
+       greet --version

@@ -1,0 +1,4 @@
+# Releases are downloaded for a promotion and never committed; the channels are.
+deploy/releases/
+dist/
+reports/

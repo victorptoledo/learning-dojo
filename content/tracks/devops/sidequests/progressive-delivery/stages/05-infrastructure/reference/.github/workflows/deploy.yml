@@ -1,0 +1,84 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The image tag of checkout to release (1.9.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+# One deploy at a time, and never one cancelled by the next: a cancelled rollout is
+# aborted below, a queued one waits.
+concurrency:
+  group: deploy-checkout
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  staging:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment: staging
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.17.2
+          terraform_wrapper: false
+      - name: Connect to the cluster
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        run: |
+          printf '%s' "$KUBECONFIG_DATA" | base64 -d > "$RUNNER_TEMP/kubeconfig"
+          echo "KUBECONFIG=$RUNNER_TEMP/kubeconfig" >> "$GITHUB_ENV"
+      - name: Render the rollout policy
+        run: |
+          terraform init -input=false
+          terraform apply -input=false -auto-approve -var-file=environments/staging.tfvars
+      - name: Start the canary
+        env:
+          VERSION: ${{ inputs.version }}
+        run: kubectl -n shop set image deployment/checkout-canary app="ghcr.io/acme/checkout:$VERSION"
+      - name: Roll out
+        run: bash rollout.sh run rollouts/staging/checkout.yaml
+      - name: Abort the rollout
+        if: ${{ cancelled() }}
+        run: bash rollout.sh abort rollouts/staging/checkout.yaml
+
+  production:
+    needs: staging
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.17.2
+          terraform_wrapper: false
+      - name: Connect to the cluster
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        run: |
+          printf '%s' "$KUBECONFIG_DATA" | base64 -d > "$RUNNER_TEMP/kubeconfig"
+          echo "KUBECONFIG=$RUNNER_TEMP/kubeconfig" >> "$GITHUB_ENV"
+      - name: Render the rollout policy
+        run: |
+          terraform init -input=false
+          terraform apply -input=false -auto-approve -var-file=environments/production.tfvars
+      - name: Start the canary
+        env:
+          VERSION: ${{ inputs.version }}
+        run: kubectl -n shop set image deployment/checkout-canary app="ghcr.io/acme/checkout:$VERSION"
+      - name: Roll out
+        run: bash rollout.sh run rollouts/production/checkout.yaml
+      - name: Abort the rollout
+        if: ${{ cancelled() }}
+        run: bash rollout.sh abort rollouts/production/checkout.yaml

@@ -38,7 +38,7 @@ of your choice.
   when you want more drill (Rust for now), spaced review of past quiz questions, and career paths
   that recommend your next step.
 - **Sidequests.** Optional projects built from an almost empty folder, four per track (Rust,
-  Java, Python, Go, TypeScript, C++, Spring Boot, SQL, Docker, Linux, Node.js, React, PostgreSQL, Git, Kubernetes and AWS for now). Each unlocks on its own once you reach the checkpoints or phases it asks for,
+  Java, Python, Go, TypeScript, C++, Spring Boot, SQL, Docker, Linux, Node.js, React, PostgreSQL, Git, Kubernetes, AWS and DevOps for now). Each unlocks on its own once you reach the checkpoints or phases it asks for,
   even of other tracks, and opens one stage at a time; contract tests check what your program
   does, not how you wrote it. Every stage gives sidequest XP and the last one a badge, never a
   belt.

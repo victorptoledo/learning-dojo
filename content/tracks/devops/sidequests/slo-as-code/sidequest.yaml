@@ -1,0 +1,13 @@
+id: devops.sidequest.slo-as-code
+level: 3
+title: "SLOs as code"
+summary: "A generator that turns a short `slos.yaml` into Prometheus recording rules for every SLI, multi-window burn-rate alerts scaled to any objective and window, and a Grafana dashboard per service, plus a linter for rule files and the Prometheus configuration that loads them; graded with `promtool test rules` on synthetic traffic."
+statement: README.md
+requires: ["devops:P3"]
+skills: [devops.slo-alerting, devops.observability-sre, devops.cicd-pipelines, devops.incident-response]
+runner: { image: dojo-devops, timeout_secs: 300 }
+stages:
+  - { id: sli-rules, title: "Recording rules for every SLI" }
+  - { id: burn-rate-alerts, title: "Burn-rate alerts for any objective" }
+  - { id: dashboards, title: "A dashboard per service" }
+  - { id: production-ready, title: "Lint the rules and load them" }

@@ -1,0 +1,14 @@
+id: devops.sidequest.progressive-delivery
+level: 4
+title: "Canary controller"
+summary: "A `rollout.sh` that releases a canary step by step behind a Gateway API HTTPRoute, measures it with a Prometheus query after every interval and rolls back by itself, survives being killed, takes one rollout at a time and can be aborted; its policy per environment comes from a tested Terraform module and a deploy workflow that aborts on cancel."
+statement: README.md
+requires: ["devops:P4", "kubernetes:P2"]
+skills: [devops.release-strategies, devops.slo-alerting, devops.iac-terraform, devops.cicd-gitops, devops.incident-response, kubernetes.ingress-gateway]
+runner: { image: dojo-devops, timeout_secs: 480 }
+stages:
+  - { id: validate-plan, title: "A rollout spec you can trust" }
+  - { id: shift-traffic, title: "Shift the traffic step by step" }
+  - { id: analysis, title: "Measure the canary and roll back" }
+  - { id: state-and-abort, title: "Survive a crash, one at a time, abort" }
+  - { id: infrastructure, title: "The policy as code, and the deploy workflow" }
