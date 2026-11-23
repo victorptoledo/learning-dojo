@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+components:
+  - ../../components/public
+namespace: invoices-staging
+labels:
+  - pairs:
+      environment: staging
+    includeSelectors: false
+    includeTemplates: true
+images:
+  - name: ghcr.io/acme/invoices
+    newTag: 3.0.4
+replicas:
+  - name: invoices
+    count: 2
+patches:
+  - target: { kind: Ingress, name: invoices }
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: invoices.staging.acme.test
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: invoices.staging.acme.test

@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+components:
+  - ../../components/public
+namespace: invoices-prod
+labels:
+  - pairs:
+      environment: prod
+    includeSelectors: false
+    includeTemplates: true
+images:
+  - name: ghcr.io/acme/invoices
+    newTag: 3.0.4
+replicas:
+  - name: invoices
+    count: 3
+configMapGenerator:
+  - name: invoices-config
+    behavior: merge
+    literals:
+      - LOG_LEVEL=warn
+patches:
+  - path: resources.yaml
+  - target: { kind: Ingress, name: invoices }
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: invoices.acme.test
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: invoices.acme.test

@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+components:
+  - ../../components/public
+namespace: invoices-staging
+labels:
+  - pairs:
+      environment: staging
+    includeSelectors: false
+    includeTemplates: true
+images:
+  - name: ghcr.io/acme/invoices
+    newTag: 3.0.4
+    digest: sha256:3b5a1f7e0c9d2a4b6c8e0f1a3b5c7d9e1f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c
+replicas:
+  - name: invoices
+    count: 2
+patches:
+  - target: { kind: Ingress, name: invoices }
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: invoices.staging.acme.test
+replacements:
+  - source: { kind: Ingress, name: invoices, fieldPath: spec.rules.0.host }
+    targets:
+      - select: { kind: Ingress, name: invoices }
+        fieldPaths: [spec.tls.0.hosts.0]
+      - select: { kind: ConfigMap, name: invoices-config }
+        fieldPaths: [data.PUBLIC_URL]
+        options: { delimiter: /, index: 2 }

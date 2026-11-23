@@ -1,0 +1,9 @@
+# VAT rates by country, read by the app from /etc/invoices/rates.yaml.
+standard:
+  DE: 19
+  FR: 20
+  PT: 23
+reduced:
+  DE: 7
+  FR: 5.5
+  PT: 6

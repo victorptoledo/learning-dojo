@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invoices
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: invoices
+          image: ghcr.io/acme/invoices:3.0.0
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: invoices-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: invoices-db
+                  key: password
+          volumeMounts:
+            - name: rates
+              mountPath: /etc/invoices
+              readOnly: true
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { memory: 256Mi }
+      volumes:
+        - name: rates
+          configMap:
+            name: invoices-rates

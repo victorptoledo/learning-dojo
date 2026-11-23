@@ -1,0 +1,3 @@
+# name: command that prints the YAML to check. Later stages render their overlays in the
+# tests themselves (render in helpers.sh), because only one stage may have this file.
+base: kustomize build base

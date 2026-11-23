@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: invoices
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - invoices.example.test
+      secretName: invoices-tls
+  rules:
+    - host: invoices.example.test
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: invoices
+                port:
+                  name: http

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invoices
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: invoices # todo: the common labels come from the kustomization
+  template:
+    metadata:
+      labels:
+        app: invoices
+    spec:
+      containers:
+        - name: invoices
+          image: ghcr.io/acme/invoices:3.0.0
+          ports:
+            - name: http
+              containerPort: 8080
+          # todo: the settings go to a generated ConfigMap, the password to a Secret,
+          # and rates.yaml is mounted from a ConfigMap at /etc/invoices.
+          env:
+            - name: LOG_LEVEL
+              value: info
+            - name: CURRENCY
+              value: EUR
+            - name: PUBLIC_URL
+              value: http://localhost:8080
+            - name: DB_PASSWORD
+              value: change-me
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { memory: 256Mi }

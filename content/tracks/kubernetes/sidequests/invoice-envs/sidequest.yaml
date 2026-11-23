@@ -1,0 +1,13 @@
+id: kubernetes.sidequest.invoice-envs
+level: 2
+title: "Invoices in every environment"
+summary: "Turn one set of manifests into dev, staging and production with Kustomize: generated ConfigMaps whose names change with their content, overlays that change only what differs, an opt-in component for the public endpoint, and replacements that keep values in sync, with nothing from dev leaking into production."
+statement: README.md
+requires: ["kubernetes:P2"]
+skills: [kubernetes.kustomize-helm, kubernetes.config-secrets, kubernetes.ingress-gateway, kubernetes.deployments]
+runner: { image: dojo-k8s, timeout_secs: 120 }
+stages:
+  - { id: base, title: "A base with generated config" }
+  - { id: overlays, title: "Dev and production overlays" }
+  - { id: components, title: "A component for the public endpoint" }
+  - { id: replacements, title: "Values kept in sync" }
