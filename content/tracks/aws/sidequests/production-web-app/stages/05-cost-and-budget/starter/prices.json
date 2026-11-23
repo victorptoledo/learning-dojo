@@ -1,0 +1,11 @@
+{
+  "currency": "USD",
+  "hours_per_month": 730,
+  "ec2_hour": {"t4g.small": 0.0168, "t4g.medium": 0.0336, "m7g.large": 0.0816},
+  "ebs_gp3_gb_month": 0.088,
+  "rds_hour": {"db.t4g.medium": 0.072, "db.m7g.large": 0.188},
+  "rds_gp3_gb_month": 0.137,
+  "alb_hour": 0.0252,
+  "kms_key_month": 1.0,
+  "secret_month": 0.4
+}

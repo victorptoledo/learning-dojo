@@ -2,6 +2,7 @@
 
     from dojo_aws import template, resources, guard
     from dojo_aws import iam
+    from dojo_aws.stack import Stack   # parameters, conditions and intrinsics resolved
 
 Templates are read with cfn-lint's own parser, so the short forms (`!Ref X`, `!Sub ...`,
 `!GetAtt A.B`) come back as their long JSON forms (`{"Ref": "X"}`, `{"Fn::Sub": ...}`,

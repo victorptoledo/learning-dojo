@@ -1,0 +1,14 @@
+id: aws.sidequest.production-web-app
+level: 4
+title: "Production web app"
+summary: "A web shop's production stack in one CloudFormation template, held to an audit: a load balancer and Auto Scaling in three zones, a Multi-AZ PostgreSQL encrypted with its own KMS key and a managed secret, an instance role proven least privilege by the IAM evaluator, the company's cfn-guard rules written and tested against fixtures, then cost: tags, a budget that alerts and a monthly estimate."
+statement: README.md
+requires: ["aws:P4"]
+skills: [aws.well-architected, aws.high-availability, aws.security-services, aws.iam-least-privilege, aws.cost, aws.databases]
+runner: { image: dojo-aws, timeout_secs: 300 }
+stages:
+  - { id: multi-az-compute, title: "Load balancer and Auto Scaling in three zones" }
+  - { id: database-and-keys, title: "A Multi-AZ database with its own key" }
+  - { id: least-privilege-roles, title: "An instance role with nothing extra" }
+  - { id: company-guard-rules, title: "The company's rules in cfn-guard" }
+  - { id: cost-and-budget, title: "Tags, a budget and a cost estimate" }

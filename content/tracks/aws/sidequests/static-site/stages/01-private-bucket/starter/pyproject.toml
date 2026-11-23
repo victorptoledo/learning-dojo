@@ -1,0 +1,12 @@
+[project]
+name = "static-site"
+version = "0.1.0"
+requires-python = ">=3.15"
+dependencies = ["boto3>=1.44"]
+
+[dependency-groups]
+dev = ["pytest>=9", "moto[s3]>=5.2", "cfn-lint>=1.60"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

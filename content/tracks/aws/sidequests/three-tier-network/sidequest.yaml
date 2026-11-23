@@ -1,0 +1,13 @@
+id: aws.sidequest.three-tier-network
+level: 2
+title: "Three-tier network"
+summary: "A production VPC in CloudFormation across three Availability Zones: subnets carved with Fn::Cidr, one NAT gateway in dev and one per zone in prod chosen by conditions, security groups without dependency cycles, a stateless network ACL for the data tier, private access to Systems Manager and S3 with no bastion, and flow logs."
+statement: README.md
+requires: ["aws:P2"]
+skills: [aws.vpc-subnets, aws.cloudformation, aws.iam-least-privilege, aws.cloudwatch, aws.cost]
+runner: { image: dojo-aws, timeout_secs: 180 }
+stages:
+  - { id: subnets-by-cidr, title: "Nine subnets carved from one block" }
+  - { id: routes-and-nat, title: "Routes, and NAT by environment" }
+  - { id: security-groups-and-nacls, title: "Security groups and a network ACL" }
+  - { id: private-access-and-flow-logs, title: "No bastion, and flow logs" }

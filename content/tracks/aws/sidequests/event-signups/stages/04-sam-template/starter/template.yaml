@@ -1,0 +1,11 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Event sign-ups, one Lambda function behind an HTTP API, with one DynamoDB table.
+
+Resources:
+  SignupsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: signups.handler
+      Runtime: python3.13
