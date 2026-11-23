@@ -1,0 +1,12 @@
+id: aws.sidequest.static-site
+level: 1
+title: "Private static site"
+summary: "A static site on S3 that nobody can read directly: a private, versioned and encrypted bucket, a CloudFront distribution as its only reader (origin access control, a bucket policy proven by the IAM evaluator), and a publish script, tested against moto, that uploads only what changed."
+statement: README.md
+requires: ["aws:P1"]
+skills: [aws.s3, aws.iam-least-privilege, aws.cloudformation, aws.cloud-basics]
+runner: { image: dojo-aws, timeout_secs: 180 }
+stages:
+  - { id: private-bucket, title: "A private, versioned, encrypted bucket" }
+  - { id: cloudfront-only, title: "CloudFront as the only reader" }
+  - { id: publish, title: "Publish only what changed" }

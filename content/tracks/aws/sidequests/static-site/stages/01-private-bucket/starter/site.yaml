@@ -1,0 +1,6 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: A private bucket for a static site, served by CloudFront.
+
+Resources:
+  SiteBucket:
+    Type: AWS::S3::Bucket
