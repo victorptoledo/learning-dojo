@@ -34,7 +34,8 @@ COPY --from=fetch /fetch/bin/cfn-guard /usr/local/bin/cfn-guard
 COPY check.sh report.py /opt/dojo/
 COPY dojo_aws/ /opt/dojo/dojo_aws/
 COPY selftest/ /tmp/selftest/
-# The IAM evaluator's own tests: a build with broken policy semantics fails here.
+# The IAM evaluator's and the template resolver's own tests: a build with broken policy
+# semantics fails here.
 RUN PYTHONPATH=/opt/dojo python -m pytest -q -p no:cacheprovider /tmp/selftest     && rm -rf /tmp/selftest
 RUN chmod 755 /opt/dojo/check.sh \
     && useradd --create-home --uid 10001 dojo \
