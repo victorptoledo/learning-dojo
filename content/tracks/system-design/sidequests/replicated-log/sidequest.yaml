@@ -1,0 +1,14 @@
+id: system-design.sidequest.replicated-log
+level: 4
+title: "Replicated log with Raft"
+summary: "A simplified Raft node as a pure state machine, graded by a deterministic cluster simulator that ticks, partitions, crashes and restarts nodes: leader election, log replication and repair, durable state, a key-value store with client deduplication and safe reads, then snapshots for followers that fall behind."
+statement: README.md
+requires: ["system-design:P4"]
+skills: [system-design.consensus, system-design.cap-pacelc, system-design.databases-replication-sharding, system-design.resilience]
+runner: { image: dojo-java, timeout_secs: 240 }
+stages:
+  - { id: election, title: "Terms, votes and one leader" }
+  - { id: replication, title: "Replicating and committing the log" }
+  - { id: durable-state, title: "Durable state and safe elections after crashes" }
+  - { id: key-value-store, title: "A key-value store, duplicate commands and safe reads" }
+  - { id: snapshots, title: "Snapshots and followers that fall far behind" }

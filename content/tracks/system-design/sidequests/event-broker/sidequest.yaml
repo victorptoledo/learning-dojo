@@ -1,0 +1,13 @@
+id: system-design.sidequest.event-broker
+level: 3
+title: "Event broker"
+summary: "A small Kafka of your own: a partitioned log with ordering by key and time retention, consumer groups with rebalancing, committed offsets and fenced zombie consumers, effects applied exactly once through an idempotent producer and offsets stored with the results, then poison messages, dead letters and consumer lag."
+statement: README.md
+requires: ["system-design:P3"]
+skills: [system-design.message-queues-events, system-design.databases-replication-sharding, system-design.overload, system-design.cap-pacelc]
+runner: { image: dojo-java, timeout_secs: 180 }
+stages:
+  - { id: partitioned-log, title: "A partitioned log with retention" }
+  - { id: consumer-groups, title: "Consumer groups, commits and rebalancing" }
+  - { id: exactly-once-effects, title: "An idempotent producer and exactly-once effects" }
+  - { id: dead-letters, title: "Poison messages, dead letters and lag" }

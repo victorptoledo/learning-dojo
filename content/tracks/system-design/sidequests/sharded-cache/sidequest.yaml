@@ -1,0 +1,13 @@
+id: system-design.sidequest.sharded-cache
+level: 2
+title: "Sharded cache with live resharding"
+summary: "The client of a cache spread over many nodes: a weighted hash ring with read-through, adding a node to a warm cluster without sending a stampede to the database, hot keys spread over replicas with coalesced misses, then failing nodes and a database protected by load shedding."
+statement: README.md
+requires: ["system-design:P2"]
+skills: [system-design.load-balancing, system-design.caching-strategies, system-design.overload, system-design.read-heavy]
+runner: { image: dojo-java, timeout_secs: 240 }
+stages:
+  - { id: ring-routing, title: "A weighted ring with read-through" }
+  - { id: live-resharding, title: "Adding a node to a warm cluster" }
+  - { id: hot-keys, title: "Hot keys and coalesced misses" }
+  - { id: failures-and-shedding, title: "Failing nodes and a protected database" }

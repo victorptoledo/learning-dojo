@@ -1,0 +1,12 @@
+id: system-design.sidequest.url-shortener
+level: 1
+title: "URL shortener"
+summary: "The classic design question built for real: short codes from reserved id blocks and custom aliases, a read cache with negative entries in front of a slow store, then token-bucket rate limits per client behind an HTTP-like gateway."
+statement: README.md
+requires: ["system-design:P1"]
+skills: [system-design.fundamentals, system-design.storage-engines, system-design.dns-cdn, system-design.load-balancing]
+runner: { image: dojo-java, timeout_secs: 180 }
+stages:
+  - { id: codes-and-aliases, title: "Codes from id blocks, and custom aliases" }
+  - { id: read-cache, title: "A read cache with negative entries" }
+  - { id: rate-limits, title: "Rate limits per client behind a gateway" }
