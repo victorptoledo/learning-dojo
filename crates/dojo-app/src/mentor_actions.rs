@@ -1,7 +1,7 @@
 //! Mentoring without AI: the kata hint ladder and spaced review of finished nodes.
 
 use crate::app::{App, Screen};
-use crate::quiz_session::QuizSession;
+use crate::quiz_session::{QuizSession, fresh_seed};
 use dojo_core::{HINT_COST_PERCENT, HintRefusal, ProgressEvent, Quiz, review};
 
 impl App {
@@ -76,7 +76,8 @@ impl App {
             pass_percent: 0,
             questions,
         };
-        self.quiz = Some(QuizSession::review(&track.id, &track.name, quiz, sources));
+        self.quiz =
+            Some(QuizSession::review(&track.id, &track.name, quiz, sources).shuffled(fresh_seed()));
         self.screen = Screen::Quiz;
         self.status_message = None;
     }

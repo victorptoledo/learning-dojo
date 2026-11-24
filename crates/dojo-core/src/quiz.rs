@@ -1,5 +1,7 @@
 //! Quizzes: the evidence that completes a lesson (a node without code).
 
+use crate::rng::SplitMix64;
+
 /// Percentage of correct answers needed to pass when the quiz does not say otherwise.
 pub const DEFAULT_PASS_PERCENT: u8 = 80;
 
@@ -53,6 +55,19 @@ impl Question {
         }
     }
 
+    /// Puts the options of a single-choice question in a new order; the answer follows
+    /// its option. Typed-answer questions are left as they are.
+    pub fn shuffle_options(&mut self, rng: &mut SplitMix64) {
+        if let QuestionKind::SingleChoice { options, answer } = &mut self.kind {
+            let mut order: Vec<usize> = (0..options.len()).collect();
+            rng.shuffle(&mut order);
+            *options = order.iter().map(|&old| options[old].clone()).collect();
+            if let Some(new_index) = order.iter().position(|&old| old == *answer) {
+                *answer = new_index;
+            }
+        }
+    }
+
     /// The correct answer as text, for feedback.
     pub fn correct_answer(&self) -> &str {
         match &self.kind {
@@ -99,6 +114,23 @@ impl Quiz {
         }
     }
 
+    /// Shuffles the questions and the options of each one, so a retry cannot be passed
+    /// by remembering positions. Returns the new order as old indexes, for callers that
+    /// keep data per question.
+    pub fn shuffle(&mut self, rng: &mut SplitMix64) -> Vec<usize> {
+        let mut order: Vec<usize> = (0..self.questions.len()).collect();
+        rng.shuffle(&mut order);
+        let mut questions: Vec<Question> = order
+            .iter()
+            .map(|&old| self.questions[old].clone())
+            .collect();
+        for question in &mut questions {
+            question.shuffle_options(rng);
+        }
+        self.questions = questions;
+        order
+    }
+
     /// Correct answers needed to pass (the pass percentage, rounded up).
     pub fn needed(&self) -> u32 {
         let total = self.questions.len() as u32;
@@ -131,6 +163,68 @@ mod tests {
             },
             ..choice()
         }
+    }
+
+    fn four_options(answer: usize) -> Question {
+        Question {
+            kind: QuestionKind::SingleChoice {
+                options: vec!["w".into(), "x".into(), "y".into(), "z".into()],
+                answer,
+            },
+            ..choice()
+        }
+    }
+
+    #[test]
+    fn shuffled_options_keep_the_right_answer_and_move_it_around() {
+        let mut positions = std::collections::HashSet::new();
+        for seed in 0..40 {
+            let mut question = four_options(1);
+            question.shuffle_options(&mut SplitMix64::new(seed));
+            assert_eq!(question.correct_answer(), "x", "seed {seed}");
+            let QuestionKind::SingleChoice { options, answer } = &question.kind else {
+                unreachable!()
+            };
+            let mut sorted = options.clone();
+            sorted.sort();
+            assert_eq!(sorted, ["w", "x", "y", "z"], "no option lost");
+            assert!(question.is_correct(&Answer::Choice(*answer)));
+            positions.insert(*answer);
+        }
+        assert_eq!(positions.len(), 4, "the answer lands in every position");
+    }
+
+    #[test]
+    fn shuffling_a_quiz_reorders_questions_and_reports_the_order() {
+        let mut quiz = Quiz {
+            pass_percent: 80,
+            questions: (0..6)
+                .map(|n| Question {
+                    id: format!("q{n}"),
+                    ..four_options(n % 4)
+                })
+                .collect(),
+        };
+        let before = quiz.clone();
+        let order = quiz.shuffle(&mut SplitMix64::new(7));
+        assert_ne!(
+            quiz.questions.iter().map(|q| &q.id).collect::<Vec<_>>(),
+            before.questions.iter().map(|q| &q.id).collect::<Vec<_>>()
+        );
+        for (new, &old) in order.iter().enumerate() {
+            assert_eq!(quiz.questions[new].id, before.questions[old].id);
+            assert_eq!(
+                quiz.questions[new].correct_answer(),
+                before.questions[old].correct_answer()
+            );
+        }
+    }
+
+    #[test]
+    fn text_questions_are_not_touched_by_shuffling_options() {
+        let mut question = text(&["Some(5)"]);
+        question.shuffle_options(&mut SplitMix64::new(3));
+        assert_eq!(question, text(&["Some(5)"]));
     }
 
     #[test]

@@ -9,6 +9,7 @@
 //! Pure and deterministic: the same seed and answers always give the same plan.
 
 use crate::quiz::{Answer, Question};
+use crate::rng::SplitMix64;
 use crate::track::{NodeId, NodeKind, PhaseId, Track};
 use std::collections::{BTreeMap, HashMap};
 
@@ -148,8 +149,14 @@ impl PlacementSession {
         let start = option
             .and_then(|option| phase_ids.iter().position(|id| *id == option.start_phase))
             .unwrap_or(0);
+        let mut rng = SplitMix64::new(seed);
+        let mut config = config.clone();
+        // Authors tend to put the right option in the same place; shuffle them per run.
+        for item in &mut config.items {
+            item.question.shuffle_options(&mut rng);
+        }
         let mut session = Self {
-            config: config.clone(),
+            config,
             phase_ids,
             start,
             current: start,
@@ -159,7 +166,7 @@ impl PlacementSession {
             verdicts: Vec::new(),
             mastery: SkillMastery::default(),
             asked: 0,
-            rng: SplitMix64(seed),
+            rng,
             finished: !option.is_some_and(|option| option.test),
         };
         if !session.finished {
@@ -387,27 +394,6 @@ impl PlacementSession {
     }
 }
 
-/// Small deterministic generator (SplitMix64), enough to shuffle a question bank.
-#[derive(Debug, Clone)]
-struct SplitMix64(u64);
-
-impl SplitMix64 {
-    fn next(&mut self) -> u64 {
-        self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
-        let mut z = self.0;
-        z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
-        z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
-        z ^ (z >> 31)
-    }
-
-    fn shuffle<T>(&mut self, items: &mut [T]) {
-        for i in (1..items.len()).rev() {
-            let j = (self.next() % (i as u64 + 1)) as usize;
-            items.swap(i, j);
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -517,10 +503,21 @@ mod tests {
     const RIGHT: PlacementAnswer = PlacementAnswer::Given(Answer::Choice(1));
     const WRONG: PlacementAnswer = PlacementAnswer::Given(Answer::Choice(0));
 
-    /// Answers each question with `answer(question id)` until the test ends.
+    /// Answers each question with `answer(question id)` until the test ends. Options are
+    /// shuffled, so `RIGHT` and `WRONG` are turned into the shuffled right or wrong index.
     fn run(session: &mut PlacementSession, answer: impl Fn(&str) -> PlacementAnswer) {
         while let Some(item) = session.current() {
-            let response = answer(&item.question.id);
+            let response = match answer(&item.question.id) {
+                PlacementAnswer::Given(Answer::Choice(pick)) => {
+                    let QuestionKind::SingleChoice { answer: right, .. } = item.question.kind
+                    else {
+                        unreachable!("the fixtures are single choice")
+                    };
+                    let wanted = if pick == 1 { right } else { 1 - right };
+                    PlacementAnswer::Given(Answer::Choice(wanted))
+                }
+                other => other,
+            };
             session.answer(&response);
         }
     }

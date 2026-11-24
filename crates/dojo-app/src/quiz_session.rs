@@ -1,5 +1,6 @@
 //! One run through a lesson quiz: current question, typed input, feedback and score.
 
+use dojo_core::rng::SplitMix64;
 use dojo_core::{Answer, Question, QuestionKind, Quiz, QuizScore};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -63,6 +64,19 @@ impl QuizSession {
             practice: true,
             ..Self::new("", "", title, quiz)
         }
+    }
+
+    /// The same session with its questions and their options in a new order, so each
+    /// attempt differs. Review sources follow their questions.
+    pub fn shuffled(mut self, seed: u64) -> Self {
+        let order = self.quiz.shuffle(&mut SplitMix64::new(seed));
+        if !self.review_sources.is_empty() {
+            self.review_sources = order
+                .iter()
+                .map(|&old| self.review_sources[old].clone())
+                .collect();
+        }
+        self
     }
 
     pub fn is_review(&self) -> bool {
@@ -149,6 +163,13 @@ impl QuizSession {
     }
 }
 
+/// A different order on each run: the clock is the seed.
+pub fn fresh_seed() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |elapsed| elapsed.as_nanos() as u64)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -179,6 +200,27 @@ mod tests {
                     skills: vec![],
                 },
             ],
+        }
+    }
+
+    #[test]
+    fn a_shuffled_review_keeps_each_question_with_its_source_node() {
+        let sources = vec!["rust.p0.a".to_string(), "rust.p0.b".to_string()];
+        for seed in 0..8 {
+            let session =
+                QuizSession::review("rust", "Rust", quiz(), sources.clone()).shuffled(seed);
+            for (question, source) in session.quiz.questions.iter().zip(&session.review_sources) {
+                let expected = if question.id == "q1" {
+                    "rust.p0.a"
+                } else {
+                    "rust.p0.b"
+                };
+                assert_eq!(source, expected, "seed {seed}");
+            }
+            assert_eq!(
+                session.quiz.questions[0].id != "q1",
+                session.review_sources[0] == "rust.p0.b"
+            );
         }
     }
 

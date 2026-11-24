@@ -1,7 +1,7 @@
 //! What the learner can do with a lesson: read it and take its quiz.
 
 use crate::app::{App, NodeKey, Screen, checkpoint_missing_part};
-use crate::quiz_session::QuizSession;
+use crate::quiz_session::{QuizSession, fresh_seed};
 use chrono::Utc;
 use dojo_core::{Evidence, Node, QuizAttempt, QuizScore, Refusal};
 
@@ -44,11 +44,12 @@ impl App {
             return;
         };
         // In a phase not reached yet the quiz is practice: it is shown, never recorded.
-        self.quiz = Some(if self.profile.is_unlocked(track, node) {
+        let session = if self.profile.is_unlocked(track, node) {
             QuizSession::new(&track.id, &node.id, &node.title, quiz)
         } else {
             QuizSession::practice(&format!("Practice: {}", node.title), quiz)
-        });
+        };
+        self.quiz = Some(session.shuffled(fresh_seed()));
         self.screen = Screen::Quiz;
         self.status_message = None;
     }

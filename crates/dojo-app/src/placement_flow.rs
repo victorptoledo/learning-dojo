@@ -64,7 +64,8 @@ impl App {
         {
             return;
         }
-        let session = PlacementSession::new(track, config, number - 1, seed());
+        let session =
+            PlacementSession::new(track, config, number - 1, crate::quiz_session::fresh_seed());
         let stage = if session.is_finished() {
             PlacementStage::Result {
                 plan: session.plan(track),
@@ -314,11 +315,4 @@ impl App {
         }
         format!(" Back to study: {}.", titles.join(", "))
     }
-}
-
-/// A different draw of questions on each run.
-fn seed() -> u64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map_or(0, |elapsed| elapsed.as_nanos() as u64)
 }

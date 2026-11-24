@@ -13,6 +13,7 @@ pub mod progress;
 pub mod quiz;
 pub mod requirement;
 pub mod review;
+pub mod rng;
 pub mod sidequest;
 pub mod track;
 

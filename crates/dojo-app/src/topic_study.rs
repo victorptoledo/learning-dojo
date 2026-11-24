@@ -4,7 +4,7 @@
 //! Nothing here changes progress: nodes in locked phases are practice only.
 
 use crate::app::{App, Screen};
-use crate::quiz_session::QuizSession;
+use crate::quiz_session::{QuizSession, fresh_seed};
 use crate::ui::centered;
 use dojo_core::{Node, NodeKind, Quiz, Track};
 use ratatui::Frame;
@@ -276,10 +276,10 @@ impl App {
             pass_percent: 0,
             questions,
         };
-        self.quiz = Some(QuizSession::practice(
-            &format!("Practice: {}", topic.title),
-            quiz,
-        ));
+        self.quiz = Some(
+            QuizSession::practice(&format!("Practice: {}", topic.title), quiz)
+                .shuffled(fresh_seed()),
+        );
         self.screen = Screen::Quiz;
         self.status_message = None;
     }
