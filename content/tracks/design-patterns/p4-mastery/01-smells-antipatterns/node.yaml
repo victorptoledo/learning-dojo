@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Name the common code smells in a piece of code and the refactoring that addresses each", skills: [design-patterns.code-smells] }
   - { id: o2, text: "Recognise anti-patterns such as god class, anemic domain model, singleton abuse and golden hammer", skills: [design-patterns.code-smells] }
   - { id: o3, text: "Refactor legacy code safely with characterisation tests, small steps and seams", skills: [design-patterns.code-smells] }
-prerequisites: [design-patterns.p3.hexagonal-transfer]
+prerequisites: [design-patterns.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 55
 xp: 300

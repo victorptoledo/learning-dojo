@@ -45,7 +45,7 @@
               },
               "start_phase": {
                 "type": "string",
-                "pattern": "^p[0-4]$"
+                "pattern": "^p[0-9]$"
               },
               "test": {
                 "type": "boolean"
@@ -60,7 +60,7 @@
       "additionalProperties": false,
       "minProperties": 1,
       "patternProperties": {
-        "^p[0-4]$": {
+        "^p[0-9]$": {
           "type": "object",
           "additionalProperties": false,
           "required": [
@@ -193,7 +193,7 @@
           },
           "phase": {
             "type": "string",
-            "pattern": "^p[0-4]$"
+            "pattern": "^p[0-9]$"
           },
           "difficulty": {
             "type": "integer",

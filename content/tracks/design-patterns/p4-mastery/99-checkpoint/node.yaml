@@ -1,0 +1,53 @@
+id: design-patterns.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on smells, anti-patterns and choosing patterns, and an over-engineered notification dispatcher stripped of a needless factory chain and singletons, with its type code turned into a sealed type."
+objectives:
+  - { id: o1, text: "Name smells and anti-patterns and choose (or remove) a pattern from the forces in the code", skills: [design-patterns.code-smells, design-patterns.choosing-patterns] }
+  - { id: o2, text: "Refactor over-engineered legacy code under characterisation tests: inline needless indirection and replace a type code with a sealed type", skills: [design-patterns.code-smells, design-patterns.choosing-patterns, design-patterns.state-visitor] }
+prerequisites: [design-patterns.p4.choosing-patterns]
+difficulty: 4
+estimated_minutes: 90
+xp: 450
+closes_phase: p4
+covers_skills: [design-patterns.code-smells, design-patterns.choosing-patterns, design-patterns.strategy-factory, design-patterns.state-visitor]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      List what each layer gives you. Does anything configure `Config` at run time? Does the factory ever return two different strategies for the same name? Does anyone else use the provider? Patterns that answer no force are cost without benefit. What does vary by channel (format, cost, quiet hours) is exactly what a sealed type with one record per channel can own.
+    - |-
+      Write `sealed interface Channel` with three nested records and `static Channel parse(String name)` as a `switch` with a `default` that throws. Then `Dispatcher.send` becomes: parse, validate, format, and either hold or deliver. Keep held messages as `private record Message(Channel channel, String text)` in one list, so `releaseHeld` can add `message.channel().costCents()` without a second list. The quiet-hours rule becomes one `private static boolean isQuiet(int hour)`.
+    - |-
+      ```java
+      public boolean send(String channelName, String user, String text, int hour) {
+          Channel channel = Channel.parse(channelName);
+          if (text == null || text.isBlank()) {
+              throw new IllegalArgumentException("text is required");
+          }
+          checkHour(hour);
+          Message message = new Message(channel, channel.format(user, text));
+          if (channel.waitsForQuietHours() && isQuiet(hour)) {
+              held.add(message);
+              return false;
+          }
+          deliver(message);
+          return true;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

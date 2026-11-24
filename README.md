@@ -52,7 +52,7 @@ of your choice.
 
 ### Tracks
 
-All 30 tracks are complete, with 721 lessons and checkpoints and 258 katas between them:
+All 30 tracks are complete, with 723 lessons and checkpoints and 260 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
@@ -74,7 +74,7 @@ All 30 tracks are complete, with 721 lessons and checkpoints and 258 katas betwe
 | PostgreSQL | PostgreSQL 17 internals and operations | 25 | 9 | `dojo-sql` (other sessions opened with dblink for lock katas) |
 | System Design | building blocks of large systems | 23 | 10 | `dojo-java` |
 | Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
-| Design Patterns | principles and patterns in modern Java | 24 | 10 | `dojo-java` (refactoring katas) |
+| Design Patterns | principles and patterns in modern Java | 26 | 12 | `dojo-java` (refactoring katas) |
 | API Design | HTTP, REST, errors, evolution, contracts | 25 | 8 | `dojo-java` (Spring Boot and MockMvc, plus an OpenAPI linter) |
 | Software Architecture | modularity, hexagonal, DDD, events, fitness functions | 23 | 9 | `dojo-java` (fitness functions over compiled classes) |
 | Computer Science | from bits and caches to compilers, computability and database internals | 25 | 9 | `dojo-python`, `dojo-rust` and `dojo-java` |
@@ -87,8 +87,10 @@ All 30 tracks are complete, with 721 lessons and checkpoints and 258 katas betwe
 | AI Engineer | LLM features: APIs, RAG, tools, evals, guardrails | 24 | 10 | `dojo-python` (pytest against a fake, offline model) |
 | Data Engineer | pipelines, modelling, lakes, streaming | 25 | 9 | `dojo-sql`, `dojo-python` and `dojo-data` (pyarrow, DuckDB) |
 
-Every track has two checkpoints, a placement test, an interview bank and bridges from five
-languages.
+Every track has a checkpoint at the end of each phase from P1 on (Design Patterns has all four;
+the other tracks have P1 and P2 and get the rest track by track, see D046), a placement test, an
+interview bank and bridges from five languages. A track has as many phases as its subject needs,
+up to P9.
 
 ## Requirements
 

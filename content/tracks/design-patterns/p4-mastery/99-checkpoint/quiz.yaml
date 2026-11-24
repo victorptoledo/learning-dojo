@@ -1,0 +1,49 @@
+questions:
+  - id: cp4-shotgun-surgery
+    skills: [design-patterns.code-smells]
+    prompt: "Adding a new notification channel means editing the factory, two switches, the cost table and the config. Which smell is this?"
+    options: ["Shotgun surgery: one change is scattered over many places", "Feature envy", "Lazy class", "Speculative generality"]
+    answer: 0
+    explanation: "One reason to change should touch one place; gathering the channel's rules into one type cures it."
+  - id: cp4-primitive-obsession
+    skills: [design-patterns.code-smells]
+    prompt: "Held messages live in `List<String> held` and a parallel `List<String> heldTypes`. What is the smell, and the fix?"
+    options: ["Long method; extract method", "Duplicated code; pull up method", "Primitive obsession with parallel lists; keep each message with its channel in one record", "Refused bequest; replace inheritance with delegation"]
+    answer: 2
+    explanation: "Parallel collections drift apart; a small record keeps related data together."
+  - id: cp4-characterisation
+    skills: [design-patterns.code-smells]
+    prompt: "Before refactoring legacy code that has no tests, what should you write first?"
+    options: ["The new design's interfaces", "Characterisation tests that pin today's behaviour, oddities included", "Comments explaining the old code", "A ticket to rewrite it from scratch"]
+    answer: 1
+    explanation: "Characterisation tests make each refactoring step safe: behaviour stays, structure changes."
+  - id: cp4-golden-hammer
+    skills: [design-patterns.choosing-patterns]
+    prompt: "A factory has one product and a provider that returns the factory. Which anti-pattern is this, and what is the usual fix?"
+    options: ["Anemic domain model; add behaviour", "God class; split it", "Lava flow; document it", "Golden hammer (pattern for its own sake); inline the indirection until a real second variant appears"]
+    answer: 3
+    explanation: "A pattern must answer a force in the code; without one it only adds indirection."
+  - id: cp4-sealed-vs-strategy
+    skills: [design-patterns.choosing-patterns, design-patterns.state-visitor]
+    prompt: "The set of channels is closed and known at compile time, and each needs three rules. What fits best in modern Java?"
+    options: ["A sealed interface with one record per channel, so the compiler checks every case", "A map from strings to lambdas", "A visitor with an accept method on every channel", "A class hierarchy three levels deep"]
+    answer: 0
+    explanation: "Sealed types make a closed set explicit and exhaustive; open extension (plugins) would favour a strategy registry instead."
+  - id: cp4-framework-provides
+    skills: [design-patterns.choosing-patterns, design-patterns.dependency-injection]
+    prompt: "In a Spring application, why should you rarely write your own singleton or factory for services?"
+    options: ["They are forbidden by the JVM", "The container already manages one instance per bean and builds the graph by constructor injection", "Singletons are slower", "Factories cannot return interfaces"]
+    answer: 1
+    explanation: "Know the patterns your framework already provides before adding your own."
+  - id: cp4-strategy-lambda
+    skills: [design-patterns.strategy-factory]
+    prompt: "A strategy interface has one method and each implementation is three lines. What is the lightest correct design?"
+    options: ["One class per strategy in its own package", "An abstract base class with a template method", "A functional interface, with each strategy a lambda or method reference", "Reflection to load the strategies by name"]
+    answer: 2
+    explanation: "Since Java 8, a one-method strategy is a function; classes are for strategies with state or several methods."
+  - id: cp4-observer-vs-call
+    skills: [design-patterns.observer-command, design-patterns.choosing-patterns]
+    prompt: "A service calls exactly one audit log, which will never change and never fail. Should it publish an event for observers instead?"
+    options: ["Yes, observers are always better", "Yes, to prepare for future listeners", "No, events are deprecated in Java", "No: a direct call is simpler; introduce observers when there are several or changing listeners"]
+    answer: 3
+    explanation: "YAGNI applies to patterns too: the observer pays off when listeners vary, not before."

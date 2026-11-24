@@ -79,8 +79,8 @@ learning-dojo/
 │           │   │       └── rubric.yaml
 │           │   └── 99-checkpoint/          📋 Checkpoint 1 closes phase 1
 │           ├── p2-intermediate/ ... 99-checkpoint/   📋 Checkpoint 2
-│           ├── p3-advanced/
-│           ├── p4-mastery/
+│           ├── p3-advanced/ ... 99-checkpoint/      📋 Checkpoint 3
+│           ├── p4-mastery/ ... 99-checkpoint/       🥋 the last phase's checkpoint is the final exam
 │           └── sidequests/
 │               └── terminal-calculator/
 │                   ├── sidequest.yaml  level, requirements (rust:P1), stages
@@ -111,7 +111,7 @@ The workspace lives outside the dojo repository (default `C:\dev\dojo-workspace`
 
 ## 4. Track archetypes
 
-"Primitive types and loops" does not fit AWS or System Design. Each track declares an `archetype`; all share phases 0–4 and the two checkpoints, but what a phase contains and how a kata is checked differ.
+"Primitive types and loops" does not fit AWS or System Design. Each track declares an `archetype`; all share the phase model (P0 to as many phases as the subject needs, up to P9, each from P1 on closed by a checkpoint; D046), but what a phase contains and how a kata is checked differ.
 
 | Archetype | Tracks | Phase 1 (Fundamentals) is... | Kata checked by |
 |---|---|---|---|
@@ -146,6 +146,7 @@ The learner picks a source language at onboarding (`config.toml: bridge_from = "
 ### 5.2b Completion rules (implemented 2026-11-14)
 
 - A lesson is completed only by passing its quiz (`quiz.yaml` next to `node.yaml`: single-choice or typed answers, typed ones compared ignoring case and spaces; `pass_percent`, default 80, rounded up). Attempts are stored (`quiz_attempt`).
+- Every quiz session (lesson, checkpoint, spaced review, topic practice) and the placement test shuffle the questions and the options of each single-choice question from a clock seed, so a retry cannot be passed by remembering positions; the answer follows its option (`Quiz::shuffle`, `Question::shuffle_options`, `dojo_core::rng::SplitMix64`).
 - A node is *under construction* when it lacks what a learner needs: a lesson without `lesson.md` or quiz, a kata without its exercise, a checkpoint without its phase quiz and integration kata; standalone quiz and project nodes until their engines exist. A checkpoint opens only when every other node of its phase is done and is completed when both its quiz and its kata have passed, in any order. It shows 🚧, cannot be completed, and so blocks what comes after it.
 - A node unlocks when its prerequisites are done **and** every node of the earlier phases is done.
 - `--dev` can tick and undo anything (locks still apply).
@@ -192,9 +193,13 @@ Migration: on first run each node in `profile.json`'s `track_progress` becomes `
 | P2 Intermediate | abstractions, errors, data, good practices, testing | 4–6 | medium kata with clean-code rubric |
 | 📋 Checkpoint 2 | integration | 1 | quiz + 2–3 file mini project |
 | P3 Advanced | performance, concurrency, patterns, architecture | 3–5 | kata with a required folder structure |
+| 📋 Checkpoint 3 | integration of the advanced topics | 1 | quiz + integration kata |
 | P4 Mastery | production, resilience, specialised topics | 2–4 | project with architecture review |
+| 🥋 Last checkpoint | final exam of the track | 1 | quiz over the track + integration kata |
 
-18–26 nodes per track. The rubric scales with the phase: in P1 the reviewer looks at naming, small functions and flow; design patterns become a criterion only from P3 (`from_phase: 3`).
+**Phases follow the subject (D046).** The table is a guide: a track may add phases after P3 (one per large block of advanced topics), up to `p9`, and its last phase is Mastery. Every phase from P1 on ends with a checkpoint; the last one is the final exam. The validator requires the checkpoints of P1 and P2 (an error once a track is reviewed) and warns about later phases without one while the tracks are migrated (Design Patterns is the pilot with all four). Each phase from P1 on has 2–8 nodes, its checkpoint included; checkpoint XP grows with the phase (300 for P1, plus 50 per phase).
+
+The rubric The rubric scales with the phase: in P1 the reviewer looks at naming, small functions and flow; design patterns become a criterion only from P3 (`from_phase: 3`).
 
 ## 7. Placement test
 
@@ -354,7 +359,7 @@ Common rules:
 **Implemented on 2026-11-16** (decisions D028 and D030; `dojo-core/src/sidequest.rs`, `sidequest_actions.rs`, `sidequest_view.rs`, `dojo-runner/src/stages.rs`). Optional projects, four per track (N1–N4), built in stages and graded by contract tests. The Rust, Java, Python, Go, TypeScript, Modern C++, Spring Boot, SQL, Docker, Linux, Node.js, React Developer, PostgreSQL, Git & GitHub, Kubernetes, AWS Cloud Architecture, DevOps & Cloud, System Design and Data Structures & Algorithms tracks have theirs; the other tracks show none yet.
 
 - **Layout:** `content/tracks/<track>/sidequests/<slug>/` with `sidequest.yaml` (schema `sidequest.schema.json`), the brief `README.md`, and one folder per stage, `stages/NN-<stage id>/`, holding `README.md` (the stage statement), `tests/` (contract tests), `reference/` and an optional `starter/` (the first stage must have one: the build manifest and an empty entry point). Ids are `<track>.sidequest.<slug>` and `<sidequest id>.<stage id>`.
-- **Unlocking:** `requires` lists `track:P1`..`P4`, the main track first at the sidequest's level and the others at most that level (the validator checks it, and that each requirement has nodes). `P1`/`P2` = the checkpoint of phase `p1`/`p2` is completed (the whole phase if it has none), `P3` = every node of `p3`, `P4` = the whole track. It uses `Profile::is_completed`, so placed-out nodes count only after the Belt Exam turns them into completions. A locked sidequest lists what is missing ("Checkpoint 1 of Linux"); doing N1 is never needed for N2.
+- **Unlocking:** `requires` lists `track:P1`..`P4`, the main track first at the sidequest's level and the others at most that level (the validator checks it, and that each requirement has nodes). `P<n>` (up to `P9`) = the checkpoint of phase `p<n>` is completed, or, while that phase has no checkpoint yet, every node of the phases up to it (so `P4` of a track ending at `p4` is the whole track). A phase with no nodes is never met. It uses `Profile::is_completed`, so placed-out nodes count only after the Belt Exam turns them into completions. A locked sidequest lists what is missing ("Checkpoint 1 of Linux"); doing N1 is never needed for N2.
 - **Stages one at a time, in one folder:** `<workspace>/<track>/sidequests/<slug>/`. `Enter` on the `S` screen creates it from the first starter; each passed stage adds the next stage's starter files (never overwriting the learner's) and rewrites `README.md` with the brief and the stages opened so far. Later stages stay hidden, in the workspace and in VS Code (`**/sidequests/*/stages` and `**/sidequest.yaml` are excluded).
 - **Checks:** saving a file checks the open stage with the tests of **every stage up to it** (`Sidequest::check_plan`), so a later stage cannot break an earlier one. Stages may name another image (`runner` per stage); stages that share an image run together from one merged tests folder, and the reports are combined (`CheckReport::combine`, worst outcome wins). The pilot uses `dojo-devops` for the CI workflow and alert rule of the Rust LRU cache, and `dojo-sql` for the PostgreSQL schema of the Java task queue; the Python and Go sidequests stay on their track's image. The build cache is the one of the first stage's kata.
 - **Rewards:** a passed stage gives 30 sidequest XP once (event `sidequest_stage_passed`, store schema v7), counts for the streak and commits the folder; all stages passed earns the sidequest's badge (🏅, derived from the passed stages). Sidequest XP is shown apart (⚔ in the header) and never counts towards belts, completions or unlocking.

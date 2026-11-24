@@ -1,0 +1,49 @@
+questions:
+  - id: cp3-repository-terms
+    skills: [design-patterns.repository-uow]
+    prompt: "Which repository interface keeps the domain free of persistence details?"
+    options: ["`ResultSet query(String sql)`", "`List<Order> unpaidOlderThan(Duration age)`", "`EntityManager entityManager()`", "`void executeBatch(List<String> statements)`"]
+    answer: 1
+    explanation: "A repository speaks the domain's language, like a collection of aggregates; SQL and the entity manager stay in the adapter."
+  - id: cp3-unit-of-work
+    skills: [design-patterns.repository-uow]
+    prompt: "A transfer saves two accounts. What does a unit of work guarantee?"
+    options: ["Each save is retried until it succeeds", "The two writes commit together or are both undone", "The accounts are cached forever", "Saves happen in alphabetical order"]
+    answer: 1
+    explanation: "A unit of work tracks the changes of one business operation and commits or rolls them back as a whole; JPA's persistence context with @Transactional plays this role."
+  - id: cp3-composition-root
+    skills: [design-patterns.dependency-injection]
+    prompt: "In a hand-wired application, where should `new PostgresOrders(...)` appear?"
+    options: ["In the composition root, the one place that builds the object graph", "In the use case that needs orders", "In a static `Registry.get(Orders.class)` called from the domain", "In every test"]
+    answer: 0
+    explanation: "Only the composition root knows concrete classes; everything else receives its dependencies through constructors."
+  - id: cp3-service-locator
+    skills: [design-patterns.dependency-injection]
+    prompt: "Why is a service locator (`Services.get(Mailer.class)` inside a method) worse than constructor injection?"
+    options: ["It is slower at run time", "It needs more memory", "The dependency is hidden: the constructor no longer says what the class needs, and a test must set up global state", "It cannot return interfaces"]
+    answer: 2
+    explanation: "Constructor injection makes dependencies explicit and replaceable; a locator turns them into a hidden global lookup."
+  - id: cp3-specification-when
+    skills: [design-patterns.specification]
+    prompt: "A repository has grown `findActive`, `findActiveVip`, `findActiveVipInRegion`... What does the specification pattern offer?"
+    options: ["Faster queries", "Named rules that combine with and, or and not, so one `matching(spec)` replaces the finder explosion", "Automatic caching of results", "A way to skip validation"]
+    answer: 1
+    explanation: "Specifications turn conditions into composable objects; each one is named and tested once."
+  - id: cp3-specification-data
+    skills: [design-patterns.specification]
+    prompt: "When is a specification as data (records interpreted twice) worth more than a plain `Predicate<T>`?"
+    options: ["Never", "Always, because records are faster", "Only for numbers", "When the same rule must run in memory and also be translated, for example into a SQL WHERE clause"]
+    answer: 3
+    explanation: "A lambda can only be called; a data structure can be interpreted in several ways."
+  - id: cp3-port-owner
+    skills: [design-patterns.ports-adapters]
+    prompt: "In ports and adapters, who owns the interface `ExchangeRates`?"
+    options: ["The domain, which defines it in its own terms; the adapter implements it", "The adapter, which the domain imports", "The legacy library", "Nobody: ports are generated"]
+    answer: 0
+    explanation: "Dependencies point inwards: the domain declares what it needs and the adapters plug in from the outside."
+  - id: cp3-acl
+    skills: [design-patterns.ports-adapters]
+    prompt: "A legacy feed returns `\"N/A\"` and rates as strings. Where should that knowledge live?"
+    options: ["In the domain, so every rule can check for N/A", "In the tests only", "In an anti-corruption layer adapter that translates the feed into the domain's types", "In a shared utility class used by everyone"]
+    answer: 2
+    explanation: "The anti-corruption layer keeps a foreign model's quirks out of the domain."

@@ -47,7 +47,7 @@
       "description": "Evidence that unlocks it: the main track first, then the others. P1/P2 = that checkpoint done, P3 = every node of phase p3, P4 = the whole track.",
       "items": {
         "type": "string",
-        "pattern": "^[a-z0-9-]+:P[1-4]$"
+        "pattern": "^[a-z0-9-]+:P[1-9]$"
       }
     },
     "skills": {

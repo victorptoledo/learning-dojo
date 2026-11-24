@@ -4,8 +4,12 @@ use crate::report::{Report, Severity};
 use dojo_core::{CareerRequirement, Catalog, ContentStatus, NodeKind, Track};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-const MIN_NODES_PER_TRACK: usize = 15;
-const MAX_NODES_PER_TRACK: usize = 25;
+/// Nodes per phase, the checkpoint included (D046: tracks have as many phases as their
+/// subject needs, so the limit is per phase, not per track).
+const MIN_NODES_PER_PHASE: usize = 2;
+const MAX_NODES_PER_PHASE: usize = 8;
+/// Phases whose checkpoint every track already has. Later phases get theirs track by
+/// track (D046), so a missing one there is only a warning until the migration ends.
 const PHASES_WITH_CHECKPOINT: [&str; 2] = ["p1", "p2"];
 const MIN_QUIZ_QUESTIONS: usize = 3;
 
@@ -270,7 +274,7 @@ fn check_phases(track: &Track, report: &mut Report) {
         if usize::from(phase.order) != expected_order {
             report.error(
                 track_location(track),
-                format!("phases must be listed in order p0..p4; found `{}` at position {expected_order}", phase.id),
+                format!("phases must be listed in order from p0; found `{}` at position {expected_order}", phase.id),
             );
         }
     }
@@ -592,37 +596,45 @@ fn check_completeness(track: &Track, report: &mut Report) {
     };
     let location = track_location(track);
 
-    let node_count = track.node_count();
-    if !(MIN_NODES_PER_TRACK..=MAX_NODES_PER_TRACK).contains(&node_count) {
-        report.push(
-            severity,
-            &location,
-            format!("has {node_count} nodes; expected {MIN_NODES_PER_TRACK}–{MAX_NODES_PER_TRACK}"),
-        );
-    }
     for phase in &track.phases {
-        if phase.nodes.is_empty() {
+        let count = phase.nodes.len();
+        if count == 0 {
             report.push(
                 severity,
                 &location,
                 format!("phase `{}` has no nodes", phase.id),
             );
+        } else if phase.order > 0 && !(MIN_NODES_PER_PHASE..=MAX_NODES_PER_PHASE).contains(&count) {
+            report.push(
+                severity,
+                &location,
+                format!(
+                    "phase `{}` has {count} nodes; expected {MIN_NODES_PER_PHASE}–{MAX_NODES_PER_PHASE}",
+                    phase.id
+                ),
+            );
         }
     }
-    for phase_id in PHASES_WITH_CHECKPOINT {
-        let Some(phase) = track.phases.iter().find(|phase| phase.id == phase_id) else {
-            continue;
-        };
+    for phase in track.phases.iter().filter(|phase| phase.order > 0) {
         let last_is_checkpoint = phase.nodes.last().is_some_and(|node| {
             phase
                 .checkpoint()
                 .is_some_and(|checkpoint| checkpoint.id == node.id)
         });
-        if !last_is_checkpoint {
+        if last_is_checkpoint {
+            continue;
+        }
+        if PHASES_WITH_CHECKPOINT.contains(&phase.id.as_str()) {
             report.push(
                 severity,
                 &location,
-                format!("phase `{phase_id}` must end with a checkpoint"),
+                format!("phase `{}` must end with a checkpoint", phase.id),
+            );
+        } else {
+            report.push(
+                Severity::Warning,
+                &location,
+                format!("phase `{}` has no checkpoint yet (D046)", phase.id),
             );
         }
     }

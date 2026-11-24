@@ -7,45 +7,37 @@
 
 use crate::catalog::Catalog;
 use crate::progress::Profile;
-use crate::track::{Kata, Node, NodeKind, Track};
+use crate::track::{Kata, Node, Track};
 use std::fmt;
 use std::path::PathBuf;
 
 /// Sidequest XP for passing a stage the first time.
 pub const SIDEQUEST_STAGE_XP: u32 = 30;
 
-/// How far into a track a requirement asks the learner to be.
+/// How far into a track a requirement asks the learner to be: `P<n>` is the end of phase
+/// `p<n>` (D046: tracks have as many phases as their subject needs, up to `p9`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum Milestone {
-    /// The checkpoint of phase `p1` is done (end of Fundamentals).
-    P1,
-    /// The checkpoint of phase `p2` is done (end of Intermediate).
-    P2,
-    /// Every node of phase `p3` is done.
-    P3,
-    /// The whole track is done.
-    P4,
-}
+pub struct Milestone(u8);
 
 impl Milestone {
-    /// 1 to 4, the level of a sidequest that asks for it on its own track.
+    pub const P1: Self = Self(1);
+    pub const P2: Self = Self(2);
+    pub const P3: Self = Self(3);
+    pub const P4: Self = Self(4);
+
+    /// The phase number, which is also the level of a sidequest that asks for it on its
+    /// own track.
     pub fn level(self) -> u8 {
-        match self {
-            Self::P1 => 1,
-            Self::P2 => 2,
-            Self::P3 => 3,
-            Self::P4 => 4,
-        }
+        self.0
     }
 
     fn parse(text: &str) -> Option<Self> {
-        match text {
-            "P1" => Some(Self::P1),
-            "P2" => Some(Self::P2),
-            "P3" => Some(Self::P3),
-            "P4" => Some(Self::P4),
-            _ => None,
-        }
+        let number: u8 = text.strip_prefix('P')?.parse().ok()?;
+        (1..=9).contains(&number).then_some(Self(number))
+    }
+
+    fn phase_id(self) -> String {
+        format!("p{}", self.0)
     }
 }
 
@@ -55,7 +47,7 @@ impl fmt::Display for Milestone {
     }
 }
 
-/// `track:P1` .. `track:P4`: evidence of progress on a track, never a manual tick.
+/// `track:P1` .. `track:P9`: evidence of progress on a track, never a manual tick.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SidequestRequirement {
     pub track: String,
@@ -75,35 +67,30 @@ impl SidequestRequirement {
         })
     }
 
-    /// The nodes whose completion proves the milestone. P1 and P2 are the checkpoint of
-    /// their phase (the whole phase when it has none); P3 is all of phase `p3`, P4 the
-    /// whole track. Empty when the track or phase does not exist.
+    /// The nodes whose completion proves the milestone: the checkpoint of its phase, or,
+    /// when the phase has none yet, every node of the phases up to it. So `P4` of a track
+    /// that ends at `p4` without a checkpoint is the whole track. Empty when the track or
+    /// phase does not exist or the phase has no nodes yet.
     pub fn evidence<'a>(&self, track: &'a Track) -> Vec<&'a Node> {
-        let phase_nodes = |id: &str| -> Vec<&'a Node> {
-            track
-                .phases
-                .iter()
-                .filter(|phase| phase.id == id)
-                .flat_map(|phase| phase.nodes.iter())
-                .collect()
+        let Some(phase) = track
+            .phases
+            .iter()
+            .find(|phase| phase.id == self.milestone.phase_id())
+        else {
+            return Vec::new();
         };
-        match self.milestone {
-            Milestone::P1 | Milestone::P2 => {
-                let nodes = phase_nodes(&format!("p{}", self.milestone.level()));
-                let checkpoints: Vec<&Node> = nodes
-                    .iter()
-                    .copied()
-                    .filter(|node| node.kind == NodeKind::Checkpoint)
-                    .collect();
-                if checkpoints.is_empty() {
-                    nodes
-                } else {
-                    checkpoints
-                }
-            }
-            Milestone::P3 => phase_nodes("p3"),
-            Milestone::P4 => track.nodes().collect(),
+        if phase.nodes.is_empty() {
+            return Vec::new();
         }
+        if let Some(checkpoint) = phase.checkpoint() {
+            return vec![checkpoint];
+        }
+        track
+            .phases
+            .iter()
+            .filter(|earlier| earlier.order <= phase.order)
+            .flat_map(|earlier| earlier.nodes.iter())
+            .collect()
     }
 
     /// Met when every evidence node is completed. Nodes skipped by the placement test
@@ -119,20 +106,25 @@ impl SidequestRequirement {
                 .all(|node| profile.is_completed(&track.id, &node.id))
     }
 
-    /// What the learner reads, such as `Checkpoint 2 of Go` or `all of Linux`.
+    /// What the learner reads, such as `Checkpoint 2 of Go`, `the final exam of Design
+    /// Patterns`, `the Advanced phase of Linux` or `all of Linux`.
     pub fn label(&self, catalog: &Catalog) -> String {
         let track = catalog.track(&self.track);
         let name = track.map_or(self.track.as_str(), |track| track.name.as_str());
-        match self.milestone {
-            Milestone::P1 => format!("Checkpoint 1 of {name}"),
-            Milestone::P2 => format!("Checkpoint 2 of {name}"),
-            Milestone::P3 => {
-                let phase = track
-                    .and_then(|track| track.phases.iter().find(|phase| phase.id == "p3"))
-                    .map_or("Advanced", |phase| phase.title.as_str());
-                format!("the {phase} phase of {name}")
+        let level = self.milestone.level();
+        let phase_id = self.milestone.phase_id();
+        let phase = track.and_then(|track| track.phases.iter().find(|phase| phase.id == phase_id));
+        let is_last = track
+            .and_then(|track| track.phases.last())
+            .is_some_and(|last| last.id == phase_id);
+        match phase {
+            Some(phase) if phase.checkpoint().is_some() && is_last => {
+                format!("the final exam of {name}")
             }
-            Milestone::P4 => format!("all of {name}"),
+            Some(phase) if phase.checkpoint().is_some() => format!("Checkpoint {level} of {name}"),
+            Some(_) if is_last => format!("all of {name}"),
+            Some(phase) => format!("the {} phase of {name}", phase.title),
+            None => format!("phase {level} of {name}"),
         }
     }
 }
@@ -330,6 +322,7 @@ mod tests {
     use super::fixtures::{sidequest, stage};
     use super::*;
     use crate::progress::Settings;
+    use crate::track::NodeKind;
     use crate::track::fixtures::{node, track};
     use chrono::NaiveDate;
 
@@ -345,6 +338,7 @@ mod tests {
     }
 
     /// p0: setup · p1: loops, checkpoint · p2: traits, checkpoint · p3: threads, async
+    /// (no checkpoint yet) · p4: production, checkpoint (the final exam)
     fn catalog() -> Catalog {
         let rust = track(vec![
             vec![node("rust.p0.setup", &[], 10)],
@@ -359,6 +353,10 @@ mod tests {
             vec![
                 node("rust.p3.threads", &[], 10),
                 node("rust.p3.async", &[], 10),
+            ],
+            vec![
+                node("rust.p4.production", &[], 10),
+                checkpoint("rust.p4.checkpoint"),
             ],
         ]);
         let mut linux = track(vec![
@@ -396,13 +394,21 @@ mod tests {
         assert_eq!(parsed.track, "rust");
         assert_eq!(parsed.milestone, Milestone::P3);
         assert_eq!(parsed.to_string(), "rust:P3");
-        for bad in ["rust", "rust:P5", ":P1", "rust:p1", "rust:P1:x"] {
+        assert_eq!(
+            SidequestRequirement::parse("rust:P7")
+                .unwrap()
+                .milestone
+                .level(),
+            7,
+            "tracks may have more than four phases (D046)"
+        );
+        for bad in ["rust", "rust:P0", "rust:P10", ":P1", "rust:p1", "rust:P1:x"] {
             assert!(SidequestRequirement::parse(bad).is_none(), "{bad}");
         }
     }
 
     #[test]
-    fn p1_and_p2_need_the_checkpoint_p3_the_phase_and_p4_the_track() {
+    fn a_milestone_is_its_phase_checkpoint_or_every_phase_up_to_it() {
         let catalog = catalog();
         let mut profile = profile();
         let met = |profile: &Profile, text: &str| {
@@ -418,20 +424,30 @@ mod tests {
 
         complete(&catalog, &mut profile, "rust.p2.checkpoint");
         complete(&catalog, &mut profile, "rust.p3.threads");
-        assert!(met(&profile, "rust:P2"));
-        assert!(!met(&profile, "rust:P3"), "P3 needs every node of p3");
         complete(&catalog, &mut profile, "rust.p3.async");
-        assert!(met(&profile, "rust:P3"));
-        assert!(!met(&profile, "rust:P4"), "P4 needs the whole track");
-
+        assert!(met(&profile, "rust:P2"));
+        assert!(
+            !met(&profile, "rust:P3"),
+            "p3 has no checkpoint yet: P3 needs every node up to it"
+        );
         for id in ["rust.p0.setup", "rust.p1.loops", "rust.p2.traits"] {
             complete(&catalog, &mut profile, id);
         }
-        assert!(met(&profile, "rust:P4"));
+        assert!(met(&profile, "rust:P3"));
 
-        // A phase without a checkpoint: P1 means the whole phase.
+        assert!(!met(&profile, "rust:P4"));
+        complete(&catalog, &mut profile, "rust.p4.checkpoint");
+        assert!(met(&profile, "rust:P4"), "the final exam proves P4");
+        assert!(
+            !met(&profile, "rust:P5"),
+            "a phase the track lacks is never met"
+        );
+
+        // A phase without a checkpoint: P1 means every node up to it.
         assert!(!met(&profile, "linux:P1"));
         complete(&catalog, &mut profile, "linux.p1.shell");
+        assert!(!met(&profile, "linux:P1"), "p0 is still open");
+        complete(&catalog, &mut profile, "linux.p0.setup");
         assert!(met(&profile, "linux:P1"));
         assert!(!met(&profile, "go:P1"), "an unknown track is never met");
     }
@@ -465,20 +481,20 @@ mod tests {
                 .map(|requirement| requirement.label(&catalog))
                 .collect()
         };
-        assert_eq!(
-            labels(&profile),
-            ["Checkpoint 1 of Rust", "Checkpoint 1 of Linux"]
-        );
+        assert_eq!(labels(&profile), ["Checkpoint 1 of Rust", "all of Linux"]);
         complete(&catalog, &mut profile, "rust.p1.checkpoint");
-        assert_eq!(labels(&profile), ["Checkpoint 1 of Linux"]);
+        assert_eq!(labels(&profile), ["all of Linux"]);
         assert!(!quest.is_unlocked(&catalog, &profile));
+        complete(&catalog, &mut profile, "linux.p0.setup");
         complete(&catalog, &mut profile, "linux.p1.shell");
         assert!(quest.is_unlocked(&catalog, &profile));
 
         let p3 = SidequestRequirement::parse("rust:P3").unwrap();
         assert_eq!(p3.label(&catalog), "the Phase 3 phase of Rust");
-        let p4 = SidequestRequirement::parse("linux:P4").unwrap();
-        assert_eq!(p4.label(&catalog), "all of Linux");
+        let final_exam = SidequestRequirement::parse("rust:P4").unwrap();
+        assert_eq!(final_exam.label(&catalog), "the final exam of Rust");
+        let missing_phase = SidequestRequirement::parse("linux:P4").unwrap();
+        assert_eq!(missing_phase.label(&catalog), "phase 4 of Linux");
     }
 
     #[test]

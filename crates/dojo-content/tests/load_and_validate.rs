@@ -263,7 +263,7 @@ fn reviewed_track_turns_completeness_gaps_into_errors() {
         "{found:?}"
     );
     assert!(
-        found.iter().any(|e| e.contains("expected 15–25")),
+        found.iter().any(|e| e.contains("phase `p1` has no nodes")),
         "{found:?}"
     );
 }

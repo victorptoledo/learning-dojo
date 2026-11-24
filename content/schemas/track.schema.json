@@ -132,11 +132,11 @@
         "properties": {
           "id": {
             "type": "string",
-            "pattern": "^p[0-4]$"
+            "pattern": "^p[0-9]$"
           },
           "dir": {
             "type": "string",
-            "pattern": "^p[0-4]-[a-z0-9]+(-[a-z0-9]+)*$"
+            "pattern": "^p[0-9]-[a-z0-9]+(-[a-z0-9]+)*$"
           },
           "title": {
             "type": "string",

@@ -1,0 +1,55 @@
+id: design-patterns.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the application patterns: a quiz on repositories, unit of work, dependency injection, specifications and ports and adapters, and an enrolment service refactored into ports, specifications, an anti-corruption layer and a composition root."
+objectives:
+  - { id: o1, text: "Explain repositories, unit of work, dependency injection, specifications and ports and adapters in your own words", skills: [design-patterns.repository-uow, design-patterns.dependency-injection, design-patterns.specification, design-patterns.ports-adapters] }
+  - { id: o2, text: "Refactor a static, hard-wired service into a use case behind ports, with rules as specifications and a legacy model kept out by an anti-corruption layer", skills: [design-patterns.ports-adapters, design-patterns.specification, design-patterns.dependency-injection] }
+prerequisites: [design-patterns.p3.hexagonal-transfer]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+closes_phase: p3
+covers_skills: [design-patterns.repository-uow, design-patterns.dependency-injection, design-patterns.specification, design-patterns.ports-adapters]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Read `enrol` as three jobs tangled together: getting data (the static maps and the gradebook), deciding (five rules), and telling someone (the console). Each kind of data becomes a port the domain owns; each rule becomes a specification over an `Applicant`; the console and the gradebook move out to adapters. Which of these does `EnrolmentService` still need to know about once the rules have names?
+    - |-
+      `Specification<T>` needs one abstract method and three default methods that return lambdas: `and` is `c -> isSatisfiedBy(c) && other.isSatisfiedBy(c)`. `EnrolmentRules.forCourse` builds a `List<Requirement>` in the reported order, adding the prerequisite rule only when `course.prerequisite()` is not null and using `enrolledIn(code).not()` for "already enrolled". In `GradebookTranscripts`, split on `;`, then on `:`, keep entries with exactly two parts, and turn the letter into points in a small helper that returns `Optional<Double>`.
+    - |-
+      ```java
+      public String enrol(String studentId, Course course) {
+          Student student = students.find(studentId)
+                  .orElseThrow(() -> new IllegalArgumentException("unknown student: " + studentId));
+          Applicant applicant = new Applicant(student, transcripts.of(studentId), enrolments.coursesOf(studentId));
+          for (Requirement requirement : EnrolmentRules.forCourse(course)) {
+              if (!requirement.rule().isSatisfiedBy(applicant)) {
+                  return "refused: " + requirement.reason();
+              }
+          }
+          if (enrolments.countIn(course.code()) >= course.capacity()) {
+              return "refused: course full";
+          }
+          enrolments.add(studentId, course.code());
+          notifier.send(student, "enrolled in " + course.code());
+          return "enrolled";
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.
