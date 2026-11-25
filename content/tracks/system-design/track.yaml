@@ -14,7 +14,7 @@ belts:
   - { name: "Purple Belt", required_xp: 1500, title: "Message Queue Wrangler" }
   - { name: "Brown Belt", required_xp: 2500, title: "High Availability Guru" }
   - { name: "Black Belt", required_xp: 4000, title: "Distributed Systems Titan" }
-  - { name: "Sensei", required_xp: 6000, title: "Staff+ Infrastructure Architect" }
+  - { name: "Sensei", required_xp: 7000, title: "Staff+ Infrastructure Architect" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What system design is, how to frame a problem and estimate it, and a first Java kata" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "DNS and CDNs, load balancing, consistent hashing, storage engines and Bloom filters" }

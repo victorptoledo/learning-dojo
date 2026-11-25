@@ -1,0 +1,49 @@
+questions:
+  - id: cp4-minority-partition
+    skills: [system-design.consensus]
+    prompt: "A 5-node Raft cluster is split into a group of 2 (with the old leader) and a group of 3. What happens to a write sent to the old leader?"
+    options: ["It commits, because the leader still holds its lease", "It commits on the 2 nodes and is merged later", "It is rejected at once by Raft", "It is appended but never commits; the group of 3 elects a new leader, and the old one steps down when it sees the higher term"]
+    answer: 3
+    explanation: "Commit needs a majority (3 of 5). The minority side cannot commit anything, so there is never a second history."
+  - id: cp4-config-version
+    skills: [system-design.consensus, system-design.resilience]
+    prompt: "Routers receive routing maps from several control plane replicas, and one replica lags behind. What stops a router from going back to an old map?"
+    options: ["Accepting whichever map arrives last", "A version on every map; a router installs only versions higher than the one it has, like a fencing token", "Restarting the routers after every push", "Asking every replica and taking the majority on each request"]
+    answer: 1
+    explanation: "A version that only goes up makes stale or replayed configuration harmless, the same idea as fencing tokens in storage."
+  - id: cp4-burn-rate-window
+    skills: [system-design.resilience]
+    prompt: "A 30-day SLO of 99.9 % is burning its error budget 14 times faster than allowed. If nothing changes, how long until the whole budget is gone?"
+    options: ["About 2 days", "About 14 days", "About 30 days", "About 6 hours"]
+    answer: 0
+    explanation: "At 14x the budget lasts 30 / 14 ≈ 2.1 days, which is why fast-burn alerts page someone at once."
+  - id: cp4-panic-threshold
+    skills: [system-design.resilience, system-design.load-balancing]
+    prompt: "Health checks suddenly report 6 of 10 backends as failing. Why do load balancers such as Envoy stop ejecting past a threshold (panic mode)?"
+    options: ["To save health-check traffic", "Because ejected backends cannot be checked again", "Sending all traffic to the 4 that remain would overload them; when most checks fail, the checker or a shared dependency is more likely broken", "Because ejection is only allowed once a day"]
+    answer: 2
+    explanation: "Past the threshold, ejection makes things worse, so the balancer routes to all backends and lets retries handle the real failures."
+  - id: cp4-no-spill
+    skills: [system-design.resilience]
+    prompt: "All cells of one tenant's shuffle shard are down. Why should the router not send that tenant to other cells?"
+    options: ["Other cells have no capacity at all", "If the tenant itself is the cause (a poison request), spilling over spreads the failure to every cell", "Tenants are not allowed to change cells", "It would break DNS caching"]
+    answer: 1
+    explanation: "The shard is the blast radius. Keeping it bounded costs one tenant some availability and protects all the others."
+  - id: cp4-rpo-async
+    skills: [system-design.resilience, system-design.databases-replication-sharding]
+    prompt: "A database replicates asynchronously to another region with a typical lag of 3 s, and the primary region is lost. Which statement about RPO is right?"
+    options: ["RPO is 0, because there is a replica", "RPO is how long the failover takes", "RPO depends only on the backup schedule", "Up to a few seconds of acknowledged writes may be lost; RPO 0 needs synchronous replication, which costs write latency"]
+    answer: 3
+    explanation: "RPO is the data you can lose, here roughly the replication lag; RTO is how long you are down."
+  - id: cp4-degrade-order
+    skills: [system-design.end-to-end, system-design.overload]
+    prompt: "A shopping site has lost half its capacity in a zone outage. Which plan degrades gracefully?"
+    options: ["Shed recommendations and batch exports first, then serve stale catalogue pages from cache, and protect checkout and payments", "Return errors to a random half of all requests", "Queue every request until capacity returns", "Retry every failed request three times"]
+    answer: 0
+    explanation: "Decide in advance what matters most and drop the rest first; queues and retries only add load to a system that is already short."
+  - id: cp4-unique-step
+    skills: [system-design.end-to-end, system-design.cap-pacelc]
+    prompt: "A design for a coupon service: 1 million single-use codes, redeemed from mobile apps that retry on timeouts. Which part must be strongly consistent?"
+    options: ["The list of codes shown in the app", "The analytics dashboard", "Marking a code as used, a conditional write keyed by the code plus an idempotency key for the retry", "The cache of the campaign page"]
+    answer: 2
+    explanation: "Only the redemption must never happen twice; it is one conditional write per code, and the idempotency key makes a retry return the first result. Everything else may be eventually consistent."

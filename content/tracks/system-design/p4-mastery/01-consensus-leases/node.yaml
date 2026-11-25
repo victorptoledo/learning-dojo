@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Explain how Raft elects a leader and commits entries, and what majorities tolerate", skills: [system-design.consensus] }
   - { id: o2, text: "Design leader election or locking on etcd, ZooKeeper or conditional writes", skills: [system-design.consensus] }
   - { id: o3, text: "Explain why leases alone are unsafe and make them safe with fencing tokens", skills: [system-design.consensus] }
-prerequisites: [system-design.p3.message-queues-events]
+prerequisites: [system-design.p3.checkpoint]
 difficulty: 5
 estimated_minutes: 55
 xp: 400

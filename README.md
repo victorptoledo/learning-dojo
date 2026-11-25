@@ -52,7 +52,7 @@ of your choice.
 
 ### Tracks
 
-All 30 tracks are complete, with 723 lessons and checkpoints and 260 katas between them:
+All 30 tracks are complete, with 725 lessons and checkpoints and 262 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
@@ -72,7 +72,7 @@ All 30 tracks are complete, with 723 lessons and checkpoints and 260 katas betwe
 | AWS Cloud Architecture | IAM, VPC, EC2, S3, CloudFormation, serverless, containers, security, cost | 25 | 9 | `dojo-aws` (cfn-lint, cfn-guard, IAM policy evaluator, moto; no AWS account) |
 | SQL & Relational Databases | standard SQL on PostgreSQL 17 | 25 | 8 | `dojo-sql` (a throwaway PostgreSQL 17) |
 | PostgreSQL | PostgreSQL 17 internals and operations | 25 | 9 | `dojo-sql` (other sessions opened with dblink for lock katas) |
-| System Design | building blocks of large systems | 23 | 10 | `dojo-java` |
+| System Design | building blocks of large systems | 25 | 12 | `dojo-java` |
 | Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
 | Design Patterns | principles and patterns in modern Java | 26 | 12 | `dojo-java` (refactoring katas) |
 | API Design | HTTP, REST, errors, evolution, contracts | 25 | 8 | `dojo-java` (Spring Boot and MockMvc, plus an OpenAPI linter) |

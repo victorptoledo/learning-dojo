@@ -1,0 +1,58 @@
+id: system-design.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on replication, partitioning, consistency, quorums and messaging, and a partitioned store whose router keeps session guarantees over lagging followers and knows what a failover lost."
+objectives:
+  - { id: o1, text: "Explain replication lag, partitioning, consistency models, quorums and log-based messaging in your own words", skills: [system-design.databases-replication-sharding, system-design.cap-pacelc, system-design.message-queues-events] }
+  - { id: o2, text: "Route reads over asynchronous followers with read-your-writes and monotonic reads, and fail over by epochs without serving lost writes", skills: [system-design.databases-replication-sharding, system-design.cap-pacelc] }
+prerequisites: [system-design.p3.message-queues-events]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+closes_phase: p3
+covers_skills: [system-design.databases-replication-sharding, system-design.cap-pacelc, system-design.message-queues-events]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Separate three questions. Where does a key live? The hash picks the partition, and the leader takes the write. Which node may answer this session? Any follower whose position has reached the session's token. Which entries still exist after failovers? Those up to the smallest start of every later epoch. Once the third question is one helper, `get`, `replicate` and `failover` each take a few lines.
+    - |-
+      Keep a small class per partition with its nodes, the leader and `List<Long> starts`, where the start of epoch `e` is at index `e - 1` and epoch 1 starts at 0. `survived(e)` is the minimum of `starts` for the epochs after `e`, or `Long.MAX_VALUE` when `e` is current. A node is usable when `position() <= survived(lastEpoch())`. A session token `(e, p)` is lost when `e` is older than the current epoch and `p > survived(e)`. Check it at the start of both `put` and `get`.
+    - |-
+      ```java
+      public Optional<String> get(Session session, String key) {
+          int partition = partitionFor(key);
+          Group group = groups.get(partition);
+          long seen = seen(session, partition, group);   // throws LostWriteException
+          Node chosen = null;
+          for (Node node : group.nodes) {
+              if (node != group.leader && !node.isDown() && group.usable(node) && node.position() >= seen) {
+                  chosen = node;
+                  break;
+              }
+          }
+          if (chosen == null) {
+              if (group.leader.isDown()) throw new LeaderUnavailableException(partition);
+              chosen = group.leader;
+          }
+          Optional<String> value = chosen.get(key);
+          session.advance(partition, new Token(group.epoch(), Math.max(seen, chosen.position())));
+          return value;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

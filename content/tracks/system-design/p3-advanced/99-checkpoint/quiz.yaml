@@ -1,0 +1,49 @@
+questions:
+  - id: cp3-semi-sync
+    skills: [system-design.databases-replication-sharding]
+    prompt: "A leader waits for one of its three followers before acknowledging a write (semi-synchronous), and the others are asynchronous. The leader fails. What does this guarantee?"
+    options: ["Every acknowledged write is on at least one follower, so promoting the most up-to-date one loses nothing acknowledged", "No write is ever lost, even if that follower fails too", "Reads from any follower are linearizable", "Failover needs no election"]
+    answer: 0
+    explanation: "One synchronous copy bounds the loss to zero acknowledged writes, provided you promote that copy; the asynchronous ones may still be behind."
+  - id: cp3-epoch-start
+    skills: [system-design.databases-replication-sharding]
+    prompt: "After a failover, the old leader comes back with five writes the new leader never received. What must happen to them?"
+    options: ["They are replayed on the new leader", "They are merged by last write wins", "They are discarded: the node is cut back to the point where the new epoch started and then follows the new leader", "They are kept on that node only, for reads"]
+    answer: 2
+    explanation: "Those writes are not part of the history any more; serving them would show data nobody else can see, and replaying them would resurrect writes clients may have retried."
+  - id: cp3-hot-key-salt
+    skills: [system-design.databases-replication-sharding]
+    prompt: "One celebrity's like counter receives 50,000 writes per second, all on one partition. Which change spreads the writes?"
+    options: ["Add more partitions", "Switch to range partitioning", "Add read replicas", "Split the key into N sub-keys (like:42#0 ... like:42#9), write to a random one and sum them on read"]
+    answer: 3
+    explanation: "More partitions do not help one key; salting it spreads the writes, and reads pay by combining the sub-keys."
+  - id: cp3-session-token
+    skills: [system-design.databases-replication-sharding, system-design.cap-pacelc]
+    prompt: "A client keeps the log position of its last write and sends it with every read; a replica answers only once it has applied that position. Which guarantee is this?"
+    options: ["Linearizability", "Read-your-writes, without sending every read to the leader", "Consistent prefix for everyone", "Strong eventual consistency"]
+    answer: 1
+    explanation: "The session's own token decides which replicas are fresh enough; other clients may still read older data."
+  - id: cp3-linearizable-cost
+    skills: [system-design.cap-pacelc]
+    prompt: "A store offers linearizable reads across three regions. What do they cost in normal operation, with no partition?"
+    options: ["Nothing: the cost only appears during a partition", "Only more storage", "Only more CPU on the client", "Latency: a read must confirm with a majority, some of it in other regions"]
+    answer: 3
+    explanation: "That is the ELC half of PACELC: even without partitions, stronger consistency costs latency."
+  - id: cp3-sloppy-quorum
+    skills: [system-design.cap-pacelc]
+    prompt: "With a sloppy quorum and hinted handoff, a write lands on W healthy nodes that are not all among the key's N home replicas. What is the catch?"
+    options: ["A later quorum read of the home replicas may miss the write until the hints are handed back", "The write is rejected", "The write becomes linearizable", "The home replicas are deleted"]
+    answer: 0
+    explanation: "Sloppy quorums keep writes available during failures but no longer guarantee that W and R overlap."
+  - id: cp3-offset-commit
+    skills: [system-design.message-queues-events]
+    prompt: "A consumer commits its offset before processing each batch, then crashes halfway through one. What happens to that batch?"
+    options: ["It is processed twice", "It is redelivered to another consumer", "The rest of it is never processed: committing first gives at-most-once", "Kafka rolls the commit back"]
+    answer: 2
+    explanation: "Commit after processing for at-least-once (and make processing idempotent); committing first skips what was not done."
+  - id: cp3-partition-key-order
+    skills: [system-design.message-queues-events]
+    prompt: "Account events must be applied in order per account, and the topic has 32 partitions. Which key gives both order and parallelism?"
+    options: ["A random key", "The account id", "The event type", "No key, with one partition"]
+    answer: 1
+    explanation: "All events of an account go to one partition, which keeps their order, while different accounts spread over the 32 partitions."

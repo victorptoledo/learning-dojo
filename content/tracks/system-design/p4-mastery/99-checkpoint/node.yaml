@@ -1,0 +1,58 @@
+id: system-design.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on consensus, leases, resilience and end-to-end design, and the router of a cell-based service with shuffle shards, versioned maps from the control plane, health checks with a panic threshold and shedding by priority."
+objectives:
+  - { id: o1, text: "Explain consensus, fencing, error budgets, cells, shuffle sharding, static stability and multi-region trade-offs in your own words", skills: [system-design.consensus, system-design.resilience, system-design.end-to-end] }
+  - { id: o2, text: "Build a data plane that limits the blast radius of a failure, survives its control plane and degrades on purpose", skills: [system-design.resilience, system-design.consensus, system-design.load-balancing] }
+prerequisites: [system-design.p4.design-end-to-end]
+difficulty: 5
+estimated_minutes: 100
+xp: 450
+closes_phase: p4
+covers_skills: [system-design.consensus, system-design.resilience, system-design.end-to-end]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Split the router into the slow path and the fast path. `refresh` and `probe` change state, and `route` only reads it. Which state does `route` need? The map, the ejected cells and the panic flag. So which call may never appear in `route`? Then write the three decisions of `route` in order: which cells are available, whether to shed, and which cell answers.
+    - |-
+      A map is valid when `version >= 1`, the list is not empty, `new HashSet<>(cells).size() == cells.size()`, every name is a key of the router's cell map, and `1 <= shardSize <= cells.size()`. In `refresh`, catch only `ControlPlaneDownException`. Compare versions before validating, so stale maps are ignored and never counted. In `probe`, collect the unhealthy names first, then decide: `panicking = unhealthy.size() * 2 > map.cells().size()`, and `ejected` is either empty or exactly that set.
+    - |-
+      ```java
+      public Response route(Request request) {
+          List<String> shard = shardOf(request.tenant());
+          List<String> available = new ArrayList<>();
+          for (String cell : shard) {
+              if (!ejected.contains(cell)) available.add(cell);
+          }
+          boolean degraded = available.size() < shard.size();
+          boolean shed = panicking ? request.priority() != Priority.CRITICAL
+                                   : degraded && request.priority() == Priority.BATCH;
+          if (shed) return new Response(Outcome.SHED, null, null);
+          for (String name : available) {
+              try {
+                  return new Response(Outcome.SERVED, name, cells.get(name).handle(request));
+              } catch (CellDownException e) {
+                  // the next cell of the shard, never one outside it
+              }
+          }
+          return new Response(Outcome.UNAVAILABLE, null, null);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.
