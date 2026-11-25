@@ -1,0 +1,2 @@
+-- todo: create (or, on a second run, update) the November 2026 invoices: monthly fees of the
+-- subscriptions plus 0.02 per unit of usage in November, São Paulo time. Set-based.

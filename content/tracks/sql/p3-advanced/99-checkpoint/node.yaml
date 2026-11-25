@@ -1,0 +1,49 @@
+id: sql.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz over indexes and plans, transactions and isolation, and JSON, and a kata over a shop's stock: two indexes that remove every scan, a reservation that survives a concurrent checkout, an optimistic save of a JSON document and a report over JSON order lines."
+objectives:
+  - { id: o1, text: "Explain index types and plans, isolation levels, locks and MVCC, and jsonb operators and indexes in your own words", skills: [sql.indexes-plans, sql.transactions, sql.json] }
+  - { id: o2, text: "Design the fewest indexes that serve given queries and prove it with EXPLAIN", skills: [sql.indexes-plans, sql.json] }
+  - { id: o3, text: "Write single-statement reservations and optimistic updates that stay correct under concurrent sessions, and report over JSON arrays", skills: [sql.transactions, sql.json, sql.aggregation] }
+prerequisites: [sql.p3.json]
+difficulty: 4
+estimated_minutes: 100
+xp: 450
+closes_phase: p3
+covers_skills: [sql.indexes-plans, sql.transactions, sql.json]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 120 }
+  hints:
+    - |-
+      Take the files one at a time. For `indexes.sql`, run `EXPLAIN` on each query: which operator can a B-tree not serve, and which index type can? For the brand page, which columns must the index hold, and in which order, for the rows to come out sorted? For `reserve.sql`, ask what happens if you read the stock first and update afterwards, while another checkout commits in between. For `update_attrs.sql`, what in the `WHERE` tells you nobody saved the product since version 3?
+    - |-
+      `@>` needs a GIN index on `attrs` (`jsonb_path_ops` is enough). The brand page needs one B-tree on the expression `(attrs ->> 'brand')` followed by `price, id`. A reservation is a single `UPDATE stock ... WHERE product_id = 42 AND on_hand - reserved >= 2 RETURNING ...`: when the row is locked, PostgreSQL waits and checks that `WHERE` again on the committed row (a CTE that read the stock earlier is not checked again). Merge keys with `||` and remove one with `- 'promo'`. For the report, `jsonb_to_recordset(o.items) AS i (sku text, qty integer, price numeric)` or `JSON_TABLE` turns each array into rows, then a `LEFT JOIN products`.
+    - |-
+      ```sql
+      -- units_by_product.sql
+      SELECT i.sku, p.name, sum(i.qty) AS units, sum(i.qty * i.price) AS revenue
+      FROM orders o
+      CROSS JOIN LATERAL jsonb_to_recordset(o.items) AS i (sku text, qty integer, price numeric)
+      LEFT JOIN products p ON ...
+      WHERE o.placed_at >= TIMESTAMPTZ '2026-11-01 00:00+00'
+        AND o.placed_at <  ...
+      GROUP BY ...
+      ORDER BY units DESC, i.sku;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

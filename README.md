@@ -70,7 +70,7 @@ All 30 tracks are complete, with 731 lessons and checkpoints and 268 katas betwe
 | Docker & Containers | images, Compose, production | 25 | 9 | your Docker engine + `dojo-docker` (hadolint, bats) |
 | Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |
 | AWS Cloud Architecture | IAM, VPC, EC2, S3, CloudFormation, serverless, containers, security, cost | 25 | 9 | `dojo-aws` (cfn-lint, cfn-guard, IAM policy evaluator, moto; no AWS account) |
-| SQL & Relational Databases | standard SQL on PostgreSQL 17 | 25 | 8 | `dojo-sql` (a throwaway PostgreSQL 17) |
+| SQL & Relational Databases | standard SQL on PostgreSQL 17 | 27 | 10 | `dojo-sql` (a throwaway PostgreSQL 17) |
 | PostgreSQL | PostgreSQL 17 internals and operations | 25 | 9 | `dojo-sql` (other sessions opened with dblink for lock katas) |
 | System Design | building blocks of large systems | 25 | 12 | `dojo-java` |
 | Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |

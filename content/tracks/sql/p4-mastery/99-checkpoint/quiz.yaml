@@ -1,0 +1,48 @@
+pass_percent: 85
+questions:
+  - id: between-timestamps
+    skills: [sql.anti-patterns]
+    prompt: "placed_at is a timestamptz. Why does WHERE placed_at BETWEEN '2026-03-01' AND '2026-03-31' undercount March?"
+    options: ["BETWEEN excludes both ends", "'2026-03-31' means midnight at the start of the 31st, so the whole last day is left out", "BETWEEN cannot use an index", "Timestamps cannot be compared with dates"]
+    answer: 1
+    explanation: "A date literal becomes 00:00 of that day. Use a half-open range: >= '2026-03-01' AND < '2026-04-01'."
+  - id: float-money
+    skills: [sql.anti-patterns]
+    prompt: "Which type should hold an invoice amount?"
+    options: ["real", "double precision", "numeric(10, 2) (or integer cents)", "text"]
+    answer: 2
+    explanation: "Floats are binary fractions, so 0.1 + 0.2 is not 0.3; numeric and integer cents are exact."
+  - id: id-list
+    skills: [sql.anti-patterns]
+    prompt: "customers.plan_ids holds '2,4'. What is the main problem with that column?"
+    options: ["It uses too much space", "The database cannot check the ids, join on them or index them: it needs a junction table", "Commas are not allowed in text", "It breaks 3NF but nothing else"]
+    answer: 1
+    explanation: "A list in a column breaks 1NF: no foreign key, no join without string parsing, no index. A table (customer_id, plan_id) fixes all three."
+  - id: fan-out
+    skills: [sql.anti-patterns, sql.joins]
+    prompt: "A customer has 2 subscriptions and 3 usage rows. Joining customers to both and summing the fees counts each fee how many times?"
+    answers: ["3", "three"]
+    explanation: "Each subscription row is repeated once per usage row (2 × 3 rows). Aggregate each child table first, then join the totals."
+  - id: injection
+    skills: [sql.applications]
+    prompt: "Why does a bind parameter stop SQL injection?"
+    options: ["The driver escapes quotes in the string", "The value travels separately from the SQL text, so it can never be parsed as SQL", "The database refuses strings with quotes", "It encrypts the value"]
+    answer: 1
+    explanation: "The statement is parsed with a placeholder; the value is sent apart and only ever used as a value."
+  - id: n-plus-one
+    skills: [sql.applications]
+    prompt: "A page lists 50 orders and then runs one query per order for its customer. How many queries does the page run in total?"
+    answers: ["51"]
+    explanation: "That is the N+1 problem: 1 query for the list plus N for the details. One join, or one query with WHERE id = ANY ($1), does it in 1 or 2."
+  - id: idempotent-batch
+    skills: [sql.applications, sql.transactions]
+    prompt: "A nightly job inserts the month's invoices and sometimes runs twice. What makes a second run harmless?"
+    options: ["Running it at READ UNCOMMITTED", "A UNIQUE key on (customer_id, period) and INSERT ... ON CONFLICT ... DO UPDATE (or DO NOTHING)", "Deleting all invoices first", "A trigger that sleeps"]
+    answer: 1
+    explanation: "The unique key states the rule and the upsert turns a repeat into an update or a no-op instead of a duplicate or an error."
+  - id: keyset
+    skills: [sql.applications, sql.indexes-plans]
+    prompt: "Why is WHERE (placed_at, id) > ($1, $2) ORDER BY placed_at, id LIMIT 20 better than OFFSET 10000 for deep pages?"
+    options: ["It returns more rows", "The index seeks straight to the last row seen instead of reading and discarding 10 000 rows, and rows inserted meanwhile do not shift the page", "OFFSET is not standard SQL", "It needs no index"]
+    answer: 1
+    explanation: "OFFSET still reads the skipped rows; a keyset predicate on an index on (placed_at, id) starts exactly where the last page ended."

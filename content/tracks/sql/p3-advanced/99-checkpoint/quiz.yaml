@@ -1,0 +1,49 @@
+pass_percent: 85
+questions:
+  - id: sargable
+    skills: [sql.indexes-plans]
+    prompt: "orders has a B-tree index on placed_at. Which filter can use it to find the orders of 15 November 2026?"
+    options: ["WHERE placed_at::date = '2026-11-15'", "WHERE date_trunc('day', placed_at) = '2026-11-15'", "WHERE placed_at >= '2026-11-15' AND placed_at < '2026-11-16'", "WHERE to_char(placed_at, 'YYYY-MM-DD') = '2026-11-15'"]
+    answer: 2
+    explanation: "A function or cast on the indexed column hides it from the index; a range on the bare column is sargable."
+  - id: composite-order
+    skills: [sql.indexes-plans]
+    prompt: "An index on (customer_id, placed_at). Which query can it NOT serve by seeking on its first column?"
+    options: ["WHERE customer_id = 7", "WHERE customer_id = 7 AND placed_at > '2026-11-01'", "WHERE placed_at > '2026-11-01'", "WHERE customer_id = 7 ORDER BY placed_at"]
+    answer: 2
+    explanation: "A composite B-tree is sorted by its first column first; without a condition on customer_id the index cannot seek."
+  - id: explain-analyze
+    skills: [sql.indexes-plans]
+    prompt: "What does EXPLAIN ANALYZE do that EXPLAIN does not?"
+    options: ["Shows the indexes of the table", "Runs the query and reports the real rows and times next to the estimates", "Collects statistics for the planner", "Rewrites the query to be faster"]
+    answer: 1
+    explanation: "EXPLAIN only plans; EXPLAIN ANALYZE executes, so wrap a data-changing statement in a transaction you roll back."
+  - id: lost-update
+    skills: [sql.transactions]
+    prompt: "Two sessions read stock = 3, each subtracts 2 in the application and writes back 1. Which fix needs one statement and no explicit lock?"
+    options: ["SET TRANSACTION ISOLATION LEVEL READ COMMITTED", "UPDATE stock SET qty = qty - 2 WHERE id = 42 AND qty >= 2", "SELECT qty FROM stock WHERE id = 42, then UPDATE", "Add an index on stock (id)"]
+    answer: 1
+    explanation: "An atomic update computes from the current row and keeps the check in its WHERE; a session that waited for the row checks it again after the other commits."
+  - id: serializable
+    skills: [sql.transactions]
+    prompt: "In PostgreSQL, what must an application be ready to do when it uses SERIALIZABLE?"
+    options: ["Nothing: it never fails", "Retry the transaction when it fails with SQLSTATE 40001", "Lock every table first", "Use only SELECT statements"]
+    answer: 1
+    explanation: "Serializable snapshot isolation aborts one of two conflicting transactions with a serialization failure (40001); the client retries it."
+  - id: mvcc
+    skills: [sql.transactions]
+    prompt: "A long UPDATE is running on orders and has not committed. Does a plain SELECT of the same rows wait for it in PostgreSQL? (yes or no)"
+    answers: ["no", "No"]
+    explanation: "With MVCC, readers see the last committed version of each row, so writers do not block readers (and readers do not block writers)."
+  - id: arrow
+    skills: [sql.json]
+    prompt: "attrs is {\"qty\": 2}. What is the type of attrs ->> 'qty'?"
+    options: ["jsonb", "integer", "text", "numeric"]
+    answer: 2
+    explanation: "->> returns text (cast it to compare as a number); -> returns jsonb."
+  - id: gin
+    skills: [sql.json, sql.indexes-plans]
+    prompt: "Which index lets WHERE attrs @> '{\"color\": \"red\"}' avoid a sequential scan?"
+    options: ["CREATE INDEX ON products (attrs)", "CREATE INDEX ON products USING gin (attrs jsonb_path_ops)", "CREATE INDEX ON products ((attrs ->> 'color')), with the query unchanged", "No index can serve @>"]
+    answer: 1
+    explanation: "Containment is served by GIN. A B-tree on the document or on an expression only serves =, < and > on that value; the expression index would need the query rewritten as attrs ->> 'color' = 'red'."

@@ -1,0 +1,7 @@
+-- todo: one query for a whole page of customers, instead of one query per customer.
+--
+-- CREATE FUNCTION latest_invoices(ids integer[])
+-- RETURNS TABLE (customer_id integer, period date, amount numeric)
+-- LANGUAGE sql STABLE AS $$
+--     ...
+-- $$;

@@ -1,0 +1,2 @@
+-- todo: one statement that reserves 2 units of product 42 only if 2 are available, and returns
+-- product_id and the units still available. No row (and no change) when there are not enough.

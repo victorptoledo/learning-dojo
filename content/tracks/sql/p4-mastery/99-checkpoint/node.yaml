@@ -1,0 +1,55 @@
+id: sql.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on anti-patterns, SQL from applications and the advanced phase, and an inherited billing module to fix: float money and an id list migrated to a junction table, a month closed set-based and idempotently in the business's time zone, a search that treats input as data and an N+1 page turned into one query."
+objectives:
+  - { id: o1, text: "Recognise the anti-patterns that give wrong or slow results and the schema smells behind them, and name the fix of each", skills: [sql.anti-patterns, sql.applications] }
+  - { id: o2, text: "Migrate a schema away from float money and id lists in a column without losing data", skills: [sql.anti-patterns, sql.normalisation, sql.dml] }
+  - { id: o3, text: "Write set-based, idempotent batch statements with half-open ranges in a time zone and no fan-out", skills: [sql.anti-patterns, sql.dml, sql.aggregation] }
+  - { id: o4, text: "Treat input as parameters, never SQL, and replace N+1 queries with one query per page", skills: [sql.applications, sql.joins] }
+prerequisites: [sql.p4.query-clinic]
+difficulty: 4
+estimated_minutes: 120
+xp: 500
+closes_phase: p4
+covers_skills: [sql.anti-patterns, sql.applications, sql.indexes-plans, sql.transactions, sql.json]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 120 }
+  hints:
+    - |-
+      Every file fixes a smell from the Anti-Patterns and Applications lessons. In `migrate.sql`, look at the raw pieces first: `SELECT id, unnest(string_to_array(plan_ids, ',')) FROM customers`. Which pieces need trimming, which are empty, which name a plan that is gone? In `close_month.sql`, what happens to Ada's fees if you join her two subscriptions and her two usage rows in one query? Where does November start, in UTC, for a business in São Paulo? For the search, what is the difference between pasting `term` into the SQL and passing it as a parameter, and what do `%` and `_` mean to `LIKE`?
+    - |-
+      Change the type with `ALTER COLUMN ... TYPE numeric(10, 2) USING round(monthly_fee::numeric, 2)`. Join the trimmed pieces to `plans` (comparing as text avoids a cast that fails on `''`) and `SELECT DISTINCT`. For the month, sum the fees and the usage in two subqueries grouped by customer, `LEFT JOIN` both to `customers`, keep `recorded_at >= TIMESTAMP '2026-11-01 00:00' AT TIME ZONE 'America/Sao_Paulo'` and `<` the next month, and end with `ON CONFLICT (customer_id, period) DO UPDATE SET amount = EXCLUDED.amount`. A `LANGUAGE sql` function uses its arguments as parameters; `strpos(lower(name), lower(term)) > 0` has no wildcards. For the page, `WHERE c.id = ANY (ids)` and a `LEFT JOIN LATERAL (... ORDER BY period DESC LIMIT 3) i ON true`.
+    - |-
+      ```sql
+      -- latest_invoices.sql
+      CREATE FUNCTION latest_invoices(ids integer[])
+      RETURNS TABLE (customer_id integer, period date, amount numeric)
+      LANGUAGE sql STABLE AS $$
+          SELECT c.id, i.period, i.amount
+          FROM customers c
+          LEFT JOIN LATERAL (
+              SELECT period, amount FROM invoices
+              WHERE invoices.customer_id = c.id
+              ORDER BY ... LIMIT 3
+          ) i ON true
+          WHERE ...
+          ORDER BY ...
+      $$;
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.
