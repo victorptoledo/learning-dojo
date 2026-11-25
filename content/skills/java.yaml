@@ -12,6 +12,9 @@ skills:
   - { id: java.virtual-threads, title: "Virtual Threads (Project Loom): Lightweight Concurrency" }
   - { id: java.concurrency, title: "Executors, CompletableFuture and Thread Safety" }
   - { id: java.design-patterns, title: "Design Patterns in Modern Java" }
+  - { id: java.io, title: "Files, Paths and Text I/O with NIO.2" }
+  - { id: java.time, title: "Dates and Times with java.time" }
+  - { id: java.reflection, title: "Annotations and Reflection" }
   - { id: java.jvm, title: "The JVM: Memory, Garbage Collection and Profiling" }
   - { id: java.graalvm-native, title: "GraalVM Native Image: Millisecond Startup" }
   - { id: java.production, title: "Production Java: Logging, Configuration and Packaging" }

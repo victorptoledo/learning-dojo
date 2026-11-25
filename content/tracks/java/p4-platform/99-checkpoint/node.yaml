@@ -1,0 +1,53 @@
+id: java.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 4: The Java Platform"
+summary: "Prove the platform phase: a quiz and a timesheet import that reads an inbox of CSV files, maps rows to records by annotation, counts real time across daylight saving changes per ISO week and writes its report atomically."
+objectives:
+  - { id: o1, text: "Explain NIO.2 files, java.time types and rules, and annotations and reflection in your own words", skills: [java.io, java.time, java.reflection] }
+  - { id: o2, text: "Build an import that lists and streams files, maps rows with an annotation-driven mapper, handles zones and ISO weeks and writes atomically", skills: [java.io, java.time, java.reflection] }
+prerequisites: [java.p4.files-io, java.p4.date-time, java.p4.record-validator]
+difficulty: 4
+estimated_minutes: 90
+xp: 450
+closes_phase: p4
+covers_skills: [java.io, java.time, java.reflection]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Do the mapper first, with the visible test: everything it refuses can be found from the `Class` alone, so check it in `of`, not in `map`. Then the import, one rule at a time: which files, which lines, which line number. Two questions decide the numbers: what does `Duration.between` count on two `LocalDateTime` values on a night the clocks change, and which year does `2027-01-01` belong to in ISO weeks?
+    - |-
+      In `of`, walk `type.getRecordComponents()`, keep for each its `@Column`, its type and a parser (`Map<Class<?>, Function<String, Object>>` with `Integer::parseInt`, `LocalDateTime::parse`, `ZoneId::of`...), and look up `type.getDeclaredConstructor(componentTypes)` once. In `map`, build an `Object[]` and call `newInstance`; rethrow `InvocationTargetException.getCause()`. In the import, read with `Files.newBufferedReader` and count a line number for every line read; strip a leading `\uFEFF` from the header.
+    - |-
+      ```java
+      long minutes = Duration.between(entry.start().atZone(entry.zone()), entry.end().atZone(entry.zone())).toMinutes();
+      LocalDate day = entry.start().toLocalDate();
+      String week = String.format("%d-W%02d", day.get(IsoFields.WEEK_BASED_YEAR), day.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR));
+      totals.computeIfAbsent(entry.person(), p -> new TreeMap<>()).merge(week, minutes, Long::sum);   // TreeMap<String, TreeMap<String, Long>>
+
+      Path folder = report.toAbsolutePath().getParent();
+      Files.createDirectories(folder);
+      Path temp = Files.createTempFile(folder, ".report", ".tmp");
+      try {
+          Files.writeString(temp, content);
+          Files.move(temp, report, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+      } finally {
+          Files.deleteIfExists(temp);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

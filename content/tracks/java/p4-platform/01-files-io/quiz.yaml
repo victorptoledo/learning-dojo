@@ -1,0 +1,36 @@
+questions:
+  - id: resolve
+    prompt: "Which builds the path of 2026-11.csv inside the imports folder on every operating system?"
+    options: ["Path.of(\"imports\" + \"/\" + \"2026-11.csv\")", "Path.of(\"imports\").resolve(\"2026-11.csv\")", "new File(\"imports\\\\2026-11.csv\")"]
+    answer: 1
+    explanation: "resolve joins paths with the right separator; string concatenation hard-codes one."
+  - id: escape
+    prompt: "root.resolve(userInput) where userInput is \"../../etc/passwd\". How do you refuse it?"
+    options:
+      - "Check userInput.contains(\"..\") before resolving"
+      - "Normalize the resolved path and check that it still startsWith(root)"
+      - "Call toAbsolutePath() and trust it"
+    answer: 1
+    explanation: "Only the normalised result tells you where the path really points."
+  - id: lines-close
+    prompt: "Why must Files.lines(file) be used in try-with-resources?"
+    options: ["It reads the whole file into memory", "The stream keeps the file open until it is closed", "It throws if not closed within a second"]
+    answer: 1
+    explanation: "Files.lines, list and walk are lazy and hold a file handle; closing the stream releases it."
+  - id: list-order
+    prompt: "In what order does Files.list(dir) return its entries?"
+    options: ["Alphabetical", "By modification time", "No guaranteed order"]
+    answer: 2
+    explanation: "The order depends on the file system; sort the result when it must be repeatable."
+  - id: atomic
+    prompt: "Why write a report to a temp file in the same folder and then move it with ATOMIC_MOVE?"
+    options:
+      - "Readers never see a half-written report, and a crash leaves the old one intact"
+      - "It is faster than writeString"
+      - "Temp files are compressed"
+    answer: 0
+    explanation: "The move replaces the file in one step; it is atomic only within one file system, hence the same folder."
+  - id: missing
+    prompt: "Files.readString(file) fails because the file does not exist. Which exception do you catch to treat that as normal?"
+    answers: ["NoSuchFileException", "java.nio.file.NoSuchFileException"]
+    explanation: "IOException has precise subtypes; catch the one you can handle and let the others travel up."

@@ -1,0 +1,23 @@
+id: java.p4.reflection-annotations
+kind: lesson
+status: draft
+title: "Annotations and Reflection"
+summary: "Write your own annotations, read them at run time on records and methods, and understand what JUnit and Spring do with them, and what it costs."
+objectives:
+  - { id: o1, text: "Declare annotations with the right retention, target and elements", skills: [java.reflection] }
+  - { id: o2, text: "Read record components, accessors and constructors with reflection, and unwrap its exceptions", skills: [java.reflection] }
+  - { id: o3, text: "Explain how frameworks use reflection and when plain code is the better choice", skills: [java.reflection] }
+prerequisites: [java.p3.checkpoint]
+difficulty: 4
+estimated_minutes: 40
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team writes @Column("name") on record components to map CSV columns. A colleague reports that the mapper "ignores" the annotation and that a bad value shows "java.lang.reflect.InvocationTargetException" to users. Explain both problems and how you would build the mapper so it is fast and fails early.'
+  criteria:
+    - 'Names the missing @Retention(RUNTIME) as the cause of the ignored annotation'
+    - 'Unwraps InvocationTargetException with getCause() for the message'
+    - 'Looks components and the canonical constructor up once and caches them'
+    - 'Validates the annotations when the mapper is built, naming the class and component'

@@ -1,0 +1,23 @@
+id: java.p4.files-io
+kind: lesson
+status: draft
+title: "Files, Paths and Text I/O"
+summary: "Read, stream, list and write files with NIO.2: paths, charsets, closing streams, atomic writes and IOException subtypes."
+objectives:
+  - { id: o1, text: "Build and check paths with Path.of, resolve and normalize", skills: [java.io] }
+  - { id: o2, text: "Read small files at once and stream large ones, closing every stream", skills: [java.io] }
+  - { id: o3, text: "Write reports safely with a temp file and an atomic move, and test with @TempDir", skills: [java.io] }
+prerequisites: [java.p3.checkpoint]
+difficulty: 3
+estimated_minutes: 35
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A nightly job reads every CSV file in a folder (some are several GB) and writes one summary report that another service reads at any time. Describe how you would list, read and write the files, and what could go wrong.'
+  criteria:
+    - 'Streams large files with Files.lines or a BufferedReader in try-with-resources'
+    - 'Sorts the listed files so the result is repeatable'
+    - 'Writes the report to a temp file in the same folder and moves it atomically'
+    - 'Names a charset or error case (a missing file, a half-written report)'

@@ -1,0 +1,33 @@
+questions:
+  - id: retention
+    prompt: "component.getAnnotation(Column.class) returns null although @Column is written on the component. What is the most likely cause?"
+    options: ["@Column has no elements", "@Column lacks @Retention(RetentionPolicy.RUNTIME)", "Records cannot have annotations"]
+    answer: 1
+    explanation: "The default retention is CLASS: the annotation is in the class file but invisible to reflection."
+  - id: component-order
+    prompt: "In which order does getRecordComponents() return a record's components?"
+    options: ["Alphabetical", "Declaration order", "Unspecified"]
+    answer: 1
+    explanation: "Components come in declaration order, the same order as the canonical constructor's parameters."
+  - id: invocation-target
+    prompt: "A record's compact constructor throws IllegalArgumentException(\"hours must be positive\") when called through Constructor.newInstance. What do you catch, and where is the message?"
+    options:
+      - "IllegalArgumentException; getMessage()"
+      - "InvocationTargetException; getCause().getMessage()"
+      - "ReflectiveOperationException; it has no message"
+    answer: 1
+    explanation: "Reflection wraps what the called code throws; unwrap it so users see the real reason."
+  - id: primitive-class
+    prompt: "A component is declared int hours. What does component.getType() return?"
+    answers: ["int.class", "int", "Integer.TYPE"]
+    explanation: "Primitive types have their own Class objects; int.class is not Integer.class."
+  - id: cache
+    prompt: "A mapper calls getRecordComponents() and getDeclaredConstructor() for every CSV row. What is the fix?"
+    options: ["Nothing, reflection is free", "Look them up once per class and cache them", "Use setAccessible(true)"]
+    answer: 1
+    explanation: "Lookups are slow and the answer never changes; build the mapper once and reuse it."
+  - id: closed-set
+    prompt: "The set of enrichers is fixed: tax and bulk. Which is the better way to create them by name?"
+    options: ["Class.forName(\"dojo.\" + name + \"Enricher\")", "A registry such as Map.of(\"tax\", TaxEnricher::new, \"bulk\", BulkEnricher::new)", "Scanning the classpath for Enricher implementations"]
+    answer: 1
+    explanation: "When the set is known, plain code is checked by the compiler and visible to native-image builds."

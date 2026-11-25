@@ -1,0 +1,68 @@
+questions:
+  - id: cp4-list-close-sort
+    skills: [java.io]
+    prompt: "An import does Files.list(inbox).filter(...).toList() and processes the files in that order. What two things are wrong?"
+    options:
+      - "Nothing; Files.list is sorted and closes itself"
+      - "The stream is never closed (it holds the folder open), and the order is not guaranteed, so results and errors can come out in a different order on another machine"
+      - "Files.list cannot filter"
+      - "It reads subfolders by default"
+    answer: 1
+    explanation: "Use Files.list in try-with-resources and sort the paths whenever the result must be repeatable."
+  - id: cp4-temp-same-folder
+    skills: [java.io]
+    prompt: "Why create the report's temp file in the report's own folder rather than in /tmp before Files.move(..., ATOMIC_MOVE)?"
+    options:
+      - "/tmp is slower"
+      - "An atomic move only works within one file system; across file systems it fails or becomes a copy"
+      - "Temp files in /tmp are deleted at once"
+      - "Files.move cannot read /tmp"
+    answer: 1
+    explanation: "A rename inside one file system is atomic; a move to another one is a copy and a delete, which a reader can catch half done."
+  - id: cp4-bom
+    skills: [java.io]
+    prompt: "The header of a UTF-8 CSV reads as \"\\uFEFFperson\" and the person column is never found. What is it?"
+    options: ["A corrupt file", "A byte order mark some editors write at the start of UTF-8 files; strip it from the first line", "A Windows line ending", "The ISO-8859-1 charset"]
+    answer: 1
+    explanation: "Java keeps the BOM as a character in the text; remove it before splitting the header."
+  - id: cp4-dst-back
+    skills: [java.time]
+    prompt: "In Europe/Lisbon the clocks go back from 02:00 to 01:00 on 2026-10-25. How many minutes is a shift from 00:30 to 03:30 that night?"
+    options: ["180", "120", "240"]
+    answer: 2
+    explanation: "The hour from 01:00 to 02:00 happens twice, so three wall-clock hours last four real hours."
+  - id: cp4-week-year
+    skills: [java.time]
+    prompt: "2027-01-01 is a Friday. In which ISO week does it fall?"
+    options: ["2027-W01", "2026-W53", "2027-W00"]
+    answer: 1
+    explanation: "ISO week 1 is the week with the year's first Thursday; the days before it belong to the last week of the previous week-based year."
+  - id: cp4-local-vs-zoned
+    skills: [java.time]
+    prompt: "The file has local start and end times and a zone per row. Where should the zone be applied?"
+    options:
+      - "Ignore it; LocalDateTime is enough to count hours"
+      - "Attach it to both times (atZone) before computing the duration"
+      - "Convert both times to UTC by subtracting a fixed offset"
+    answer: 1
+    explanation: "Only the zone's rules know the offset on each date; a fixed offset is wrong half of the year."
+  - id: cp4-check-once
+    skills: [java.reflection]
+    prompt: "A CsvMapper finds that a component has no @Column only when the first row is mapped. Why is checking in CsvMapper.of(type) better?"
+    options:
+      - "It is required by the JVM"
+      - "The mistake is in the code, not the data: checking once when the mapper is built fails at startup, even with an empty file, and keeps map() fast"
+      - "Annotations cannot be read later"
+      - "It uses less memory"
+    answer: 1
+    explanation: "Validate the class once, cache what you found, and let map() only deal with data errors."
+  - id: cp4-canonical
+    skills: [java.reflection]
+    prompt: "How do you find a record's canonical constructor with reflection?"
+    options:
+      - "type.getConstructors()[0]"
+      - "type.getDeclaredConstructor(the component types, in getRecordComponents() order)"
+      - "type.newInstance()"
+      - "A record has no constructor"
+    answer: 1
+    explanation: "The canonical constructor takes exactly the component types in declaration order; a record may also declare other constructors."

@@ -11,7 +11,8 @@ phases:
   p1: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
   p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
-  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+  p4: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p5: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
 early_stop: { wrong_in_first: 2, of: 3 }
 skill_placed_out_threshold: 0.75
 weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
@@ -296,9 +297,65 @@ items:
     answer: 1
     explanation: "Sealed types plus pattern switches give visitor completeness with much less code."
 
-  # ---- P4 Mastery --------------------------------------------------------------
-  - id: p4-gc-latency
+  # ---- P4 The Java Platform --------------------------------------------------------
+  - id: p4-files-lines
     phase: p4
+    skills: [java.io]
+    difficulty: 3
+    prompt: "A 6 GB log must be scanned for lines containing ERROR. Which is right?"
+    options:
+      - "Files.readAllLines(path).stream().filter(...)"
+      - "try (Stream<String> lines = Files.lines(path)) { lines.filter(...).count(); }"
+      - "Files.readString(path).split(\"\\n\")"
+    answer: 1
+    explanation: "Files.lines reads lazily and must be closed; the other two load 6 GB into memory."
+  - id: p4-atomic-report
+    phase: p4
+    skills: [java.io]
+    difficulty: 3
+    prompt: "Another service reads report.csv at any moment. How do you replace it so it never sees half a file?"
+    options:
+      - "Files.writeString(report, content) is already safe"
+      - "Write a temp file in the same folder, then Files.move(temp, report, REPLACE_EXISTING, ATOMIC_MOVE)"
+      - "Delete the report first, then write the new one"
+    answer: 1
+    explanation: "Writing in place exposes a partial file; a move inside one file system replaces it in one step."
+  - id: p4-instant-vs-local
+    phase: p4
+    skills: [java.time]
+    difficulty: 3
+    prompt: "Which type stores when an order was paid, so orders from Lisbon and Tokyo can be sorted together?"
+    options: ["LocalDateTime", "Instant", "LocalTime"]
+    answer: 1
+    explanation: "Instant is a point on the timeline; a LocalDateTime means a different moment in each zone."
+  - id: p4-dst-plusdays
+    phase: p4
+    skills: [java.time]
+    difficulty: 4
+    prompt: "A reminder at 09:00 Europe/Lisbon on 2026-03-28 must repeat at 09:00 the next day. Which call gives 09:00 on 2026-03-29, the night the clocks go forward?"
+    options: ["zoned.plus(Duration.ofHours(24))", "zoned.plusDays(1)", "zoned.plus(Duration.ofDays(1))"]
+    answer: 1
+    explanation: "plusDays keeps the wall-clock time; adding 24 hours of real time lands at 10:00 after the change."
+  - id: p4-retention
+    phase: p4
+    skills: [java.reflection]
+    difficulty: 3
+    prompt: "A custom @Audited annotation is on a method, but method.isAnnotationPresent(Audited.class) returns false. Most likely cause?"
+    options: ["Methods cannot have annotations", "The annotation lacks @Retention(RetentionPolicy.RUNTIME)", "The method is not static"]
+    answer: 1
+    explanation: "Without RUNTIME retention the annotation is not visible to reflection."
+  - id: p4-invocation-target
+    phase: p4
+    skills: [java.reflection]
+    difficulty: 4
+    prompt: "method.invoke(target) throws. The method itself threw IllegalStateException. What do you catch, and where is the original?"
+    options: ["IllegalStateException, directly", "InvocationTargetException; the original is getCause()", "ReflectiveOperationException; the original is lost"]
+    answer: 1
+    explanation: "Reflection wraps exceptions from the called code; unwrap getCause()."
+
+  # ---- P5 Mastery --------------------------------------------------------------
+  - id: p4-gc-latency
+    phase: p5
     skills: [java.jvm]
     difficulty: 4
     prompt: "A trading service needs GC pauses under 1 ms with a 64 GB heap. Which collector fits?"
@@ -306,7 +363,7 @@ items:
     answer: 2
     explanation: "Generational ZGC keeps pauses sub-millisecond independent of heap size."
   - id: p4-container-oom
-    phase: p4
+    phase: p5
     skills: [java.jvm]
     difficulty: 4
     prompt: "A JVM in a 1 GB container never uses more than 256 MB of heap and is slow with frequent GCs. Most likely cause?"
@@ -317,7 +374,7 @@ items:
     answer: 0
     explanation: "Raise it with -XX:MaxRAMPercentage, leaving room for non-heap memory."
   - id: p4-native-reflection
-    phase: p4
+    phase: p5
     skills: [java.graalvm-native]
     difficulty: 4
     prompt: "A native image throws ClassNotFoundException for a class loaded with Class.forName. Why?"
@@ -328,7 +385,7 @@ items:
     answer: 1
     explanation: "Reflection hides classes from the static analysis; declare them in the metadata or let the tracing agent record them."
   - id: p4-native-when
-    phase: p4
+    phase: p5
     skills: [java.graalvm-native]
     difficulty: 3
     prompt: "Which workload benefits most from GraalVM native image?"
@@ -336,7 +393,7 @@ items:
     answer: 0
     explanation: "Short-lived processes pay startup on every run; native images remove most of it."
   - id: p4-log-once
-    phase: p4
+    phase: p5
     skills: [java.production]
     difficulty: 3
     prompt: "An exception travels up through 4 layers. Where should it be logged with its stack trace?"
@@ -344,7 +401,7 @@ items:
     answer: 1
     explanation: "Logging and rethrowing in every layer duplicates the same error in the logs."
   - id: p4-config
-    phase: p4
+    phase: p5
     skills: [java.production]
     difficulty: 3
     prompt: "Where should the database URL for production come from?"

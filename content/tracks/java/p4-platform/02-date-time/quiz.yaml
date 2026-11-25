@@ -1,0 +1,33 @@
+questions:
+  - id: moment-type
+    prompt: "Which type records when a payment happened, so it can be compared with payments from any country?"
+    options: ["LocalDateTime", "Instant", "LocalDate", "Period"]
+    answer: 1
+    explanation: "An Instant is a point on the timeline; LocalDateTime has no zone, so it is not a moment."
+  - id: dst-duration
+    prompt: "In Europe/Lisbon the clocks go from 01:00 to 02:00 on 2026-03-29. How long is a shift from 00:30 to 03:30 that night?"
+    options: ["3 hours", "2 hours", "4 hours"]
+    answer: 1
+    explanation: "Duration.between on the zoned times counts real time; an hour of the wall clock was skipped."
+  - id: local-between
+    prompt: "Why is Duration.between(localStart, localEnd) on two LocalDateTime values wrong for that shift?"
+    options:
+      - "It throws for LocalDateTime"
+      - "Without a zone it counts wall-clock time and ignores the skipped hour"
+      - "It rounds to whole days"
+    answer: 1
+    explanation: "Attach the zone first (atZone) or convert to instants."
+  - id: plus-month
+    prompt: "What is LocalDate.of(2026, 1, 31).plusMonths(1)?"
+    answers: ["2026-02-28"]
+    explanation: "Calendar arithmetic clamps to the last valid day of the month."
+  - id: week-year
+    prompt: "Grouping by ISO week, which year do you pair with WEEK_OF_WEEK_BASED_YEAR?"
+    options: ["date.getYear()", "date.get(IsoFields.WEEK_BASED_YEAR)", "The year of the week's Sunday"]
+    answer: 1
+    explanation: "The first days of January can belong to week 52 or 53 of the previous week-based year."
+  - id: clock
+    prompt: "How do you make code that checks \"is this invoice overdue today?\" testable?"
+    options: ["Mock the static LocalDate.now()", "Take a Clock in the constructor and call LocalDate.now(clock)", "Sleep in the test until the date changes"]
+    answer: 1
+    explanation: "An injected Clock (Clock.fixed in tests) controls now and makes the zone explicit."

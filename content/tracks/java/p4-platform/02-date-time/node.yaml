@@ -1,0 +1,23 @@
+id: java.p4.date-time
+kind: lesson
+status: draft
+title: "Dates and Times with java.time"
+summary: "Pick the right type for each idea of time, survive daylight saving changes, do calendar arithmetic and make now testable."
+objectives:
+  - { id: o1, text: "Choose between Instant, the local types, ZonedDateTime, Duration and Period", skills: [java.time] }
+  - { id: o2, text: "Convert between zones and count real time across daylight saving changes", skills: [java.time] }
+  - { id: o3, text: "Parse and format ISO-8601 and inject a Clock instead of calling now()", skills: [java.time] }
+prerequisites: [java.p3.checkpoint]
+difficulty: 3
+estimated_minutes: 35
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Shift workers in Lisbon and São Paulo clock in and out by typing local times. Payroll needs the hours each person worked per ISO week. Describe the types you would store, how you would compute the hours, and which dates you would put in the tests.'
+  criteria:
+    - 'Keeps the zone with each entry (a region id, not a fixed offset)'
+    - 'Computes durations on zoned times or instants, not on LocalDateTime'
+    - 'Groups by week-based year and ISO week'
+    - 'Tests a DST change (forward and back) and a week across the new year'
