@@ -1,0 +1,37 @@
+services:
+  migrate:
+    build: .
+    image: ghcr.io/dojo-example/catalog:2.0.0
+    command: ["migrate"]
+    restart: "no"
+    volumes:
+      - catalog-data:/data
+
+  catalog:
+    image: ghcr.io/dojo-example/catalog:2.0.0
+    command: ["serve"]
+    environment:
+      MIGRATE_ON_START: "false"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+    ports:
+      - "8080"
+    stop_grace_period: 30s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    volumes:
+      - catalog-data:/data
+
+volumes:
+  catalog-data:

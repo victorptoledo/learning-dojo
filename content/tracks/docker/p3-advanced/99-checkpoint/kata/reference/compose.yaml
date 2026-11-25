@@ -1,0 +1,33 @@
+services:
+  quotes:
+    build:
+      context: .
+      args:
+        VERSION: "3.1.0"
+      secrets:
+        - netrc
+    image: ghcr.io/dojo-example/quotes:3.1.0
+    user: "10001:10001"
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: "0.5"
+          pids: 100
+    ports:
+      - "127.0.0.1:8080:8080"
+    secrets:
+      - api_token
+
+secrets:
+  netrc:
+    file: ./secrets/netrc
+  api_token:
+    file: ./secrets/api_token.txt

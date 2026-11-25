@@ -1,0 +1,65 @@
+id: docker.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz from the kernel up to production, and the launch-day image and Compose file of a catalog service, with PID 1, JSON logs, a migration job, rolling updates and a graceful drain."
+objectives:
+  - { id: o1, text: "Reason about a container from the kernel to the orchestrator: isolation, images, builds, security, logs, signals and updates", skills: [docker.production, docker.logs-debugging, docker.runtime-security, docker.supply-chain] }
+  - { id: o2, text: "Write an entrypoint script that prepares the container and execs the server, so it is PID 1, logs JSON to stdout and is health-checked with a start period", skills: [docker.production, docker.logs-debugging, docker.dockerfile-security, docker.volumes] }
+  - { id: o3, text: "Describe a production rollout in Compose: a one-shot migration job, replicas without fixed ports, start-first updates with rollback, a drain period and log rotation", skills: [docker.production, docker.compose] }
+prerequisites: [docker.p4.broken-image]
+difficulty: 5
+estimated_minutes: 100
+xp: 450
+closes_phase: p4
+covers_skills: [docker.production, docker.logs-debugging, docker.runtime-security, docker.supply-chain, docker.compose, docker.volumes]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 300 }
+  hints:
+    - |-
+      Investigate before you edit: `docker build -t catalog .`, `docker run -d --name cat catalog`, then `docker ps -a`, `docker logs cat` and `docker inspect cat`. For each process ask *who starts it* (which is PID 1?), *as which user* and *where it writes*. Then read the Compose file as an operator on launch day: what happens when two replicas start at once, when both try to migrate, and when an update is rolled out?
+    - |-
+      A shell-form `ENTRYPOINT docker-entrypoint.sh` runs under `/bin/sh -c` and ignores `CMD` and every argument of `docker run`. In exec form, the script gets `CMD` as `"$@"`, and its last line must be `exec catalog "$@"`: `exec` replaces the shell, so the catalog becomes PID 1 and receives `SIGTERM`. Do not redirect to a log file: the logs belong on stdout, as JSON (`LOG_FORMAT=json`). Create and `chown` `/data` before `VOLUME`, and give `HEALTHCHECK` a `--start-period` so a slow migration does not count as a failure. If the script was saved with Windows line ends, `/bin/sh` cannot read it: save it with LF.
+    - |-
+      ```sh
+      #!/bin/sh
+      set -eu
+      if [ "${1:-}" = serve ] && [ "${MIGRATE_ON_START:-true}" = true ]; then
+          catalog migrate
+      fi
+      exec catalog "$@"
+      ```
+      ```yaml
+      services:
+        migrate:
+          build: .
+          image: ghcr.io/dojo-example/catalog:2.0.0
+          command: ["migrate"]
+          volumes: [catalog-data:/data]
+        catalog:
+          image: ghcr.io/dojo-example/catalog:2.0.0
+          environment: { MIGRATE_ON_START: "false" }
+          depends_on:
+            migrate: { condition: service_completed_successfully }
+          deploy:
+            replicas: 2
+            update_config: { parallelism: 1, order: start-first, failure_action: rollback }
+          ports: ["8080"]
+          stop_grace_period: 30s
+          ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your image is built on your Docker engine and checked in a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with hadolint, bats, jq and docker-compose that checks your image and your Compose file.

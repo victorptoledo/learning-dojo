@@ -1,0 +1,12 @@
+services:
+  quotes:
+    build:
+      context: .
+      args:
+        GIT_TOKEN: ${GIT_TOKEN}
+    image: quotes:latest
+    env_file: .env
+    environment:
+      API_TOKEN: ${API_TOKEN}
+    ports:
+      - "8080:8080"

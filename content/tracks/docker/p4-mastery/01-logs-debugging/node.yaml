@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Log to stdout and stderr, choose a log driver and configure rotation", skills: [docker.logs-debugging] }
   - { id: o2, text: "Diagnose crashes and restart loops with ps, logs, inspect, events and exit codes", skills: [docker.logs-debugging] }
   - { id: o3, text: "Debug shell-less and running containers with docker debug, tool containers that share namespaces, and docker cp", skills: [docker.logs-debugging] }
-prerequisites: [docker.p3.hardened-compose]
+prerequisites: [docker.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 50
 xp: 250
