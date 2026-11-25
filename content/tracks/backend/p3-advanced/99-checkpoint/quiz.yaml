@@ -1,0 +1,69 @@
+questions:
+  - id: stateless-instances
+    skills: [backend.scalability]
+    prompt: "A service keeps user sessions in a HashMap and now runs as four instances behind a round-robin load balancer. What goes wrong, and what is the usual fix?"
+    options:
+      - "Nothing: the load balancer copies the map between instances"
+      - "A request that reaches another instance does not find the session; keep the state in a shared store such as Redis or the database"
+      - "The instances run out of memory; give each one more heap"
+    answer: 1
+    explanation: "Horizontal scaling needs stateless instances: shared state goes to a store every instance can reach."
+  - id: replica-lag
+    skills: [backend.scalability]
+    prompt: "A user saves their profile and the next page, read from a replica, still shows the old name. What is this, and one way to fix it?"
+    options:
+      - "Replication lag; read the user's own writes from the primary for a short time"
+      - "A cache stampede; add a lock around the read"
+      - "A lost update; add a version column"
+    answer: 0
+    explanation: "Replicas are asynchronous; read-your-writes sends the writer's reads to the primary for a while."
+  - id: bola
+    skills: [backend.api-security]
+    prompt: "GET /invoices/{id} checks that the caller is signed in and returns the invoice. Which OWASP API risk is this, and what should a stranger's id return?"
+    options:
+      - "Broken authentication; 401"
+      - "Broken object-level authorization; the same 404 as an id that does not exist"
+      - "Injection; 400"
+    answer: 1
+    explanation: "Being signed in is not owning the object; check ownership and do not reveal that the invoice exists."
+  - id: mass-assignment
+    skills: [backend.api-security]
+    prompt: "PATCH /users/{id} binds the JSON body onto the User entity and saves it. A client adds \"role\": \"ADMIN\". What stops it?"
+    options:
+      - "Validating the email field"
+      - "Binding an input record that has only the fields a client may change"
+      - "Returning 204 instead of the user"
+    answer: 1
+    explanation: "Mass assignment: the input record is the list of fields the client owns; everything else cannot be set."
+  - id: order-by-allow-list
+    skills: [backend.api-security]
+    prompt: "A list endpoint takes ?sort=<column>. Why is a bound parameter not enough here, and what is?"
+    options:
+      - "It is enough: bind the column name like any value"
+      - "A column name cannot be bound in SQL; map the allowed sort values to fixed order-by clauses and reject the rest"
+      - "Escape quotes in the value before concatenating it"
+    answer: 1
+    explanation: "Parameters bind values, not identifiers; an allow-list is the only safe way to choose a column."
+  - id: what-to-retry
+    skills: [backend.resilience]
+    prompt: "Which of these failures should a client retry with backoff?"
+    options:
+      - "A timeout or a 503 from the dependency"
+      - "A 400 saying the currency is unknown"
+      - "A CircuitOpenException from its own breaker"
+    answer: 0
+    explanation: "Retry transient failures only; a wrong request stays wrong, and an open circuit means stop calling for now."
+  - id: error-budget
+    skills: [backend.sre]
+    prompt: "An API has an SLO of 99.9% of requests succeeding over 30 days and serves 10 million requests a month. How many failed requests is the error budget?"
+    answers: ["10000", "10,000", "10 000", "10k"]
+    explanation: "The budget is 1 − 0.999 = 0.1% of 10,000,000 requests, so 10,000 failures."
+  - id: burn-rate
+    skills: [backend.sre]
+    prompt: "With a 99% SLO, 5% of the requests in the last hour failed. What is the burn rate, and should it page someone if the page threshold is 14.4?"
+    options:
+      - "0.05; no"
+      - "5; no, open a ticket for the slow burn"
+      - "14.4; yes"
+    answer: 1
+    explanation: "Burn rate = bad ratio / (1 − SLO) = 0.05 / 0.01 = 5: the budget burns 5 times too fast, below the page threshold."

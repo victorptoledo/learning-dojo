@@ -1,0 +1,73 @@
+questions:
+  - id: modular-monolith-first
+    skills: [backend.architecture]
+    prompt: "A team of six is starting a new product whose domain boundaries are still unclear. Which deployment architecture is usually the best start?"
+    options:
+      - "Twenty microservices, one per entity"
+      - "A modular monolith with clear module boundaries, split later where a real need appears"
+      - "A single module with no boundaries, to move fast"
+    answer: 1
+    explanation: "Microservices cost operations and distributed failures; a modular monolith keeps the boundaries cheap to move."
+  - id: saga-compensation
+    skills: [backend.architecture]
+    prompt: "A checkout saga reserved stock and charged the card, then shipping refused the address. What does the saga do?"
+    options:
+      - "Roll back the distributed transaction"
+      - "Run compensations in reverse order: refund the charge, then release the stock"
+      - "Retry shipping forever"
+    answer: 1
+    explanation: "A saga has no global rollback; each completed step has a compensating action, run newest first."
+  - id: saga-crash
+    skills: [backend.architecture, backend.reliability]
+    prompt: "The process dies right after a saga charged the card. What lets the next run finish without charging twice?"
+    options:
+      - "Wrapping the whole saga in one database transaction"
+      - "Saving the saga's step after each call and sending the same idempotency key when the step is repeated"
+      - "Asking the user to try again"
+    answer: 1
+    explanation: "The persisted step says where to resume; the idempotency key makes the repeated charge harmless."
+  - id: expand-contract
+    skills: [backend.delivery]
+    prompt: "You must rename a column that the running service reads, with rolling deploys. Which order is safe?"
+    options:
+      - "Rename the column, then deploy the code that uses the new name"
+      - "Add the new column, write both, backfill, switch reads, stop writing the old one, then drop it"
+      - "Deploy code that reads the new name, then rename the column"
+    answer: 1
+    explanation: "Expand and contract: every intermediate state works with both the old and the new version of the code."
+  - id: rollout-bucketing
+    skills: [backend.delivery]
+    prompt: "Why does a percentage rollout hash the user id instead of calling random() on each request?"
+    options:
+      - "Hashing is faster than random()"
+      - "The same user gets the same answer on every request, and raising the percentage only adds users"
+      - "random() cannot produce percentages"
+    answer: 1
+    explanation: "Sticky buckets stop users flipping between the old and new behaviour on every request."
+  - id: canary-metric
+    skills: [backend.delivery, backend.sre]
+    prompt: "A canary gets 5% of the traffic. What decides whether to promote it or roll it back?"
+    options:
+      - "Whether the deploy finished without errors"
+      - "Comparing its error rate and latency with the stable version's against agreed thresholds"
+      - "Waiting a week and asking users"
+    answer: 1
+    explanation: "A canary is a controlled experiment; compare the golden signals of canary and baseline."
+  - id: adr
+    skills: [backend.leadership]
+    prompt: "What belongs in an architecture decision record?"
+    options:
+      - "The context, the decision, the alternatives considered and the consequences"
+      - "Only the final diagram"
+      - "The meeting minutes in full"
+    answer: 0
+    explanation: "An ADR keeps why a decision was made, so later readers can tell whether its reasons still hold."
+  - id: blameless
+    skills: [backend.leadership, backend.sre]
+    prompt: "A migration took production down for an hour. What does a blameless postmortem focus on?"
+    options:
+      - "Who ran the migration"
+      - "How the system and process let the mistake reach production, and the actions that stop it happening again"
+      - "Whether to roll back all migrations for a month"
+    answer: 1
+    explanation: "Blameless postmortems look for causes in systems and processes, so people report problems freely."
