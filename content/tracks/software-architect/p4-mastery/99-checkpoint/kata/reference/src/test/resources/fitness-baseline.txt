@@ -1,0 +1,1 @@
+legacy: dojo.shop.reports.SalesReport -> dojo.legacy.pricing.PriceEngine

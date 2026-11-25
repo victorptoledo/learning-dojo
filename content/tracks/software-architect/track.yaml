@@ -14,7 +14,7 @@ belts:
   - { name: "Purple Belt", required_xp: 1500, title: "Bounded Context Navigator" }
   - { name: "Brown Belt", required_xp: 2500, title: "Event-Driven Strategist" }
   - { name: "Black Belt", required_xp: 4000, title: "Evolutionary Architect" }
-  - { name: "Sensei", required_xp: 6000, title: "Trade-off Master" }
+  - { name: "Sensei", required_xp: 5500, title: "Trade-off Master" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What architecture is, quality attributes and trade-offs, decision records, and a first fitness function" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Modularity, coupling and cohesion between modules, layers, package cycles, and hexagonal, onion and clean architecture" }

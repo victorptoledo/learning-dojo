@@ -1,0 +1,57 @@
+id: software-architect.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on aggregates, domain events, event-driven architecture and sagas, and a trip booking whose anemic trip becomes an aggregate and whose saga compensates refusals, ignores duplicate replies and dead-letters the rest."
+objectives:
+  - { id: o1, text: "Explain aggregates and domain events, the event-driven patterns, idempotent consumers, sagas and their compensations", skills: [software-architect.ddd-tactical, software-architect.event-driven, software-architect.integration-patterns] }
+  - { id: o2, text: "Model a consistency boundary as an aggregate and orchestrate a saga across suppliers with compensations, an idempotent receiver and a dead letter channel, behind ports", skills: [software-architect.ddd-tactical, software-architect.integration-patterns, software-architect.clean-hexagonal] }
+prerequisites: [software-architect.p3.integration-patterns]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+closes_phase: p3
+covers_skills: [software-architect.ddd-tactical, software-architect.event-driven, software-architect.integration-patterns]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Split the work by responsibility. The **trip** knows which leg comes next, refuses a reservation for any other leg, and on cancellation decides what to release (the reserved legs, latest first). The **saga** only translates messages: it looks up the trip, asks it, saves it, sends commands and publishes the events the trip recorded. Remembering which message ids it has processed belongs to the saga, because duplicates are a property of the channel, not of the domain.
+    - |-
+      `Trip` becomes final with a private constructor and `static Trip request(TripId, String, List<Leg>)`, `Optional<Leg> nextLeg()`, `void reserved(Leg, String)`, `List<Leg> cancel(String)` and `List<TripEvent> pullEvents()`; it no longer imports `SupplierReply`. Add the `Trips` port next to it and let `InMemoryTrips` implement it. In `handle`, check in this order: a processed message id (return), an unknown trip (dead letter), then `switch (trip.status())` with one small method per status.
+    - |-
+      ```java
+      private void onPending(Trip trip, SupplierReply reply) {
+          if (trip.nextLeg().orElseThrow() != reply.leg()) {
+              deadLetters.deadLetter(reply, "unexpected reply for " + reply.leg());
+          } else if (reply.reserved()) {
+              trip.reserved(reply.leg(), reply.detail());
+              trips.save(trip);
+              trip.nextLeg().ifPresent(leg -> bus.send(SupplierCommand.reserve(trip.id().value(), leg)));
+              trip.pullEvents().forEach(events);
+          } else {
+              cancel(trip, reply.leg() + " refused: " + reply.detail());
+          }
+      }
+
+      private void onCancelled(Trip trip, SupplierReply reply) {
+          if (reply.reserved() && trip.confirmation(reply.leg()).isEmpty()) {
+              bus.send(SupplierCommand.release(trip.id().value(), reply.leg()));
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.
