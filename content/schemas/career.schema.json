@@ -41,7 +41,7 @@
           "required": ["track", "phase"],
           "properties": {
             "track": { "type": "string" },
-            "phase": { "type": "string", "pattern": "^p[0-9]$" }
+            "phase": { "type": "string", "pattern": "^p(0|[1-9][0-9]*)$" }
           }
         },
         {

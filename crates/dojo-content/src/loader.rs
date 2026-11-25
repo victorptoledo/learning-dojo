@@ -519,7 +519,7 @@ impl ContentReader<'_> {
                 if parsed.is_none() {
                     self.report.error(
                         &location,
-                        format!("requirement `{text}` must be `track:P1`..`P9`"),
+                        format!("requirement `{text}` must be `track:P<n>` with n >= 1"),
                     );
                 }
                 parsed
@@ -846,7 +846,7 @@ fn to_remedial(node_id: &str, item: &RemedialManifest, kata: Kata) -> Remedial {
     }
 }
 
-/// `p3` → 3. The schema guarantees the `p[0-9]` shape.
+/// `p3` → 3. The schema guarantees the `p<n>` shape.
 fn phase_order(phase_id: &str) -> u8 {
     phase_id.trim_start_matches('p').parse().unwrap_or(u8::MAX)
 }
