@@ -15,7 +15,7 @@ use std::path::PathBuf;
 pub const SIDEQUEST_STAGE_XP: u32 = 30;
 
 /// How far into a track a requirement asks the learner to be: `P<n>` is the end of phase
-/// `p<n>` (D046: tracks have as many phases as their subject needs, up to `p9`).
+/// `p<n>` (D046: tracks have as many phases as their subject needs, with no fixed limit).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Milestone(u8);
 
@@ -32,8 +32,11 @@ impl Milestone {
     }
 
     fn parse(text: &str) -> Option<Self> {
-        let number: u8 = text.strip_prefix('P')?.parse().ok()?;
-        (1..=9).contains(&number).then_some(Self(number))
+        let digits = text.strip_prefix('P')?;
+        if digits.starts_with('0') || !digits.bytes().all(|b| b.is_ascii_digit()) {
+            return None;
+        }
+        digits.parse().ok().map(Self)
     }
 
     fn phase_id(self) -> String {
@@ -47,7 +50,7 @@ impl fmt::Display for Milestone {
     }
 }
 
-/// `track:P1` .. `track:P9`: evidence of progress on a track, never a manual tick.
+/// `track:P1`, `track:P2`, ...: evidence of progress on a track, never a manual tick.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SidequestRequirement {
     pub track: String,
@@ -402,7 +405,15 @@ mod tests {
             7,
             "tracks may have more than four phases (D046)"
         );
-        for bad in ["rust", "rust:P0", "rust:P10", ":P1", "rust:p1", "rust:P1:x"] {
+        assert_eq!(
+            SidequestRequirement::parse("rust:P12")
+                .unwrap()
+                .milestone
+                .level(),
+            12,
+            "the number of phases has no fixed limit (D046)"
+        );
+        for bad in ["rust", "rust:P0", "rust:P01", "rust:P+1", ":P1", "rust:p1", "rust:P1:x"] {
             assert!(SidequestRequirement::parse(bad).is_none(), "{bad}");
         }
     }

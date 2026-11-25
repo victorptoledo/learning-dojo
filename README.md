@@ -87,10 +87,10 @@ All 30 tracks are complete, with 731 lessons and checkpoints and 268 katas betwe
 | AI Engineer | LLM features: APIs, RAG, tools, evals, guardrails | 24 | 10 | `dojo-python` (pytest against a fake, offline model) |
 | Data Engineer | pipelines, modelling, lakes, streaming | 25 | 9 | `dojo-sql`, `dojo-python` and `dojo-data` (pyarrow, DuckDB) |
 
-Every track has a checkpoint at the end of each phase from P1 on (Design Patterns has all four;
-the other tracks have P1 and P2 and get the rest track by track, see D046), a placement test, an
-interview bank and bridges from five languages. A track has as many phases as its subject needs,
-up to P9.
+Every track has a checkpoint at the end of each phase from P1 on (Design Patterns and the four
+other Software Architect tracks have all of them; the rest have P1 and P2 and get the others track
+by track, see D046), a placement test, an interview bank and bridges from five languages. A track
+has as many phases, and so as many checkpoints, as its content needs, with no fixed limit.
 
 ## Requirements
 
