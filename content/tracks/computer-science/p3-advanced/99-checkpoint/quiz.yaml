@@ -1,0 +1,49 @@
+questions:
+  - id: cp3-subset-blowup
+    skills: [computer-science.automata]
+    prompt: "An NFA has 20 states. What is the most states the DFA built from it by the subset construction can have, and why do engines that simulate the NFA still run in linear time?"
+    options: ["20; the construction never adds states", "40; each state is duplicated once", "2²⁰ (one per set of NFA states); a simulation only tracks the current set, at most 20 states per input symbol", "Infinitely many; NFAs are more powerful than DFAs"]
+    answer: 2
+    explanation: "A DFA state is a set of NFA states, so there can be 2ⁿ of them; simulating the set lazily costs O(n) per symbol instead."
+  - id: cp3-regular-or-not
+    skills: [computer-science.automata, computer-science.computability]
+    prompt: "Which of these can a regular expression (without backreferences) match exactly?"
+    options: ["Binary numbers divisible by 3", "Strings with as many a's as b's", "Balanced parentheses of any depth", "Palindromes over {a, b}"]
+    answer: 0
+    explanation: "Divisibility by 3 needs only the remainder, three states; the others need unbounded counting, so they need at least a pushdown automaton."
+  - id: cp3-model-checking-decidable
+    skills: [computer-science.computability, computer-science.concurrency]
+    prompt: "Rice's theorem says non-trivial properties of programs are undecidable. Why can a model checker still prove that a two-thread program never deadlocks?"
+    options: ["Rice's theorem does not apply to concurrent programs", "It uses a faster computer", "It guesses and is usually right", "That program has finitely many states, so they can all be visited; the theorem is about all programs, with unbounded state"]
+    answer: 3
+    explanation: "Undecidability is about arbitrary programs; a fixed finite-state model can be explored exhaustively."
+  - id: cp3-state-explosion
+    skills: [computer-science.complexity-classes, computer-science.concurrency]
+    prompt: "Each of n independent threads runs 9 steps. How many states does an exhaustive checker visit, and what kind of growth is it?"
+    options: ["9n: linear in the threads", "10ⁿ: exponential in the number of threads", "n⁹: polynomial", "n!: one per order of the threads"]
+    answer: 1
+    explanation: "Each thread can be at any of its 10 program counters independently: 10ⁿ states, the state explosion."
+  - id: cp3-sat-reduction
+    skills: [computer-science.complexity-classes]
+    prompt: "A scheduler encodes 'can these exams fit in k time slots with no student clashing?' as a SAT formula and hands it to a SAT solver. What does that tell you?"
+    options: ["The problem reduces to SAT, so it is in NP; solvers are often fast in practice although the worst case is exponential", "The problem is now polynomial", "The problem is undecidable", "SAT solvers only work for problems in P"]
+    answer: 0
+    explanation: "Reducing to SAT puts the problem in NP (it is graph colouring, NP-complete); modern solvers handle large real instances with heuristics."
+  - id: cp3-check-then-act
+    skills: [computer-science.concurrency]
+    prompt: "A lock is written as `while (busy) {}  busy = true;`. Why can two threads enter the critical section together?"
+    options: ["The loop is too slow", "`busy` must be an int, not a boolean", "Checking and setting are two separate steps: both threads can see `busy == false` before either sets it", "Only one thread can run a while loop at a time"]
+    answer: 2
+    explanation: "Check-then-act needs one atomic step, such as compare-and-swap or test-and-set."
+  - id: cp3-shortest-counterexample
+    skills: [computer-science.concurrency, computer-science.automata]
+    prompt: "Why do model checkers explore breadth first when they report a counterexample?"
+    options: ["It uses less memory than depth first", "Depth first cannot detect deadlocks", "It visits fewer states", "The first bad state reached is at the smallest depth, so the schedule printed is the shortest one, the easiest to understand"]
+    answer: 3
+    explanation: "BFS finds states in order of distance from the start; DFS can report a schedule thousands of steps long for a bug two steps deep."
+  - id: cp3-livelock-not-deadlock
+    skills: [computer-science.concurrency]
+    prompt: "Two threads each raise their own flag and then spin while the other's flag is up. Both flags are up. A checker that looks for states where no thread can run reports nothing. Why?"
+    options: ["The threads are deadlocked, and the checker is wrong", "Both threads can still take steps (they spin), so this is livelock: no state is stuck, but no thread makes progress", "Spinning threads finish eventually", "Flags cannot be raised at the same time"]
+    answer: 1
+    explanation: "Deadlock is a state with no moves; livelock is a cycle of moves without progress, which needs a liveness check to find."

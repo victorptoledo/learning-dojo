@@ -1,0 +1,54 @@
+id: computer-science.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz from bits to whole systems, weighted towards database internals and systems thinking, and a B+tree stored in 4 KiB pages behind an LRU buffer pool, checked byte by byte in the file and by the number of pages it reads."
+objectives:
+  - { id: o1, text: "Trace a query from the index through the buffer pool, the page cache and the disk, and estimate its cost from fan-out, cache hits and I/O", skills: [computer-science.database-internals, computer-science.systems-thinking, computer-science.memory-hierarchy, computer-science.file-systems] }
+  - { id: o2, text: "Build a paged B+tree over a write-back LRU buffer pool with pinning: a fixed page format, splits that grow the root, a linked leaf chain for range scans, and I/O you can predict", skills: [computer-science.database-internals, computer-science.memory-hierarchy, computer-science.data-representation, computer-science.file-systems] }
+prerequisites: [computer-science.p4.systems-thinking]
+difficulty: 5
+estimated_minutes: 150
+xp: 450
+closes_phase: p4
+covers_skills: [computer-science.database-internals, computer-science.systems-thinking, computer-science.memory-hierarchy, computer-science.file-systems, computer-science.data-representation, computer-science.concurrency]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 240 }
+  hints:
+    - |-
+      Do the pool first and test it alone: it is the cache simulator of P1 with real pages. A `LinkedHashMap<Integer, Frame>` keeps the frames in order; on a hit, remove the frame and put it back so the first entry is always the least recently fetched. A `Frame` holds the `Page`, a pin count and a dirty flag. Eviction walks from the oldest frame to the first with no pins, writes it if dirty and drops it. Keep `nextPageId`, starting at `file.pageCount()`, for `allocate`.
+    - |-
+      In the tree, write `read(Page)` into a small record `Node(long[] keys, long[] values, int[] children, int next)` and `write(Page, Node)` back; then every operation is array work. `put` is a recursive insert that returns what happened below: whether the key was new, and, if the child split, the separator and the new page id. The parent inserts that pair at the child's index plus one and may split in turn; `put` grows a new root when the old root split. Unpin each page as soon as you are done with it, dirty only if you wrote it.
+    - |-
+      ```java
+      private Outcome insertIntoLeaf(Page page, Node node, long key, long value) {
+          int index = Arrays.binarySearch(node.keys(), key);
+          if (index >= 0) { /* replace the value, write, return REPLACED */ }
+          int at = -index - 1;
+          long[] keys = with(node.keys(), at, key);
+          long[] values = with(node.values(), at, value);
+          if (keys.length <= LEAF_CAPACITY) { /* write, return ADDED */ }
+          int half = (keys.length + 1) / 2;                    // 128 of 256
+          Page right = pool.allocate();
+          write(right, new Node(copyOfRange(keys, half, keys.length),
+                  copyOfRange(values, half, values.length), null, node.next()));
+          write(page, new Node(copyOf(keys, half), copyOf(values, half), null, right.id()));
+          pool.unpin(right, true);
+          return new Outcome(true, keys[half], right.id());   // the separator goes up
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

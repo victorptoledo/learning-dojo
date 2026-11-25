@@ -1,0 +1,49 @@
+questions:
+  - id: cp4-fanout
+    skills: [computer-science.database-internals, computer-science.data-representation]
+    prompt: "Internal pages are 4 KiB and each entry is an 8-byte key plus a 4-byte child id. About how many keys does a three-level B+tree with 255-entry leaves index?"
+    options: ["About 255 × 340 ≈ 87,000", "About 341 × 341 × 255 ≈ 30 million", "About 4,096 × 3 ≈ 12,000", "About 2³² ≈ 4 billion"]
+    answer: 1
+    explanation: "About 4,096 / 12 ≈ 340 keys, so 341 children per internal page: two internal levels × 341 × 255 entries per leaf."
+  - id: cp4-buffer-pool-vs-cpu-cache
+    skills: [computer-science.memory-hierarchy, computer-science.database-internals]
+    prompt: "What does a database buffer pool have in common with a CPU's L1 cache, and what does it add?"
+    options: ["Nothing; one is hardware and the other is software", "Both are write-through caches of disk blocks", "The buffer pool is always bigger than RAM", "Both keep recently used blocks and write dirty ones back on eviction; the pool also pins pages in use so they cannot be evicted, and picks its own replacement policy"]
+    answer: 3
+    explanation: "Same idea (locality, write-back, replacement); the pool adds pinning because callers hold pointers into its frames."
+  - id: cp4-pin-leak
+    skills: [computer-science.database-internals, computer-science.memory-hierarchy]
+    prompt: "After a few hours, every query fails with 'buffer pool full', although the pool is sized for the workload. Which bug fits best?"
+    options: ["A code path that fetches a page and returns without unpinning it, so pinned frames accumulate until none can be evicted", "The LRU list is in the wrong order", "Dirty pages are written back too often", "The page size is too small"]
+    answer: 0
+    explanation: "A pin leak is a resource leak: each leaked pin removes a frame from eviction for good."
+  - id: cp4-range-scan
+    skills: [computer-science.database-internals]
+    prompt: "Why do B+trees keep all values in the leaves and link the leaves together?"
+    options: ["To make point lookups faster than in a B-tree", "Because internal nodes cannot hold values", "A range scan descends once and then reads consecutive leaves, without going back up the tree; and internal nodes hold only keys, so their fan-out is higher", "To make deletion merge nodes automatically"]
+    answer: 2
+    explanation: "Linked leaves turn a range into a sequential walk; key-only internal nodes keep the tree shallow."
+  - id: cp4-fsync-order
+    skills: [computer-science.file-systems, computer-science.database-internals]
+    prompt: "A page split writes a new right page and then rewrites the left page and the parent. The machine loses power halfway. Without a write-ahead log, what can be on disk?"
+    options: ["Nothing bad: the OS writes pages in order", "Any subset of the three pages, in any order, so the tree can point to a page that was never written", "Only the first page, because fsync is automatic", "The whole split or none of it, because pages are 4 KiB"]
+    answer: 1
+    explanation: "Writes reach the device in no guaranteed order until fsync, and several pages are not atomic: this is why databases log changes before writing pages."
+  - id: cp4-hit-rate
+    skills: [computer-science.systems-thinking, computer-science.memory-hierarchy]
+    prompt: "A lookup touches 4 pages. A hit costs 1 µs and a miss reads an SSD in 100 µs. How much faster are lookups at a 99% hit rate than at 90%?"
+    options: ["About 1.1 times: the hit rates are close", "About 9 times", "About 100 times", "About 5 times: about 8 µs against about 44 µs per lookup"]
+    answer: 3
+    explanation: "Per page: 0.99 × 1 + 0.01 × 100 ≈ 2 µs against 0.9 × 1 + 0.1 × 100 ≈ 11 µs; times 4 pages, 8 µs against 44 µs. The miss rate, not the hit rate, sets the cost."
+  - id: cp4-latch-crabbing
+    skills: [computer-science.concurrency, computer-science.database-internals]
+    prompt: "Many threads use one B+tree. A thread descending to insert holds a latch on a node and its child at the same time, and releases the parent when the child is not full. What does this buy?"
+    options: ["Splits can never happen", "It only needs one latch for the whole tree", "Other threads can work in the rest of the tree, and a split, which only reaches the latched ancestors, cannot race with another thread's split", "It removes the need for a write-ahead log"]
+    answer: 2
+    explanation: "Latch crabbing locks only the part of the path a split could change, so concurrency stays high without corrupting nodes."
+  - id: cp4-little-law-pool
+    skills: [computer-science.systems-thinking]
+    prompt: "Each query keeps 3 pages pinned for 2 ms. The database serves 5,000 queries per second. On average, how many frames are pinned at once?"
+    options: ["30", "10", "15,000", "3"]
+    answer: 0
+    explanation: "Little's law: 5,000 queries/s × 0.002 s = 10 queries in flight, each holding 3 pages."
