@@ -1,0 +1,49 @@
+id: java.p4.record-validator
+kind: kata
+status: draft
+title: "Record Validator"
+summary: "Validate records by reading annotations at run time: nested paths, rules checked once per class, unwrapped errors and one annotation that is silently ignored."
+objectives:
+  - { id: o1, text: "Read annotations, types and values of record components with reflection", skills: [java.reflection] }
+  - { id: o2, text: "Fail early on misplaced annotations and unwrap reflection exceptions", skills: [java.reflection, java.errors] }
+prerequisites: [java.p4.reflection-annotations]
+difficulty: 4
+estimated_minutes: 60
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with the visible test and `@NotBlank`, then add one annotation at a time. If `@Range` never fires although your code looks right, compare its declaration with `@NotBlank`'s: what decides whether reflection can see an annotation? And for the misplaced annotations: if you only look at a component when its value is not null, when would `@Range` on a null `String` ever be noticed?
+    - |-
+      Turn each class into a list of rules once: for every `RecordComponent`, keep its name, `getAccessor()`, and the annotations it has, and check the component type there (`String.class`, `int.class`, `Integer.class`...). Then `validate` walks the rules with `accessor.invoke(record)`. For `@Valid`, recurse with a prefix: `path + "."` for a record, `path + "[" + i + "]."` for each list element. Catch `InvocationTargetException` and rethrow `getCause()` when it is a `RuntimeException`.
+    - |-
+      ```java
+      private static void check(Object record, String prefix, List<Violation> out) {
+          for (Rule rule : RULES.get(record.getClass())) {      // ClassValue<List<Rule>>
+              Object value = read(rule.accessor(), record);     // unwraps InvocationTargetException
+              String path = prefix + rule.name();
+              if (rule.notBlank() && (value == null || ((String) value).isBlank())) {
+                  out.add(new Violation(path, "must not be blank"));
+              }
+              // @MaxLength, then @Range with ((Number) value).longValue()
+              if (rule.valid() && value != null) {
+                  // a List: check(item, path + "[" + i + "].", out); a record: check(value, path + ".", out)
+              }
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

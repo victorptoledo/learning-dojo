@@ -1,0 +1,81 @@
+questions:
+  - id: cp4-static-cache-leak
+    skills: [java.jvm]
+    prompt: "A service keeps customer names in a static HashMap that nothing ever removes from. The heap after each full GC keeps rising. Why does the collector not help?"
+    options:
+      - "The collector skips HashMaps"
+      - "Every entry is still reachable from a static field, so it is live and cannot be collected"
+      - "Strings are never collected"
+      - "The heap is too small for the collector to run"
+    answer: 1
+    explanation: "The GC frees only unreachable objects; a leak in Java is a reference you forgot. Bound the cache (LRU) and keep it per instance."
+  - id: cp4-measure-allocations
+    skills: [java.jvm]
+    prompt: "GC pauses are frequent and a flame graph from JFR shows parse() as the top allocator. What is the best next step?"
+    options:
+      - "Raise -Xmx until the pauses stop"
+      - "Switch to ZGC without measuring"
+      - "Measure bytes allocated per call, remove the allocations that are not kept (split, Pattern.compile, String.format), and measure again"
+      - "Call System.gc() after each batch"
+    answer: 2
+    explanation: "Less garbage means fewer collections; measure first, change one thing, measure again."
+  - id: cp4-pattern-compile
+    skills: [java.jvm]
+    prompt: "Why is Pattern.compile(\"[A-Z]{3}-[0-9]{4}\") inside a method called for every line a problem?"
+    options:
+      - "It is not thread-safe"
+      - "It compiles the regex again on every call, allocating a new Pattern each time; compile it once in a static final field, or check the characters by hand"
+      - "Regexes cannot match digits"
+      - "It throws on the second call"
+    answer: 1
+    explanation: "A Pattern is immutable and safe to share, so compile it once; on a very hot path, a few charAt checks allocate nothing at all."
+  - id: cp4-native-reflection
+    skills: [java.graalvm-native]
+    prompt: "Plugins are loaded with Class.forName(\"dojo.\" + name + \"Enricher\"). What change makes the code work in a native image without metadata files?"
+    options:
+      - "Catch ClassNotFoundException and retry"
+      - "An explicit registry such as Map.of(\"tax\", TaxEnricher::new), so the build sees every class it needs"
+      - "Make the classes public"
+      - "Load them in a static initialiser"
+    answer: 1
+    explanation: "Native image analyses reachable code at build time; a name built at run time is invisible to it. Direct references keep the closed world complete."
+  - id: cp4-config-all-problems
+    skills: [java.production]
+    prompt: "A deploy fails on PORT, then is fixed and fails on WORKERS, then on DB_URL. What would have saved two deploys?"
+    options:
+      - "Default every setting"
+      - "Validate every setting at startup and report all the problems in one error"
+      - "Read each setting only when it is first needed"
+      - "Log the configuration at DEBUG"
+    answer: 1
+    explanation: "Fail fast and fail completely: one startup error that lists every bad key."
+  - id: cp4-lazy-log
+    skills: [java.production]
+    prompt: "log.log(Level.DEBUG, \"stored \" + order) runs a million times with DEBUG off. What is the cost, and the fix?"
+    options:
+      - "None: a disabled level costs nothing"
+      - "The message string is built a million times for nothing; pass a Supplier (() -> \"stored \" + order.id()) or a format with parameters"
+      - "The JVM logs it anyway"
+      - "It throws because DEBUG is off"
+    answer: 1
+    explanation: "Arguments are evaluated before the call; lazy suppliers or parameterised formats skip the work when the level is off. Log ids, not whole objects that may carry secrets."
+  - id: cp4-graceful-shutdown
+    skills: [java.production, java.concurrency]
+    prompt: "A service must not lose queued orders on a deploy, but must not hang forever either. Which sequence is right?"
+    options:
+      - "shutdownNow(), then return"
+      - "shutdown(), awaitTermination(grace), and only if it is not done, shutdownNow()"
+      - "awaitTermination(grace), then shutdown()"
+      - "Interrupt every worker thread first, then shutdown()"
+    answer: 1
+    explanation: "shutdown() stops new work but runs what is queued; the grace period bounds the wait; shutdownNow() interrupts the rest."
+  - id: cp4-interrupted-worker
+    skills: [java.concurrency]
+    prompt: "During shutdownNow(), a worker's call to the database throws InterruptedException. What should the worker do?"
+    options:
+      - "Count the order as failed and keep processing the queue"
+      - "Swallow it and retry the store"
+      - "Restore the interrupt flag (Thread.currentThread().interrupt()), count the order as abandoned, and stop"
+      - "Throw a RuntimeException so the executor restarts it"
+    answer: 2
+    explanation: "Interruption is a request to stop; keep the flag so the thread can end, and report the order honestly as not processed."

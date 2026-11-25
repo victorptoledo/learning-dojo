@@ -1,0 +1,61 @@
+id: java.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz and a freight quoter that asks every carrier at once on virtual threads, keeps one deadline and each carrier's limit, passes the order id in a scoped value and picks the best offer with a lambda strategy."
+objectives:
+  - { id: o1, text: "Explain virtual threads, futures, thread safety, scoped values and modern patterns in your own words", skills: [java.virtual-threads, java.concurrency, java.design-patterns] }
+  - { id: o2, text: "Build a concurrent service with virtual threads, a shared deadline, semaphores, safe counters, a scoped value and a strategy as a lambda", skills: [java.virtual-threads, java.concurrency, java.design-patterns, java.pattern-matching] }
+prerequisites: [java.p3.parallel-fetch, java.p3.design-patterns]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+closes_phase: p3
+covers_skills: [java.virtual-threads, java.concurrency, java.design-patterns]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Start with `Choice`: each factory is one `quotes -> quotes.stream().min(comparator)`. Then `quote`: submit **every** carrier before you wait for any, and compute the deadline once. Two questions decide the rest: which object limits a carrier across all the `quote` calls running at once (it cannot live inside `quote`), and on which thread must `ORDER_ID` be bound for the carrier to see it?
+    - |-
+      Keep a `Map<String, Semaphore>` built in the constructor, one `new Semaphore(maxCallsPerCarrier)` per carrier. Each task is `() -> ScopedValue.where(ORDER_ID, shipment.orderId()).call(() -> call(carrier, shipment))`, so the binding is made on the carrier's own virtual thread. In `call`, `acquire()`, count the call, then `try { return carrier.quote(shipment); } finally { release(); }`. For the counters, `ConcurrentHashMap<String, LongAdder>` with `computeIfAbsent(name, n -> new LongAdder()).increment()`.
+    - |-
+      ```java
+      long deadline = System.nanoTime() + timeout.toNanos();
+      try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+          List<Future<Quote>> futures = new ArrayList<>();
+          for (Carrier carrier : carriers) {
+              futures.add(executor.submit(() -> ScopedValue.where(ORDER_ID, shipment.orderId())
+                      .call(() -> call(carrier, shipment))));
+          }
+          for (int i = 0; i < carriers.size(); i++) {
+              Future<Quote> future = futures.get(i);
+              try {
+                  Quote quote = future.get(Math.max(0, deadline - System.nanoTime()), TimeUnit.NANOSECONDS);
+                  // null means Failed(name, "no quote"), else Quoted(quote)
+              } catch (TimeoutException e) {
+                  future.cancel(true);   // interrupts the carrier, and its finally gives the permit back
+                  // TimedOut(name), timeouts.increment()
+              } catch (ExecutionException e) {
+                  // Failed(name, message or simple class name of e.getCause())
+              } catch (InterruptedException e) {
+                  // restore the interrupt flag
+              }
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.
