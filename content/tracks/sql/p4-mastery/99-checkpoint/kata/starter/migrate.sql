@@ -1,0 +1,3 @@
+-- todo: turn monthly_fee into numeric(10, 2), create subscriptions (customer_id, plan_id) with
+-- its keys, fill it from plan_ids (trimmed, no empty pieces, no repeats, existing plans only),
+-- and drop customers.plan_ids.

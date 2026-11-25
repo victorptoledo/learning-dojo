@@ -1,0 +1,2 @@
+-- todo: sku, product name, units and revenue (as paid) of the orders placed in November 2026
+-- (UTC), unknown skus included, most units first, then by sku.

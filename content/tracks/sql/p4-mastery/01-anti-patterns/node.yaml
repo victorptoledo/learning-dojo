@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Recognise the classic correctness anti-patterns in queries and explain the wrong result each produces", skills: [sql.anti-patterns] }
   - { id: o2, text: "Recognise the performance anti-patterns (non-sargable filters, OFFSET pages, row-by-row work) and rewrite them", skills: [sql.anti-patterns] }
   - { id: o3, text: "Recognise schema anti-patterns (EAV, lists in columns, float money, missing constraints) and propose a better design", skills: [sql.anti-patterns] }
-prerequisites: [sql.p3.json]
+prerequisites: [sql.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 50
 xp: 200

@@ -1,0 +1,10 @@
+-- todo: rewrite search_customers so that the term is data, never SQL. It is pasted into the
+-- query below; keep the signature and return the customers whose name contains the term.
+--
+-- CREATE OR REPLACE FUNCTION search_customers(term text) RETURNS TABLE (id integer, name text)
+-- LANGUAGE plpgsql AS $$
+-- BEGIN
+--     RETURN QUERY EXECUTE
+--         'SELECT id, name FROM customers WHERE name ILIKE ''%' || term || '%'' ORDER BY id';
+-- END
+-- $$;

@@ -1,0 +1,2 @@
+-- todo: save the admin's change to product 42 (color "blue", no "promo", other keys kept,
+-- version + 1) only if it is still at version 3. Return id and the new version.

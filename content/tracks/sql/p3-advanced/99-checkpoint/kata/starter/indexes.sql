@@ -1,0 +1,2 @@
+-- todo: at most two CREATE INDEX statements, so that the color search and the brand page of the
+-- README read an index (no Seq Scan) and the brand page needs no Sort.
