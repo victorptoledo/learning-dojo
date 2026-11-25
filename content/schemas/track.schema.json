@@ -118,8 +118,7 @@
     },
     "phases": {
       "type": "array",
-      "minItems": 5,
-      "maxItems": 5,
+      "minItems": 3,
       "items": {
         "type": "object",
         "additionalProperties": false,
