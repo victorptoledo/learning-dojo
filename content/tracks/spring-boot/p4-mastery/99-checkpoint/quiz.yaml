@@ -1,0 +1,73 @@
+questions:
+  - id: liveness-readiness
+    skills: [spring.production]
+    prompt: "During maintenance the service should get no traffic, but Kubernetes must not restart it. Which state do you change?"
+    options:
+      - "Liveness to BROKEN"
+      - "Readiness to REFUSING_TRAFFIC"
+      - "Both"
+    answer: 1
+    explanation: "A failing readiness probe takes the pod out of the load balancer; a failing liveness probe makes Kubernetes restart it."
+  - id: actuator-exposure
+    skills: [spring.production, spring.observability]
+    prompt: "Which Actuator setting is the safest default for a service on the internet?"
+    options:
+      - "management.endpoints.web.exposure.include=*"
+      - "Expose only what the platform needs (health, info, metrics), health details only for an admin role"
+      - "Expose everything on the main port behind HTTP Basic"
+    answer: 1
+    explanation: "env, configprops and heapdump can leak secrets. Expose the minimum and restrict details; a separate management port helps too."
+  - id: fail-fast-config
+    skills: [spring.production, spring.configuration]
+    prompt: "billing.payment-term-days is set to 0 by mistake. With a @Validated @ConfigurationProperties record that has @Min(1), what happens?"
+    options:
+      - "The application starts and invoices are due the same day"
+      - "The application fails at startup and names the setting"
+      - "The value is replaced by the default"
+    answer: 1
+    explanation: "Binding validates at startup, so a bad deploy fails before taking traffic instead of misbehaving later."
+  - id: graceful-shutdown
+    skills: [spring.production]
+    prompt: "Kubernetes sends SIGTERM to a Boot 4 service in the middle of requests. What does graceful shutdown (the default in recent Boot) do?"
+    options:
+      - "Kills the requests at once"
+      - "Stops accepting new requests and lets the running ones finish, up to spring.lifecycle.timeout-per-shutdown-phase"
+      - "Waits forever for the requests to finish"
+    answer: 1
+    explanation: "Graceful shutdown drains in-flight work within a time limit; readiness turns REFUSING_TRAFFIC as shutdown starts."
+  - id: native-reflection
+    skills: [spring.native-aot]
+    prompt: "A class is created with Class.forName(name) from a configuration value. It works on the JVM but fails in a GraalVM native image. Why?"
+    options:
+      - "Native images do not support interfaces"
+      - "The closed-world analysis cannot see the class being used, so it is left out unless a reflection hint names it"
+      - "Class.forName is forbidden in Spring"
+    answer: 1
+    explanation: "A native image keeps only what its static analysis reaches. RuntimeHints (or reflect-config) names what code loads dynamically, and resources the same way."
+  - id: aot-tradeoff
+    skills: [spring.native-aot]
+    prompt: "Which is a real cost of a GraalVM native image compared with the JVM?"
+    options:
+      - "Slower startup"
+      - "Higher memory at rest"
+      - "Long builds, a fixed classpath and no JIT warm-up gains at peak"
+    answer: 2
+    explanation: "Native images start fast and use little memory, but build slowly, fix beans and profiles at build time, and often reach lower peak throughput."
+  - id: module-boundary
+    skills: [spring.architecture]
+    prompt: "In a modular monolith, notifications needs the due date of an invoice. What should it use?"
+    options:
+      - "Billing's InvoiceRepository, so it always has fresh data"
+      - "The data carried by billing's public InvoiceIssued event (or billing's public API)"
+      - "A shared static map of invoices"
+    answer: 1
+    explanation: "Another module's internals are its own to change. Depend only on its public API and events, so each module can evolve or later become a service."
+  - id: event-after-commit
+    skills: [spring.architecture, spring.async-caching]
+    prompt: "Why should a module react to InvoiceIssued with @TransactionalEventListener rather than a direct call inside billing's transaction?"
+    options:
+      - "It is faster"
+      - "Billing no longer depends on the listener, and the reaction happens only for invoices that really committed"
+      - "Direct calls cannot pass records"
+    answer: 1
+    explanation: "Events invert the dependency between modules; AFTER_COMMIT avoids acting on work that is rolled back. For delivery that survives a crash, use an outbox."

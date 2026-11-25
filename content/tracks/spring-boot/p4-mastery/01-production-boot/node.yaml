@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Build an efficient container image with layered jars or buildpacks", skills: [spring.production] }
   - { id: o2, text: "Configure a service per environment without rebuilding", skills: [spring.production] }
   - { id: o3, text: "Shut down gracefully behind liveness and readiness probes", skills: [spring.production] }
-prerequisites: [spring-boot.p3.async-caching]
+prerequisites: [spring-boot.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 40
 xp: 350
