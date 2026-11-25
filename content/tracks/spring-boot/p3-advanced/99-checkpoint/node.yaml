@@ -1,0 +1,53 @@
+id: spring-boot.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on security, observability, events and caching, and an exchange-rate desk whose rates are cached, changed only by traders, audited and counted after commit, and watched by its own health check."
+objectives:
+  - { id: o1, text: "Explain the filter chain, method security, Actuator, Micrometer, transactional events, async work and caching in your own words", skills: [spring.security, spring.observability, spring.async-caching] }
+  - { id: o2, text: "Add security, caching, after-commit events, a custom metric and a health check to a working service, and prove each one with tests", skills: [spring.security, spring.observability, spring.async-caching, spring.testing] }
+prerequisites: [spring-boot.p3.async-caching]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+closes_phase: p3
+covers_skills: [spring.security, spring.observability, spring.async-caching]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 240 }
+  hints:
+    - |-
+      Five separate pieces, each with its own annotation or bean: a `SecurityFilterChain` (which URLs are public?), a rule on the **method** that changes a rate (not on the URL), a cache that the change clears, a listener that only runs once the transaction commits, and a `HealthIndicator` that reads the injected `Clock`. Which test checks which piece?
+    - |-
+      `@EnableMethodSecurity` and `@PreAuthorize("hasRole('TRADER')")` on `update`; `@EnableCaching`, `@Cacheable("rates")` on `find` and `@CacheEvict(cacheNames = "rates", key = "#code")` on `update`. Publish a `RateChanged` from `update` with an `ApplicationEventPublisher` (the user is `SecurityContextHolder.getContext().getAuthentication().getName()`) and listen with `@TransactionalEventListener`: its default phase is `AFTER_COMMIT`, so a rollback leaves no audit line and no count. The health check is a `@Component` named `RatesHealthIndicator`, so its key in `/actuator/health` is `rates`.
+    - |-
+      ```java
+      @TransactionalEventListener
+      public void on(RateChanged change) {
+          audit.record(change.describe());
+          meters.counter("desk.rate.updates", "currency", change.code()).increment();
+      }
+
+      // RatesHealthIndicator, with @Value("${desk.max-age}") Duration maxAge
+      public Health health() {
+          Instant oldestAllowed = clock.instant().minus(maxAge);
+          List<String> stale = rates.findAll().stream()
+                  .filter(rate -> rate.getUpdatedAt().isBefore(oldestAllowed))
+                  .map(Rate::getCode).sorted().toList();
+          return stale.isEmpty() ? Health.up().build() : Health.down().withDetail("stale", stale).build();
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

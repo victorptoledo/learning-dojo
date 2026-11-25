@@ -63,7 +63,7 @@ All 30 tracks are complete, with 731 lessons and checkpoints and 268 katas betwe
 | TypeScript | TypeScript 7 on Node.js 26 | 23 | 9 | `dojo-node` (tsc, node:test) |
 | Node.js | Node.js 26 backends in TypeScript | 25 | 9 | `dojo-node` (tsc, node:test; real servers, workers and child processes) |
 | Modern C++ | C++23 on GCC 16 | 24 | 9 | `dojo-cpp` (GoogleTest under the sanitizers, clang-tidy, clang-format) |
-| Spring Boot | Boot 4.1 on Java 25 | 22 | 7 | `dojo-java` (MockMvc, JPA on H2, Spring Security) |
+| Spring Boot | Boot 4.1 on Java 25 | 24 | 9 | `dojo-java` (MockMvc, JPA on H2, Spring Security, Actuator and cache) |
 | React Developer | React 19 with TypeScript | 25 | 8 | `dojo-react` (tsc, Testing Library in jsdom) |
 | Linux | Debian 13, bash 5.2 | 23 | 8 | `dojo-linux` (bats, ShellCheck) |
 | Git & GitHub | Git from the object model to rescues | 25 | 9 | `dojo-linux` (bash scripts that drive `git`) |

@@ -1,0 +1,67 @@
+questions:
+  - id: unauthorized-or-forbidden
+    skills: [spring.security]
+    prompt: "A logged-in user without role TRADER calls PUT /rates/USD. Which status should the API answer?"
+    options: ["401 Unauthorized", "403 Forbidden", "404 Not Found"]
+    answer: 1
+    explanation: "401 means \"I do not know who you are\"; the user is known but lacks the right, so it is 403."
+  - id: method-security
+    skills: [spring.security]
+    prompt: "Why protect RateService.update with @PreAuthorize when a URL rule could already require TRADER on PUT /rates/**?"
+    options:
+      - "Method rules are faster than URL rules"
+      - "The rule then holds for every caller of the method, such as a scheduled job or another controller"
+      - "URL rules do not work with HTTP Basic"
+    answer: 1
+    explanation: "A URL rule only guards that URL. The rule on the method guards the operation itself, whoever calls it."
+  - id: stateless-csrf
+    skills: [spring.security]
+    prompt: "A JSON API logs in with HTTP Basic on every request and creates no session. Why is it safe to turn CSRF protection off?"
+    options:
+      - "CSRF only matters for GET requests"
+      - "The browser does not send the credentials by itself, so a forged cross-site request has nothing to ride on"
+      - "HTTP Basic encrypts the request"
+    answer: 1
+    explanation: "CSRF abuses credentials the browser attaches automatically, such as a session cookie. Without a session cookie there is nothing to forge."
+  - id: health-indicator
+    skills: [spring.observability]
+    prompt: "A @Component named RatesHealthIndicator returns Health.down(). What does GET /actuator/health answer?"
+    options:
+      - "200, with status DOWN in the body"
+      - "503, with the component \"rates\" DOWN in the body (when details are shown)"
+      - "500 Internal Server Error"
+    answer: 1
+    explanation: "The overall status becomes DOWN, which maps to 503. The bean name without the HealthIndicator suffix is the component's key."
+  - id: metric-tags
+    skills: [spring.observability]
+    prompt: "Why record rate updates as one counter desk.rate.updates with a currency tag, instead of one counter name per currency?"
+    options:
+      - "Tags are required by Micrometer"
+      - "One metric with a tag can be summed or split by currency in the monitoring tool, and new currencies need no new names"
+      - "Counters with tags never reset"
+    answer: 1
+    explanation: "Dimensions belong in tags. Keep their values bounded: a currency code is fine, a user id is not."
+  - id: after-commit
+    skills: [spring.async-caching]
+    prompt: "A @Transactional method publishes RateChanged, then the transaction rolls back. Which listener still writes the audit line?"
+    options:
+      - "@TransactionalEventListener (default phase AFTER_COMMIT)"
+      - "@EventListener"
+      - "Neither"
+    answer: 1
+    explanation: "A plain @EventListener runs at once, inside the transaction, so it sees a change that later disappears. AFTER_COMMIT only runs once the change is safe."
+  - id: cache-evict
+    skills: [spring.async-caching]
+    prompt: "find(code) is @Cacheable(\"rates\"). After update(code, value) without @CacheEvict, what does the next find(code) return?"
+    options: ["The new value", "The old value, from the cache", "An error"]
+    answer: 1
+    explanation: "The cache does not know the data changed. Evict (or update with @CachePut) on every write to the cached data."
+  - id: self-invocation
+    skills: [spring.async-caching, spring.security]
+    prompt: "Inside RateService, a method calls this.find(code), which is @Cacheable. What happens?"
+    options:
+      - "The cache is used as usual"
+      - "The cache is skipped: the call does not go through the Spring proxy"
+      - "Spring throws an exception at startup"
+    answer: 1
+    explanation: "@Cacheable, @Transactional, @Async and @PreAuthorize work through a proxy around the bean; a call on this bypasses it."

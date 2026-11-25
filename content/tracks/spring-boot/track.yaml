@@ -14,7 +14,7 @@ belts:
   - { name: "Purple Belt", required_xp: 1500, title: "Repository Ranger" }
   - { name: "Brown Belt", required_xp: 2500, title: "Security Sentinel" }
   - { name: "Black Belt", required_xp: 4000, title: "Production Pilot" }
-  - { name: "Sensei", required_xp: 6000, title: "Spring Grandmaster" }
+  - { name: "Sensei", required_xp: 6500, title: "Spring Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What Spring Boot does, a first project and a first endpoint" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Beans and injection, configuration, REST controllers, validation and errors" }

@@ -1,0 +1,65 @@
+id: spring-boot.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on production, AOT and application architecture, and an invoicing service made ready for production: validated configuration that fails fast, locked-down Actuator with Kubernetes probes and a maintenance switch, modules that talk only through events, and the runtime hints a native image needs."
+objectives:
+  - { id: o1, text: "Explain how a Boot service is configured, probed, shut down, compiled ahead of time and split into modules in production", skills: [spring.production, spring.native-aot, spring.architecture] }
+  - { id: o2, text: "Take a working service to production: typed configuration validated at startup, Actuator exposure and health details restricted, readiness driven by the application, module boundaries kept by events after commit, and runtime hints for reflection and resources", skills: [spring.production, spring.native-aot, spring.architecture, spring.configuration, spring.security, spring.observability, spring.async-caching] }
+prerequisites: [spring-boot.p4.native-aot, spring-boot.p4.architecture]
+difficulty: 5
+estimated_minutes: 120
+xp: 450
+closes_phase: p4
+covers_skills: [spring.production, spring.native-aot, spring.architecture, spring.configuration, spring.observability]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 300 }
+  hints:
+    - |-
+      Five reviews, five places: the `billing` settings (a typed record instead of `@Value`), `application.properties` (what Actuator exposes and to whom), `SecurityConfig` (which actuator paths are public), a new controller that changes the **readiness** state, and the two modules (`Billing` calls `Reminders`, and `Reminders` reads billing's repository). The last one is `BillingRuntimeHints`. Which grading test class checks which review?
+    - |-
+      A `@ConfigurationProperties("billing") @Validated` record with `@NotBlank @Pattern(regexp = "[A-Z]{2,5}")`, `@Min(1) @Max(90)` and `@NotBlank`, picked up with `@ConfigurationPropertiesScan`. In the properties: `exposure.include=health,info,metrics`, `show-details=when-authorized` with `health.roles=ADMIN`; the probes are on by default, so only make their paths public. Maintenance is `AvailabilityChangeEvent.publish(publisher, this, ReadinessState.REFUSING_TRAFFIC)`. `Billing` publishes `InvoiceIssued` and `Reminders` listens with `@TransactionalEventListener`, using only the event's data. The hints: `registerType(..., MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS)` for both formatters, `registerPattern("billing/terms.txt")`, and `@ImportRuntimeHints` on `Billing`.
+    - |-
+      ```java
+      @ConfigurationProperties("billing")
+      @Validated
+      public record BillingProperties(
+              @NotBlank @Pattern(regexp = "[A-Z]{2,5}") String invoicePrefix,
+              @Min(1) @Max(90) int paymentTermDays,
+              @NotBlank String formatter) {
+      }
+
+      // SecurityConfig
+      .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+      .requestMatchers("/actuator/**", "/admin/**").hasRole("ADMIN")
+      .anyRequest().authenticated()
+
+      // dojo.ops.MaintenanceController
+      @PostMapping("/admin/maintenance")
+      @ResponseStatus(HttpStatus.NO_CONTENT)
+      public void maintenance(@RequestBody Maintenance request) {
+          AvailabilityChangeEvent.publish(events, this,
+                  request.on() ? ReadinessState.REFUSING_TRAFFIC : ReadinessState.ACCEPTING_TRAFFIC);
+      }
+
+      // Reminders, with no InvoiceRepository any more
+      @TransactionalEventListener
+      public void on(InvoiceIssued issued) {
+          planned.add(new Reminder(issued.number(), issued.customer(), issued.dueOn().minusDays(daysBefore)));
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.
