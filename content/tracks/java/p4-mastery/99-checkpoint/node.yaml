@@ -1,0 +1,56 @@
+id: java.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on the JVM, native images and production Java, and an order ingest service with six incidents to fix before go-live: config, logs, a leaking cache, an allocation budget, graceful shutdown and reflection."
+objectives:
+  - { id: o1, text: "Explain memory, garbage collection, profiling, native images and production practice in your own words", skills: [java.jvm, java.graalvm-native, java.production] }
+  - { id: o2, text: "Make a Java service production-ready: validated config, safe and lazy logs, a bounded cache, an allocation budget, graceful shutdown and no reflection", skills: [java.jvm, java.graalvm-native, java.production, java.concurrency] }
+prerequisites: [java.p4.graalvm-native, java.p4.production-java]
+difficulty: 5
+estimated_minutes: 120
+xp: 450
+closes_phase: p4
+covers_skills: [java.jvm, java.graalvm-native, java.production]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Take one incident at a time and run the tests after each. For each, ask what production would see: a password in the log aggregator, a heap that only grows, a deploy that drops the queue. Config: collect problems in a `List<String>` instead of throwing at the first. Parser: what does `split` allocate besides the strings you keep? Shutdown: which comes first, `shutdown()` or `shutdownNow()`, and what sits between them?
+    - |-
+      `Config` is a record, so override `toString()` to print `dbPassword=****`. For the parser, find the four `;` with `indexOf(';', from)`, check characters with `charAt`, and read numbers with `Integer.parseInt(line, begin, end, 10)` (no substring). `LruCache` is a `LinkedHashMap` with `accessOrder = true` and `removeEldestEntry` returning `size() > capacity`, guarded by `synchronized`. `Enrichers` is `Map.of("tax", TaxEnricher::new, "bulk", BulkEnricher::new)`. Log with `log.log(Level.DEBUG, () -> "stored order " + id)` and `log.log(Level.WARNING, "rejected an order line", e)`.
+    - |-
+      ```java
+      public ShutdownReport shutdown(Duration grace) {
+          accepting.set(false);                       // submit() checks it first
+          workers.shutdown();                         // no new tasks; queued ones still run
+          try {
+              if (!workers.awaitTermination(grace.toNanos(), TimeUnit.NANOSECONDS)) {
+                  workers.shutdownNow();              // interrupt what is left
+                  workers.awaitTermination(1, TimeUnit.SECONDS);
+              }
+          } catch (InterruptedException e) {
+              workers.shutdownNow();
+              Thread.currentThread().interrupt();
+          }
+          long abandoned = accepted.sum() - stored.sum() - failed.sum();
+          // log at INFO, return new ShutdownReport(stored, failed, abandoned)
+      }
+      // in process(): catch InterruptedException first (restore the flag, count nothing),
+      // then Exception (failed.increment(), log at WARNING with the exception)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

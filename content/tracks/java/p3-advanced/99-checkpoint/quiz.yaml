@@ -1,0 +1,77 @@
+questions:
+  - id: cp3-limit-the-resource
+    skills: [java.virtual-threads]
+    prompt: "A carrier API accepts 4 calls at a time, and 10,000 orders are quoted on virtual threads. What keeps the service within the carrier's limit?"
+    options:
+      - "A fixed pool of 4 virtual threads"
+      - "A Semaphore with 4 permits around each call to that carrier"
+      - "Thread.sleep between calls"
+      - "Nothing: virtual threads queue themselves automatically"
+    answer: 1
+    explanation: "Virtual threads are cheap and should not be pooled; limit the scarce resource itself, here with a Semaphore per carrier."
+  - id: cp3-submit-then-wait
+    skills: [java.concurrency]
+    prompt: "Three calls of 300 ms each are submitted to a virtual-thread executor, but the code calls future.get() right after each submit. About how long does it take?"
+    options: ["300 ms", "900 ms", "100 ms", "It deadlocks"]
+    answer: 1
+    explanation: "Waiting right after each submit starts the next call only when the previous one is done; submit every call first, then wait."
+  - id: cp3-shared-deadline
+    skills: [java.concurrency]
+    prompt: "Four stuck calls are awaited with future.get(300, MILLISECONDS) each, one after the other. How long can the batch take, and what is the fix?"
+    options:
+      - "300 ms; nothing to fix"
+      - "About 1.2 s; compute one deadline and give each get only the time that is left"
+      - "Forever; get with a timeout never returns"
+      - "About 75 ms; the timeout is shared automatically"
+    answer: 1
+    explanation: "Each get waits its own full timeout; deadline - System.nanoTime() makes the limit one for the whole batch."
+  - id: cp3-cancel-after-timeout
+    skills: [java.concurrency]
+    prompt: "future.get(timeout) threw TimeoutException inside try (var executor = Executors.newVirtualThreadPerTaskExecutor()). Why call future.cancel(true) before leaving the block?"
+    options:
+      - "To free the Future object sooner"
+      - "close() waits for every task, so the stuck call would hold up the method; cancel(true) interrupts it"
+      - "Without it the TimeoutException is thrown again"
+      - "It is required to read the result later"
+    answer: 1
+    explanation: "Closing the executor waits for all its tasks; interrupting the stuck call lets it end, and its finally blocks run."
+  - id: cp3-permit-in-finally
+    skills: [java.concurrency]
+    prompt: "semaphore.acquire(); Quote q = carrier.quote(s); semaphore.release(); return q;  What goes wrong after a few failures?"
+    options:
+      - "Nothing, release always runs"
+      - "Each exception keeps a permit, so the carrier soon has none left and every later call waits until it times out"
+      - "The semaphore throws IllegalStateException"
+      - "The call runs twice"
+    answer: 1
+    explanation: "Put release() in a finally block, so a failed or interrupted call gives its permit back."
+  - id: cp3-lost-updates
+    skills: [java.concurrency]
+    prompt: "Thousands of virtual threads run counts.put(name, counts.getOrDefault(name, 0L) + 1) on a shared map. Which change is correct and simplest?"
+    options:
+      - "Make the map field volatile"
+      - "Use a ConcurrentHashMap and still get then put"
+      - "A ConcurrentHashMap<String, LongAdder> with computeIfAbsent(name, n -> new LongAdder()).increment()"
+      - "Call Thread.yield() between get and put"
+    answer: 2
+    explanation: "get then put is a read-modify-write that two threads can interleave; computeIfAbsent is atomic per key and LongAdder counts without contention (merge(name, 1L, Long::sum) also works)."
+  - id: cp3-scoped-value-thread
+    skills: [java.concurrency]
+    prompt: "A request binds ScopedValue.where(ORDER_ID, id).run(...) and inside submits calls to Executors.newVirtualThreadPerTaskExecutor(). What do the submitted tasks see?"
+    options:
+      - "The same id, because scoped values are inherited by every new thread"
+      - "ORDER_ID is not bound in them: an ordinary executor does not inherit the binding, so bind it inside each task"
+      - "A copy they can change"
+      - "The id of the last request"
+    answer: 1
+    explanation: "A binding is visible on the thread that made it (and in structured concurrency subtasks, a preview in Java 25); with plain executors, bind it in the task itself."
+  - id: cp3-sealed-switch
+    skills: [java.design-patterns, java.pattern-matching]
+    prompt: "summary() uses switch (result) { case Quoted q -> ...; case Failed f -> ...; case TimedOut t -> ...; } with no default over a sealed QuoteResult. What happens if someone adds a Skipped record to the hierarchy?"
+    options:
+      - "It compiles, and Skipped falls into the first case"
+      - "The switch no longer compiles until Skipped is handled"
+      - "It throws at run time only"
+      - "Skipped is silently ignored"
+    answer: 1
+    explanation: "A switch over a sealed type without default must be exhaustive, so the compiler points at every place that needs the new case; a visitor cannot do that as cheaply."

@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Explain the heap, the stack and what the garbage collector does", skills: [java.jvm] }
   - { id: o2, text: "Choose between G1 and ZGC and size the heap in containers", skills: [java.jvm] }
   - { id: o3, text: "Profile with Java Flight Recorder and measure with JMH", skills: [java.jvm] }
-prerequisites: [java.p3.concurrency-tools]
+prerequisites: [java.p3.checkpoint]
 difficulty: 5
 estimated_minutes: 40
 xp: 400
