@@ -1,0 +1,54 @@
+id: computer-science.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on automata, computability, complexity and concurrency, and a model checker that explores every interleaving of small concurrent programs as a state graph, finds lost updates, deadlocks and broken locks with the shortest schedule, and proves Peterson's algorithm correct."
+objectives:
+  - { id: o1, text: "Reason about finite automata, undecidability, NP-completeness and the classic concurrency failures, and say which tool answers which question", skills: [computer-science.automata, computer-science.computability, computer-science.complexity-classes, computer-science.concurrency] }
+  - { id: o2, text: "Build an explicit-state model checker: atomic steps, a state graph explored breadth first with repeated states merged, shortest counterexamples, deadlock and invariant checks, and a bound on the state explosion", skills: [computer-science.concurrency, computer-science.automata, computer-science.complexity-classes] }
+prerequisites: [computer-science.p3.concurrency-theory]
+difficulty: 4
+estimated_minutes: 120
+xp: 400
+closes_phase: p3
+covers_skills: [computer-science.automata, computer-science.computability, computer-science.complexity-classes, computer-science.concurrency]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 90 }
+  hints:
+    - |-
+      Separate the machine from the search. `step` is the whole semantics: copy the thread's registers, the shared variables and the lock holders into dictionaries, run one instruction, and build a new `State` with the pairs sorted again (`tuple(sorted(d.items()))`). `enabled` only needs two checks: is the thread finished, and is it at a `lock` someone else holds? Once those two work, `replay` is a loop, and `explore` never needs to know what an instruction does.
+    - |-
+      `explore` is a breadth-first search over states. Keep `parents = {start: None}` and, for every new state, `parents[successor] = (state, thread)`: that one dictionary is both the visited set and the way back. Check the invariant, finality and deadlock the moment a state is first added (not when it leaves the queue), so the first problem you record is at the smallest depth. A `ProgramError` from `step` is a violation whose schedule is the path to `state` plus `[thread]`. Count states as you add them and raise `StateSpaceTooLarge` before the count passes `max_states`.
+    - |-
+      ```python
+      queue = deque([start])
+      while queue:
+          state = queue.popleft()
+          for thread in enabled(threads, state):
+              try:
+                  successor = step(threads, state, thread)
+              except ProgramError:
+                  if report.violation is None:
+                      report.violation = schedule_to(parents, state) + [thread]
+                  continue
+              if successor not in parents:
+                  admit(successor, (state, thread))   # counts, checks max_states, stores the parent
+                  inspect(successor)                  # invariant, final, deadlock
+                  queue.append(successor)
+      ```
+      `schedule_to` walks `parents` back to the start, appending each thread, and reverses the list.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The container with Python 3.15, pytest and ruff that runs the grading tests.

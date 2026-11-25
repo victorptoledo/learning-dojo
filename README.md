@@ -77,7 +77,7 @@ All 30 tracks are complete, with 731 lessons and checkpoints and 268 katas betwe
 | Design Patterns | principles and patterns in modern Java | 26 | 12 | `dojo-java` (refactoring katas) |
 | API Design | HTTP, REST, errors, evolution, contracts | 27 | 10 | `dojo-java` (Spring Boot and MockMvc, plus an OpenAPI linter) |
 | Software Architecture | modularity, hexagonal, DDD, events, fitness functions | 25 | 11 | `dojo-java` (fitness functions over compiled classes) |
-| Computer Science | from bits and caches to compilers, computability and database internals | 25 | 9 | `dojo-python`, `dojo-rust` and `dojo-java` |
+| Computer Science | from bits and caches to compilers, computability and database internals | 27 | 11 | `dojo-python`, `dojo-rust` and `dojo-java` |
 | Cyber Security | defensive application and infrastructure security | 25 | 10 | `dojo-python`, `dojo-java` (JCA) and `dojo-linux` (bash, awk); defensive and offline |
 | Prompt Engineering | prompts for LLMs, from instructions to evals | 23 | 9 | `dojo-python` (prompt builders, parsers and eval harnesses; no model calls) |
 | Backend Developer | HTTP, auth, data, reliability | 22 | 8 | `dojo-java` |

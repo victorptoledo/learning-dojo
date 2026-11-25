@@ -14,7 +14,7 @@ belts:
   - { name: "Purple Belt", required_xp: 1500, title: "Kernel Explorer" }
   - { name: "Brown Belt", required_xp: 2500, title: "Compiler Builder" }
   - { name: "Black Belt", required_xp: 4000, title: "Systems Theorist" }
-  - { name: "Sensei", required_xp: 6000, title: "Turing Award Mind" }
+  - { name: "Sensei", required_xp: 5500, title: "Turing Award Mind" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "The layers of abstraction of a computer, and how bits represent integers, real numbers and text" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Logic gates, the CPU, the memory hierarchy and caches, processes, threads and scheduling" }

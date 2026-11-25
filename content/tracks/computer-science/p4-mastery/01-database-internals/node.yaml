@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Explain how pages, the buffer pool, B+trees and LSM trees store and find data, and their read and write trade-offs", skills: [computer-science.database-internals, computer-science.file-systems] }
   - { id: o2, text: "Explain the write-ahead log, checkpoints and crash recovery, and why the log must reach disk before the data", skills: [computer-science.database-internals] }
   - { id: o3, text: "Explain isolation levels and their anomalies, and how two-phase locking and MVCC implement them", skills: [computer-science.database-internals, computer-science.concurrency] }
-prerequisites: [computer-science.p3.concurrency-theory]
+prerequisites: [computer-science.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 60
 xp: 150
