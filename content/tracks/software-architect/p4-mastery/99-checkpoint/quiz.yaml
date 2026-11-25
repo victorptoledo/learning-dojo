@@ -1,0 +1,49 @@
+questions:
+  - id: cp4-strangler
+    skills: [software-architect.evolutionary]
+    prompt: "A legacy pricing engine must be replaced, and every invoice depends on its rounding. Which migration keeps the risk lowest?"
+    options: ["Rewrite it in one release and switch over on a weekend", "Put it behind a port, grow the new implementation next to it, and move one category at a time through a strangler", "Copy the old code into a new package and refactor it there without tests", "Freeze all feature work until the new engine is finished"]
+    answer: 1
+    explanation: "The strangler fig replaces a system piece by piece behind a stable interface, so every step ships and can be rolled back."
+  - id: cp4-parallel-run
+    skills: [software-architect.evolutionary]
+    prompt: "During a parallel run (shadow mode), the new pricing throws an exception for one request. What should the customer see?"
+    options: ["An error, so the problem is noticed quickly", "The new price where it works and an error otherwise", "The legacy price, with the failure logged as a mismatch to investigate", "Nothing: the request is retried until both agree"]
+    answer: 2
+    explanation: "In a parallel run the old path stays the source of truth; the new one is only compared, so its failures are data, not outages."
+  - id: cp4-ratchet
+    skills: [software-architect.fitness-functions, software-architect.evolutionary]
+    prompt: "A new dependency rule finds 40 violations in a legacy codebase. How do you adopt it without stopping the team?"
+    options: ["Disable the rule until all 40 are fixed", "Fail the build on all 40 at once", "Add the rule to the wiki and review it quarterly", "Record the 40 in a baseline, fail only on new violations, and remove baseline lines as they are fixed so they cannot return"]
+    answer: 3
+    explanation: "A ratchet only turns one way: the count of violations can go down, never up."
+  - id: cp4-holistic
+    skills: [software-architect.fitness-functions]
+    prompt: "Which of these is a holistic, continuous fitness function rather than an atomic, triggered one?"
+    options: ["A production monitor that checks the 99th percentile latency of checkout against its objective, all the time", "A unit test that checks one class has no setters", "A build step that rejects package cycles", "A linter rule for method length"]
+    answer: 0
+    explanation: "Holistic functions check several characteristics together in a running system; atomic ones check one aspect, usually in the build."
+  - id: cp4-c4-level
+    skills: [software-architect.documentation-c4]
+    prompt: "Operations asks which deployable units exist, how they talk and which database each one owns. Which C4 diagram answers that?"
+    options: ["The system context diagram", "The container diagram", "The code diagram", "A component diagram of every service"]
+    answer: 1
+    explanation: "Containers are the separately runnable or deployable things and their communication; context shows only the system and its neighbours."
+  - id: cp4-docs-as-code
+    skills: [software-architect.documentation-c4, software-architect.decision-records]
+    prompt: "Why keep decision records and diagrams as text next to the source code?"
+    options: ["Because wikis cannot show images", "So nobody but developers can read them", "They are reviewed and versioned with the change that makes them true, so they are less likely to go stale", "Because the build compiles them"]
+    answer: 2
+    explanation: "Documentation that changes in the same pull request as the code has a chance to stay true."
+  - id: cp4-advice-process
+    skills: [software-architect.architect-role]
+    prompt: "Under the advice process, a team wants to adopt a new message broker. What must it do before deciding?"
+    options: ["Get approval from the architecture review board", "Wait for the architect to decide", "Nothing: any team decides alone", "Ask for advice from everyone meaningfully affected and from people with expertise, then decide and record the decision"]
+    answer: 3
+    explanation: "Anyone may decide, but only after seeking advice; the decision record makes the reasoning visible."
+  - id: cp4-tradeoff-point
+    skills: [software-architect.architect-role, software-architect.event-driven]
+    prompt: "Making order placement asynchronous improves availability but makes a customer's own order appear later in their history. In ATAM terms, what is this decision?"
+    options: ["A trade-off point: one decision affects two quality attributes in opposite directions", "A sensitivity point that affects only performance", "A risk with no benefit", "A non-risk, because events are always better"]
+    answer: 0
+    explanation: "Trade-off points are where architectural decisions need the most stakeholder attention, because improving one attribute costs another."

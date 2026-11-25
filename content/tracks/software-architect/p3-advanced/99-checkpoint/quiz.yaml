@@ -1,0 +1,49 @@
+questions:
+  - id: cp3-aggregate-boundary
+    skills: [software-architect.ddd-tactical]
+    prompt: "An order must never total more than its customer's credit limit, and the limit changes rarely. Which aggregate design follows Vernon's rules?"
+    options: ["One aggregate holding the customer and all their orders, so every change is checked in one transaction", "Order and Customer as separate aggregates: the order references the customer by id, and the limit is checked when the order is submitted, accepting a small window of inconsistency", "No aggregates: a service checks the rule against the database before every update", "Order holds a full Customer object so it can read the limit directly"]
+    answer: 1
+    explanation: "Keep aggregates small, reference other aggregates by identity, and use eventual consistency outside the boundary unless the business truly needs the rule to be atomic."
+  - id: cp3-value-object
+    skills: [software-architect.ddd-tactical]
+    prompt: "Two `Money(500, \"EUR\")` objects describe the same amount. What makes `Money` a value object rather than an entity?"
+    options: ["It has a database id", "It is mutable so it can be reused", "It is compared by its attributes, is immutable and has no identity or lifecycle of its own", "It belongs to an aggregate root"]
+    answer: 2
+    explanation: "Entities are compared by identity across changes; values are interchangeable when their attributes are equal, which is why records fit them."
+  - id: cp3-domain-event
+    skills: [software-architect.ddd-tactical, software-architect.event-driven]
+    prompt: "Which name and tense fit a domain event recorded by the trip aggregate?"
+    options: ["`ConfirmTrip`, because it asks another service to act", "`TripConfirmationRequest`, sent to the suppliers", "`UpdateTripStatus`, with the new status as a field", "`TripConfirmed`, in the past tense, stating a fact others may react to"]
+    answer: 3
+    explanation: "A command asks for something that may be refused; an event states what already happened and cannot be refused by its listeners."
+  - id: cp3-dual-write
+    skills: [software-architect.event-driven]
+    prompt: "A service saves an order and then publishes `OrderPlaced` to the broker. The process crashes between the two. What prevents the lost event?"
+    options: ["A transactional outbox: the event is written in the same transaction as the order, and a relay publishes it afterwards, at least once", "Publishing first and saving afterwards", "A retry loop around the publish call", "Two-phase commit between every service and the broker, as the default"]
+    answer: 0
+    explanation: "The outbox turns two writes into one local transaction plus a reliable, repeatable relay; consumers then have to cope with duplicates."
+  - id: cp3-idempotent-receiver
+    skills: [software-architect.integration-patterns, software-architect.event-driven]
+    prompt: "The channel delivers at least once, and a `CarReserved` reply can arrive twice. What should the saga do with the second copy?"
+    options: ["Reserve another car, because the supplier asked twice", "Recognise the message id it has already handled and do nothing", "Send the reply to the dead letter channel as an error", "Cancel the trip, because the channel is broken"]
+    answer: 1
+    explanation: "An idempotent receiver makes at-least-once delivery behave like exactly-once processing; a duplicate is normal, not an error."
+  - id: cp3-compensation
+    skills: [software-architect.integration-patterns]
+    prompt: "A saga reserved a flight and a hotel, and the car supplier refuses. What does the orchestrator do?"
+    options: ["Roll back the distributed transaction", "Retry the car until it succeeds", "Run the compensations in reverse order: release the hotel, then the flight, and mark the trip cancelled", "Keep the flight and hotel and tell the traveller to rent a car elsewhere"]
+    answer: 2
+    explanation: "Each saga step commits locally, so a later failure is answered by compensating actions, newest first, which are business operations in their own right."
+  - id: cp3-dead-letter
+    skills: [software-architect.integration-patterns]
+    prompt: "A reply arrives for a trip id the service has never seen. Which handling is best?"
+    options: ["Throw an exception so the broker redelivers it forever", "Drop it silently", "Create a new trip for it", "Move it to a dead letter channel with the reason, so someone can investigate without blocking other messages"]
+    answer: 3
+    explanation: "A dead letter channel keeps poison messages out of the main flow and keeps them visible."
+  - id: cp3-orchestration
+    skills: [software-architect.integration-patterns, software-architect.event-driven]
+    prompt: "Booking needs three steps in a fixed order, with compensations and a single place to see the state of each trip. Which coordination fits best?"
+    options: ["Orchestration: one saga sends commands and tracks the state, at the cost of a central component", "Choreography: each supplier listens to the previous one's events", "A shared database table every service polls", "Synchronous calls in a chain, with no state"]
+    answer: 0
+    explanation: "Orchestration makes ordered steps and compensations explicit; choreography suits loosely related reactions but spreads the flow across services."

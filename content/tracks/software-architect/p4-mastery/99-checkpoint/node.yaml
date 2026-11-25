@@ -1,0 +1,53 @@
+id: software-architect.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on evolutionary architecture, fitness functions, documentation, governance and the advanced patterns, and a legacy pricing engine strangled behind a port, with a shadow run before each cut-over, fitness rules with a ratchet and a decision record."
+objectives:
+  - { id: o1, text: "Explain incremental migration, fitness functions and ratchets, C4 and arc42, architecture evaluation and governance, and connect them to the earlier phases", skills: [software-architect.evolutionary, software-architect.documentation-c4, software-architect.architect-role, software-architect.fitness-functions] }
+  - { id: o2, text: "Migrate a legacy component incrementally with branch by abstraction, a strangler and a parallel run, guard the result with fitness functions and a ratchet, and record the decision", skills: [software-architect.evolutionary, software-architect.fitness-functions, software-architect.clean-hexagonal, software-architect.decision-records] }
+prerequisites: [software-architect.p4.architect-role]
+difficulty: 4
+estimated_minutes: 120
+xp: 450
+closes_phase: p4
+covers_skills: [software-architect.evolutionary, software-architect.fitness-functions, software-architect.documentation-c4, software-architect.architect-role, software-architect.decision-records]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Work in the order of a real migration, keeping everything green after each step. First the **abstraction**: `Category`, `PriceRequest` and the `Pricing` port, with `LegacyPricing` wrapping the engine, and `Checkout` taking a `Pricing`. Nothing behaves differently yet, and checkout no longer knows the engine: remove its line from the baseline. Then the **strangler** with every category on `LEGACY`, then `ModernPricing`, then the shadow run. Write the rules last and let the ratchet tell you whether the baseline is right.
+    - |-
+      `ModernPricing` computes `base = unit × quantity` and then one small method per category, rounding down after **each** percentage, as the engine does: `cents * percent / 100`. Groceries add the 300 cent handling fee to a base under 1000 **before** the member discount. In `StranglerPricing`, keep a `Map<Category, Mode>` and, per category, a small shadow-run record (how many comparisons, whether one differed) that you replace when a category enters `SHADOW` from another mode. Catch `RuntimeException` around the modern call only.
+    - |-
+      ```java
+      public static SortedSet<String> violations(Map<String, Set<String>> classGraph) {
+          SortedSet<String> found = new TreeSet<>();
+          check(classGraph, "legacy", from -> !isRoot(from) && !from.startsWith("dojo.shop.pricing.legacy."),
+                  to -> to.startsWith("dojo.legacy."), found);
+          check(classGraph, "modern", from -> from.startsWith("dojo.shop.pricing.modern."),
+                  to -> to.startsWith("dojo.shop.pricing.legacy.") || to.startsWith("dojo.shop.pricing.migration."), found);
+          check(classGraph, "api", from -> !isRoot(from) && !from.startsWith("dojo.shop.pricing."),
+                  to -> to.startsWith("dojo.shop.pricing.") && !to.startsWith("dojo.shop.pricing.api."), found);
+          return found;
+      }
+
+      private static boolean isRoot(String className) {
+          return className.startsWith("dojo.shop.") && className.lastIndexOf('.') == "dojo.shop".length();
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

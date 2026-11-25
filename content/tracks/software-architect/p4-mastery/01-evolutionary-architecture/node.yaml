@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Design fitness functions for the quality attributes that matter, and classify them", skills: [software-architect.evolutionary, software-architect.fitness-functions] }
   - { id: o2, text: "Adopt fitness functions on a legacy codebase without stopping delivery", skills: [software-architect.evolutionary] }
   - { id: o3, text: "Plan an incremental migration with the strangler fig, branch by abstraction or a parallel run", skills: [software-architect.evolutionary] }
-prerequisites: [software-architect.p3.integration-patterns]
+prerequisites: [software-architect.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 45
 xp: 200
