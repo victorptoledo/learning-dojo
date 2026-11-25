@@ -1,0 +1,50 @@
+id: api-design.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on governance, design review and production failure modes, and a billing API that has had six incidents (a breaking change, an unbounded list, a leaky 500, broken object-level authorisation, double charges and a retry storm), each fixed so that it cannot come back."
+objectives:
+  - { id: o1, text: "Recognise API failure modes from their symptoms and choose the design rule or review check that prevents each one", skills: [api-design.production, api-design.governance] }
+  - { id: o2, text: "Fix a production API under a consumer contract: restore the v1 representation with exact money and UTC instants, bound and page its list, hide internal errors, enforce object-level authorisation, make payments idempotent and answer outages with 503 and Retry-After", skills: [api-design.production, api-design.versioning, api-design.pagination, api-design.errors, api-design.auth, api-design.idempotency] }
+prerequisites: [api-design.p4.production-failures]
+difficulty: 5
+estimated_minutes: 120
+xp: 550
+closes_phase: p4
+covers_skills: [api-design.production, api-design.governance, api-design.versioning, api-design.pagination, api-design.errors, api-design.idempotency, api-design.auth]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Read each incident as "what design rule was missing?". INC-1: the wire format is a contract, so the representation must not follow a refactoring; the domain already has `amountCents`, `LocalDate` and `Instant`, and Jackson writes them right if you stop converting them. INC-2: every collection has a default and a maximum size, and a keyset cursor (the last id, encoded) instead of "everything". INC-3: a catch-all `@ExceptionHandler(Exception.class)` that logs and says nothing. INC-4: look invoices up by id **and** tenant. INC-5 and INC-6: remember a successful payment by tenant and `Idempotency-Key`, and let failures leave the key free.
+    - |-
+      Put the ownership check in one place, `Invoice owned(String tenant, long id)`, and use it in `GET` and in the payment, so that a 404 for someone else's invoice cannot differ from a 404 for a missing one. For pages, ask the store for `limit + 1` invoices after the cursor's id: the extra one tells you there is a next page, and the cursor encodes the id of the **last invoice you return**. `ServletUriComponentsBuilder.fromCurrentRequest().replaceQueryParam("cursor", next)` builds the `Link`.
+    - |-
+      ```java
+      String scoped = tenant + "\n" + key;
+      String fingerprint = invoiceId + ":" + request.amountCents();
+      Stored stored = byKey.get(scoped);
+      if (stored != null) {
+          if (!stored.fingerprint().equals(fingerprint)) {
+              throw new KeyReusedException();                 // 422
+          }
+          return created(stored.payment()).header("Idempotent-Replayed", "true").body(stored.payment());
+      }
+      Payment payment = charge(owned(tenant, invoiceId), request.amountCents());  // may throw: key stays free
+      byKey.put(scoped, new Stored(fingerprint, payment));
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, JUnit 6 and Spring Boot 4 that runs the grading tests.

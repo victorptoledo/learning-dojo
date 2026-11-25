@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Write style-guide rules with requirement levels for naming, errors, collections, evolution, reliability and security", skills: [api-design.governance] }
   - { id: o2, text: "Run a design review of an API contract with automated checks and a checklist for the human judgement", skills: [api-design.governance, api-design.openapi] }
   - { id: o3, text: "Describe the API lifecycle from design to retirement and the role of a catalogue, ownership and usage data", skills: [api-design.governance, api-design.versioning] }
-prerequisites: [api-design.p3.webhooks-async]
+prerequisites: [api-design.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 45
 xp: 250

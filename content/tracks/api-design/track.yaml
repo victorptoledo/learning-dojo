@@ -14,7 +14,7 @@ belts:
   - { name: "Purple Belt", required_xp: 1500, title: "Contract Keeper" }
   - { name: "Brown Belt", required_xp: 2500, title: "API Governance Architect" }
   - { name: "Black Belt", required_xp: 4000, title: "Contract Design Titan" }
-  - { name: "Sensei", required_xp: 6000, title: "API Mastermind" }
+  - { name: "Sensei", required_xp: 6500, title: "API Mastermind" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What an API contract is, and the HTTP semantics every design builds on" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Resources, URLs, errors as problem details and paginated collections" }
