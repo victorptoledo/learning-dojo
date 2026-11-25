@@ -1,0 +1,62 @@
+id: backend.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz and an integration kata, a statements API hardened against the OWASP API risks, resilient to a flaky rates service and measured with an SLO."
+objectives:
+  - { id: o1, text: "Explain stateless scaling, the OWASP API risks, retries and breakers, and error budgets in your own words", skills: [backend.scalability, backend.api-security, backend.resilience, backend.sre] }
+  - { id: o2, text: "Harden an API against BOLA, mass assignment, injection and unbounded pages, and keep it useful when a dependency fails", skills: [backend.api-security, backend.resilience, backend.scalability] }
+  - { id: o3, text: "Measure an availability SLI and turn it into an error budget, a burn rate and a paging decision", skills: [backend.sre] }
+prerequisites: [backend.p3.sre-observability]
+difficulty: 5
+estimated_minutes: 100
+xp: 400
+closes_phase: p3
+covers_skills: [backend.scalability, backend.api-security, backend.resilience, backend.sre]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 240 }
+  hints:
+    - |-
+      Three questions, one per part. Security: whose object is this, which fields may the client set, and which part of the SQL comes from the client? Resilience: which failures deserve another try, and what does the API answer when the rates service cannot? SRE: which answers are the server's fault, and how much of the hour's budget have they used?
+    - |-
+      `AccountService`: one `owned(user, id)` that throws `accountNotFound()` for both cases, called first in every method; `rename` is `@Transactional` and calls `account.rename(update.nickname())`. `EntrySearch`: a `Map.of("bookedOn", "booked_on asc", "-bookedOn", "booked_on desc", ...)`, `?` for the account, the `like` and the `limit`, and `q` escaped (`\` first, then `%` and `_`). `ResilientRates`: the loop from the Resilient Client kata catching only `TransientException`; catch `TransientException | CircuitOpenException` around it to fall back on `lastRates.findById(pair)`. `SloFilter`: `good = response.getStatus() < 500` after `chain.doFilter`, recorded in a `finally`.
+    - |-
+      ```java
+      public RateQuote rate(String from, String to) {
+          if (from.equals(to)) {
+              return new RateQuote(BigDecimal.ONE, false);
+          }
+          String pair = from + ":" + to;
+          try {
+              BigDecimal rate = fetch(from, to); // retries through the breaker
+              lastRates.save(new LastRate(pair, rate, clock.instant()));
+              return new RateQuote(rate, false);
+          } catch (TransientException | CircuitOpenException unavailable) {
+              return lastRates.findById(pair)
+                      .map(last -> new RateQuote(last.getRate(), true))
+                      .orElseThrow(() -> StatementsException.ratesUnavailable(breaker.openDuration()));
+          }
+      }
+
+      public synchronized SloReport report() {
+          // drop the samples at or before clock.instant().minus(WINDOW), then:
+          double burnRate = ((double) (total - good) / total) / (1 - OBJECTIVE);
+          return new SloReport(total, good, (double) good / total, burnRate, 1 - burnRate,
+                  burnRate >= PAGE_BURN_RATE);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.

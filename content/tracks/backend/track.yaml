@@ -14,7 +14,7 @@ belts:
   - { name: "Purple Belt", required_xp: 1500, title: "Reliability Guardian" }
   - { name: "Brown Belt", required_xp: 2500, title: "High Concurrency Specialist" }
   - { name: "Black Belt", required_xp: 4000, title: "Principal Backend Engineer" }
-  - { name: "Sensei", required_xp: 6000, title: "Backend Grandmaster" }
+  - { name: "Sensei", required_xp: 6600, title: "Backend Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does, the life of a request and a first HTTP kata" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "HTTP, API design, SQL modelling and authentication" }

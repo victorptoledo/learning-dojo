@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Choose a deployment architecture for a team and a domain", skills: [backend.architecture] }
   - { id: o2, text: "Draw bounded contexts and integrate them with events", skills: [backend.architecture] }
   - { id: o3, text: "Coordinate a distributed workflow with a saga", skills: [backend.architecture] }
-prerequisites: [backend.p3.sre-observability]
+prerequisites: [backend.p3.checkpoint]
 difficulty: 5
 estimated_minutes: 45
 xp: 400

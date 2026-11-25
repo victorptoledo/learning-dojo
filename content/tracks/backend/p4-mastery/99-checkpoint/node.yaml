@@ -1,0 +1,64 @@
+id: backend.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz weighted towards architecture, delivery and leadership, and the checkout moved out of the monolith as a crash-safe saga, behind a percentage rollout, while a column is renamed with expand and contract."
+objectives:
+  - { id: o1, text: "Choose and defend an architecture, a migration plan and a rollout, and record the decision", skills: [backend.architecture, backend.delivery, backend.leadership] }
+  - { id: o2, text: "Coordinate a checkout across services with an orchestrated saga whose steps are idempotent and whose compensations survive a crash", skills: [backend.architecture, backend.reliability] }
+  - { id: o3, text: "Ship it without downtime: dual writes, a batched backfill, reads that fall back, and a deterministic percentage rollout with a kill switch", skills: [backend.delivery] }
+prerequisites: [backend.p4.delivery, backend.p4.engineering-leadership]
+difficulty: 5
+estimated_minutes: 120
+xp: 450
+closes_phase: p4
+covers_skills: [backend.architecture, backend.delivery, backend.leadership, backend.reliability, backend.sre]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 240 }
+  hints:
+    - |-
+      Three independent parts. Saga: what must be on disk before each remote call so that another run can carry on, and what makes repeating that call harmless? Migration: which code writes the old column, and which rows have no new value yet? Rollout: what makes the answer for one user the same on every request?
+    - |-
+      `CheckoutSaga`: save a `PENDING` order with both names, save `new SagaRecord(order.getId(), request)`, then one private `run(saga)` used by `start`, `resume` and `resumeStuck` (`findByStepIn` the four unfinished steps). No `@Transactional` on it. Compensation: refund when `failedAt` is `SHIPPING`, release when it is `SHIPPING` or `CHARGING`, then cancel the order and move to `COMPENSATED`. `LegacyCheckout`: pass `request.customerName()` for both columns. `OrderBackfill`: ids where `customer is null order by id` with `PageRequest.of(0, batchSize)`, then a `@Modifying` update of those ids that keeps `and o.customer is null`. `Rollout`: allow list first, then `bucket < percent`.
+    - |-
+      ```java
+      private CheckoutResult run(SagaRecord saga) {
+          while (!saga.getStep().finished()) {
+              try {
+                  switch (saga.getStep()) {
+                      case RESERVING -> { inventory.reserve(saga.getId(), saga.getSku(), saga.getQuantity()); save(saga, SagaStep.CHARGING); }
+                      case CHARGING -> { payments.charge(saga.getId(), saga.getTotalCents()); save(saga, SagaStep.SHIPPING); }
+                      case SHIPPING -> { shipping.schedule(saga.getId(), saga.getAddress()); /* confirm the order */ save(saga, SagaStep.DONE); }
+                      case COMPENSATING -> compensate(saga);
+                      default -> throw new IllegalStateException();
+                  }
+              } catch (StepFailedException failure) {
+                  saga.fail(failure.getMessage());
+                  sagas.save(saga);
+              }
+          }
+          ShopOrder order = orders.findById(saga.getOrderId()).orElseThrow();
+          return new CheckoutResult(order.getId(), order.getStatus(), order.getReason(), "saga");
+      }
+
+      static int bucket(String flag, String user) {
+          CRC32 crc = new CRC32();
+          crc.update((flag + ":" + user).getBytes(StandardCharsets.UTF_8));
+          return (int) (crc.getValue() % 100);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, Spring Boot 4 and JUnit 6 that runs the grading tests.
