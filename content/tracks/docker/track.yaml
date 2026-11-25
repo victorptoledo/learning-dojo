@@ -14,7 +14,7 @@ belts:
   - { name: "Purple Belt", required_xp: 1500, title: "Layer Optimization Pro" }
   - { name: "Brown Belt", required_xp: 2500, title: "Container Security Hardener" }
   - { name: "Black Belt", required_xp: 4000, title: "Runtime Virtuoso" }
-  - { name: "Sensei", required_xp: 6000, title: "Docker Grandmaster" }
+  - { name: "Sensei", required_xp: 6500, title: "Docker Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install Docker Desktop, run a first container and build a first image" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "What a container is, images and layers, the container lifecycle, Dockerfiles, storage and networking" }

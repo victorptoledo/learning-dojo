@@ -1,0 +1,82 @@
+pass_percent: 80
+questions:
+  - id: cache-mount-vs-layer
+    skills: [docker.buildkit]
+    prompt: "A RUN step has --mount=type=cache,target=/root/.cache/go-build. What happens to that folder?"
+    options:
+      - "It is saved in the image layer, so pulls get it too"
+      - "BuildKit keeps it between builds on that builder, and it never becomes part of the image"
+      - "It is deleted before every build"
+      - "It is shared with the running container at /root/.cache"
+    answer: 1
+    explanation: "Cache mounts live in the builder's cache, outside every layer: faster rebuilds, same image."
+  - id: arg-in-history
+    skills: [docker.buildkit, docker.dockerfile-security]
+    prompt: "A build passes --build-arg GIT_TOKEN=... to a RUN that writes ~/.netrc in the build stage, and the file is never copied to the final stage. Where can the token still leak?"
+    options:
+      - "Nowhere: the build stage is thrown away"
+      - "Into the build stage's history and cache, and into the final image too if that stage ever declares the ARG; a secret mount avoids all of it"
+      - "Only into the registry's access log"
+      - "Only into docker ps output"
+    answer: 1
+    explanation: "Each RUN records the ARG values it used; secrets mounted with --mount=type=secret are never recorded."
+  - id: secret-mount-missing
+    skills: [docker.buildkit]
+    prompt: "A RUN has --mount=type=secret,id=netrc,target=/root/.netrc, and the build is started without --secret. What happens?"
+    options:
+      - "The build fails at once"
+      - "The step runs without the file, unless the mount says required=true"
+      - "BuildKit reads the file from the build context instead"
+      - "The token is taken from the environment"
+    answer: 1
+    explanation: "Secret mounts are optional by default; required=true makes a forgotten secret fail fast."
+  - id: arg-scope
+    skills: [docker.buildkit]
+    prompt: "ARG VERSION=3.1.0 is declared before the first FROM. A LABEL in the final stage uses ${VERSION} and gets an empty value. Why?"
+    options:
+      - "LABEL cannot use variables"
+      - "An ARG before FROM is only in scope for FROM lines; each stage must declare ARG VERSION again to use it"
+      - "The default value is ignored without --build-arg"
+      - "Labels are evaluated before ARGs"
+    answer: 1
+    explanation: "Global ARGs must be redeclared, without a value, inside each stage that reads them."
+  - id: digest-pin
+    skills: [docker.supply-chain]
+    prompt: "Why pin FROM golang:1.27-alpine@sha256:... instead of only the tag?"
+    options:
+      - "Digests download faster"
+      - "The digest names exact bytes, so every build uses the same base until you choose to update it"
+      - "Tags are deprecated"
+      - "It turns on image signing"
+    answer: 1
+    explanation: "A tag is a pointer the publisher can move; a digest is the content's hash. Bots like Renovate or Dependabot bump it on purpose."
+  - id: sbom-vs-scan
+    skills: [docker.supply-chain]
+    prompt: "What does an SBOM attached to an image give you that a one-off vulnerability scan does not?"
+    options:
+      - "It removes the vulnerable packages"
+      - "A record of every package in the image, which can be checked against new CVEs later without rebuilding"
+      - "A signature proving who built the image"
+      - "A smaller image"
+    answer: 1
+    explanation: "The SBOM is the inventory; scans and signatures (cosign, provenance) answer other questions."
+  - id: read-only-tmpfs
+    skills: [docker.runtime-security]
+    prompt: "A service runs with read_only: true and crashes writing a temporary file. What is the right fix?"
+    options:
+      - "Remove read_only"
+      - "Mount a tmpfs (or a volume) only where it must write, for example /tmp"
+      - "Run it as root"
+      - "Add the SYS_ADMIN capability"
+    answer: 1
+    explanation: "Keep the root file system read-only and open just the paths the program needs."
+  - id: cap-drop-port
+    skills: [docker.runtime-security]
+    prompt: "With cap_drop: [ALL] and a non-root user, a server can no longer listen on port 80. Which fix keeps the hardening?"
+    options:
+      - "privileged: true"
+      - "Listen on a port above 1023 (say 8080) and publish it as 80, or add back only NET_BIND_SERVICE"
+      - "Drop cap_drop"
+      - "Mount the Docker socket"
+    answer: 1
+    explanation: "Ports below 1024 need NET_BIND_SERVICE; a high port with a mapping needs no capability at all."

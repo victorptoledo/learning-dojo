@@ -1,0 +1,63 @@
+id: docker.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced skills: a quiz on BuildKit, the supply chain, secrets and runtime security, and a release build of a service with private dependencies, from a pinned, cached, secret-safe Dockerfile to a hardened Compose service."
+objectives:
+  - { id: o1, text: "Explain cache and secret mounts, build arguments across stages, digests, SBOMs and signing, and the runtime controls in your own words", skills: [docker.buildkit, docker.supply-chain, docker.runtime-security] }
+  - { id: o2, text: "Build a release image whose base images are pinned, whose compiler cache survives and whose build credentials never reach a layer", skills: [docker.buildkit, docker.supply-chain, docker.dockerfile-security] }
+  - { id: o3, text: "Run the service with secrets as files, a fixed user, a read-only file system, no capabilities and resource limits", skills: [docker.runtime-security, docker.compose] }
+prerequisites: [docker.p3.hardened-compose]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+closes_phase: p3
+covers_skills: [docker.buildkit, docker.supply-chain, docker.dockerfile-security, docker.runtime-security, docker.compose]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-docker, timeout_secs: 300 }
+  hints:
+    - |-
+      Sort the findings by *when* they matter. At build time: what the builder receives (`.dockerignore`), what each layer records (`docker history` shows every `ARG` a `RUN` used) and which bytes `FROM` names (a tag moves, a digest does not). At run time: who the process is and what it may touch. A BuildKit secret mount is the only way to give a `RUN` step a file that no layer and no history line ever sees, and it is skipped quietly when the build does not provide it.
+    - |-
+      Read the digests with `docker buildx imagetools inspect golang:1.27-alpine` (or `docker image inspect --format '{{index .RepoDigests 0}}'` after a pull) and write `FROM golang:1.27-alpine@sha256:...`. Put `--mount=type=cache,target=/root/.cache/go-build` and `--mount=type=secret,id=netrc,target=/root/.netrc` on the *same* `RUN` as `go build`. An `ARG` declared before the first `FROM` must be declared again (`ARG VERSION`) inside each stage that uses it, and one value then feeds both `-ldflags "-X main.version=${VERSION}"` and the label. hadolint flags names that look sensitive in `ARG` and `ENV` (`GOPRIVATE` among them), so set it on the `RUN` line instead. Locally: `docker build --secret id=netrc,src=secrets/netrc -t quotes .`.
+    - |-
+      ```yaml
+      services:
+        quotes:
+          build:
+            context: .
+            args:
+              VERSION: "3.1.0"
+            secrets: [netrc]
+          image: ghcr.io/dojo-example/quotes:3.1.0
+          user: "10001:10001"
+          read_only: true
+          tmpfs: [/tmp]
+          cap_drop: [ALL]
+          security_opt: [no-new-privileges:true]
+          deploy:
+            resources:
+              limits: { memory: 128M, cpus: "0.5", pids: 100 }
+          ports: ["127.0.0.1:8080:8080"]
+          secrets: [api_token]
+      secrets:
+        netrc:
+          file: ./secrets/netrc
+        api_token:
+          file: ...
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your image is built on your Docker engine and checked in a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-docker runner image
+    image: dojo-docker
+    why: The container with hadolint, bats, jq and docker-compose that checks your image and your Compose file.

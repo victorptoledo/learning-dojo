@@ -1,0 +1,82 @@
+pass_percent: 80
+questions:
+  - id: entrypoint-exec
+    skills: [docker.production]
+    prompt: "An entrypoint script ends with the line catalog serve. On docker stop, the container waits 10 seconds and is killed. Why?"
+    options:
+      - "The stop timeout is too short"
+      - "The shell is PID 1 and does not forward SIGTERM; ending with exec catalog serve makes the server PID 1"
+      - "The server ignores every signal"
+      - "docker stop sends SIGKILL first"
+    answer: 1
+    explanation: "exec replaces the shell with the server, which then receives the SIGTERM and can drain."
+  - id: shell-form-entrypoint
+    skills: [docker.production]
+    prompt: "An image has ENTRYPOINT docker-entrypoint.sh (shell form) and CMD [\"serve\"]. What does docker run IMAGE version do?"
+    options:
+      - "Runs the script with the argument version"
+      - "Runs /bin/sh -c docker-entrypoint.sh, which ignores both CMD and the argument"
+      - "Prints the Docker version"
+      - "Fails to start"
+    answer: 1
+    explanation: "Only the exec form passes CMD and the arguments of docker run to the entrypoint as \"$@\"."
+  - id: logs-stdout
+    skills: [docker.logs-debugging]
+    prompt: "Why should a containerised service log to stdout in JSON rather than to /var/log/app.log?"
+    options:
+      - "Files are slower"
+      - "The runtime collects stdout (docker logs, log drivers, rotation), and JSON lines can be parsed and searched without regular expressions"
+      - "JSON is smaller"
+      - "Writing files needs root"
+    answer: 1
+    explanation: "The platform owns log shipping and rotation; a file inside the container is invisible to it and grows forever."
+  - id: migrations-replicas
+    skills: [docker.production]
+    prompt: "A service with two replicas runs its schema migration in its entrypoint. What is the risk, and the usual fix?"
+    options:
+      - "None: migrations are always safe to run twice at once"
+      - "Both replicas migrate at the same time; run the migration once as a separate job that the replicas wait for"
+      - "Only the first replica gets a volume"
+      - "The health check fails; remove it"
+    answer: 1
+    explanation: "A one-shot job (Compose service_completed_successfully, a Kubernetes Job or init container) migrates once."
+  - id: start-first
+    skills: [docker.production]
+    prompt: "In an update_config, what does order: start-first with failure_action: rollback give you?"
+    options:
+      - "Faster image pulls"
+      - "Each new task starts and must become healthy before an old one stops, and a failed update returns to the previous version"
+      - "Both versions run forever side by side"
+      - "Old tasks are stopped first to free memory"
+    answer: 1
+    explanation: "Start-first keeps capacity during the rollout; it relies on the health check to decide when a task is ready."
+  - id: grace-period
+    skills: [docker.production]
+    prompt: "A server drains requests for up to 25 seconds after SIGTERM. What should stop_grace_period be?"
+    options:
+      - "The default 10 s"
+      - "Longer than the drain, for example 30 s, or the runtime sends SIGKILL in the middle of it"
+      - "0, so it stops at once"
+      - "It does not matter with restart: unless-stopped"
+    answer: 1
+    explanation: "After the grace period the runtime kills the process, cutting the requests still in flight."
+  - id: start-period
+    skills: [docker.production, docker.logs-debugging]
+    prompt: "A container is marked unhealthy and restarted before its migration finishes. Which health check setting is missing?"
+    options:
+      - "--retries=0"
+      - "--start-period, during which failed probes do not count"
+      - "--interval=1h"
+      - "A shell-form CMD"
+    answer: 1
+    explanation: "The start period gives slow start-ups time; a probe that passes in it marks the container healthy at once."
+  - id: runtime-stack
+    skills: [docker.production, docker.runtime-security]
+    prompt: "When you run docker run, which component actually creates the container's namespaces and cgroups?"
+    options:
+      - "The docker CLI"
+      - "runc (the OCI runtime), started by containerd through a shim"
+      - "The image registry"
+      - "Docker Compose"
+    answer: 1
+    explanation: "dockerd asks containerd, whose shim runs runc; runc sets up the kernel features from the OCI spec and exits."
