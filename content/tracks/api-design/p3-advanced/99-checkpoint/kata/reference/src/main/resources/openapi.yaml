@@ -1,0 +1,216 @@
+# The partner exports contract, design first: it was reviewed before the code was written.
+openapi: 3.1.1
+info:
+  title: Partner Exports API
+  version: 2.0.0
+  contact:
+    name: Data Platform team
+    email: data-platform@dojo.example
+servers:
+  - url: https://api.dojo.example
+security:
+  - partnerKey: []
+paths:
+  /exports:
+    post:
+      operationId: createExport
+      summary: Start an export; it runs in the background
+      security:
+        - partnerKey: ['exports:write']
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportRequest'
+      responses:
+        '202':
+          description: The export was accepted and is running
+          headers:
+            Location:
+              description: The export's status resource
+              schema:
+                type: string
+            Retry-After:
+              description: Seconds to wait before polling the status resource
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Export'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /exports/{exportId}:
+    parameters:
+      - name: exportId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getExport
+      summary: The status of an export, and its result when it has one
+      security:
+        - partnerKey: ['exports:read']
+      responses:
+        '200':
+          description: The export
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Export'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+webhooks:
+  exportFinished:
+    post:
+      operationId: exportFinished
+      summary: Sent to the partner's endpoint when an export succeeds or fails
+      parameters:
+        - name: webhook-id
+          in: header
+          required: true
+          description: The event id; the same on every retry, so receivers can deduplicate
+          schema:
+            type: string
+        - name: webhook-timestamp
+          in: header
+          required: true
+          description: Seconds since the epoch when this attempt was sent; reject old ones
+          schema:
+            type: integer
+        - name: webhook-signature
+          in: header
+          required: true
+          description: "v1,<base64 HMAC-SHA256 of id.timestamp.body>"
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportEvent'
+      responses:
+        '204':
+          description: Received; anything other than 2xx is retried with backoff
+components:
+  securitySchemes:
+    partnerKey:
+      type: http
+      scheme: bearer
+      description: "The partner's API key: Authorization: Bearer dk_..."
+  responses:
+    Unauthorized:
+      description: Missing or unknown API key
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Forbidden:
+      description: The key lacks the scope this operation needs
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    TooManyRequests:
+      description: This key has used up its tokens
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+        RateLimit:
+          schema:
+            type: string
+        RateLimit-Policy:
+          schema:
+            type: string
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Problem:
+      description: A problem detail (RFC 9457)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    ExportRequest:
+      type: object
+      required: [dataset, format]
+      properties:
+        dataset:
+          type: string
+          enum: [orders, customers, invoices]
+        format:
+          type: string
+          enum: [csv, ndjson]
+    Export:
+      type: object
+      required: [id, dataset, format, status]
+      properties:
+        id:
+          type: string
+          examples: [exp_31]
+        dataset:
+          type: string
+        format:
+          type: string
+        status:
+          type: string
+          enum: [RUNNING, SUCCEEDED, FAILED]
+        resultUrl:
+          type: string
+          format: uri
+        error:
+          $ref: '#/components/schemas/Problem'
+    ExportEvent:
+      type: object
+      required: [id, type, createdAt, data]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [export.succeeded, export.failed]
+        createdAt:
+          type: string
+          format: date-time
+        data:
+          type: object
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string

@@ -1,0 +1,49 @@
+questions:
+  - id: cp3-key-in-query
+    skills: [api-design.auth]
+    prompt: "A partner integration sends its API key as GET /exports?apiKey=dk_live_... Why should the API refuse this, even for a valid key?"
+    options: ["Query strings are limited to 255 characters", "Keys in the query are slower to look up", "URLs end up in access logs, proxies, browser history and Referer headers, so the key leaks; it belongs in the Authorization header", "HTTP forbids query parameters on GET"]
+    answer: 2
+    explanation: "A secret in a URL is copied everywhere the URL goes; headers are not logged by default."
+  - id: cp3-401-403
+    skills: [api-design.auth, api-design.status-codes]
+    prompt: "The key is valid, but it only has exports:read and the client calls POST /exports. What is the answer?"
+    options: ["403 with WWW-Authenticate: Bearer error=\"insufficient_scope\", scope=\"exports:write\"", "401 with error=\"invalid_token\"", "404, to hide the endpoint", "400, because the request is wrong"]
+    answer: 0
+    explanation: "401 means \"who are you?\"; 403 means \"I know you, and you may not\". The challenge names the missing scope so the client can ask for it."
+  - id: cp3-bola
+    skills: [api-design.auth]
+    prompt: "Partner B asks for GET /exports/exp_7, which belongs to partner A. What is the safest answer?"
+    options: ["200, since B has the exports:read scope", "403 with the owner's name", "302 to B's own exports", "404, exactly as for an id that does not exist"]
+    answer: 3
+    explanation: "Scopes say what kind of thing a key may do; object-level authorisation says which objects. A 404 does not even confirm that exp_7 exists."
+  - id: cp3-token-bucket
+    skills: [api-design.rate-limiting]
+    prompt: "You want to allow short bursts of 10 requests but an average of one per second. Which algorithm fits?"
+    options: ["A fixed window of 60 requests per minute", "A token bucket of 10 tokens refilled at one per second", "A concurrency limit of 10", "A sliding log of every request in the last hour"]
+    answer: 1
+    explanation: "The bucket size is the burst, the refill rate is the sustained rate; a fixed window allows 120 requests around a window edge."
+  - id: cp3-429-503
+    skills: [api-design.rate-limiting, api-design.status-codes]
+    prompt: "The database is overloaded and every client's requests are failing. Which answer helps clients behave?"
+    options: ["429 Too Many Requests for everyone", "500 with the database error", "503 Service Unavailable with Retry-After: the service is overloaded, not this client", "200 with an empty body"]
+    answer: 2
+    explanation: "429 says \"you sent too much\"; 503 says \"we cannot serve anyone right now\". Both carry Retry-After."
+  - id: cp3-design-first
+    skills: [api-design.openapi, api-design.versioning]
+    prompt: "In a design-first workflow, what should CI do with the OpenAPI document on every pull request?"
+    options: ["Lint it against the style guide and diff it with the published version to catch breaking changes", "Generate it from the code and publish it", "Nothing; it is only documentation", "Delete the old version"]
+    answer: 0
+    explanation: "The contract is reviewed before code; automated linting and breaking-change diffs make that review cheap and repeatable."
+  - id: cp3-proto-fields
+    skills: [api-design.api-styles]
+    prompt: "A Protocol Buffers message drops its field 4 (string coupon). How do you remove it safely?"
+    options: ["Reuse number 4 for the next new field", "Renumber the fields that follow", "Change its type to bytes", "Delete it and mark 4 and the name coupon as reserved"]
+    answer: 3
+    explanation: "Old clients still send field 4; reusing the number would make them write the wrong data into a new field."
+  - id: cp3-webhook-replay
+    skills: [api-design.webhooks-async, api-design.idempotency]
+    prompt: "Webhooks are signed with HMAC over id.timestamp.body and retried until they get a 2xx. What must a receiver do?"
+    options: ["Trust any request that reaches its secret URL", "Verify the signature in constant time, reject old timestamps, and deduplicate by the event id", "Process the event before answering, however long it takes", "Answer 500 to duplicates so they stop"]
+    answer: 1
+    explanation: "The signature proves the sender, the timestamp stops replays, and the stable id turns at-least-once delivery into effectively-once processing."

@@ -1,0 +1,49 @@
+questions:
+  - id: cp4-breaking-rename
+    skills: [api-design.production, api-design.versioning]
+    prompt: "A refactoring renamed amountCents to amount in the response, and the mobile app shows 0.00. Which check would have stopped it before the merge?"
+    options: ["A unit test of the domain class", "A load test", "A consumer contract test, or a breaking-change diff of the OpenAPI document in CI", "A code review of the SQL"]
+    answer: 2
+    explanation: "Renaming or removing a response field breaks clients; contract tests and OpenAPI diffs make that visible on the pull request."
+  - id: cp4-money-type
+    skills: [api-design.naming-urls, api-design.production]
+    prompt: "How should an API send an amount of 12.30 euros?"
+    options: ["{\"amountCents\": 1230, \"currency\": \"EUR\"} (or a decimal string with its currency)", "{\"amount\": 12.3}", "{\"amount\": \"12,30 €\"}", "{\"amount\": 12.30} with a float column"]
+    answer: 0
+    explanation: "Binary floating point cannot represent most decimal amounts; integer minor units or decimal strings, always with the currency, can."
+  - id: cp4-unbounded
+    skills: [api-design.pagination, api-design.production]
+    prompt: "GET /invoices returned all 5,000 invoices of a tenant until a big export took the database down. What is the lasting fix?"
+    options: ["A bigger database", "A cache in front of the list", "Documenting that clients should not call it", "A default and a maximum page size, with a cursor to the next page"]
+    answer: 3
+    explanation: "Every collection needs bounds the server enforces; a keyset cursor keeps deep pages cheap and stable."
+  - id: cp4-leaky-500
+    skills: [api-design.errors, api-design.production]
+    prompt: "A 500 response contains a stack trace and a JDBC URL. What should the 500 say instead?"
+    options: ["The exception message only, without the stack trace", "A generic problem detail with an id to quote, while the details go to the logs", "Nothing: an empty body", "A 200 with an error flag"]
+    answer: 1
+    explanation: "Internal details help attackers, not clients; correlate with an instance id that support can find in the logs."
+  - id: cp4-bola
+    skills: [api-design.auth, api-design.production]
+    prompt: "Every request is authenticated, yet a tenant could read another tenant's invoice by changing the id. What was missing?"
+    options: ["Object-level authorisation: look the invoice up by id and by the caller's tenant", "A stronger API key format", "HTTPS", "Rate limiting"]
+    answer: 0
+    explanation: "Broken object-level authorisation is the first entry of the OWASP API Security Top 10: authentication says who, not which objects."
+  - id: cp4-retry-storm
+    skills: [api-design.production, api-design.rate-limiting]
+    prompt: "When the payment provider is down, the API answers 500 at once and every client retries immediately. What helps most on the server side?"
+    options: ["Answer 200 and charge later", "Answer 429 to everyone", "Answer 503 with Retry-After, so that clients back off, and make the call safe to retry with an idempotency key", "Close the connection without an answer"]
+    answer: 2
+    explanation: "Retry-After spreads retries out, clients add jitter, and the idempotency key makes the eventual retry charge exactly once."
+  - id: cp4-style-guide
+    skills: [api-design.governance]
+    prompt: "Which style-guide rule is best enforced by a linter rather than by a reviewer?"
+    options: ["Is this the right resource for the use case?", "Does the error catalogue make sense to a client developer?", "Should this be synchronous or a long-running operation?", "Every error response uses application/problem+json"]
+    answer: 3
+    explanation: "Automate the mechanical rules so that design review spends its time on judgement."
+  - id: cp4-lifecycle
+    skills: [api-design.governance, api-design.versioning]
+    prompt: "A deprecated endpoint will be switched off next month, but its usage did not drop. What should the API owners do first?"
+    options: ["Switch it off as announced", "Check who still calls it, from usage data per client, and contact them directly", "Extend the sunset forever", "Return random errors to push clients away"]
+    answer: 1
+    explanation: "Deprecation headers and changelogs are often unread; usage per client tells you whom to talk to before a sunset."

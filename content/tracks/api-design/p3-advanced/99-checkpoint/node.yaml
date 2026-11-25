@@ -1,0 +1,48 @@
+id: api-design.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on API keys and scopes, rate limits, OpenAPI, gRPC and GraphQL, and webhooks, and a partner exports API with bearer keys and scopes, a token bucket per partner, exports as long-running operations and signed webhooks retried with backoff, all in its OpenAPI contract."
+objectives:
+  - { id: o1, text: "Explain API keys and scopes, rate-limit algorithms and headers, OpenAPI contracts, the trade-offs of gRPC and GraphQL, and webhook delivery in your own words", skills: [api-design.auth, api-design.rate-limiting, api-design.openapi, api-design.api-styles, api-design.webhooks-async] }
+  - { id: o2, text: "Secure and limit an API: bearer keys, 401 and 403 with the right challenge, object-level authorisation, and a token bucket that reports its budget with RateLimit headers and 429", skills: [api-design.auth, api-design.rate-limiting, api-design.status-codes] }
+  - { id: o3, text: "Run slow work as a long-running operation, announce its end with signed webhooks delivered at least once, and keep the OpenAPI contract in step", skills: [api-design.webhooks-async, api-design.openapi, api-design.idempotency] }
+prerequisites: [api-design.p3.webhooks-async]
+difficulty: 4
+estimated_minutes: 120
+xp: 500
+closes_phase: p3
+covers_skills: [api-design.auth, api-design.rate-limiting, api-design.openapi, api-design.api-styles, api-design.webhooks-async]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Four concerns run before every handler, in a fixed order: the key in the query string, authentication, the rate limit, the scope. That is one `HandlerInterceptor` (registered in a `WebMvcConfigurer`) that reads `Authorization`, asks `Partners.authenticate`, takes a token, checks a scope it finds on the handler method, and puts the partner in a request attribute. Throw small exceptions and let `ApiProblems` turn them into problems with their `WWW-Authenticate` or `Retry-After`. The slow part moves out of the request: `POST` stores a `RUNNING` export and calls `BackgroundJobs.submit`; the job finishes the export and publishes the webhook.
+    - |-
+      A token bucket needs two numbers per partner: tokens left and when you last looked. Refill by elapsed milliseconds (one token per 1000 ms, at most 10), then take one if there is a whole token. Counting in thousandths of a token (`long`) avoids rounding surprises: `r` is `left / 1000`, `t` is `ceil((10000 - left) / 1000)`, and `Retry-After` is `max(1, ceil((1000 - left) / 1000))`. A delivery is a method `attempt(partner, eventId, body, retries)` that signs with the current time and, when the status is not 2xx and `retries < 4`, schedules itself again after `10 << retries` seconds.
+    - |-
+      ```java
+      static String sign(String secret, String content) throws GeneralSecurityException {
+          byte[] key = Base64.getDecoder().decode(secret.substring("whsec_".length()));
+          Mac mac = Mac.getInstance("HmacSHA256");
+          mac.init(new SecretKeySpec(key, "HmacSHA256"));
+          byte[] signature = mac.doFinal(content.getBytes(StandardCharsets.UTF_8));
+          return "v1," + Base64.getEncoder().encodeToString(signature);
+      }
+      // content is id + "." + timestamp + "." + body, with the exact body you send
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25, JUnit 6 and Spring Boot 4 that runs the grading tests.
