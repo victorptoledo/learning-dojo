@@ -197,7 +197,7 @@ Migration: on first run each node in `profile.json`'s `track_progress` becomes `
 | P4 Mastery | production, resilience, specialised topics | 2–4 | project with architecture review |
 | 🥋 Last checkpoint | final exam of the track | 1 | quiz over the track + integration kata |
 
-**Phases follow the subject (D046).** The table is a guide: a track may add phases after P3 (one per large block of advanced topics), as many as the amount of content calls for, and its last phase is Mastery. Every phase from P1 on ends with a checkpoint; the last one is the final exam. The validator requires the checkpoints of P1 and P2 (an error once a track is reviewed) and warns about later phases without one while the tracks are migrated (Design Patterns is the pilot with all four). Each phase from P1 on has 2–8 nodes, its checkpoint included; checkpoint XP grows with the phase (300 for P1, plus 50 per phase).
+**Phases follow the subject (D046).** The table is a guide: a track may add phases after P3 (one per large block of advanced topics), as many as the amount of content calls for, and its last phase is Mastery. Every phase from P1 on ends with a checkpoint; the last one is the final exam. The validator requires a checkpoint at the end of every phase from P1 on: a warning in a draft track, an error once it is reviewed (all 30 tracks have them since 2026-11-26). Each phase from P1 on has 2–8 nodes, its checkpoint included; checkpoint XP grows with the phase (300 for P1, plus 50 per phase).
 
 The rubric The rubric scales with the phase: in P1 the reviewer looks at naming, small functions and flow; design patterns become a criterion only from P3 (`from_phase: 3`).
 

@@ -8,9 +8,6 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 /// subject needs, so the limit is per phase, not per track).
 const MIN_NODES_PER_PHASE: usize = 2;
 const MAX_NODES_PER_PHASE: usize = 8;
-/// Phases whose checkpoint every track already has. Later phases get theirs track by
-/// track (D046), so a missing one there is only a warning until the migration ends.
-const PHASES_WITH_CHECKPOINT: [&str; 2] = ["p1", "p2"];
 const MIN_QUIZ_QUESTIONS: usize = 3;
 
 pub fn check_catalog(catalog: &Catalog, report: &mut Report) {
@@ -617,26 +614,18 @@ fn check_completeness(track: &Track, report: &mut Report) {
             );
         }
     }
+    // Every phase from P1 on ends with its checkpoint, the last one being the final exam (D046).
     for phase in track.phases.iter().filter(|phase| phase.order > 0) {
         let last_is_checkpoint = phase.nodes.last().is_some_and(|node| {
             phase
                 .checkpoint()
                 .is_some_and(|checkpoint| checkpoint.id == node.id)
         });
-        if last_is_checkpoint {
-            continue;
-        }
-        if PHASES_WITH_CHECKPOINT.contains(&phase.id.as_str()) {
+        if !last_is_checkpoint {
             report.push(
                 severity,
                 &location,
                 format!("phase `{}` must end with a checkpoint", phase.id),
-            );
-        } else {
-            report.push(
-                Severity::Warning,
-                &location,
-                format!("phase `{}` has no checkpoint yet (D046)", phase.id),
             );
         }
     }

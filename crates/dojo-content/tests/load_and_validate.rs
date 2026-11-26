@@ -266,6 +266,11 @@ fn reviewed_track_turns_completeness_gaps_into_errors() {
         found.iter().any(|e| e.contains("phase `p1` has no nodes")),
         "{found:?}"
     );
+    // D046: every phase from P1 on needs its checkpoint, the advanced ones included.
+    for phase in ["p3", "p4"] {
+        let expected = format!("phase `{phase}` must end with a checkpoint");
+        assert!(found.iter().any(|e| e.contains(&expected)), "{found:?}");
+    }
 }
 
 #[test]
