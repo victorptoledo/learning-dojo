@@ -1,0 +1,12 @@
+# Response headers for the site, in the format Netlify and Cloudflare Pages read:
+# a path pattern, then indented "Name: value" lines. The dojo's server applies them, and a
+# later rule overrides a header an earlier rule set for the same path.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Cache-Control: no-cache
+  Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'
+
+# File names with a content hash never change content: cache them for a year.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

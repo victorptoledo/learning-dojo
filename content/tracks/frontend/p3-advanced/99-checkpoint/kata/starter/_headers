@@ -1,0 +1,8 @@
+# Response headers for the site, in the format Netlify and Cloudflare Pages read:
+# a path pattern, then indented "Name: value" lines. The dojo's server applies them, and a
+# later rule overrides a header an earlier rule set for the same path.
+# todo: after each deploy some visitors get the old index.html for an hour, pointing at files
+# that are gone; and the page has no Content-Security-Policy.
+/*
+  X-Content-Type-Options: nosniff
+  Cache-Control: public, max-age=3600

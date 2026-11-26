@@ -1,0 +1,82 @@
+pass_percent: 85
+questions:
+  - id: flaky-wait
+    skills: [frontend.testing]
+    prompt: "A test of a debounced search clicks, sleeps 500 ms and checks the results. It fails one run in ten on CI. What is the fix?"
+    options:
+      - "Sleep 2000 ms instead"
+      - "Retry the test three times"
+      - "Control time with a fake clock and the API with a mocked route, then wait for what the user sees"
+      - "Run the tests one at a time"
+    answer: 2
+    explanation: "Sleeps race against real timers and networks; fake clocks, route mocking and waiting for conditions make the test deterministic."
+  - id: query-role
+    skills: [frontend.testing, frontend.accessibility]
+    prompt: "Why prefer getByRole(\"button\", { name: \"Save\" }) over querySelector(\".btn-primary\") in a UI test?"
+    options:
+      - "It is faster"
+      - "It finds the element the way users and assistive technology do, so it fails when the accessible name breaks and survives class renames"
+      - "It works without a browser"
+      - "querySelector cannot find buttons"
+    answer: 1
+    explanation: "Role and name queries test the contract the user sees and double as a basic accessibility check."
+  - id: axe-limits
+    skills: [frontend.testing, frontend.accessibility]
+    prompt: "axe-core reports no violations on a page. What do you still have to test another way?"
+    options:
+      - "Nothing: the page is accessible"
+      - "Color contrast"
+      - "Keyboard use and focus order: that a dialog traps and returns focus, that every action works without a mouse"
+      - "Missing alt attributes"
+    answer: 2
+    explanation: "Automated checks catch a minority of problems; keyboard flows and focus management need their own tests."
+  - id: connected-twice
+    skills: [frontend.web-components]
+    prompt: "A custom element adds its buttons in connectedCallback. After a list is sorted by moving elements, each item shows four buttons. Why?"
+    options:
+      - "The constructor ran twice"
+      - "Moving an element disconnects and connects it again, so connectedCallback runs again and must be idempotent"
+      - "customElements.define was called twice"
+      - "attributeChangedCallback added them"
+    answer: 1
+    explanation: "connectedCallback runs on every insertion into the document: guard the setup so it happens once."
+  - id: shadow-label
+    skills: [frontend.web-components, frontend.accessibility]
+    prompt: "A <label for=\"email\"> outside a component points at an <input id=\"email\"> inside its shadow root. What happens?"
+    options:
+      - "It works like any label"
+      - "The label does not reach into the shadow root, so the input has no accessible name"
+      - "The browser moves the input out of the shadow root"
+      - "The form submits the label text"
+    answer: 1
+    explanation: "IDs do not cross shadow boundaries; keep the label and input together, or use light DOM or ElementInternals."
+  - id: rendering-strategy
+    skills: [frontend.web-components]
+    prompt: "A public product catalog with thousands of pages needs good LCP and SEO, and a little interactivity (add to cart). Which strategy fits?"
+    options:
+      - "A client-rendered single-page app"
+      - "Server rendering or static generation, with islands of JavaScript for the interactive parts"
+      - "An iframe per product"
+      - "Rendering everything in a web worker"
+    answer: 1
+    explanation: "HTML from the server gives crawlers and the LCP content at once; islands hydrate only what needs JavaScript."
+  - id: source-maps
+    skills: [frontend.production]
+    prompt: "Production error reports say \"TypeError at a.js:1:48213\". What makes them useful?"
+    options:
+      - "Shipping unminified code"
+      - "Uploading source maps to the error tracker and tagging each report with the release"
+      - "Logging errors with console.error"
+      - "Asking users for screenshots"
+    answer: 1
+    explanation: "Private source maps map the stack back to the code, and the release tag says which deploy introduced the error."
+  - id: third-party
+    skills: [frontend.production]
+    prompt: "A payment provider's script is down for an hour. How should the checkout behave?"
+    options:
+      - "Keep a spinner until it loads"
+      - "Reload the page every 10 seconds"
+      - "Give up after a timeout, show a working alternative and report the failure"
+      - "Load the script synchronously in <head> so it is never missed"
+    answer: 2
+    explanation: "Third parties fail: bound the wait, degrade gracefully to something usable and make the failure visible to the team."

@@ -1,0 +1,82 @@
+pass_percent: 85
+questions:
+  - id: defer-order
+    skills: [frontend.rendering]
+    prompt: "Two classic scripts in <head> need the parsed DOM, and the second uses what the first defines. How do you load them without blocking the parser?"
+    options:
+      - "async on both"
+      - "defer on both"
+      - "Move them to the end of <head> unchanged"
+      - "Inline them in the HTML"
+    answer: 1
+    explanation: "defer downloads in parallel and runs in document order after parsing; async runs as soon as each arrives, in any order."
+  - id: thrashing
+    skills: [frontend.rendering]
+    prompt: "A loop reads each card's offsetHeight and then sets that card's style.height. Why is it slow, and what is the fix?"
+    options:
+      - "offsetHeight is a slow property; cache it in localStorage"
+      - "Each read after a write forces a new synchronous layout; read every height first, then write them all"
+      - "Setting style is slow; use classList instead"
+      - "The loop should run in a web worker"
+    answer: 1
+    explanation: "Interleaved reads and writes cause layout thrashing: batch the reads, then the writes (or use requestAnimationFrame)."
+  - id: lcp-image
+    skills: [frontend.web-vitals]
+    prompt: "The hero image is the LCP element and LCP is 3.8 s. Which change makes it worse?"
+    options:
+      - "Putting the <img> in the server HTML instead of creating it in JavaScript"
+      - "fetchpriority=\"high\" on the image"
+      - "loading=\"lazy\" on the image"
+      - "Serving a smaller, correctly sized file"
+    answer: 2
+    explanation: "Lazy loading waits for layout to decide the image is visible, delaying the most important request on the page."
+  - id: inp
+    skills: [frontend.web-vitals, frontend.rendering]
+    prompt: "A click handler does 400 ms of synchronous work before updating the screen, and INP is 450 ms. What helps most?"
+    options:
+      - "Running the work in a setTimeout of 1000 ms"
+      - "Updating the UI first, then doing the work in chunks that yield to the main thread (or in a worker)"
+      - "Adding loading=\"lazy\" to the button"
+      - "Moving the listener from click to mousedown"
+    answer: 1
+    explanation: "INP measures until the next paint: give immediate feedback and break the long task so the browser can paint and respond."
+  - id: url-sink
+    skills: [frontend.security]
+    prompt: "A profile's website, typed by its owner, becomes link.href = website. What is the risk, and the fix?"
+    options:
+      - "None: href is not an HTML sink"
+      - "A javascript: URL runs code on click; parse with new URL() and allow only http: and https:"
+      - "The link may be slow; add rel=\"preload\""
+      - "Escape the value with encodeURIComponent"
+    answer: 1
+    explanation: "URL sinks run javascript: URLs; check the parsed protocol against an allow list."
+  - id: trusted-types
+    skills: [frontend.security]
+    prompt: "What does require-trusted-types-for 'script' add to a CSP that already has script-src 'self'?"
+    options:
+      - "It allows inline scripts that carry a nonce"
+      - "DOM sinks such as innerHTML refuse plain strings, so DOM-based XSS sinks fail loudly"
+      - "It blocks third-party cookies"
+      - "It encrypts the page's scripts"
+    answer: 1
+    explanation: "Trusted Types make string-to-code sinks throw unless the value comes from a policy, closing DOM XSS that script-src cannot see."
+  - id: cors-credentials
+    skills: [frontend.security]
+    prompt: "https://app.example calls https://api.example with credentials: \"include\". The API answers Access-Control-Allow-Origin: *. What happens?"
+    options:
+      - "It works: * allows every origin"
+      - "The browser blocks the response: with credentials the API must name the origin and send Access-Control-Allow-Credentials: true"
+      - "The server rejects the request"
+      - "The cookies are sent but the response is cached"
+    answer: 1
+    explanation: "The wildcard is not allowed for credentialed requests; the browser keeps the response from the page."
+  - id: caching
+    skills: [frontend.build-tools]
+    prompt: "A build writes app.3f9a2c.js and index.html. Which caching avoids both stale pages and needless downloads?"
+    options:
+      - "max-age=3600 on everything"
+      - "immutable with a one-year max-age on app.3f9a2c.js, no-cache on index.html"
+      - "no-store on everything"
+      - "immutable on index.html, no-cache on app.3f9a2c.js"
+    answer: 1
+    explanation: "Hashed names change when their content does, so they can be cached forever; the HTML that points at them must be revalidated."

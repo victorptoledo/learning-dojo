@@ -1,0 +1,96 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #1c1917;
+  background: #fff;
+}
+
+.shop-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #d6d3d1;
+}
+
+.shop-name {
+  margin: 0;
+  font-weight: 700;
+}
+
+.product {
+  max-width: 50rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.price {
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.thumbs {
+  display: flex;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0.5rem 0 1rem;
+  padding: 0;
+}
+
+.thumbs img {
+  width: 6rem;
+}
+
+button {
+  font: inherit;
+  padding: 0.5rem 1rem;
+  border: 2px solid #9a3412;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #9a3412;
+  cursor: pointer;
+}
+
+table {
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+th,
+td {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #d6d3d1;
+  text-align: left;
+}
+
+.reviews ul {
+  list-style: none;
+  padding: 0;
+}
+
+.review {
+  border-top: 1px solid #e7e5e4;
+  padding: 0.5rem 0;
+}
+
+.review p {
+  margin: 0.25rem 0;
+}
+
+.review-author {
+  font-weight: 700;
+}
+
+.review-author a {
+  color: #9a3412;
+}
