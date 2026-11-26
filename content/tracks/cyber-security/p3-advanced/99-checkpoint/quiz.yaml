@@ -1,0 +1,81 @@
+questions:
+  - id: log-what-not
+    skills: [cyber-security.logging-detection]
+    prompt: "Which field should a failed-login log event NOT contain?"
+    options:
+      - "The source IP address"
+      - "The password that was typed"
+      - "The account id that was tried"
+      - "A request or trace id"
+    answer: 1
+    explanation: "Typed passwords are often the real password with a typo, or a password for another account. Log who, from where, when and the outcome, never the secret."
+  - id: log-injection
+    skills: [cyber-security.logging-detection]
+    prompt: "A username contains a newline followed by a fake 'login ok user=admin' entry. What stops it from forging a second log line?"
+    options:
+      - "Lower-casing the username"
+      - "Writing structured logs (one JSON object per line) so the newline is escaped inside the field"
+      - "Hashing the whole log file every night"
+      - "Rejecting usernames longer than 32 characters"
+    answer: 1
+    explanation: "Structured logging encodes control characters inside the value, so one event is always one line. Tamper-evident storage is a separate control."
+  - id: spraying
+    skills: [cyber-security.logging-detection]
+    prompt: "One IP fails a single login against each of 40 different accounts in five minutes. Which detection catches it when 'failures per account' does not?"
+    options:
+      - "Failures per account in the window"
+      - "Distinct accounts failed per source IP in the window (password spraying)"
+      - "Successful logins per day"
+      - "Average response time"
+    answer: 1
+    explanation: "Spraying tries one or two common passwords on many accounts, so each account stays below any per-account lockout."
+  - id: sshd-effective
+    skills: [cyber-security.hardening]
+    prompt: "sshd_config says 'PasswordAuthentication no', but an Include earlier in the file sets it to yes. How do you know which value sshd uses?"
+    options:
+      - "The last line in the file always wins"
+      - "Run sshd -T, which prints the effective configuration; for most keywords sshd keeps the first value it reads"
+      - "Restart the server and try to log in with a password"
+      - "Grep the file for the keyword"
+    answer: 1
+    explanation: "sshd uses the first value obtained for most keywords, and Includes and Match blocks change it. Audit the effective configuration, not the text."
+  - id: baseline
+    skills: [cyber-security.hardening]
+    prompt: "Why harden servers from a baseline such as a CIS Benchmark applied by configuration management?"
+    options:
+      - "Because benchmarks make servers faster"
+      - "So every server gets the same reviewed settings, drift is detected and a rebuilt server comes back hardened"
+      - "Because it removes the need to patch"
+      - "So that SSH can stay on port 22"
+    answer: 1
+    explanation: "A baseline in code is repeatable and auditable; hand-made changes drift and are lost on rebuild."
+  - id: csp-strict
+    skills: [cyber-security.web-hardening]
+    prompt: "Which script-src makes a Content-Security-Policy a real second line of defence against XSS?"
+    options:
+      - "script-src * 'unsafe-inline'"
+      - "script-src 'nonce-<random per response>' 'strict-dynamic', with object-src 'none' and base-uri 'none'"
+      - "script-src https:"
+      - "No script-src, only default-src *"
+    answer: 1
+    explanation: "A fresh nonce per response lets only the page's own scripts run; 'unsafe-inline' or a broad host list lets injected scripts run too."
+  - id: oidc
+    skills: [cyber-security.cloud-supply-chain]
+    prompt: "Why replace the long-lived cloud access key in CI with OIDC federation?"
+    options:
+      - "OIDC keys are longer"
+      - "Each run gets short-lived credentials for a role that trusts only this repository and branch, so there is no stored secret to leak or rotate"
+      - "OIDC encrypts the build logs"
+      - "Because access keys cannot be used from CI"
+    answer: 1
+    explanation: "The cloud trusts a signed token from the CI provider with claims about the repository and ref, and issues credentials that expire in minutes."
+  - id: pin-sha
+    skills: [cyber-security.cloud-supply-chain]
+    prompt: "A workflow uses 'some-org/deploy-action@v2'. What is the risk, and the fix?"
+    options:
+      - "None: tags are immutable"
+      - "Whoever controls the tag can move it to malicious code that runs with your secrets; pin the action to a full commit SHA"
+      - "v2 is too old; use @main"
+      - "The action runs slower; cache it"
+    answer: 1
+    explanation: "Tags and branches are mutable references. A full 40-character commit SHA is the only immutable pin, and tools such as Dependabot keep it up to date."

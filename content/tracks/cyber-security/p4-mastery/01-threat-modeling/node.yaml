@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Draw a data flow diagram with trust boundaries for a feature", skills: [cyber-security.threat-modeling] }
   - { id: o2, text: "Enumerate threats with STRIDE and map each to a mitigation", skills: [cyber-security.threat-modeling] }
   - { id: o3, text: "Prioritise threats and run threat modeling as a recurring part of design", skills: [cyber-security.threat-modeling] }
-prerequisites: [cyber-security.p3.cloud-supply-chain]
+prerequisites: [cyber-security.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 55
 xp: 300
