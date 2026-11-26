@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p5.bit-manipulation
+kind: lesson
+status: draft
+title: "Bit Manipulation"
+summary: "Two's complement and Java's signed integers, the bitwise operators and shifts, the classic tricks (test, set, clear, lowest bit, powers of two, XOR cancelling), bitmasks as small sets, and where bits power real systems: flags, Bloom filters, bitmap indexes and hashing."
+objectives:
+  - { id: o1, text: "Read and write the bitwise operators and shifts, including Java's >> and >>> on negative numbers", skills: [datastructures-and-algorithms.bit-manipulation] }
+  - { id: o2, text: "Apply the classic tricks: single-bit operations, lowest set bit, power-of-two tests, popcount and XOR cancelling", skills: [datastructures-and-algorithms.bit-manipulation] }
+  - { id: o3, text: "Use bitmasks as compact sets for enumeration and DP, and BitSet or long words for large boolean arrays", skills: [datastructures-and-algorithms.bit-manipulation, datastructures-and-algorithms.dynamic-programming] }
+prerequisites: [datastructures-and-algorithms.p5.greedy]
+difficulty: 3
+estimated_minutes: 40
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A feature-flag service stores, for each of 50 million users, which of 40 features are enabled, and must answer (1) "is feature f on for user u", (2) "how many features does user u have", (3) "which users have both features a and b" for analytics, and (4) a nightly integrity check that finds the single user id that appears an odd number of times in a log where every other id appears exactly twice. Propose a representation for (1) and (2) with the exact bit operations and the memory needed, a structure for (3), and an O(n) time, O(1) memory solution for (4). Point out at least one pitfall with shifts or signed integers in Java.'
+  criteria:
+    - 'Stores each user''s flags in a long (40 bits fit in 64): test with (flags >>> f) & 1 or flags & (1L << f), about 400 MB for 50 million users'
+    - 'Counts features with Long.bitCount(flags)'
+    - 'For (3), one bitmap per feature over user ids (BitSet or compressed bitmaps such as Roaring) and a bitwise AND of two bitmaps'
+    - 'For (4), XOR all ids: pairs cancel (x ^ x = 0) and the result is the odd one out'
+    - 'Mentions a pitfall: 1 << f with an int overflows for f >= 31 (use 1L), shift distances are taken mod 32 or 64, or >> keeps the sign while >>> does not'

@@ -1,0 +1,31 @@
+questions:
+  - id: prefix-min
+    prompt: "Why can prefix sums answer range sums but not range minimums?"
+    options: ["Minimums are too large", "Subtraction undoes a sum, but nothing undoes a minimum: min over [0, hi) and [0, lo) does not give min over [lo, hi)", "Prefix sums only work on sorted data", "They can, with a second array"]
+    answer: 1
+    explanation: "Prefix tricks need an inverse operation. For minimums on static data, use a sparse table."
+  - id: sparse-overlap
+    prompt: "A sparse table answers a range minimum with two ranges that overlap. Why is that safe for min but not for sum?"
+    options: ["Min is idempotent: counting a value twice does not change the minimum, but it doubles part of a sum", "Sums need sorted data", "Min is faster to compute", "It is not safe for either"]
+    answer: 0
+    explanation: "Overlap is fine for idempotent operations (min, max, gcd, AND, OR)."
+  - id: fenwick-cost
+    prompt: "What do a point update and a prefix sum cost in a Fenwick tree of n values?"
+    options: ["O(1) and O(n)", "O(log n) each", "O(n) each", "O(n log n) and O(1)"]
+    answer: 1
+    explanation: "Each loop moves by the lowest set bit, touching at most log₂ n + 1 cells."
+  - id: fenwick-zero
+    prompt: "What happens if a 1-based Fenwick update loop `for (i = index; i <= n; i += i & -i)` is called with index 0?"
+    options: ["It updates cell 0", "It never ends: 0 & -0 is 0, so i never grows", "It throws an exception", "It updates every cell"]
+    answer: 1
+    explanation: "Keep the Fenwick array 1-based inside the class and add 1 to the caller's 0-based index."
+  - id: segment-operation
+    prompt: "Which property must an operation have for a segment tree to combine ranges with it?"
+    options: ["An inverse", "Associativity", "Commutativity and an inverse", "It must be addition"]
+    answer: 1
+    explanation: "Each node combines its two children's results, so (a·b)·c must equal a·(b·c). No inverse is needed."
+  - id: range-updates
+    prompt: "Many 'add x to every value in [lo, hi)' updates arrive, mixed with range-sum queries. What fits?"
+    options: ["A sparse table", "Prefix sums rebuilt after each update", "A segment tree with lazy propagation (or two Fenwick trees)", "A difference array read after each update"]
+    answer: 2
+    explanation: "Lazy propagation keeps pending updates at the nodes that cover whole ranges; a difference array only fits when the updates all come before the reads."

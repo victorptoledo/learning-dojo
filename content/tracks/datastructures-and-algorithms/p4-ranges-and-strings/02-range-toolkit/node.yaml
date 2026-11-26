@@ -1,0 +1,49 @@
+id: datastructures-and-algorithms.p4.range-toolkit
+kind: kata
+status: draft
+title: "Range Toolkit"
+summary: "A difference array, a Fenwick tree with an O(n) build and a search by prefix, a sparse table for O(1) range minimums and a segment tree for the maximum and its first position."
+objectives:
+  - { id: o1, text: "Implement a Fenwick tree with point updates, range sums and an O(log n) search by prefix", skills: [datastructures-and-algorithms.range-queries, datastructures-and-algorithms.bit-manipulation] }
+  - { id: o2, text: "Answer range minimums in O(1) with a sparse table and range maximums with updates using a segment tree", skills: [datastructures-and-algorithms.range-queries, datastructures-and-algorithms.trees-heaps] }
+prerequisites: [datastructures-and-algorithms.p4.range-queries]
+difficulty: 4
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Ask two questions for each class: does the array change after it is built, and does the operation have an inverse? Sums with changes need partial sums that each update touches only a few of. Minimums on a fixed array can afford a lot of precomputation as long as each query reads a constant number of cells. Maximums with changes need a tree whose nodes summarise their halves.
+    - |-
+      `applyRangeAdds`: `diff[lo] += delta; diff[hi] -= delta`, then one running sum. `Fenwick`: keep a 1-based `long[] tree` plus a copy of the values (for `get`, `set` and a count of negative values); `sum(lo, hi) = prefix(hi) - prefix(lo)`. `SparseMin`: `table[k][i]` is the minimum of `[i, i + 2^k)`; a query reads level `31 - Integer.numberOfLeadingZeros(hi - lo)` at `lo` and at `hi - 2^k`. `MaxTree`: an `int[2n]` of positions, leaves at `n + i`, each parent the better of its two children, preferring the smaller position on ties.
+    - |-
+      ```java
+      public int firstReaching(long target) {
+          // ... check target > 0 and that no value is negative
+          int position = 0;          // how many values are known to add up to less than target
+          long remaining = target;
+          for (int step = Integer.highestOneBit(Math.max(1, n)); step > 0; step >>= 1) {
+              int next = position + step;
+              if (next <= n && tree[next] < remaining) {
+                  position = next;
+                  remaining -= tree[next];
+              }
+          }
+          return position < n ? position : -1;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

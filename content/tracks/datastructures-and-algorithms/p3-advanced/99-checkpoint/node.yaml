@@ -1,0 +1,53 @@
+id: datastructures-and-algorithms.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on shortest paths, union-find, spanning trees, tries and dynamic programming, and the search core of a fare site with regions, the cheapest fare, a flight limit, code suggestions and the cheapest network."
+objectives:
+  - { id: o1, text: "Explain Dijkstra and its limits, union-find and its optimisations, the cut property, tries and the cost of a dynamic programme", skills: [datastructures-and-algorithms.shortest-paths, datastructures-and-algorithms.tries, datastructures-and-algorithms.dynamic-programming] }
+  - { id: o2, text: "Combine union-find, Dijkstra, a DP over the number of flights, a trie with a bounded heap and Kruskal in one service", skills: [datastructures-and-algorithms.shortest-paths, datastructures-and-algorithms.tries, datastructures-and-algorithms.dynamic-programming, datastructures-and-algorithms.trees-heaps] }
+prerequisites: [datastructures-and-algorithms.p3.dp-toolkit]
+difficulty: 4
+estimated_minutes: 100
+xp: 450
+closes_phase: p3
+covers_skills: [datastructures-and-algorithms.shortest-paths, datastructures-and-algorithms.tries, datastructures-and-algorithms.dynamic-programming]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 240 }
+  hints:
+    - |-
+      Five questions, five tools from this phase. Which one answers "same region?" while routes keep arriving, which one finds a cheapest fare when prices are never negative, and which one picks the cheapest edges that close no cycle? For the flight limit, think of the brute-force recursion "cheapest from here with f flights left": what are its arguments, and in which order can you fill them?
+    - |-
+      Give every airport an `int` id on first sight and keep `parent`, `size` and `degree` arrays that grow with it; `addRoute` does the union right away, so `connected` is two `find` calls. `cheapest` is Dijkstra with a `PriorityQueue<long[]>` and lazy deletion. `cheapestWithin` keeps `best[airport]` for "at most f flights" and runs f rounds over all routes, each round writing into a copy of the previous one; since a cheapest route never repeats an airport, a limit of n − 1 or more is just `cheapest`. `suggest` walks a trie of `Node[26]` to the prefix and keeps the best `limit` airports below it in a heap whose head is the worst. `networkCost` is Kruskal with a fresh union-find.
+    - |-
+      ```java
+      long[] best = new long[n];
+      Arrays.fill(best, Long.MAX_VALUE);
+      best[source] = 0;
+      for (int flights = 1; flights <= maxFlights; flights++) {
+          long[] next = best.clone();            // read the previous round only
+          boolean changed = false;
+          for (Route r : routes) {
+              if (best[r.from()] == Long.MAX_VALUE) continue;
+              long candidate = best[r.from()] + r.price();
+              if (candidate < next[r.to()]) { next[r.to()] = candidate; changed = true; }
+          }
+          best = next;
+          if (!changed) break;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

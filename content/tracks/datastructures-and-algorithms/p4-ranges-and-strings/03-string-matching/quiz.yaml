@@ -1,0 +1,31 @@
+questions:
+  - id: naive-worst
+    prompt: "What is the worst case of searching a pattern of length m in a text of length n by trying every start?"
+    options: ["O(n)", "O(n + m)", "O(n · m), for example text aaaa…a and pattern aaa…ab", "O(m log n)"]
+    answer: 2
+    explanation: "Every start matches m - 1 characters before failing. String.indexOf has the same worst case."
+  - id: prefix-function
+    prompt: "What is pi[i] in the KMP prefix function of a pattern?"
+    options: ["The number of times pattern[i] occurs", "The length of the longest proper prefix of pattern[0..i] that is also its suffix", "The position of the next mismatch", "The hash of pattern[0..i]"]
+    answer: 1
+    explanation: "After a mismatch, that border is the longest part of the match that can still be the start of a new match."
+  - id: overlapping
+    prompt: "How many times does 'aa' occur in 'aaaa', counting overlapping occurrences, and where does KMP resume after a full match?"
+    options: ["2, at 0 matched characters", "3, at pi[m - 1] matched characters", "4, at m matched characters", "3, at 0 matched characters"]
+    answer: 1
+    explanation: "Matches start at 0, 1 and 2; resuming at the border keeps overlapping matches."
+  - id: period
+    prompt: "For 'abcabcabc' the prefix function ends with pi[8] = 6. What is the smallest period?"
+    options: ["6", "3", "9", "1"]
+    answer: 1
+    explanation: "n - pi[n - 1] = 9 - 6 = 3, and 9 is a multiple of 3, so the string is 'abc' repeated."
+  - id: rolling-collision
+    prompt: "Two windows have the same rolling hash as the pattern. What must a correct Rabin-Karp do?"
+    options: ["Report both as matches", "Compare the characters, because different strings can share a hash", "Rehash with a different modulus", "Skip both"]
+    answer: 1
+    explanation: "With verification a collision only costs time; a large modulus and a random base make collisions rare."
+  - id: many-patterns
+    prompt: "You must find which of 5,000 signatures of different lengths occur in a long text, in one pass. Which algorithm fits?"
+    options: ["KMP once per signature", "Aho-Corasick: a trie of the signatures with failure links", "Sorting the signatures", "A sparse table"]
+    answer: 1
+    explanation: "Aho-Corasick runs in O(n + total signature length + matches); 5,000 KMP passes read the text 5,000 times."

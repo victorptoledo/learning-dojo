@@ -4,7 +4,7 @@ name: "Data Structures & Algorithms"
 archetype: language
 category: "CS Fundamentals"
 icon: "🧠"
-description: "The data structures and algorithmic techniques behind every library and every coding interview: Big-O and amortised cost, arrays, hashing, lists, stacks and queues, two pointers and sliding windows, sorting and binary search, recursion and backtracking, trees and heaps, graphs, union-find, tries, dynamic programming, greedy algorithms and bits. Each structure is tied to where the JDK and real systems use it, and practised as Java katas whose hidden tests also check the running time."
+description: "The data structures and algorithmic techniques behind every library and every coding interview: Big-O and amortised cost, arrays, hashing, lists, stacks and queues, two pointers and sliding windows, sorting and binary search, recursion and backtracking, trees and heaps, graphs, union-find, tries, dynamic programming, range queries with Fenwick and segment trees, string matching with KMP and rolling hashes, greedy algorithms and bits. Each structure is tied to where the JDK and real systems use it, and practised as Java katas whose hidden tests also check the running time."
 status: draft
 bridges_available: [java, python, javascript, csharp, go]
 belts:
@@ -13,14 +13,15 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Binary Tree Searcher" }
   - { name: "Purple Belt", required_xp: 1500, title: "Graph Path Finder" }
   - { name: "Brown Belt", required_xp: 2500, title: "Dynamic Programmer" }
-  - { name: "Black Belt", required_xp: 4000, title: "Algorithm Virtuoso" }
-  - { name: "Sensei", required_xp: 6000, title: "Knuth Disciple" }
+  - { name: "Black Belt", required_xp: 4800, title: "Algorithm Virtuoso" }
+  - { name: "Sensei", required_xp: 7000, title: "Knuth Disciple" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Read code in Big-O, reason about amortised cost and build a growable array" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Arrays and strings, hash tables, linked lists, stacks and queues, two pointers and sliding windows" }
   - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Sorting and binary search, recursion and backtracking, trees and heaps, and graph traversal" }
   - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Shortest paths and union-find, tries, and dynamic programming from memoisation to tables" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Greedy algorithms, bit manipulation and solving a problem out loud in an interview" }
+  - { id: p4, dir: p4-ranges-and-strings, title: "Range Queries and Strings", goal: "Prefix sums, sparse tables, Fenwick and segment trees for range questions, and KMP and rolling hashes for searching text" }
+  - { id: p5, dir: p5-mastery, title: "Mastery", goal: "Greedy algorithms, bit manipulation and solving a problem out loud in an interview" }
 requirements:
   - kind: tool
     name: JDK 25 (java)

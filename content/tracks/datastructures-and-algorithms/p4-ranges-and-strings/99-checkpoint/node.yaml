@@ -1,0 +1,56 @@
+id: datastructures-and-algorithms.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 4: Range Queries and Strings"
+summary: "Prove the range queries and strings phase: a quiz on prefix sums, sparse tables, Fenwick and segment trees, KMP, rolling hashes and Aho-Corasick, and an editable log index that counts watched patterns per line and answers range sums, the next match and the busiest line."
+objectives:
+  - { id: o1, text: "Choose a range structure from whether the data changes and which operation combines it, and explain KMP, rolling hashes and multi-pattern search", skills: [datastructures-and-algorithms.range-queries, datastructures-and-algorithms.string-matching] }
+  - { id: o2, text: "Combine KMP counting with a growable Fenwick tree (sums, search by prefix) and a segment tree (first argmax) under appends and edits", skills: [datastructures-and-algorithms.range-queries, datastructures-and-algorithms.string-matching, datastructures-and-algorithms.complexity] }
+prerequisites: [datastructures-and-algorithms.p4.text-search]
+difficulty: 4
+estimated_minutes: 100
+xp: 500
+closes_phase: p4
+covers_skills: [datastructures-and-algorithms.range-queries, datastructures-and-algorithms.string-matching]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 240 }
+  hints:
+    - |-
+      Separate the two halves of the problem. Turning a line into a number (how many times does the pattern occur in it?) is string matching, done once per line and pattern when the line arrives or changes. After that, every question is about an array of numbers indexed by line: which range structures answer a sum, "the first position where the running total grows" and "the position of the maximum" while single positions change?
+    - |-
+      Keep one `Watch` per pattern with its prefix function, a `long[] count`, a 1-based `long[] fenwick` and an `int[] best` segment tree of positions (leaves at `capacity + i`). `append` and `replace` run KMP on the line, then `set(line, value)` updates both trees with the difference. `count` is `prefix(to) - prefix(from)`; `firstLineWith` searches for the first position whose running total reaches `prefix(from) + 1`; `busiestLine` is the iterative range query over `best`. When the number of lines reaches the capacity, double it and rebuild both trees from `count` in O(n).
+    - |-
+      ```java
+      long occurrences(String text) {           // KMP: overlapping matches, no restart
+          long found = 0;
+          for (int i = 0, k = 0; i < text.length(); i++) {
+              char c = text.charAt(i);
+              while (k > 0 && c != pattern.charAt(k)) k = pi[k - 1];
+              if (c == pattern.charAt(k)) k++;
+              if (k == pattern.length()) { found++; k = pi[k - 1]; }
+          }
+          return found;
+      }
+
+      void set(int line, long value) {
+          long delta = value - count[line];
+          count[line] = value;
+          for (int i = line + 1; i <= capacity; i += i & -i) fenwick[i] += delta;
+          for (int i = (line + capacity) / 2; i >= 1; i /= 2) best[i] = better(best[2 * i], best[2 * i + 1]);
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

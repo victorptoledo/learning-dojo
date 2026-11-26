@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p5.interview-practice
+kind: lesson
+status: draft
+title: "Solving Problems Out Loud"
+summary: "A repeatable way to work a coding interview problem in front of someone: clarify, work examples, state a brute force, find the bottleneck, map signals to techniques, code cleanly, test by hand and analyse, while thinking aloud the whole time."
+objectives:
+  - { id: o1, text: "Follow a structured approach from clarifying questions to complexity analysis, narrating each step", skills: [datastructures-and-algorithms.problem-solving] }
+  - { id: o2, text: "Map problem signals (sorted, contiguous, top k, dependencies, all combinations) to the techniques of this track", skills: [datastructures-and-algorithms.problem-solving, datastructures-and-algorithms.two-pointers, datastructures-and-algorithms.graphs-bfs-dfs] }
+  - { id: o3, text: "Test code by hand with normal, edge and adversarial cases, and recover gracefully from bugs and hints", skills: [datastructures-and-algorithms.problem-solving] }
+prerequisites: [datastructures-and-algorithms.p5.bit-manipulation]
+difficulty: 3
+estimated_minutes: 45
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write the transcript of how you would talk through this interview problem, without writing the final code: "Given a log of user sessions as (userId, loginTime, logoutTime), return the maximum number of users online at the same time, and one moment when it happens." Cover, in order: the clarifying questions you would ask (at least four), a small example you work by hand, the brute-force idea and its cost, the bottleneck, the improved approach with its time and memory, how you would structure the code (helper functions, names), the test cases you would run by hand including edge cases, and one follow-up question the interviewer might ask with your answer.'
+  criteria:
+    - 'Asks useful clarifying questions: inclusive or exclusive endpoints, the same user logged in twice, input size and order, time format, ties for the moment'
+    - 'Works a concrete example by hand and states a brute force (check every moment or every pair) with its cost'
+    - 'Identifies the bottleneck and proposes a sweep line: sort the login and logout events (logouts before logins at equal times if exclusive) and keep a running count, O(n log n) time, O(n) memory; or a min-heap of logout times'
+    - 'Plans clean code with small helpers and meaningful names, and tests edge cases: empty log, one session, identical times, nested and touching sessions'
+    - 'Handles a follow-up (streaming input, per-minute histogram, very large n) with a sensible answer'
