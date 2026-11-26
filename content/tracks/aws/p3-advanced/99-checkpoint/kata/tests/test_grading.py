@@ -50,11 +50,10 @@ def key_request(principal, action, via=None):
 
 
 def key_decision(stack, request):
-    # KMS reads the key policy first. The callers' own IAM policies are taken to allow
-    # everything: in the key's account the key policy alone decides, and across accounts
-    # the caller's account must allow too.
-    identity = [EVERYTHING] if request.principal_account != ACCOUNT else []
-    return iam.evaluate(request, identity=identity, resource_policy=key_policy(stack))
+    # The callers' own IAM policies are taken to allow everything, so the key policy
+    # decides: KMS always needs it to allow, and a statement for the account root only
+    # lets IAM policies work, under that statement's conditions.
+    return iam.evaluate(request, identity=[EVERYTHING], resource_policy=key_policy(stack))
 
 
 def plan_rules(stack):

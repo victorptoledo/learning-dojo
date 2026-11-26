@@ -107,7 +107,11 @@ be protected (who may change them is now a security question).
 3. **Every SCP level and every RCP level** must allow (an implicit deny there is final).
 4. A **boundary**, if present, must allow; **session policies**, if present, must allow.
 5. Same account: an allow in the identity policy **or** the resource policy → allow.
-   Cross-account: both → allow.
+   A resource policy that names only the **account** (`arn:aws:iam::<account>:root` or
+   the account id) delegates to it: the identity policy must allow too. One that names the
+   role or user ARN is enough by itself. Cross-account: both → allow. (KMS is stricter:
+   the key policy must always allow, and the account principal is what lets IAM policies
+   work at all.)
 6. Otherwise → implicit deny.
 
 ## Summary

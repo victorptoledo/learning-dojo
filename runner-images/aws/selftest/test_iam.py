@@ -136,6 +136,79 @@ def test_same_account_resource_policy_alone_is_enough():
     assert iam.allowed(req("s3:GetObject", "arn:aws:s3:::b/k"), identity=[], resource_policy=bucket)
 
 
+def resource_allow(principal, action="s3:GetObject", resource="arn:aws:s3:::b/*"):
+    return policy({"Effect": "Allow", "Principal": principal, "Action": action, "Resource": resource})
+
+
+GET = req("s3:GetObject", "arn:aws:s3:::b/k")
+READ_B = policy(allow("s3:GetObject", "arn:aws:s3:::b/*"))
+
+
+@pytest.mark.parametrize("principal", [{"AWS": f"arn:aws:iam::{A}:root"}, {"AWS": A}, f"arn:aws:iam::{A}:root"])
+def test_an_account_principal_only_delegates_to_identity_policies(principal):
+    # "Principal element": an account principal delegates to the account, whose
+    # identity-based policies must still grant the permission.
+    bucket = resource_allow(principal)
+    assert iam.evaluate(GET, identity=[], resource_policy=bucket) == iam.IMPLICIT_DENY
+    assert iam.evaluate(GET, identity=[policy(allow("s3:PutObject"))], resource_policy=bucket) == iam.IMPLICIT_DENY
+    assert iam.allowed(GET, identity=[READ_B], resource_policy=bucket)
+
+
+def test_a_kms_key_policy_that_enables_iam_policies():
+    key = f"arn:aws:kms:eu-west-1:{A}:key/1234abcd-12ab-34cd-56ef-1234567890ab"
+    enable_iam = policy({"Effect": "Allow", "Principal": {"AWS": f"arn:aws:iam::{A}:root"}, "Action": "kms:*",
+                         "Resource": "*"})
+    decrypt = req("kms:Decrypt", key)
+    assert not iam.allowed(decrypt, identity=[], resource_policy=enable_iam)
+    assert iam.allowed(decrypt, identity=[policy(allow("kms:Decrypt", key))], resource_policy=enable_iam)
+    via_backup = policy({**enable_iam["Statement"][0], "Condition": {"StringEquals": {"kms:ViaService": "backup"}}})
+    assert iam.allowed(req("kms:Decrypt", key, **{"kms:ViaService": "backup"}), identity=[ADMIN],
+                       resource_policy=via_backup)
+    # Only the key policy grants access to a key: an IAM policy alone never does.
+    assert not iam.allowed(decrypt, identity=[ADMIN], resource_policy=via_backup)
+    assert not iam.allowed(decrypt, identity=[ADMIN], resource_policy=resource_allow({"AWS": OTHER}, "kms:*", "*"))
+
+
+def test_a_specific_principal_in_the_resource_policy_is_enough():
+    for principal in ({"AWS": ROLE}, {"AWS": [f"arn:aws:iam::{A}:root", ROLE]}, "*", {"AWS": "*"}):
+        assert iam.allowed(GET, identity=[], resource_policy=resource_allow(principal)), principal
+    session = iam.Request(f"arn:aws:sts::{A}:assumed-role/app/s-1", "s3:GetObject", "arn:aws:s3:::b/k")
+    assert iam.allowed(session, identity=[], resource_policy=resource_allow({"AWS": ROLE}))
+    other_role = resource_allow({"AWS": f"arn:aws:iam::{A}:role/other"})
+    assert not iam.allowed(GET, identity=[], resource_policy=other_role)
+
+
+def test_an_explicit_deny_wins_over_account_and_specific_grants():
+    deny_role = {"Effect": "Deny", "Principal": {"AWS": ROLE}, "Action": "s3:GetObject", "Resource": "*"}
+    account_and_deny = policy(resource_allow({"AWS": A})["Statement"][0], deny_role)
+    assert iam.evaluate(GET, identity=[READ_B], resource_policy=account_and_deny) == iam.EXPLICIT_DENY
+    in_identity = policy(deny("s3:GetObject"))
+    named = resource_allow({"AWS": ROLE})
+    assert iam.evaluate(GET, identity=[in_identity], resource_policy=named) == iam.EXPLICIT_DENY
+    deny_account = policy({"Effect": "Deny", "Principal": {"AWS": A}, "Action": "s3:*", "Resource": "*"})
+    assert iam.evaluate(GET, identity=[READ_B], resource_policy=policy(named["Statement"][0],
+                                                                      deny_account["Statement"][0])) == iam.EXPLICIT_DENY
+
+
+def test_an_account_principal_in_a_trust_policy_needs_the_identity_policy():
+    trust = policy({"Effect": "Allow", "Principal": {"AWS": f"arn:aws:iam::{A}:root"}, "Action": "sts:AssumeRole"})
+    user = f"arn:aws:iam::{A}:user/ada"
+    assume = iam.Request(user, "sts:AssumeRole", f"arn:aws:iam::{A}:role/ops")
+    assert not iam.allowed(assume, identity=[], resource_policy=trust)
+    assert iam.allowed(assume, identity=[policy(allow("sts:AssumeRole", f"arn:aws:iam::{A}:role/ops"))],
+                       resource_policy=trust)
+    named = policy({"Effect": "Allow", "Principal": {"AWS": user}, "Action": "sts:AssumeRole"})
+    assert iam.allowed(assume, identity=[], resource_policy=named)
+
+
+def test_cross_account_account_principal_needs_both_sides():
+    bucket = resource_allow({"AWS": f"arn:aws:iam::{B}:root"})
+    request = iam.Request(OTHER, "s3:GetObject", "arn:aws:s3:::b/k", resource_account=A)
+    assert not iam.allowed(request, identity=[], resource_policy=bucket)
+    assert iam.allowed(request, identity=[READ_B], resource_policy=bucket)
+    assert not iam.allowed(request, identity=[READ_B], resource_policy=resource_allow({"AWS": f"arn:aws:iam::{A}:root"}))
+
+
 def test_cross_account_needs_both_sides():
     bucket = policy({"Effect": "Allow", "Principal": {"AWS": OTHER}, "Action": "s3:GetObject",
                      "Resource": "arn:aws:s3:::b/*"})
