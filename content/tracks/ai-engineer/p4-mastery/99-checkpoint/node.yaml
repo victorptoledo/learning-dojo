@@ -1,0 +1,56 @@
+id: ai-engineer.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on fine-tuning, serving, evaluation and owning AI features, and a model migration: size an open-weight candidate on a GPU, gate candidates on pinned ids, safety, quality per slice, latency and cost, and run a staged canary with stable buckets and automatic rollback."
+objectives:
+  - { id: o1, text: "Size self-hosting from weights, KV cache and utilisation, and compare its cost per million tokens with an API", skills: [ai-engineer.serving, ai-engineer.cost-latency] }
+  - { id: o2, text: "Turn offline evals into a written release gate that sees slice regressions an average hides", skills: [ai-engineer.evaluation, ai-engineer.production, ai-engineer.fine-tuning] }
+  - { id: o3, text: "Roll out a model change in stages with stable user buckets and automatic rollback on online signals", skills: [ai-engineer.production, ai-engineer.observability] }
+prerequisites: [ai-engineer.p4.ai-in-production]
+difficulty: 5
+estimated_minutes: 100
+xp: 500
+closes_phase: p4
+covers_skills: [ai-engineer.fine-tuning, ai-engineer.serving, ai-engineer.production]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      The three parts are independent: do the serving formulas first (check them against the table in the serving lesson: 8B at 16 bits is 16 GB), then `percentile` and `summarize`, then `gate`, then `Rollout`. In `max_concurrency`, compute the free memory first and return 0 before you divide when it is not positive.
+    - |-
+      In `summarize`, `True` counts as 1, so `sum(r.passed for r in results)` counts passes. In `gate`, build a `list` of reasons and append in the order of the statement; loop over `sorted(baseline.slices.keys() & candidate.slices.keys())` and `continue` when either total is below `min_slice_cases`. Compare `round(old - new, 6) > limit`, never `>=`.
+    - |-
+      ```python
+      def review(self, baseline, candidate):
+          if self.state != "running":
+              return self.state
+          if candidate.requests < self._min_requests:
+              return "hold"
+          errors = rate(candidate.errors, candidate.requests) - rate(baseline.errors, baseline.requests)
+          thumbs = rate(candidate.thumbs_down, candidate.requests) - rate(baseline.thumbs_down, baseline.requests)
+          if round(errors, 6) > self._max_error_increase or round(thumbs, 6) > self._max_thumbs_down_increase:
+              self.state = "rolled_back"
+              return "rollback"
+          if self._stage == len(self._stages) - 1:
+              self.state = "done"
+              return "done"
+          self._stage += 1
+          return "advance"
+      ```
+      `rate(count, requests)` is `count / requests`, or 0.0 with no requests; `percent` is 0 after a rollback.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

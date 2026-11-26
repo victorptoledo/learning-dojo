@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Choose between prompting, RAG, fine-tuning and distillation for a requirement, and justify it", skills: [ai-engineer.fine-tuning] }
   - { id: o2, text: "Explain supervised fine-tuning, preference tuning (RLHF, DPO), LoRA and QLoRA at an engineer's level", skills: [ai-engineer.fine-tuning] }
   - { id: o3, text: "Plan the data, evaluation and operating costs of a fine-tuned model", skills: [ai-engineer.fine-tuning, ai-engineer.evaluation] }
-prerequisites: [ai-engineer.p3.observability]
+prerequisites: [ai-engineer.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 50
 xp: 300
