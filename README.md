@@ -85,7 +85,7 @@ All 30 tracks are complete, with 770 lessons and checkpoints and 302 katas betwe
 | Full Stack Developer | browser to database: contracts, auth, caching, deploys, observability | 26 | 11 | `dojo-node`, `dojo-java`, `dojo-sql`, `dojo-docker` |
 | DevOps & Cloud | CI/CD, Terraform, GitOps, releases, SLOs, DevSecOps | 27 | 10 | `dojo-devops` (actionlint, Terraform 1.17, promtool, bats), `dojo-linux`, `dojo-k8s` |
 | AI Engineer | LLM features: APIs, RAG, tools, evals, guardrails | 24 | 10 | `dojo-python` (pytest against a fake, offline model) |
-| Data Engineer | pipelines, modelling, lakes, streaming | 25 | 9 | `dojo-sql`, `dojo-python` and `dojo-data` (pyarrow, DuckDB) |
+| Data Engineer | pipelines, modelling, lakes, streaming | 27 | 11 | `dojo-sql`, `dojo-python` and `dojo-data` (pyarrow, DuckDB) |
 
 Every track has a checkpoint at the end of each phase from P1 on (the Software Architect,
 Backend Java/Spring, web and platform tracks have all of them; the rest have P1 and P2 and get the others

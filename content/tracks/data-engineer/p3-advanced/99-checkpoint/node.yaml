@@ -1,0 +1,53 @@
+id: data-engineer.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz over lakehouses, Parquet and partitioning, Kafka and Spark, and an integration kata where you build a tiny lakehouse table with a transaction log and an exactly-once sink that commits its Kafka offsets together with the rows."
+objectives:
+  - { id: o1, text: "Explain table formats, Parquet pruning and partitioning, Kafka delivery guarantees and Spark shuffles and skew in your own words", skills: [data-engineer.warehouses-lakehouses, data-engineer.columnar-storage, data-engineer.streaming-kafka, data-engineer.spark-distributed] }
+  - { id: o2, text: "Build a table over Parquet files with atomic commits, conflicts, time travel, pruning, compaction and vacuum, and a stream sink that stores its offsets in the same commit as the rows", skills: [data-engineer.warehouses-lakehouses, data-engineer.columnar-storage, data-engineer.streaming-kafka] }
+prerequisites: [data-engineer.p3.spark-distributed]
+difficulty: 5
+estimated_minutes: 120
+xp: 500
+closes_phase: p3
+covers_skills: [data-engineer.warehouses-lakehouses, data-engineer.columnar-storage, data-engineer.streaming-kafka, data-engineer.spark-distributed]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-data, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with `commit` and `files`: everything else writes or reads through them. A snapshot is a replay of versions `0..n`: which data structure lets an `add` put a path in and a `remove` take it out? Which file mode refuses to create a file that already exists? In the sink, where must the offsets live so that a crash cannot separate them from the rows?
+    - |-
+      Replay into a `dict` path -> add entry and a `dict` app_id -> offsets; JSON turns the partition numbers into strings, so convert them back with `int`. In `append`, read `version()` **before** writing files, then commit at that `read_version`. `scan` skips files by `entry["partition"]` and `entry["max"]` before opening them, reads each with `pq.read_table`, adds the partition column back with `append_column`, then filters rows with `pc.greater_equal`. `vacuum` keeps the union of `files(v)` for every kept version and deletes every other `*.parquet` under `root`.
+    - |-
+      ```python
+      def run_batch(topic, table, app_id, max_records=100):
+          committed = table.offsets(app_id)
+          seen = set(table.scan(columns=["event_id"])[0]["event_id"].to_pylist())
+          offsets, rows, moved = {}, [], False
+          for partition in range(topic.partitions):
+              offsets[partition] = committed.get(partition, 0)
+              for offset, event in topic.read(partition, offsets[partition], max_records):
+                  moved = True
+                  offsets[partition] = offset + 1
+                  ...  # skip ids in seen, otherwise add a row in the partition of event_date(...)
+          if not moved:
+              return 0
+          table.append(pa.Table.from_pylist(rows, schema=SCHEMA), txn=(app_id, offsets))
+          return len(rows)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-data runner image
+    image: dojo-data
+    why: The Python 3.15 container with pytest, ruff, pyarrow and DuckDB that runs the grading tests.

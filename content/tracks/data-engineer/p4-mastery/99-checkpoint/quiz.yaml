@@ -1,0 +1,82 @@
+pass_percent: 85
+questions:
+  - id: lineage-column
+    skills: [data-engineer.lineage-governance]
+    prompt: "You want to drop stg_orders.discount. Which question does column-level lineage answer that table-level lineage cannot?"
+    options:
+      - "Which jobs read stg_orders"
+      - "Which downstream columns, and so which dashboards, are computed from discount"
+      - "Who owns the warehouse"
+      - "How many rows stg_orders has"
+    answer: 1
+    explanation: "Table lineage says every reader of stg_orders may break; column lineage narrows it to what really uses discount."
+  - id: pii-hash
+    skills: [data-engineer.lineage-governance]
+    prompt: "A mart keeps sha256(email) instead of the e-mail. Is that column still personal data?"
+    options:
+      - "No, a hash cannot be reversed"
+      - "Only if the table is public"
+      - "Yes: it is pseudonymised, and anyone who hashes a known e-mail can find the person, so it keeps its tag, masks and erasure duties"
+      - "No, as long as the hash is salted per table"
+    answer: 2
+    explanation: "Pseudonymisation reduces risk but the data still relates to an identifiable person; only aggregation or real anonymisation removes that."
+  - id: erasure
+    skills: [data-engineer.lineage-governance]
+    prompt: "A customer asks to be forgotten. Their rows sit in Iceberg tables with 30 days of snapshots. What is enough?"
+    options:
+      - "Deleting the rows in the current snapshot"
+      - "Deleting the rows in every table that holds their personal data, found through lineage, and expiring the old snapshots (or crypto-shredding their key)"
+      - "Dropping the raw table"
+      - "Waiting for the snapshots to expire"
+    answer: 1
+    explanation: "Time travel keeps the old files readable until they are expired, and copies downstream need the same treatment."
+  - id: least-privilege
+    skills: [data-engineer.lineage-governance]
+    prompt: "A new role is created for an intern and nobody has granted it anything yet. What should it be able to read?"
+    options:
+      - "Every mart, since marts are not raw data"
+      - "Everything without personal data"
+      - "Nothing: access is denied by default and granted to roles per dataset"
+      - "Whatever its manager can read"
+    answer: 2
+    explanation: "Least privilege means deny by default; a policy that fails open leaks the first table nobody thought about."
+  - id: freshness-upstream
+    skills: [data-engineer.data-reliability]
+    prompt: "fct_sales finished its run at 07:00, but the orders source it reads stopped loading yesterday morning. Its objective is 6 hours. Is it fresh?"
+    options:
+      - "Yes, it ran at 07:00"
+      - "No: a product is only as fresh as its stalest input, so measure the data's age, not the job's last run"
+      - "Yes, as long as the run succeeded"
+      - "It depends on the row count"
+    answer: 1
+    explanation: "Consumers care how recent the data is; a successful run on stale inputs publishes stale data."
+  - id: error-budget
+    skills: [data-engineer.data-reliability]
+    prompt: "A product promises to be ready by 08:00 on 99% of days. Over the last 100 days it was late 3 times. What does the error budget say?"
+    options:
+      - "1 late day was allowed and 3 happened, so the budget is spent: prioritise reliability work over new features"
+      - "3 late days are allowed, so all is well"
+      - "Nothing, error budgets are only for services"
+      - "Lower the objective to 90% so it is met"
+    answer: 0
+    explanation: "1% of 100 days is 1 day; a spent budget is the signal to move effort to reliability."
+  - id: incident-order
+    skills: [data-engineer.data-reliability, data-engineer.orchestration]
+    prompt: "A source sent amounts in cents instead of euros for two days, and fct_sales and three dashboards show wrong revenue. What comes first?"
+    options:
+      - "Fix the parser, then tell people once the backfill is done"
+      - "Write the postmortem"
+      - "Tell the consumers which data is wrong and since when, stop it spreading, then fix and backfill the two days downstream in dependency order"
+      - "Delete the dashboards"
+    answer: 2
+    explanation: "Communicate early and contain; then backfill every downstream model for the affected dates, which lineage lists."
+  - id: data-mesh
+    skills: [data-engineer.platform-leadership]
+    prompt: "Leadership wants a data mesh next quarter. Which prerequisite matters most?"
+    options:
+      - "Buying a new warehouse"
+      - "A self-serve platform and federated governance, so domain teams can own and publish data products safely"
+      - "Moving every team into the data team"
+      - "Rewriting all pipelines in Spark"
+    answer: 1
+    explanation: "Without a platform and shared standards, domain ownership turns into many inconsistent silos."

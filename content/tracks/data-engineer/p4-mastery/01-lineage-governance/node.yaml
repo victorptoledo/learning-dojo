@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Explain table and column lineage and use it for impact analysis and debugging", skills: [data-engineer.lineage-governance] }
   - { id: o2, text: "Design access control for analytical data: roles, row filters, column masks and least privilege", skills: [data-engineer.lineage-governance] }
   - { id: o3, text: "Handle personal data: classification, minimisation, retention and erasure across layers", skills: [data-engineer.lineage-governance] }
-prerequisites: [data-engineer.p3.spark-distributed]
+prerequisites: [data-engineer.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 45
 xp: 400

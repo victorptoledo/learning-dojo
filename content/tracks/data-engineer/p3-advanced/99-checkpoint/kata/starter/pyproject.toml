@@ -1,0 +1,12 @@
+[project]
+name = "lakehouse-sink"
+version = "0.1.0"
+requires-python = ">=3.15"
+dependencies = ["pyarrow==26.0.1"]
+
+[dependency-groups]
+dev = ["pytest>=9"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
