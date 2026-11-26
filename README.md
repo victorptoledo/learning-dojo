@@ -61,7 +61,7 @@ All 30 tracks are complete, with 746 lessons and checkpoints and 280 katas betwe
 | Modern Python | Python 3.15 | 24 | 7 | `dojo-python` (pytest, ruff; FastAPI for a sidequest) |
 | Go | Go 1.27 | 23 | 8 | `dojo-go` (go test -race, go vet, gofmt) |
 | TypeScript | TypeScript 7 on Node.js 26 | 23 | 9 | `dojo-node` (tsc, node:test) |
-| Node.js | Node.js 26 backends in TypeScript | 25 | 9 | `dojo-node` (tsc, node:test; real servers, workers and child processes) |
+| Node.js | Node.js 26 backends in TypeScript | 27 | 11 | `dojo-node` (tsc, node:test; real servers, workers and child processes) |
 | Modern C++ | C++23 on GCC 16 | 24 | 9 | `dojo-cpp` (GoogleTest under the sanitizers, clang-tidy, clang-format) |
 | Spring Boot | Boot 4.1 on Java 25 | 24 | 9 | `dojo-java` (MockMvc, JPA on H2, Spring Security, Actuator and cache) |
 | React Developer | React 19 with TypeScript | 25 | 8 | `dojo-react` (tsc, Testing Library in jsdom) |

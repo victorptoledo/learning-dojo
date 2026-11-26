@@ -1,0 +1,82 @@
+pass_percent: 85
+questions:
+  - id: cpu-or-io
+    skills: [nodejs.worker-threads]
+    prompt: "A service hashes passwords with `crypto.pbkdf2Sync` in its request handler, and p99 latency of every route jumps under load. Which change fixes it?"
+    options:
+      - "Wrap the call in an async function"
+      - "Use the async `crypto.pbkdf2` (it runs on the libuv thread pool) or move the work to a worker thread"
+      - "Start more event loops with setImmediate"
+      - "Read the request body as a stream"
+    answer: 1
+    explanation: "A sync call blocks the only JavaScript thread, async keyword or not. The async crypto API runs on the thread pool; CPU-bound JavaScript of your own goes to a worker."
+  - id: worker-error
+    skills: [nodejs.worker-threads]
+    prompt: "A worker's code throws an exception that nothing catches. What does the main thread see?"
+    options:
+      - "The whole process crashes at once"
+      - "An `error` event on the Worker object, and then an `exit` event"
+      - "Nothing: the worker just stops replying"
+      - "A rejected promise from `postMessage`"
+    answer: 1
+    explanation: "An uncaught error ends only that worker and is reported as its `error` event; a pool listens for it to fail the task and replace the worker."
+  - id: transfer
+    skills: [nodejs.worker-threads]
+    prompt: "The main thread sends a 200 MB `ArrayBuffer` to a worker with `postMessage(buffer)`. What is the cost, and how do you avoid it?"
+    options:
+      - "None: workers share all memory"
+      - "The buffer is copied by structured clone; list it as transferable (`postMessage(buffer, [buffer])`) to move it instead"
+      - "The buffer is converted to JSON; use a string instead"
+      - "It is copied twice; use SharedArrayBuffer only for strings"
+    answer: 1
+    explanation: "Messages are cloned. A transferred buffer moves without copying and becomes unusable (detached) on the sending side."
+  - id: shell-string
+    skills: [nodejs.child-processes, nodejs.security]
+    prompt: "`exec(`convert ${file} out.png`)` runs with a file name the user uploaded. What is the safest fix?"
+    options:
+      - "Put quotes around `${file}`"
+      - "Remove `;` and `&` from the name first"
+      - "`execFile(\"convert\", [file, \"out.png\"])` or `spawn` with an argument array, so no shell parses the name"
+      - "Run the command with a timeout"
+    answer: 2
+    explanation: "Without a shell, every argument reaches the program as written. Quoting and blocklists always miss a case: `$()`, backticks, newlines."
+  - id: option-injection
+    skills: [nodejs.child-processes, nodejs.security]
+    prompt: "The service runs `spawn(\"git\", [\"log\", userBranch])` without a shell. A user sends `--output=/home/app/.bashrc` as the branch. What happened, and what prevents it?"
+    options:
+      - "Nothing: without a shell the value is harmless"
+      - "The value became an option of git; reject values that start with `-`, or put `--` before user values"
+      - "spawn escapes the value; only exec is affected"
+      - "It only matters on Windows"
+    answer: 1
+    explanation: "An argument array stops shell injection, not option injection. Programs read `-x` and `--x=...` as options wherever they appear before `--`."
+  - id: child-env
+    skills: [nodejs.child-processes, nodejs.security]
+    prompt: "A service starts a third-party converter with `spawn(\"tool\", args)`. Which secrets can the converter read?"
+    options:
+      - "None: children start with an empty environment"
+      - "Every environment variable of the service, `DATABASE_URL` and API keys included, unless you pass an `env` of your own"
+      - "Only the variables that start with `NODE_`"
+      - "Only what is in the `.env` file"
+    answer: 1
+    explanation: "A child inherits `process.env` by default. Pass only what it needs, such as `{ PATH: process.env.PATH }`."
+  - id: traversal-symlink
+    skills: [nodejs.security, nodejs.fs-path]
+    prompt: "Uploads are served from `root` after checking `path.resolve(root, name).startsWith(root)`. Which two attacks does that check still let through?"
+    options:
+      - "None: resolve removes every `..`"
+      - "A symbolic link inside `root` that points outside it, and a sibling folder whose name starts the same (`/srv/root-old` for `/srv/root`)"
+      - "Only names with spaces"
+      - "Only absolute names such as `/etc/passwd`"
+    answer: 1
+    explanation: "Compare with `path.relative` instead of a string prefix, and check the `realpath` of the file too, because links are followed when it is opened."
+  - id: proto-pollution
+    skills: [nodejs.security]
+    prompt: "A settings endpoint deep-merges the request's JSON into a defaults object. After a request with `{\"__proto__\": {\"isAdmin\": true}}`, every object in the process has `isAdmin`. What is the fix?"
+    options:
+      - "Use `JSON.parse` instead of a library"
+      - "Validate the body against a schema of known fields and refuse or skip `__proto__`, `constructor` and `prototype`; build results with `Object.create(null)` or a Map when keys are user data"
+      - "Freeze the request object"
+      - "Run the merge in a worker thread"
+    answer: 1
+    explanation: "`JSON.parse` creates an own `__proto__` key; the merge then writes to `Object.prototype`. Allow-list the fields and never copy unknown keys blindly."

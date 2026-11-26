@@ -14,7 +14,7 @@ belts:
   - { name: "Purple Belt", required_xp: 1500, title: "Stream Piper" }
   - { name: "Brown Belt", required_xp: 2500, title: "Event Loop Doctor" }
   - { name: "Black Belt", required_xp: 4000, title: "Production Node Architect" }
-  - { name: "Sensei", required_xp: 6000, title: "Node.js Grandmaster" }
+  - { name: "Sensei", required_xp: 5000, title: "Node.js Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "See what Node.js is, run TypeScript on Node.js 26, use modules and npm, and write a first command-line program" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The event loop, async patterns, events, the file system and processes" }

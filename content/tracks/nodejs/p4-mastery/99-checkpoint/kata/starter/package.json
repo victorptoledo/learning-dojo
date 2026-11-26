@@ -1,0 +1,15 @@
+{
+  "name": "catalog-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node main.ts",
+    "typecheck": "tsc",
+    "test": "tsc && node --test \"tests/**/*.test.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  }
+}
