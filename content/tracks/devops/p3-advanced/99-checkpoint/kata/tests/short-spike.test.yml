@@ -1,0 +1,32 @@
+# Every request is slow for fifteen minutes (60m to 75m), then latency is back to 1% slow. The
+# page fires during the spike, and stops once the 5m ratio has recovered, even though the
+# 1h ratio is still above 14.4% at 90m: that is what the short window is for.
+rule_files: [../slo.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'http_request_duration_seconds_bucket{job="payments", path="/payments/p-1001", le="0.3"}'
+        values: '0+990x60 59400+0x14 60390+990x44'
+      - series: 'http_request_duration_seconds_count{job="payments", path="/payments/p-1001"}'
+        values: '0+1000x120'
+    promql_expr_test:
+      - expr: job:slo_slow_requests:ratio_rate1h > bool 0.144
+        eval_time: 90m
+        exp_samples:
+          - labels: '{job="payments"}'
+            value: 1
+    alert_rule_test:
+      - eval_time: 74m
+        alertname: PaymentsLatencyBudgetBurnFast
+        exp_alerts:
+          - exp_labels:
+              job: payments
+              severity: page
+              slo: payments-latency
+            exp_annotations:
+              summary: payments is burning its latency budget fast
+              runbook_url: https://runbooks.example.com/payments-latency
+      - eval_time: 90m
+        alertname: PaymentsLatencyBudgetBurnFast
+        exp_alerts: []

@@ -13,8 +13,8 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "CI/CD Automator" }
   - { name: "Purple Belt", required_xp: 1500, title: "Kubernetes Pilot" }
   - { name: "Brown Belt", required_xp: 2500, title: "Terraform Architect" }
-  - { name: "Black Belt", required_xp: 4000, title: "Site Reliability Engineer (SRE)" }
-  - { name: "Sensei", required_xp: 6000, title: "Infrastructure Commander" }
+  - { name: "Black Belt", required_xp: 5000, title: "Site Reliability Engineer (SRE)" }
+  - { name: "Sensei", required_xp: 7500, title: "Infrastructure Commander" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does, DORA metrics and a first CI workflow" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Linux and containers for operations, CI pipelines and idempotent configuration management" }

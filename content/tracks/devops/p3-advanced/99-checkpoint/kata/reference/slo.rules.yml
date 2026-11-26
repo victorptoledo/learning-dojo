@@ -1,0 +1,62 @@
+# SLO: 99% of payments requests are answered in under 300 ms over 30 days, so the error
+# budget is 1% of the requests. A slow request is one that did not land in the le="0.3"
+# bucket of the latency histogram. The `path` label carries payment IDs, so every rule sums
+# by job and never keeps it.
+groups:
+  - name: payments-slo-recordings
+    rules:
+      - record: job:slo_slow_requests:ratio_rate5m
+        expr: |
+          1 - (
+            sum by (job) (rate(http_request_duration_seconds_bucket{job="payments", le="0.3"}[5m]))
+              /
+            sum by (job) (rate(http_request_duration_seconds_count{job="payments"}[5m]))
+          )
+      - record: job:slo_slow_requests:ratio_rate30m
+        expr: |
+          1 - (
+            sum by (job) (rate(http_request_duration_seconds_bucket{job="payments", le="0.3"}[30m]))
+              /
+            sum by (job) (rate(http_request_duration_seconds_count{job="payments"}[30m]))
+          )
+      - record: job:slo_slow_requests:ratio_rate1h
+        expr: |
+          1 - (
+            sum by (job) (rate(http_request_duration_seconds_bucket{job="payments", le="0.3"}[1h]))
+              /
+            sum by (job) (rate(http_request_duration_seconds_count{job="payments"}[1h]))
+          )
+      - record: job:slo_slow_requests:ratio_rate6h
+        expr: |
+          1 - (
+            sum by (job) (rate(http_request_duration_seconds_bucket{job="payments", le="0.3"}[6h]))
+              /
+            sum by (job) (rate(http_request_duration_seconds_count{job="payments"}[6h]))
+          )
+
+  - name: payments-slo-alerts
+    rules:
+      - alert: PaymentsLatencyBudgetBurnFast
+        expr: |
+          job:slo_slow_requests:ratio_rate1h{job="payments"} > (14.4 * 0.01)
+            and
+          job:slo_slow_requests:ratio_rate5m{job="payments"} > (14.4 * 0.01)
+        for: 2m
+        labels:
+          severity: page
+          slo: payments-latency
+        annotations:
+          summary: payments is burning its latency budget fast
+          runbook_url: https://runbooks.example.com/payments-latency
+      - alert: PaymentsLatencyBudgetBurnSlow
+        expr: |
+          job:slo_slow_requests:ratio_rate6h{job="payments"} > (6 * 0.01)
+            and
+          job:slo_slow_requests:ratio_rate30m{job="payments"} > (6 * 0.01)
+        for: 15m
+        labels:
+          severity: ticket
+          slo: payments-latency
+        annotations:
+          summary: payments is burning its latency budget
+          runbook_url: https://runbooks.example.com/payments-latency

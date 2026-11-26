@@ -1,0 +1,40 @@
+# 1% of payments requests are slow, spread over two payment IDs; the search job is always
+# slow and must not count. One series per job comes out: the path label is summed away.
+rule_files: [../slo.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'http_request_duration_seconds_bucket{job="payments", path="/payments/p-1001", le="0.3"}'
+        values: '0+495x420'
+      - series: 'http_request_duration_seconds_count{job="payments", path="/payments/p-1001"}'
+        values: '0+500x420'
+      - series: 'http_request_duration_seconds_bucket{job="payments", path="/payments/p-2002", le="0.3"}'
+        values: '0+495x420'
+      - series: 'http_request_duration_seconds_count{job="payments", path="/payments/p-2002"}'
+        values: '0+500x420'
+      - series: 'http_request_duration_seconds_bucket{job="search", path="/search", le="0.3"}'
+        values: '0+0x420'
+      - series: 'http_request_duration_seconds_count{job="search", path="/search"}'
+        values: '0+100x420'
+    promql_expr_test:
+      - expr: round(job:slo_slow_requests:ratio_rate5m, 0.0001)
+        eval_time: 30m
+        exp_samples:
+          - labels: '{job="payments"}'
+            value: 0.01
+      - expr: round(job:slo_slow_requests:ratio_rate30m, 0.0001)
+        eval_time: 1h
+        exp_samples:
+          - labels: '{job="payments"}'
+            value: 0.01
+      - expr: round(job:slo_slow_requests:ratio_rate1h, 0.0001)
+        eval_time: 2h
+        exp_samples:
+          - labels: '{job="payments"}'
+            value: 0.01
+      - expr: round(job:slo_slow_requests:ratio_rate6h, 0.0001)
+        eval_time: 6h30m
+        exp_samples:
+          - labels: '{job="payments"}'
+            value: 0.01

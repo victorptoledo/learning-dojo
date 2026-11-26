@@ -1,0 +1,14 @@
+# TODO: replace this draft with SLO rules (see README.md). Today the on-call engineer is
+# paged by the p99 of every single payment path, so one slow request to one payment ID
+# pages at night, and a slow week of many fast-enough requests never does.
+groups:
+  - name: payments-latency
+    rules:
+      - alert: PaymentsSlow
+        expr: |
+          histogram_quantile(0.99, sum by (job, path, le) (rate(http_request_duration_seconds_bucket{job="payments"}[5m]))) > 0.3
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: a payments path is slow

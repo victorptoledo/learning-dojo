@@ -1,0 +1,27 @@
+# search is standard: 99.5%, a budget of 0.005. 4% of its requests fail, 8 times the budget:
+# not worth a page (that takes 7.2%), but a ticket (above 3%).
+rule_files: [search.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'http_requests_total{job="search", code="200"}'
+        values: '0+960x120'
+      - series: 'http_requests_total{job="search", code="503"}'
+        values: '0+40x120'
+    alert_rule_test:
+      - eval_time: 1h
+        alertname: ErrorBudgetBurnFast
+        exp_alerts: []
+      - eval_time: 1h
+        alertname: ErrorBudgetBurnSlow
+        exp_alerts:
+          - exp_labels:
+              job: search
+              severity: ticket
+              service: search
+              team: discovery
+              slo: search-availability
+            exp_annotations:
+              summary: search is burning its error budget
+              runbook_url: https://runbooks.example.com/search

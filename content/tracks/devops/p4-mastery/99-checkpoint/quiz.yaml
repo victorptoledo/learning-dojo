@@ -1,0 +1,77 @@
+pass_percent: 80
+questions:
+  - id: mitigate-first
+    skills: [devops.incident-response]
+    prompt: "Errors started ten minutes after a configuration change. The on-call engineer is reading database logs to find the cause. What should happen first?"
+    options:
+      - "Keep reading until the root cause is certain"
+      - "Roll back the configuration change to restore service, then investigate"
+      - "Wait for the postmortem"
+      - "Scale the database up and keep reading"
+    answer: 1
+    explanation: "Mitigation comes before diagnosis; the evidence is still there after the rollback."
+  - id: incident-commander
+    skills: [devops.incident-response]
+    prompt: "In a large incident, what is the incident commander's job?"
+    options:
+      - "To fix the problem personally, as the most senior engineer"
+      - "To coordinate: assign roles, decide, keep the timeline and make sure updates go out, without typing the commands"
+      - "To write the postmortem during the incident"
+      - "To find who caused the incident"
+    answer: 1
+    explanation: "Separating coordination from hands-on work keeps decisions clear and prevents two people changing production at once."
+  - id: blameless
+    skills: [devops.incident-response]
+    prompt: "Why are postmortems written blameless?"
+    options:
+      - "So that nobody has to attend them"
+      - "People share what really happened only when they are safe, and the fixes then target the system, not the person"
+      - "Because incidents never have a human cause"
+      - "To shorten the document"
+    answer: 1
+    explanation: "Blame hides information; contributing factors and owned action items are what prevent the next incident."
+  - id: golden-path
+    skills: [devops.platform-engineering]
+    prompt: "What makes a golden path work in an internal platform?"
+    options:
+      - "Making it mandatory and blocking every other way"
+      - "A self-service, well-supported default that is easier than the alternatives, with secure and observable settings built in"
+      - "A ticket queue where the platform team creates every service"
+      - "A portal with every tool the company has"
+    answer: 1
+    explanation: "Teams adopt a paved road because it saves them work; forcing it or turning it into tickets brings back the waiting."
+  - id: platform-metrics
+    skills: [devops.platform-engineering, devops.delivery-metrics]
+    prompt: "How does a platform team best know that its golden path works?"
+    options:
+      - "By the number of features it shipped"
+      - "By adoption, time to a new service's first deploy, the DORA metrics of the teams using it and their satisfaction"
+      - "By the uptime of the platform team's laptops"
+      - "By the lines of YAML in the templates"
+    answer: 1
+    explanation: "The platform is a product: measure whether its users get faster and safer."
+  - id: rpo-rto
+    skills: [devops.disaster-recovery]
+    prompt: "A service has an RPO of 15 minutes and an RTO of 2 hours. Daily snapshots meet which of them?"
+    options:
+      - "Both"
+      - "Neither: a daily snapshot can lose up to 24 hours of data, and a restore time must be measured, not assumed"
+      - "Only the RPO"
+      - "Only the RTO, always"
+    answer: 1
+    explanation: "RPO limits data lost (needs continuous backups or replication); RTO limits time down (needs a tested, timed restore)."
+  - id: immutable-backups
+    skills: [devops.disaster-recovery]
+    prompt: "Why should backups be copied to another account and region and kept immutable?"
+    options:
+      - "It makes restores faster"
+      - "So that a region outage, a compromised account, a bad script or ransomware cannot destroy the backups together with the data"
+      - "Because snapshots cannot be restored in the same region"
+      - "To reduce the storage bill"
+    answer: 1
+    explanation: "A backup that shares the failure domain of the data is not a backup for that failure."
+  - id: game-day
+    skills: [devops.disaster-recovery, devops.incident-response]
+    prompt: "What should a chaos experiment or game day always have before it starts?"
+    answers: ["a hypothesis", "hypothesis", "a hypothesis and an abort plan", "an abort plan", "a hypothesis, a limited blast radius and an abort plan"]
+    explanation: "State what you expect to happen, limit the blast radius and know how to stop; otherwise it is just an outage."

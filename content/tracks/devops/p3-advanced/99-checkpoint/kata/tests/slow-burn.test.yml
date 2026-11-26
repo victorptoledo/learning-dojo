@@ -1,0 +1,25 @@
+# 8% of payments requests are slow for hours: 8 times the budget. Not worth a page, but a
+# ticket, or the month's budget is gone in under four days.
+rule_files: [../slo.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'http_request_duration_seconds_bucket{job="payments", path="/payments/p-1001", le="0.3"}'
+        values: '0+920x420'
+      - series: 'http_request_duration_seconds_count{job="payments", path="/payments/p-1001"}'
+        values: '0+1000x420'
+    alert_rule_test:
+      - eval_time: 1h
+        alertname: PaymentsLatencyBudgetBurnFast
+        exp_alerts: []
+      - eval_time: 1h
+        alertname: PaymentsLatencyBudgetBurnSlow
+        exp_alerts:
+          - exp_labels:
+              job: payments
+              severity: ticket
+              slo: payments-latency
+            exp_annotations:
+              summary: payments is burning its latency budget
+              runbook_url: https://runbooks.example.com/payments-latency
