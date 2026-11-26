@@ -1,0 +1,77 @@
+pass_percent: 80
+questions:
+  - id: subresource-log
+    skills: [kubernetes.rbac]
+    prompt: "A Role allows get, list and watch on pods. The ServiceAccount runs `kubectl logs job-pod-x` and gets Forbidden. Why?"
+    options:
+      - "Logs need a ClusterRole"
+      - "Logs are the subresource pods/log, which needs its own rule (get on pods/log)"
+      - "The Pod must be in another namespace"
+      - "Logs can only be read by users, never by ServiceAccounts"
+    answer: 1
+    explanation: "Subresources such as pods/log, pods/exec and deployments/scale are authorised separately from the resource."
+  - id: create-is-escalation
+    skills: [kubernetes.rbac]
+    prompt: "A CI ServiceAccount may only `create pods` in a namespace, nothing else. Why do reviewers still treat that as a powerful grant?"
+    options:
+      - "Creating Pods is slow"
+      - "A Pod it creates can run as any ServiceAccount of the namespace and mount its Secrets, so it inherits their permissions"
+      - "create also implies delete"
+      - "It is not powerful: create without get is harmless"
+    answer: 1
+    explanation: "Whoever can create workloads can use every identity and Secret those workloads may reference; pair it with Pod Security and tight ServiceAccounts."
+  - id: restricted-write
+    skills: [kubernetes.workload-security]
+    prompt: "An app must keep running with readOnlyRootFilesystem: true, but it writes temporary files to /tmp. What is the usual fix?"
+    options:
+      - "Set privileged: true"
+      - "Mount an emptyDir at /tmp, ideally with a sizeLimit"
+      - "Run it as root"
+      - "Use a hostPath volume for /tmp"
+    answer: 1
+    explanation: "Writes go to volumes; hostPath and privileged are exactly what the restricted profile forbids."
+  - id: peer-and-or
+    skills: [kubernetes.network-policy]
+    prompt: "An ingress rule lists `- namespaceSelector: {monitoring}` and, as a separate item, `- podSelector: {app: prometheus}`. Who may connect?"
+    options:
+      - "Only Prometheus Pods in monitoring"
+      - "Every Pod in monitoring, or any Pod labelled app: prometheus in the policy's own namespace"
+      - "Nobody: the two items cancel out"
+      - "Every Pod in the cluster"
+    answer: 1
+    explanation: "Separate items are OR; both selectors in one item mean 'these Pods in those namespaces'."
+  - id: egress-api
+    skills: [kubernetes.network-policy]
+    prompt: "After a default deny for egress, a controller Pod can resolve names but every call to the Kubernetes API times out. What is missing?"
+    options:
+      - "A Role for the controller"
+      - "An egress rule to the API server's address and port (often the endpoint IP and 6443, as many CNIs check after the Service address is translated)"
+      - "An ingress rule from kube-system"
+      - "A NodePort Service"
+    answer: 1
+    explanation: "RBAC decides what it may do; the NetworkPolicy decides whether its packets arrive. Forbidden is RBAC, a timeout is the network."
+  - id: queue-signal
+    skills: [kubernetes.hpa-autoscaling]
+    prompt: "A queue worker spends most of its time waiting on I/O. Under a backlog of 50,000 messages its CPU stays at 15%. Which scaling signal fits?"
+    options:
+      - "CPU utilisation with a lower target"
+      - "The queue depth (an External metric or a KEDA scaler), as an AverageValue of messages per replica"
+      - "Memory utilisation"
+      - "A fixed replica count"
+    answer: 1
+    explanation: "Scale on the work waiting, not on a resource the work barely uses."
+  - id: hpa-replicas
+    skills: [kubernetes.hpa-autoscaling, kubernetes.kustomize-helm]
+    prompt: "An HPA runs a Deployment at 12 replicas. Every `helm upgrade` drops it to 3 for a minute before it climbs back. What is the cause?"
+    options:
+      - "The HPA's scaleDown window is too short"
+      - "The chart still renders spec.replicas: 3, so each upgrade resets the count the HPA owns"
+      - "Helm deletes the HPA on upgrade"
+      - "The PodDisruptionBudget"
+    answer: 1
+    explanation: "When an autoscaler owns the count, the manifest must leave spec.replicas out."
+  - id: helm-rollback
+    skills: [kubernetes.kustomize-helm]
+    prompt: "Release 7 of a chart breaks production. Which Helm command (without its arguments) goes back to the manifests of revision 6?"
+    answers: ["helm rollback", "helm rollback RELEASE 6", "helm rollback <release> 6"]
+    explanation: "helm rollback re-applies revision 6 as a new revision 8, so the history keeps every step."

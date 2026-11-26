@@ -1,0 +1,35 @@
+{{- if .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "thumbnailer.fullname" . }}
+  labels:
+    {{- include "thumbnailer.labels" . | nindent 4 }}
+rules:
+  # Large uploads are rendered in a Job; the worker follows it and cleans it up.
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["create", "get", "list", "watch", "delete"]
+  # The Job's Pods, and the log of a failed one for the error report.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "thumbnailer.fullname" . }}
+  labels:
+    {{- include "thumbnailer.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "thumbnailer.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "thumbnailer.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

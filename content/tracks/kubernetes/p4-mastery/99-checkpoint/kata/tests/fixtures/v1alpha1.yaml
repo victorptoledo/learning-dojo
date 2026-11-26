@@ -1,0 +1,7 @@
+apiVersion: platform.acme.io/v1alpha1
+kind: Database
+metadata: { name: legacy, namespace: shop }
+spec:
+  engineVersion: "17"
+  size: medium
+  storageGB: 100

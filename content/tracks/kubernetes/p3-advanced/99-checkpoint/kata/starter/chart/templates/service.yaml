@@ -1,0 +1,14 @@
+# Prometheus scrapes the workers through this Service.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "thumbnailer.fullname" . }}-metrics
+  labels:
+    {{- include "thumbnailer.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "thumbnailer.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: metrics
+      port: 9090
+      targetPort: metrics

@@ -1,0 +1,4 @@
+# name: command that prints the YAML to check
+default: helm template thumbnailer chart --namespace media
+prod: helm template thumbnailer chart --namespace media -f chart/values-prod.yaml
+norbac: helm template thumbnailer chart --namespace media --set rbac.create=false

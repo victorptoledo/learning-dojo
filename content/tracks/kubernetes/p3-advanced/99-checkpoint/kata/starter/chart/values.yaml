@@ -1,0 +1,50 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/acme/thumbnailer
+  tag: "" # defaults to the chart's appVersion
+
+queue:
+  url: amqp://rabbitmq.messaging.svc:5672
+  name: thumbnails
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+# Large uploads are rendered in a Job the worker creates, and the worker copies the Job's
+# log into the error report when it fails: that is what the Role is for.
+rbac:
+  create: true
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  # Scale on the queue, not on CPU: one replica per this many ready messages. The metric
+  # rabbitmq_queue_messages_ready comes from the cluster's external metrics adapter.
+  messagesPerReplica: 20
+  scaleUp:
+    pods: 4
+    periodSeconds: 60
+  scaleDownStabilizationSeconds: 300
+
+networkPolicy:
+  enabled: false
+  # Where the worker talks to the Kubernetes API. Many network plugins check egress after the
+  # Service's address is translated, so this is the API server's own address and port.
+  apiServer:
+    cidr: 10.96.0.1/32
+    port: 443
+  queue:
+    namespace: messaging
+    podLabels:
+      app.kubernetes.io/name: rabbitmq
+    port: 5672
+  metrics:
+    namespace: monitoring
+    podLabels:
+      app.kubernetes.io/name: prometheus

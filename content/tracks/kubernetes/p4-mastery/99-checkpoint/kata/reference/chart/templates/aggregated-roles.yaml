@@ -1,0 +1,26 @@
+# Teach the built-in roles about the new kind: whoever may edit a namespace may manage its
+# Databases, and whoever may view it may read them. Only the controller writes the status.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "db-operator.fullname" . }}-edit
+  labels:
+    {{- include "db-operator.labels" . | nindent 4 }}
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+  - apiGroups: ["platform.acme.io"]
+    resources: ["databases"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "db-operator.fullname" . }}-view
+  labels:
+    {{- include "db-operator.labels" . | nindent 4 }}
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+  - apiGroups: ["platform.acme.io"]
+    resources: ["databases"]
+    verbs: ["get", "list", "watch"]

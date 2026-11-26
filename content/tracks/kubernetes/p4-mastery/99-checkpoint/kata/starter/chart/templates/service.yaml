@@ -1,0 +1,14 @@
+# Prometheus scrapes the controller's metrics through this Service.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "db-operator.fullname" . }}-metrics
+  labels:
+    {{- include "db-operator.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "db-operator.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: metrics
+      port: 8080
+      targetPort: metrics

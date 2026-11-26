@@ -1,0 +1,70 @@
+# What the controller does, and nothing more. It never creates or deletes a Database (users
+# do), and it never deletes its children: they carry an ownerReference to the Database, so
+# the garbage collector removes them when the Database goes.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "db-operator.fullname" . }}
+  labels:
+    {{- include "db-operator.labels" . | nindent 4 }}
+rules:
+  - apiGroups: ["platform.acme.io"]
+    resources: ["databases"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  - apiGroups: ["platform.acme.io"]
+    resources: ["databases/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["platform.acme.io"]
+    resources: ["databases/finalizers"]
+    verbs: ["update"]
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["services", "secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["events.k8s.io"]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "db-operator.fullname" . }}
+  labels:
+    {{- include "db-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "db-operator.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "db-operator.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+---
+# Leader election: a Lease in the operator's own namespace, so a Role is enough.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "db-operator.fullname" . }}-leader-election
+  labels:
+    {{- include "db-operator.labels" . | nindent 4 }}
+rules:
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "db-operator.fullname" . }}-leader-election
+  labels:
+    {{- include "db-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "db-operator.fullname" . }}-leader-election
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "db-operator.fullname" . }}
+    namespace: {{ .Release.Namespace }}

@@ -1,0 +1,100 @@
+# Helm installs the files in crds/ before the templates and never templates them (so no
+# {{ }} here), and `helm template` leaves them out unless you pass --include-crds.
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: databases.platform.acme.io
+spec:
+  group: platform.acme.io
+  scope: Namespaced
+  names:
+    kind: Database
+    plural: databases
+    singular: database
+    shortNames: [db]
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - { name: Version, type: string, jsonPath: .spec.engineVersion }
+        - { name: Size, type: string, jsonPath: .spec.size }
+        - { name: Ready, type: string, jsonPath: '.status.conditions[?(@.type=="Ready")].status' }
+        - { name: Age, type: date, jsonPath: .metadata.creationTimestamp }
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [engineVersion, size, storageGB]
+              properties:
+                engineVersion:
+                  type: string
+                  enum: ["17", "18"]
+                size:
+                  type: string
+                  enum: [small, medium, large]
+                storageGB:
+                  type: integer
+                  minimum: 10
+                  maximum: 1000
+                  x-kubernetes-validations:
+                    - rule: self >= oldSelf
+                      message: storageGB can grow but never shrink
+                backup:
+                  type: object
+                  properties:
+                    schedule:
+                      type: string
+                    retentionDays:
+                      type: integer
+                      minimum: 1
+                      maximum: 90
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+    # Still served so that existing manifests keep working during the migration, but stored
+    # as v1. The two shapes are the same, so no conversion webhook is needed.
+    - name: v1alpha1
+      served: true
+      storage: false
+      deprecated: true
+      deprecationWarning: "platform.acme.io/v1alpha1 Database is deprecated; use platform.acme.io/v1"
+      subresources:
+        status: {}
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [engineVersion, size, storageGB]
+              properties:
+                engineVersion:
+                  type: string
+                  enum: ["17", "18"]
+                size:
+                  type: string
+                  enum: [small, medium, large]
+                storageGB:
+                  type: integer
+                  minimum: 10
+                  maximum: 1000
+                  x-kubernetes-validations:
+                    - rule: self >= oldSelf
+                      message: storageGB can grow but never shrink
+                backup:
+                  type: object
+                  properties:
+                    schedule:
+                      type: string
+                    retentionDays:
+                      type: integer
+                      minimum: 1
+                      maximum: 90
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true

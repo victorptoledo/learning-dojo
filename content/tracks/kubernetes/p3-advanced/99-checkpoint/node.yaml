@@ -1,0 +1,67 @@
+id: kubernetes.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on RBAC, Pod security, NetworkPolicy, autoscaling and Helm releases, and a Helm chart for a queue worker with its own least-privilege identity, the restricted profile, an HPA on the queue depth and a NetworkPolicy that still lets it reach the API server."
+objectives:
+  - { id: o1, text: "Explain RBAC, ServiceAccounts, security contexts, Pod Security Admission, NetworkPolicy, the HPA and KEDA in your own words", skills: [kubernetes.rbac, kubernetes.workload-security, kubernetes.network-policy, kubernetes.hpa-autoscaling] }
+  - { id: o2, text: "Write a Helm chart whose templates give a worker a least-privilege Role, the restricted profile, a queue-depth HPA and a NetworkPolicy, each behind its own value", skills: [kubernetes.rbac, kubernetes.workload-security, kubernetes.network-policy, kubernetes.hpa-autoscaling, kubernetes.kustomize-helm] }
+prerequisites: [kubernetes.p3.helm-release]
+difficulty: 4
+estimated_minutes: 90
+xp: 450
+closes_phase: p3
+covers_skills: [kubernetes.rbac, kubernetes.workload-security, kubernetes.network-policy, kubernetes.hpa-autoscaling, kubernetes.kustomize-helm]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-k8s, timeout_secs: 120 }
+  hints:
+    - |-
+      Render the three value sets often and read what comes out: `helm template thumbnailer chart --namespace media -f chart/values-prod.yaml`. Start with the ServiceAccount and `serviceAccountName`, then the Role: list the API calls the worker makes (create a Job, follow it and its Pods, read a failed Pod's log, delete the Job) and grant exactly those. `pods/log` is a subresource with its own rule; `.Release.Namespace` gives the subject's namespace.
+    - |-
+      In a NetworkPolicy peer, `namespaceSelector` and `podSelector` in the **same** list item mean "these Pods in those namespaces"; two items (`- namespaceSelector` and `- podSelector`) mean "any Pod in those namespaces **or** these Pods here". Every egress rule needs a `to` and `ports`, or it allows every destination or every port. The API server rule is an `ipBlock` with the CIDR and port from `.Values.networkPolicy.apiServer`. For the HPA, an `External` metric has `metric.name`, `metric.selector.matchLabels` and a `target` of type `AverageValue`, and `behavior.scaleUp.policies` takes `type: Pods`.
+    - |-
+      ```yaml
+      # templates/hpa.yaml
+      {{- if .Values.autoscaling.enabled }}
+      apiVersion: autoscaling/v2
+      kind: HorizontalPodAutoscaler
+      metadata:
+        name: {{ include "thumbnailer.fullname" . }}
+      spec:
+        scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: {{ include "thumbnailer.fullname" . }} }
+        minReplicas: {{ .Values.autoscaling.minReplicas }}
+        maxReplicas: ...
+        metrics:
+          - type: External
+            external:
+              metric:
+                name: rabbitmq_queue_messages_ready
+                selector: { matchLabels: { queue: {{ .Values.queue.name }} } }
+              target: { type: AverageValue, averageValue: {{ .Values.autoscaling.messagesPerReplica | quote }} }
+        behavior:
+          scaleUp: { policies: [{ type: Pods, value: ..., periodSeconds: ... }] }
+          scaleDown: { stabilizationWindowSeconds: ... }
+      {{- end }}
+      ```
+      ```yaml
+      # one egress rule of templates/networkpolicy.yaml
+      - to:
+          - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: {{ .Values.networkPolicy.queue.namespace }} } }
+            podSelector: { matchLabels: { app.kubernetes.io/name: rabbitmq } }
+        ports: [{ protocol: TCP, port: {{ .Values.networkPolicy.queue.port }} }]
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your chart is rendered and checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-k8s runner image
+    image: dojo-k8s
+    why: The container with kubeconform, kustomize, helm, yq and bats that checks your manifests offline.

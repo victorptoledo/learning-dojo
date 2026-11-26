@@ -1,0 +1,82 @@
+pass_percent: 80
+questions:
+  - id: pending-quota
+    skills: [kubernetes.debugging]
+    prompt: "A Deployment shows 0/3 ready and `kubectl get pods` lists no Pods at all. Where do you look next?"
+    options:
+      - "kubectl logs of the Deployment"
+      - "The ReplicaSet's events (kubectl describe rs): a quota, a LimitRange or an admission policy may be refusing to create the Pods"
+      - "The node's kubelet logs"
+      - "The Service's endpoints"
+    answer: 1
+    explanation: "No Pod means it was never created; the controller that tried, the ReplicaSet, records why in its events."
+  - id: unknown-field-pruned
+    skills: [kubernetes.operators]
+    prompt: "A CRD's spec schema has x-kubernetes-preserve-unknown-fields: true. A user writes storageGb: 50 instead of storageGB. What happens?"
+    options:
+      - "The API server rejects the object"
+      - "The object is stored with the typo, and the controller never sees the size the user meant"
+      - "kubectl corrects the case"
+      - "The controller crashes"
+    answer: 1
+    explanation: "A structural schema with declared properties rejects unknown fields under strict validation; preserving them turns typos into silent defaults."
+  - id: storage-version
+    skills: [kubernetes.operators, kubernetes.production]
+    prompt: "A CRD serves v1alpha1 and v1, and v1 is the storage version. A client still applies v1alpha1 objects. What is stored in etcd?"
+    options:
+      - "v1alpha1, as sent"
+      - "v1: the API server converts every object to the storage version (with no webhook, the shapes must match)"
+      - "Both versions"
+      - "Nothing until the client upgrades"
+    answer: 1
+    explanation: "Exactly one version is stored; served versions are views of it. Remove a served version only after nothing uses it and stored objects are migrated."
+  - id: status-rbac
+    skills: [kubernetes.operators, kubernetes.rbac]
+    prompt: "With the status subresource on, a controller's `update` on databases succeeds but the status never changes. What is missing?"
+    options:
+      - "A finalizer"
+      - "Permission to update databases/status, and a call to the status endpoint: the main endpoint ignores status changes"
+      - "A webhook"
+      - "The printer column for Ready"
+    answer: 1
+    explanation: "spec and status are written through separate endpoints, which RBAC authorises separately."
+  - id: aggregate-edit
+    skills: [kubernetes.rbac]
+    prompt: "After installing a CRD, developers bound to the built-in edit role cannot create the new kind. What is the idiomatic fix?"
+    options:
+      - "Bind every developer to cluster-admin"
+      - "Ship a ClusterRole for the kind labelled rbac.authorization.k8s.io/aggregate-to-edit: \"true\", so the edit role absorbs its rules"
+      - "Edit the built-in edit role by hand"
+      - "Make the CRD cluster-scoped"
+    answer: 1
+    explanation: "Aggregated ClusterRoles extend admin, edit and view by label, and survive upgrades of the built-in roles."
+  - id: leader-election
+    skills: [kubernetes.operators, kubernetes.production]
+    prompt: "An operator runs two replicas for availability. What keeps them from reconciling the same object at once?"
+    options:
+      - "A PodDisruptionBudget"
+      - "Leader election through a Lease: one replica holds it and reconciles, the other waits to take over"
+      - "Anti-affinity"
+      - "An HPA with maxReplicas 1"
+    answer: 1
+    explanation: "Spread and budgets keep a replica alive; only the Lease decides which one acts."
+  - id: removed-api
+    skills: [kubernetes.production]
+    prompt: "Before an upgrade to the next minor version, how do you find manifests and charts that use APIs it removes?"
+    options:
+      - "Upgrade and read the errors"
+      - "Scan the rendered manifests and the live cluster for deprecated APIs (Pluto or kubent, kubeconform against the new version's schemas, the API server's deprecated-API metrics) and migrate first"
+      - "Removed APIs keep working for a year"
+      - "Only CRDs can be removed"
+    answer: 1
+    explanation: "A removed API is a hard failure on apply; find and migrate it in Git before the control plane moves."
+  - id: digest-gitops
+    skills: [kubernetes.production]
+    prompt: "Why does a GitOps repository pin images by digest instead of by tag?"
+    options:
+      - "Digests are shorter"
+      - "A digest names exactly one image: the same commit always deploys the same bytes, a rollback is a revert, and admission can verify its signature"
+      - "Tags are not allowed in Kubernetes"
+      - "Digests skip the registry"
+    answer: 1
+    explanation: "Tags can be moved; a digest cannot, so Git stays the true record of what runs."

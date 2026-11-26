@@ -1,0 +1,1 @@
+{{/* todo: the HorizontalPodAutoscaler on the queue depth, when .Values.autoscaling.enabled */}}

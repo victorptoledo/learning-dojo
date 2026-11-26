@@ -68,7 +68,7 @@ All 30 tracks are complete, with 760 lessons and checkpoints and 292 katas betwe
 | Linux | Debian 13, bash 5.2 | 25 | 10 | `dojo-linux` (bats, ShellCheck) |
 | Git & GitHub | Git from the object model to rescues | 27 | 11 | `dojo-linux` (bash scripts that drive `git`) |
 | Docker & Containers | images, Compose, production | 27 | 11 | your Docker engine + `dojo-docker` (hadolint, bats) |
-| Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |
+| Kubernetes | Kubernetes 1.36, Kustomize, Helm | 27 | 9 | `dojo-k8s` (kubeconform, bats; no cluster) |
 | AWS Cloud Architecture | IAM, VPC, EC2, S3, CloudFormation, serverless, containers, security, cost | 25 | 9 | `dojo-aws` (cfn-lint, cfn-guard, IAM policy evaluator, moto; no AWS account) |
 | SQL & Relational Databases | standard SQL on PostgreSQL 17 | 27 | 10 | `dojo-sql` (a throwaway PostgreSQL 17) |
 | PostgreSQL | PostgreSQL 17 internals and operations | 25 | 9 | `dojo-sql` (other sessions opened with dblink for lock katas) |

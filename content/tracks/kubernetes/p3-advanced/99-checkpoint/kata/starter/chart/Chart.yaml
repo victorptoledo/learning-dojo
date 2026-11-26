@@ -1,0 +1,6 @@
+apiVersion: v2
+name: thumbnailer
+description: "The thumbnailer worker, which reads upload events from a queue and renders thumbnails"
+type: application
+version: 0.9.0
+appVersion: "3.1.0"
