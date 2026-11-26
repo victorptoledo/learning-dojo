@@ -13,8 +13,8 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Conflict Resolver" }
   - { name: "Purple Belt", required_xp: 1500, title: "Interactive Rebaser" }
   - { name: "Brown Belt", required_xp: 2500, title: "Git Archeologist (Bisect)" }
-  - { name: "Black Belt", required_xp: 4000, title: "Reflog Rescuer" }
-  - { name: "Sensei", required_xp: 6000, title: "Git Mastermind" }
+  - { name: "Black Belt", required_xp: 5000, title: "Reflog Rescuer" }
+  - { name: "Sensei", required_xp: 6500, title: "Git Mastermind" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install and configure Git, see why version control exists and meet the dojo's git katas" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Objects and the DAG, the staging area and commits, branches and merging, and undoing local changes" }

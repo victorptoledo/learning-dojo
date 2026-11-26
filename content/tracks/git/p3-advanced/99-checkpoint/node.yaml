@@ -1,0 +1,54 @@
+id: git.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on bisect, tags, hooks, worktrees and submodules, and an integration kata that bisects a broken release in a throwaway worktree, reverts the culprit through the repository's hooks and tags the next patch version."
+objectives:
+  - { id: o1, text: "Explain bisect run and its exit codes, annotated tags and semantic versions, where hooks run and what a worktree shares with the main checkout", skills: [git.bisect, git.tags-releases, git.hooks, git.worktrees-submodules] }
+  - { id: o2, text: "Cut a hotfix release from a script: find the culprit between two release tags, revert it on a hotfix branch in a separate worktree, tag the next patch version and leave nothing behind when anything fails", skills: [git.bisect, git.tags-releases, git.hooks, git.worktrees-submodules] }
+prerequisites: [git.p3.worktrees-submodules]
+difficulty: 4
+estimated_minutes: 80
+xp: 450
+closes_phase: p3
+covers_skills: [git.bisect, git.tags-releases, git.hooks, git.worktrees-submodules]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 120 }
+  hints:
+    - |-
+      Write the steps as a list before any code, and next to each one what must be undone if a later step fails. Where can you check out the bad release, bisect and commit without touching the user's branch, their uncommitted changes or a bisect they already have going on? Which Git command makes the hotfix commit, and does it run the `commit-msg` hook?
+    - |-
+      `git worktree add -q -b hotfix/NEXT "$tmp/wt" "refs/tags/BAD^{commit}"` gives you a private checkout on a new branch; `refs/bisect/*` and the bisect log live per worktree. Test both ends there, then `git bisect start BAD GOOD`, `git bisect run bash -c "$cmd"` (125 already means skip) and read `refs/bisect/bad` before `git bisect reset`. `git revert` commits without running `pre-commit` and `commit-msg`: use `git revert --no-commit` and then `git commit --no-edit`. Clean up from a `trap ... EXIT`: `git worktree remove --force`, `git branch -D` on failure, `rm -rf` the temporary folder.
+    - |-
+      ```bash
+      version_re='^v([0-9]+)\.([0-9]+)\.([0-9]+)$'
+      [[ $tag =~ $version_re ]] && [ "$(git -C "$repo" cat-file -t "refs/tags/$tag")" = tag ]
+      next="v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.$((BASH_REMATCH[3] + 1))"
+
+      tmp=$(mktemp -d)
+      wt="$tmp/wt"
+      done_ok=false
+      cleanup() {
+          git -C "$repo" worktree remove --force "$wt" > /dev/null 2>&1 || true
+          [ "$done_ok" = true ] || git -C "$repo" branch -q -D "hotfix/$next" > /dev/null 2>&1 || true
+          rm -rf "$tmp"
+      }
+      trap cleanup EXIT
+      git -C "$repo" worktree add -q -b "hotfix/$next" "$wt" "refs/tags/$bad^{commit}"
+      # test both ends in "$wt", bisect, revert --no-commit, commit, test again, tag -a
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, Git, bats and shellcheck that runs the grading tests.

@@ -1,0 +1,72 @@
+questions:
+  - id: server-hook-bypass
+    skills: [git.hooks, git.workflows]
+    prompt: "A developer runs git push --no-verify. Which hook still decides whether the push is accepted?"
+    options: ["pre-push on their laptop", "pre-receive on the server", "commit-msg", "None: --no-verify skips them all"]
+    answer: 1
+    explanation: "--no-verify only skips the pusher's own client-side hooks. Server-side hooks and push rules run on the host."
+  - id: pre-receive-atomic
+    skills: [git.hooks]
+    prompt: "A push updates main and two tags, and the pre-receive hook exits 1 because of one tag. What happens to main on the server?"
+    options:
+      - "main is updated, only the tag is refused"
+      - "Nothing is updated: pre-receive decides for the whole push"
+      - "main is updated and the tag is deleted"
+      - "The server keeps the push in quarantine until an admin approves it"
+    answer: 1
+    explanation: "pre-receive accepts or refuses everything at once; the update hook, run once per ref, can refuse refs one by one."
+  - id: blob-history
+    skills: [git.large-repos, git.dag-objects]
+    prompt: "A 200 MB file is added in one commit and deleted in the next, and both are pushed. How much does every future clone download for it?"
+    options:
+      - "Nothing, the file is gone"
+      - "The whole 200 MB blob (compressed), because a commit in history still points to it"
+      - "Only a pointer file"
+      - "Only the deletion"
+    answer: 1
+    explanation: "A clone downloads every object reachable from history. Only a rewrite removes it; LFS keeps big files out from the start."
+  - id: lfs-pointer
+    skills: [git.large-repos]
+    prompt: "Which Git LFS command converts *.psd files already in history into pointer files?"
+    answers: ["git lfs migrate import --include=\"*.psd\"", "git lfs migrate import --include='*.psd'", "git lfs migrate import --include=*.psd", "git lfs migrate import"]
+    explanation: "migrate import rewrites history so old versions become LFS pointers; like any rewrite it changes the hashes, so the team must re-clone."
+  - id: verified-not-safe
+    skills: [git.signing-security]
+    prompt: "Every commit on main shows 'Verified'. A reviewer finds a cloud key in one of them. What does the badge change about the response?"
+    options:
+      - "Nothing about the leak: the key must still be rotated, then removed from history; the badge only tells who made the commit"
+      - "The key is safe because the commit was signed"
+      - "Signed commits cannot be rewritten, so the key stays"
+      - "The host removes secrets from signed commits automatically"
+    answer: 0
+    explanation: "A signature proves identity and integrity, not content. Rewriting history also drops the signatures of rewritten commits."
+  - id: linear-history
+    skills: [git.workflows]
+    prompt: "main requires a linear history. How does a pull request with five commits land?"
+    options:
+      - "As a merge commit"
+      - "Rebased (or squashed) onto main, so main only moves by fast-forward"
+      - "It cannot land"
+      - "As five merge commits"
+    answer: 1
+    explanation: "Linear history forbids merge commits on the protected branch; rebase-and-merge or squash-and-merge keep it straight."
+  - id: force-push-recovery
+    skills: [git.recovery, git.remotes]
+    prompt: "A teammate force-pushed an old main over the server, dropping your three commits that you pushed yesterday. Your laptop still has them. What is the safest fix?"
+    options:
+      - "Ask the host to restore a backup"
+      - "Check that your main contains the server's new tip or reconcile it, then push your main back (with --force-with-lease), and protect main against force pushes"
+      - "Re-create the commits by hand"
+      - "git revert the teammate's push"
+    answer: 1
+    explanation: "Any clone that has the commits can restore them; a lease avoids overwriting something new, and branch protection prevents a repeat."
+  - id: reflog-after-gc
+    skills: [git.recovery]
+    prompt: "Which commits can git reflog no longer bring back?"
+    options:
+      - "Commits from a reset done this morning"
+      - "Commits that were never in a reflog of this clone, or whose entries expired and were pruned by gc"
+      - "Commits of a deleted branch"
+      - "Commits replaced by a rebase"
+    answer: 1
+    explanation: "The reflog is local and expires (90 days for reachable entries, 30 for unreachable by default). A commit you never had locally is not in it."
