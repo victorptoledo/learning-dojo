@@ -11,11 +11,12 @@ phases:
   p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
-  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+  p4: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p5: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
 early_stop: { wrong_in_first: 2, of: 3 }
 skill_placed_out_threshold: 0.75
 weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
-max_items: 25
+max_items: 30
 items:
   # ---- P1 Fundamentals ---------------------------------------------------------
   - id: p1-arraylist-remove-front
@@ -222,48 +223,104 @@ items:
     options: ["O(2³⁰⁰)", "About 12 million states × O(1): O(n · C)", "O(300)", "O(40,000²)"]
     answer: 1
     explanation: "Time = number of distinct states × work per state."
-  # ---- P4 Mastery --------------------------------------------------------------
-  - id: p4-merge-intervals
+  # ---- P4 Range Queries and Strings ---------------------------------------------
+  - id: p4-static-range-min
     phase: p4
+    skills: [datastructures-and-algorithms.range-queries]
+    difficulty: 3
+    prompt: "A fixed array of a million temperatures gets ten million 'coldest reading between i and j' queries. Which structure answers each in O(1) after an O(n log n) build?"
+    options: ["Prefix sums", "A sparse table", "A Fenwick tree", "A hash map"]
+    answer: 1
+    explanation: "Minimum has no inverse, so prefix sums fail; a sparse table combines two overlapping power-of-two ranges, which is safe for min."
+  - id: p4-fenwick-update
+    phase: p4
+    skills: [datastructures-and-algorithms.range-queries]
+    difficulty: 3
+    prompt: "Values change one at a time and range sums are asked in between. What do a Fenwick tree's update and query cost, against prefix sums?"
+    options: ["O(log n) each, against an O(n) rebuild per update for prefix sums", "O(1) each, the same as prefix sums", "O(n) each", "O(n log n) each"]
+    answer: 0
+    explanation: "A Fenwick tree touches O(log n) cells per operation; prefix sums must recompute every prefix after the changed value."
+  - id: p4-difference-array
+    phase: p4
+    skills: [datastructures-and-algorithms.range-queries]
+    difficulty: 2
+    prompt: "To add 7 to every position of [3, 10) in a difference array diff, which two cells change?"
+    options: ["diff[3] += 7 and diff[10] -= 7", "diff[3] += 7 and diff[9] -= 7", "every cell from 3 to 9", "diff[0] += 7 and diff[10] -= 7"]
+    answer: 0
+    explanation: "A later running sum carries the +7 from position 3 and the -7 cancels it from position 10, the end of the half-open range."
+  - id: p4-segment-associative
+    phase: p4
+    skills: [datastructures-and-algorithms.range-queries]
+    difficulty: 4
+    prompt: "Which operation can a segment tree combine over ranges but a Fenwick tree cannot answer for arbitrary ranges?"
+    options: ["Sum", "XOR", "Maximum", "Count"]
+    answer: 2
+    explanation: "A Fenwick range query subtracts two prefixes, which needs an inverse; maximum has none, but it is associative, which is all a segment tree needs."
+  - id: p4-kmp-resume
+    phase: p4
+    skills: [datastructures-and-algorithms.string-matching]
+    difficulty: 3
+    prompt: "In how many places does 'aba' occur in 'abababa', counting overlapping occurrences?"
+    answers: ["3", "three"]
+    explanation: "At positions 0, 2 and 4. KMP finds them by resuming at the border pi[m - 1] = 1 after each match."
+  - id: p4-naive-worst
+    phase: p4
+    skills: [datastructures-and-algorithms.string-matching]
+    difficulty: 3
+    prompt: "Why does a loop of text.indexOf(pattern, i + 1) get slow on a text of a million 'a's and a pattern of a thousand 'a's?"
+    options: ["indexOf uses a hash", "Each call compares up to the pattern length at every start, so counting all matches is O(n · m)", "Strings are immutable", "indexOf sorts the text"]
+    answer: 1
+    explanation: "indexOf is the naive search; KMP or a rolling hash keeps the whole count linear."
+  - id: p4-rolling-verify
+    phase: p4
+    skills: [datastructures-and-algorithms.string-matching, datastructures-and-algorithms.hash-tables]
+    difficulty: 3
+    prompt: "A rolling hash says a window equals the pattern. What must a correct implementation do before reporting a match?"
+    options: ["Nothing: equal hashes mean equal strings", "Compare the characters, since different strings can share a hash", "Recompute the hash with String.hashCode", "Check the next window"]
+    answer: 1
+    explanation: "Verification turns a collision into extra work instead of a wrong answer."
+  # ---- P5 Mastery --------------------------------------------------------------
+  - id: p5-merge-intervals
+    phase: p5
     skills: [datastructures-and-algorithms.greedy]
     difficulty: 2
     prompt: "What do the intervals [1,3], [2,6], [8,10], [9,12] merge into?"
     options: ["[1,6], [8,12]", "[1,12]", "[1,3], [2,6], [8,12]", "[1,6], [8,10], [9,12]"]
     answer: 0
     explanation: "Sort by start and extend the current interval while the next one overlaps."
-  - id: p4-greedy-proof
-    phase: p4
+  - id: p5-greedy-proof
+    phase: p5
     skills: [datastructures-and-algorithms.greedy]
     difficulty: 4
     prompt: "Which problem is correctly solved by a greedy algorithm?"
     options: ["0/1 knapsack by value per weight", "Minimum spanning tree by adding the lightest edge that joins two components", "Coin change with arbitrary coins, largest first", "Longest path in a graph, longest edge first"]
     answer: 1
     explanation: "Kruskal's choice is justified by the cut property; the others have counterexamples."
-  - id: p4-popcount
-    phase: p4
+  - id: p5-popcount
+    phase: p5
     skills: [datastructures-and-algorithms.bit-manipulation]
     difficulty: 2
     prompt: "What does Integer.bitCount(0b1011_0110) return?"
     answers: ["5", "five"]
     explanation: "Five bits are set."
-  - id: p4-missing-number
-    phase: p4
+  - id: p5-missing-number
+    phase: p5
     skills: [datastructures-and-algorithms.bit-manipulation]
     difficulty: 3
     prompt: "An array holds all numbers from 0 to n except one. Which O(n) time, O(1) memory method finds the missing one without overflow risk?"
     options: ["Sort and scan", "XOR all indexes 0..n with all values: everything cancels except the missing number", "A HashSet", "Binary search on an unsorted array"]
     answer: 1
     explanation: "XOR cancels pairs and never overflows; summing works too but can overflow for large n."
-  - id: p4-size-to-complexity
-    phase: p4
+  - id: p5-size-to-complexity
+    phase: p5
     skills: [datastructures-and-algorithms.problem-solving]
     difficulty: 3
     prompt: "An interview problem says n ≤ 2 · 10⁵. Which target complexity should you aim for?"
     options: ["O(2ⁿ)", "O(n²)", "O(n log n) or better", "O(n³)"]
     answer: 2
     explanation: "n² would be 4 · 10¹⁰ steps; n log n is a few million."
-  - id: p4-signal
-    phase: p4
+  - id: p5-signal
+    phase: p5
     skills: [datastructures-and-algorithms.problem-solving]
     difficulty: 3
     prompt: "\"Return every way to split a string into palindromes.\" Which technique does 'every way' point to first?"

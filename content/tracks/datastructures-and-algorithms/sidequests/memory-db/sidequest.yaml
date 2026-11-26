@@ -3,7 +3,7 @@ level: 4
 title: "In-memory database"
 summary: "The core of a small database: a skip list written by hand and held to a comparison budget, ranges and rank in O(log n), a table whose secondary indexes keep reads down, bitmap indexes counted with word operations, and a planner that picks the most selective index without reading a row."
 statement: README.md
-requires: ["datastructures-and-algorithms:P4"]
+requires: ["datastructures-and-algorithms:P5"]
 skills: [datastructures-and-algorithms.complexity, datastructures-and-algorithms.trees-heaps, datastructures-and-algorithms.bit-manipulation, datastructures-and-algorithms.greedy, datastructures-and-algorithms.sorting-searching]
 runner: { image: dojo-java, timeout_secs: 240 }
 stages:

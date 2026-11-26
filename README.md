@@ -73,7 +73,7 @@ All 30 tracks are complete, with 789 lessons and checkpoints and 316 katas betwe
 | SQL & Relational Databases | standard SQL on PostgreSQL 17 | 27 | 10 | `dojo-sql` (a throwaway PostgreSQL 17) |
 | PostgreSQL | PostgreSQL 17 internals and operations | 27 | 11 | `dojo-sql` (other sessions opened with dblink for lock katas) |
 | System Design | building blocks of large systems | 25 | 12 | `dojo-java` |
-| Data Structures & Algorithms | structures, techniques, interview problems | 25 | 10 | `dojo-java` (with time limits on large inputs) |
+| Data Structures & Algorithms | structures, techniques, interview problems | 32 | 15 | `dojo-java` (with time limits on large inputs) |
 | Design Patterns | principles and patterns in modern Java | 26 | 12 | `dojo-java` (refactoring katas) |
 | API Design | HTTP, REST, errors, evolution, contracts | 27 | 10 | `dojo-java` (Spring Boot and MockMvc, plus an OpenAPI linter) |
 | Software Architecture | modularity, hexagonal, DDD, events, fitness functions | 25 | 11 | `dojo-java` (fitness functions over compiled classes) |

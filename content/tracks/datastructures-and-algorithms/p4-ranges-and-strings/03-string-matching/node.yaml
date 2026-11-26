@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p4.string-matching
+kind: lesson
+status: draft
+title: "String Matching: KMP, Rolling Hashes and Friends"
+summary: "Why the naive search and indexOf in a loop are O(n · m) in the worst case, the KMP prefix function for O(n + m) search, overlapping matches and periods, Rabin-Karp rolling hashes for many patterns and repeated substrings, and when to reach for Boyer-Moore, Aho-Corasick or a suffix array."
+objectives:
+  - { id: o1, text: "Explain the worst case of the naive search and implement KMP with the prefix function, including overlapping matches", skills: [datastructures-and-algorithms.string-matching] }
+  - { id: o2, text: "Use a rolling hash for many same-length patterns and for the longest repeated substring, verifying equal hashes", skills: [datastructures-and-algorithms.string-matching, datastructures-and-algorithms.hash-tables, datastructures-and-algorithms.sorting-searching] }
+  - { id: o3, text: "Pick KMP, Boyer-Moore, Aho-Corasick or a suffix array for a search problem and state its cost", skills: [datastructures-and-algorithms.string-matching, datastructures-and-algorithms.tries] }
+prerequisites: [datastructures-and-algorithms.p4.range-toolkit]
+difficulty: 4
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A security team scans 40 GB of web server logs a day. They need (1) every position of the string "/../../" (overlapping occurrences count), (2) which of 30,000 known malicious user-agent fragments, all exactly 24 characters long, appear in each line, (3) which of 5,000 attack signatures of different lengths appear anywhere, and (4) once a day, the longest piece of text that appears twice in a 10 MB suspicious payload. A colleague wrote (1) as a loop of `line.indexOf(pattern, from)` with `from = match + pattern.length()`. Explain the two problems with that loop, then give an algorithm and its cost for each of the four tasks, and say how you would keep hash collisions from causing wrong answers.'
+  criteria:
+    - 'Points out that restarting after the whole match misses overlapping occurrences, and that indexOf is O(n · m) in the worst case on repetitive input'
+    - '(1) KMP with the prefix function (or the Z-function), O(n + m), resuming at pi[m - 1] after a match'
+    - '(2) A rolling hash of 24-character windows checked against a HashSet of the fragment hashes, O(n) expected per line plus verification'
+    - '(3) Aho-Corasick over the 5,000 signatures (a trie with failure links), O(n + total signature length + matches)'
+    - '(4) Binary search on the length with a set of rolling hashes per length (O(n log n) expected), or a suffix array; verifies candidate matches by comparing characters, and uses a large modulus with a random base'

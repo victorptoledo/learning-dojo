@@ -1,0 +1,24 @@
+id: datastructures-and-algorithms.p4.range-queries
+kind: lesson
+status: draft
+title: "Range Queries: Prefix Sums, Sparse Tables, Fenwick and Segment Trees"
+summary: "Answer sums, minimums and counts over ranges of an array without a loop: prefix sums and difference arrays for static data, sparse tables for O(1) minimums, Fenwick trees for sums with updates and search by prefix, and segment trees with lazy propagation for any associative operation."
+objectives:
+  - { id: o1, text: "Choose prefix sums, a difference array, a sparse table, a Fenwick tree or a segment tree from whether the data changes and which operation combines it", skills: [datastructures-and-algorithms.range-queries] }
+  - { id: o2, text: "Implement a Fenwick tree with point updates, prefix sums, an O(n) build and an O(log n) search by prefix", skills: [datastructures-and-algorithms.range-queries, datastructures-and-algorithms.bit-manipulation] }
+  - { id: o3, text: "Implement an iterative segment tree for an associative operation and explain when lazy propagation is needed", skills: [datastructures-and-algorithms.range-queries, datastructures-and-algorithms.trees-heaps] }
+prerequisites: [datastructures-and-algorithms.p3.checkpoint]
+difficulty: 4
+estimated_minutes: 60
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'An ad platform keeps, for each of the 1,440 minutes of a day and each of 200,000 campaigns, the number of clicks. It must answer (1) "how many clicks did campaign c get between minute a and minute b" for finished days, (2) the same for today, while clicks keep arriving one at a time, (3) "what was the lowest click count of any minute between a and b" for finished days, (4) "which minute is the one where campaign c reached its 10,000th click today", and (5) a promotion that adds 50 bonus clicks to every minute in a range, applied hundreds of times a day before anyone reads the totals. For each, name the structure, give the build, query and update costs, and explain why the alternatives are worse. Mention one pitfall of the structure you chose for (2).'
+  criteria:
+    - '(1) Prefix sums per campaign for finished days: O(n) build, O(1) per query, no updates needed'
+    - '(2) A Fenwick tree (or segment tree) per campaign: O(log n) per click and per query; prefix sums would need an O(n) rebuild per click'
+    - '(3) A sparse table for range minimum on static data (O(1) per query, O(n log n) build), explaining that prefix sums do not work because min has no inverse'
+    - '(4) A search by prefix on the Fenwick tree (descending powers of two), valid because counts are non-negative, in O(log n)'
+    - '(5) A difference array when all updates come before the reads (or a segment tree with lazy propagation if reads are interleaved), plus a pitfall such as 1-based indexing, half-open ranges or overflow'

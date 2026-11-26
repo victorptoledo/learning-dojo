@@ -1,0 +1,48 @@
+questions:
+  - id: dijkstra-negative
+    skills: [datastructures-and-algorithms.shortest-paths]
+    prompt: "Why can Dijkstra's algorithm give a wrong answer when some edges have negative weights?"
+    options: ["It runs out of memory", "It treats the smallest tentative distance as final, but a later negative edge could still make it smaller", "The priority queue cannot hold negative numbers", "It only works on undirected graphs"]
+    answer: 1
+    explanation: "With non-negative weights no later path can be shorter than the node just settled; a negative edge breaks that. Bellman-Ford handles negative edges and detects negative cycles."
+  - id: lazy-deletion
+    skills: [datastructures-and-algorithms.shortest-paths]
+    prompt: "Java's PriorityQueue has no 'decrease key'. What does Dijkstra do instead?"
+    options: ["Rebuilds the heap after every change", "Adds a new entry with the smaller distance and skips any polled entry whose distance is larger than the best known", "Removes the old entry with remove(Object), which is O(1)", "Uses a sorted list instead"]
+    answer: 1
+    explanation: "Lazy deletion: outdated entries stay in the heap and are ignored when polled; the heap holds at most O(E) entries."
+  - id: union-find-optimisations
+    skills: [datastructures-and-algorithms.shortest-paths]
+    prompt: "A union-find without union by size or path compression joins a chain of n nodes in the worst order. What can one find cost?"
+    options: ["O(1)", "O(log n)", "O(n): the tree degenerates into a chain", "O(n log n)"]
+    answer: 2
+    explanation: "Union by size keeps trees O(log n) deep and path compression flattens them; together they make each operation nearly constant amortised."
+  - id: kruskal-cut
+    skills: [datastructures-and-algorithms.shortest-paths, datastructures-and-algorithms.greedy]
+    prompt: "Kruskal's algorithm takes the cheapest remaining edge unless it closes a cycle. Which property makes that safe?"
+    options: ["The cut property: the cheapest edge crossing any cut belongs to some minimum spanning tree", "The triangle inequality", "The edges are stored sorted", "The graph is directed"]
+    answer: 0
+    explanation: "An accepted edge is the cheapest across the cut between its component and the rest, so some minimum spanning tree contains it."
+  - id: k-flights-state
+    skills: [datastructures-and-algorithms.dynamic-programming, datastructures-and-algorithms.shortest-paths]
+    prompt: "For 'cheapest fare with at most k flights', why is one best price per airport not enough state?"
+    options: ["Prices can be zero", "The cheapest way to an airport may use too many flights, while a pricier way with fewer flights still leads on within the limit", "Airports can repeat", "The graph is too large"]
+    answer: 1
+    explanation: "The state is (airport, flights used). Bellman-Ford stopped after k rounds, each reading only the previous round, fills it in O(k · E)."
+  - id: trie-vs-hash
+    skills: [datastructures-and-algorithms.tries]
+    prompt: "In one or two words: what kind of query does a trie answer in O(length of the query) that a HashMap of the words cannot answer without looking at every key?"
+    answers: ["prefix", "prefix query", "prefix queries", "prefix search", "prefix searches", "starts with", "startswith", "prefix lookup", "prefix count"]
+    explanation: "Every prefix is a node in a trie; a hash map only knows whole keys. With a count at each node, 'how many words start with p' stops at the node of p."
+  - id: memo-cost
+    skills: [datastructures-and-algorithms.dynamic-programming]
+    prompt: "A memoised recursion has states (i, j) with 0 ≤ i < 3,000 and 0 ≤ j < 3,000, and each state does O(1) work. What does it cost?"
+    options: ["O(3,000)", "O(3,000²), about 9 million states, each computed once", "O(2^3,000)", "O(3,000 log 3,000)"]
+    answer: 1
+    explanation: "Cost = number of states × work per state. Memoisation turns the exponential recursion into one computation per state."
+  - id: knapsack-direction
+    skills: [datastructures-and-algorithms.dynamic-programming]
+    prompt: "In the one-row 0/1 knapsack, why must the capacity loop go from high to low?"
+    options: ["It is faster", "So each item is counted at most once: going up would read cells this item already updated", "So the answer ends at index 0", "Java arrays must be filled backwards"]
+    answer: 1
+    explanation: "Going down, row[c - w] still holds the previous item's value. Going up gives the unbounded knapsack, where an item can repeat."

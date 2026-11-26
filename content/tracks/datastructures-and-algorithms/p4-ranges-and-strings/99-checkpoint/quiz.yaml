@@ -1,0 +1,48 @@
+questions:
+  - id: choose-static-min
+    skills: [datastructures-and-algorithms.range-queries]
+    prompt: "An array of a million latencies never changes, and you must answer ten million 'minimum between i and j' queries. What fits best?"
+    options: ["Prefix sums", "A sparse table: O(n log n) build and O(1) per query", "A Fenwick tree", "A loop per query"]
+    answer: 1
+    explanation: "Minimum has no inverse, so prefix sums fail; with no updates, a sparse table beats the O(log n) trees."
+  - id: choose-dynamic-sum
+    skills: [datastructures-and-algorithms.range-queries]
+    prompt: "Counts per minute change all the time and dashboards ask for sums over ranges of minutes. Why not prefix sums?"
+    options: ["They are too slow to query", "One change forces an O(n) rebuild of every prefix after it; a Fenwick tree updates and queries in O(log n)", "They cannot hold counts", "They need sorted data"]
+    answer: 1
+    explanation: "Prefix sums are perfect for static data; with point updates, a Fenwick tree (or a segment tree) is the standard answer."
+  - id: lowest-bit
+    skills: [datastructures-and-algorithms.range-queries, datastructures-and-algorithms.bit-manipulation]
+    prompt: "In a Fenwick tree, what does the expression i & -i give?"
+    options: ["The highest set bit of i", "The lowest set bit of i: the length of the range that cell i covers", "i modulo 2", "The parent of i in a heap"]
+    answer: 1
+    explanation: "In two's complement, -i flips every bit above the lowest set bit, so the AND keeps only that bit."
+  - id: search-by-prefix
+    skills: [datastructures-and-algorithms.range-queries]
+    prompt: "When does the O(log n) 'first position where the running total reaches t' search on a Fenwick tree give the right answer?"
+    options: ["Always", "Only when every value is non-negative, so the running total never decreases", "Only when the size is a power of two", "Only for sums below 2^31"]
+    answer: 1
+    explanation: "The descent assumes prefix sums are monotonic; a negative value can make the total drop and rise again."
+  - id: segment-ties
+    skills: [datastructures-and-algorithms.range-queries, datastructures-and-algorithms.trees-heaps]
+    prompt: "A segment tree must return the first position of the maximum in a range. In one word: what should its nodes store instead of the maximum value?"
+    answers: ["position", "positions", "the position", "index", "indices", "indexes", "the index", "argmax", "positions of the maximum"]
+    explanation: "Store positions and combine with 'larger value wins, smaller position on ties'; that rule is associative, so any split of the range gives the same answer."
+  - id: kmp-cost
+    skills: [datastructures-and-algorithms.string-matching]
+    prompt: "Why is KMP O(n + m) even on text aaaa…a and pattern aaa…ab?"
+    options: ["It skips characters", "The text pointer never moves back; after a mismatch the match shrinks to the border pi[k - 1] instead of restarting", "It hashes the windows", "It sorts the pattern"]
+    answer: 1
+    explanation: "Each step advances the text or shrinks the match, and the match grows by at most one per step, so the total work is linear."
+  - id: rolling-update
+    skills: [datastructures-and-algorithms.string-matching]
+    prompt: "Why is Rabin-Karp O(n + m) expected while hashing every window with String.hashCode is O(n · m)?"
+    options: ["hashCode is slow", "A rolling hash updates the window's hash in O(1) by removing the leaving character and adding the new one", "Rabin-Karp skips windows", "hashCode has more collisions"]
+    answer: 1
+    explanation: "Recomputing a hash reads all m characters of each window; rolling it reads two characters."
+  - id: aho-corasick
+    skills: [datastructures-and-algorithms.string-matching, datastructures-and-algorithms.tries]
+    prompt: "Aho-Corasick finds thousands of patterns in one pass over a text. Which two ideas does it combine?"
+    options: ["A heap and binary search", "A trie of the patterns and KMP-style failure links between its nodes", "A sparse table and hashing", "Sorting and two pointers"]
+    answer: 1
+    explanation: "Failure links say where to continue in the trie after a mismatch, like the prefix function does for one pattern."

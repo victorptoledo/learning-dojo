@@ -1,0 +1,47 @@
+id: datastructures-and-algorithms.p4.text-search
+kind: kata
+status: draft
+title: "Text Search"
+summary: "The KMP prefix function, overlapping matches and the smallest period, then a rolling hash for many same-length patterns and a binary search with hashes for the longest repeated substring."
+objectives:
+  - { id: o1, text: "Implement the prefix function and KMP search with overlapping matches, and derive the smallest period from it", skills: [datastructures-and-algorithms.string-matching] }
+  - { id: o2, text: "Slide a rolling hash over a text, verify equal hashes, and combine hashing with a binary search on the answer", skills: [datastructures-and-algorithms.string-matching, datastructures-and-algorithms.hash-tables, datastructures-and-algorithms.sorting-searching] }
+prerequisites: [datastructures-and-algorithms.p4.string-matching]
+difficulty: 4
+estimated_minutes: 75
+xp: 250
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 180 }
+  hints:
+    - |-
+      Three of the five functions are the prefix function in disguise: search runs it over the text without moving back, and the period is what is left of the string after its longest border. The other two compare many windows of one length: what can you compute for a window in O(1) from the window just before it? And if a substring of length L repeats, what do you know about length L - 1?
+    - |-
+      `findAll`: after a full match, continue with `k = pi[m - 1]`, not 0. `smallestPeriod`: `p = n - pi[n - 1]`, and it is a period only if `n % p == 0`. `countAll`: a `Map<Long, List<String>>` from pattern hash to patterns, one window hash rolled across the text, and `text.regionMatches` to confirm each hit. `longestRepeated`: binary search on the length in `[0, n - 1]`; for each length, slide the hash, keep the first start of each hash in a `HashMap<Long, Integer>`, and confirm a repeat with `regionMatches` before you believe it.
+    - |-
+      ```java
+      static final long MOD = (1L << 61) - 1;
+
+      static long mul(long a, long b) {           // a, b < MOD
+          long low = a * b, high = Math.multiplyHigh(a, b);
+          long r = (low & MOD) + ((low >>> 61) | (high << 3));   // 2^61 ≡ 1 (mod MOD)
+          return r >= MOD ? r - MOD : r;
+      }
+
+      // slide the window [start, start + m) one step right:
+      // h = (h - text[start] * BASE^(m-1)) * BASE + text[start + m]   (mod MOD)
+      h = add(mul(add(h, MOD - mul(text.charAt(start), high)), BASE), text.charAt(start + m));
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

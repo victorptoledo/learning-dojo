@@ -1,0 +1,54 @@
+id: datastructures-and-algorithms.p5.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 5: Final Exam"
+summary: "The final exam of the track: a quiz on greedy choices and their proofs, bits, and solving problems against a complexity budget, and a canonical Huffman compressor that packs and reads 40 MB of bits."
+objectives:
+  - { id: o1, text: "Justify a greedy algorithm with an exchange argument, recognise where greedy fails, and reason about bits and complexity budgets", skills: [datastructures-and-algorithms.greedy, datastructures-and-algorithms.bit-manipulation, datastructures-and-algorithms.problem-solving] }
+  - { id: o2, text: "Build canonical Huffman codes with a heap and a deterministic tie rule, and encode and decode bit streams with shifts and masks", skills: [datastructures-and-algorithms.greedy, datastructures-and-algorithms.bit-manipulation, datastructures-and-algorithms.trees-heaps, datastructures-and-algorithms.sorting-searching] }
+prerequisites: [datastructures-and-algorithms.p5.interview-practice]
+difficulty: 4
+estimated_minutes: 120
+xp: 550
+closes_phase: p5
+covers_skills: [datastructures-and-algorithms.greedy, datastructures-and-algorithms.bit-manipulation, datastructures-and-algorithms.problem-solving]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-java, timeout_secs: 240 }
+  hints:
+    - |-
+      Four steps, each with one idea. Lengths: the greedy merge needs the two lightest trees again and again, so which structure hands you the minimum cheaply, and what must its comparator include so that ties always go the same way? Codes: once the symbols are sorted by length and value, each code is the previous one plus one, shifted when the length grows. Encoding and decoding: a code is a number and a length, never a string.
+    - |-
+      `codeLengths`: give every tree an `int` id with arrays `weight`, `smallest` and `parent`, keep ids in a `PriorityQueue` ordered by weight then smallest, merge until one is left, then walk `parent` from each leaf to count its depth (no recursion needed). `canonicalCodes`: sort the used values by `(length, value)` and check that the code never reaches `1L << length`. `encode`: a `long` buffer of pending bits; append each code, then flush bytes from its top while 8 or more bits are pending. `decode`: for each length, the first code and the number of codes; read bits into `current` until `current - first[length]` lands in `[0, count[length])`.
+    - |-
+      ```java
+      // canonical decoding tables
+      long code = 0;
+      int index = 0;
+      for (int length = 1; length <= maxLength; length++) {
+          code <<= 1;
+          first[length] = code;       // the first code of this length
+          offset[length] = index;     // where its symbols start in the sorted list
+          code += count[length];
+          index += count[length];
+      }
+      // ... then, for each bit:
+      current = (current << 1) | bit;
+      length++;
+      long delta = current - first[length];
+      if (delta >= 0 && delta < count[length]) { emit(symbols[offset[length] + (int) delta]); current = 0; length = 0; }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-java runner image
+    image: dojo-java
+    why: The container with JDK 25 and JUnit 6 that runs the grading tests.

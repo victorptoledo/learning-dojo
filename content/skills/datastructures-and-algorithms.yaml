@@ -12,6 +12,8 @@ skills:
   - { id: datastructures-and-algorithms.shortest-paths, title: "Shortest Paths, Union-Find and Spanning Trees" }
   - { id: datastructures-and-algorithms.tries, title: "Tries and Prefix Search" }
   - { id: datastructures-and-algorithms.dynamic-programming, title: "Dynamic Programming" }
+  - { id: datastructures-and-algorithms.range-queries, title: "Range Queries: Prefix Sums, Sparse Tables, Fenwick and Segment Trees" }
+  - { id: datastructures-and-algorithms.string-matching, title: "String Matching: KMP and Rolling Hashes" }
   - { id: datastructures-and-algorithms.greedy, title: "Greedy Algorithms" }
   - { id: datastructures-and-algorithms.bit-manipulation, title: "Bit Manipulation" }
   - { id: datastructures-and-algorithms.problem-solving, title: "Solving Problems Out Loud" }
