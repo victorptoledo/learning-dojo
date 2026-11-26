@@ -1,0 +1,74 @@
+id: rust.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz and a build planner that parses without copying, plans waves of dependencies and runs them on a cancellable pool of background threads."
+objectives:
+  - { id: o1, text: "Explain lifetimes, smart pointers and Send and Sync in your own words", skills: [rust.lifetimes, rust.smart-pointers, rust.concurrency] }
+  - { id: o2, text: "Parse into structs that borrow from their input, then own the data to hand it to background threads that share state safely", skills: [rust.lifetimes, rust.smart-pointers, rust.concurrency] }
+prerequisites: [rust.p3.parallel-word-count]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+closes_phase: p3
+covers_skills: [rust.lifetimes, rust.smart-pointers, rust.concurrency]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 180 }
+  hints:
+    - |-
+      Do the parts in order, each with its visible test. In `parse`, which `str` methods return slices of the input instead of new strings? In `plan`, what does a wave contain if you think of it as "everything whose dependencies are already done"? In `start`, why can a thread made with `std::thread::spawn` not borrow `waves` or `job`, and what does that say about who owns them?
+    - |-
+      `lines()`, `trim()`, `split_once(':')` and `split_whitespace()` all give `&str` slices of the source, so `parse` needs no allocation for names. For `plan`, keep a map of the targets still waiting and a set of the finished ones; each round, take every waiting target whose dependencies are all finished, sort it, and stop with `Cycle` when a round finds nothing. For `start`, spawn one coordinator thread that owns the waves and the `Job`, and keep an `Arc` with an `AtomicUsize` (finished) and an `AtomicBool` (cancelled) in both the coordinator and `Build`. Inside the coordinator, `std::thread::scope` can run each wave on `workers` threads that borrow a shared queue.
+    - |-
+      ```rust
+      // one wave, inside the coordinator thread
+      let queue = Mutex::new(VecDeque::from(wave));
+      let (sender, results) = mpsc::channel();
+      thread::scope(|scope| {
+          for _ in 0..workers.min(queue.lock().unwrap().len()) {
+              let sender = sender.clone();
+              let queue = &queue;
+              scope.spawn(move || loop {
+                  if state.cancelled.load(Ordering::SeqCst) { break; }
+                  let Some(name) = queue.lock().unwrap().pop_front() else { break };
+                  let outcome = catch_unwind(AssertUnwindSafe(|| job(&name)))
+                      .unwrap_or_else(|_| Err("panicked".to_string()));
+                  state.finished.fetch_add(1, Ordering::SeqCst);
+                  sender.send((name, outcome)).unwrap();
+              });
+          }
+      });
+      drop(sender);
+      // read `results`, then whatever is left in the queue was skipped
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-rust runner image
+    image: dojo-rust
+    why: The container with Rust, clippy and rustfmt that runs the grading tests.
+  - kind: vscode-extension
+    name: CodeLLDB
+    id: vadimcn.vscode-lldb
+    required: false
+    why: Breakpoints and step-by-step debugging of your tests.
+remedial:
+  - id: borrowed-fields
+    title: "Borrowed Fields and a Background Count"
+    summary: "Split a line into slices of it, return the longer of two borrows, and count matches on spawned threads sharing an Arc."
+    skills: [rust.lifetimes, rust.concurrency, rust.smart-pointers]
+    kata:
+      statement: remedial/borrowed-fields/README.md
+      starter: remedial/borrowed-fields/starter
+      tests: remedial/borrowed-fields/tests
+      reference: remedial/borrowed-fields/reference
+      runner: { image: dojo-rust, timeout_secs: 120 }

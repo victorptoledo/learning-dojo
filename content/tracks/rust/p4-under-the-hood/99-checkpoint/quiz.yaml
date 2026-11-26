@@ -1,0 +1,63 @@
+questions:
+  - id: into-iterator-types
+    skills: [rust.advanced-traits]
+    prompt: "You want `for song in &playlist` to work without moving playlist. What do you implement?"
+    options:
+      - "Iterator for Playlist"
+      - "IntoIterator for &Playlist, with Item = &String"
+      - "Deref for Playlist"
+      - "Clone for Playlist"
+    answer: 1
+    explanation: "for calls IntoIterator::into_iter on what it is given, here a reference, so the impl is for &'a Playlist. (Advanced Traits)"
+  - id: mul-rhs
+    skills: [rust.advanced-traits]
+    prompt: "To write vector * 2.0 where vector is a Vec2, which trait do you implement?"
+    answers: ["Mul<f64> for Vec2", "impl Mul<f64> for Vec2", "Mul<f64>", "std::ops::Mul<f64>"]
+    explanation: "Mul's type parameter is the right-hand side (it defaults to Self); Output is the result type. (Advanced Traits)"
+  - id: newtype-cost
+    skills: [rust.advanced-traits]
+    prompt: "What does struct UserId(u64) cost at run time compared with a plain u64?"
+    options: ["Nothing: it has the same size and layout", "One heap allocation", "A vtable lookup per use"]
+    answer: 0
+    explanation: "The wrapper exists only for the type checker: it stops mixing a UserId with an OrderId. (Advanced Traits)"
+  - id: macro-trailing-comma
+    skills: [rust.macros]
+    prompt: "Which addition to the matcher ( $( $x:expr ),* ) also accepts a trailing comma?"
+    answers: ["$(,)?", "$(,)? at the end"]
+    explanation: "$(,)? is an optional repetition of one comma, the same trick the standard macros use. (Declarative Macros)"
+  - id: macro-evaluated-twice
+    skills: [rust.macros]
+    prompt: "macro_rules! twice { ($e:expr) => { $e + $e }; } What does twice!(next()) do if next() prints a line?"
+    options:
+      - "Prints once: the macro caches the value"
+      - "Prints twice: the expression is pasted twice"
+      - "Does not compile"
+    answer: 1
+    explanation: "Macros paste tokens. Bind the argument once (let value = $e;) inside a block. (Declarative Macros)"
+  - id: maybeuninit-read-twice
+    skills: [rust.unsafe-ffi]
+    prompt: "A container calls assume_init_read on the same slot twice and keeps both values. What is the bug?"
+    options:
+      - "None, reading is always safe"
+      - "Two owners of one value: it will be dropped twice (undefined behaviour)"
+      - "A compile error"
+    answer: 1
+    explanation: "assume_init_read moves the value out bit by bit; the slot must then count as empty, which is why len changes first. (Unsafe Rust and FFI)"
+  - id: extern-c-panic
+    skills: [rust.unsafe-ffi]
+    prompt: "What happens when a Rust panic reaches the end of an extern \"C\" function?"
+    options:
+      - "The panic unwinds into the C caller"
+      - "The process aborts"
+      - "The function returns 0"
+    answer: 1
+    explanation: "Unwinding across the C ABI is not allowed, so Rust aborts. Avoid panics there (wrapping or checked arithmetic, catch_unwind) or use extern \"C-unwind\". (Unsafe Rust and FFI)"
+  - id: unsafe-fn-pointer
+    skills: [rust.unsafe-ffi]
+    prompt: "Why is fixed_sum(data: *const i64, len: usize) declared unsafe extern \"C\" fn and not just extern \"C\" fn?"
+    options:
+      - "Every extern function must be unsafe"
+      - "It reads through a pointer it cannot check, so the caller must promise the pointer and length are valid"
+      - "Because it returns an i64"
+    answer: 1
+    explanation: "A safe function must be sound for every input. A raw pointer could be dangling, so the contract moves to the caller, documented in # Safety. (Unsafe Rust and FFI)"

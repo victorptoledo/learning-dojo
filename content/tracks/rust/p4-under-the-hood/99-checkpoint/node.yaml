@@ -1,0 +1,79 @@
+id: rust.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 4: Traits, Macros and Unsafe"
+summary: "Prove the under-the-hood phase: a quiz and FixedVec, an inline vector over MaybeUninit with a safe API, the traits of a built-in collection, a fixed_vec! macro and a C function."
+objectives:
+  - { id: o1, text: "Explain associated types, operator traits, newtypes, macro_rules!, unsafe contracts and FFI in your own words", skills: [rust.advanced-traits, rust.macros, rust.unsafe-ffi] }
+  - { id: o2, text: "Build a sound collection over uninitialised memory that drops every value exactly once, implement the standard traits for it and a macro that builds it", skills: [rust.advanced-traits, rust.macros, rust.unsafe-ffi] }
+prerequisites: [rust.p4.unsafe-ffi]
+difficulty: 5
+estimated_minutes: 100
+xp: 450
+closes_phase: p4
+covers_skills: [rust.advanced-traits, rust.macros, rust.unsafe-ffi]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 180 }
+  hints:
+    - |-
+      Write `push`, `pop`, `as_slice` and `Drop` first: almost everything else can be built on them. For each method ask which slots are initialised before and after, and in what order `len` must change so a panic halfway never leaves `len` covering an empty slot. Which of the trait implementations can be one line long because `Deref` gives you a slice?
+    - |-
+      `slot.write(value)` fills a slot and `slot.assume_init_read()` moves a value out. `self.slots.as_ptr().cast::<T>()` with `std::slice::from_raw_parts(ptr, self.len)` gives the slice. `insert` and `remove` shift with `std::ptr::copy` (it allows overlap). `clear` can set `len = 0` first, then `ptr::drop_in_place` on the old range. `Clone` is safe if it pushes clone by clone into a new `FixedVec`. For the owning iterator, wrap `self` in `ManuallyDrop` so its `Drop` does not run, `ptr::read` the slots into the iterator, and keep a `next..end` range of live slots.
+    - |-
+      ```rust
+      pub fn insert(&mut self, index: usize, value: T) -> Result<(), T> {
+          assert!(index <= self.len, "insertion index {index} is out of bounds");
+          if self.is_full() {
+              return Err(value);
+          }
+          let base = self.slots.as_mut_ptr().cast::<T>();
+          // SAFETY: index <= len < N, so both ranges are inside the array; copy allows overlap.
+          unsafe {
+              std::ptr::copy(base.add(index), base.add(index + 1), self.len - index);
+              base.add(index).write(value);
+          }
+          self.len += 1;
+          Ok(())
+      }
+
+      #[macro_export]
+      macro_rules! fixed_vec {
+          ( $( $item:expr ),+ $(,)? ) => {{
+              let mut vec = $crate::FixedVec::new();
+              $( if vec.push($item).is_err() { panic!("fixed_vec!: more values than capacity"); } )+
+              vec
+          }};
+          // and the () and ( $value:expr ; $count:expr ) rules
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-rust runner image
+    image: dojo-rust
+    why: The container with Rust, clippy and rustfmt that runs the grading tests.
+  - kind: vscode-extension
+    name: CodeLLDB
+    id: vadimcn.vscode-lldb
+    required: false
+    why: Breakpoints and step-by-step debugging of your tests.
+remedial:
+  - id: tiny-stack
+    title: "Meters, max_of! and TinyStack"
+    summary: "A newtype with operators, a recursive macro that evaluates each argument once, and a small stack over MaybeUninit that drops each value once."
+    skills: [rust.advanced-traits, rust.macros, rust.unsafe-ffi]
+    kata:
+      statement: remedial/tiny-stack/README.md
+      starter: remedial/tiny-stack/starter
+      tests: remedial/tiny-stack/tests
+      reference: remedial/tiny-stack/reference
+      runner: { image: dojo-rust, timeout_secs: 120 }

@@ -1,0 +1,74 @@
+id: rust.p5.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Final Exam: Mastery"
+summary: "The final exam of the Rust track: a quiz over the advanced phases and a health probe built on a hand-made runtime, with validated configuration, an error chain, structured logs and exit codes."
+objectives:
+  - { id: o1, text: "Explain async and futures, cancellation, production error handling, logging and configuration in your own words", skills: [rust.async-tokio, rust.futures-internals, rust.production] }
+  - { id: o2, text: "Build a small production tool that runs checks concurrently under timeouts on a standard-library runtime and reports through typed errors, structured logs and exit codes", skills: [rust.futures-internals, rust.production, rust.concurrency] }
+prerequisites: [rust.p5.production-rust]
+difficulty: 5
+estimated_minutes: 120
+xp: 500
+closes_phase: p5
+covers_skills: [rust.async-tokio, rust.futures-internals, rust.production]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-rust, timeout_secs: 240 }
+  hints:
+    - |-
+      Build the runtime first and test it alone: `block_on` of an async block, then of one `sleep`, then of a `join_all` of three sleeps, timing it. Only then write the probe, which is mostly `timeout(...)` around each check and one `block_on(join_all(...))`. For each future you write, ask: when I return `Pending`, who will wake me, and with which waker?
+    - |-
+      `block_on`: `std::pin::pin!` the future, make a `Waker::from(Arc::new(ThreadWaker(thread::current())))` whose `wake` calls `unpark`, and `thread::park()` after each `Pending`. `Sleep`: on the first early poll, keep the waker in an `Arc<Mutex<Option<Waker>>>` shared with a timer thread that sleeps until the deadline and then wakes it; on later polls just replace the stored waker. `JoinAll` and `Timeout`: store `Option<Pin<Box<F>>>` and set it to `None` when the future finishes or is cancelled; both structs are then `Unpin`, so `let this = &mut *self;` works. For the errors, `.map_err(|source| ConfigError::NotANumber { .. })` keeps the parse error, and `error_chain` loops on `source()`.
+    - |-
+      ```rust
+      impl<F: Future> Future for Timeout<F> {
+          type Output = Result<F::Output, Elapsed>;
+          fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+              let this = &mut *self;                       // fields: Option<Pin<Box<F>>>, Sleep
+              let Some(work) = this.future.as_mut() else { return Poll::Ready(Err(Elapsed)) };
+              if let Poll::Ready(value) = work.as_mut().poll(cx) {
+                  this.future = None;
+                  return Poll::Ready(Ok(value));
+              }
+              if Pin::new(&mut this.timer).poll(cx).is_ready() {
+                  this.future = None;                      // dropping the work cancels it
+                  return Poll::Ready(Err(Elapsed));
+              }
+              Poll::Pending
+          }
+      }
+
+      let checks: Vec<_> = config.targets.iter().map(|t| timeout(config.timeout, check(t))).collect();
+      let outcomes = block_on(join_all(checks));           // one thread, all at once
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-rust runner image
+    image: dojo-rust
+    why: The container with Rust, clippy and rustfmt that runs the grading tests.
+  - kind: vscode-extension
+    name: CodeLLDB
+    id: vadimcn.vscode-lldb
+    required: false
+    why: Breakpoints and step-by-step debugging of your tests.
+remedial:
+  - id: countdown-port
+    title: "Countdown, block_on and a Port Parser"
+    summary: "A future that wakes itself, a parking block_on, and a typed error that keeps its cause."
+    skills: [rust.futures-internals, rust.production]
+    kata:
+      statement: remedial/countdown-port/README.md
+      starter: remedial/countdown-port/starter
+      tests: remedial/countdown-port/tests
+      reference: remedial/countdown-port/reference
+      runner: { image: dojo-rust, timeout_secs: 120 }

@@ -1,4 +1,4 @@
-id: rust.p4.production-rust
+id: rust.p5.production-rust
 kind: lesson
 status: draft
 title: "Production Rust: Errors, Logging and Configuration"
@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Choose between thiserror for libraries and anyhow for applications", skills: [rust.production] }
   - { id: o2, text: "Add structured logging with tracing and configure it from the environment", skills: [rust.production] }
   - { id: o3, text: "Load configuration from arguments and environment, and ship an optimised release build", skills: [rust.production] }
-prerequisites: [rust.p4.async-tokio]
+prerequisites: [rust.p5.futures-by-hand]
 difficulty: 4
 estimated_minutes: 45
 xp: 300

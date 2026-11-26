@@ -13,14 +13,15 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Pattern Matcher" }
   - { name: "Purple Belt", required_xp: 1500, title: "Trait Master" }
   - { name: "Brown Belt", required_xp: 2500, title: "Pointer Alchemist" }
-  - { name: "Black Belt", required_xp: 4000, title: "Fearless Concurrency Master" }
-  - { name: "Sensei", required_xp: 6000, title: "Ferris Ascended" }
+  - { name: "Black Belt", required_xp: 5000, title: "Fearless Concurrency Master" }
+  - { name: "Sensei", required_xp: 8000, title: "Ferris Ascended" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install the toolchain, run a first program and see why the language exists" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types, syntax, control flow, functions and basic data structures" }
   - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Abstractions, error handling, data manipulation and good practices" }
   - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Performance, concurrency, design patterns and architecture" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Production scenarios, specialised topics and resilience" }
+  - { id: p4, dir: p4-under-the-hood, title: "Traits, Macros and Unsafe", goal: "Make your own types feel built in, write code that writes code, and build safe APIs over unsafe code and C" }
+  - { id: p5, dir: p5-mastery, title: "Mastery", goal: "Async from the runtime up, production scenarios and resilience" }
 requirements:
   - kind: tool
     name: Rust toolchain (cargo)

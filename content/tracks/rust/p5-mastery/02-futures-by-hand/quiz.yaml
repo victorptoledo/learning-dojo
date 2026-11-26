@@ -1,0 +1,45 @@
+questions:
+  - id: poll-results
+    prompt: "Which two values can Future::poll return?"
+    options:
+      - "Ok and Err"
+      - "Poll::Ready(value) and Poll::Pending"
+      - "Some and None"
+    answer: 1
+    explanation: "Ready carries the output; Pending means not yet, and promises a wake-up later."
+  - id: waker-contract
+    prompt: "A future returns Poll::Pending but never arranges for cx.waker() to be woken. What happens under a parking executor such as block_on?"
+    options:
+      - "It is polled again immediately"
+      - "It may never be polled again: the task hangs"
+      - "The runtime panics"
+    answer: 1
+    explanation: "Executors poll again only when woken. Pending without a wake-up is a lost task."
+  - id: newest-waker
+    prompt: "A future stores a waker on its first poll. Why must it replace the stored waker on later polls?"
+    options:
+      - "Wakers expire after one second"
+      - "The executor may pass a different waker each time, for example after moving the task"
+      - "Cloning a waker is free, so it does not matter"
+    answer: 1
+    explanation: "Waking an old waker may wake the wrong task or nothing. Keep the waker from the latest poll."
+  - id: park
+    prompt: "In a single-threaded block_on, what should the loop do after poll returns Pending?"
+    answers: ["park", "thread::park()", "std::thread::park()", "thread::park"]
+    explanation: "Parking sleeps until the waker calls unpark. Spinning works too, but burns a CPU core."
+  - id: cancel-by-drop
+    prompt: "How does a timeout cancel the future it gave up on?"
+    options:
+      - "It calls a cancel() method on the future"
+      - "It drops the future, which destroys its state machine"
+      - "It keeps polling it in the background"
+    answer: 1
+    explanation: "Rust futures do nothing unless polled; dropping one stops it for good and runs its Drop impls."
+  - id: why-pin
+    prompt: "Why does polling take self: Pin<&mut Self>?"
+    options:
+      - "To make poll thread-safe"
+      - "An async block may hold references into its own state, so it must not move after the first poll"
+      - "To allow poll to be called only once"
+    answer: 1
+    explanation: "Pin guarantees the address stays put. Box::pin or pin! are the usual ways to get one."

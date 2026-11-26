@@ -1,0 +1,42 @@
+questions:
+  - id: associated-vs-generic
+    prompt: "Why is Iterator's item an associated type (type Item) and not a generic parameter (Iterator<T>)?"
+    options:
+      - "Associated types are faster at run time"
+      - "A type yields one kind of item, so it should implement Iterator once, not once per T"
+      - "Generic traits cannot have methods"
+    answer: 1
+    explanation: "With an associated type each type has one Iterator impl, and callers write I: Iterator<Item = u32> instead of guessing T."
+  - id: add-output
+    prompt: "In impl Add for Money { type Output = Money; fn add(self, other: Money) -> Money { ... } }, what is Output?"
+    options:
+      - "The type that a + b evaluates to"
+      - "The type of the right-hand side"
+      - "A trait that Money must implement"
+    answer: 0
+    explanation: "Output is the result type; the right-hand side is the Rhs parameter, which defaults to Self."
+  - id: orphan-rule
+    prompt: "impl std::fmt::Display for Vec<u8> does not compile. What is the usual fix?"
+    answers: ["newtype", "a newtype", "wrap it in a newtype", "a wrapper struct", "struct Bytes(Vec<u8>)"]
+    explanation: "The orphan rule needs the trait or the type to be yours. A tuple struct around the Vec is your type, at no run-time cost."
+  - id: deref-mut-missing
+    prompt: "A Sorted(Vec<i32>) wrapper implements Deref<Target = [i32]>. Why should it not implement DerefMut?"
+    options:
+      - "DerefMut does not exist"
+      - "Callers could get a &mut [i32] and break the sort order"
+      - "Deref and DerefMut cannot both be implemented"
+    answer: 1
+    explanation: "Each trait you implement is a promise. A mutable view of the slice would let anyone reorder it."
+  - id: index-returns
+    prompt: "What does Index::index return?"
+    options: ["The element by value", "A reference to the element", "An Option of the element"]
+    answer: 1
+    explanation: "index returns &Self::Output; a[i] then dereferences it. That is why indexing out of range panics instead of returning None."
+  - id: dyn-compatible
+    prompt: "Why can you not write Box<dyn Clone>?"
+    options:
+      - "Clone is not implemented for Box"
+      - "clone returns Self, whose size is unknown behind dyn, so Clone is not dyn compatible"
+      - "Only traits from your own crate can be used with dyn"
+    answer: 1
+    explanation: "A vtable cannot describe a method that returns Self by value or is generic."
