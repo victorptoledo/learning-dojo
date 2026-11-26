@@ -1,0 +1,24 @@
+id: prompt-engineering.p4.metaprompting
+kind: lesson
+status: draft
+title: "Metaprompting and Prompt Optimisation"
+summary: "Prompts that write prompts: first drafts, rewrites, briefs and test data, the template contract a rewrite must keep, an optimisation loop around an evaluation set with fresh, bounded contexts, overfitting, leakage and graders that can be gamed, and a human reviewing the diff."
+objectives:
+  - { id: o1, text: "Use a model to draft and rewrite prompts, and check in code that a candidate keeps the template's placeholders and output contract", skills: [prompt-engineering.metaprompting, prompt-engineering.structured-output] }
+  - { id: o2, text: "Run an optimisation loop that scores candidates on a development set and feeds back a bounded, escaped sample of failures", skills: [prompt-engineering.metaprompting, prompt-engineering.evaluation, prompt-engineering.context-engineering] }
+  - { id: o3, text: "Guard against overfitting and leakage with a holdout set, a margin, grader checks and human review", skills: [prompt-engineering.metaprompting, prompt-engineering.evaluation] }
+prerequisites: [prompt-engineering.p4.context-compactor]
+difficulty: 4
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Your team wants to let a model improve the ticket-triage prompt automatically every night: it reads yesterday''s misclassified tickets, rewrites the prompt and deploys it if the accuracy on those tickets goes up. Write a short review of this plan (about 250 words): name at least three ways it can go wrong, and describe the loop you would build instead, including what the optimiser sees in each round, how candidates are checked before they are scored, how you avoid overfitting, and who approves a new version.'
+  criteria:
+    - 'Identifies overfitting: scoring on the same tickets the optimiser saw rewards memorising them, so a separate holdout set the optimiser never sees is needed'
+    - 'Identifies leakage or grader gaming: the optimiser can copy expected labels or specific ticket details into the prompt'
+    - 'Checks each candidate in code before scoring: the placeholders the code fills are all present with no unknown ones, and the output format is unchanged'
+    - 'Gives the optimiser a fresh context per round with the current prompt and a capped, escaped sample of failures, and requires a margin over the current score'
+    - 'Keeps a human review of the diff and a versioned release (changelog, evaluation results, rollback) instead of deploying automatically'

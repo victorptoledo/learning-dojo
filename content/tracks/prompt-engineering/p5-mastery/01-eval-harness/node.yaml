@@ -1,4 +1,4 @@
-id: prompt-engineering.p4.eval-harness
+id: prompt-engineering.p5.eval-harness
 kind: kata
 status: draft
 title: "Eval Harness: Two Prompt Versions, One Verdict"
@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Load and validate an evaluation set, and grade responses with exact, contains, regex and JSON-structure graders", skills: [prompt-engineering.evaluation] }
   - { id: o2, text: "Report results per tag and compare two versions case by case: regressions, fixes and the change in pass rate", skills: [prompt-engineering.evaluation, prompt-engineering.versioning] }
   - { id: o3, text: "Decide whether a version may ship with a rule on critical cases, overall rate and per-tag drops", skills: [prompt-engineering.evaluation, prompt-engineering.versioning] }
-prerequisites: [prompt-engineering.p3.evaluating-prompts]
+prerequisites: [prompt-engineering.p4.checkpoint]
 difficulty: 4
 estimated_minutes: 75
 xp: 350

@@ -79,7 +79,7 @@ All 30 tracks are complete, with 770 lessons and checkpoints and 302 katas betwe
 | Software Architecture | modularity, hexagonal, DDD, events, fitness functions | 25 | 11 | `dojo-java` (fitness functions over compiled classes) |
 | Computer Science | from bits and caches to compilers, computability and database internals | 27 | 11 | `dojo-python`, `dojo-rust` and `dojo-java` |
 | Cyber Security | defensive application and infrastructure security | 25 | 10 | `dojo-python`, `dojo-java` (JCA) and `dojo-linux` (bash, awk); defensive and offline |
-| Prompt Engineering | prompts for LLMs, from instructions to evals | 23 | 9 | `dojo-python` (prompt builders, parsers and eval harnesses; no model calls) |
+| Prompt Engineering | prompts for LLMs, from instructions to evals | 29 | 13 | `dojo-python` (prompt builders, parsers and eval harnesses; no model calls) |
 | Backend Developer | HTTP, auth, data, reliability | 24 | 10 | `dojo-java` |
 | Frontend Developer | HTML, CSS, the DOM and browser APIs, no framework | 27 | 11 | `dojo-web` (headless Chromium, axe-core, html-validate) |
 | Full Stack Developer | browser to database: contracts, auth, caching, deploys, observability | 26 | 11 | `dojo-node`, `dojo-java`, `dojo-sql`, `dojo-docker` |

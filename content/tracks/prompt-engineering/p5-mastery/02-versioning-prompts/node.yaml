@@ -1,4 +1,4 @@
-id: prompt-engineering.p4.versioning-prompts
+id: prompt-engineering.p5.versioning-prompts
 kind: lesson
 status: draft
 title: "Versioning Prompts"
@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Manage prompts as versioned artefacts that include the template, the model snapshot, the parameters, the tools and the output schema", skills: [prompt-engineering.versioning] }
   - { id: o2, text: "Decide what makes a prompt change major, minor or a patch, and record it in a changelog with its evaluation results", skills: [prompt-engineering.versioning] }
   - { id: o3, text: "Roll prompt versions out and back safely, and plan for model upgrades and deprecations", skills: [prompt-engineering.versioning, prompt-engineering.evaluation] }
-prerequisites: [prompt-engineering.p4.eval-harness]
+prerequisites: [prompt-engineering.p5.eval-harness]
 difficulty: 4
 estimated_minutes: 40
 xp: 200

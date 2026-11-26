@@ -229,3 +229,23 @@ questions:
       - "Routing easy requests to a smaller model; batch APIs for offline work"
       - "Verify every change on the evaluation set"
     follow_up: "How would you decide which requests are easy?"
+  - id: context-engineering
+    level: senior
+    skills: [prompt-engineering.context-engineering]
+    question: "An agent gets worse the longer it works on a task. How would you manage its context?"
+    key_points:
+      - "Quality drops as the context grows, long before the window is full; tool results take most of it"
+      - "Clear old tool results to placeholders, keeping each call paired with its result"
+      - "Compact older turns into a summary that keeps decisions, constraints and identifiers; pin the original task"
+      - "Keep durable facts in notes outside the history, load data just in time by reference, and give sub-agents focused briefs"
+    follow_up: "How would you test that a constraint given in the first turn is still followed after compaction?"
+  - id: metaprompting
+    level: senior
+    skills: [prompt-engineering.metaprompting, prompt-engineering.evaluation]
+    question: "Would you let a model improve your production prompt automatically? How?"
+    key_points:
+      - "A loop around an evaluation set: the optimiser sees the current prompt and a capped sample of failures, in a fresh context each round"
+      - "Check each candidate in code first: the same placeholders and output format"
+      - "Accept only gains above a margin, and confirm on a holdout set the optimiser never saw"
+      - "Watch for leakage of evaluation cases into the prompt; a human reviews the diff and the release is versioned"
+    follow_up: "What would make you distrust a candidate that scores 100% on the development set?"

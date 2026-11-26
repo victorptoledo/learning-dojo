@@ -1,0 +1,70 @@
+questions:
+  - id: rot
+    skills: [prompt-engineering.context-engineering]
+    prompt: "An agent still has room in its context window, but it has started to miss facts it read an hour ago. What is the best explanation?"
+    options:
+      - "The window is full"
+      - "Quality degrades as the context grows with distracting material, long before the hard limit"
+      - "The model forgot because of the temperature"
+    answer: 1
+    explanation: "Context is a budget with diminishing returns; keep the smallest set of high-signal tokens."
+  - id: order
+    skills: [prompt-engineering.context-engineering]
+    prompt: "A conversation is over budget. In which order should you try the techniques?"
+    options:
+      - "Summarise everything, then clear tool results"
+      - "Clear old tool results first, then summarise older turns if it still does not fit"
+      - "Drop the system prompt first"
+    answer: 1
+    explanation: "Clearing is cheap and loses little; summarising costs a call and loses detail."
+  - id: pair
+    skills: [prompt-engineering.context-engineering, prompt-engineering.tool-use]
+    prompt: "The recent window would start with a tool result whose call is in the older part. What should compaction do?"
+    options:
+      - "Keep the result and summarise the call"
+      - "Move the split back so the call and its result stay together"
+      - "Delete the result"
+    answer: 1
+    explanation: "A result without its call is rejected by APIs and confuses the model."
+  - id: notes
+    skills: [prompt-engineering.context-engineering]
+    prompt: "Which survives any amount of compaction?"
+    options:
+      - "The oldest turns"
+      - "Notes the agent wrote outside the history, rendered back into its context"
+      - "Every tool result"
+    answer: 1
+    explanation: "Notes are not in the history, so compaction cannot drop them."
+  - id: subagent
+    skills: [prompt-engineering.context-engineering]
+    prompt: "Why give part of a large task to a sub-agent?"
+    options:
+      - "It can read a lot in its own fresh context and return only a condensed result, keeping the main context clean"
+      - "Sub-agents share the main agent's context, so they know everything"
+      - "Sub-agents never need a brief"
+    answer: 0
+    explanation: "Fresh contexts isolate the noise; the brief says what the sub-agent needs to know and to return."
+  - id: contract
+    skills: [prompt-engineering.metaprompting]
+    prompt: "When should the template contract of a generated prompt be checked?"
+    options:
+      - "After it is deployed"
+      - "In code, right after extracting it and before spending calls to score it"
+      - "Only when a user complains"
+    answer: 1
+    explanation: "A candidate that lost a placeholder cannot work; reject it with a specific reason."
+  - id: overfit
+    skills: [prompt-engineering.metaprompting, prompt-engineering.evaluation]
+    prompt: "The optimised prompt scores 100% on the development set and worse than the seed on the holdout set. What do you ship?"
+    options: ["The optimised prompt", "The seed, and you investigate the overfitting", "Both, half the traffic each"]
+    answer: 1
+    explanation: "A drop on unseen data shows memorisation, not improvement."
+  - id: bounded
+    skills: [prompt-engineering.metaprompting, prompt-engineering.context-engineering]
+    prompt: "Why does the optimiser see at most a few failures, each clipped, instead of all of them in full?"
+    options:
+      - "Because a small, clean sample makes the pattern visible and keeps every round's cost flat"
+      - "Because the optimiser cannot read long text"
+      - "Because failures are secret"
+    answer: 0
+    explanation: "Twenty long transcripts bury the signal; capping and clipping is context engineering for the optimiser."
