@@ -1,0 +1,54 @@
+id: cpp.p4.durations
+kind: kata
+status: draft
+title: "Durations and Timestamps: from_chars, a Custom Formatter and Time Zones"
+summary: "Parse human durations such as 2d4h5s with std::from_chars and overflow checks, print them two ways through a std::formatter with its own option, parse ISO 8601 timestamps with offsets into sys_seconds while rejecting impossible dates, and show a moment in any IANA time zone."
+objectives:
+  - { id: o1, text: "Parse text strictly with std::from_chars and report every error with std::expected, checking for overflow before it happens", skills: [cpp.text-format, cpp.error-handling] }
+  - { id: o2, text: "Write a std::formatter with a constexpr parse for its own option", skills: [cpp.text-format, cpp.compile-time] }
+  - { id: o3, text: "Build time points from calendar fields, validate them and show them in a time zone", skills: [cpp.chrono] }
+prerequisites: [cpp.p4.chrono]
+difficulty: 4
+estimated_minutes: 70
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 150 }
+  hints:
+    - |-
+      Do it in three steps, each with its own tests: `parse_duration`, then the formatter (`parse` in the header, `format` in the .cpp), then `parse_timestamp` and `local_text`. `std::from_chars` accepts a leading `-`, so check that each number starts with a digit yourself. Before `total += number * unit`, ask whether the multiplication or the addition can overflow: in signed arithmetic that is undefined behaviour, and UBSan is watching.
+    - |-
+      `parse_duration` keeps the index of the next unit still allowed in `"dhms"`; a unit at a smaller index is `UnitOrder`. Overflow check: `number > max / unit_seconds || number * unit_seconds > max - total`. The formatter's `parse` compares `std::string_view(ctx.begin(), ctx.end())` with `"clock"`, skips it, and throws `std::format_error` unless it now stands on `'}'` (or the end). `format` writes `'-'` first for negatives, then works on the absolute value. `parse_timestamp`: check the length (20 or 25) and the separators first, read each field with a small helper that rejects non-digits, build `year_month_day{year{y}, month{m}, day{d}}`, and check `ok()`. `local_text` is one `std::format("{:%F %R %Z}", std::chrono::zoned_time{...})`.
+    - |-
+      ```cpp
+      constexpr auto parse(std::format_parse_context& ctx) {
+          auto it = ctx.begin();
+          if (std::string_view(it, ctx.end()).starts_with("clock")) {
+              clock = true;
+              it += 5;
+          }
+          if (it != ctx.end() && *it != '}') {
+              throw std::format_error("Elapsed takes {} or {:clock}");
+          }
+          return it;
+      }
+
+      // parse_timestamp, after the fields are read:
+      const year_month_day date{year{*y}, month{static_cast<unsigned>(*mo)}, day{static_cast<unsigned>(*d)}};
+      if (!date.ok()) { return std::unexpected(ParseError::BadDate); }
+      const sys_seconds wall = sys_days{date} + hours{*h} + minutes{*mi} + seconds{*s};
+      return text[19] == '-' ? wall + shift : wall - shift;   // 10:00+01:00 is 09:00 UTC
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.

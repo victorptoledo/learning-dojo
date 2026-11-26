@@ -1,0 +1,55 @@
+id: cpp.p5.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 5: Final Exam"
+summary: "The final exam of the track: a quiz over performance, compile-time programming and production C++ with questions from the whole track, and an integration project, a metrics library whose names and bucket bounds are checked at compile time, whose histogram records and whose registry looks up names without a single allocation, and whose C interface turns every exception, including std::bad_alloc, into a status code."
+objectives:
+  - { id: o1, text: "Explain measuring and memory layout, compile-time computation and C++ in production, and connect them to ownership, errors and the standard library", skills: [cpp.performance, cpp.compile-time, cpp.production] }
+  - { id: o2, text: "Build a small library that is fast by design (no allocation on the hot path, contiguous data, heterogeneous lookup), checked at compile time, and safe to call from C", skills: [cpp.performance, cpp.compile-time, cpp.production, cpp.error-handling, cpp.text-format] }
+prerequisites: [cpp.p5.production]
+difficulty: 5
+estimated_minutes: 120
+xp: 550
+closes_phase: p5
+covers_skills: [cpp.performance, cpp.compile-time, cpp.production]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 180 }
+  hints:
+    - |-
+      Go in four steps, each with its own tests: the two `constexpr` functions in `metrics.hpp`; `Histogram`; `Registry`; and the C functions last. The tests replace the global `operator new`, so they see every allocation: ask where each of your allocations happens, and make sure none happens in `record`, `find` or `dojo_record`. For the C functions, ask what each exception (`std::invalid_argument`, `std::bad_alloc`) should become before it reaches a C caller.
+    - |-
+      `valid_name` and `exponential_bounds` are ordinary loops (a `throw` inside a `constexpr` function is fine: it only fails the build when it runs at compile time). `Histogram` allocates its two vectors in the constructor; `record` is `std::ranges::lower_bound(bounds_, value)` (the first bound `>=` the value) and an increment. `Registry` already has the transparent `StringHash` and `std::equal_to<>`, so `metrics_.find(name)` with a `std::string_view` builds no string; `render` sorts the names and sums the buckets as it goes. In C: `try { ... } catch (const std::bad_alloc&) { return DOJO_OUT_OF_MEMORY; } catch (...) { return DOJO_INVALID_ARGUMENT; }`, and `dojo_render` copies `min(size, capacity - 1)` characters and a NUL only when `capacity > 0`.
+    - |-
+      ```cpp
+      Histogram::Histogram(std::span<const double> bounds) : bounds_(bounds.begin(), bounds.end()) {
+          if (bounds_.empty()) { throw std::invalid_argument("a histogram needs at least one bound"); }
+          if (!std::ranges::all_of(bounds_, [](double b) { return std::isfinite(b); }) ||
+              std::ranges::adjacent_find(bounds_, std::greater_equal<>{}) != bounds_.end()) {
+              throw std::invalid_argument("bounds must be finite and strictly increasing");
+          }
+          counts_.assign(bounds_.size() + 1, 0);  // every allocation happens here
+      }
+
+      dojo_registry* dojo_registry_new(void) {
+          try {
+              return new dojo_registry{};
+          } catch (...) {
+              return nullptr;  // an exception must never unwind into C
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.

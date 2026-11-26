@@ -1,0 +1,24 @@
+id: cpp.p4.format-parse
+kind: lesson
+status: draft
+title: "Formatting and Parsing Text: std::format, std::print and std::from_chars"
+summary: "The std::format mini-language (width, fill, alignment, precision, bases), format strings checked at compile time and std::vformat for run-time ones, std::print and std::println, std::format_to and format_to_n into buffers, custom std::formatter specialisations with their own options, and parsing numbers with std::from_chars and std::to_chars: locale-free, allocation-free and exact."
+objectives:
+  - { id: o1, text: "Format values with the std::format mini-language and know when the format string is checked", skills: [cpp.text-format] }
+  - { id: o2, text: "Write a std::formatter specialisation for your own type, with its own format options", skills: [cpp.text-format, cpp.templates-concepts] }
+  - { id: o3, text: "Parse numbers from text with std::from_chars and check that the whole text was consumed", skills: [cpp.text-format, cpp.error-handling] }
+prerequisites: [cpp.p3.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A billing service prints invoices with `sprintf(buf, "%-20s %8.2f", name.c_str(), total)` into a `char buf[32]`, reads amounts with `std::stod(text)`, and logs with `std::cout << std::setw(8) << std::setprecision(2) << std::fixed << total`. On a German server the amounts are read wrong, a long customer name crashed the service once, and "12abc" was accepted as 12. Explain each bug, then rewrite the three lines with std::format (or std::print), std::from_chars and, if it helps, a std::formatter for a Money type. Say what checks the format string and when.'
+  criteria:
+    - 'Explains that sprintf into a fixed buffer overflows on long names (undefined behaviour), and that std::format returns a std::string sized to fit (or format_to_n truncates safely)'
+    - 'Explains that std::stod depends on the C locale (the decimal comma) and accepts a prefix like "12abc", while std::from_chars ignores the locale and reports where it stopped'
+    - 'Rewrites the output with std::format or std::println and the spec {:<20} {:>8.2f} (or a Money formatter), keeping the same layout'
+    - 'Parses with std::from_chars and rejects the text unless ec is std::errc{} and ptr reached the end'
+    - 'Says the format string is checked at compile time against the argument types (a mismatch fails to build), and that std::vformat is for strings known only at run time'

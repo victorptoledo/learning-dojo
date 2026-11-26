@@ -1,0 +1,70 @@
+questions:
+  - id: view-dangles
+    skills: [cpp.ranges]
+    prompt: "`auto evens(std::vector<int> v) { return v | std::views::filter(is_even); }` What is wrong with the result?"
+    options:
+      - "Nothing: the view copies the vector"
+      - "The view refers to the parameter v, which dies when the function returns, so iterating it reads freed memory"
+      - "filter cannot be used on a vector"
+    answer: 1
+    explanation: "Views do not own what they read (apart from owning_view of a moved-in rvalue); return a container with ranges::to or keep the data alive in the caller."
+  - id: lazy-view
+    skills: [cpp.ranges]
+    prompt: "`auto big = orders | std::views::transform(price) | std::views::take(3);` How many times does price run before anyone iterates big?"
+    options: ["Once per order", "Three times", "Zero: views compute elements only while they are iterated"]
+    answer: 2
+    explanation: "Building a pipeline only stores the steps; the work happens element by element during iteration."
+  - id: generator-frame
+    skills: [cpp.ranges]
+    prompt: "A `std::generator<int>` coroutine takes a `const std::vector<int>&` parameter and is called with a temporary vector. When does it break?"
+    options:
+      - "Never: the generator copies its parameters"
+      - "When it is iterated after the full expression: the frame holds a reference to the destroyed temporary"
+      - "Only if it yields more than once"
+    answer: 1
+    explanation: "A coroutine frame copies parameters by their declared type: a reference stays a reference. Take parameters by value when the generator outlives the call."
+  - id: data-race
+    skills: [cpp.concurrency]
+    prompt: "Two threads run `++hits;` on a plain `int hits` with no lock. What does the standard say?"
+    options:
+      - "It may lose some increments, but the program is fine"
+      - "It is a data race, which is undefined behaviour: use a mutex or std::atomic<int>"
+      - "int increments are atomic on x86, so it is fine there"
+    answer: 1
+    explanation: "Any unsynchronised write that conflicts with another access is a data race, and a data race is undefined behaviour on every platform."
+  - id: callback-under-lock
+    skills: [cpp.concurrency]
+    prompt: "A class calls user callbacks while holding its own std::mutex. What risk does that create?"
+    options:
+      - "None, as long as the callbacks are short"
+      - "A callback that calls back into the class tries to lock the same mutex again: a deadlock (or undefined behaviour with std::mutex)"
+      - "The callbacks run on another thread"
+    answer: 1
+    explanation: "Calling unknown code under a lock invites re-entrancy and lock-order deadlocks; copy what you need, unlock, then call or yield."
+  - id: jthread-join
+    skills: [cpp.concurrency]
+    prompt: "What does a `std::jthread` do in its destructor that a `std::thread` does not?"
+    options:
+      - "It detaches the thread"
+      - "It requests stop and joins; a joinable std::thread calls std::terminate instead"
+      - "Nothing, they are the same"
+    answer: 1
+    explanation: "jthread is RAII for threads: leaving the scope waits for the work to end."
+  - id: variant-or-virtual
+    skills: [cpp.polymorphism]
+    prompt: "A protocol has exactly three message types, fixed by a standard, and many operations on them. Which design fits best?"
+    options:
+      - "A base class with virtual functions, so new types are easy to add"
+      - "std::variant with std::visit: the set is closed, and a missing case fails to compile"
+      - "std::any, which accepts any type"
+    answer: 1
+    explanation: "Variants fit closed sets with open operations; virtual functions fit open sets with a fixed interface (plugins, rules)."
+  - id: move-only-function
+    skills: [cpp.polymorphism]
+    prompt: "A listener lambda captures a std::unique_ptr. Why can it not be stored in a std::function, and what can hold it?"
+    options:
+      - "std::function needs a copyable callable; std::move_only_function (C++23) holds move-only ones"
+      - "Lambdas cannot capture unique_ptr"
+      - "std::function can hold it if you call std::move"
+    answer: 0
+    explanation: "std::function's type erasure copies the callable, so it requires copy; move_only_function erases only move."

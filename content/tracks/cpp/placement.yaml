@@ -11,7 +11,8 @@ phases:
   p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
-  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+  p4: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p5: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
 early_stop: { wrong_in_first: 2, of: 3 }
 skill_placed_out_threshold: 0.75
 weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
@@ -257,57 +258,106 @@ items:
     options: ["A base class with a virtual handle()", "std::variant of the three types with std::visit", "A std::string type field"]
     answer: 1
     explanation: "std::visit needs a case for every alternative."
-  # ---- P4 Mastery --------------------------------------------------------------
-  - id: p4-layout
+  # ---- P4 Files, Time and Text -------------------------------------------------
+  - id: p4-format-check
     phase: p4
+    skills: [cpp.text-format]
+    difficulty: 2
+    prompt: "`std::format(\"{} items\", count, total)` passes two arguments for one field. When is it reported?"
+    options: ["Never: extra arguments are ignored", "At compile time, because std::format checks literal format strings", "At run time, as a std::format_error"]
+    answer: 0
+    explanation: "Extra arguments are allowed; a field without an argument, or a spec that does not fit its type, is the compile error."
+  - id: p4-from-chars
+    phase: p4
+    skills: [cpp.text-format, cpp.error-handling]
+    difficulty: 3
+    prompt: "Which check makes `std::from_chars` reject \"42px\" as an int?"
+    options: ["ec == std::errc::invalid_argument", "ptr != text.data() + text.size() after the call", "It rejects it on its own"]
+    answer: 1
+    explanation: "from_chars reads 42 and stops at 'p'; whole-text parsing compares ptr with the end."
+  - id: p4-getline
+    phase: p4
+    skills: [cpp.files]
+    difficulty: 2
+    prompt: "Which loop reads every line of a file exactly once?"
+    options: ["while (!in.eof()) { std::getline(in, line); use(line); }", "while (std::getline(in, line)) { use(line); }", "for (int i = 0; in.good(); ++i) { std::getline(in, line); use(line); }"]
+    answer: 1
+    explanation: "The read must be the condition; eof() becomes true only after a failed read."
+  - id: p4-atomic
+    phase: p4
+    skills: [cpp.files]
+    difficulty: 3
+    prompt: "How do you update state.json so a crash mid-write never leaves a half-written file?"
+    options: ["Write it with std::ios::trunc and flush often", "Write state.json.tmp in the same folder, close and check it, then std::filesystem::rename it over state.json", "Copy the old file to a backup first"]
+    answer: 1
+    explanation: "rename within one file system replaces the file in one step on POSIX."
+  - id: p4-steady
+    phase: p4
+    skills: [cpp.chrono]
+    difficulty: 2
+    prompt: "Which clock should a timeout use?"
+    options: ["std::chrono::system_clock", "std::chrono::steady_clock", "std::chrono::utc_clock"]
+    answer: 1
+    explanation: "steady_clock never goes backwards when the system time is adjusted."
+  - id: p4-dst
+    phase: p4
+    skills: [cpp.chrono]
+    difficulty: 4
+    prompt: "A daily job runs at 01:30 local time in a zone where, one night a year, 01:00 to 02:00 happens twice. What must the code decide?"
+    options: ["Nothing, the time zone library picks one silently", "Which of the two moments to use (choose::earliest or latest), or it gets ambiguous_local_time", "To add 24h to yesterday's run instead"]
+    answer: 1
+    explanation: "time_zone::to_sys throws for ambiguous and nonexistent local times unless told how to choose."
+  # ---- P5 Mastery --------------------------------------------------------------
+  - id: p5-layout
+    phase: p5
     skills: [cpp.performance]
     difficulty: 3
     prompt: "A loop sums one float field of a std::vector of 200-byte structs, and is memory bound. What layout change usually helps most?"
     options: ["Make the field double", "A structure of arrays: keep that field in its own contiguous vector", "Store the structs in a std::list"]
     answer: 1
     explanation: "Each cache line then carries 16 useful floats instead of a fraction of one."
-  - id: p4-profile
-    phase: p4
+  - id: p5-profile
+    phase: p5
     skills: [cpp.performance]
     difficulty: 2
     prompt: "Which build should you profile to find the hot spots of a slow service?"
     options: ["A debug build with -O0", "An optimised build with symbols (RelWithDebInfo)", "A build with ThreadSanitizer"]
     answer: 1
     explanation: "Profile optimised code with debug info; -O0 and sanitizers change the picture."
-  - id: p4-consteval
-    phase: p4
+  - id: p5-consteval
+    phase: p5
     skills: [cpp.compile-time]
     difficulty: 3
     prompt: "You want a function that hashes string literals and must never run at run time. Which keyword?"
     options: ["constexpr", "consteval", "constinit"]
     answer: 1
     explanation: "consteval makes every call a compile-time evaluation."
-  - id: p4-static-assert
-    phase: p4
+  - id: p5-static-assert
+    phase: p5
     skills: [cpp.compile-time]
     difficulty: 2
     prompt: "How do you make the build fail if `Packet` stops being 16 bytes?"
     options: ["assert(sizeof(Packet) == 16);", "static_assert(sizeof(Packet) == 16);", "if (sizeof(Packet) != 16) throw ...;"]
     answer: 1
     explanation: "static_assert is checked by the compiler."
-  - id: p4-lru
-    phase: p4
+  - id: p5-lru
+    phase: p5
     skills: [cpp.performance, cpp.containers-algorithms]
     difficulty: 4
     prompt: "Which pair of containers gives an LRU cache O(1) get and put?"
     options: ["std::vector + std::sort", "std::list (recency order) + std::unordered_map (key to list iterator)", "std::map alone"]
     answer: 1
     explanation: "The map finds the node; list::splice moves it to the front without invalidating iterators."
-  - id: p4-hardening
-    phase: p4
+  - id: p5-hardening
+    phase: p5
     skills: [cpp.production]
     difficulty: 3
     prompt: "A C++ service parses untrusted uploads. Which practice finds most memory bugs before attackers do?"
     options: ["Code formatting", "Fuzzing the parser with AddressSanitizer", "Compiling with -O3"]
     answer: 1
     explanation: "Fuzzers explore inputs; ASan turns silent corruption into a report."
-  - id: p4-extern-c
-    phase: p4
+  - id: p5-extern-c
+    phase: p5
     skills: [cpp.production, cpp.toolchain]
     difficulty: 3
     prompt: "What is the safest way to let Go (cgo) or Python (ctypes) call a C++ library?"

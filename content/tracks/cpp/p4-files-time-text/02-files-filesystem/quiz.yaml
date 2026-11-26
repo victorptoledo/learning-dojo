@@ -1,0 +1,46 @@
+questions:
+  - id: eof-loop
+    prompt: "What is wrong with `while (!in.eof()) { std::getline(in, line); handle(line); }`?"
+    options:
+      - "Nothing, it is the standard loop"
+      - "eof() turns true only after a read fails, so the body runs once more with a stale or empty line"
+      - "getline cannot be used with eof()"
+    answer: 1
+    explanation: "Make the read the condition: while (std::getline(in, line))."
+  - id: no-close
+    prompt: "A function opens a std::ofstream, writes, and returns early on an error without calling close(). What happens to the file?"
+    options:
+      - "It stays open until the program ends"
+      - "The stream's destructor flushes and closes it on every way out of the scope"
+      - "The data is lost"
+    answer: 1
+    explanation: "File streams are RAII objects, like unique_ptr for a file."
+  - id: error-code
+    prompt: "A cleanup job removes old files that another process may already have removed. Which call fits?"
+    options:
+      - "fs::remove(p) inside a try/catch around the whole job"
+      - "fs::remove(p, ec), then handle ec on the spot, because \"already gone\" is a normal outcome"
+      - "if (fs::exists(p)) fs::remove(p);"
+    answer: 1
+    explanation: "The error_code overloads suit expected failures; the exists check is a race."
+  - id: toctou
+    prompt: "Why is `if (fs::exists(p)) { std::ifstream in(p); ... }` not a safe way to avoid errors?"
+    options:
+      - "exists() is slow"
+      - "Another process can delete or replace the file between the check and the open: a time-of-check to time-of-use race"
+      - "ifstream cannot open paths"
+    answer: 1
+    explanation: "Open directly and test the stream; the file system is shared state."
+  - id: atomic-write
+    prompt: "How do you replace config.json so readers never see a half-written file?"
+    options:
+      - "Open it with std::ios::trunc and write quickly"
+      - "Write config.json.tmp in the same directory, close and check it, then fs::rename it over config.json"
+      - "Write it in /tmp and rename it into place"
+    answer: 1
+    explanation: "rename within one file system is atomic on POSIX; across file systems it becomes a copy."
+  - id: path-join
+    prompt: "Which builds the path of `name` inside `dir` correctly on every operating system?"
+    options: ["dir + \"/\" + name", "std::filesystem::path(dir) / name", "std::format(\"{}\\\\{}\", dir, name)"]
+    answer: 1
+    explanation: "operator/ uses the native separator and handles trailing separators."

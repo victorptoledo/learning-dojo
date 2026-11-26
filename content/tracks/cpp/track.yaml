@@ -4,7 +4,7 @@ name: "Modern C++ (C++20/23)"
 archetype: language
 category: "Programming Languages"
 icon: "⚡"
-description: "C++23 on GCC 16 as it is written today: the build model and CMake, values and references, containers and algorithms, classes, RAII and smart pointers, move semantics, exceptions and std::expected, templates and concepts, ranges and generators, threads and the memory model, polymorphism, performance, compile-time code and C++ in production."
+description: "C++23 on GCC 16 as it is written today: the build model and CMake, values and references, containers and algorithms, classes, RAII and smart pointers, move semantics, exceptions and std::expected, templates and concepts, ranges and generators, threads and the memory model, polymorphism, std::format and std::from_chars, files and std::filesystem, std::chrono time zones, performance, compile-time code and C++ in production."
 status: reviewed
 bridges_available: [java, python, javascript, csharp, go]
 belts:
@@ -13,14 +13,15 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Move Semantics Fighter" }
   - { name: "Purple Belt", required_xp: 1500, title: "Template Metaprogrammer" }
   - { name: "Brown Belt", required_xp: 2500, title: "Zero-Cost Optimizer" }
-  - { name: "Black Belt", required_xp: 4000, title: "Systems Core Master" }
-  - { name: "Sensei", required_xp: 6000, title: "C++ Grandmaster" }
+  - { name: "Black Belt", required_xp: 5000, title: "Systems Core Master" }
+  - { name: "Sensei", required_xp: 9000, title: "C++ Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Understand the build model, compile and link a first program with CMake, and meet the dojo's C++ katas" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types and references, functions and lambdas, standard containers and algorithms, and classes with invariants" }
   - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "RAII and smart pointers, move semantics, exceptions and std::expected, and templates with concepts" }
   - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Ranges and generators, threads and the memory model, and polymorphism with virtual functions, variants and type erasure" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Performance and profiling, compile-time programming, and C++ in production" }
+  - { id: p4, dir: p4-files-time-text, title: "Files, Time and Text", goal: "Formatting and parsing text with std::format and std::from_chars, files and directories with streams and std::filesystem, and time with std::chrono clocks, calendars and time zones" }
+  - { id: p5, dir: p5-mastery, title: "Mastery", goal: "Performance and profiling, compile-time programming, and C++ in production" }
 requirements:
   - kind: tool
     name: CMake (cmake)

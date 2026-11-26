@@ -1,0 +1,56 @@
+id: cpp.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz over ranges, concurrency and polymorphism, and an integration kata, a telemetry hub that models events as a std::variant, checks an open set of rules through virtual functions, takes move-only listeners, yields alerts lazily from a std::generator and is published to from many std::jthreads under ThreadSanitizer."
+objectives:
+  - { id: o1, text: "Explain view laziness and lifetimes, data races and locking, and the choice between virtual functions, variants and type erasure in your own words", skills: [cpp.ranges, cpp.concurrency, cpp.polymorphism] }
+  - { id: o2, text: "Combine a variant, a class hierarchy, a generator, range pipelines and threads in one small library with no data race", skills: [cpp.ranges, cpp.concurrency, cpp.polymorphism] }
+prerequisites: [cpp.p3.polymorphism]
+difficulty: 4
+estimated_minutes: 100
+xp: 450
+closes_phase: p3
+covers_skills: [cpp.ranges, cpp.concurrency, cpp.polymorphism]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 180 }
+  hints:
+    - |-
+      Go in four steps, each with its own tests: `sensor_of`, `describe` and the three rules; then `publish`, `snapshot`, `published` and `subscribe` behind one mutex; then `top_by_max` and `publish_all`; and `alerts` last. For `alerts`, ask two questions: what must the coroutine own so it still works after the expression that created it, and what must it *not* hold while the caller has an alert in hand?
+    - |-
+      `std::visit` with an `Overloaded{...}` set of lambdas handles the three events, and forgetting one fails to compile. Every member of `Hub` starts with `std::scoped_lock lock(mutex_)`. In `publish`, the first reading sets both `min` and `max`; after that use `std::min` and `std::max`. `alerts` calls `snapshot()` (which locks and unlocks), copies the rule pointers under the lock, and only then loops and `co_yield`s. `publish_all` splits with `events | std::views::chunk((size + threads - 1) / threads)` and starts one `std::jthread` per chunk; their destructors join.
+    - |-
+      ```cpp
+      std::generator<std::string> Hub::alerts() const {
+          const std::vector<SensorStats> stats = snapshot();  // a copy in the coroutine frame
+          std::vector<const Rule*> rules;
+          {
+              const std::scoped_lock lock(mutex_);
+              for (const auto& rule : rules_) {
+                  rules.push_back(rule.get());
+              }
+          }  // unlocked before the first co_yield
+          for (const SensorStats& sensor : stats) {
+              for (const Rule* rule : rules) {
+                  if (auto message = rule->check(sensor)) {
+                      co_yield std::move(*message);
+                  }
+              }
+          }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.

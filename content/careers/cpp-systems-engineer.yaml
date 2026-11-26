@@ -22,6 +22,6 @@ stages:
   - id: s4
     title: "Systems at scale"
     requires:
-      - { track: cpp, phase: p4 }
+      - { track: cpp, phase: p5 }
       - { track: system-design, phase: p3 }
 next_paths: [rust-systems-engineer, platform-sre]

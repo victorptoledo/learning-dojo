@@ -1,0 +1,24 @@
+id: cpp.p5.compile-time
+kind: lesson
+status: draft
+title: "Compile-Time Programming: constexpr, consteval and Type Traits"
+summary: "constexpr functions and variables and what C++20/23 allows inside them, undefined behaviour as a compile error, consteval, constinit and if consteval, compile-time lookup tables, type traits and static_assert as design checks, if constexpr instead of SFINAE, and where C++26 reflection is going."
+objectives:
+  - { id: o1, text: "Write constexpr functions and check them with static_assert", skills: [cpp.compile-time] }
+  - { id: o2, text: "Choose between constexpr, consteval and constinit for a value", skills: [cpp.compile-time] }
+  - { id: o3, text: "Use type traits, static_assert and if constexpr to enforce and adapt to type properties", skills: [cpp.compile-time, cpp.templates-concepts] }
+prerequisites: [cpp.p5.performance]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A networking library defines `struct Header { uint8_t version; uint32_t length; uint16_t type; };`, sends it with `memcpy` into a buffer, and builds a CRC lookup table in a global `std::vector<uint32_t> table = make_table();`. A bug report says headers are 12 bytes instead of 7 on the wire, and another says a global object crashes at start-up when it uses the table. Explain both bugs and how compile-time features would have caught or fixed them. Show the static_asserts, the table definition and any constinit, constexpr or consteval you would use.'
+  criteria:
+    - 'Explains padding: member alignment makes sizeof(Header) larger than the sum of fields, so memcpy sends padding bytes'
+    - 'Adds static_assert(sizeof(Header) == 7) (or serialises fields explicitly / reorders them) and static_assert(std::is_trivially_copyable_v<Header>) before memcpy'
+    - 'Explains the static initialisation order fiasco: another global may use table before it is initialised'
+    - 'Builds the table as a constexpr std::array (for example with an immediately invoked lambda), or marks it constinit, so it exists before any code runs'
+    - 'Mentions static_assert tests on table values, or consteval for checking constant inputs'

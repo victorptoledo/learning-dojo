@@ -1,0 +1,24 @@
+id: cpp.p4.files-filesystem
+kind: lesson
+status: draft
+title: "Files, Streams and std::filesystem"
+summary: "Reading and writing files with std::ifstream and std::ofstream as RAII objects, text versus binary mode, reading lines and whole files, checking stream state properly, std::filesystem paths, directory iteration, status and sizes, the error_code overloads versus exceptions, time-of-check races, and writing a file atomically with a temporary file and rename."
+objectives:
+  - { id: o1, text: "Read and write text and binary files with file streams and check for errors correctly", skills: [cpp.files, cpp.raii-memory] }
+  - { id: o2, text: "Build paths and walk directories with std::filesystem, choosing between exceptions and std::error_code", skills: [cpp.files, cpp.error-handling] }
+  - { id: o3, text: "Replace a file atomically and explain why checking before acting is a race", skills: [cpp.files] }
+prerequisites: [cpp.p4.format-parse]
+difficulty: 3
+estimated_minutes: 50
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A log shipper runs every minute. It does `if (std::filesystem::exists(dir + "/" + name)) { std::ifstream in(dir + "/" + name); while (!in.eof()) { std::getline(in, line); send(line); } }`, then rewrites its state file with `std::ofstream out("state.txt"); out << offset;`. Users report a duplicated last line, a crash when a file is deleted between the check and the open, a corrupt state file after a power cut, and a crash on a directory that is not readable. Explain each problem and rewrite the code with std::filesystem paths, a correct read loop, error codes where failure is expected, and an atomic state update.'
+  criteria:
+    - 'Explains that looping on eof() runs one extra time after the last line, and uses while (std::getline(in, line)) instead'
+    - 'Explains the time-of-check to time-of-use race: the file can vanish between exists() and open, so it opens directly and checks the stream (or catches the error) instead'
+    - 'Builds paths with std::filesystem::path and operator/ instead of string concatenation'
+    - 'Writes the state to a temporary file in the same directory, flushes and closes it, checks for errors, then std::filesystem::rename over the old file (atomic on POSIX)'
+    - 'Uses the std::error_code overloads (or a directory_options such as skip_permission_denied) where failure is a normal outcome, instead of letting filesystem_error escape'

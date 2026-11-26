@@ -1,0 +1,67 @@
+questions:
+  - id: whole-field
+    skills: [cpp.text-format]
+    prompt: "A parser reads the month of \"2026-1x-05\" with `std::from_chars` on the two characters \"1x\" and gets ec == std::errc{}. What did it miss?"
+    options:
+      - "Nothing: the month is 1"
+      - "from_chars stopped at 'x'; the parser must also check that ptr reached the end of the field"
+      - "from_chars should have thrown"
+    answer: 1
+    explanation: "from_chars reports success for the digits it read; whole-field checks are the caller's job."
+  - id: runtime-width
+    skills: [cpp.text-format]
+    prompt: "How do you left-align a name in a width computed at run time with std::format?"
+    options: ["std::format(\"{:<width}\", name)", "std::format(\"{:<{}}\", name, width)", "std::format(\"{:<}\", name).resize(width)"]
+    answer: 1
+    explanation: "A nested {} takes the width (or precision) from the next argument."
+  - id: format-check
+    skills: [cpp.text-format]
+    prompt: "A custom formatter's parse() throws std::format_error for an unknown option. What happens with `std::format(\"{:zz}\", value)` written in the code?"
+    options:
+      - "It throws when that line runs"
+      - "It fails to compile, because the literal format string is parsed in a constant expression"
+      - "It prints the value with no options"
+    answer: 1
+    explanation: "The consteval format_string constructor runs parse at compile time; std::vformat would throw at run time instead."
+  - id: expected-failure
+    skills: [cpp.files, cpp.error-handling]
+    prompt: "A cleanup tool deletes files another process may delete first. Which is right?"
+    options:
+      - "if (fs::exists(p)) fs::remove(p);"
+      - "std::error_code ec; fs::remove(p, ec); and treat false without an error as \"already gone\""
+      - "try { fs::remove(p); } catch (...) {} around each call"
+    answer: 1
+    explanation: "remove(p, ec) returns false with no error when the file did not exist; the exists() check is a race."
+  - id: atomic-replace
+    skills: [cpp.files]
+    prompt: "Why must the temporary file for an atomic replace be in the same folder as the target?"
+    options:
+      - "So the user can find it"
+      - "rename is atomic only within one file system; across file systems it fails or becomes a copy"
+      - "std::filesystem cannot rename across folders"
+    answer: 1
+    explanation: "Write next to the target, close and check the stream, then rename over the target."
+  - id: dst-gap
+    skills: [cpp.chrono]
+    prompt: "A backup is named 02:30 local time on the night the clocks jump from 02:00 to 03:00. What is its UTC time?"
+    options:
+      - "02:30 minus the summer offset"
+      - "There is none: that local time does not exist, and to_sys throws nonexistent_local_time unless you choose how to resolve it"
+      - "02:30 UTC"
+    answer: 1
+    explanation: "get_info(local).result == local_info::nonexistent tells you before you convert."
+  - id: iso-week-year
+    skills: [cpp.chrono]
+    prompt: "Monday 2025-12-29 is in which ISO week?"
+    options: ["Week 53 of 2025", "Week 1 of 2026, because that week holds the first Thursday of 2026", "Week 52 of 2025"]
+    answer: 1
+    explanation: "ISO weeks belong to the year of their Thursday; {:%G-W%V} prints 2026-W01."
+  - id: steady-or-system
+    skills: [cpp.chrono]
+    prompt: "A rotator stamps each backup with the time it was taken, and separately measures how long the backup took. Which clocks?"
+    options:
+      - "steady_clock for both"
+      - "system_clock for the stamp (a date) and steady_clock for the duration (it never jumps)"
+      - "system_clock for both"
+    answer: 1
+    explanation: "Dates need the calendar clock; elapsed time needs a clock that cannot be set backwards."

@@ -1,0 +1,73 @@
+questions:
+  - id: measure-first
+    skills: [cpp.performance]
+    prompt: "A service is slow and a teammate wants to replace std::map with a hand-written hash table. What comes first?"
+    options:
+      - "Write the hash table, since hash tables are faster"
+      - "Profile a release build under a realistic load and benchmark the hot path before and after any change"
+      - "Turn on -O3 and hope"
+    answer: 1
+    explanation: "Measure first: the time is often somewhere else, and only a before/after benchmark shows a gain."
+  - id: list-vs-vector
+    skills: [cpp.performance]
+    prompt: "Why is summing a field over a std::vector<Point> usually much faster than over a std::list<Point> of the same size?"
+    options:
+      - "vector uses less memory per element only"
+      - "The vector's elements are contiguous, so the CPU caches and prefetches them; a list chases a pointer to a new cache line per node"
+      - "list iterators are slower to increment because of bounds checks"
+    answer: 1
+    explanation: "Memory layout dominates: contiguous data is the cheapest data to walk."
+  - id: transparent-lookup
+    skills: [cpp.performance, cpp.containers-algorithms]
+    prompt: "`std::unordered_map<std::string, int> m;` is searched with `m.find(view)` for a std::string_view. What is needed so that no std::string is built for each lookup?"
+    options:
+      - "Nothing, find always takes a string_view"
+      - "A hash with `using is_transparent = void;` that accepts string_view, and std::equal_to<> as the key equality"
+      - "Reserve enough buckets"
+    answer: 1
+    explanation: "Heterogeneous lookup (C++20 for unordered containers) needs both a transparent hash and a transparent equality."
+  - id: throw-in-constexpr
+    skills: [cpp.compile-time]
+    prompt: "A constexpr function throws std::invalid_argument for bad input. What happens when it is called with bad constants to initialise a constexpr variable?"
+    options:
+      - "The exception is thrown at program start"
+      - "The build fails: a throw is not allowed to be evaluated in a constant expression"
+      - "The variable is zero-initialised"
+    answer: 1
+    explanation: "The same function validates at compile time for constants and throws at run time for other inputs."
+  - id: static-assert-trait
+    skills: [cpp.compile-time, cpp.move-semantics]
+    prompt: "Why might a library add `static_assert(std::is_nothrow_move_constructible_v<Histogram>);`?"
+    options:
+      - "To make the type faster to copy"
+      - "So std::vector<Histogram> moves instead of copying when it grows, and the build breaks if a change loses that property"
+      - "Because move constructors are required to be noexcept"
+    answer: 1
+    explanation: "vector uses move_if_noexcept; the assertion turns a silent performance regression into a compile error."
+  - id: extern-c-exception
+    skills: [cpp.production, cpp.error-handling]
+    prompt: "A C++ function exposed with `extern \"C\"` to a Python service throws std::bad_alloc. What should the library do?"
+    options:
+      - "Nothing: Python catches C++ exceptions"
+      - "Catch everything inside the function and return a status code: an exception unwinding into C or another runtime terminates the process or is undefined behaviour"
+      - "Declare the function noexcept so the exception disappears"
+    answer: 1
+    explanation: "The C boundary has no exceptions; noexcept would turn the throw into std::terminate."
+  - id: opaque-handle
+    skills: [cpp.production, cpp.raii-memory]
+    prompt: "Why does a C interface hand out `dojo_registry*` to an incomplete struct instead of exposing the C++ class?"
+    options:
+      - "C cannot store pointers to structs"
+      - "C code cannot see or depend on the layout, so the C++ side can change it without breaking the ABI; a create/free pair owns the lifetime"
+      - "Incomplete types are faster"
+    answer: 1
+    explanation: "An opaque handle is pimpl for C: a stable ABI and explicit ownership."
+  - id: sanitizers-ci
+    skills: [cpp.production]
+    prompt: "A parser of untrusted files passes its unit tests. What gives the most confidence that it has no memory bugs?"
+    options:
+      - "Running the tests in a release build"
+      - "Running the tests under AddressSanitizer and UBSan and fuzzing the parser with libFuzzer or AFL++, in CI"
+      - "Adding more comments"
+    answer: 1
+    explanation: "Sanitizers find bugs the tests reach; fuzzing reaches the inputs the tests never thought of."

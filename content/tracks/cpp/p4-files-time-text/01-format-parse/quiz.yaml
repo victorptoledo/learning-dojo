@@ -1,0 +1,43 @@
+questions:
+  - id: checked-when
+    prompt: "`std::format(\"{:d}\", user.name)` where name is a std::string. When is the mistake found?"
+    options:
+      - "At run time, as a std::format_error"
+      - "At compile time: the format string is checked against the argument types"
+      - "Never: it prints the string anyway"
+    answer: 1
+    explanation: "std::format_string has a consteval constructor that parses the literal; only std::vformat checks at run time."
+  - id: shortest-double
+    prompt: "What does `std::format(\"{}\", 0.1)` return?"
+    options: ["\"0.100000\"", "\"0.1\"", "\"0.10000000000000001\""]
+    answer: 1
+    explanation: "{} for floating point is the shortest text that reads back as the same double."
+  - id: spec
+    prompt: "Which spec prints 3.14159 as `  3.14` (width 6, two decimals, right-aligned)?"
+    options: ["{:6.2f}", "{:<6.2}", "{:.6f}"]
+    answer: 0
+    explanation: "Width 6, precision 2, fixed; numbers align right by default."
+  - id: from-chars-prefix
+    prompt: "`std::from_chars` reads \"12abc\" into an int. What happens?"
+    options:
+      - "It fails with std::errc::invalid_argument"
+      - "It succeeds with 12 and ptr points at 'a': checking that ptr reached the end is up to you"
+      - "It throws std::invalid_argument"
+    answer: 1
+    explanation: "from_chars parses the longest number it can and reports where it stopped."
+  - id: locale
+    prompt: "Why can `std::stod(\"1.5\")` return 1 on a server with a German C locale, while from_chars returns 1.5?"
+    options:
+      - "stod uses the C locale's decimal separator (a comma there); from_chars never uses a locale"
+      - "from_chars rounds differently"
+      - "stod only reads integers"
+    answer: 0
+    explanation: "Locale-dependent parsing is a classic bug in files and protocols; from_chars and to_chars are locale-free."
+  - id: formatter-parse
+    prompt: "In a std::formatter specialisation, what must parse() return?"
+    options:
+      - "The formatted text"
+      - "An iterator to the closing '}' of the replacement field, after reading its options"
+      - "true if the options are valid"
+    answer: 1
+    explanation: "parse consumes the options and returns where they end; format then writes through ctx.out()."

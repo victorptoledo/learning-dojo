@@ -1,0 +1,50 @@
+id: cpp.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 4: Files, Time and Text"
+summary: "Prove the files, time and text phase: a quiz over formatting and parsing, files and std::filesystem, and std::chrono, and an integration kata, a backup rotator that scans a folder with error codes, reads local times from file names in a time zone with daylight-saving gaps and overlaps, keeps daily, ISO-weekly and monthly backups, and writes its report with std::format through an atomic rename."
+objectives:
+  - { id: o1, text: "Explain strict parsing, stream and file-system errors, atomic replacement, clocks, calendars and time zones in your own words", skills: [cpp.text-format, cpp.files, cpp.chrono] }
+  - { id: o2, text: "Combine std::filesystem, std::chrono time zones and calendars, std::from_chars and std::format in one small tool that never throws on expected failures", skills: [cpp.text-format, cpp.files, cpp.chrono, cpp.error-handling] }
+prerequisites: [cpp.p4.durations]
+difficulty: 4
+estimated_minutes: 110
+xp: 500
+closes_phase: p4
+covers_skills: [cpp.text-format, cpp.files, cpp.chrono]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-cpp, timeout_secs: 180 }
+  hints:
+    - |-
+      Go in four steps, each with its own tests: `plan` first (it needs no files: the visible test builds `Backup`s by hand), then `report`, then `scan`, then `apply`. For `plan`, walk the backups newest first and remember which days, ISO weeks and months already have their newest backup: the first backup you meet in a bucket is the newest one. For `scan`, ask which local wall times exist once, twice or never in the zone.
+    - |-
+      `plan`: sort by `taken` descending, then for each backup try three rules in order; a rule keeps it when the rule still has room (`seen.size() < limit`) and `seen.insert(key).second` says the bucket is new. Keys: the day count of `backup.day`, the ISO week (`year * 100 + week`, where the week is counted from the Thursday of the date's week), and `year * 100 + month`. `scan`: `fs::is_directory(dir, ec)`, then `fs::directory_iterator it(dir, ec)`; read `<name>-YYYYMMDD-HHMM.bak` from `path.stem()` with a digits-only helper and `year_month_day::ok()`; `zone->get_info(wall).result == local_info::nonexistent` means skip, otherwise `zone->to_sys(wall, choose::earliest)`. `apply`: `fs::remove(p, ec)` returns false without an error when the file was already gone; write `retention.log.tmp`, close and check the stream, then `fs::rename` it over `retention.log`.
+    - |-
+      ```cpp
+      // The ISO year and week of a local date, as one number: 202648 for 2026-11-26.
+      int iso_week(local_days d) {
+          const unsigned from_monday = weekday{d}.iso_encoding() - 1;  // Monday 0 ... Sunday 6
+          const local_days thursday = d - days{from_monday} + days{3};
+          const year iso_year = year_month_day{thursday}.year();
+          const auto week = (thursday - local_days{iso_year / January / 1}).count() / 7 + 1;
+          return static_cast<int>(iso_year) * 100 + static_cast<int>(week);
+      }
+
+      // report: pad with a width taken from an argument
+      std::format_to(std::back_inserter(out), "{:<6} {:<{}}  {}\n", "keep", name, width, reason);
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-cpp runner image
+    image: dojo-cpp
+    why: The GCC 16 container with GoogleTest, the sanitizers, clang-tidy and clang-format that runs the grading tests.

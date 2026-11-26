@@ -1,0 +1,24 @@
+id: cpp.p4.chrono
+kind: lesson
+status: draft
+title: "Time with std::chrono: Durations, Clocks, Calendars and Time Zones"
+summary: "Durations as types with units checked by the compiler, duration_cast, floor and round, time points and the three clocks (steady for measuring, system for dates), the C++20 calendar types (year_month_day, weekday, last day of the month, validity with ok()), time zones with zoned_time and the tz database, daylight-saving gaps and overlaps with choose::earliest and latest, and formatting and parsing times."
+objectives:
+  - { id: o1, text: "Use durations and time points so the compiler checks units, and pick the right clock for measuring and for dates", skills: [cpp.chrono] }
+  - { id: o2, text: "Do calendar arithmetic with year_month_day and weekday, and validate dates with ok()", skills: [cpp.chrono] }
+  - { id: o3, text: "Convert between local time and UTC with time zones, handling daylight-saving gaps and overlaps", skills: [cpp.chrono, cpp.error-handling] }
+prerequisites: [cpp.p4.files-filesystem]
+difficulty: 4
+estimated_minutes: 55
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A scheduler stores `int timeout = 30;` (seconds in one module, milliseconds in another), measures how long jobs take with `std::chrono::system_clock::now()`, adds `24h` to a local start time to get "the same time tomorrow", and computes "the end of the month" as day 30. A job scheduled for 02:30 in Lisbon on the last Sunday of March never ran, and one on the last Sunday of October ran twice. Explain each bug and rewrite the parts with std::chrono types: durations, the right clock, calendar arithmetic and zoned_time with an explicit choice for gaps and overlaps.'
+  criteria:
+    - 'Replaces the bare int with std::chrono::seconds or milliseconds, so the compiler converts units and refuses lossy conversions without duration_cast'
+    - 'Measures with std::chrono::steady_clock, because system_clock can jump when the clock is adjusted (NTP, manual changes)'
+    - 'Explains that adding 24h to a time point crosses a daylight-saving change wrongly, and adds a day to the local date (local_days + days{1}) before converting through the time zone'
+    - 'Computes the end of the month with year_month_day_last (y / m / std::chrono::last) instead of day 30'
+    - 'Explains the gap (02:30 does not exist on the spring change) and the overlap (01:30 happens twice in autumn), and resolves them with choose::earliest or latest, or by catching nonexistent_local_time and ambiguous_local_time'

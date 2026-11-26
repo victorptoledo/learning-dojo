@@ -12,6 +12,9 @@ skills:
   - { id: cpp.ranges, title: "Ranges, Views, Projections and Generators" }
   - { id: cpp.concurrency, title: "Threads, Mutexes, Condition Variables, Atomics and the Memory Model" }
   - { id: cpp.polymorphism, title: "Polymorphism: Virtual Functions, std::variant and Type Erasure" }
+  - { id: cpp.text-format, title: "Text: std::format, std::print, Custom Formatters and std::from_chars" }
+  - { id: cpp.files, title: "Files, Streams and std::filesystem" }
+  - { id: cpp.chrono, title: "Time: std::chrono Durations, Clocks, Calendars and Time Zones" }
   - { id: cpp.performance, title: "Performance: Memory Layout, Allocation, Measuring and Profiling" }
   - { id: cpp.compile-time, title: "Compile-Time Programming: constexpr, consteval and Type Traits" }
   - { id: cpp.production, title: "C++ in Production: Builds, Dependencies, Safety and Interop" }

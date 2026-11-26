@@ -1,0 +1,46 @@
+questions:
+  - id: lossy
+    prompt: "`std::chrono::seconds s = 1500ms;` What happens?"
+    options:
+      - "s is 1"
+      - "It does not compile: the conversion loses precision, so it needs duration_cast, floor, ceil or round"
+      - "s is 1.5"
+    answer: 1
+    explanation: "Exact conversions (seconds to milliseconds) are implicit; lossy ones must be spelled out."
+  - id: which-clock
+    prompt: "Which clock should measure how long a request took?"
+    options:
+      - "system_clock, because it is the real time"
+      - "steady_clock, because it never goes backwards when the system time is adjusted"
+      - "high_resolution_clock, because it is the most precise"
+    answer: 1
+    explanation: "system_clock can jump with NTP or manual changes; high_resolution_clock is only an alias."
+  - id: feb-29
+    prompt: "What is `(2026y / February / 29).ok()`?"
+    options: ["true", "false: 2026 is not a leap year", "It does not compile"]
+    answer: 1
+    explanation: "Calendar types hold any fields; ok() tells you whether they form a real date."
+  - id: tomorrow
+    prompt: "Why is `meeting + 24h` the wrong way to get \"tomorrow at the same time\" in a local time zone?"
+    options:
+      - "24h is not a valid duration"
+      - "On a daylight-saving change the local day is 23 or 25 hours long, so the result lands an hour off"
+      - "It is right; days and 24h are the same"
+    answer: 1
+    explanation: "Add days{1} to the local date and convert through the time zone again."
+  - id: ambiguous
+    prompt: "In Lisbon, 01:30 on the last Sunday of October happens twice. What does `zone->to_sys(that_time)` do without a choose argument?"
+    options:
+      - "Returns the first one"
+      - "Throws std::chrono::ambiguous_local_time"
+      - "Returns the average of the two"
+    answer: 1
+    explanation: "Pass choose::earliest or choose::latest to decide; a time in the spring gap throws nonexistent_local_time."
+  - id: local-time
+    prompt: "Why is std::chrono::local_time a different type from sys_time?"
+    options:
+      - "It is more precise"
+      - "A wall-clock time means nothing until you say which time zone; the separate type stops you from mixing it with UTC"
+      - "It counts leap seconds"
+    answer: 1
+    explanation: "Only a time_zone (or zoned_time) can turn a local_time into a sys_time."
