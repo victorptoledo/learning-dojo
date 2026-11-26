@@ -1,0 +1,58 @@
+id: full-stack.p4.checkpoint
+kind: checkpoint
+status: reviewed
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on architecture, testing and production ownership, and a final kata, the expand release of a breaking schema change, with a transactional migration runner, dual writes, a batched backfill, a flag with a kill switch and a stable rollout, and a consumer contract for old clients."
+objectives:
+  - { id: o1, text: "Choose an architecture, a test at the right level and a safe release plan from the forces at hand, and explain them in your own words", skills: [full-stack.architecture, full-stack.testing, full-stack.ownership] }
+  - { id: o2, text: "Ship the expand step of a breaking change: additive migration, dual writes, batched backfill, flag-gated reads and a contract that old clients still pass", skills: [full-stack.ownership, full-stack.testing, full-stack.data-modelling, full-stack.api-contracts] }
+prerequisites: [full-stack.p4.ownership]
+difficulty: 5
+estimated_minutes: 100
+xp: 500
+closes_phase: p4
+covers_skills: [full-stack.architecture, full-stack.testing, full-stack.ownership]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 120 }
+  hints:
+    - |-
+      For every piece, ask "what is still running?". The old release inserts rows with `full_name` only, so what may the new columns not require? Old clients read `fullName`, so what must every answer keep? The flag can be turned off at 3 a.m. without a deploy, so where must it be read? Build from the bottom: `names.ts` and `flags.ts` are pure, then the migration and its runner, then the repository, then the routes and the contract.
+    - |-
+      SQLite runs DDL inside transactions: `db.exec("BEGIN")`, the migration's SQL (it may hold several statements), the insert into `schema_migrations`, `db.exec("COMMIT")`, and `ROLLBACK` in the `catch`. `new TextEncoder().encode(text)` gives the UTF-8 bytes. The backfill selects `WHERE first_name IS NULL ORDER BY id LIMIT ?` and keeps `AND first_name IS NULL` in its `UPDATE`, so a name a new client wrote meanwhile wins. In `parseRename`, compare `"fullName" in body` with `"firstName" in body || "lastName" in body`: when both are true or both are false, the body is ambiguous or empty.
+    - |-
+      ```ts
+      export function migrate(db: DatabaseSync, migrations: Migration[] = MIGRATIONS): string[] {
+        db.exec("CREATE TABLE IF NOT EXISTS schema_migrations (name TEXT PRIMARY KEY, applied_at TEXT NOT NULL)");
+        const done = new Set((db.prepare("SELECT name FROM schema_migrations").all() as { name: string }[]).map((r) => r.name));
+        const applied: string[] = [];
+        for (const migration of migrations) {
+          if (done.has(migration.name)) continue;
+          db.exec("BEGIN");
+          try {
+            db.exec(migration.sql);
+            db.prepare("INSERT INTO schema_migrations (name, applied_at) VALUES (?, datetime('now'))").run(migration.name);
+            db.exec("COMMIT");
+          } catch (error) {
+            db.exec("ROLLBACK");
+            throw error;
+          }
+          applied.push(migration.name);
+        }
+        return applied;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container (with node:sqlite) and TypeScript 7 that type-checks your code and runs the tests.

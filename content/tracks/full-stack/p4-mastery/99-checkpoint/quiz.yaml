@@ -1,0 +1,49 @@
+questions:
+  - id: services-forces
+    skills: [full-stack.architecture]
+    prompt: "Three teams share one monolith. Deploys are slow because every change waits for one big test run, but the modules share most of their data. What do you propose first?"
+    options: ["Split into one microservice per team at once", "A modular monolith with enforced module boundaries and a faster pipeline, and extract a service only where a force demands it", "One repository per team over the same database"]
+    answer: 1
+    explanation: "Services pay off for independent scaling or deploys of loosely coupled data; boundaries and pipeline fixes come first."
+  - id: bff
+    skills: [full-stack.architecture]
+    prompt: "The mobile app needs a slimmer shape of the same data the web app gets, in fewer round trips. Where does that shaping belong?"
+    options: ["In each mobile screen, from the web endpoints", "In a backend-for-frontend (or endpoints tailored for mobile) owned with the mobile client", "In the database views"]
+    answer: 1
+    explanation: "A BFF shapes data per client without bending the core API for one of them."
+  - id: adr
+    skills: [full-stack.architecture]
+    prompt: "What must an architecture decision record keep, besides the decision itself?"
+    options: ["Only the final diagram", "The context and forces, the options considered and the consequences, including what would make the team revisit it", "The names of the people who disagreed"]
+    answer: 1
+    explanation: "An ADR explains why, so the next team can tell whether the reasons still hold."
+  - id: test-level
+    skills: [full-stack.testing]
+    prompt: "A bug came from a repository query that behaves differently on PostgreSQL than on the in-memory database used in tests. Which test would have caught it?"
+    options: ["A unit test with a mocked repository", "An integration test against a real PostgreSQL (for example with Testcontainers)", "One more end-to-end test"]
+    answer: 1
+    explanation: "Only a test that runs the real database proves the query; mocks prove nothing about SQL."
+  - id: contract-test
+    skills: [full-stack.testing]
+    prompt: "The API team renamed a response field and the mobile app broke. Which practice turns that into a failing build on the API side?"
+    options: ["More end-to-end tests of the web app", "Consumer contract tests (or a shared schema checked in CI) that run against every API change", "Manual QA before releases"]
+    answer: 1
+    explanation: "The consumer's expectations become a check the provider must pass before it ships."
+  - id: flaky
+    skills: [full-stack.testing]
+    prompt: "An end-to-end test fails one run in twenty, and the team has started re-running the pipeline until it passes. What do you do?"
+    options: ["Add automatic retries and move on", "Quarantine it, find the cause (often waiting on time instead of a condition, or shared data) and fix it or replace it with a lower-level test", "Delete the whole end-to-end suite"]
+    answer: 1
+    explanation: "A flaky test trains everyone to ignore red builds; isolate it and fix the cause."
+  - id: expand-order
+    skills: [full-stack.ownership]
+    prompt: "Which release order renames a column without downtime?"
+    options: ["Rename the column and deploy the code in the same release", "Add the new column, write both, backfill, switch reads, stop writing the old one, then drop it once no client uses it", "Drop the old column first, so nobody keeps using it"]
+    answer: 1
+    explanation: "Expand, migrate, contract: every step works with the code still running before it."
+  - id: rollback
+    skills: [full-stack.ownership]
+    prompt: "Reads from the new columns, behind a flag at 25%, start returning wrong names. What is the fastest safe rollback?"
+    options: ["A migration that drops the new columns", "Turn the flag off (the kill switch), then investigate: the old column is still written and read", "Restore last night's backup"]
+    answer: 1
+    explanation: "Because the expand release kept writing both shapes, turning the flag off is instant and loses nothing."

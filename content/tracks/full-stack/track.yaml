@@ -13,8 +13,8 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Fullstack Integrator" }
   - { name: "Purple Belt", required_xp: 1500, title: "Session Keeper" }
   - { name: "Brown Belt", required_xp: 2500, title: "Production Shipper" }
-  - { name: "Black Belt", required_xp: 4000, title: "End-to-End Architect" }
-  - { name: "Sensei", required_xp: 6000, title: "Fullstack Grandmaster" }
+  - { name: "Black Belt", required_xp: 5000, title: "End-to-End Architect" }
+  - { name: "Sensei", required_xp: 7000, title: "Fullstack Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does, the web platform and a first page talking to a server" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "HTTP between browser and server, typed contracts, data modelling and rendering UI" }
