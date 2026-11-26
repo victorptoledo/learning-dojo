@@ -1,0 +1,27 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CopiesFromTheOrganization",
+      "Effect": "Allow",
+      "Principal": { "AWS": "*" },
+      "Action": "backup:CopyIntoBackupVault",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": { "aws:PrincipalOrgID": "o-acme1234567" }
+      }
+    },
+    {
+      "Sid": "NobodyDeletesRecoveryPoints",
+      "Effect": "Deny",
+      "Principal": { "AWS": "*" },
+      "Action": [
+        "backup:DeleteRecoveryPoint",
+        "backup:UpdateRecoveryPointLifecycle",
+        "backup:PutBackupVaultAccessPolicy",
+        "backup:DeleteBackupVaultAccessPolicy"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

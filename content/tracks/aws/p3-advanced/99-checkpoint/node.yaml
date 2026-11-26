@@ -1,0 +1,58 @@
+id: aws.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz over multi-account IAM, guardrails, security services, high availability and cost, and an integration kata that turns a first draft of AWS Backup into backups that survive a compromised admin, a bad deploy and a lost region."
+objectives:
+  - { id: o1, text: "Explain SCPs, cross-account access, key policies, vault locks, RPO and cold storage in your own words", skills: [aws.multi-account-iam, aws.security-services, aws.high-availability, aws.cost] }
+  - { id: o2, text: "Write a key policy that only AWS Backup can use, with key administrators who cannot decrypt and a break-glass exception for deleting the key", skills: [aws.security-services, aws.multi-account-iam] }
+  - { id: o3, text: "Build a locked vault, a backup plan that meets an RPO and copies to another account and region, and a disaster-recovery vault policy limited to the organization", skills: [aws.high-availability, aws.multi-account-iam, aws.cost] }
+prerequisites: [aws.p3.cost]
+difficulty: 4
+estimated_minutes: 90
+xp: 450
+closes_phase: p3
+covers_skills: [aws.multi-account-iam, aws.security-services, aws.high-availability, aws.cost]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-aws, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with the attacker: an admin of the workload account. In the draft they can decrypt with the key, schedule its deletion, delete recovery points and change the vault policy. Which of those does an explicit `Deny` stop, and which does a missing `Allow` stop? Then the region: what survives if `eu-west-1` is gone?
+    - |-
+      A key policy statement for AWS Backup uses `Principal: { AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root" }` with `Condition: { StringEquals: { kms:ViaService: !Sub "backup.${AWS::Region}.amazonaws.com", kms:CallerAccount: !Ref AWS::AccountId } }`. The break-glass exception is `Condition: { ArnNotLike: { aws:PrincipalArn: ... } }` on the `Deny`. A vault lock is in compliance mode when it has `ChangeableForDays`. Cold storage needs `DeleteAfterDays` at least 90 days after `MoveToColdStorageAfterDays`.
+    - |-
+      ```yaml
+        BackupPlan:
+          Type: AWS::Backup::BackupPlan
+          Properties:
+            BackupPlan:
+              BackupPlanName: orders
+              BackupPlanRule:
+                - RuleName: Hourly
+                  TargetBackupVault: !Ref BackupVault
+                  ScheduleExpression: cron(0 * ? * * *)
+                  StartWindowMinutes: 60
+                  Lifecycle: { DeleteAfterDays: 7 }
+                - RuleName: Daily
+                  TargetBackupVault: !Ref BackupVault
+                  ScheduleExpression: cron(0 3 ? * * *)
+                  Lifecycle: { MoveToColdStorageAfterDays: 30, DeleteAfterDays: 365 }
+                  CopyActions:
+                    - DestinationBackupVaultArn: !Ref DrVaultArn
+                      Lifecycle: { MoveToColdStorageAfterDays: 30, DeleteAfterDays: 365 }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your template and policy are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-aws runner image
+    image: dojo-aws
+    why: The container with cfn-lint, cfn-guard, the dojo's IAM policy evaluator, boto3 and moto that checks your AWS work offline.

@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: The invoices service, as it ran before its Well-Architected review.
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues: [dev, prod]
+    Default: dev
+  OnCallEmail:
+    Type: String
+    Default: invoices-oncall@example.com
+
+Conditions:
+  IsProd: !Equals [!Ref Environment, prod]
+
+Resources:
+  InvoicesBucket:
+    Type: AWS::S3::Bucket
+
+  InvoicesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 500
+        WriteCapacityUnits: 500
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+
+  InvoiceQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 30
+
+  WorkerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: invoices-worker
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:*
+                  - dynamodb:*
+                  - s3:*
+                Resource: "*"
+
+  WorkerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.14
+      Handler: index.handler
+      Architectures: [x86_64]
+      MemorySize: 512
+      Timeout: 30
+      Role: !GetAtt WorkerRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref InvoicesTable
+          BUCKET_NAME: !Ref InvoicesBucket
+      Code:
+        ZipFile: |
+          import json
+          import os
+
+          import boto3
+
+          table = boto3.resource("dynamodb").Table(os.environ["TABLE_NAME"])
+          s3 = boto3.client("s3")
+
+
+          def handler(event, context):
+              failures = []
+              for record in event["Records"]:
+                  try:
+                      invoice = json.loads(record["body"])
+                      key = f"invoices/{invoice['id']}.json"
+                      s3.put_object(Bucket=os.environ["BUCKET_NAME"], Key=key, Body=record["body"])
+                      table.put_item(Item={"pk": invoice["id"], "document": key})
+                  except Exception:
+                      failures.append({"itemIdentifier": record["messageId"]})
+              return {"batchItemFailures": failures}
+
+  WorkerEventSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt InvoiceQueue.Arn
+      FunctionName: !Ref WorkerFunction
+      BatchSize: 1
+
+Outputs:
+  QueueUrl:
+    Value: !Ref InvoiceQueue
+  BucketName:
+    Value: !Ref InvoicesBucket

@@ -1,0 +1,82 @@
+pass_percent: 80
+questions:
+  - id: scp-admin
+    skills: [aws.multi-account-iam]
+    prompt: "An SCP on the workloads OU denies cloudtrail:StopLogging. A role in a workload account has AdministratorAccess. Can it stop the trail?"
+    options:
+      - "Yes, AdministratorAccess allows every action"
+      - "No: an explicit Deny in an SCP applies to every principal of the account, admins included"
+      - "Only from the console"
+      - "Yes, SCPs only apply to IAM users"
+    answer: 1
+    explanation: "SCPs cap every principal in member accounts; only the management account and service-linked roles are outside them."
+  - id: cross-account-kms
+    skills: [aws.multi-account-iam, aws.security-services]
+    prompt: "A role in account B must decrypt with a KMS key in account A. What must allow it?"
+    options:
+      - "Only the role's identity policy in account B"
+      - "Only the key policy in account A"
+      - "Both: the key policy names account B (or the role), and the role's identity policy in B allows kms:Decrypt on the key"
+      - "An SCP in account A"
+    answer: 2
+    explanation: "Across accounts both sides must allow: the resource's policy and the caller's own policy."
+  - id: via-service
+    skills: [aws.security-services]
+    prompt: "What does the condition kms:ViaService = backup.eu-west-1.amazonaws.com in a key policy statement do?"
+    options:
+      - "It lets AWS Backup create keys"
+      - "The statement applies only to requests AWS Backup makes on the caller's behalf, so the key cannot be used directly"
+      - "It encrypts the key in transit"
+      - "It moves the key to the backup account"
+    answer: 1
+    explanation: "ViaService limits a key to use through one service: a stolen admin session cannot call kms:Decrypt by hand."
+  - id: confused-deputy
+    skills: [aws.iam-least-privilege, aws.multi-account-iam]
+    prompt: "Why add aws:SourceAccount to the trust policy of a role that backup.amazonaws.com assumes?"
+    options:
+      - "To make the role cheaper"
+      - "So the service assumes the role only for jobs of this account: the confused deputy problem"
+      - "Because services cannot assume roles without it"
+      - "To allow other accounts to use the role"
+    answer: 1
+    explanation: "Without it, a job started from another account could make the service act with your role's permissions."
+  - id: vault-lock
+    skills: [aws.high-availability, aws.security-services]
+    prompt: "Ransomware deletes everything an admin of the account can delete. What keeps the backups?"
+    options:
+      - "Tags on the recovery points"
+      - "A daily backup rule"
+      - "A vault lock in compliance mode plus copies to a vault in a separate backup account"
+      - "Versioning on the backup vault"
+    answer: 2
+    explanation: "A compliance-mode lock cannot be removed, even by the root user, once its grace period ends; another account's vault is out of the attacker's reach."
+  - id: rpo-schedule
+    skills: [aws.high-availability]
+    prompt: "The business accepts losing at most one hour of data. Which backup plan meets that RPO?"
+    options:
+      - "A daily backup kept for a year"
+      - "A backup every hour (or continuous backup), each starting within the hour"
+      - "A weekly backup with cross-region copies"
+      - "Multi-AZ on the database, so no backups are needed"
+    answer: 1
+    explanation: "RPO is the data you may lose: backups must be at most an hour apart. Multi-AZ survives an AZ, not a bad deploy that corrupts data."
+  - id: cold-storage
+    skills: [aws.cost, aws.high-availability]
+    prompt: "A backup rule moves recovery points to cold storage after 30 days and deletes them after 60. What happens?"
+    options:
+      - "It saves money"
+      - "The rule is rejected: cold storage keeps recovery points at least 90 days, so deletion must come 90 days or more after the move"
+      - "The recovery points are deleted at 30 days"
+      - "Cold storage is free for 30 days"
+    answer: 1
+    explanation: "Cold storage is cheap per GB but has a 90-day minimum; it pays for long retention, not short."
+  - id: guard-before-deploy
+    skills: [aws.security-services, aws.cloudformation]
+    prompt: "A team ships a template whose RDS instance has StorageEncrypted: false. Which control stops it before deployment?"
+    options:
+      - "GuardDuty"
+      - "A cfn-guard rule run in the pipeline: a preventive control"
+      - "AWS Config, which flags it after it exists"
+      - "CloudTrail"
+    answer: 1
+    explanation: "Policy as code in CI prevents; Config detects afterwards; GuardDuty and CloudTrail watch activity, not templates."

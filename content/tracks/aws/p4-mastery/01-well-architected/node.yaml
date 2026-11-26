@@ -8,7 +8,7 @@ objectives:
   - { id: o2, text: "Reason about trade-offs between pillars for a concrete workload", skills: [aws.well-architected] }
   - { id: o3, text: "Run a Well-Architected review with the Tool and lenses, and record high and medium risks", skills: [aws.well-architected] }
   - { id: o4, text: "Turn review findings into a prioritised, measurable improvement plan", skills: [aws.well-architected] }
-prerequisites: [aws.p3.cost]
+prerequisites: [aws.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 45
 xp: 250

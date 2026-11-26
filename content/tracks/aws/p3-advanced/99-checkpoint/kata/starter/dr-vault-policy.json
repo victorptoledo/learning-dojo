@@ -1,0 +1,12 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CopiesFromAnywhere",
+      "Effect": "Allow",
+      "Principal": { "AWS": "*" },
+      "Action": "backup:CopyIntoBackupVault",
+      "Resource": "*"
+    }
+  ]
+}

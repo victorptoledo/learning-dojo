@@ -1,0 +1,179 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Backups of the orders workload that survive a compromised account, a bad deploy and a lost region.
+
+Parameters:
+  BackupAccountId:
+    Type: String
+    Default: "999900001111"
+    Description: The organization's backup account, which holds the disaster-recovery vault.
+  DrVaultArn:
+    Type: String
+    Default: arn:aws:backup:eu-central-1:999900001111:backup-vault:acme-dr
+    Description: The disaster-recovery vault, in the backup account and another region.
+
+Resources:
+  BackupKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: Encrypts the recovery points of the orders vault.
+      EnableKeyRotation: true
+      PendingWindowInDays: 30
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: KeyAdministration
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:role/KeyAdmin
+                - !Sub arn:aws:iam::${AWS::AccountId}:role/OrgBreakGlass
+            Action:
+              - kms:Create*
+              - kms:Describe*
+              - kms:Enable*
+              - kms:List*
+              - kms:Put*
+              - kms:Update*
+              - kms:Revoke*
+              - kms:Disable*
+              - kms:Get*
+              - kms:Delete*
+              - kms:TagResource
+              - kms:UntagResource
+              - kms:ScheduleKeyDeletion
+              - kms:CancelKeyDeletion
+            Resource: "*"
+          - Sid: UseThroughAwsBackup
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+              - kms:CreateGrant
+            Resource: "*"
+            Condition:
+              StringEquals:
+                kms:ViaService: !Sub backup.${AWS::Region}.amazonaws.com
+                kms:CallerAccount: !Ref AWS::AccountId
+          - Sid: CopyIntoTheBackupAccount
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${BackupAccountId}:root
+            Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:CreateGrant
+            Resource: "*"
+            Condition:
+              StringEquals:
+                kms:ViaService: !Sub backup.${AWS::Region}.amazonaws.com
+          - Sid: OnlyBreakGlassDestroysTheKey
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Action:
+              - kms:ScheduleKeyDeletion
+              - kms:DisableKey
+            Resource: "*"
+            Condition:
+              ArnNotLike:
+                aws:PrincipalArn: !Sub arn:aws:iam::${AWS::AccountId}:role/OrgBreakGlass
+
+  BackupKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/orders-backups
+      TargetKeyId: !Ref BackupKey
+
+  BackupVault:
+    Type: AWS::Backup::BackupVault
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BackupVaultName: orders-vault
+      EncryptionKeyArn: !GetAtt BackupKey.Arn
+      LockConfiguration:
+        MinRetentionDays: 7
+        MaxRetentionDays: 365
+        ChangeableForDays: 3
+      AccessPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: NobodyDeletesRecoveryPoints
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Action:
+              - backup:DeleteRecoveryPoint
+              - backup:UpdateRecoveryPointLifecycle
+              - backup:PutBackupVaultAccessPolicy
+              - backup:DeleteBackupVaultAccessPolicy
+            Resource: "*"
+
+  BackupRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: backup.amazonaws.com
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup
+        - arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores
+
+  BackupPlan:
+    Type: AWS::Backup::BackupPlan
+    Properties:
+      BackupPlan:
+        BackupPlanName: orders
+        BackupPlanRule:
+          - RuleName: Hourly
+            TargetBackupVault: !Ref BackupVault
+            ScheduleExpression: cron(0 * ? * * *)
+            StartWindowMinutes: 60
+            CompletionWindowMinutes: 120
+            Lifecycle:
+              DeleteAfterDays: 7
+          - RuleName: Daily
+            TargetBackupVault: !Ref BackupVault
+            ScheduleExpression: cron(0 3 ? * * *)
+            StartWindowMinutes: 60
+            CompletionWindowMinutes: 480
+            Lifecycle:
+              MoveToColdStorageAfterDays: 30
+              DeleteAfterDays: 365
+            CopyActions:
+              - DestinationBackupVaultArn: !Ref DrVaultArn
+                Lifecycle:
+                  MoveToColdStorageAfterDays: 30
+                  DeleteAfterDays: 365
+
+  BackupSelection:
+    Type: AWS::Backup::BackupSelection
+    Properties:
+      BackupPlanId: !Ref BackupPlan
+      BackupSelection:
+        SelectionName: orders-tagged
+        IamRoleArn: !GetAtt BackupRole.Arn
+        ListOfTags:
+          - ConditionType: STRINGEQUALS
+            ConditionKey: backup
+            ConditionValue: orders
+
+Outputs:
+  BackupVaultName:
+    Value: !Ref BackupVault
+  BackupKeyArn:
+    Value: !GetAtt BackupKey.Arn

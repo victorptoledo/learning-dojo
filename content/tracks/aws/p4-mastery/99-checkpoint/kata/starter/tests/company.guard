@@ -1,0 +1,46 @@
+# The platform team's rules: every template must pass them before it is deployed.
+# cfn-guard validate --rules tests/company.guard --data service.yaml
+
+let buckets = Resources.*[ Type == 'AWS::S3::Bucket' ]
+let tables = Resources.*[ Type == 'AWS::DynamoDB::Table' ]
+let queues = Resources.*[ Type == 'AWS::SQS::Queue' ]
+let roles = Resources.*[ Type == 'AWS::IAM::Role' ]
+let log_groups = Resources.*[ Type == 'AWS::Logs::LogGroup' ]
+
+rule buckets_are_private_and_encrypted when %buckets !empty {
+    %buckets.Properties.PublicAccessBlockConfiguration {
+        BlockPublicAcls == true
+        IgnorePublicAcls == true
+        BlockPublicPolicy == true
+        RestrictPublicBuckets == true
+        <<Buckets block all four kinds of public access>>
+    }
+    %buckets.Properties.BucketEncryption.ServerSideEncryptionConfiguration[*] {
+        ServerSideEncryptionByDefault.SSEAlgorithm in ['AES256', 'aws:kms', 'aws:kms:dsse']
+        <<Buckets encrypt new objects by default>>
+    }
+}
+
+rule tables_have_point_in_time_recovery when %tables !empty {
+    %tables.Properties.PointInTimeRecoverySpecification.PointInTimeRecoveryEnabled == true
+    <<DynamoDB tables keep point-in-time recovery on>>
+}
+
+rule queues_are_encrypted when %queues !empty {
+    %queues.Properties {
+        SqsManagedSseEnabled == true or KmsMasterKeyId exists
+        <<Queues encrypt their messages>>
+    }
+}
+
+rule roles_name_their_actions when %roles !empty {
+    %roles.Properties.Policies[*].PolicyDocument.Statement[ Effect == 'Allow' ] {
+        Action[*] != /\*/
+        <<Inline role policies name each action: no "*" and no "service:*">>
+    }
+}
+
+rule logs_expire when %log_groups !empty {
+    %log_groups.Properties.RetentionInDays exists
+    <<Log groups set RetentionInDays: logs are kept and billed forever otherwise>>
+}

@@ -13,8 +13,8 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "IAM Security Guardian" }
   - { name: "Purple Belt", required_xp: 1500, title: "VPC & Networking Builder" }
   - { name: "Brown Belt", required_xp: 2500, title: "Serverless & EventBridge Pro" }
-  - { name: "Black Belt", required_xp: 4000, title: "AWS Solutions Architect" }
-  - { name: "Sensei", required_xp: 6000, title: "Cloud Mastermind" }
+  - { name: "Black Belt", required_xp: 5000, title: "AWS Solutions Architect" }
+  - { name: "Sensei", required_xp: 6500, title: "Cloud Mastermind" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the cloud is, the shared responsibility model, regions and accounts, and a first CloudFormation template" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "IAM and least privilege, EC2, S3, VPC networking and infrastructure as code with CloudFormation and CDK" }
