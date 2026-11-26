@@ -13,8 +13,8 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Retrieval Builder" }
   - { name: "Purple Belt", required_xp: 1500, title: "Agent Wrangler" }
   - { name: "Brown Belt", required_xp: 2500, title: "Evaluation Engineer" }
-  - { name: "Black Belt", required_xp: 4000, title: "Production AI Engineer" }
-  - { name: "Sensei", required_xp: 6000, title: "AI Systems Architect" }
+  - { name: "Black Belt", required_xp: 5000, title: "Production AI Engineer" }
+  - { name: "Sensei", required_xp: 7000, title: "AI Systems Architect" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What the role does, how a model turns tokens into text, and a first context-budget kata" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Model APIs, streaming, structured output, embeddings and vector search" }

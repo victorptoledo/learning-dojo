@@ -1,0 +1,77 @@
+pass_percent: 80
+questions:
+  - id: cp4-ladder
+    skills: [ai-engineer.fine-tuning, ai-engineer.rag-architecture]
+    prompt: "The assistant gets prices wrong because the catalogue changes every week. What is the right fix?"
+    options:
+      - "Fine-tune the model on the catalogue every week"
+      - "Retrieve the current prices at answer time (RAG or a tool); fine-tuning teaches behaviour and format, not fresh facts"
+      - "Use a bigger model"
+      - "Raise the temperature"
+    answer: 1
+    explanation: "Facts that change belong in the context; tuning bakes in a snapshot that goes stale."
+  - id: cp4-distill
+    skills: [ai-engineer.fine-tuning, ai-engineer.evaluation]
+    prompt: "You distilled a big model into a small one for classification. What must happen before it replaces the big model?"
+    options:
+      - "Nothing: distillation keeps the teacher's quality"
+      - "Run the same golden and safety sets on both and compare per slice, not only on average"
+      - "Check that the training loss went down"
+      - "Ask the teacher model whether the student is good"
+    answer: 1
+    explanation: "A tuned model is a change like any other: the evals decide, and averages can hide a broken slice."
+  - id: cp4-kv-cache
+    skills: [ai-engineer.serving]
+    prompt: "An 8B model at 16 bits fits on a 24 GB GPU, yet only a few long conversations run at once. What limits it?"
+    options:
+      - "The number of CUDA cores"
+      - "The KV cache, which grows with context length times concurrent requests"
+      - "The tokenizer"
+      - "The size of the system prompt only"
+    answer: 1
+    explanation: "Weights take 16 GB; what is left must hold keys and values for every token of every active sequence."
+  - id: cp4-utilisation
+    skills: [ai-engineer.serving, ai-engineer.cost-latency]
+    prompt: "A GPU costs the same per hour whether busy or idle. If utilisation falls from 50% to 5%, what happens to the cost per million tokens?"
+    answers: ["it is 10 times higher", "10x", "ten times higher", "x10", "it grows tenfold"]
+    explanation: "You pay for every hour but serve a tenth of the tokens: the price per token goes up tenfold."
+  - id: cp4-pinned
+    skills: [ai-engineer.production]
+    prompt: "Why does the release gate block a model id such as \"big-model-latest\"?"
+    options:
+      - "Aliases are slower"
+      - "The provider can move an alias to a new model at any time, so the evals no longer describe what runs in production"
+      - "Aliases cost more"
+      - "Aliases cannot stream"
+    answer: 1
+    explanation: "Everything that shapes output is configuration: pin it, so a change is a reviewed migration, not a surprise."
+  - id: cp4-slices
+    skills: [ai-engineer.evaluation, ai-engineer.production]
+    prompt: "A candidate raises the overall pass rate from 0.90 to 0.91, but the billing slice (30 cases) drops from 0.90 to 0.73. What should the gate do?"
+    options:
+      - "Promote: the average improved"
+      - "Block and report the slice: a regression for a group of users is still a regression"
+      - "Ignore slices with fewer than 1,000 cases"
+      - "Promote and fix billing later"
+    answer: 1
+    explanation: "Averages hide regressions; a minimum slice size guards against noise, and 30 cases is above it."
+  - id: cp4-canary-buckets
+    skills: [ai-engineer.production]
+    prompt: "Why route canary traffic by a hash of the user id instead of a random number per request?"
+    options:
+      - "Hashing is faster"
+      - "Each user stays on one model, so their experience is consistent and feedback can be attributed to one arm"
+      - "Random numbers are not allowed in production"
+      - "It hides the experiment from users"
+    answer: 1
+    explanation: "Stable buckets keep conversations on one model, and widening a stage keeps the users who were already in it."
+  - id: cp4-rollback
+    skills: [ai-engineer.production, ai-engineer.observability]
+    prompt: "During the 5% stage the candidate's error rate is 1.5 points above the baseline, with enough traffic to trust it. What does a good rollout do?"
+    options:
+      - "Keep going: 1.5 points is small"
+      - "Roll back automatically to the baseline, keep the traces and add the failing cases to the eval set"
+      - "Move to 25% to collect more data"
+      - "Restart the canary from 1%"
+    answer: 1
+    explanation: "The rollback path is the point of a canary: switch back in seconds, then learn from the traces."

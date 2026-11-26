@@ -1,0 +1,57 @@
+id: ai-engineer.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz over guardrails, cost and latency and observability, and an integration kata, a refund copilot with redacted emails, withheld injected notes, refunds that wait for a human, retries with backoff, a cost budget, checked links and GenAI spans without personal data."
+objectives:
+  - { id: o1, text: "Place each guardrail where it holds: redaction before the model, untrusted content as data, tool policy between the model and the world, output checks after it", skills: [ai-engineer.guardrails, ai-engineer.agents-tools] }
+  - { id: o2, text: "Wrap model calls in bounded retries with backoff and a per-run cost budget", skills: [ai-engineer.cost-latency, ai-engineer.model-apis] }
+  - { id: o3, text: "Trace every model attempt and tool run with GenAI attributes and keep personal data out of the traces", skills: [ai-engineer.observability, ai-engineer.guardrails] }
+prerequisites: [ai-engineer.p3.observability]
+difficulty: 4
+estimated_minutes: 110
+xp: 450
+closes_phase: p3
+covers_skills: [ai-engineer.guardrails, ai-engineer.cost-latency, ai-engineer.observability]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Write and test the small functions first (`redact`, `restore`, `tool_decision`, `check_links`, `build_prompt`, `backoff`), then `handle`. In `handle`, keep three things apart: one helper that makes **one** model call with its retries and returns the response or `None`, one that runs **one** tool, and the loop that decides what to do with each response.
+    - |-
+      `redact` can use `EMAIL_RE.sub` with a function: look the value up among `found`'s values, otherwise add `f"<EMAIL_{len(found) + 1}>"`. For `check_links`, `urllib.parse.urlsplit(url).hostname` gives the host; it is allowed when it equals a domain or ends with `"." + domain`. In `tool_decision`, check `isinstance(amount, bool)` **before** `isinstance(amount, int | float)`: `True` is an `int` in Python.
+    - |-
+      Put the `try` **outside** the span, so the tracer sees the error and marks the attempt:
+      ```python
+      for attempt in range(self._max_attempts):
+          try:
+              with self._tracer.span(f"chat {request.model}", **{"gen_ai.operation.name": "chat", "gen_ai.request.model": request.model}) as span:
+                  response = self._model.complete(request)
+                  span.set("gen_ai.usage.input_tokens", response.usage.input_tokens)
+                  span.set("gen_ai.usage.output_tokens", response.usage.output_tokens)
+                  span.set("gen_ai.response.finish_reasons", (response.stop_reason,))
+                  return response
+          except BadRequestError:
+              return None
+          except (RateLimitError, ServerError) as exc:
+              if attempt == self._max_attempts - 1:
+                  return None
+              wait = getattr(exc, "retry_after", None)
+              self._clock.sleep(backoff(attempt) if wait is None else wait)
+      ```
+      The same shape runs a tool inside `execute_tool {name}` and turns its exception into an error result.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.
