@@ -1,0 +1,295 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: The invoices service, after its Well-Architected review.
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues: [dev, prod]
+    Default: dev
+  OnCallEmail:
+    Type: String
+    Default: invoices-oncall@example.com
+
+Conditions:
+  IsProd: !Equals [!Ref Environment, prod]
+
+Resources:
+  InvoicesKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: Encrypts the invoice PDFs.
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: EnableIamPolicies
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: "*"
+      Tags:
+        - { Key: service, Value: invoices }
+        - { Key: cost-center, Value: cc-2077 }
+        - { Key: environment, Value: !Ref Environment }
+
+  InvoicesBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt InvoicesKey.Arn
+            BucketKeyEnabled: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: OlderInvoicesToInfrequentAccess
+            Status: Enabled
+            Transitions:
+              - StorageClass: STANDARD_IA
+                TransitionInDays: 30
+          - Id: CleanUp
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 30
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+      Tags:
+        - { Key: service, Value: invoices }
+        - { Key: cost-center, Value: cc-2077 }
+        - { Key: environment, Value: !Ref Environment }
+
+  InvoicesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref InvoicesBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: TlsOnly
+            Effect: Deny
+            Principal: "*"
+            Action: s3:*
+            Resource:
+              - !GetAtt InvoicesBucket.Arn
+              - !Sub ${InvoicesBucket.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+
+  InvoicesTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      DeletionProtectionEnabled: !If [IsProd, true, false]
+      SSESpecification:
+        SSEEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+      Tags:
+        - { Key: service, Value: invoices }
+        - { Key: cost-center, Value: cc-2077 }
+        - { Key: environment, Value: !Ref Environment }
+
+  InvoiceDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+      SqsManagedSseEnabled: true
+      Tags:
+        - { Key: service, Value: invoices }
+        - { Key: cost-center, Value: cc-2077 }
+        - { Key: environment, Value: !Ref Environment }
+
+  InvoiceQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 180
+      SqsManagedSseEnabled: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt InvoiceDeadLetterQueue.Arn
+        maxReceiveCount: 5
+      Tags:
+        - { Key: service, Value: invoices }
+        - { Key: cost-center, Value: cc-2077 }
+        - { Key: environment, Value: !Ref Environment }
+
+  WorkerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: invoices-worker
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: ReadTheQueue
+                Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:ChangeMessageVisibility
+                Resource: !GetAtt InvoiceQueue.Arn
+              - Sid: WriteInvoices
+                Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                Resource: !GetAtt InvoicesTable.Arn
+              - Sid: StorePdfs
+                Effect: Allow
+                Action: s3:PutObject
+                Resource: !Sub ${InvoicesBucket.Arn}/invoices/*
+              - Sid: EncryptPdfs
+                Effect: Allow
+                Action:
+                  - kms:GenerateDataKey
+                  - kms:Decrypt
+                Resource: !GetAtt InvoicesKey.Arn
+      Tags:
+        - { Key: service, Value: invoices }
+        - { Key: cost-center, Value: cc-2077 }
+        - { Key: environment, Value: !Ref Environment }
+
+  WorkerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.14
+      Handler: index.handler
+      Architectures: [arm64]
+      MemorySize: 512
+      Timeout: 30
+      Role: !GetAtt WorkerRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref InvoicesTable
+          BUCKET_NAME: !Ref InvoicesBucket
+      Code:
+        ZipFile: |
+          import json
+          import os
+
+          import boto3
+
+          table = boto3.resource("dynamodb").Table(os.environ["TABLE_NAME"])
+          s3 = boto3.client("s3")
+
+
+          def handler(event, context):
+              failures = []
+              for record in event["Records"]:
+                  try:
+                      invoice = json.loads(record["body"])
+                      key = f"invoices/{invoice['id']}.json"
+                      s3.put_object(Bucket=os.environ["BUCKET_NAME"], Key=key, Body=record["body"])
+                      table.put_item(Item={"pk": invoice["id"], "document": key})
+                  except Exception:
+                      failures.append({"itemIdentifier": record["messageId"]})
+              return {"batchItemFailures": failures}
+      Tags:
+        - { Key: service, Value: invoices }
+        - { Key: cost-center, Value: cc-2077 }
+        - { Key: environment, Value: !Ref Environment }
+
+  WorkerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${WorkerFunction}
+      RetentionInDays: !If [IsProd, 90, 14]
+
+  WorkerEventSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt InvoiceQueue.Arn
+      FunctionName: !Ref WorkerFunction
+      BatchSize: 10
+      MaximumBatchingWindowInSeconds: 5
+      FunctionResponseTypes: [ReportBatchItemFailures]
+
+  OnCallTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      KmsMasterKeyId: alias/aws/sns
+      Tags:
+        - { Key: service, Value: invoices }
+        - { Key: cost-center, Value: cc-2077 }
+        - { Key: environment, Value: !Ref Environment }
+
+  OnCallSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: IsProd
+    Properties:
+      TopicArn: !Ref OnCallTopic
+      Protocol: email
+      Endpoint: !Ref OnCallEmail
+
+  DeadLettersAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Invoices failed five times and wait in the dead-letter queue.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt InvoiceDeadLetterQueue.QueueName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OnCallTopic]
+
+  QueueBacklogAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: The oldest invoice has waited more than ten minutes.
+      Namespace: AWS/SQS
+      MetricName: ApproximateAgeOfOldestMessage
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt InvoiceQueue.QueueName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 5
+      Threshold: 600
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OnCallTopic]
+
+Outputs:
+  QueueUrl:
+    Value: !Ref InvoiceQueue
+  BucketName:
+    Value: !Ref InvoicesBucket

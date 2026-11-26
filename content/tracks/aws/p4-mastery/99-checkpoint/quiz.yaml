@@ -1,0 +1,82 @@
+pass_percent: 80
+questions:
+  - id: pillar-of-finding
+    skills: [aws.well-architected]
+    prompt: "A review finds that a Lambda worker retries a poison message until it expires and blocks the queue. Which pillar is that finding in?"
+    options:
+      - "Performance efficiency"
+      - "Reliability"
+      - "Cost optimization"
+      - "Sustainability"
+    answer: 1
+    explanation: "Recovering from failure (a dead-letter queue, partial batch responses) is reliability."
+  - id: high-risk-first
+    skills: [aws.well-architected]
+    prompt: "A review lists 3 high-risk and 12 medium-risk issues. How do you turn them into work?"
+    options:
+      - "Fix the 12 medium ones first, they are quicker"
+      - "Put the high-risk issues in the team's backlog with owners and dates, fix them first, and review again later"
+      - "Accept all of them, the workload runs"
+      - "Rewrite the workload"
+    answer: 1
+    explanation: "Improvement is a loop: prioritize by risk, track like any other work, and repeat the review."
+  - id: partial-batch
+    skills: [aws.lambda-serverless]
+    prompt: "A handler returns batchItemFailures, but the event source mapping has no FunctionResponseTypes. What happens when one of ten messages fails?"
+    options:
+      - "Only the failed message is retried"
+      - "The response is ignored: the batch counts as a success and the failed message is deleted, or, if the handler raises, all ten are retried"
+      - "The mapping is disabled"
+      - "The message goes straight to the DLQ"
+    answer: 1
+    explanation: "Partial batch responses only count with ReportBatchItemFailures on the mapping."
+  - id: least-privilege-both-ways
+    skills: [aws.iam-least-privilege]
+    prompt: "How do you know a tightened role is right?"
+    options:
+      - "It has no wildcards"
+      - "Every request the code makes is allowed and the requests it must not make are denied, checked against the policy (or IAM Access Analyzer and CloudTrail)"
+      - "It has fewer than ten statements"
+      - "The console shows no warnings"
+    answer: 1
+    explanation: "Least privilege fails in two directions: too much is a risk, too little is an outage."
+  - id: retain
+    skills: [aws.cloudformation, aws.high-availability]
+    prompt: "What protects a production DynamoDB table when someone deletes its stack?"
+    options:
+      - "Point-in-time recovery alone"
+      - "DeletionPolicy: Retain on the resource, plus deletion protection on the table, with point-in-time recovery for bad writes"
+      - "Multi-AZ"
+      - "A tag"
+    answer: 1
+    explanation: "Retain keeps the resource when the stack goes; deletion protection blocks direct deletes; point-in-time recovery undoes bad writes, not a deleted resource."
+  - id: env-conditions
+    skills: [aws.operations, aws.cloudformation]
+    prompt: "Dev and prod use the same template. Dev must not page the on-call engineer. How?"
+    options:
+      - "Keep two copies of the template"
+      - "A Condition (IsProd) on the email subscription, so the resource only exists in prod"
+      - "Delete the subscription by hand after each dev deploy"
+      - "Set the alarm threshold very high in dev"
+    answer: 1
+    explanation: "One template with parameters and conditions keeps environments alike where it matters and different where it must."
+  - id: on-demand
+    skills: [aws.cost, aws.databases]
+    prompt: "A DynamoDB table has 500 provisioned units and averages 20 % use, with short spikes. What cuts cost without throttling the spikes?"
+    options:
+      - "Lower the provisioned units to 100"
+      - "On-demand capacity (PAY_PER_REQUEST)"
+      - "A bigger instance"
+      - "A Savings Plan"
+    answer: 1
+    explanation: "On-demand pays per request and absorbs spikes; provisioned capacity pays off for steady, predictable traffic."
+  - id: graviton
+    skills: [aws.well-architected, aws.cost]
+    prompt: "Moving a Python Lambda function from x86_64 to arm64 usually helps which pillars?"
+    options:
+      - "Security and reliability"
+      - "Cost optimization and sustainability: Graviton gives better price performance with less energy"
+      - "Operational excellence only"
+      - "None, it only changes the CPU name"
+    answer: 1
+    explanation: "Arm64 Lambda is priced about 20 % lower per GB-second and uses less energy for the same work."

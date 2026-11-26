@@ -1,0 +1,55 @@
+id: aws.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on the Well-Architected Framework and running AWS in production, and a working service whose review found problems in all six pillars, fixed in one template for dev and prod."
+objectives:
+  - { id: o1, text: "Place findings in the six Well-Architected pillars and turn them into prioritized work", skills: [aws.well-architected, aws.operations] }
+  - { id: o2, text: "Fix a running service in one template: least privilege checked in both directions, encryption and TLS, dead-letter queue and partial batch failures, retained data, alarms that page only in prod, on-demand capacity, lifecycle rules, cost tags and Graviton", skills: [aws.well-architected, aws.iam-least-privilege, aws.lambda-serverless, aws.cloudwatch, aws.cost, aws.cloudformation] }
+prerequisites: [aws.p4.operations]
+difficulty: 5
+estimated_minutes: 120
+xp: 500
+closes_phase: p4
+covers_skills: [aws.well-architected, aws.operations, aws.iam-least-privilege, aws.lambda-serverless, aws.cloudwatch, aws.cost]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-aws, timeout_secs: 180 }
+  hints:
+    - |-
+      Work pillar by pillar and keep the service's shape: the six resources it already has stay, with the same names. For the role, list what the handler calls (`put_object`, `put_item`) and what Lambda calls for the queue on its behalf; with SSE-KMS, `PutObject` also needs the key. What would break if you left one out?
+    - |-
+      One template, two environments: `!If [IsProd, true, false]` for deletion protection, `!If [IsProd, 90, 14]` for retention, and `Condition: IsProd` on the `AWS::SNS::Subscription` so dev has none. The dead-letter alarm uses the dimension `QueueName` with `!GetAtt InvoiceDeadLetterQueue.QueueName`. The bucket key is `BucketKeyEnabled: true` next to `ServerSideEncryptionByDefault`, not inside it.
+    - |-
+      ```yaml
+                    - Sid: StorePdfs
+                      Effect: Allow
+                      Action: s3:PutObject
+                      Resource: !Sub ${InvoicesBucket.Arn}/invoices/*
+                    - Sid: EncryptPdfs
+                      Effect: Allow
+                      Action: [kms:GenerateDataKey, kms:Decrypt]
+                      Resource: !GetAtt InvoicesKey.Arn
+        WorkerEventSource:
+          Type: AWS::Lambda::EventSourceMapping
+          Properties:
+            EventSourceArn: !GetAtt InvoiceQueue.Arn
+            FunctionName: !Ref WorkerFunction
+            BatchSize: 10
+            MaximumBatchingWindowInSeconds: 5
+            FunctionResponseTypes: [ReportBatchItemFailures]
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your template is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-aws runner image
+    image: dojo-aws
+    why: The container with cfn-lint, cfn-guard, the dojo's IAM policy evaluator, boto3 and moto that checks your AWS work offline.

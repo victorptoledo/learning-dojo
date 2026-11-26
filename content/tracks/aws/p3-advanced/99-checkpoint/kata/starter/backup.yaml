@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Backups of the orders workload (first draft, before the security review).
+
+Parameters:
+  BackupAccountId:
+    Type: String
+    Default: "999900001111"
+    Description: The organization's backup account, which holds the disaster-recovery vault.
+  DrVaultArn:
+    Type: String
+    Default: arn:aws:backup:eu-central-1:999900001111:backup-vault:acme-dr
+    Description: The disaster-recovery vault, in the backup account and another region.
+
+Resources:
+  # The default key policy: the whole account may do anything with the key.
+  BackupKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: Encrypts the recovery points of the orders vault.
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: EnableIamPolicies
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: "*"
+
+  BackupKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/orders-backups
+      TargetKeyId: !Ref BackupKey
+
+  BackupVault:
+    Type: AWS::Backup::BackupVault
+    Properties:
+      BackupVaultName: orders-vault
+      EncryptionKeyArn: !GetAtt BackupKey.Arn
+
+  BackupRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: backup.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup
+
+  BackupPlan:
+    Type: AWS::Backup::BackupPlan
+    Properties:
+      BackupPlan:
+        BackupPlanName: orders
+        BackupPlanRule:
+          - RuleName: Daily
+            TargetBackupVault: !Ref BackupVault
+            ScheduleExpression: cron(0 3 ? * * *)
+            Lifecycle:
+              MoveToColdStorageAfterDays: 30
+              DeleteAfterDays: 35
+
+  BackupSelection:
+    Type: AWS::Backup::BackupSelection
+    Properties:
+      BackupPlanId: !Ref BackupPlan
+      BackupSelection:
+        SelectionName: everything
+        IamRoleArn: !GetAtt BackupRole.Arn
+        Resources:
+          - "*"
+
+Outputs:
+  BackupVaultName:
+    Value: !Ref BackupVault
+  BackupKeyArn:
+    Value: !GetAtt BackupKey.Arn
