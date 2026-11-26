@@ -1,0 +1,54 @@
+id: devops.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on incident response, platform engineering and disaster recovery, and a golden-path script that creates a production-ready service, checked with actionlint, promtool and Terraform."
+objectives:
+  - { id: o1, text: "Explain incident roles and mitigation, golden paths and their metrics, and recovery objectives and backup design in your own words", skills: [devops.incident-response, devops.platform-engineering, devops.disaster-recovery] }
+  - { id: o2, text: "Build a safe, deterministic golden path that generates a hardened CI/CD workflow, tier-scaled SLO alerts, a backup policy, a runbook and a catalog entry", skills: [devops.platform-engineering, devops.disaster-recovery, devops.incident-response, devops.slo-alerting, devops.cicd-pipelines] }
+prerequisites: [devops.p4.disaster-recovery]
+difficulty: 5
+estimated_minutes: 120
+xp: 550
+closes_phase: p4
+covers_skills: [devops.incident-response, devops.platform-engineering, devops.disaster-recovery, devops.slo-alerting, devops.cicd-pipelines]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-devops, timeout_secs: 180 }
+  hints:
+    - |-
+      Do the script first: parse, validate, then write. Run it by hand with bad input (`--tier gold`, `--name Orders`) and check `echo $?` and that the output folder is still empty. Then fix one template at a time, generating a service into a scratch folder and running the tool that template is for: `actionlint` on the workflow, `promtool check rules` on the rules, `terraform validate` in `infra/`.
+    - |-
+      Pick the tier's values with a `case`: `critical) slo=99.9 budget=0.001 rpo=15 rto=120 ;;`. For "nothing left behind", build in `staging=$(mktemp -d "$out/.$name.XXXXXX")` with `trap 'rm -rf "$staging"' EXIT`, and `mv "$staging" "$target"` as the last step. In the rules template the thresholds are `(14.4 * {{budget}})` and `(6 * {{budget}})`; in `main.tf`, a `locals { policies = { critical = {...}, standard = {...} } }` map and `value = local.policies[var.tier]`.
+    - |-
+      ```bash
+      [[ $name =~ ^[a-z][a-z0-9-]{1,28}[a-z0-9]$ ]] || fail "name must be ..."
+      [[ $team =~ ^[a-z][a-z0-9-]*$ ]] || fail "team must be ..."
+      case $tier in
+          critical) slo=99.9 budget=0.001 rpo=15 rto=120 ;;
+          standard) slo=99.5 budget=0.005 rpo=1440 rto=480 ;;
+          *) fail "tier must be critical or standard" ;;
+      esac
+      target="$out/$name"
+      [ ! -e "$target" ] || fail "$target already exists" 1
+
+      duration() {
+          if (($1 % 60 != 0)); then echo "$1 minutes"
+          elif (($1 == 60)); then echo "1 hour"
+          else echo "$(($1 / 60)) hours"; fi
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your script and what it generates are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-devops runner image
+    image: dojo-devops
+    why: The container with actionlint, Terraform, promtool and bats that checks DevOps katas offline.

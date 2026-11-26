@@ -1,0 +1,19 @@
+# 5% of payments requests are slow: five times the budget, which is a real problem only if
+# it lasts for days (the 6h ratio stays below 6%). No page and no ticket. The p99 is above
+# 300 ms the whole time, which is exactly why a quantile alert is the wrong signal.
+rule_files: [../slo.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'http_request_duration_seconds_bucket{job="payments", path="/payments/p-1001", le="0.3"}'
+        values: '0+950x420'
+      - series: 'http_request_duration_seconds_count{job="payments", path="/payments/p-1001"}'
+        values: '0+1000x420'
+    alert_rule_test:
+      - eval_time: 2h
+        alertname: PaymentsLatencyBudgetBurnFast
+        exp_alerts: []
+      - eval_time: 2h
+        alertname: PaymentsLatencyBudgetBurnSlow
+        exp_alerts: []

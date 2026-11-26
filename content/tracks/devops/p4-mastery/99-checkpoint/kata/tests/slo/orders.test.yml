@@ -1,0 +1,47 @@
+# orders is critical: 99.9%, a budget of 0.001. 2% of its requests fail, 20 times the budget:
+# page within minutes, ticket after its 15m.
+rule_files: [orders.rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'http_requests_total{job="orders", code="200"}'
+        values: '0+980x120'
+      - series: 'http_requests_total{job="orders", code="500"}'
+        values: '0+20x120'
+      - series: 'http_requests_total{job="search", code="500"}'
+        values: '0+500x120'
+    promql_expr_test:
+      - expr: round(job:slo_errors_per_request:ratio_rate5m, 0.0001)
+        eval_time: 30m
+        exp_samples:
+          - labels: '{job="orders"}'
+            value: 0.02
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: ErrorBudgetBurnFast
+        exp_alerts:
+          - exp_labels:
+              job: orders
+              severity: page
+              service: orders
+              team: checkout
+              slo: orders-availability
+            exp_annotations:
+              summary: orders is burning its error budget fast
+              runbook_url: https://runbooks.example.com/orders
+      - eval_time: 10m
+        alertname: ErrorBudgetBurnSlow
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ErrorBudgetBurnSlow
+        exp_alerts:
+          - exp_labels:
+              job: orders
+              severity: ticket
+              service: orders
+              team: checkout
+              slo: orders-availability
+            exp_annotations:
+              summary: orders is burning its error budget
+              runbook_url: https://runbooks.example.com/orders

@@ -1,0 +1,57 @@
+id: devops.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on observability, SLOs and burn-rate alerting, DevSecOps and cloud networking and cost, and an integration kata that replaces a p99 alert with a latency SLO and writes the guardrails of a network plan in Terraform."
+objectives:
+  - { id: o1, text: "Explain observability signals, SLIs and burn rates, policy as code and cloud network costs in your own words", skills: [devops.observability-sre, devops.slo-alerting, devops.devsecops, devops.cloud-networking-cost] }
+  - { id: o2, text: "Turn a latency histogram into an SLO with multiwindow burn-rate alerts, and guard a network plan with validations for exposure, ownership and cost", skills: [devops.slo-alerting, devops.observability-sre, devops.devsecops, devops.cloud-networking-cost] }
+prerequisites: [devops.p3.cloud-networking-cost]
+difficulty: 4
+estimated_minutes: 90
+xp: 500
+closes_phase: p3
+covers_skills: [devops.observability-sre, devops.slo-alerting, devops.devsecops, devops.cloud-networking-cost]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-devops, timeout_secs: 150 }
+  hints:
+    - |-
+      Do the two halves apart. For the rules, write one recording rule, check it with `promtool test rules` if you have it, then copy it for the other windows. For Terraform, write one validation at a time and try it with `terraform plan -var-file=prod.tfvars -var vpc_cidr=10.20.5.0/16`: the plan must fail with your message.
+    - |-
+      A slow ratio is `1 - (sum by (job) (rate(..._bucket{job="payments", le="0.3"}[5m])) / sum by (job) (rate(..._count{job="payments"}[5m])))`. In Terraform, a rule over a list is `alltrue([for rule in var.rules : <condition>])`, and "only X may reach Y" reads as `rule.to != "db" || (rule.from == "app" && rule.port == 5432)`. `cidrsubnet(var.vpc_cidr, 0, 0) == var.vpc_cidr` is true only for a network address.
+    - |-
+      ```hcl
+      output "private_subnets" {
+        value = { for index, zone in var.zones : zone => cidrsubnet(var.vpc_cidr, 8, index + 10) }
+      }
+
+      output "nat_gateway_zones" {
+        value = var.environment == "prod" ? var.zones : [var.zones[0]]
+      }
+
+      output "ingress" {
+        value = {
+          for to in distinct([for rule in var.rules : rule.to]) :
+          to => sort([for rule in var.rules : "${rule.from}:${rule.port}" if rule.to == to])
+        }
+      }
+
+      output "tags" {
+        value = merge(var.tags, { environment = var.environment, managed-by = "terraform" })
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your rules and Terraform are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-devops runner image
+    image: dojo-devops
+    why: The container with actionlint, Terraform, promtool and bats that checks DevOps katas offline.

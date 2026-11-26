@@ -1,0 +1,77 @@
+pass_percent: 80
+questions:
+  - id: average-latency
+    skills: [devops.observability-sre]
+    prompt: "A dashboard shows the average latency of an API at 80 ms, yet users complain that it is slow. What should the team look at instead?"
+    options:
+      - "The maximum latency of the last hour"
+      - "Percentiles (p95, p99) or the share of requests under a threshold, computed from a histogram"
+      - "The CPU of the API hosts"
+      - "The number of log lines per second"
+    answer: 1
+    explanation: "An average hides the slow tail that users feel; histograms give percentiles and threshold ratios that can be aggregated."
+  - id: label-cardinality
+    skills: [devops.observability-sre]
+    prompt: "A developer adds the user ID as a label on the request counter. What is the main risk?"
+    options:
+      - "Counters cannot have labels"
+      - "Every user creates new time series, so memory and query cost explode (high cardinality)"
+      - "PromQL cannot filter on that label"
+      - "Logs stop carrying the trace ID"
+    answer: 1
+    explanation: "Each label combination is a series. Unbounded values belong in logs and traces, not in metric labels."
+  - id: latency-sli
+    skills: [devops.slo-alerting]
+    prompt: "For the SLO \"99% of requests are answered in under 300 ms\", which SLI fits?"
+    options:
+      - "histogram_quantile(0.99, ...) compared with 0.3"
+      - "Requests in the le=\"0.3\" bucket divided by all requests"
+      - "The mean of http_request_duration_seconds"
+      - "The number of Pods that are ready"
+    answer: 1
+    explanation: "An SLI is good events over valid events. The ratio adds up across instances and windows; a quantile does not."
+  - id: budget-burn
+    skills: [devops.slo-alerting]
+    prompt: "With a 99% SLO over 30 days, 20% of requests have been slow for the last hour. What is the burn rate?"
+    answers: ["20", "20x", "20 times"]
+    explanation: "Burn rate = error ratio / budget = 0.20 / 0.01 = 20, so the month's budget would be gone in a day and a half."
+  - id: short-window
+    skills: [devops.slo-alerting]
+    prompt: "Why does a fast-burn alert need both the 1h and the 5m ratio above the threshold?"
+    options:
+      - "To fire twice as often"
+      - "The 1h window proves the burn is significant; the 5m window makes the alert stop soon after the problem is fixed"
+      - "Prometheus cannot evaluate a 1h window alone"
+      - "The 5m window is the one that pages, the 1h one opens a ticket"
+    answer: 1
+    explanation: "With only the long window, the alert keeps firing for up to an hour after recovery."
+  - id: policy-as-code
+    skills: [devops.devsecops]
+    prompt: "Where should a rule like \"no database may be reachable from the internet\" be enforced?"
+    options:
+      - "In a wiki page that reviewers read"
+      - "As policy as code that rejects the change in the pipeline (or at plan time), before it reaches production"
+      - "In a monthly audit of the cloud console"
+      - "Only in the incident postmortem"
+    answer: 1
+    explanation: "Automated guardrails fail fast and the same way every time; reviews and audits find it late, if at all."
+  - id: nat-cost
+    skills: [devops.cloud-networking-cost]
+    prompt: "Workers in private subnets copy terabytes to S3 through the NAT gateway, and the bill is growing. What is the cheapest fix?"
+    options:
+      - "Move the workers to public subnets"
+      - "Add an S3 gateway endpoint, so the traffic goes to S3 privately without NAT processing charges"
+      - "Add a second NAT gateway"
+      - "Compress the logs of the workers"
+    answer: 1
+    explanation: "Gateway endpoints for S3 and DynamoDB are free and keep the traffic private."
+  - id: nat-per-zone
+    skills: [devops.cloud-networking-cost]
+    prompt: "Why does production often get one NAT gateway per availability zone, while dev shares one?"
+    options:
+      - "NAT gateways only work in one zone"
+      - "With one shared NAT, a zone outage cuts every zone's outbound traffic; dev accepts that risk to save cost"
+      - "Dev has no private subnets"
+      - "AWS requires it for production accounts"
+    answer: 1
+    explanation: "It is a cost and resilience trade-off, decided per environment."

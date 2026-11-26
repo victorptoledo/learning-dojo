@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Run an incident with clear severities, roles (incident commander, operations, communications) and a timeline", skills: [devops.incident-response] }
   - { id: o2, text: "Prioritise mitigation over root cause and communicate status to stakeholders on a schedule", skills: [devops.incident-response] }
   - { id: o3, text: "Write a blameless postmortem with contributing factors and tracked action items", skills: [devops.incident-response] }
-prerequisites: [devops.p3.cloud-networking-cost]
+prerequisites: [devops.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 45
 xp: 300
