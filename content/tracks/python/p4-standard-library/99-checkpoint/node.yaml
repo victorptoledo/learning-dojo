@@ -1,0 +1,53 @@
+id: python.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 4: The Standard Library at Work"
+summary: "Prove the standard library phase: a quiz on files and encodings, regular expressions and Unicode, and dates and time zones, and an agenda import that reads CSV exports with BOMs and quoted fields, validates every row, refuses DST gaps and folds, deduplicates by a Unicode key and writes JSON atomically."
+objectives:
+  - { id: o1, text: "Explain encodings and BOMs, atomic writes, fullmatch and normalisation, aware datetimes, DST gaps and folds and ISO weeks in your own words", skills: [python.files-io, python.text-regex, python.datetime] }
+  - { id: o2, text: "Build a file import that streams CSV safely, validates fields with patterns, converts local times to UTC with real elapsed time, deduplicates by a normalised key and writes its output atomically", skills: [python.files-io, python.text-regex, python.datetime, python.errors] }
+prerequisites: [python.p4.text-toolkit]
+difficulty: 4
+estimated_minutes: 100
+xp: 450
+closes_phase: p4
+covers_skills: [python.files-io, python.text-regex, python.datetime]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 90 }
+  hints:
+    - |-
+      Split the work: one function per field that returns the parsed value or raises a small `RowError(reason)`, one function that builds an `Event` from a row, one that reads a file, and `import_inbox` that loops over the sorted files and drops duplicates. For each field, which `re` function checks the **whole** text? For the local time, what do `fold=0` and `fold=1` tell you, and what does a round trip through UTC show about a time in a gap? Why must the end be computed after converting to UTC?
+    - |-
+      Open each file with `encoding="utf-8-sig", newline=""` and read it with `csv.reader`; normalise the header with `strip().casefold()` and zip it with each row. Catch `UnicodeDecodeError` around the whole file and return no rows. `reader.line_num` is the line number. For the zone, `ZoneInfo(name)` raises `ZoneInfoNotFoundError` (or `ValueError` for odd names). Build the local time with `datetime.combine(day, at, tzinfo=zone)`; if `replace(fold=0).utcoffset() != replace(fold=1).utcoffset()`, the time is in a gap or a fold. Write with `tempfile.NamedTemporaryFile(dir=target.parent, delete=False)` and `os.replace`, removing the temp file if the replace raises.
+    - |-
+      ```python
+      def resolve(local: datetime) -> datetime:
+          first, second = local.replace(fold=0), local.replace(fold=1)
+          if first.utcoffset() != second.utcoffset():
+              back = first.astimezone(UTC).astimezone(local.tzinfo)
+              if back.replace(tzinfo=None) != first.replace(tzinfo=None):
+                  raise RowError("nonexistent time")   # 01:30 in a gap comes back as 02:30
+              raise RowError("ambiguous time")
+          return first.astimezone(UTC)
+
+
+      start = resolve(datetime.combine(day, at, tzinfo=zone))
+      end = start + duration          # in UTC: real elapsed time
+
+      identity = (event.start, " ".join(unicodedata.normalize("NFKC", title).casefold().split()))
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

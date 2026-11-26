@@ -1,4 +1,4 @@
-id: python.p4.typed-services
+id: python.p5.typed-services
 kind: lesson
 status: draft
 title: "Typed Web Services with FastAPI and Pydantic"
@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Explain WSGI versus ASGI and how FastAPI uses type hints and Pydantic to validate input, serialise output and generate OpenAPI", skills: [python.services, python.modern-typing-pydantic] }
   - { id: o2, text: "Structure an API with routers, Depends for sessions and authentication, response models, error handlers and pydantic-settings", skills: [python.services] }
   - { id: o3, text: "Choose async or sync endpoints correctly, manage resources with lifespan, and test the API with TestClient and dependency overrides", skills: [python.services, python.asyncio-gil, python.testing] }
-prerequisites: [python.p4.cpython-internals]
+prerequisites: [python.p5.cpython-internals]
 difficulty: 4
 estimated_minutes: 60
 xp: 300

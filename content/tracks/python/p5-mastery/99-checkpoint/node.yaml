@@ -1,0 +1,53 @@
+id: python.p5.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 5: Final Exam"
+summary: "Prove the whole track: a quiz on CPython internals, typed services and production Python, and an orders API made ready for production: secret-safe validated settings, JSON logs with request ids, a lifespan-managed repository, strict input and output models and 500s that are logged in full but shown in one line."
+objectives:
+  - { id: o1, text: "Explain reference counting and the cycle collector, the GIL and free-threading, ASGI and FastAPI dependencies, and production logging and configuration in your own words", skills: [python.internals, python.services, python.production] }
+  - { id: o2, text: "Make a FastAPI service production-ready: validated settings that never leak a secret, idempotent JSON logging, request ids, lifespan resources, strict models, health checks and safe error handling", skills: [python.services, python.production, python.modern-typing-pydantic, python.testing] }
+prerequisites: [python.p5.production-python]
+difficulty: 5
+estimated_minutes: 120
+xp: 500
+closes_phase: p5
+covers_skills: [python.internals, python.services, python.production]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 120 }
+  hints:
+    - |-
+      Work from the outside in: settings first (no app needed), then the formatter and `configure_logging` (test them with an `io.StringIO`), then the app. For the settings, which Pydantic type hides a value in `repr`? Where can you find **which** fields failed without using Pydantic's message? For the app, what runs once at startup and once at shutdown, and which layer sees every request, including the ones that crash?
+    - |-
+      Map field names to variable names (`{"app_env": "APP_ENV", ...}`), build `Settings(**raw)` and catch `ValidationError`: `error.errors()` gives each failure's `loc`; raise `SettingsError(...) from None` so the cause (which repeats the input) is not chained. In `configure_logging`, remove the logger's old handlers before adding the new one and set `propagate = False`. In `create_app`, an `asynccontextmanager` lifespan opens the repository and stores it on `app.state`; a dependency reads it back. One `@app.middleware("http")` picks the request id, wraps `await call_next(request)` in `try`/`except Exception`, sets the header and writes the access line.
+    - |-
+      ```python
+      @app.middleware("http")
+      async def request_ids(request: Request, call_next):
+          incoming = request.headers.get("x-request-id", "")
+          request_id = incoming if SAFE_ID.fullmatch(incoming) else uuid.uuid4().hex
+          try:
+              response = await call_next(request)
+          except Exception:
+              log.exception("unhandled error", extra={"request_id": request_id})
+              response = JSONResponse({"detail": "internal error", "request_id": request_id},
+                                      status_code=500)
+          response.headers["X-Request-ID"] = request_id
+          access_log.info("%s %s %s", request.method, request.url.path, response.status_code,
+                          extra={"request_id": request_id})
+          return response
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest, ruff, FastAPI and httpx that runs the grading tests.

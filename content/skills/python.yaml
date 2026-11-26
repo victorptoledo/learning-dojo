@@ -14,6 +14,9 @@ skills:
   - { id: python.asyncio-gil, title: "asyncio, Threads, Processes, the GIL and Free-Threading" }
   - { id: python.protocols, title: "Protocols, ABCs, Special Methods and Descriptors" }
   - { id: python.performance, title: "Performance and Profiling" }
+  - { id: python.files-io, title: "Files, Paths, Encodings, CSV and JSON" }
+  - { id: python.text-regex, title: "Text, Regular Expressions and Unicode" }
+  - { id: python.datetime, title: "Dates and Times with datetime and zoneinfo" }
   - { id: python.internals, title: "CPython Internals: Bytecode, Memory and the Interpreter" }
   - { id: python.services, title: "Typed Web Services with FastAPI and Pydantic" }
   - { id: python.production, title: "Python in Production: Logging, Configuration, Security and Deployment" }

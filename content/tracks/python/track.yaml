@@ -4,7 +4,7 @@ name: "Modern Python"
 archetype: language
 category: "Programming Languages"
 icon: "🐍"
-description: "Python 3.15 as it is written today: uv, the data model, type hints and protocols, dataclasses, generators, decorators, pytest, asyncio and the GIL, performance and Python in production."
+description: "Python 3.15 as it is written today: uv, the data model, type hints and protocols, dataclasses, generators, decorators, pytest, asyncio and the GIL, performance, the standard library for files, text and time, and Python in production."
 status: draft
 bridges_available: [java, python, javascript, csharp, go]
 belts:
@@ -13,14 +13,15 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Type-Hinted Craftsman" }
   - { name: "Purple Belt", required_xp: 1500, title: "Generator Whisperer" }
   - { name: "Brown Belt", required_xp: 2500, title: "Asyncio Tamer" }
-  - { name: "Black Belt", required_xp: 4000, title: "CPython Internals Explorer" }
-  - { name: "Sensei", required_xp: 6000, title: "Pythonic Grandmaster" }
+  - { name: "Black Belt", required_xp: 4500, title: "Batteries-Included Engineer" }
+  - { name: "Sensei", required_xp: 7500, title: "Pythonic Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install Python 3.15 with uv, run a first program and meet the dojo's pytest katas" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The data model, collections, functions, classes, dataclasses and type hints" }
   - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Errors, packaging, generators, decorators, context managers and testing with pytest" }
   - { id: p3, dir: p3-advanced, title: "Advanced", goal: "asyncio and the GIL, protocols and the deeper data model, performance and profiling" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "CPython internals, typed web services and Python in production" }
+  - { id: p4, dir: p4-standard-library, title: "The Standard Library at Work", goal: "Files, paths and encodings, text with regular expressions and Unicode, and dates and times with zoneinfo" }
+  - { id: p5, dir: p5-mastery, title: "Mastery", goal: "CPython internals, typed web services and Python in production" }
 requirements:
   - kind: tool
     name: uv

@@ -1,4 +1,4 @@
-id: python.p4.cpython-internals
+id: python.p5.cpython-internals
 kind: lesson
 status: draft
 title: "CPython Internals: Bytecode, Memory and the Interpreter"
@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Trace source code through the AST and bytecode with ast and dis, and explain .pyc files and the evaluation loop", skills: [python.internals] }
   - { id: o2, text: "Explain reference counting, the cyclic garbage collector, small-int caching, interning and immortal objects, and their visible effects", skills: [python.internals, python.data-model] }
   - { id: o3, text: "Describe how the GIL is switched, what the free-threaded build changes inside the interpreter, and what subinterpreters and the stable ABI are", skills: [python.internals, python.asyncio-gil] }
-prerequisites: [python.p3.performance-profiling]
+prerequisites: [python.p4.checkpoint]
 difficulty: 5
 estimated_minutes: 60
 xp: 300

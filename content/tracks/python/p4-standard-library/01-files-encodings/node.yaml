@@ -1,0 +1,24 @@
+id: python.p4.files-encodings
+kind: lesson
+status: draft
+title: "Files, Paths, Encodings, CSV and JSON"
+summary: "pathlib paths and listings, text versus bytes and explicit encodings (BOMs, newlines, bad bytes), streaming large files, the csv and json modules, atomic writes with a temp file and os.replace, file errors and tmp_path tests."
+objectives:
+  - { id: o1, text: "Build, list and check paths with pathlib, sort listings and keep user paths inside a folder", skills: [python.files-io] }
+  - { id: o2, text: "Read and write text with an explicit encoding, handle BOMs and newlines, stream large files, and use csv and json correctly", skills: [python.files-io] }
+  - { id: o3, text: "Write files atomically with a temp file and os.replace, handle OSError subclasses and test with tmp_path", skills: [python.files-io, python.testing] }
+prerequisites: [python.p3.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A nightly job reads every CSV in an `inbox` folder (exported from Excel on Windows, some several GB), adds up a `total` column per customer and writes `summary.json`, which a dashboard reads at any moment. Today it uses `open(f)` with no arguments, `line.split(",")` and `json.dump` straight into `summary.json`. Describe every problem and show the code you would write instead.'
+  criteria:
+    - 'Names the encoding explicitly, with utf-8-sig for the Excel BOM, and opens csv files with newline=""'
+    - 'Uses csv.DictReader (quoted fields with commas) instead of split, and converts totals with Decimal or int, not float'
+    - 'Streams each file line by line instead of loading it, and sorts the listed files for a repeatable result'
+    - 'Writes summary.json to a temp file in the same folder and renames it with os.replace, so the dashboard never reads half a file'
+    - 'Converts non-JSON values (Decimal, dates) before dumping, and handles or reports bad rows and missing files explicitly'

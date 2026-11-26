@@ -1,0 +1,35 @@
+questions:
+  - id: match-vs-fullmatch
+    prompt: "Which call accepts \"12abc\" although the goal was to accept digits only?"
+    options: ["re.fullmatch(r\"\\d+\", s)", "re.match(r\"\\d+\", s)", "s.isdigit()"]
+    answer: 1
+    explanation: "match only anchors at the start; fullmatch requires the whole string to match."
+  - id: lazy
+    prompt: "What does `re.findall(r\"<b>(.*)</b>\", \"<b>one</b><b>two</b>\")` return?"
+    options: ["['one', 'two']", "['one</b><b>two']", "[]"]
+    answer: 1
+    explanation: ".* is greedy and runs to the last </b>; use .*? or [^<]* to stop at the first."
+  - id: escape
+    prompt: "Which function turns a user's search term such as `c++` into a pattern that matches it literally?"
+    answers: ["re.escape", "re.escape()", "escape"]
+    explanation: "re.escape backslashes every metacharacter; pasting raw input into a pattern breaks it or opens it to ReDoS."
+  - id: nfc
+    prompt: "`\"café\" == \"cafe\\u0301\"` is False although both print café. What makes them equal?"
+    options:
+      - "Comparing with .lower()"
+      - "Normalising both with unicodedata.normalize(\"NFC\", ...)"
+      - "Encoding both to UTF-8"
+    answer: 1
+    explanation: "One uses a precomposed é, the other e plus a combining accent; NFC composes both to the same code points."
+  - id: casefold
+    prompt: "Which method makes \"Straße\" and \"STRASSE\" compare equal?"
+    answers: ["casefold", "casefold()", "str.casefold"]
+    explanation: "casefold is the aggressive lowercasing for comparisons; lower keeps ß."
+  - id: redos
+    prompt: "Why is `re.fullmatch(r\"(\\w+\\s?)*\", text)` risky on user input?"
+    options:
+      - "\\w does not match Unicode"
+      - "Nested quantifiers can backtrack exponentially on a string that almost matches, hanging the worker"
+      - "fullmatch is slower than match"
+    answer: 1
+    explanation: "There are exponentially many ways to split the input between the two quantifiers; atomic groups (?>...), possessive quantifiers or a simpler pattern remove them."

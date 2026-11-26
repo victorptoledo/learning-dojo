@@ -11,7 +11,8 @@ phases:
   p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
-  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+  p4: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p5: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
 early_stop: { wrong_in_first: 2, of: 3 }
 skill_placed_out_threshold: 0.75
 weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
@@ -312,9 +313,68 @@ items:
       - "O(log n); sort b first"
     answer: 1
     explanation: "Each in on a list scans it; a set makes each check O(1) on average."
-  # ---- P4 Mastery --------------------------------------------------------------
-  - id: p4-refcount-cycle
+  # ---- P4 The Standard Library at Work -------------------------------------------
+  - id: p4-encoding-explicit
     phase: p4
+    skills: [python.files-io]
+    difficulty: 3
+    prompt: "A CSV export from an old Windows tool reads as 'SÃ£o Paulo' instead of 'São Paulo'. What happened?"
+    options:
+      - "The file is corrupted"
+      - "UTF-8 bytes were decoded with a single-byte encoding such as cp1252 (or the reverse): the encoding used to read does not match the file"
+      - "csv does not support accents"
+    answer: 1
+    explanation: "Mojibake means a decoding mismatch; read with the file's real encoding, named explicitly."
+  - id: p4-csv-module
+    phase: p4
+    skills: [python.files-io]
+    difficulty: 2
+    prompt: "Why does `line.split(\",\")` break on real CSV files?"
+    options:
+      - "It is too slow"
+      - "Quoted fields can contain commas (and newlines), which only a CSV parser such as csv.reader handles"
+      - "split removes empty fields"
+    answer: 1
+    explanation: "\"Lisbon, Portugal\" is one field; csv.reader and DictReader follow the quoting rules."
+  - id: p4-atomic-replace
+    phase: p4
+    skills: [python.files-io]
+    difficulty: 3
+    prompt: "Which call moves a finished temporary file over the target atomically, also when the target already exists, on every platform?"
+    answers: ["os.replace", "os.replace(tmp, target)", "Path.replace", "path.replace"]
+    explanation: "os.replace overwrites atomically on one file system; os.rename fails on Windows if the target exists."
+  - id: p4-fullmatch
+    phase: p4
+    skills: [python.text-regex]
+    difficulty: 2
+    prompt: "Which re function checks that the whole string, not just its start, matches the pattern?"
+    answers: ["re.fullmatch", "fullmatch", "re.fullmatch()"]
+    explanation: "match anchors only at the start, search anywhere; fullmatch requires the entire string."
+  - id: p4-casefold-nfkc
+    phase: p4
+    skills: [python.text-regex]
+    difficulty: 4
+    prompt: "Which key makes 'ＳＴＲＡＳＳＥ' (full-width) and 'Straße' compare equal?"
+    options:
+      - "s.lower()"
+      - "unicodedata.normalize(\"NFKC\", s).casefold()"
+      - "s.encode(\"ascii\", \"ignore\")"
+    answer: 1
+    explanation: "NFKC folds full-width forms to ASCII letters, and casefold maps ß to ss."
+  - id: p4-dst-wall-time
+    phase: p4
+    skills: [python.datetime]
+    difficulty: 4
+    prompt: "a and b are aware datetimes with the same ZoneInfo, on either side of a daylight saving change. What does b - a measure?"
+    options:
+      - "The real elapsed time"
+      - "The difference in wall-clock time, ignoring the offset change; convert both to UTC for elapsed time"
+      - "It raises TypeError"
+    answer: 1
+    explanation: "Python treats same-tzinfo arithmetic as wall time; arithmetic across zones (or in UTC) uses the offsets."
+  # ---- P5 Mastery --------------------------------------------------------------
+  - id: p5-refcount-cycle
+    phase: p5
     skills: [python.internals]
     difficulty: 4
     prompt: "Which objects can CPython's reference counting not free on its own?"
@@ -324,16 +384,16 @@ items:
       - "Objects created in another thread"
     answer: 1
     explanation: "A cycle keeps every count above zero; the cyclic garbage collector finds and frees such groups."
-  - id: p4-switch-interval
-    phase: p4
+  - id: p5-switch-interval
+    phase: p5
     skills: [python.internals, python.asyncio-gil]
     difficulty: 5
     prompt: "On the standard build, how often is a thread running Python code asked to release the GIL by default?"
     options: ["Every bytecode instruction", "Every 5 milliseconds (sys.getswitchinterval())", "Only when it finishes"]
     answer: 1
     explanation: "The switch interval defaults to 0.005 s; I/O releases the GIL earlier."
-  - id: p4-fastapi-def
-    phase: p4
+  - id: p5-fastapi-def
+    phase: p5
     skills: [python.services]
     difficulty: 4
     prompt: "A FastAPI endpoint must call a blocking SDK. Which declaration keeps the event loop free?"
@@ -343,8 +403,8 @@ items:
       - "Either; FastAPI makes blocking calls async"
     answer: 1
     explanation: "Plain def endpoints run in a worker thread; a blocking call inside async def stalls the loop."
-  - id: p4-depends
-    phase: p4
+  - id: p5-depends
+    phase: p5
     skills: [python.services]
     difficulty: 3
     prompt: "What is FastAPI's Depends used for?"
@@ -354,8 +414,8 @@ items:
       - "Ordering middleware"
     answer: 1
     explanation: "Depends builds a dependency for each request (with cleanup for yield dependencies) and can be overridden in tests."
-  - id: p4-log-format
-    phase: p4
+  - id: p5-log-format
+    phase: p5
     skills: [python.production]
     difficulty: 3
     prompt: "Why prefer `log.info(\"user %s\", user_id)` over `log.info(f\"user {user_id}\")`?"
@@ -365,8 +425,8 @@ items:
       - "It is shorter"
     answer: 1
     explanation: "Lazy arguments cost nothing when the level is disabled and give structured handlers the raw values."
-  - id: p4-workers
-    phase: p4
+  - id: p5-workers
+    phase: p5
     skills: [python.production]
     difficulty: 4
     prompt: "Why does a standard-build Python web service usually run several worker processes per machine?"

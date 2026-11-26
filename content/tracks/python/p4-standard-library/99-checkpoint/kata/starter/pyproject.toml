@@ -1,0 +1,13 @@
+[project]
+name = "agenda-import"
+version = "0.1.0"
+requires-python = ">=3.15"
+# tzdata gives zoneinfo the IANA database on Windows; Linux and the grading image have their own.
+dependencies = ["tzdata"]
+
+[dependency-groups]
+dev = ["pytest>=9"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

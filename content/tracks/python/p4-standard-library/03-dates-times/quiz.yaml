@@ -1,0 +1,35 @@
+questions:
+  - id: utcnow
+    prompt: "Why is `datetime.utcnow()` deprecated?"
+    options:
+      - "It is slower than datetime.now()"
+      - "It returns a naive datetime that holds UTC values but is not marked as UTC, so it is easily mistaken for local time"
+      - "It ignores leap years"
+    answer: 1
+    explanation: "datetime.now(UTC) returns an aware value that compares and converts correctly."
+  - id: fold
+    prompt: "In Lisbon, 01:30 on 2026-10-25 happens twice. Which attribute of datetime picks the second occurrence?"
+    answers: ["fold", "fold=1", "datetime.fold"]
+    explanation: "PEP 495's fold is 0 for the first occurrence of an ambiguous local time and 1 for the second."
+  - id: wall-arith
+    prompt: "start and end are 12:00 on 2026-03-28 and 2026-03-29, both with tzinfo=ZoneInfo(\"Europe/Lisbon\"); the clocks went forward in between. What is `end - start`?"
+    options: ["timedelta(hours=23)", "timedelta(days=1)", "TypeError"]
+    answer: 1
+    explanation: "With the same tzinfo, Python subtracts wall-clock times; convert both to UTC to get the 23 hours that really passed."
+  - id: monotonic
+    prompt: "Which clock should measure how long a job took, unaffected by NTP moving the system clock?"
+    answers: ["time.monotonic", "time.monotonic()", "monotonic", "time.perf_counter", "perf_counter"]
+    explanation: "monotonic (and perf_counter) only go forward; time.time and datetime.now follow the wall clock."
+  - id: iso-week
+    prompt: "2027-01-01 is a Friday. What does `date(2027, 1, 1).isocalendar()` return for year and week?"
+    options: ["(2027, 1)", "(2026, 53)", "(2027, 0)"]
+    answer: 1
+    explanation: "ISO week 1 is the week with the year's first Thursday; that Friday still belongs to week 53 of ISO year 2026."
+  - id: fixed-offset
+    prompt: "Why store a user's zone as \"America/Sao_Paulo\" rather than the offset \"-03:00\"?"
+    options:
+      - "Offsets cannot be parsed by Python"
+      - "A place's offset changes with daylight saving and with law; the IANA name follows those rules, an offset does not"
+      - "Zone names use less storage"
+    answer: 1
+    explanation: "An offset is a fact about one instant; a zone is a set of rules over time (Brazil, for example, dropped DST in 2019)."

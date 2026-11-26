@@ -1,4 +1,4 @@
-id: python.p4.production-python
+id: python.p5.production-python
 kind: lesson
 status: draft
 title: "Python in Production: Logging, Configuration, Security and Deployment"
@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Set up logging with module loggers, levels and structured output, and configure an application from the environment with validated settings", skills: [python.production] }
   - { id: o2, text: "Build a small, reproducible, non-root container image with uv, run the right number of workers and shut down gracefully", skills: [python.production, python.tooling-uv] }
   - { id: o3, text: "Run quality and security gates in CI (ruff, mypy, pytest, dependency audits), avoid the classic code-level risks, and plan Python upgrades", skills: [python.production, python.testing] }
-prerequisites: [python.p4.typed-services]
+prerequisites: [python.p5.typed-services]
 difficulty: 4
 estimated_minutes: 55
 xp: 300

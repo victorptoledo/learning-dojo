@@ -1,0 +1,24 @@
+id: python.p4.text-regex
+kind: lesson
+status: draft
+title: "Text, Regular Expressions and Unicode"
+summary: "str methods first, then the re module: fullmatch versus match and search, named groups, greedy and lazy quantifiers, verbose patterns, sub with a function, re.escape and ReDoS defences; Unicode normalisation, casefold and stripping accents."
+objectives:
+  - { id: o1, text: "Parse simple text with str methods and validate and extract with re: fullmatch, named groups, finditer and sub with a function", skills: [python.text-regex] }
+  - { id: o2, text: "Write readable, safe patterns: raw strings, re.VERBOSE, lazy quantifiers or negated classes, re.escape for input, and atomic groups or possessive quantifiers against ReDoS", skills: [python.text-regex] }
+  - { id: o3, text: "Compare and key text correctly with NFC and NFKC normalisation and casefold, strip accents, and choose Unicode or ASCII classes in patterns", skills: [python.text-regex, python.data-model] }
+prerequisites: [python.p4.files-encodings]
+difficulty: 3
+estimated_minutes: 50
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A sign-up form must reject a username that is already taken. Today the check is `username.lower() in existing`, and the validation is `re.match(r"[a-z0-9_]+", username)`. Users have registered "José" twice (once with a precomposed é, once with e plus a combining accent), and a full-width "ＡＤＭＩＮ" got past the check for "admin". The search box also builds `re.compile(query)` from what users type. Explain each bug and write the corrected key function, validation and search.'
+  criteria:
+    - 'Explains that the two "José" differ in code points (composed versus combining accent) and normalises before comparing'
+    - 'Uses NFKC to fold full-width and other look-alike forms, and casefold instead of lower for the comparison key'
+    - 'Replaces re.match with re.fullmatch (match accepts any string that only starts with valid characters), and uses re.ASCII or [a-z0-9_] if only ASCII is allowed'
+    - 'Escapes the search input with re.escape (or avoids regex for plain substring search) and mentions the ReDoS risk of user-supplied patterns'
+    - 'Stores the normalised key (for example in a unique column) so the check is a set or index lookup, not a scan'

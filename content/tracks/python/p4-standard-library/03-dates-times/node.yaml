@@ -1,0 +1,24 @@
+id: python.p4.dates-times
+kind: lesson
+status: draft
+title: "Dates and Times with datetime and zoneinfo"
+summary: "Naive versus aware datetimes, UTC and zoneinfo, daylight saving gaps and folds with the fold attribute, wall-time versus elapsed-time arithmetic, monotonic clocks, ISO 8601 parsing, ISO weeks and months, and injecting the clock in tests."
+objectives:
+  - { id: o1, text: "Use aware datetimes with UTC and ZoneInfo, convert between zones, and avoid utcnow and fixed offsets", skills: [python.datetime] }
+  - { id: o2, text: "Detect daylight saving gaps and folds with fold and a round trip through UTC, and choose wall-time or UTC arithmetic correctly", skills: [python.datetime] }
+  - { id: o3, text: "Parse and format ISO 8601, group by ISO year and week, measure durations with a monotonic clock, and inject the clock in tests", skills: [python.datetime, python.testing] }
+prerequisites: [python.p4.text-regex]
+difficulty: 3
+estimated_minutes: 45
+xp: 250
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A booking service stores `datetime.utcnow()` for each booking, computes reminders as `booking_time - timedelta(hours=24)` on Lisbon local times, charges night shifts by `end - start` on local times, and builds weekly reports with `(d.year, d.isocalendar().week)`. Customers in Lisbon complain twice a year, and the first report of 2027 looks wrong. Explain each bug and give the corrected code.'
+  criteria:
+    - 'Replaces utcnow (naive) with datetime.now(UTC) and stores aware UTC instants'
+    - 'Explains that subtracting or adding a timedelta on aware datetimes in the same zone is wall-clock arithmetic, so night shifts across a DST change are off by an hour, and computes durations in UTC'
+    - 'Decides deliberately whether a reminder is "24 hours before" (UTC arithmetic) or "same time the day before" (local wall time), and handles local times that fall in a gap or fold'
+    - 'Groups weeks by the ISO year from isocalendar, not d.year (2027-01-01 is in week 53 of 2026)'
+    - 'Injects the clock and tests the DST dates and the year boundary'

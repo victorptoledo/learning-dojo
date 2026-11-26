@@ -1,0 +1,65 @@
+questions:
+  - id: refcount-del
+    skills: [python.internals]
+    prompt: "`cache = load_big_dict(); index = cache; del cache`. Is the dictionary freed?"
+    options:
+      - "Yes: del frees the object"
+      - "No: del removes one name, and `index` still holds a reference"
+      - "Only after the next garbage collection"
+    answer: 1
+    explanation: "CPython frees an object when its reference count drops to zero; del only removes a name."
+  - id: cycle-collector
+    skills: [python.internals]
+    prompt: "Two objects reference each other and nothing else references them. What frees them?"
+    answers: ["the cyclic garbage collector", "gc", "the garbage collector", "cycle collector", "the gc module"]
+    explanation: "Reference counts in a cycle never reach zero; the generational cycle collector (gc) finds and frees unreachable groups."
+  - id: is-vs-eq
+    skills: [python.internals, python.data-model]
+    prompt: "Why can `a = 1000; b = 1000; a is b` be True in one place and False in another?"
+    options:
+      - "is compares values, but rounding differs"
+      - "Caching and constant sharing of ints are implementation details; is compares identity, so use == for values"
+      - "Integers above 256 are mutable"
+    answer: 1
+    explanation: "Small ints (-5 to 256) are cached and the compiler may share constants; neither is a language guarantee."
+  - id: async-blocking
+    skills: [python.services, python.asyncio-gil]
+    prompt: "An `async def` FastAPI endpoint calls a blocking database driver that takes 200 ms. What happens under load?"
+    options:
+      - "Nothing special; FastAPI runs async endpoints in threads"
+      - "The event loop is blocked for 200 ms per call, so every other request on that worker waits"
+      - "The driver becomes async automatically"
+    answer: 1
+    explanation: "async def runs on the event loop; declare the endpoint with def (run in the thread pool) or use an async driver."
+  - id: response-model
+    skills: [python.services]
+    prompt: "What is the main reason to return an `OrderOut` model instead of the database record?"
+    options:
+      - "It is faster to serialise"
+      - "Only the declared fields leave the service, so internal ones such as a cost price or a password hash cannot leak"
+      - "FastAPI cannot serialise dataclasses"
+    answer: 1
+    explanation: "A separate output model (response_model or the return annotation) filters the response to what the API promises."
+  - id: lifespan
+    skills: [python.services, python.production]
+    prompt: "Where should a FastAPI app open its connection pool, and close it on shutdown?"
+    answers: ["lifespan", "in the lifespan", "a lifespan function", "the lifespan context manager"]
+    explanation: "The lifespan context manager runs once at startup (before yield) and once at shutdown (after it), and TestClient runs it inside a with block."
+  - id: secret-in-errors
+    skills: [python.production, python.modern-typing-pydantic]
+    prompt: "Settings validation fails on DATABASE_URL. Why must the error you raise not include Pydantic's message or be chained to it?"
+    options:
+      - "Pydantic messages are not in English"
+      - "They repeat the input value, so the password ends up in logs and crash reports"
+      - "Chained exceptions cannot be logged"
+    answer: 1
+    explanation: "Name the bad variables, not their values, and use `raise ... from None`; SecretStr hides the value in repr once it is valid."
+  - id: idempotent-logging
+    skills: [python.production]
+    prompt: "Every log line of a service appears twice after a reload of its configuration. What is the usual cause?"
+    options:
+      - "The log level is DEBUG"
+      - "The setup function added a second handler to the same logger (or records also propagate to a root handler)"
+      - "JSON formatting duplicates lines"
+    answer: 1
+    explanation: "Handlers accumulate; replace them when configuring again, and set propagate=False when the logger has its own handler."
