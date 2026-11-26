@@ -7,8 +7,13 @@ use std::sync::LazyLock;
 
 const MAX_DETAIL_LINES: usize = 40;
 
-static TEST_LINE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^test (\S+) \.\.\. (ok|FAILED|ignored)").expect("valid regex"));
+/// `#[should_panic]` tests get ` - should panic` (older toolchains: ` - should
+/// panic with message`) after the name; the name is kept without it, as in the
+/// `---- name stdout ----` header.
+static TEST_LINE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^test (\S+)(?: - should panic(?: with message)?)? \.\.\. (ok|FAILED|ignored)")
+        .expect("valid regex")
+});
 static FAILURE_HEADER: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^---- (\S+) stdout ----").expect("valid regex"));
 static COMPILE_ERROR: LazyLock<Regex> =
@@ -61,25 +66,46 @@ fn parse_test_lines(output: &str) -> Vec<TestCase> {
         .collect()
 }
 
-/// Panic message of each failing test: the lines after `panicked at ...:`
-/// in its `---- name stdout ----` block, up to the first blank line.
+/// Message of each failing test, from its `---- name stdout ----` block: the
+/// lines after `panicked at ...:` up to the first blank line, without the
+/// `RUST_BACKTRACE` hint. A `#[should_panic]` test that did not panic has no
+/// such line, only `note: test did not panic as expected at ...`.
 fn failure_messages(output: &str) -> HashMap<String, String> {
     let mut messages = HashMap::new();
-    let mut lines = output.lines();
-    while let Some(line) = lines.next() {
-        let Some(caps) = FAILURE_HEADER.captures(line) else {
-            continue;
-        };
-        let message: Vec<&str> = lines
-            .by_ref()
-            .skip_while(|line| !line.contains("panicked at"))
-            .skip(1)
-            .take_while(|line| !line.trim().is_empty() && !line.starts_with("note: "))
-            .map(str::trim_end)
-            .collect();
-        messages.insert(caps[1].to_string(), message.join("\n"));
+    let mut current: Option<(String, Vec<&str>)> = None;
+    for line in output.lines() {
+        let header = FAILURE_HEADER.captures(line);
+        if (header.is_some() || line.trim_end() == "failures:")
+            && let Some((name, block)) = current.take()
+        {
+            messages.insert(name, block_message(&block));
+        }
+        if let Some(caps) = header {
+            current = Some((caps[1].to_string(), Vec::new()));
+        } else if let Some((_, block)) = current.as_mut() {
+            block.push(line.trim_end());
+        }
+    }
+    if let Some((name, block)) = current {
+        messages.insert(name, block_message(&block));
     }
     messages
+}
+
+fn block_message(block: &[&str]) -> String {
+    let message: Vec<&str> = match block.iter().position(|line| line.contains("panicked at")) {
+        Some(start) => block[start + 1..]
+            .iter()
+            .take_while(|line| !line.trim().is_empty())
+            .filter(|line| !line.starts_with("note: run with `RUST_BACKTRACE"))
+            .copied()
+            .collect(),
+        None => block
+            .iter()
+            .filter_map(|line| line.strip_prefix("note: "))
+            .collect(),
+    };
+    message.join("\n")
 }
 
 /// The `---- name stdout ----` blocks: panic messages with expected and actual values.
@@ -529,6 +555,80 @@ error: could not compile `kata` (lib) due to 1 previous error
                 .filter(|test| test.passed)
                 .all(|test| test.message.is_none())
         );
+    }
+
+    /// Real `cargo test` output for `#[should_panic]` tests (dojo-rust image, Rust 1.100):
+    /// libtest adds ` - should panic` to the name, and a test that did not
+    /// panic has a `note:` instead of a `panicked at` line.
+    const SHOULD_PANIC: &str = "\
+running 6 tests
+test does_not_panic - should panic ... FAILED
+test ignored_sp ... ignored
+test panics_ok - should panic ... ok
+test panics_with_msg_ok - should panic ... ok
+test panics_wrong_msg - should panic ... FAILED
+test plain ... ok
+
+failures:
+
+---- does_not_panic stdout ----
+note: test did not panic as expected at tests/visible.rs:6:4
+---- panics_wrong_msg stdout ----
+
+thread 'panics_wrong_msg' (30768) panicked at tests/visible.rs:12:25:
+boom
+note: panic did not contain expected string
+      panic message: \"boom\"
+ expected substring: \"zzz\"
+
+failures:
+    does_not_panic
+    panics_wrong_msg
+
+test result: FAILED. 3 passed; 2 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test visible`
+";
+
+    #[test]
+    fn should_panic_tests_are_counted_by_their_plain_name() {
+        let report = parse_cargo_test(SHOULD_PANIC, false, 5);
+
+        assert_eq!(report.outcome, CheckOutcome::TestsFailed);
+        let names: Vec<&str> = report.tests.iter().map(|test| test.name.as_str()).collect();
+        assert_eq!(
+            names,
+            [
+                "does_not_panic",
+                "panics_ok",
+                "panics_with_msg_ok",
+                "panics_wrong_msg",
+                "plain"
+            ]
+        );
+        assert_eq!(report.summary(), "3/5 tests passed");
+        assert_eq!(
+            report.tests[0].message.as_deref(),
+            Some("test did not panic as expected at tests/visible.rs:6:4")
+        );
+        assert_eq!(
+            report.tests[3].message.as_deref(),
+            Some(
+                "boom
+note: panic did not contain expected string
+      panic message: \"boom\"
+ expected substring: \"zzz\""
+            )
+        );
+    }
+
+    #[test]
+    fn older_should_panic_with_message_suffix_is_also_read() {
+        let output = "test a - should panic with message ... ok\ntest b - should panic ... ok\n";
+        let report = parse_cargo_test(output, true, 1);
+        assert_eq!(report.outcome, CheckOutcome::Passed);
+        let names: Vec<&str> = report.tests.iter().map(|test| test.name.as_str()).collect();
+        assert_eq!(names, ["a", "b"]);
     }
 
     #[test]
