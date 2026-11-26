@@ -1,0 +1,60 @@
+id: typescript.p5.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 5: Final Exam"
+summary: "Prove the whole track: a quiz weighted towards production, monorepos and soundness, and a feature-flag SDK published as a package, with types derived from const definitions, a zod schema built at runtime, all-or-nothing async refreshes and sound listeners."
+objectives:
+  - { id: o1, text: "Explain builds, package boundaries, project references, soundness, variance and type-checking performance, and connect them to the rest of the track", skills: [typescript.production-builds, typescript.monorepos, typescript.soundness-performance] }
+  - { id: o2, text: "Finish a small library whose public types are derived from constants, whose input is validated at runtime, whose async updates are atomic and race-free, and whose API is closed by package exports", skills: [typescript.utility-conditional, typescript.generics, typescript.runtime-validation, typescript.async-errors, typescript.soundness-performance, typescript.monorepos] }
+prerequisites: [typescript.p5.soundness-performance]
+difficulty: 5
+estimated_minutes: 120
+xp: 500
+closes_phase: p5
+covers_skills: [typescript.production-builds, typescript.monorepos, typescript.soundness-performance, typescript.utility-conditional, typescript.runtime-validation, typescript.async-errors]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with the types in `definitions.ts`: what does `FlagValue` return for each kind, and how do you keep `["classic", "one-page", "wizard"]` as literals instead of `string[]`? Then `parseOverrides`, then the client. For `refresh`, list what can go wrong (load fails, times out, payload invalid, a newer refresh started, a listener throws) and decide, for each, whether the state may already have changed.
+    - |-
+      `defineFlags<const D extends Definitions>(definitions: D & CheckDefaults<D>)`, where `CheckDefaults` maps each variant flag to `{ readonly default: V }` with `V` inferred from its variants. In `parseOverrides`, build a `Record<string, z.ZodType>` with `z.boolean()`, `z.number().min().max()` and `z.enum(variants)`, each `.optional()`, and parse with `z.strictObject(shape)`; an `"unrecognized_keys"` issue has a `keys` array. In `refresh`, take a number from a counter before loading and compare it with the latest after; race `load(signal)` against the signal itself so a `load` that ignores it still times out; validate before touching the state, swap the overrides in one assignment, then notify.
+    - |-
+      ```ts
+      export type Listener<V> = (value: V, previous: V) => void;
+
+      async refresh(load: (signal: AbortSignal) => Promise<unknown>, options: RefreshOptions = {}) {
+        const id = ++this.#latest;
+        const signal = AbortSignal.timeout(options.timeoutMs ?? 1_000);
+        let payload: unknown;
+        try {
+          payload = await untilAborted(load(signal), signal); // rejects with signal.reason on abort
+        } catch (error) {
+          throw new FlagsError("refresh failed: the overrides could not be loaded", { cause: error });
+        }
+        if (id !== this.#latest) return { changed: [], stale: true };
+        const parsed = parseOverrides(this.#definitions, payload);
+        if (!parsed.ok) throw new FlagsError("refresh failed: invalid overrides", { issues: parsed.issues });
+        const before = this.snapshot();
+        this.#overrides = parsed.overrides;
+        const after = this.snapshot();
+        const changed = this.#keys.filter((key) => before[key] !== after[key]);
+        // call each changed flag's listeners in try/catch, then throw an AggregateError if any failed
+        return { changed, stale: false };
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 and zod that type-checks your code and runs the tests.

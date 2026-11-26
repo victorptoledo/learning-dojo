@@ -1,0 +1,77 @@
+pass_percent: 85
+questions:
+  - id: json-any
+    skills: [typescript.runtime-validation]
+    prompt: "`const body = await response.json()` gives `any`. What is the safest next line?"
+    options:
+      - "const order = body as Order"
+      - "const order: Order = body"
+      - "const order = OrderSchema.parse(body)"
+      - "const order = body satisfies Order"
+    answer: 2
+    explanation: "A cast or an annotation only tells the compiler what to believe. A schema checks the data at runtime and its output type is then true."
+  - id: input-output
+    skills: [typescript.runtime-validation]
+    prompt: "A zod field is `z.iso.datetime().transform((text) => new Date(text))`. What are its `z.input` and `z.output` types?"
+    options:
+      - "Both string"
+      - "Input string, output Date"
+      - "Input Date, output string"
+      - "Both Date"
+    answer: 1
+    explanation: "z.input describes what the schema accepts and z.output what parse returns after transforms; defaults and transforms make them differ."
+  - id: brand
+    skills: [typescript.runtime-validation, typescript.structural-typing]
+    prompt: "Why does `PaymentIdSchema.brand<\"PaymentId\">()` stop `const id: PaymentId = \"pay_1\"` from compiling?"
+    options:
+      - "zod checks the string at compile time"
+      - "The output type is string & a brand property, and a plain string literal does not have it"
+      - "Branded strings are a different runtime type"
+    answer: 1
+    explanation: "The brand exists only in the type: the value is still a string at runtime, but only the schema's output carries the brand."
+  - id: untyped-module
+    skills: [typescript.declaration-files]
+    prompt: "Under strict, you import a local `./vendor/signature.js` that has no types. What fixes the error without turning the module into any?"
+    options:
+      - "Add `// @ts-ignore` above the import"
+      - "Write `./vendor/signature.d.ts` next to it, declaring its exports"
+      - "Turn off noImplicitAny"
+      - "Rename it to signature.ts"
+    answer: 1
+    explanation: "A declaration file next to the .js file describes its exports; TypeScript then trusts it, so it must match the real code."
+  - id: dts-trust
+    skills: [typescript.declaration-files]
+    prompt: "A `.d.ts` says `verify(...): boolean`, but the JavaScript returns a Promise. What does tsc report?"
+    options:
+      - "A type error in the .d.ts file"
+      - "Nothing: declarations are trusted, so the bug appears at runtime"
+      - "An error at every call site"
+    answer: 1
+    explanation: "tsc never checks a declaration file against the JavaScript it describes; tests are what keep the two honest."
+  - id: expect-error
+    skills: [typescript.testing-linting]
+    prompt: "A type-level test has `// @ts-expect-error` above a line that now compiles. What happens?"
+    options:
+      - "Nothing, the comment is ignored"
+      - "tsc reports an unused @ts-expect-error directive, so the test fails"
+      - "The line is skipped at runtime"
+    answer: 1
+    explanation: "Unlike @ts-ignore, @ts-expect-error demands an error; that is what makes it usable as a negative test."
+  - id: typed-on
+    skills: [typescript.generics, typescript.utility-conditional]
+    prompt: "Which signature makes `on(\"customer.created\", (e) => e.data.email)` type-check while rejecting unknown event names?"
+    options:
+      - "on(type: string, handler: (event: WebhookEvent) => void)"
+      - "on<T extends EventType>(type: T, handler: (event: Extract<WebhookEvent, { type: T }>) => void)"
+      - "on(type: EventType, handler: (event: any) => void)"
+    answer: 1
+    explanation: "The type parameter captures the literal name, and Extract picks the union member whose discriminant matches it."
+  - id: idempotency
+    skills: [typescript.async-errors]
+    prompt: "An inbox records an event id as handled only after `await handler(event)`. What can go wrong?"
+    options:
+      - "Nothing, the await makes it safe"
+      - "Two deliveries of the same event arriving together both run the handlers"
+      - "The handler runs twice for every event"
+    answer: 1
+    explanation: "Between the check and the record there is an await; the second delivery runs in that gap. Claim the id before the first await and release it in finally on failure."

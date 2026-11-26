@@ -562,6 +562,30 @@ fn sidequest_rules_catch_ids_levels_requirements_and_clashing_tests() {
 }
 
 #[test]
+fn a_sidequest_may_ask_its_own_track_at_a_later_phase() {
+    let fixture = Fixture::new();
+    track_with_p1(&fixture);
+    write_sidequest(
+        &fixture,
+        "later",
+        &sidequest_yaml(
+            "demo.sidequest.later",
+            1,
+            "demo:P2",
+            &["one", "two", "three"],
+        ),
+        ["one.rs", "two.rs", "three.rs"],
+    );
+
+    let errors = errors(&fixture.load()).join("\n");
+    assert!(
+        !errors.contains("sidequests/later/sidequest.yaml: the first requirement"),
+        "{errors}"
+    );
+    assert!(!errors.contains("`demo:P2` is above"), "{errors}");
+}
+
+#[test]
 fn a_sidequest_needs_every_stage_folder_and_a_first_starter() {
     let fixture = Fixture::new();
     track_with_p1(&fixture);

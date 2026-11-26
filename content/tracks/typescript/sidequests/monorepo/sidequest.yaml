@@ -3,7 +3,7 @@ level: 4
 title: "Monorepo with a shared package"
 summary: "Tally, an expense tracker as an npm workspaces monorepo: a core package with a branded Money type, a CLI and an HTTP handler that use it only through its public exports, project references built with tsc -b, a test kit subpath, and a release planner that bumps versions along the dependency graph."
 statement: README.md
-requires: ["typescript:P4", "git:P2"]
+requires: ["typescript:P5", "git:P2"]
 skills: [typescript.monorepos, typescript.production-builds, typescript.declaration-files, typescript.soundness-performance, git.tags-releases, git.workflows]
 runner: { image: dojo-node, timeout_secs: 180 }
 stages:

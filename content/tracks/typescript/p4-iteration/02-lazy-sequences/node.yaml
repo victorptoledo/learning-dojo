@@ -1,0 +1,65 @@
+id: typescript.p4.lazy-sequences
+kind: kata
+status: draft
+title: "Lazy Sequences: Generators with Precise Types"
+summary: "Write range, map, filter, take, chunk, zip and pairwise as lazy generators and a re-iterable Seq pipeline, pulling no more than needed, closing sources early and typing zip with a mapped tuple."
+objectives:
+  - { id: o1, text: "Write generators that pull only what their consumer asks for and close their sources when they stop early", skills: [typescript.iterators-generators] }
+  - { id: o2, text: "Check arguments at the call by wrapping a generator in an ordinary function", skills: [typescript.iterators-generators] }
+  - { id: o3, text: "Type variadic and narrowing helpers with mapped tuple types and type-guard overloads", skills: [typescript.iterators-generators, typescript.generics, typescript.utility-conditional] }
+prerequisites: [typescript.p4.iterators-generators]
+difficulty: 4
+estimated_minutes: 70
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Start with `map` and `range`, then `take`: in what order should `take` yield an item, count it and decide that it is done, so that it never pulls one item too many? For the "at the call" checks: when does the body of a `function*` start running?
+    - |-
+      In `take`, yield first, then count, then `return` when the count is reached: returning from inside `for...of` closes the source. Split `range`, `take` and `chunk` into an exported ordinary function that checks the arguments and a private generator that does the work. For `zip`, keep the iterators in an array, call `next()` on each, and close the unfinished ones in a `finally`. `Seq` stores a function that makes a new iterator, not an iterator.
+    - |-
+      ```ts
+      export function* zip<T extends unknown[]>(
+        ...sources: { [K in keyof T]: Iterable<T[K]> }
+      ): Generator<T, void, undefined> {
+        const iterators: Iterator<unknown>[] = sources.map((source) => source[Symbol.iterator]());
+        const finished = new Set<Iterator<unknown>>();
+        if (iterators.length === 0) return;
+        try {
+          while (true) {
+            const values: unknown[] = [];
+            for (const iterator of iterators) {
+              const result = iterator.next();
+              if (result.done) { finished.add(iterator); return; }
+              values.push(result.value);
+            }
+            yield values as T;
+          }
+        } finally {
+          // call return() on every iterator not in finished
+        }
+      }
+
+      export class Seq<T> implements Iterable<T> {
+        readonly #make: () => Iterator<T>;
+        private constructor(make: () => Iterator<T>) { this.#make = make; }
+        static from<T>(source: Iterable<T>): Seq<T> { return new Seq(() => source[Symbol.iterator]()); }
+        [Symbol.iterator](): Iterator<T> { return this.#make(); }
+        map<U>(fn: (item: T, index: number) => U): Seq<U> { return new Seq(() => map(this, fn)); }
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

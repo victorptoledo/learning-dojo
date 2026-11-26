@@ -11,7 +11,8 @@ phases:
   p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
-  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+  p4: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p5: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
 early_stop: { wrong_in_first: 2, of: 3 }
 skill_placed_out_threshold: 0.75
 weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
@@ -296,17 +297,83 @@ items:
       - "To run faster"
     answer: 1
     explanation: "Type-aware rules ask the TypeScript compiler for the type of each expression."
-  # ---- P4 Mastery ----------------------------------------------------------------
-  - id: p4-strip-check
+  # ---- P4 Iteration --------------------------------------------------------------
+  - id: p4-generator-lazy
     phase: p4
+    skills: [typescript.iterators-generators]
+    difficulty: 3
+    prompt: "What does this print?"
+    code: |
+      function* ids() { console.log("start"); yield 1; yield 2; }
+      const it = ids();
+      console.log("made");
+      console.log(it.next().value);
+    options: ["start, made, 1", "made, start, 1", "made, 1"]
+    answer: 1
+    explanation: "A generator's body runs only on the first next()."
+  - id: p4-iterator-once
+    phase: p4
+    skills: [typescript.iterators-generators]
+    difficulty: 3
+    prompt: "`const names = users.values().map((u) => u.name)`. A function spreads `[...names]` twice. What does the second spread give?"
+    options: ["The same names", "An empty array", "A TypeError"]
+    answer: 1
+    explanation: "An iterator is single-use; keep an array or an iterable that makes a new iterator each time."
+  - id: p4-finally-break
+    phase: p4
+    skills: [typescript.iterators-generators]
+    difficulty: 4
+    prompt: "A generator opens a cursor and closes it in `finally`. The consumer `break`s after the first row. Is the cursor closed?"
+    options:
+      - "Yes: break calls return(), which runs finally"
+      - "No: the generator stays suspended until garbage collection"
+      - "Only if the generator catches the break"
+    answer: 0
+    explanation: "Early exit from for...of calls the iterator's return(), resuming the generator as a return."
+  - id: p4-chunk-utf8
+    phase: p4
+    skills: [typescript.async-iteration]
+    difficulty: 4
+    prompt: "Reading a UTF-8 stream with `for await (const chunk of stream) text += new TextDecoder().decode(chunk)` sometimes prints a replacement character. Why?"
+    options:
+      - "A multi-byte character was split between chunks, and each new decoder sees half of it"
+      - "for await reorders chunks"
+      - "TextDecoder does not support UTF-8"
+    answer: 0
+    explanation: "Use one decoder with decode(chunk, { stream: true }) and flush with decode() at the end."
+  - id: p4-backpressure
+    phase: p4
+    skills: [typescript.async-iteration]
+    difficulty: 4
+    prompt: "Which consumer of a large file stream keeps memory flat when each write to the database is slow?"
+    options:
+      - "stream.on(\"data\", (chunk) => db.write(chunk))"
+      - "for await (const chunk of stream) await db.write(chunk)"
+      - "await db.write(Buffer.concat(await Array.fromAsync(stream)))"
+    answer: 1
+    explanation: "Pulling with for await reads the next chunk only after the write finished: that is backpressure."
+  - id: p4-ordered-concurrency
+    phase: p4
+    skills: [typescript.async-iteration, typescript.async-errors]
+    difficulty: 5
+    prompt: "A helper runs up to 4 lookups at once over an async iterable and must yield the results in input order. What does it await before each yield?"
+    options:
+      - "Promise.race over the pending lookups"
+      - "The oldest pending lookup"
+      - "Promise.all over the pending lookups"
+    answer: 1
+    explanation: "race gives completion order; awaiting the oldest keeps input order while the others keep running."
+  # ---- P5 Mastery ----------------------------------------------------------------
+  - id: p5-strip-check
+    phase: p5
     skills: [typescript.production-builds]
     difficulty: 3
     prompt: "A service runs its .ts sources on Node.js 26 and is bundled for a serverless function with esbuild. Which step catches type errors?"
     options: ["Node type stripping", "esbuild", "A separate tsc --noEmit step", "All of them"]
     answer: 2
     explanation: "Runtimes and bundlers strip types without checking them."
-  - id: p4-ts7-tools
-    phase: p4
+  - id: p5-ts7-tools
+    phase: p5
     skills: [typescript.production-builds]
     difficulty: 4
     prompt: "After upgrading to TypeScript 7.0, typescript-eslint fails because it cannot load the compiler API. What is the recommended fix?"
@@ -316,8 +383,8 @@ items:
       - "Remove ESLint"
     answer: 1
     explanation: "7.0 ships no programmatic API; the 6.0 compatibility package serves tools until the 7.1 API."
-  - id: p4-references
-    phase: p4
+  - id: p5-references
+    phase: p5
     skills: [typescript.monorepos]
     difficulty: 4
     prompt: "In a monorepo with project references, what does a dependent project type-check against?"
@@ -327,8 +394,8 @@ items:
       - "Nothing; references only order the build"
     answer: 1
     explanation: "composite projects emit .d.ts, and dependents read those, which is faster and enforces public boundaries."
-  - id: p4-method-bivariance
-    phase: p4
+  - id: p5-method-bivariance
+    phase: p5
     skills: [typescript.soundness-performance]
     difficulty: 5
     prompt: "Why can `interface H { handle(x: Dog): void }` be assigned to `{ handle(x: Animal): void }` without an error?"
@@ -338,8 +405,8 @@ items:
       - "strictFunctionTypes is off by default"
     answer: 1
     explanation: "strictFunctionTypes applies to function-typed properties, not to method declarations."
-  - id: p4-slow-types
-    phase: p4
+  - id: p5-slow-types
+    phase: p5
     skills: [typescript.soundness-performance]
     difficulty: 4
     prompt: "Which compiler flag shows the number of type instantiations and the check time, to find a slow type?"

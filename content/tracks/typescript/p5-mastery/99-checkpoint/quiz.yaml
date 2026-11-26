@@ -1,0 +1,70 @@
+pass_percent: 85
+questions:
+  - id: ship-library
+    skills: [typescript.production-builds, typescript.declaration-files]
+    prompt: "A library is published to npm for any Node.js or bundler project. What should the package contain?"
+    options:
+      - "Only the .ts sources: consumers strip the types"
+      - "Compiled JavaScript with .d.ts declaration files, wired through exports"
+      - "A single bundled file with no types"
+    answer: 1
+    explanation: "Node.js refuses to strip .ts files under node_modules, and consumers need declarations; ship JavaScript plus .d.ts."
+  - id: exports-boundary
+    skills: [typescript.monorepos]
+    prompt: "`exports` is `{ \".\": \"./src/index.ts\" }`. What happens to `import \"@acme/flags/src/client.ts\"`?"
+    options:
+      - "It works: the file exists"
+      - "tsc reports it and Node.js throws ERR_PACKAGE_PATH_NOT_EXPORTED"
+      - "Only a lint rule catches it"
+    answer: 1
+    explanation: "With exports, only the listed subpaths can be imported, at compile time (nodenext) and at runtime."
+  - id: references
+    skills: [typescript.monorepos]
+    prompt: "In a monorepo with project references, what does tsc check `api` against when it references `domain`?"
+    options:
+      - "domain's source files, every time"
+      - "domain's declaration files, built first by tsc -b"
+      - "Nothing: references only order the builds"
+    answer: 1
+    explanation: "A referenced project is consumed through its .d.ts output, which keeps each check small and enforces the boundary."
+  - id: method-bivariance
+    skills: [typescript.soundness-performance]
+    prompt: "Which declaration lets the compiler reject a listener that only accepts `\"wizard\"` for a flag of type `\"classic\" | \"wizard\"`?"
+    options:
+      - "interface Listener<V> { call(value: V): void }"
+      - "type Listener<V> = (value: V) => void"
+      - "type Listener<V> = { call(value: V): void }[\"call\"]"
+    answer: 1
+    explanation: "Function type parameters are checked contravariantly under strictFunctionTypes; method signatures stay bivariant."
+  - id: unchecked-index
+    skills: [typescript.soundness-performance]
+    prompt: "`const definition = definitions[key]` with `definitions: Record<string, FlagDefinition>`. Which option makes its type include undefined?"
+    answers: ["noUncheckedIndexedAccess"]
+    explanation: "A Record<string, T> claims a value for every string; noUncheckedIndexedAccess adds undefined to index reads."
+  - id: const-param
+    skills: [typescript.generics, typescript.utility-conditional]
+    prompt: "Why does `defineFlags<const D>(definitions: D)` matter for `variants: [\"classic\", \"wizard\"]`?"
+    options:
+      - "It freezes the object at runtime"
+      - "It infers a readonly tuple of literals instead of string[], so the variant union can be derived"
+      - "It makes the parameter optional"
+    answer: 1
+    explanation: "A const type parameter infers as if the argument had as const, keeping literal types for conditional types to read."
+  - id: atomic-refresh
+    skills: [typescript.async-errors, typescript.runtime-validation]
+    prompt: "A refresh validates and applies a payload. In which order do you avoid a half-applied state?"
+    options:
+      - "Apply each valid key as it is checked, then report the invalid ones"
+      - "Validate the whole payload first, then replace the state in one assignment, then notify"
+      - "Notify listeners first, then validate"
+    answer: 1
+    explanation: "All-or-nothing means nothing changes until everything is valid; listeners then see a consistent state."
+  - id: slow-types
+    skills: [typescript.soundness-performance]
+    prompt: "`tsc --extendedDiagnostics` shows instantiations jumping after a change to a big type. Which change usually helps?"
+    options:
+      - "Replace interface extends with a large intersection"
+      - "Name the complex type and annotate exported return types"
+      - "Turn off skipLibCheck"
+    answer: 1
+    explanation: "Named types and declared return types are reused instead of re-inferred; intersections and checking libraries cost more."

@@ -1,0 +1,45 @@
+questions:
+  - id: iterable-vs-iterator
+    prompt: "What makes a value usable in `for (const x of value)`?"
+    options:
+      - "It has a length property"
+      - "It has a [Symbol.iterator]() method that returns an iterator"
+      - "It is an array or a string"
+      - "It has a next() method"
+    answer: 1
+    explanation: "for...of asks the value for an iterator with [Symbol.iterator](); an object with only next() is an iterator, not an iterable."
+  - id: lazy-body
+    prompt: "`function* gen() { console.log(\"start\"); yield 1; }` then `const g = gen();`. What has been logged?"
+    options: ["\"start\"", "Nothing yet", "\"start\" and 1"]
+    answer: 1
+    explanation: "A generator's body runs only when next() is called, so argument checks in it are lazy too."
+  - id: generator-type
+    prompt: "In `Generator<number, string, undefined>`, what is string?"
+    options:
+      - "The type of each yielded value"
+      - "The type of the value given by return, with done: true"
+      - "The type passed to next()"
+    answer: 1
+    explanation: "Generator<T, TReturn, TNext>: yields T, returns TReturn, receives TNext from next(value)."
+  - id: break-return
+    prompt: "A loop breaks out of `for (const row of rows())` where rows is a generator with try/finally. What happens to the finally block?"
+    options:
+      - "It never runs: the generator stays paused forever"
+      - "It runs: break calls the iterator's return(), which resumes the generator as a return"
+      - "It runs only if the generator is iterated again"
+    answer: 1
+    explanation: "Early exit calls return(), so generators can close the resources they opened."
+  - id: single-use
+    prompt: "`const evens = naturals().filter((n) => n % 2 === 0).take(3)`. What does the second `[...evens]` give?"
+    options: ["[0, 2, 4]", "[6, 8, 10]", "[]"]
+    answer: 2
+    explanation: "An iterator is its own cursor: the first spread exhausted it."
+  - id: parameter-type
+    prompt: "A helper only loops over its input once. Which parameter type accepts arrays, sets, map values and generators?"
+    answers: ["Iterable<T>", "Iterable<T>[]"]
+    explanation: "Iterable<T> is the widest type for a single pass; use readonly T[] only when you need indexes or length."
+  - id: helpers-lazy
+    prompt: "How many items does `Iterator.from(hugeArray).map(expensive).take(2).toArray()` pass to expensive?"
+    options: ["All of them", "2", "3"]
+    answer: 1
+    explanation: "Iterator helpers are lazy and take(2) stops pulling after the second value."

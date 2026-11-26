@@ -1,0 +1,24 @@
+id: typescript.p4.iterators-generators
+kind: lesson
+status: draft
+title: "Iterators, Generators and Lazy Sequences"
+summary: "The iteration protocol and its types, generators with Generator<T, TReturn, TNext>, laziness and infinite sequences, yield*, cleanup with return() and finally, iterable classes, single-use iterators and the ES2025 iterator helpers."
+objectives:
+  - { id: o1, text: "Explain the iteration protocol, iterables vs iterators, and type parameters as Iterable<T>", skills: [typescript.iterators-generators] }
+  - { id: o2, text: "Write lazy generators, typed with Generator<T, TReturn, TNext>, that clean up with finally when the consumer stops early", skills: [typescript.iterators-generators] }
+  - { id: o3, text: "Use the iterator helpers and type generic helpers with overloads and mapped tuple types", skills: [typescript.iterators-generators, typescript.generics] }
+prerequisites: [typescript.p3.checkpoint]
+difficulty: 3
+estimated_minutes: 50
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A report module has `function topCustomers(orders: Order[]): string[]` that sorts nothing but filters orders over 100 euros, maps them to customer names, removes duplicates and keeps the first 10, using `filter`, `map` and a `Set` on arrays of 2 million orders read from a database cursor into memory first. Rewrite it as a lazy pipeline that reads orders from an `Iterable<Order>` and stops reading as soon as it has 10 names, and explain: what laziness changes in memory and in work done, what happens to the database cursor when the pipeline stops early, why the result of a generator cannot be iterated twice, and what you would return if callers do need to.'
+  criteria:
+    - "Takes an Iterable<Order> (or a generator from the cursor) instead of an array"
+    - "Builds the pipeline with a generator or the iterator helpers (filter, map, take), deduplicating with a Set as values pass"
+    - "Explains that values are produced one at a time, so memory stays small and reading stops after the tenth name"
+    - "Explains that stopping early calls return() on the source, so a generator over the cursor runs its finally and can close the cursor"
+    - "Explains that a generator object is a single-use iterator, and suggests returning an array (or an iterable object) when callers iterate twice"

@@ -1,4 +1,4 @@
-id: typescript.p4.monorepos
+id: typescript.p5.monorepos
 kind: lesson
 status: draft
 title: "Monorepos, Workspaces and Project References"
@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Lay out a monorepo with workspaces and package exports, and choose between built and source-only internal packages", skills: [typescript.monorepos] }
   - { id: o2, text: "Configure project references with composite and a solution tsconfig, and explain what tsc -b does", skills: [typescript.monorepos, typescript.production-builds] }
   - { id: o3, text: "Decide when a monorepo helps and when folders with boundaries are enough", skills: [typescript.monorepos] }
-prerequisites: [typescript.p4.production-builds]
+prerequisites: [typescript.p5.production-builds]
 difficulty: 4
 estimated_minutes: 45
 xp: 150

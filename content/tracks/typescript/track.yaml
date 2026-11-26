@@ -4,7 +4,7 @@ name: "TypeScript"
 archetype: language
 category: "Programming Languages"
 icon: "🔷"
-description: "TypeScript 7 on Node.js 26 as it is written today: strict mode, structural typing, narrowing, generics, type-level programming, ES modules, async code, runtime validation, declaration files, testing and TypeScript in production."
+description: "TypeScript 7 on Node.js 26 as it is written today: strict mode, structural typing, narrowing, generics, type-level programming, ES modules, async code, runtime validation, iterators and async streams, declaration files, testing and TypeScript in production."
 status: draft
 bridges_available: [java, python, javascript, csharp, go]
 belts:
@@ -13,14 +13,15 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Generics Craftsman" }
   - { name: "Purple Belt", required_xp: 1500, title: "Conditional Types Wizard" }
   - { name: "Brown Belt", required_xp: 2500, title: "Type-Level Metaprogrammer" }
-  - { name: "Black Belt", required_xp: 4000, title: "Sound Architecture Titan" }
+  - { name: "Black Belt", required_xp: 5000, title: "Sound Architecture Titan" }
   - { name: "Sensei", required_xp: 6000, title: "TypeScript Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install TypeScript 7 and Node.js 26, type-check with tsc, run .ts files and meet the dojo's katas" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Structural typing, unions and narrowing, interfaces, functions, classes and generics" }
   - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Type-level programming, enums vs unions, satisfies, ES modules, async code and errors" }
   - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Runtime validation, declaration files, testing and linting, typed APIs with mapped types" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Builds and CI, monorepos and project references, soundness and type-checking performance" }
+  - { id: p4, dir: p4-iteration, title: "Iteration", goal: "Iterators and generators, lazy sequences, async iteration over streams, backpressure and cancellation" }
+  - { id: p5, dir: p5-mastery, title: "Mastery", goal: "Builds and CI, monorepos and project references, soundness and type-checking performance" }
 requirements:
   - kind: tool
     name: Node.js 26 (node)

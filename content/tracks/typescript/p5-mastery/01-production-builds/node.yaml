@@ -1,4 +1,4 @@
-id: typescript.p4.production-builds
+id: typescript.p5.production-builds
 kind: lesson
 status: draft
 title: "TypeScript in Production: Builds, Bundlers and CI"
@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Choose between running the source, compiling with tsc and bundling, and configure each with source maps", skills: [typescript.production-builds] }
   - { id: o2, text: "Explain what the native TypeScript 7 compiler changes, and keep tools that need the compiler API working", skills: [typescript.production-builds, typescript.toolchain] }
   - { id: o3, text: "Design a CI pipeline that type-checks, lints, tests and audits with a pinned TypeScript", skills: [typescript.production-builds] }
-prerequisites: [typescript.p3.typed-events]
+prerequisites: [typescript.p4.checkpoint]
 difficulty: 4
 estimated_minutes: 50
 xp: 150

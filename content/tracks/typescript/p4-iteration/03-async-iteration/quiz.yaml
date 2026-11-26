@@ -1,0 +1,57 @@
+questions:
+  - id: for-await-sync
+    prompt: "A function takes `source: AsyncIterable<string> | Iterable<string>` and loops with `for await`. What happens when a test passes `[\"a\", \"b\"]`?"
+    options:
+      - "A type error: arrays are not async iterables"
+      - "It works: for await accepts sync iterables and awaits each value"
+      - "It throws at runtime"
+    answer: 1
+    explanation: "for await falls back to [Symbol.iterator] when there is no [Symbol.asyncIterator]."
+  - id: async-generator-type
+    prompt: "What type does `async function* pages() { yield { n: 1 }; }` return?"
+    options:
+      - "Promise<{ n: number }[]>"
+      - "AsyncGenerator<{ n: number }, void, unknown>"
+      - "Generator<Promise<{ n: number }>>"
+    answer: 1
+    explanation: "An async generator yields values through promises; AsyncGenerator<T, TReturn, TNext> types it."
+  - id: chunks-lines
+    prompt: "Why can't you `chunk.toString().split(\"\\n\")` each chunk of a file stream and treat the pieces as lines?"
+    options:
+      - "Chunks may end in the middle of a line, or of a multi-byte character"
+      - "Streams always give one line per chunk"
+      - "split does not work on chunks"
+    answer: 0
+    explanation: "Keep the unfinished tail between chunks and decode with a TextDecoder in streaming mode."
+  - id: backpressure
+    prompt: "Which loop keeps memory flat while reading a huge file and writing each line to a slow database?"
+    options:
+      - "for await (const line of lines) await db.insert(line)"
+      - "const all = await Array.fromAsync(lines); for (const line of all) await db.insert(line)"
+      - "stream.on(\"data\", (chunk) => db.insert(chunk))"
+    answer: 0
+    explanation: "Pulling one line at a time reads only as fast as the database writes; fromAsync buffers everything, and the data event does not wait."
+  - id: early-return
+    prompt: "A consumer `return`s from inside `for await (const line of lines(path))`. What happens to the file the generator opened?"
+    options:
+      - "It stays open until garbage collection"
+      - "return() runs the generator's finally, which closes it, and the loop awaits that"
+      - "The generator keeps reading in the background"
+    answer: 1
+    explanation: "Early exit calls return() on the async iterator, which runs and awaits its finally blocks."
+  - id: cancel
+    prompt: "An async generator is waiting on `await fetch(url)`. What stops that request when the user cancels?"
+    options:
+      - "Calling generator.return()"
+      - "An AbortSignal passed to fetch and aborted"
+      - "Throwing inside the consumer's loop"
+    answer: 1
+    explanation: "return() waits for the pending await to finish; only a signal passed to the awaited work interrupts it."
+  - id: ordered-concurrency
+    prompt: "A helper runs 4 calls at a time over a stream and must yield results in source order. Which promise should it await next?"
+    options:
+      - "Promise.race of all pending calls"
+      - "The oldest pending call"
+      - "Promise.all of all pending calls"
+    answer: 1
+    explanation: "race gives completion order; awaiting the oldest keeps source order while the others keep running."

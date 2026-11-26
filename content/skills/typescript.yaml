@@ -11,6 +11,8 @@ skills:
   - { id: typescript.runtime-validation, title: "Runtime Validation at the Boundaries with zod" }
   - { id: typescript.declaration-files, title: "Declaration Files, Ambient Types and Augmentation" }
   - { id: typescript.testing-linting, title: "Testing, Type-Level Tests and Linting" }
+  - { id: typescript.iterators-generators, title: "Iterators, Generators and Lazy Sequences" }
+  - { id: typescript.async-iteration, title: "Async Iteration, Streams and Backpressure" }
   - { id: typescript.production-builds, title: "TypeScript in Production: Builds, Bundlers and CI" }
   - { id: typescript.monorepos, title: "Monorepos, Workspaces and Project References" }
   - { id: typescript.soundness-performance, title: "Soundness, Variance and Type-Checking Performance" }

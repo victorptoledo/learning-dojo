@@ -1,0 +1,74 @@
+pass_percent: 85
+questions:
+  - id: iterator-protocol
+    skills: [typescript.iterators-generators]
+    prompt: "Which object can be used with `for...of`?"
+    options:
+      - "{ next() { return { done: true, value: undefined }; } }"
+      - "{ [Symbol.iterator]() { return [1, 2].values(); } }"
+      - "{ length: 2, 0: \"a\", 1: \"b\" }"
+    answer: 1
+    explanation: "for...of needs an iterable: an object with [Symbol.iterator]() returning an iterator. An object with only next() is an iterator."
+  - id: lazy-check
+    skills: [typescript.iterators-generators]
+    prompt: "`function* chunk(xs, size) { if (size < 1) throw new RangeError(); ... }`. When does `chunk(xs, 0)` throw?"
+    options:
+      - "When chunk is called"
+      - "On the first next(), for example when a loop starts"
+      - "Never: generators cannot throw"
+    answer: 1
+    explanation: "A generator's body, checks included, runs on the first next(). Check in an ordinary function that returns the generator to fail at the call."
+  - id: take-closes
+    skills: [typescript.iterators-generators]
+    prompt: "`Iterator.from(rows()).take(3).toArray()`, where rows is a generator with a finally that closes a cursor. Is the cursor closed?"
+    options:
+      - "Yes: take calls return() on the source when it stops"
+      - "No: only exhausting rows() runs its finally"
+      - "Only if rows() has exactly 3 rows"
+    answer: 0
+    explanation: "Stopping early calls return(), which resumes the generator as a return and runs finally."
+  - id: zip-type
+    skills: [typescript.iterators-generators, typescript.generics]
+    prompt: "Which signature lets `zip([1], [\"a\"])` return `Generator<[number, string]>`?"
+    options:
+      - "zip<T>(...sources: Iterable<T>[]): Generator<T[]>"
+      - "zip<T extends unknown[]>(...sources: { [K in keyof T]: Iterable<T[K]> }): Generator<T>"
+      - "zip(...sources: Iterable<unknown>[]): Generator<unknown[]>"
+    answer: 1
+    explanation: "A mapped type over the tuple of arguments lets TypeScript infer one type per source."
+  - id: utf8-split
+    skills: [typescript.async-iteration]
+    prompt: "A UTF-8 character is split between two chunks of a stream. What decodes it correctly?"
+    options:
+      - "chunk.toString() on each chunk"
+      - "One TextDecoder with decode(chunk, { stream: true }), then decode() at the end"
+      - "A new TextDecoder per chunk"
+    answer: 1
+    explanation: "In streaming mode the decoder keeps the incomplete bytes until the next chunk; the final decode() flushes it."
+  - id: pull-backpressure
+    skills: [typescript.async-iteration]
+    prompt: "Why does `for await (const line of lines(file)) await save(line)` not fill memory on a 10 GB file?"
+    options:
+      - "Node.js compresses the stream"
+      - "The generator produces the next line only when the loop asks for it, after save finished"
+      - "for await runs the saves in parallel"
+    answer: 1
+    explanation: "Pull-based iteration is backpressure: the producer waits for the consumer."
+  - id: ordered-pool
+    skills: [typescript.async-iteration, typescript.async-errors]
+    prompt: "A pool awaits its oldest pending call, while a later call rejects first. What prevents an unhandled rejection?"
+    options:
+      - "Nothing is needed: it will be awaited later"
+      - "Attaching a no-op .catch to each call when it starts, and still awaiting the original promise"
+      - "Wrapping the loop in try/catch"
+    answer: 1
+    explanation: "Node.js reports a rejection that has no handler yet; the no-op handler marks it handled, and awaiting the original promise still throws."
+  - id: stop-everything
+    skills: [typescript.async-iteration]
+    prompt: "A consumer breaks out of `for await (const r of mapConcurrent(source, fn, { concurrency: 4 }))`. What must mapConcurrent's finally do?"
+    options:
+      - "Nothing: break only stops the loop"
+      - "Abort the signal of the calls still running and close the source with return()"
+      - "Wait for every pending call to finish and yield them"
+    answer: 1
+    explanation: "Early exit calls return() on the generator; its finally is the only place to cancel the work in flight and close the source."

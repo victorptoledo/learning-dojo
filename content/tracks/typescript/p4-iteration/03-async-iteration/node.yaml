@@ -1,0 +1,24 @@
+id: typescript.p4.async-iteration
+kind: lesson
+status: draft
+title: "Async Iteration, Streams and Backpressure"
+summary: "AsyncIterable and async generators, for await over Node.js streams, readline, events and fetch bodies, chunks vs lines and streaming text decoding, backpressure, early exit and cleanup, cancellation with AbortSignal, and ordered concurrency."
+objectives:
+  - { id: o1, text: "Write and consume async generators typed with AsyncGenerator<T, TReturn, TNext>, over the Node.js sources that are async iterables", skills: [typescript.async-iteration] }
+  - { id: o2, text: "Explain backpressure in the pull model, and what breaks it", skills: [typescript.async-iteration] }
+  - { id: o3, text: "Stop a pipeline early or cancel it with an AbortSignal so every stage cleans up, and run work concurrently while keeping order", skills: [typescript.async-iteration, typescript.async-errors] }
+prerequisites: [typescript.p4.lazy-sequences]
+difficulty: 4
+estimated_minutes: 55
+xp: 150
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A service imports a 5 GB CSV export with `const text = await readFile(path, "utf8"); for (const line of text.split("\n")) await saveRow(parse(line));`. It runs out of memory, takes an hour because saveRow is one HTTP call per row, and cannot be stopped when the deploy shuts the process down. Redesign it as an async pipeline: say where the lines come from, how memory stays flat, how you would run 8 saves at once while still reporting rows in order, what happens to the file when the import stops at the first invalid row, and how a shutdown signal reaches the work in flight.'
+  criteria:
+    - "Reads the file as a stream (createReadStream with readline, or chunks split into lines with the tail kept) instead of loading it whole"
+    - "Explains that for await pulls one line at a time, so the file is read only as fast as rows are saved (backpressure)"
+    - "Limits concurrency to 8 with a pool of pending promises, yielding results in source order"
+    - "Explains that stopping the loop calls return() through the pipeline, closing the stream (finally or await using)"
+    - "Passes an AbortSignal to the pipeline and to each save, so a shutdown aborts the requests in flight"

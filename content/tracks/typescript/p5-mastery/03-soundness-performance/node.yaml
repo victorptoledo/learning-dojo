@@ -1,4 +1,4 @@
-id: typescript.p4.soundness-performance
+id: typescript.p5.soundness-performance
 kind: lesson
 status: draft
 title: "Soundness, Variance and Type-Checking Performance"
@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Name the places where TypeScript is unsound and the options and patterns that close them", skills: [typescript.soundness-performance] }
   - { id: o2, text: "Explain covariance, contravariance, invariance and method bivariance, and use in and out annotations", skills: [typescript.soundness-performance, typescript.generics] }
   - { id: o3, text: "Measure type-checking performance and fix expensive types", skills: [typescript.soundness-performance, typescript.monorepos] }
-prerequisites: [typescript.p4.monorepos]
+prerequisites: [typescript.p5.monorepos]
 difficulty: 5
 estimated_minutes: 55
 xp: 200

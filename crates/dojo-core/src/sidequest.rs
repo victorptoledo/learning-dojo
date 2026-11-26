@@ -25,8 +25,8 @@ impl Milestone {
     pub const P3: Self = Self(3);
     pub const P4: Self = Self(4);
 
-    /// The phase number, which is also the level of a sidequest that asks for it on its
-    /// own track.
+    /// The phase number. A sidequest asks for its own track at its level or at a later phase
+    /// (a track may have more phases than sidequest levels, D046).
     pub fn level(self) -> u8 {
         self.0
     }

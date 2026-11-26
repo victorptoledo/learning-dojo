@@ -1,0 +1,64 @@
+id: typescript.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 4: Iteration"
+summary: "Prove the iteration phase: a quiz and an integration kata, a streaming log report built from async generators (chunks to lines to entries to time windows) and an ordered, cancellable mapConcurrent."
+objectives:
+  - { id: o1, text: "Explain iterators, generators, laziness, async iteration, backpressure and cancellation in your own words", skills: [typescript.iterators-generators, typescript.async-iteration] }
+  - { id: o2, text: "Build a streaming pipeline of async generators that reads only what it needs, closes its source early and runs work concurrently in order", skills: [typescript.async-iteration, typescript.iterators-generators, typescript.async-errors, typescript.enums-modules] }
+prerequisites: [typescript.p4.async-iteration]
+difficulty: 4
+estimated_minutes: 90
+xp: 450
+closes_phase: p4
+covers_skills: [typescript.iterators-generators, typescript.async-iteration]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 60 }
+  hints:
+    - |-
+      Do `logs.ts` stage by stage, testing each with an array as the source, then `mapConcurrent`. In `lines`, what must survive from one chunk to the next: only part of a line, or part of a character too? In `windows`, when do you know that a window is complete? In `mapConcurrent`, which pending call do you await to keep source order, and what must the `finally` block do?
+    - |-
+      `lines`: keep a `buffer` string, append each chunk (`decoder.decode(chunk, { stream: true })` for bytes), yield every complete line, and after the loop flush with `decoder.decode()` and yield what is left if it is not empty. `windows`: keep the current window; when an entry's aligned start differs, yield the current one and start a new one. `firstError`: a plain `return` inside `for await` closes the whole pipeline. `mapConcurrent`: keep an array of pending promises, fill it up to `concurrency` by pulling from the source, then `await pending.shift()` and yield it; attach `.catch(() => {})` to each call when you start it.
+    - |-
+      ```ts
+      const controller = new AbortController();
+      const forward = () => controller.abort(signal?.reason);
+      signal?.addEventListener("abort", forward, { once: true });
+      const iterator = toAsync(source); // async function* toAsync(s) { yield* s; }
+      const pending: Promise<U>[] = [];
+      let exhausted = false;
+      try {
+        while (true) {
+          while (!exhausted && pending.length < concurrency) {
+            signal?.throwIfAborted();
+            const next = await iterator.next();
+            if (next.done) { exhausted = true; break; }
+            const call = fn(next.value, controller.signal);
+            call.catch(() => {});
+            pending.push(call);
+          }
+          const oldest = pending.shift();
+          if (oldest === undefined) return;
+          const value = await oldest;
+          signal?.throwIfAborted();
+          yield value;
+        }
+      } finally {
+        // remove the listener, abort the calls still running, await iterator.return()
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

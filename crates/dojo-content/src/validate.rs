@@ -146,11 +146,13 @@ fn check_sidequest_requirements(
     report: &mut Report,
 ) {
     match quest.requires.first() {
-        Some(main) if main.track == quest.track_id && main.milestone.level() == quest.level => {}
+        // With N phases (D046) a track may have more phases than sidequest levels, so the main
+        // track may be asked at the sidequest's level or at a later phase.
+        Some(main) if main.track == quest.track_id && main.milestone.level() >= quest.level => {}
         _ => report.error(
             location,
             format!(
-                "the first requirement must be `{}:P{}` (the main track at the sidequest's level)",
+                "the first requirement must be `{}:P{}` or a later phase (the main track at the sidequest's level or above)",
                 quest.track_id, quest.level
             ),
         ),
@@ -170,7 +172,7 @@ fn check_sidequest_requirements(
             );
             continue;
         };
-        if requirement.milestone.level() > quest.level {
+        if requirement.track != quest.track_id && requirement.milestone.level() > quest.level {
             report.error(
                 location,
                 format!(
