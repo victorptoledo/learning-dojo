@@ -10,11 +10,18 @@ Guide) for the policy types the katas use:
    must allow.
 3. A permissions boundary, when given, must allow the request.
 4. Session policies, when given, must allow the request.
-5. Within one account, an Allow in an identity-based policy or in the resource-based policy
-   is enough. Across accounts, both are needed: the identity policy in the caller's account
-   and the resource policy in the resource's account.
+5. Within one account, an Allow in an identity-based policy is enough, and so is an Allow
+   in the resource-based policy that names the caller (its user or role ARN, a service,
+   or "*"). A resource policy that names only the account (`arn:aws:iam::<account>:root`
+   or the bare account id) delegates to that account: the caller's identity-based
+   policies must allow too ("AWS account principals" in the Principal element reference;
+   the KMS default key policy works the same way). Across accounts, both are needed: the
+   identity policy in the caller's account and the resource policy in the resource's
+   account.
 6. Assuming a role (sts:AssumeRole*) always needs an Allow in the role's trust policy,
    passed as `resource_policy`; across accounts the caller's identity policy must allow too.
+7. A KMS action with a key policy given as `resource_policy` always needs an Allow in the
+   key policy: an identity policy works only where the key policy names the account.
 
 It is a teaching model, not the real thing. What it does not model: IAM Access Analyzer
 checks, service-specific authorization (S3 ACLs, KMS grants, VPC endpoint policies), the
@@ -233,6 +240,11 @@ def _principal_values(principal: Any) -> list[tuple[str, str]]:
     return [("AWS", str(principal))]
 
 
+def _is_account_principal(kind: str, value: str) -> bool:
+    """`"AWS": "111122223333"` or `"AWS": "arn:aws:iam::111122223333:root"`."""
+    return kind == "AWS" and (re.fullmatch(r"\d{12}", value) is not None or value.endswith(":root"))
+
+
 def _one_principal(kind: str, value: str, request: Request) -> bool:
     caller = request.principal
     if value == "*":
@@ -243,9 +255,10 @@ def _one_principal(kind: str, value: str, request: Request) -> bool:
         return caller == value
     if kind != "AWS":
         return False
-    account = account_of(value)
-    if re.fullmatch(r"\d{12}", value) or value.endswith(":root"):
-        # The account (or its root ARN): any principal of that account its own policies allow.
+    if _is_account_principal(kind, value):
+        # The account (or its root ARN) matches any principal of that account, but only
+        # delegates: see `_grants_directly` and `evaluate`.
+        account = account_of(value)
         return account is not None and request.principal_account == account
     if caller == value:
         return True
@@ -253,6 +266,19 @@ def _one_principal(kind: str, value: str, request: Request) -> bool:
     found = re.fullmatch(r"arn:aws:iam::(\d{12}):role/(?:.*/)?([^/]+)", value)
     session = re.fullmatch(r"arn:aws:sts::(\d{12}):assumed-role/([^/]+)/.+", caller)
     return bool(found and session and found.groups() == session.groups())
+
+
+def _grants_directly(statement: dict, request: Request) -> bool:
+    """Whether a matching resource-policy statement names the caller itself.
+
+    True for a user or role ARN (and its sessions), a service, a federated principal,
+    `"*"` or a NotPrincipal; false when the caller matches only through an account
+    principal, which delegates the decision to the account's identity-based policies.
+    """
+    if "Principal" not in statement:
+        return True
+    return any(_one_principal(kind, value, request) and not _is_account_principal(kind, value)
+               for kind, value in _principal_values(statement["Principal"]))
 
 
 def _principal_matches(statement: dict, request: Request) -> bool:
@@ -457,15 +483,31 @@ def evaluate(request: Request, identity: list[dict] | None = None,
     if session is not None and decide(session, request) != ALLOW:
         return IMPLICIT_DENY
     by_identity = decide(identity, request) == ALLOW
-    by_resource = decide(resource_policies, request) == ALLOW
+    granting = [statement for policy in resource_policies for statement in statements(policy)
+                if statement.get("Effect") == ALLOW and applies(statement, request)]
+    by_resource = bool(granting)
     if request.action.lower().startswith("sts:assumerole") and resource_policies:
         # A role's trust policy must always allow; an identity policy alone never lets
         # anyone assume a role.
         if not by_resource:
             return IMPLICIT_DENY
+    if request.action.lower().startswith("kms:") and resource_policies and not by_resource:
+        # A KMS key policy must always allow, directly or through the account principal
+        # that enables IAM policies: "No AWS principal, including the account root user or
+        # key creator, has any permissions to a KMS key unless they are explicitly allowed"
+        # by the key policy (https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html).
+        return IMPLICIT_DENY
     if request.principal_account and request.target_account != request.principal_account:
         return ALLOW if by_identity and by_resource else IMPLICIT_DENY
-    return ALLOW if by_identity or by_resource else IMPLICIT_DENY
+    # Same account. A resource policy that names the caller (its user or role ARN, a
+    # service, "*") is enough by itself. One that only names the account delegates: the
+    # caller's identity-based policies must allow too, as in "AWS account principals"
+    # (https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html#principal-accounts)
+    # and in KMS key policies that "allow access to the AWS account and enable IAM policies"
+    # (https://docs.aws.amazon.com/kms/latest/developerguide/key-policy-default.html#key-policy-default-allow-root-enable-iam).
+    # Evaluation order: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html
+    by_resource_directly = any(_grants_directly(statement, request) for statement in granting)
+    return ALLOW if by_identity or by_resource_directly else IMPLICIT_DENY
 
 
 def allowed(request: Request, **policies: Any) -> bool:

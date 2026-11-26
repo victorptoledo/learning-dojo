@@ -99,6 +99,7 @@ def test_the_key_policy_is_well_formed(key):
 @pytest.mark.parametrize("case,principal,identity,action,expected", [
     ("an admin of the account manages the key", ADMIN, [KMS_ADMIN], "kms:PutKeyPolicy", iam.ALLOW),
     ("an admin of the account decrypts", ADMIN, [KMS_ADMIN], "kms:Decrypt", iam.ALLOW),
+    ("the account root only enables IAM policies", ADMIN, [], "kms:Decrypt", iam.IMPLICIT_DENY),
     ("another account's admin", OUTSIDER, [KMS_ADMIN], "kms:Decrypt", iam.IMPLICIT_DENY),
     ("another account schedules deletion", OUTSIDER, [KMS_ADMIN], "kms:ScheduleKeyDeletion", iam.IMPLICIT_DENY),
 ])
