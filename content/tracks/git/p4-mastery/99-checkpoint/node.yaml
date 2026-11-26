@@ -1,0 +1,53 @@
+id: git.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on large repositories, signing and secrets, team workflows and recovery, and a server-side pre-receive hook that protects main, keeps release tags immutable and stops oversized files and leaked keys before they enter history."
+objectives:
+  - { id: o1, text: "Choose the right tool for a large repository, a leaked secret, a branching model or a lost commit, and explain why it fits", skills: [git.large-repos, git.signing-security, git.workflows, git.recovery] }
+  - { id: o2, text: "Enforce a team's rules on the server with a pre-receive hook: fast-forward-only and linear main, immutable annotated release tags, a size limit and a secret scan over every new object, all or nothing", skills: [git.workflows, git.signing-security, git.large-repos, git.hooks] }
+prerequisites: [git.p4.rescue]
+difficulty: 5
+estimated_minutes: 100
+xp: 500
+closes_phase: p4
+covers_skills: [git.large-repos, git.signing-security, git.workflows, git.recovery, git.hooks, git.tags-releases, git.dag-objects, git.remotes]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 120 }
+  hints:
+    - |-
+      Push to a bare repository with a tiny `pre-receive` that only does `cat >&2`, and look at what it receives for a new branch, a fast-forward, a force-push, a deletion and a tag. Which side of each line is the zero hash? Which commits and objects does a push really add, and how do you list only those, not what the server already has? Why can a commit that is new to `main` already be on the server?
+    - |-
+      A line is `OLD NEW REF`; a zero `NEW` is a deletion, a zero `OLD` a creation. `git merge-base --is-ancestor OLD NEW` tells a fast-forward; `git rev-list --min-parents=2 OLD..NEW` lists the merges that join `main` (for a new `main`, `NEW --not --all`). `git cat-file -t NEW` is `tag` for an annotated tag. `git rev-list --objects NEW --not --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)'` gives every new object with its size and path. Collect the problems in an array and print them all at the end.
+    - |-
+      ```bash
+      while read -r old new ref; do
+          # deletions first, then the rules of refs/heads/main and refs/tags/v*
+          while read -r type oid size path; do
+              [ "$type" = blob ] || continue
+              if [ "$size" -gt "$limit" ]; then
+                  reject "$ref" "$path is $size bytes (limit $limit), use Git LFS"
+              # grep -c reads the whole blob; grep -q stops early, and under pipefail the
+              # SIGPIPE of git cat-file turns a match into a failure
+              elif [ "$(git cat-file blob "$oid" | grep -cE -e "$secret_re" || true)" -gt 0 ]; then
+                  reject "$ref" "possible secret in $path"
+              fi
+          done < <(git rev-list --objects "$new" --not --all \
+              | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)')
+      done
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, Git, bats and shellcheck that runs the grading tests.

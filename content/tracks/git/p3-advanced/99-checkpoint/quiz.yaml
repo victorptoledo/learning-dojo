@@ -1,0 +1,68 @@
+questions:
+  - id: bisect-ends
+    skills: [git.bisect]
+    prompt: "You start git bisect run with a 'good' commit that in fact already has the bug. What does bisect report?"
+    options:
+      - "An error: it checks the good end first"
+      - "A wrong culprit, or a complaint that the good commit is not an ancestor, because the search trusts the ends you gave it"
+      - "The right culprit anyway"
+      - "The oldest commit of the repository"
+    answer: 1
+    explanation: "Bisect only tests the middle. Run the test at both ends before starting, as the checkpoint kata does."
+  - id: bisect-exit-codes
+    skills: [git.bisect]
+    prompt: "A bisect run script ends with exit 128 when the build tool crashes. What does git bisect run do?"
+    options: ["Treats the commit as bad", "Skips the commit", "Stops the whole bisect run", "Treats the commit as good"]
+    answer: 2
+    explanation: "0 is good, 125 is skip, 1 to 127 (except 125) is bad, and any code from 128 up aborts the run."
+  - id: bisect-per-worktree
+    skills: [git.bisect, git.worktrees-submodules]
+    prompt: "You are in the middle of a bisect in your main checkout. Can you run a second bisect in another worktree of the same repository?"
+    options:
+      - "No, a repository has one bisect at a time"
+      - "Yes: refs/bisect/* and the bisect log are per worktree, so the two searches do not see each other"
+      - "Only if both use the same good commit"
+      - "Only in a bare repository"
+    answer: 1
+    explanation: "HEAD, the index and refs/bisect belong to each worktree; branches, tags and objects are shared."
+  - id: worktree-shares
+    skills: [git.worktrees-submodules, git.hooks]
+    prompt: "You install .git/hooks/commit-msg in your main checkout. Does a commit made in a worktree created later with git worktree add run it?"
+    options:
+      - "No, each worktree has its own hooks folder"
+      - "Yes: hooks live in the common Git directory, which every worktree shares"
+      - "Only if you copy the hook into the worktree"
+      - "Only for commits on main"
+    answer: 1
+    explanation: "Hooks and config come from the common directory; git rev-parse --git-path hooks shows where they are."
+  - id: revert-hooks
+    skills: [git.hooks]
+    prompt: "A repository has a strict commit-msg hook. Which way of recording a revert makes sure the hook checks it?"
+    options:
+      - "git revert HASH"
+      - "git revert --no-commit HASH followed by git commit"
+      - "git revert --no-verify HASH"
+      - "git cherry-pick HASH"
+    answer: 1
+    explanation: "revert and cherry-pick commit without running pre-commit and commit-msg; git commit runs them."
+  - id: annotated-object
+    skills: [git.tags-releases]
+    prompt: "Which command tells a lightweight tag from an annotated one?"
+    answers: ["git cat-file -t v1.0.0", "git cat-file -t refs/tags/v1.0.0", "git cat-file -t"]
+    explanation: "An annotated tag is a tag object, so cat-file -t prints tag; a lightweight tag is a ref to a commit and prints commit."
+  - id: hotfix-version
+    skills: [git.tags-releases]
+    prompt: "v2.4.9 has a bug. You revert the guilty commit on a hotfix branch started at v2.4.9. Which tag do you put on the hotfix?"
+    options: ["v2.4.10", "v2.5.0", "v2.4.9 again, moved", "v2.4.9-1"]
+    answer: 0
+    explanation: "A backward compatible fix bumps PATCH, and numbers compare as numbers: 9 + 1 is 10. A published tag is never moved."
+  - id: submodule-bump
+    skills: [git.worktrees-submodules]
+    prompt: "Inside vendor/lib (a submodule) you check out the library's v3.1.0 and go back to the superproject. What does git status show, and what records the change?"
+    options:
+      - "Nothing; the superproject follows the submodule automatically"
+      - "modified: vendor/lib (new commits); git add vendor/lib and a commit record the new gitlink"
+      - "A conflict in .gitmodules"
+      - "deleted: vendor/lib"
+    answer: 1
+    explanation: "The superproject stores one commit id per submodule. Moving the submodule changes it, like changing a file."

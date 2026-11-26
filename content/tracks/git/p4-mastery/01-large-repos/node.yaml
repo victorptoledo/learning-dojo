@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Speed up clones and checkouts with shallow clones, partial clones (blob:none) and sparse-checkout, and know their costs", skills: [git.large-repos] }
   - { id: o2, text: "Keep large binaries out of history with Git LFS and explain how pointer files work", skills: [git.large-repos] }
   - { id: o3, text: "Keep a repository fast with git maintenance, the commit-graph and fsmonitor, and weigh monorepo against polyrepo", skills: [git.large-repos] }
-prerequisites: [git.p3.worktrees-submodules]
+prerequisites: [git.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 45
 xp: 300
