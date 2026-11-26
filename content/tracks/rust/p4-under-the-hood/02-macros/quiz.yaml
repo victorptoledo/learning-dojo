@@ -1,0 +1,35 @@
+questions:
+  - id: macro-vs-function
+    prompt: "Which of these can a macro do that a function cannot?"
+    options:
+      - "Return a value"
+      - "Take a variable number of arguments, or syntax that is not an expression"
+      - "Be called from another module"
+    answer: 1
+    explanation: "A macro works on tokens before type checking, so vec![1, 2, 3] and matches!(x, Some(_)) are possible."
+  - id: square-expansion
+    prompt: "With macro_rules! square { ($x:expr) => { $x * $x }; }, what is square!(2 + 1)?"
+    answers: ["9"]
+    explanation: "$x is captured as one expression, so the expansion behaves like (2 + 1) * (2 + 1)."
+  - id: repetition
+    prompt: "Which matcher accepts zero or more expressions separated by commas?"
+    options: ["$x:expr*", "$( $x:expr ),*", "[$x:expr, ...]", "$( $x:expr )+,"]
+    answer: 1
+    explanation: "$( ... ) groups the repeated part, the comma is the separator and * means zero or more (+ means one or more)."
+  - id: double-braces
+    prompt: "Why does a macro rule often expand to {{ let mut v = Vec::new(); ... v }}?"
+    options:
+      - "The inner braces make a block expression, so its local variables stay inside"
+      - "Macros need two levels of braces to compile"
+      - "It makes the macro run at compile time"
+    answer: 0
+    explanation: "The outer braces delimit the rule; the inner ones are a block that evaluates to its last expression."
+  - id: crate-path
+    prompt: "Inside a #[macro_export] macro, what should prefix a call to a helper function of the same crate?"
+    answers: ["$crate", "$crate::"]
+    explanation: "$crate always refers to the defining crate, wherever the macro is used. Hygiene does not cover paths."
+  - id: derive-kind
+    prompt: "#[derive(Serialize)] from serde is which kind of macro?"
+    options: ["A declarative macro_rules! macro", "A procedural derive macro", "A compiler built-in", "An attribute on the type checker"]
+    answer: 1
+    explanation: "Derive macros are procedural: Rust code in a proc-macro crate that reads the type's tokens and writes an impl."

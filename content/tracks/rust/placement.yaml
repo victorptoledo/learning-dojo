@@ -11,11 +11,12 @@ phases:
   p1: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
   p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p3: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
-  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+  p4: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p5: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
 early_stop: { wrong_in_first: 2, of: 3 }
 skill_placed_out_threshold: 0.75
 weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
-max_items: 25
+max_items: 30
 items:
   # ---- P1 Fundamentals ---------------------------------------------------------
   - id: p1-mut-error
@@ -302,25 +303,83 @@ items:
     answer: 0
     explanation: "spawn requires 'static; move transfers ownership of v to the thread."
 
-  # ---- P4 Mastery --------------------------------------------------------------
-  - id: p4-lazy-future
+  # ---- P4 Traits, Macros and Unsafe --------------------------------------------
+  - id: p4-associated-type
     phase: p4
+    skills: [rust.advanced-traits]
+    difficulty: 3
+    prompt: "You implement Iterator for your own struct. Which item must you declare besides fn next?"
+    options: ["type Item", "fn size", "type Output", "const LEN"]
+    answer: 0
+    explanation: "Iterator's associated type Item names what next returns: Option<Self::Item>."
+  - id: p4-orphan
+    phase: p4
+    skills: [rust.advanced-traits]
+    difficulty: 4
+    prompt: "Why is impl std::fmt::Display for Vec<String> refused, and what is the usual fix?"
+    options:
+      - "Vec cannot be printed; use Debug instead"
+      - "Neither the trait nor the type is from your crate (orphan rule); wrap the Vec in a newtype"
+      - "Display needs a lifetime; add <'a>"
+    answer: 1
+    explanation: "A local tuple struct such as struct Lines(Vec<String>) is your type, so you may implement any trait for it."
+  - id: p4-macro-repeat
+    phase: p4
+    skills: [rust.macros]
+    difficulty: 3
+    prompt: "Which macro_rules! matcher accepts a comma-separated list of expressions, possibly empty?"
+    answers: ["$( $x:expr ),*", "$($x:expr),*", "$( $e:expr ),*", "$($e:expr),*"]
+    explanation: "$( ... ) repeats, the comma separates and * allows zero or more; + would require at least one."
+  - id: p4-macro-hygiene
+    phase: p4
+    skills: [rust.macros]
+    difficulty: 4
+    prompt: "A macro expands to { let tmp = $x; tmp * 2 }. The caller already has a variable named tmp. What happens?"
+    options:
+      - "The caller's tmp is overwritten"
+      - "Nothing bad: macro hygiene keeps the macro's tmp separate"
+      - "A compile error about a duplicate name"
+    answer: 1
+    explanation: "Local names created by macro_rules! cannot clash with the caller's; paths still need $crate."
+  - id: p4-unsafe-deref
+    phase: p4
+    skills: [rust.unsafe-ffi]
+    difficulty: 3
+    prompt: "Which operation requires an unsafe block?"
+    options:
+      - "Creating a raw pointer with &raw const x"
+      - "Dereferencing a raw pointer"
+      - "Calling a method on a Box"
+      - "Indexing a slice"
+    answer: 1
+    explanation: "Making a raw pointer is safe; reading through it is not, because the compiler cannot prove it is valid."
+  - id: p4-maybeuninit
+    phase: p4
+    skills: [rust.unsafe-ffi]
+    difficulty: 5
+    prompt: "A container stores values in an array of MaybeUninit<T> and has no Drop impl. What happens to its values when it is dropped?"
+    options: ["They are dropped as usual", "They leak: MaybeUninit never drops its contents", "Undefined behaviour every time"]
+    answer: 1
+    explanation: "MaybeUninit does not know whether it holds a value; the container must drop the initialised slots itself, each exactly once."
+  # ---- P5 Mastery --------------------------------------------------------------
+  - id: p5-lazy-future
+    phase: p5
     skills: [rust.async-tokio]
     difficulty: 3
     prompt: "You call an async fn without .await. What runs?"
     options: ["The whole body", "Nothing: futures are lazy", "The body up to the first .await"]
     answer: 1
     explanation: "An async fn returns a future; only polling it (through .await or a runtime) runs it."
-  - id: p4-join
-    phase: p4
+  - id: p5-join
+    phase: p5
     skills: [rust.async-tokio]
     difficulty: 4
     prompt: "Two 300 ms async sleeps inside tokio::join! take about how long in total?"
     options: ["600 ms", "300 ms", "0 ms"]
     answer: 1
     explanation: "join! polls both futures concurrently."
-  - id: p4-blocking
-    phase: p4
+  - id: p5-blocking
+    phase: p5
     skills: [rust.async-tokio]
     difficulty: 4
     prompt: "How should a long CPU-bound computation run inside a Tokio application?"
@@ -330,22 +389,22 @@ items:
       - "With std::thread::sleep between steps"
     answer: 1
     explanation: "Blocking the runtime thread stalls every task on it."
-  - id: p4-anyhow-context
-    phase: p4
+  - id: p5-anyhow-context
+    phase: p5
     skills: [rust.production]
     difficulty: 3
     prompt: "In an application, which crate gives one error type for everything plus .context(...)?"
     answers: ["anyhow"]
     explanation: "anyhow suits applications; libraries expose typed errors, often with thiserror."
-  - id: p4-rust-log
-    phase: p4
+  - id: p5-rust-log
+    phase: p5
     skills: [rust.production]
     difficulty: 2
     prompt: "Which environment variable changes the log level of a tracing EnvFilter without recompiling?"
     answers: ["RUST_LOG"]
     explanation: "For example RUST_LOG=my_app=debug,warn."
-  - id: p4-release
-    phase: p4
+  - id: p5-release
+    phase: p5
     skills: [rust.production]
     difficulty: 2
     prompt: "Why must you benchmark and deploy a --release build?"
@@ -355,3 +414,14 @@ items:
       - "Release builds include more checks"
     answer: 0
     explanation: "--release turns on optimisations; debug builds favour compile speed and debugging."
+  - id: p5-waker
+    phase: p5
+    skills: [rust.futures-internals]
+    difficulty: 5
+    prompt: "A hand-written future returns Poll::Pending. What must it have arranged before returning?"
+    options:
+      - "Nothing: the executor polls it again in a loop"
+      - "That cx.waker() will be woken when it can make progress"
+      - "A thread::sleep until it is ready"
+    answer: 1
+    explanation: "Executors poll again only when woken; Pending without a wake-up leaves the task stuck."

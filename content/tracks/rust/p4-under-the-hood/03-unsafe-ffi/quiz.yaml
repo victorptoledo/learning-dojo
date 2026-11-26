@@ -1,0 +1,44 @@
+questions:
+  - id: borrow-checker-in-unsafe
+    prompt: "Inside an unsafe block, does the borrow checker still run?"
+    options:
+      - "No, unsafe turns every check off"
+      - "Yes: unsafe only allows a few extra operations, such as dereferencing raw pointers"
+      - "Only in debug builds"
+    answer: 1
+    explanation: "unsafe adds five abilities; references, types and slice bounds are still checked."
+  - id: raw-pointer-safe-part
+    prompt: "Which line needs an unsafe block?"
+    code: |
+      let x = 5;
+      let p = &raw const x;   // line A
+      let q = p;              // line B
+      let y = *q;             // line C
+    options: ["Line A", "Line B", "Line C", "None of them"]
+    answer: 2
+    explanation: "Creating and copying raw pointers is safe; dereferencing one is not, because the compiler cannot know it is valid."
+  - id: soundness
+    prompt: "A safe pub fn uses unsafe code internally, and a caller triggers undefined behaviour with some input, without writing unsafe. Whose bug is it?"
+    options:
+      - "The caller's, for passing bad input"
+      - "The function's: a safe API must be sound for every input"
+      - "Nobody's: undefined behaviour is allowed in safe code"
+    answer: 1
+    explanation: "That is the meaning of a safe abstraction: the unsafe core must check (or make impossible) every input that would break its contract."
+  - id: maybeuninit-drop
+    prompt: "A container stores values in [MaybeUninit<T>; N]. What happens to the values if it has no Drop impl?"
+    options: ["They are dropped normally", "They are leaked: MaybeUninit never drops its contents", "The program does not compile"]
+    answer: 1
+    explanation: "MaybeUninit does not know whether it holds a value, so the container must drop the initialised slots itself."
+  - id: miri
+    prompt: "Which tool runs your tests in an interpreter that reports undefined behaviour such as reading uninitialised memory?"
+    answers: ["Miri", "miri", "cargo miri", "cargo miri test", "cargo +nightly miri test"]
+    explanation: "Miri checks every memory access against Rust's rules; run it on any crate with unsafe code."
+  - id: cstring
+    prompt: "Why do you pass CString::new(\"dojo\").unwrap().as_ptr() to a C function and not \"dojo\".as_ptr()?"
+    options:
+      - "A Rust &str is not NUL-terminated, and C reads until it finds a NUL"
+      - "C cannot read UTF-8"
+      - "as_ptr is not allowed on &str"
+    answer: 0
+    explanation: "CString adds the trailing NUL (and rejects inner NULs). Keep the CString alive while C uses the pointer."

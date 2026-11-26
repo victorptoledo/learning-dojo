@@ -1,0 +1,23 @@
+id: rust.p5.futures-by-hand
+kind: lesson
+status: draft
+title: "Futures by Hand: poll, Waker and Pin"
+summary: "The machine under Tokio: the Future trait, the waker contract, a non-blocking timer, a block_on executor, join and timeout combinators, and Pin."
+objectives:
+  - { id: o1, text: "Implement Future by hand and keep the waker contract", skills: [rust.futures-internals] }
+  - { id: o2, text: "Write a parking block_on executor and join and timeout combinators with only the standard library", skills: [rust.futures-internals, rust.async-tokio] }
+  - { id: o3, text: "Explain why futures are pinned and choose between pin! and Box::pin", skills: [rust.futures-internals] }
+prerequisites: [rust.p5.async-tokio]
+difficulty: 5
+estimated_minutes: 50
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Explain, step by step, what happens from `block_on(async { sleep(Duration::from_millis(200)).await; 7 })` to the value 7: who calls `poll` and how often, what the `Sleep` does on its first poll, who calls `wake`, and what the thread does in between. Then say what changes if `Sleep::poll` calls `std::thread::sleep` instead.'
+  criteria:
+    - 'Describes the async block as a state machine polled by block_on, which returns Pending at the await'
+    - 'Explains that Sleep stores the waker and hands the waiting to a timer, then the timer calls wake'
+    - 'Explains that block_on parks the thread and the wake unparks it, so it does not spin'
+    - 'Explains that a blocking sleep inside poll freezes the executor and every other future it runs'

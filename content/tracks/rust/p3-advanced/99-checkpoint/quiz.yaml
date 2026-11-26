@@ -1,0 +1,80 @@
+questions:
+  - id: dangling
+    skills: [rust.lifetimes]
+    prompt: Why does this function not compile?
+    code: |
+      fn first_word() -> &str {
+          let text = String::from("hello world");
+          text.split(' ').next().unwrap()
+      }
+    options:
+      - "split returns a String, not a &str"
+      - "The reference would point into text, which is dropped when the function returns"
+      - "Functions cannot return references"
+      - "next() needs a mutable iterator"
+    answer: 1
+    explanation: "A returned reference must borrow from something that outlives the call, such as a parameter. Return a String instead. (Lifetimes)"
+  - id: elision-two-inputs
+    skills: [rust.lifetimes]
+    prompt: "Why does fn pick(a: &str, b: &str) -> &str need a lifetime annotation, while fn first(a: &str) -> &str does not?"
+    options:
+      - "With two reference inputs the compiler cannot tell which one the output borrows from"
+      - "Functions with two parameters always need annotations"
+      - "Because &str is not Copy"
+    answer: 0
+    explanation: "Elision gives the only input lifetime (or that of &self) to the output; with two candidates you must say which. (Lifetimes)"
+  - id: struct-lifetime
+    skills: [rust.lifetimes]
+    prompt: "What does struct Token<'a> { text: &'a str } promise?"
+    options:
+      - "A Token lives exactly as long as 'a"
+      - "A Token cannot outlive the string its text borrows from"
+      - "The text is copied when the Token is created"
+    answer: 1
+    explanation: "The annotation is a constraint checked at compile time: the borrowed data must outlive the struct. It costs nothing at run time. (Lifetimes)"
+  - id: refcell-panic
+    skills: [rust.smart-pointers]
+    prompt: What happens when this runs?
+    code: |
+      let cell = std::cell::RefCell::new(vec![1]);
+      let reader = cell.borrow();
+      cell.borrow_mut().push(2);
+      println!("{}", reader.len());
+    options:
+      - "It prints 2"
+      - "It prints 1"
+      - "It panics: already borrowed"
+      - "It does not compile"
+    answer: 2
+    explanation: "RefCell checks the borrow rules at run time: a borrow_mut while a borrow is alive panics. (Smart Pointers)"
+  - id: weak-cycle
+    skills: [rust.smart-pointers]
+    prompt: "A tree node keeps Rc pointers to its children. Which pointer type should a child use to point back at its parent?"
+    answers: ["Weak", "Weak<T>", "std::rc::Weak", "rc::Weak", "Weak<RefCell<Node>>"]
+    explanation: "Two Rc pointing at each other form a cycle that is never freed. A Weak parent link does not keep the parent alive. (Smart Pointers)"
+  - id: spawn-static
+    skills: [rust.concurrency]
+    prompt: "Why does thread::spawn(|| println!(\"{}\", names.len())) fail to compile when names is a local Vec?"
+    options:
+      - "Vec is not Send"
+      - "The thread may outlive the function, so the closure must own its data: use move, or thread::scope"
+      - "println! cannot be used in threads"
+      - "Threads cannot read a Vec"
+    answer: 1
+    explanation: "spawn needs a 'static closure. move gives it ownership; thread::scope guarantees the threads end before the borrow does. (Threads, Channels and Mutex)"
+  - id: rc-not-send
+    skills: [rust.concurrency, rust.smart-pointers]
+    prompt: "Which of these does the compiler refuse to move into another thread?"
+    options: ["Arc<String>", "Rc<String>", "Mutex<Vec<i32>>", "String"]
+    answer: 1
+    explanation: "Rc's reference count is not atomic, so Rc is not Send; Arc is the thread-safe version. (Threads, Channels and Mutex)"
+  - id: channel-end
+    skills: [rust.concurrency]
+    prompt: "A loop `for message in receiver` reads an mpsc channel. When does it end?"
+    options:
+      - "After the first message"
+      - "When every Sender has been dropped and the queue is empty"
+      - "Never: you must break out of it"
+      - "When the receiver is cloned"
+    answer: 1
+    explanation: "recv returns Err once all senders are gone, which ends the loop. Forgetting to drop the original sender keeps it waiting forever. (Threads, Channels and Mutex)"

@@ -56,7 +56,7 @@ All 30 tracks are complete, with 789 lessons and checkpoints and 316 katas betwe
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
-| Rust | Rust 2024 edition | 22 | 7 | `dojo-rust` (cargo test) |
+| Rust | Rust 2024 edition | 29 | 10 | `dojo-rust` (cargo test) |
 | Modern Java | Java 25 | 29 | 11 | `dojo-java` (JUnit 6) |
 | Modern Python | Python 3.15 | 31 | 11 | `dojo-python` (pytest, ruff; FastAPI for a sidequest and the final exam) |
 | Go | Go 1.27 | 23 | 8 | `dojo-go` (go test -race, go vet, gofmt) |

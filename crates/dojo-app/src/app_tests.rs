@@ -1008,14 +1008,15 @@ fn a_strong_learner_skips_to_the_belt_exam_and_passing_it_confirms_every_skip() 
     let profile = &h.app.profile;
     assert!(profile.is_placed_out("rust", "rust.p1.checkpoint"));
     assert!(profile.is_placed_out("rust", "rust.p3.lifetimes"));
-    assert!(!profile.is_placed_out("rust", "rust.p4.async-tokio"));
-    assert_eq!(profile.belt_exam("rust"), Some("rust.p2.checkpoint"));
+    assert!(!profile.is_placed_out("rust", "rust.p4.advanced-traits"));
+    assert!(!profile.is_placed_out("rust", "rust.p5.async-tokio"));
+    assert_eq!(profile.belt_exam("rust"), Some("rust.p3.checkpoint"));
     assert_eq!(profile.total_xp, 0);
     assert!(!profile.can_take_placement(h.app.active_track()));
     let track = h.app.active_track().clone();
-    assert!(!profile.is_unlocked(&track, track.node("rust.p4.async-tokio").unwrap()));
+    assert!(!profile.is_unlocked(&track, track.node("rust.p4.advanced-traits").unwrap()));
 
-    select(&mut h.app, "rust.p2.checkpoint");
+    select(&mut h.app, "rust.p3.checkpoint");
     h.app.start_lesson_quiz();
     take_quiz(&mut h.app, 0);
     h.app.activate_selected();

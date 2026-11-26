@@ -1,0 +1,62 @@
+questions:
+  - id: sequential-await
+    skills: [rust.async-tokio]
+    prompt: "Two futures each wait 300 ms. About how long does `let a = f().await; let b = g().await;` take?"
+    answers: ["600 ms", "600", "600ms"]
+    explanation: "Awaiting one after the other waits for each in turn. tokio::join!(f(), g()) takes about 300 ms. (async/await and Tokio)"
+  - id: blocking-in-async
+    skills: [rust.async-tokio]
+    prompt: "A task calls std::thread::sleep(Duration::from_secs(1)) inside async code on Tokio. What happens?"
+    options:
+      - "Only that task waits"
+      - "The worker thread is blocked, so every task scheduled on it stalls"
+      - "Tokio turns it into an async sleep"
+    answer: 1
+    explanation: "Async tasks share threads. Use tokio::time::sleep, or spawn_blocking for blocking work. (async/await and Tokio)"
+  - id: lost-wakeup
+    skills: [rust.futures-internals]
+    prompt: "A hand-written future returns Pending without storing or using cx.waker(). Under a parking executor, what happens?"
+    options:
+      - "It is polled again in a busy loop"
+      - "Nothing wakes the executor, so the task may wait forever"
+      - "It is a compile error"
+    answer: 1
+    explanation: "Pending is a promise to wake the task later. Without a wake-up, a parked executor never polls again. (Futures by Hand)"
+  - id: poll-after-ready
+    skills: [rust.futures-internals]
+    prompt: "A join combinator polls every child on each poll, including children that already returned Ready. What is wrong?"
+    options:
+      - "Nothing, futures ignore extra polls"
+      - "Polling a future after Ready is a contract violation; many futures panic"
+      - "It only wastes a little CPU"
+    answer: 1
+    explanation: "After Ready a future is done. Keep its output and stop polling it, for example by setting the slot to None. (Futures by Hand)"
+  - id: box-pin
+    skills: [rust.futures-internals]
+    prompt: "Which type lets you keep futures of different async blocks in one Vec and poll them?"
+    answers: ["Pin<Box<dyn Future<Output = T>>>", "Pin<Box<dyn Future<Output = T> + Send>>", "Pin<Box<dyn Future>>", "Vec<Pin<Box<dyn Future<Output = T>>>>"]
+    explanation: "Each async block has its own anonymous type; boxing as dyn Future unifies them, and Pin<Box<...>> never moves. (Futures by Hand)"
+  - id: thiserror-anyhow
+    skills: [rust.production]
+    prompt: "Your crate is a library other teams call. Which error style fits its public API?"
+    options:
+      - "anyhow::Error everywhere"
+      - "A typed enum (often with thiserror) that callers can match on"
+      - "Strings"
+      - "panic! with a message"
+    answer: 1
+    explanation: "Library callers need to react to each case; applications that only report errors use anyhow with context. (Production Rust)"
+  - id: error-source
+    skills: [rust.production]
+    prompt: "Which method of std::error::Error lets a report print 'config is invalid: invalid digit found in string'?"
+    answers: ["source", "source()", "Error::source"]
+    explanation: "source returns the underlying cause; walking it gives the whole chain, as anyhow does with {:#}. (Production Rust)"
+  - id: structured-logs
+    skills: [rust.production]
+    prompt: "Why log `level=warn target=db msg=\"timed out after 200 ms\"` rather than `WARNING: db is slow!!`?"
+    options:
+      - "It is shorter"
+      - "Fixed key=value fields can be filtered and searched by machines, and the level can be set per run"
+      - "Rust cannot print exclamation marks in logs"
+    answer: 1
+    explanation: "Structured fields (what tracing produces) let you filter by level and target and alert on them. (Production Rust)"

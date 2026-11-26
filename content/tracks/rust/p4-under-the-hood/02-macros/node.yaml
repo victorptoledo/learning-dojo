@@ -1,0 +1,23 @@
+id: rust.p4.macros
+kind: lesson
+status: draft
+title: "Declarative Macros with macro_rules!"
+summary: "Code that writes code: matchers, repetitions, recursion, hygiene, exporting a macro, and where procedural macros fit."
+objectives:
+  - { id: o1, text: "Write macro_rules! macros with fragment specifiers, several rules and repetitions", skills: [rust.macros] }
+  - { id: o2, text: "Explain hygiene and $crate, and when a function is the better choice", skills: [rust.macros] }
+  - { id: o3, text: "Tell derive, attribute and function-like procedural macros apart", skills: [rust.macros] }
+prerequisites: [rust.p4.advanced-traits]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Write a `hashmap!` macro that accepts `hashmap!{ "a" => 1, "b" => 2 }` with an optional trailing comma and an empty form `hashmap!{}`. Explain each part of the matcher, why the expansion is a block, and one case where a function would have been better than a macro.'
+  criteria:
+    - 'The matcher uses a repetition with => between key and value and accepts a trailing comma'
+    - 'The expansion is a block expression that creates, fills and returns the map'
+    - 'Explains fragment specifiers (expr) and the separator'
+    - 'Gives a sensible case for a function instead (fixed arguments, better errors, easier to document)'

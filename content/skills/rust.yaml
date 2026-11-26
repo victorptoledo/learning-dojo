@@ -13,5 +13,9 @@ skills:
   - { id: rust.lifetimes, title: "Lifetimes: How Long a Reference Lives" }
   - { id: rust.smart-pointers, title: "Smart Pointers: Box, Rc, RefCell and Arc" }
   - { id: rust.concurrency, title: "Threads, Channels (mpsc) and Mutex" }
+  - { id: rust.advanced-traits, title: "Advanced Traits: Associated Types, Operators and Newtypes" }
+  - { id: rust.macros, title: "Declarative Macros with macro_rules!" }
+  - { id: rust.unsafe-ffi, title: "Unsafe Rust and FFI" }
   - { id: rust.async-tokio, title: "async/await and the Tokio Runtime" }
+  - { id: rust.futures-internals, title: "Futures by Hand: poll, Waker and Pin" }
   - { id: rust.production, title: "Production Rust: Errors, Logging and Configuration" }

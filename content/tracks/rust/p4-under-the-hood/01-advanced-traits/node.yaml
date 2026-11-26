@@ -1,0 +1,23 @@
+id: rust.p4.advanced-traits
+kind: lesson
+status: draft
+title: "Advanced Traits: Associated Types, Operators and Newtypes"
+summary: "Make your own types feel built in: associated types, Iterator, operator overloading, newtypes, Deref and dyn compatibility."
+objectives:
+  - { id: o1, text: "Choose between an associated type and a generic parameter, and implement Iterator and IntoIterator", skills: [rust.advanced-traits] }
+  - { id: o2, text: "Overload operators and indexing with the std::ops traits", skills: [rust.advanced-traits] }
+  - { id: o3, text: "Use newtypes for the orphan rule and for type safety, and Deref only for wrappers that are their target", skills: [rust.advanced-traits] }
+prerequisites: [rust.p3.checkpoint]
+difficulty: 4
+estimated_minutes: 45
+xp: 300
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Design a `Money` type for an amount in cents and a currency. Show the trait implementations you would write so that `a + b`, `-a`, `total += item` and `for line in &invoice` work, and explain what should happen when the two currencies differ.'
+  criteria:
+    - 'Uses a newtype or struct instead of a bare integer, with a reason'
+    - 'Implements Add, Neg and AddAssign with the right Output and receivers'
+    - 'Implements IntoIterator for a reference to the invoice with an associated Item'
+    - 'Handles different currencies deliberately (panic with a clear message, or a checked_add returning Option or Result)'

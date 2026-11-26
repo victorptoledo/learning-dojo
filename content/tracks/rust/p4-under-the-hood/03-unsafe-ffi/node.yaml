@@ -1,0 +1,23 @@
+id: rust.p4.unsafe-ffi
+kind: lesson
+status: draft
+title: "Unsafe Rust and FFI"
+summary: "What unsafe allows and what it does not, safe abstractions over raw memory with MaybeUninit, undefined behaviour and Miri, and calling C."
+objectives:
+  - { id: o1, text: "List what unsafe allows and write unsafe fn contracts with Safety and SAFETY comments", skills: [rust.unsafe-ffi] }
+  - { id: o2, text: "Wrap raw pointers and MaybeUninit in a safe API that is sound for every input", skills: [rust.unsafe-ffi] }
+  - { id: o3, text: "Call C from Rust and expose Rust to C with extern \"C\", CStr and CString", skills: [rust.unsafe-ffi] }
+prerequisites: [rust.p4.macros]
+difficulty: 5
+estimated_minutes: 50
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'Review this function and say whether it is sound: `pub fn first(v: &Vec<i32>) -> i32 { unsafe { *v.as_ptr() } }`. Explain what undefined behaviour can happen, fix it in two ways (a check that keeps it safe, and an `unsafe fn` with a `# Safety` contract), and say which one you would ship and why.'
+  criteria:
+    - 'Spots that an empty Vec makes the read out of bounds (undefined behaviour), even though callers wrote no unsafe'
+    - 'The safe fix checks emptiness (returns Option or panics) before reading'
+    - 'The unsafe fn version documents the precondition in a Safety section and the caller justifies it with a SAFETY comment'
+    - 'Prefers the safe version unless the check is a measured cost, and mentions Miri or tests to catch the mistake'
