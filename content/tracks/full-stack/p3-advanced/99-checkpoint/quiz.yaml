@@ -1,0 +1,48 @@
+questions:
+  - id: build-once
+    skills: [full-stack.deploy-serverless]
+    prompt: "Staging passed, and the pipeline rebuilds the image from the same commit for production. What is the risk?"
+    options: ["None: same commit, same image", "Production runs an artifact nobody tested: dependencies or base images may have changed", "The rebuild is only slower"]
+    answer: 1
+    explanation: "Build once, tag it by commit, and promote the very artifact that passed staging."
+  - id: readiness-drain
+    skills: [full-stack.deploy-serverless]
+    prompt: "During a rolling deploy, users see errors for a few seconds each time an old instance stops. Which change fixes it?"
+    options: ["On SIGTERM, fail readiness first, keep serving for a grace period, then close connections and exit", "Restart instances faster", "Make the liveness probe stricter"]
+    answer: 0
+    explanation: "The load balancer needs time to stop routing to the instance before it goes away."
+  - id: serverless-pool
+    skills: [full-stack.deploy-serverless]
+    prompt: "An API moved to serverless functions starts failing with 'too many connections' at peak. What is the usual fix?"
+    options: ["A bigger database instance only", "A connection pooler (such as PgBouncer or the provider's proxy) or a serverless database driver", "Longer function timeouts"]
+    answer: 1
+    explanation: "Each function instance opens its own connections; a pooler shares a few among them."
+  - id: gauge
+    skills: [full-stack.observability]
+    prompt: "Which metric type fits 'event streams open right now'?"
+    answers: ["gauge", "a gauge"]
+    explanation: "A gauge goes up and down; a counter only grows, and you take its rate."
+  - id: cardinality
+    skills: [full-stack.observability]
+    prompt: "A latency histogram is labelled with the raw URL path, such as /api/orders/8812. What goes wrong?"
+    options: ["Nothing", "One series per order id: memory and cost explode, and the route's latency is spread across them", "Prometheus rejects slashes in labels"]
+    answer: 1
+    explanation: "Label by route template (/api/orders/:id), never by values without bounds."
+  - id: lcp-image
+    skills: [full-stack.performance]
+    prompt: "Field data shows a poor LCP on product pages, and the LCP element is the hero image. What do you try first?"
+    options: ["Lazy-load the hero image", "Serve it sized and compressed from the CDN, preload it or give it fetchpriority=high, and do not lazy-load it", "Add a loading spinner"]
+    answer: 1
+    explanation: "The LCP image must start downloading early and be small; lazy-loading it delays it."
+  - id: sse-or-websocket
+    skills: [full-stack.performance]
+    prompt: "A page shows live order status; the browser never sends anything back on that channel. Which transport fits best?"
+    options: ["WebSockets, always", "Server-Sent Events: plain HTTP, automatic reconnect and Last-Event-ID resume", "Polling every 100 ms"]
+    answer: 1
+    explanation: "SSE fit one-way server-to-browser updates; WebSockets pay off for two-way traffic."
+  - id: fan-out
+    skills: [full-stack.performance, full-stack.deploy-serverless]
+    prompt: "With two API instances, clients connected to instance B never see changes saved through instance A. What is missing?"
+    options: ["Sticky sessions", "A shared pub/sub (Redis, PostgreSQL LISTEN/NOTIFY, a broker) that every instance subscribes to", "A longer heartbeat"]
+    answer: 1
+    explanation: "Each instance only knows its own clients; the change must reach every instance."

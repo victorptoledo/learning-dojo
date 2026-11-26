@@ -1,0 +1,51 @@
+id: full-stack.p3.checkpoint
+kind: checkpoint
+status: reviewed
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on deploying, observing and speeding up the stack, and an integration kata, a live order tracker with a list free of N+1, Server-Sent Events that resume and fan out across instances, a gauge of open streams and a drain for rolling deploys."
+objectives:
+  - { id: o1, text: "Explain deploys and environments, end-to-end observability, performance budgets and real-time choices in your own words", skills: [full-stack.deploy-serverless, full-stack.observability, full-stack.performance] }
+  - { id: o2, text: "Make an API production-ready for live updates: two-query pages, resumable SSE fanned out through pub/sub, stream metrics and graceful draining", skills: [full-stack.performance, full-stack.observability, full-stack.deploy-serverless, nodejs.http] }
+prerequisites: [full-stack.p3.performance-realtime]
+difficulty: 4
+estimated_minutes: 90
+xp: 450
+closes_phase: p3
+covers_skills: [full-stack.deploy-serverless, full-stack.observability, full-stack.performance]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with the pure parts and the list: `events.ts`, then `GET /api/orders` with `getMany` and `itemsOfMany`. Then the stream, as a story in time: what does the client get first, what comes next, and what must happen when it leaves? For each change, ask which path brings it to a client: if the instance that saved it also writes to its own clients, how many copies does a client of that instance get?
+    - |-
+      A stream is a response you never `end()`: `writeHead(200, ...)`, then `write()` frames. Keep the open responses in a `Set` (its `size` is the gauge), and per stream the last version sent, so a change that arrives twice or late is dropped. Subscribe to `order:<id>` before sending the snapshot or the replay, and put `clearInterval`, the unsubscribe function and `streams.delete` in `response.on("close", ...)`. For `drain()`, a `draining` flag answers the probes and new streams at once; after the delay, `end()` every open stream, then `server.close(resolve)`.
+    - |-
+      ```ts
+      response.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" });
+      response.write(`retry: ${retryMs}\n\n`);
+      streams.add(response);
+      let lastVersion = 0;
+      const send = (change: StatusChange): void => {
+        if (change.version <= lastVersion) return;
+        lastVersion = change.version;
+        eventsSent += 1;
+        response.write(formatEvent({ id: change.version, event: "status", data: JSON.stringify(change) }));
+      };
+      const unsubscribe = bus.subscribe(`order:${orderId}`, (message) => send(JSON.parse(message)));
+      // snapshot or replay, then the heartbeat, then response.on("close", ...)
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.
