@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "thumbnailer.fullname" . }}
+  labels:
+    {{- include "thumbnailer.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "thumbnailer.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "thumbnailer.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "thumbnailer.fullname" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: thumbnailer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          args: ["--queue-url={{ .Values.queue.url }}", "--queue={{ .Values.queue.name }}", "--scratch=/tmp"]
+          ports:
+            - name: metrics
+              containerPort: 9090
+            - name: health
+              containerPort: 8081
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: health
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: health
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: scratch
+              mountPath: /tmp
+      volumes:
+        - name: scratch
+          emptyDir:
+            sizeLimit: 1Gi

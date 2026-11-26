@@ -1,0 +1,69 @@
+id: kubernetes.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on the advanced and mastery phases (security, autoscaling, debugging, operators and production), and the Helm chart of a Database operator made production-ready: a strict, versioned CRD, a controller with exactly the RBAC it reconciles, aggregated roles, leader election and a pinned image."
+objectives:
+  - { id: o1, text: "Explain debugging, CRDs, controllers and operators, upgrades, GitOps, policy and multi-tenancy, building on RBAC, Pod security and autoscaling", skills: [kubernetes.debugging, kubernetes.operators, kubernetes.production, kubernetes.rbac, kubernetes.workload-security, kubernetes.hpa-autoscaling] }
+  - { id: o2, text: "Package an operator for production: a structural CRD with validation, a deprecated version, the status subresource and printer columns, least-privilege controller RBAC, aggregated ClusterRoles, leader election and a release that refuses unsafe values", skills: [kubernetes.operators, kubernetes.rbac, kubernetes.workload-security, kubernetes.production, kubernetes.kustomize-helm] }
+prerequisites: [kubernetes.p4.production]
+difficulty: 5
+estimated_minutes: 120
+xp: 500
+closes_phase: p4
+covers_skills: [kubernetes.debugging, kubernetes.operators, kubernetes.production, kubernetes.rbac, kubernetes.workload-security, kubernetes.network-policy, kubernetes.hpa-autoscaling, kubernetes.kustomize-helm]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-k8s, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with the CRD, because its schema decides what users can store. Copy the `v1alpha1` entry into a `v1` entry, move `storage: true` to `v1`, and mark `v1alpha1` with `deprecated: true` and a `deprecationWarning`. In the schema, replace `x-kubernetes-preserve-unknown-fields` on `spec` with `required` and `properties` (`type`, `enum`, `minimum`, `maximum`); keep it only on `status`. Note that `enum: ["17", "18"]` with `type: string` rejects the number `18`.
+    - |-
+      For RBAC, list the controller's API calls: it watches Databases and patches their finalizers and status, creates and updates StatefulSets, Services and Secrets (never deletes them: the ownerReference does that), records events and holds a Lease. Subresources (`databases/status`, `databases/finalizers`) are separate entries. A Lease lives in one namespace, so a Role is enough. Aggregation works by labels on a ClusterRole: `rbac.authorization.k8s.io/aggregate-to-edit: "true"` and its `-admin` and `-view` siblings. In the Deployment, `{{ required "..." .Values.image.digest }}` and `{{ fail "..." }}` inside an `if` make Helm refuse unsafe values.
+    - |-
+      ```yaml
+      # one version of crds/databases.yaml
+      - name: v1
+        served: true
+        storage: true
+        subresources: { status: {} }
+        additionalPrinterColumns:
+          - { name: Version, type: string, jsonPath: .spec.engineVersion }
+          - ...
+        schema:
+          openAPIV3Schema:
+            type: object
+            properties:
+              spec:
+                type: object
+                required: [engineVersion, size, storageGB]
+                properties:
+                  storageGB:
+                    type: integer
+                    minimum: 10
+                    maximum: 1000
+                    x-kubernetes-validations:
+                      - { rule: self >= oldSelf, message: storageGB can grow but never shrink }
+                  ...
+              status: { type: object, x-kubernetes-preserve-unknown-fields: true }
+      ```
+      ```yaml
+      # the top of templates/deployment.yaml
+      {{- if and (gt (int .Values.replicas) 1) (not .Values.leaderElection.enabled) }}
+      {{- fail "replicas > 1 needs leaderElection.enabled" }}
+      {{- end }}
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your chart and CRD are checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-k8s runner image
+    image: dojo-k8s
+    why: The container with kubeconform, kustomize, helm, yq and bats that checks your manifests offline.

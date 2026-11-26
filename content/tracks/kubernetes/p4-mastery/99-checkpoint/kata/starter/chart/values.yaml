@@ -1,0 +1,18 @@
+image:
+  repository: ghcr.io/acme/db-operator
+  # Production pulls the operator by digest only, for example
+  # sha256:0123...: the release must fail to render without one.
+  digest: ""
+
+# Two controllers for availability. Only one may reconcile at a time.
+replicas: 2
+
+leaderElection:
+  enabled: true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 256Mi

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: db-operator
+description: "The platform team's Database operator: a CRD and the controller that reconciles it"
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

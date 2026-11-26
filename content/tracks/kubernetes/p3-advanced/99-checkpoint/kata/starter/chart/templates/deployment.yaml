@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "thumbnailer.fullname" . }}
+  labels:
+    {{- include "thumbnailer.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }} {{/* todo: who owns the replica count when the HPA is on? */}}
+  selector:
+    matchLabels:
+      {{- include "thumbnailer.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "thumbnailer.labels" . | nindent 8 }}
+    spec:
+      {{/* todo: the Pods' own ServiceAccount and the restricted profile */}}
+      containers:
+        - name: thumbnailer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          args: ["--queue-url={{ .Values.queue.url }}", "--queue={{ .Values.queue.name }}", "--scratch=/tmp"]
+          ports:
+            - name: metrics
+              containerPort: 9090
+            - name: health
+              containerPort: 8081
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: health
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: health
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{/* todo: a read-only root file system; thumbnails are rendered in /tmp */}}

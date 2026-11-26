@@ -1,0 +1,7 @@
+apiVersion: platform.acme.io/v1
+kind: Database
+metadata: { name: orders, namespace: shop }
+spec:
+  engineVersion: "18"
+  size: small
+  storageGB: 20

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "db-operator.fullname" . }}
+  labels:
+    {{- include "db-operator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "db-operator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "db-operator.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "db-operator.fullname" . }}
+      containers:
+        - name: manager
+          image: "{{ .Values.image.repository }}:latest"
+          args: ["--metrics-bind-address=:8080", "--health-probe-bind-address=:8081"]
+          ports:
+            - name: metrics
+              containerPort: 8080
+            - name: health
+              containerPort: 8081
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: metrics
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

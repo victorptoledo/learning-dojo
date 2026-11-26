@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Follow a top-down method from the symptom to the failing object with get, describe and events", skills: [kubernetes.debugging] }
   - { id: o2, text: "Diagnose Pending, ImagePullBackOff, CreateContainerConfigError, CrashLoopBackOff, OOMKilled and not-ready Pods", skills: [kubernetes.debugging] }
   - { id: o3, text: "Debug inside a running Pod with logs, exec, port-forward and kubectl debug", skills: [kubernetes.debugging] }
-prerequisites: [kubernetes.p3.helm-release]
+prerequisites: [kubernetes.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 50
 xp: 250

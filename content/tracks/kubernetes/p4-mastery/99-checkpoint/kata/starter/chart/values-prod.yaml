@@ -1,0 +1,10 @@
+# The production values. They are complete: change the templates and the CRD, not this file.
+image:
+  digest: sha256:4f1c2a9e8b7d6c5f4e3d2c1b0a99887766554433221100ffeeddccbbaa998877
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    memory: 512Mi

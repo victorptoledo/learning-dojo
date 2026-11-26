@@ -1,0 +1,2 @@
+# name: command that prints the YAML to check (the CRD in chart/crds is read by the tests)
+prod: helm template db-operator chart --namespace platform -f chart/values-prod.yaml

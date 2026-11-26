@@ -1,0 +1,34 @@
+{{- if .Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "thumbnailer.fullname" . }}
+  labels:
+    {{- include "thumbnailer.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "thumbnailer.fullname" . }}
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+    - type: External
+      external:
+        metric:
+          name: rabbitmq_queue_messages_ready
+          selector:
+            matchLabels:
+              queue: {{ .Values.queue.name }}
+        target:
+          type: AverageValue
+          averageValue: {{ .Values.autoscaling.messagesPerReplica | quote }}
+  behavior:
+    scaleUp:
+      policies:
+        - type: Pods
+          value: {{ .Values.autoscaling.scaleUp.pods }}
+          periodSeconds: {{ .Values.autoscaling.scaleUp.periodSeconds }}
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.autoscaling.scaleDownStabilizationSeconds }}
+{{- end }}

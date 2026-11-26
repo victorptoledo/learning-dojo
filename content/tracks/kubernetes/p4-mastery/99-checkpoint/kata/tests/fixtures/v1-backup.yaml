@@ -1,0 +1,14 @@
+apiVersion: platform.acme.io/v1
+kind: Database
+metadata: { name: billing, namespace: finance }
+spec:
+  engineVersion: "17"
+  size: large
+  storageGB: 500
+  backup:
+    schedule: "30 2 * * *"
+    retentionDays: 30
+status:
+  phase: Ready
+  conditions:
+    - { type: Ready, status: "True", reason: Reconciled }

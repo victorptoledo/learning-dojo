@@ -13,8 +13,8 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Helm Packager" }
   - { name: "Purple Belt", required_xp: 1500, title: "Traffic & Ingress Controller" }
   - { name: "Brown Belt", required_xp: 2500, title: "Auto-scaling Architect" }
-  - { name: "Black Belt", required_xp: 4000, title: "Cluster Operator" }
-  - { name: "Sensei", required_xp: 6000, title: "Kubernetes Grandmaster" }
+  - { name: "Black Belt", required_xp: 5000, title: "Cluster Operator" }
+  - { name: "Sensei", required_xp: 7000, title: "Kubernetes Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Why Kubernetes exists, a local cluster with kubectl and a first Pod manifest" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The control plane, Pods, Deployments and rollouts, Services and DNS, configuration, probes and resources" }
