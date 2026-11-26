@@ -1,0 +1,82 @@
+pass_percent: 85
+questions:
+  - id: stampede
+    skills: [nodejs.performance-scaling, nodejs.async-patterns]
+    prompt: "A popular product's cache entry expires, and in the next 100 ms 800 requests ask for it. The upstream falls over. What prevents this?"
+    options:
+      - "A longer TTL"
+      - "Single flight: the first miss starts the call and keeps its promise in a map, and the other misses await the same promise"
+      - "Running the upstream calls on worker threads"
+      - "Retrying every failed call three times"
+    answer: 1
+    explanation: "Concurrent misses for one key share one call (request coalescing). A longer TTL only moves the stampede; retries make it worse."
+  - id: unbounded-cache
+    skills: [nodejs.performance-scaling]
+    prompt: "A service caches responses in a plain `Map` keyed by URL. After a few days in production it is killed with exit code 137. What is the likely cause and fix?"
+    options:
+      - "The event loop is blocked; move the Map to a worker"
+      - "The Map grows without limit (every new query string is a new key) until the container's memory limit; bound it, for example with an LRU of N entries, and expire entries"
+      - "Maps are slower than objects; use an object"
+      - "The GC is disabled in containers; pass --expose-gc"
+    answer: 1
+    explanation: "137 is SIGKILL from the out-of-memory killer. A cache is a memory leak unless it has a size bound and an eviction policy."
+  - id: load-shedding
+    skills: [nodejs.performance-scaling, nodejs.production]
+    prompt: "Under a traffic spike, a Node.js service queues every request, and p99 latency climbs to 40 s although each request needs 50 ms of work. Clients time out after 5 s anyway. What is the better behaviour?"
+    options:
+      - "Queue even more requests so none are lost"
+      - "Limit the work in progress and answer the excess at once with 503 and Retry-After, so the requests it accepts are still fast"
+      - "Raise the server's requestTimeout to 60 s"
+      - "Restart the process when latency is high"
+    answer: 1
+    explanation: "A request that will time out is wasted work. Shedding keeps latency bounded for the accepted ones and tells clients and load balancers to back off."
+  - id: als-propagation
+    skills: [nodejs.async-context]
+    prompt: "A repository function, five calls and two awaits below the handler, must add the request id to a header of an outgoing call. What is the idiomatic way?"
+    options:
+      - "A global variable set at the start of every request"
+      - "Read it from an AsyncLocalStorage whose run() wraps the request handling; the store follows the async flow"
+      - "Pass req to every function"
+      - "Read it from process.env"
+    answer: 1
+    explanation: "A global is overwritten by concurrent requests. AsyncLocalStorage keeps one store per async flow without changing every signature."
+  - id: fetch-timeout
+    skills: [nodejs.http, nodejs.async-patterns]
+    prompt: "`await fetch(upstreamUrl)` hangs for minutes when the upstream accepts the connection but never answers. Which fix is right?"
+    options:
+      - "fetch has a 5 s default timeout; nothing to do"
+      - "Pass `signal: AbortSignal.timeout(ms)` and turn the TimeoutError into a 504 or a fallback"
+      - "Wrap it in try/catch"
+      - "Use setImmediate before the call"
+    answer: 1
+    explanation: "Every outgoing call needs a deadline. The signal aborts the request and rejects the promise with a TimeoutError."
+  - id: readiness-vs-liveness
+    skills: [nodejs.production]
+    prompt: "During a graceful shutdown, which probe should change first, and why?"
+    options:
+      - "Liveness should fail, so the orchestrator restarts the pod"
+      - "Readiness should fail, so the load balancer stops sending new requests while the ones in progress finish; liveness stays healthy"
+      - "Both should keep answering 200 until the process exits"
+      - "Neither: probes are only read at startup"
+    answer: 1
+    explanation: "Readiness decides traffic; liveness decides restarts. Failing liveness during a drain gets the process killed early."
+  - id: grace-period
+    skills: [nodejs.production]
+    prompt: "Kubernetes sends SIGTERM with a 30 s grace period. A request in progress is stuck on a dependency that never answers. What should the service do?"
+    options:
+      - "Wait for it forever: a request must never be cut"
+      - "Stop accepting work, drain, and close what is still open after its own deadline (shorter than 30 s), then exit; otherwise SIGKILL cuts everything at 30 s"
+      - "Ignore SIGTERM"
+      - "Call process.exit() at once"
+    answer: 1
+    explanation: "A forced close after your own timeout lets you log, flush and exit cleanly. SIGKILL cannot be caught."
+  - id: stale-if-error
+    skills: [nodejs.performance-scaling, nodejs.errors-testing]
+    prompt: "The upstream answers 503 for a product that was cached 2 minutes ago with a TTL of 30 s. When is answering the old copy a good idea?"
+    options:
+      - "Never: expired data is always wrong"
+      - "When the data tolerates being a little old (a product page): serve it marked as stale and log the upstream failure, instead of turning a partial outage into errors for users"
+      - "Only if the upstream sends Retry-After"
+      - "Always, even for account balances"
+    answer: 1
+    explanation: "Stale-if-error trades freshness for availability. It fits a catalog, not a balance or a stock reservation."

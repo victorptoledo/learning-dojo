@@ -1,0 +1,51 @@
+id: nodejs.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz over worker threads, child processes and security, and an integration kata, a batch job runner that validates an untrusted manifest, hashes files on worker threads, runs allow-listed tools in child processes and keeps every path inside one folder."
+objectives:
+  - { id: o1, text: "Explain worker threads, child processes and the main risks of Node.js code in your own words, and choose the right tool for CPU-bound work and for running other programs", skills: [nodejs.worker-threads, nodejs.child-processes, nodejs.security] }
+  - { id: o2, text: "Build a job runner that validates untrusted input, moves CPU-bound work to worker threads and runs other programs without a shell, with limits on time, output, paths and concurrency", skills: [nodejs.worker-threads, nodejs.child-processes, nodejs.security, nodejs.async-patterns] }
+prerequisites: [nodejs.p3.security]
+difficulty: 4
+estimated_minutes: 100
+xp: 400
+closes_phase: p3
+covers_skills: [nodejs.worker-threads, nodejs.child-processes, nodejs.security]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 120 }
+  hints:
+    - |-
+      Bottom up: `parseManifest` (pure), `resolveInside`, the worker and `digestInWorker`, `runTool`, and `runJobs` last. For the forbidden keys, `JSON.parse` takes a second argument, a reviver, that is called with **every** key at every depth, `__proto__` included. For the tool name, why is `"toString" in TOOLS` true, and which function asks only about the object's own keys?
+    - |-
+      `resolveInside` checks twice: once on `path.resolve(realRoot, file)` before touching the disk (so `../x` is refused even when it does not exist), and once on `await realpath(candidate)` (so a symbolic link cannot point outside). "Inside" means `path.relative(root, candidate)` is `""` or does not start with `..` and is not absolute. `digestInWorker`: `new Worker(DIGEST_WORKER, { workerData: { file, rounds } })`, resolve on `"message"`, reject on `"error"`. `runTool`: `spawn(command, [...fixed, ...args], { shell: false, env: { PATH: process.env.PATH ?? "" } })`, one timer that kills with `SIGKILL`, and the result decided in `"close"`.
+    - |-
+      ```ts
+      export async function runJobs(manifest: Manifest, options: { root: string; concurrency?: number }): Promise<JobResult[]> {
+        const results = new Array<JobResult>(manifest.jobs.length);
+        let next = 0;
+        async function lane(): Promise<void> {
+          while (next < manifest.jobs.length) {
+            const index = next++; // no await between reading and taking it: one lane per job
+            results[index] = await runJob(manifest.jobs[index]!, options.root); // never throws
+          }
+        }
+        await Promise.all(Array.from({ length: Math.min(options.concurrency ?? 2, manifest.jobs.length) }, lane));
+        return results;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

@@ -1,0 +1,52 @@
+id: nodejs.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "The final exam of the Node.js track: a quiz over the whole track, weighted towards production, observability and performance, and an integration kata, a caching gateway with single-flight upstream calls, a bounded LRU cache, stale answers on failure, load shedding, request context and a graceful shutdown."
+objectives:
+  - { id: o1, text: "Explain how a Node.js service stays fast, observable and available under load and failure: shared upstream calls, bounded caches, timeouts, load shedding, request context, readiness and graceful shutdown", skills: [nodejs.production, nodejs.async-context, nodejs.performance-scaling] }
+  - { id: o2, text: "Build an HTTP gateway that caches a slow upstream with a bound and a TTL, shares concurrent calls, serves stale data when the upstream fails, sheds load and shuts down gracefully", skills: [nodejs.production, nodejs.async-context, nodejs.performance-scaling, nodejs.http, nodejs.async-patterns] }
+prerequisites: [nodejs.p4.performance-scaling]
+difficulty: 5
+estimated_minutes: 120
+xp: 450
+closes_phase: p4
+covers_skills: [nodejs.production, nodejs.async-context, nodejs.performance-scaling, nodejs.http, nodejs.async-patterns, nodejs.errors-testing]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-node, timeout_secs: 120 }
+  hints:
+    - |-
+      Start with `currentRequestId` and `LruCache` (a `Map`: delete and set again to move a key to the end; `map.keys().next().value` is the oldest). Then the server without the upstream: the request id, `requestContext.run`, the access log on `res.once("finish")`, `/ready`, `/metrics`, 404 and 405. Add products last, and shutdown at the very end. What must be true about the cache entry so you can still answer stale after it expired?
+    - |-
+      Keep `{ body, storedAt }` in the cache and never delete an expired entry: fresh means `now() - storedAt < ttlMs`, and an expired one is the stale fallback. Single flight is a `Map<string, Promise<Outcome>>`: take the promise that is there, or start `callUpstream(id).finally(() => pending.delete(id))` and store it. Make `callUpstream` **never reject**: it returns `{ kind: "found", body }`, `{ kind: "not-found" }`, `{ kind: "timeout" }` (an error named `"TimeoutError"`) or `{ kind: "failed" }`, so every waiting request can decide its own answer. Count in-flight requests up before the work and down in `res.once("close")`.
+    - |-
+      ```ts
+      function shutdown(graceMs = 10_000): Promise<void> {
+        if (stopping !== undefined) return stopping;
+        ready = false; // /ready answers 503 from now on
+        stopping = new Promise<void>((resolve) => {
+          const timer = setTimeout(() => server.closeAllConnections(), graceMs);
+          server.close(() => {
+            clearTimeout(timer);
+            resolve();
+          });
+          server.closeIdleConnections();
+        });
+        return stopping;
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-node runner image
+    image: dojo-node
+    why: The Node.js 26 container with TypeScript 7 that type-checks your code and runs the tests.

@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Package and start a Node.js service for production: npm ci --omit=dev, NODE_ENV, a small non-root image, node as the direct process", skills: [nodejs.production] }
   - { id: o2, text: "Implement liveness and readiness checks and a graceful shutdown on SIGTERM that drains requests and closes resources in order", skills: [nodejs.production] }
   - { id: o3, text: "Explain how orchestrators stop processes (SIGTERM, grace period, SIGKILL) and plan deploys and Node.js upgrades", skills: [nodejs.production] }
-prerequisites: [nodejs.p3.security]
+prerequisites: [nodejs.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 55
 xp: 100
