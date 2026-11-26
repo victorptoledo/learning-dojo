@@ -1,0 +1,81 @@
+questions:
+  - id: cp3-key-reset
+    skills: [react.reconciliation-fiber]
+    prompt: "An `<Editor issue={selected} />` keeps its draft in `useState(issue.title)`. After selecting another issue, the old draft is still shown. What is the simplest correct fix?"
+    options:
+      - "Copy the new title into the draft in a useEffect on `issue`"
+      - "Render `<Editor key={selected.id} issue={selected} />`, so React treats each issue's editor as a new component and its state starts over"
+      - "Wrap Editor in memo"
+      - "Read the title from a ref instead of state"
+    answer: 1
+    explanation: "A different key resets the subtree's state; the effect version renders the stale draft first and fights the user's typing."
+  - id: cp3-index-key
+    skills: [react.reconciliation-fiber, react.testing-a11y]
+    prompt: "Rows are keyed by their index. The list is reordered while a checkbox in it has the focus. What does the user see?"
+    options:
+      - "The focus follows the same item to its new place"
+      - "The focus stays at the same position, which now belongs to another item, because React reused the DOM nodes by index"
+      - "The focus moves to the page"
+      - "React throws a key warning and stops"
+    answer: 1
+    explanation: "Keys tell React which element is which; a stable id keeps each item's DOM, state and focus together."
+  - id: cp3-memo-inline
+    skills: [react.performance]
+    prompt: "A row is wrapped in `memo`, but every row still re-renders when the parent's filter changes. The parent passes `onToggle={(id) => toggle(id)}`. Why?"
+    options:
+      - "memo only works on class components"
+      - "The arrow is a new function on every render, so memo's shallow comparison sees a changed prop"
+      - "memo compares props deeply and the function is too big"
+      - "Filtering always re-renders every child"
+    answer: 1
+    explanation: "Pass a stable callback (useCallback, or the setter itself) or let the React Compiler memoise it."
+  - id: cp3-measure-first
+    skills: [react.performance]
+    prompt: "Typing in a search box feels slow. What should you do first?"
+    options:
+      - "Wrap every component in memo"
+      - "Record the interaction in the React DevTools Profiler and see which components render, how long they take and why"
+      - "Move all state into a global store"
+      - "Replace the list with a virtualised one"
+    answer: 1
+    explanation: "Measure, then fix the cause: often moving state down or one memo boundary is enough."
+  - id: cp3-uses-snapshot
+    skills: [react.state-management]
+    prompt: "A component reads a store with `useSyncExternalStore(store.subscribe, () => store.getState().issues.filter(open))` and React warns that the snapshot should be cached, then loops. Why?"
+    options:
+      - "subscribe must be an arrow function"
+      - "getSnapshot returns a new array on every call, so React always sees a change; return a stored value and derive the filter in render or with useMemo"
+      - "Stores cannot hold arrays"
+      - "useSyncExternalStore needs a third argument in the browser"
+    answer: 1
+    explanation: "The snapshot is compared with Object.is; it must stay the same object until the store changes."
+  - id: cp3-where-state
+    skills: [react.state-management]
+    prompt: "Where should the text of a list filter live if people share links to filtered views?"
+    options:
+      - "In a global client store"
+      - "In the URL search params, written with replaceState while typing so Back is not flooded"
+      - "In localStorage"
+      - "In the query cache with the server data"
+    answer: 1
+    explanation: "URL state survives reloads and links; replace while typing, push for real navigations."
+  - id: cp3-query-priority
+    skills: [react.testing-a11y]
+    prompt: "Which query should a test reach for first to find a Save button?"
+    options:
+      - "`container.querySelector(\".btn-save\")`"
+      - "`getByRole(\"button\", { name: \"Save\" })`"
+      - "`getByTestId(\"save\")`"
+      - "`getByText(\"Save\")`"
+    answer: 1
+    explanation: "Role and accessible name are what users and assistive technology rely on; test ids are a last resort."
+  - id: cp3-invalid-field
+    skills: [react.testing-a11y, react.forms]
+    prompt: "A required title is left empty and the form is submitted. Which response is the most accessible?"
+    options:
+      - "Turn the field's border red"
+      - "Show an alert() dialog"
+      - "Mark the field `aria-invalid`, tie the message to it with `aria-describedby`, and keep or move the focus to it"
+      - "Disable the Save button until the user types"
+    answer: 2
+    explanation: "A screen reader then announces both the problem and where it is, and the user can fix it at once."

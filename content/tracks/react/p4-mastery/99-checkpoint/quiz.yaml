@@ -1,0 +1,81 @@
+questions:
+  - id: cp4-promise-in-render
+    skills: [react.suspense-transitions]
+    prompt: "A component calls `use(fetch(`/api/posts/${id}`).then((r) => r.json()))`. The fallback never goes away. Why?"
+    options:
+      - "use only accepts context"
+      - "Every render creates a new promise, so React suspends again on each retry; the promise must come from a cache, a loader or the framework"
+      - "fetch is not allowed in components"
+      - "The Suspense boundary needs a key"
+    answer: 1
+    explanation: "use needs the same promise across renders; create it outside render and cache it by key."
+  - id: cp4-transition-fallback
+    skills: [react.suspense-transitions]
+    prompt: "Switching tabs shows the spinner again, although the old tab's content was fine to keep. What change keeps it on screen with a pending hint?"
+    options:
+      - "Remove the Suspense boundary"
+      - "Set the new tab inside startTransition (useTransition) and use isPending for the hint"
+      - "Add a useEffect that delays the switch"
+      - "Wrap the tab in memo"
+    answer: 1
+    explanation: "A transition lets React keep showing already revealed content instead of falling back again."
+  - id: cp4-optimistic
+    skills: [react.suspense-transitions, react.forms]
+    prompt: "With `useOptimistic`, what happens to the optimistic value when the action fails and nothing else changes?"
+    options:
+      - "It stays until the page reloads"
+      - "It goes back to the real state when the action ends, so the UI rolls back by itself; you still tell the user and keep their input"
+      - "React retries the action"
+      - "It throws inside the error boundary"
+    answer: 1
+    explanation: "The optimistic state only lives while the action runs; afterwards the passed-in state is shown again."
+  - id: cp4-boundary-report
+    skills: [react.production, react.suspense-transitions]
+    prompt: "Where should an error boundary send the caught error to your monitoring service?"
+    options:
+      - "In getDerivedStateFromError"
+      - "In componentDidCatch, which runs once in the commit phase; getDerivedStateFromError is a pure render-phase function"
+      - "In render"
+      - "In the constructor"
+    answer: 1
+    explanation: "Side effects belong in the commit phase; the render phase may run more than once or be thrown away."
+  - id: cp4-server-trust
+    skills: [react.server-components]
+    prompt: "A server function receives `authorId` in its form data because the page put it there. What should it do?"
+    options:
+      - "Trust it: only our page can call the function"
+      - "Ignore it and take the author from the session: a server function is a public endpoint and its arguments are untrusted"
+      - "Check that it is a number"
+      - "Encrypt it"
+    answer: 1
+    explanation: "Anyone can call a server function directly; authenticate, authorise and validate inside it."
+  - id: cp4-props-leak
+    skills: [react.server-components]
+    prompt: "A Server Component passes `comment={row}` (the database row) to a Client Component that only shows the author's name and the body. What is the risk?"
+    options:
+      - "None, Client Components only receive what they render"
+      - "Every field of the row, such as the author's e-mail, is serialised into the page and readable by anyone"
+      - "The row cannot be serialised"
+      - "The Client Component will re-render too often"
+    answer: 1
+    explanation: "Props that cross the boundary are sent to the browser in full; map rows to the public fields first."
+  - id: cp4-white-screen
+    skills: [react.production]
+    prompt: "Users report a white screen that nobody can reproduce. What gives you the most information first?"
+    options:
+      - "Adding console.log everywhere"
+      - "Error boundaries around parts of the page plus error monitoring with source maps, so you see the real stack and the page degrades instead of going blank"
+      - "Upgrading React"
+      - "Turning on StrictMode in production"
+    answer: 1
+    explanation: "An uncaught render error unmounts the whole root; boundaries contain it and monitoring tells you where it came from."
+  - id: cp4-state-reset
+    skills: [react.reconciliation-fiber, react.state-management]
+    prompt: "In the comment thread, comments the server stored must still be there after switching posts and back, without loading the post again. Where can they live?"
+    options:
+      - "In the optimistic state"
+      - "In state above the part that changes per post (or in the cache), keyed by post, and added to the loaded list"
+      - "In a ref inside the comments component"
+      - "In the textarea's value"
+    answer: 1
+    explanation: "Optimistic state is temporary; state that must outlive a switch lives above it, keyed by what it belongs to."

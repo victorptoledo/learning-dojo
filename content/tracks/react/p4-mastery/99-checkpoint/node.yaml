@@ -1,0 +1,53 @@
+id: react.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz weighted towards Suspense, transitions, Server Components and React in production, and a comment thread from the server function down to the button, with use and Suspense, a reporting error boundary, transitions and an optimistic comment that rolls back."
+objectives:
+  - { id: o1, text: "Explain Suspense and transitions, the server and client boundary, server functions and production practices, together with the earlier phases", skills: [react.suspense-transitions, react.server-components, react.production, react.reconciliation-fiber, react.state-management] }
+  - { id: o2, text: "Build a feature end to end: untrusted input checked on the server, only public fields sent to the browser, Suspense with a cache, a reporting error boundary, transitions and optimistic updates with rollback", skills: [react.suspense-transitions, react.server-components, react.production, react.forms, react.testing-a11y] }
+prerequisites: [react.p4.react-in-production]
+difficulty: 5
+estimated_minutes: 120
+xp: 450
+closes_phase: p4
+covers_skills: [react.suspense-transitions, react.server-components, react.production]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-react, timeout_secs: 120 }
+  hints:
+    - |-
+      Four parts, in order: `server.ts` (pure, no React), `ErrorBoundary.tsx`, then the page in two steps: first the posts, Suspense and the error boundary (like the Resource Loader kata), then the form. For the form, ask: which list does the user see while the server works, which list after it answers, and where does a stored comment live so that it is still there after switching posts?
+    - |-
+      On the server, check in the order of the table and build the comment from `session`, never from `form.get("authorName")`; map each row to a new `{ id, author, body }` instead of spreading it, and sort a copy (`toSorted`) by `Date.parse(postedAt)`. The boundary reports in `componentDidCatch` (a commit-phase side effect), not in `getDerivedStateFromError`. In the page, keep the cache in `useState(() => createResourceCache(loadComments))`, switch posts inside `startTransition`, and put `resetKey={postId}` on the boundary. The comments component reads `use(promise)`, adds the stored comments kept in the page's state per post, and passes that list to `useOptimistic`. Submit inside `startTransition(async () => ...)` from `useTransition`, so `isPending` disables the button.
+    - |-
+      ```tsx
+      const confirmed = [...use(loaded), ...added];
+      const [shown, addSending] = useOptimistic<readonly Shown[], Shown>(confirmed, (list, c) => [...list, c]);
+      const [isSending, startSending] = useTransition();
+
+      startSending(async () => {
+        addSending({ id: "sending", author: "You", body, sending: true });
+        try {
+          const stored = await sendComment(postId, body);
+          startTransition(() => onStored(postId, stored)); // after an await, wrap updates again
+        } catch (error) {
+          report(error instanceof Error ? error : new Error(String(error)));
+          startTransition(() => { setFailed(true); setDraft(body); });
+        }
+      }); // when the action ends, the optimistic comment goes away by itself
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-react runner image
+    image: dojo-react
+    why: The Node.js 26 container with TypeScript 7, React 19, jsdom and Testing Library that checks your components.
