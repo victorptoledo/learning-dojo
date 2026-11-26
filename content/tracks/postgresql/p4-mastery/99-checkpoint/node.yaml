@@ -1,0 +1,54 @@
+id: postgresql.p4.checkpoint
+kind: checkpoint
+status: reviewed
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz over WAL and replication, backups and recovery, monitoring and tuning and the phases before them, and a disaster-recovery drill on a payments database: the replication slots that hold back WAL, a point-in-time restore plan that checks the WAL chain across segment names, putting back the rows an accidental DELETE cascaded away without undoing later work, and measuring WAL to move a staging table to UNLOGGED."
+objectives:
+  - { id: o1, text: "Explain WAL, slots and replication, backups and point-in-time recovery, and production monitoring and tuning in your own words", skills: [postgresql.replication, postgresql.backup-recovery, postgresql.monitoring-tuning] }
+  - { id: o2, text: "Read WAL positions and segment names to find slots that hold back WAL and to check the archive a restore needs", skills: [postgresql.replication, postgresql.backup-recovery] }
+  - { id: o3, text: "Recover deleted rows from a restored copy safely and idempotently, and measure the WAL a statement writes", skills: [postgresql.backup-recovery, postgresql.monitoring-tuning] }
+prerequisites: [postgresql.p4.incident-clinic]
+difficulty: 5
+estimated_minutes: 120
+xp: 550
+closes_phase: p4
+covers_skills: [postgresql.replication, postgresql.backup-recovery, postgresql.monitoring-tuning]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 180 }
+  hints:
+    - |-
+      What do you get when you subtract one `pg_lsn` from another? A slot needs attention for three different reasons: which columns say each one? For the restore: which backups can reach 14:29 at all, and which segment holds the WAL written at 14:29? Count segments as numbers, not as names. For the rows: which rows did the accident remove, including the ones it removed without naming them? What stops an `INSERT` from choosing an identity value itself, and what makes a second run harmless? For the WAL: which of the three WAL positions moves the moment a record is written into the buffers?
+    - |-
+      `primary_status.current_lsn - restart_lsn` is in bytes; list a slot when it is inactive, when its `wal_status` is `unreserved` or `lost`, or when it holds more than `1024 * 1024 * 1024` bytes. For the restore, only backups with `finished_at < '2026-11-25 14:29+00'`; the last segment is the first one archived at or after the target; a name is timeline, then segment number / 256, then segment number % 256, all in 8 hex digits, so `('x' || substr(name, 17, 8))::bit(32)::bigint` reads the last part, and `pg_walfile_name(lsn)` names the segment of an LSN. For the rows, `INSERT ... OVERRIDING SYSTEM VALUE SELECT ... FROM restored.payments WHERE created_at < '2026-10-01' ON CONFLICT (id) DO NOTHING`, then the refunds of those payments. `pg_current_wal_insert_lsn()` and `ALTER TABLE ... SET UNLOGGED`.
+    - |-
+      ```sql
+      -- restore_plan.sql (part): segment numbers, and the backup to use
+      archive AS (
+          SELECT a.archived_at,
+                 ('x' || substr(a.segment, 9, 8))::bit(32)::bigint * 256
+                 + ('x' || substr(a.segment, 17, 8))::bit(32)::bigint AS segno
+          FROM wal_archive AS a
+      ),
+      bounds AS (
+          SELECT b.label,
+                 floor((b.start_lsn - '0/0') / (16 * 1024 * 1024))::bigint AS first_no,
+                 (SELECT min(a.segno) FROM archive AS a WHERE a.archived_at >= '2026-11-25 14:29+00') AS last_no
+          FROM backup AS b
+      )
+      -- missing: generate_series(first_no, last_no) that have no row in archive
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

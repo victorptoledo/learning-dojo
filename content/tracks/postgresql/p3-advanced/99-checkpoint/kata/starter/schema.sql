@@ -1,0 +1,2 @@
+-- todo: the visits table, partitioned by region, with the imported Brazilian visits as one of
+-- its partitions.

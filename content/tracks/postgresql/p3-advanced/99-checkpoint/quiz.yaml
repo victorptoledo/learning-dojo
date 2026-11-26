@@ -1,0 +1,50 @@
+pass_percent: 85
+questions:
+  - id: brin-or-btree
+    skills: [postgresql.indexes-advanced]
+    prompt: "A 3 TB table of sensor readings is only ever appended in time order and queried by time range. Which index costs least for those queries?"
+    options: ["A B-tree on the time column", "A BRIN index on the time column", "A GIN index", "A hash index"]
+    answer: 1
+    explanation: "BRIN keeps a minimum and a maximum per block range; when the column follows the storage order it is tiny and skips almost every block."
+  - id: partial-unique
+    skills: [postgresql.indexes-advanced]
+    prompt: "Users may have many archived addresses but only one default address. Which object enforces it?"
+    options: ["UNIQUE (user_id, is_default)", "CREATE UNIQUE INDEX ON addresses (user_id) WHERE is_default", "A CHECK constraint", "An exclusion constraint on is_default"]
+    answer: 1
+    explanation: "A partial unique index enforces uniqueness only among the rows its WHERE selects; UNIQUE (user_id, is_default) would also allow just one non-default address."
+  - id: redundant-index
+    skills: [postgresql.indexes-advanced]
+    prompt: "A table has B-tree indexes on (customer_id) and on (customer_id, created_at), and neither is unique. Which can usually go?"
+    options: ["The one on (customer_id, created_at)", "The one on (customer_id): the other serves the same lookups through its leading column", "Neither: each query needs its own index", "Both, if the table has a primary key"]
+    answer: 1
+    explanation: "A B-tree serves conditions on any leading prefix of its columns, so the single-column index only costs writes and space."
+  - id: attach
+    skills: [postgresql.partitioning]
+    prompt: "You load a month of data into a separate table and then ATTACH it as a partition. What makes the ATTACH skip scanning the table?"
+    options: ["Running ANALYZE first", "A valid CHECK constraint on the table that matches the partition bound", "Creating the indexes after attaching", "Setting the table UNLOGGED"]
+    answer: 1
+    explanation: "With a matching CHECK constraint PostgreSQL already knows every row fits the bound, so it only takes a short lock instead of validating all rows."
+  - id: partition-unique
+    skills: [postgresql.partitioning]
+    prompt: "Why can a table partitioned by region not have PRIMARY KEY (id)?"
+    options: ["Partitioned tables cannot have keys", "Uniqueness is checked per partition, so the key must include the partition key", "Identity columns are not allowed", "Only hash partitioning allows keys"]
+    answer: 1
+    explanation: "Each partition has its own index, so only a key that contains the partition key is unique across all of them: PRIMARY KEY (id, region)."
+  - id: public-execute
+    skills: [postgresql.security]
+    prompt: "You create a SECURITY DEFINER function for one role. Who can execute it right away?"
+    options: ["Only its owner", "Every role, because PUBLIC gets EXECUTE on new functions", "Only superusers", "Nobody until you GRANT EXECUTE"]
+    answer: 1
+    explanation: "PUBLIC has EXECUTE on new functions by default: REVOKE EXECUTE ... FROM PUBLIC, then grant it to the role that needs it."
+  - id: definer-search-path
+    skills: [postgresql.security]
+    prompt: "Why should a SECURITY DEFINER function have SET search_path = public, pg_temp, with pg_temp last?"
+    options: ["It makes the function faster", "Otherwise a caller can create objects, such as a temporary table, that the function finds first and uses with the owner's rights", "It is required by the syntax", "So the function can create temporary tables"]
+    answer: 1
+    explanation: "pg_temp is searched first unless it is listed explicitly; putting it last stops a temporary table from standing in for a real one."
+  - id: pooler-advisory
+    skills: [postgresql.connection-pooling, postgresql.extensions]
+    prompt: "An application moves behind PgBouncer in transaction mode. Which feature must it stop using across transactions?"
+    options: ["SET LOCAL", "Session-level advisory locks (pg_advisory_lock) and LISTEN", "Transaction-level advisory locks (pg_advisory_xact_lock)", "CREATE EXTENSION"]
+    answer: 1
+    explanation: "Session state stays on a server connection that the next transaction may not get; transaction-scoped features are safe."

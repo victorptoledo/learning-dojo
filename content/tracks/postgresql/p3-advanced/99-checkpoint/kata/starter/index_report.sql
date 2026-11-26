@@ -1,0 +1,1 @@
+-- todo: the indexes to drop, each with its reason.

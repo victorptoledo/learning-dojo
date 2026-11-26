@@ -1,0 +1,2 @@
+-- todo: the roles reception, clinician and web, their privileges, the policy on visits and
+-- the function next_visit.

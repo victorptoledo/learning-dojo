@@ -1,0 +1,1 @@
+-- todo: the function wal_bytes, and a staging table that writes almost no WAL.
