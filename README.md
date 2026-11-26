@@ -52,7 +52,7 @@ of your choice.
 
 ### Tracks
 
-All 30 tracks are complete, with 760 lessons and checkpoints and 292 katas between them:
+All 30 tracks are complete, with 770 lessons and checkpoints and 302 katas between them:
 
 | Track | Teaches | Nodes | Katas | Katas run in |
 | :--- | :--- | ---: | ---: | :--- |
@@ -88,7 +88,7 @@ All 30 tracks are complete, with 760 lessons and checkpoints and 292 katas betwe
 | Data Engineer | pipelines, modelling, lakes, streaming | 25 | 9 | `dojo-sql`, `dojo-python` and `dojo-data` (pyarrow, DuckDB) |
 
 Every track has a checkpoint at the end of each phase from P1 on (the Software Architect,
-Backend Java/Spring and web tracks have all of them; the rest have P1 and P2 and get the others
+Backend Java/Spring, web and platform tracks have all of them; the rest have P1 and P2 and get the others
 track by track, see D046), a placement test, an interview bank and bridges from five languages. A track
 has as many phases, and so as many checkpoints, as its content needs, with no fixed limit.
 
