@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Interpret load average and apply the USE method to CPU, memory, disk and network", skills: [linux.performance] }
   - { id: o2, text: "Run a first-minute triage with uptime, dmesg, vmstat, iostat, free and top", skills: [linux.performance] }
   - { id: o3, text: "Trace a misbehaving process with strace and lsof, and recognise OOM kills and ulimit problems", skills: [linux.performance, linux.processes] }
-prerequisites: [linux.p3.security-hardening]
+prerequisites: [linux.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 60
 xp: 250

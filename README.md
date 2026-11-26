@@ -65,7 +65,7 @@ All 30 tracks are complete, with 760 lessons and checkpoints and 292 katas betwe
 | Modern C++ | C++23 on GCC 16 | 24 | 9 | `dojo-cpp` (GoogleTest under the sanitizers, clang-tidy, clang-format) |
 | Spring Boot | Boot 4.1 on Java 25 | 24 | 9 | `dojo-java` (MockMvc, JPA on H2, Spring Security, Actuator and cache) |
 | React Developer | React 19 with TypeScript | 27 | 10 | `dojo-react` (tsc, Testing Library in jsdom) |
-| Linux | Debian 13, bash 5.2 | 23 | 8 | `dojo-linux` (bats, ShellCheck) |
+| Linux | Debian 13, bash 5.2 | 25 | 10 | `dojo-linux` (bats, ShellCheck) |
 | Git & GitHub | Git from the object model to rescues | 25 | 9 | `dojo-linux` (bash scripts that drive `git`) |
 | Docker & Containers | images, Compose, production | 27 | 11 | your Docker engine + `dojo-docker` (hadolint, bats) |
 | Kubernetes | Kubernetes 1.36, Kustomize, Helm | 25 | 7 | `dojo-k8s` (kubeconform, bats; no cluster) |

@@ -1,0 +1,58 @@
+id: linux.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on networking, storage and hardening, and a go-live preflight that reads sshd's real configuration, the nftables input policy, the listening sockets and fstab."
+objectives:
+  - { id: o1, text: "Explain addresses and ports, mounts and LVM, and the hardening of SSH and the firewall in your own words", skills: [linux.networking, linux.storage, linux.security] }
+  - { id: o2, text: "Audit a server before it goes live: sshd's first-value rule with drop-ins, a default-deny input chain, public sockets and safe fstab entries", skills: [linux.security, linux.networking, linux.storage, linux.text-processing] }
+prerequisites: [linux.p3.security-hardening]
+difficulty: 4
+estimated_minutes: 90
+xp: 400
+closes_phase: p3
+covers_skills: [linux.networking, linux.storage, linux.security]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 90 }
+  hints:
+    - |-
+      One function per area, all writing through a small `report LEVEL MESSAGE` that prints the line and counts FAIL and WARN in the main shell. Start with the easy areas (fstab and ports are one `awk` each) and leave SSH for last: it is the only one that needs recursion, because an `Include` is read where it appears and an included file may include more.
+    - |-
+      SSH: keep the values in an associative array (`declare -A ssh=()`) and set a key only if it is not set yet: `[ -n "${ssh[$key]+set}" ] || ssh[$key]=$value`. Split a line with `[[ $line =~ ^[[:space:]]*([A-Za-z]+)([[:space:]]*=[[:space:]]*|[[:space:]]+)(.*)$ ]]` and lower-case with `${key,,}`. For `Include`, `compgen -G "$pattern" | LC_ALL=C sort` lists the matches (nothing when none match). Ports: in `awk`, the port is what follows the **last** colon (`sub(/.*:/, "", port)`), which is what makes `[::]:22` work.
+    - |-
+      ```bash
+      in_match=false
+      read_sshd() {   # read_sshd FILE
+          local line key value path
+          local -a files
+          while IFS= read -r line || [ -n "$line" ]; do
+              [[ $line =~ ^[[:space:]]*(#|$) ]] && continue
+              [[ $line =~ ^[[:space:]]*([A-Za-z]+)([[:space:]]*=[[:space:]]*|[[:space:]]+)(.*)$ ]] || continue
+              key=${BASH_REMATCH[1],,} value=${BASH_REMATCH[3]}
+              [ "$key" = match ] && in_match=true
+              "$in_match" && continue
+              if [ "$key" = include ]; then
+                  # for each word: path inside ROOT (or ROOT/etc/ssh), then
+                  mapfile -t files < <(compgen -G "$path" | LC_ALL=C sort)
+                  for path in "${files[@]}"; do read_sshd "$path"; done
+              fi
+              # ...keep the first value of the three keywords
+          done < "$1"
+      }
+      ```
+      For nftables, count `{` and `}` per line in `awk` (`gsub` returns how many it replaced) to know where a chain ends, then test the chain's text for `hook input` and `policy drop`.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, bats and shellcheck that runs the grading tests.

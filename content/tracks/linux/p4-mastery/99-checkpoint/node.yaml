@@ -1,0 +1,54 @@
+id: linux.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on performance, the kernel and containers, and production operation, and an incident triage script that reads pressure stall information, OOM kills, service cgroups, open files and the kernel state."
+objectives:
+  - { id: o1, text: "Explain a method for a slow server, how cgroups and the kernel shape it, and how to operate Linux safely in production", skills: [linux.performance, linux.boot-kernel, linux.operations] }
+  - { id: o2, text: "Triage an incident from the kernel's own accounting: PSI, OOM victims, cgroup memory, OOM and throttling counters, descriptor limits, deleted open files and a pending reboot", skills: [linux.performance, linux.boot-kernel, linux.operations, linux.processes, linux.scripting] }
+prerequisites: [linux.p4.production-ops]
+difficulty: 5
+estimated_minutes: 120
+xp: 450
+closes_phase: p4
+covers_skills: [linux.performance, linux.boot-kernel, linux.operations, linux.processes, linux.storage]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-linux, timeout_secs: 120 }
+  hints:
+    - |-
+      Write one section at a time, in the order of the README, and run the tests after each: they check whole lines, so a later section cannot hide a mistake in an earlier one. Print through a `report LEVEL MESSAGE` function that also counts CRIT and WARN, and keep the counters in the main shell (no `$(report ...)`). `export LC_ALL=C` and `shopt -s nullglob` at the top make the globs sort and expand predictably.
+    - |-
+      Read exact fields, not words that happen to appear: `awk '$1 == "oom_kill" { print $2 }' memory.events` (a `grep oom` also finds `oom` and `oom_group_kill`), `$1 == "nr_throttled"` (not `throttled_usec`), and in the log only the lines with `out of memory: Killed process`: `sed -nE 's/.*[Oo]ut of memory: Killed process [0-9]+ \(([^)]*)\).*/\1/p'`. For order, process ids need `sort -n` (a glob gives `1234` before `987`) and kernel versions `sort -V` (text order puts `6.12.9` after `6.12.12`).
+    - |-
+      ```bash
+      for pid in "${pids[@]}"; do          # all-digit names, sorted with sort -n
+          proc="$root/proc/$pid"
+          [ -r "$proc/fd" ] && [ -x "$proc/fd" ] || continue
+          read -r comm < "$proc/comm"
+          fds=("$proc"/fd/*)               # with nullglob: an empty array when there are none
+          soft=$(awk '/^Max open files/ { print $4 }' "$proc/limits")
+          # unlimited is not a number: test with [[ $soft =~ ^[0-9]+$ ]] before dividing
+          while IFS= read -r path; do
+              report WARN "fd $pid $comm: deleted file still open: $path"
+          done < <(for fd in "${fds[@]}"; do
+              target=$(readlink "$fd") || continue
+              [[ $target == *" (deleted)" ]] && printf '%s\n' "${target% (deleted)}"
+          done | sort -u)
+      done
+      ```
+      For the kernel, `printf '%s\n' "$running" "$newest" | sort -V | tail -n 1` tells you which of the two is newer.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-linux runner image
+    image: dojo-linux
+    why: The Debian 13 container with bash, bats and shellcheck that runs the grading tests.

@@ -14,7 +14,7 @@ belts:
   - { name: "Purple Belt", required_xp: 1500, title: "Process & Signal Hunter" }
   - { name: "Brown Belt", required_xp: 2500, title: "Kernel & Syscall Explorer" }
   - { name: "Black Belt", required_xp: 4000, title: "SysAdmin Wizard" }
-  - { name: "Sensei", required_xp: 6000, title: "Torvalds Disciple" }
+  - { name: "Sensei", required_xp: 5000, title: "Torvalds Disciple" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Get a Debian shell, run your first commands and meet the dojo's bash katas" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Navigate, manage files, compose commands with pipes and control permissions" }

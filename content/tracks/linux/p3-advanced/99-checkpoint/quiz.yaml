@@ -1,0 +1,76 @@
+questions:
+  - id: bind-any
+    skills: [linux.networking]
+    prompt: "ss -tln shows a service on [::]:8080 and nothing on 0.0.0.0:8080. Can IPv4 clients reach it?"
+    options:
+      - "No: [::] accepts IPv6 only"
+      - "Usually yes: on Linux an IPv6 wildcard socket also accepts IPv4 unless IPV6_V6ONLY is set"
+      - "Only from loopback"
+      - "Only after a reboot"
+    answer: 1
+    explanation: "With net.ipv6.bindv6only=0, the default, a socket on [::] receives IPv4 connections as mapped addresses. Treat [::] as public, like 0.0.0.0."
+  - id: dns-stub
+    skills: [linux.networking]
+    prompt: "ss shows a listener on 127.0.0.53%lo:53. What is it, and is it exposed?"
+    options:
+      - "A DNS server open to the internet"
+      - "The local DNS stub of systemd-resolved, reachable only from the machine"
+      - "A port scan in progress"
+      - "The DHCP client"
+    answer: 1
+    explanation: "127.0.0.0/8 is loopback, and %lo names the interface. /etc/resolv.conf points at this stub."
+  - id: ssh-tunnel
+    skills: [linux.networking]
+    prompt: "PostgreSQL listens only on 127.0.0.1:5432 on db1. How do you reach it from your laptop without opening the port?"
+    answers: ["ssh -L 5432:localhost:5432 db1", "ssh -L 5432:127.0.0.1:5432 db1", "ssh -N -L 5432:localhost:5432 db1"]
+    explanation: "-L forwards a local port through SSH to an address as seen from the server; the database stays bound to loopback."
+  - id: nofail
+    skills: [linux.storage]
+    prompt: "A data disk listed in /etc/fstab without nofail is detached from a cloud VM. What happens at the next boot?"
+    options:
+      - "The mount is skipped silently"
+      - "systemd waits for the device, gives up and drops into emergency mode"
+      - "The kernel formats a new disk"
+      - "fstab is ignored entirely"
+    answer: 1
+    explanation: "Without nofail the mount is required for local-fs.target, so the boot stops. On a VM you can only fix that from the serial console."
+  - id: lvm-name
+    skills: [linux.storage]
+    prompt: "Why is /dev/mapper/vg0-srv a safe name in fstab while /dev/sdb1 is not?"
+    options:
+      - "LVM names are shorter"
+      - "The mapper name comes from the volume group and logical volume names, which do not depend on the order the kernel finds disks"
+      - "/dev/mapper is mounted first"
+      - "It is not safe either"
+    answer: 1
+    explanation: "sdX letters follow detection order and can change between boots; LVM finds its volumes by their metadata."
+  - id: sshd-first
+    skills: [linux.security]
+    prompt: "sshd_config.d/10-hardening.conf says PasswordAuthentication no, and 50-cloud-init.conf says yes. Which applies?"
+    options:
+      - "yes: the last file read wins"
+      - "no: sshd keeps the first value it reads, and 10- is read first"
+      - "sshd refuses to start"
+      - "It depends on the order in the main file only"
+    answer: 1
+    explanation: "For each keyword sshd uses the first value obtained. sshd -T prints the effective settings."
+  - id: nft-order
+    skills: [linux.security]
+    prompt: "Over SSH, you load a ruleset whose input chain has policy drop, but the rule accepting port 22 is missing. What happens?"
+    options:
+      - "Nothing until the next reboot"
+      - "Your session may survive only if established traffic is accepted, and every new SSH connection is dropped"
+      - "nftables refuses a ruleset without SSH"
+      - "SSH is always allowed"
+    answer: 1
+    explanation: "A default-deny policy drops what no rule accepts. Test with a second session, or use a timer that reloads the old rules, before you close the first one."
+  - id: least-surface
+    skills: [linux.security, linux.networking]
+    prompt: "A metrics exporter listens on 0.0.0.0:9100, and only the Prometheus server at 10.0.0.9 needs it. What is the best fix?"
+    options:
+      - "Change the port to 19100"
+      - "Bind it to the private address or loopback and allow only 10.0.0.9 in the firewall"
+      - "Turn off the firewall for port 9100"
+      - "Run it as root"
+    answer: 1
+    explanation: "Reduce the attack surface twice: listen only where needed and filter by source. A new port number hides nothing."

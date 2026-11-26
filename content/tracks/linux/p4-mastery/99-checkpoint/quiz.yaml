@@ -1,0 +1,77 @@
+questions:
+  - id: psi-full
+    skills: [linux.performance]
+    prompt: "/proc/pressure/memory shows full avg10=18.20. What does that mean?"
+    options:
+      - "Memory is 18.2% used"
+      - "In the last 10 seconds, all non-idle tasks were stalled on memory 18.2% of the time"
+      - "18 processes were killed"
+      - "Swap is 18.2% full"
+    answer: 1
+    explanation: "full means every runnable task was waiting at once, so no useful work ran. some means at least one was waiting."
+  - id: oom-victim
+    skills: [linux.performance]
+    prompt: "The kernel log says nginx invoked oom-killer, then Killed process 4121 (java). Which process died?"
+    options: ["nginx", "java", "Both", "The kernel"]
+    answer: 1
+    explanation: "The invoking process only asked for memory when there was none. The OOM killer chose java, the process with the highest badness score."
+  - id: deleted-open
+    skills: [linux.performance, linux.storage]
+    prompt: "You deleted a 20 GiB log, but df shows no space freed. lsof +L1 lists it under java. What frees the space?"
+    options:
+      - "Running sync"
+      - "Making java close the file: restart it, or truncate the file through /proc/PID/fd/N"
+      - "Deleting it again as root"
+      - "Unmounting /var"
+    answer: 1
+    explanation: "Blocks are freed only when the last open descriptor closes. Rotation by signal (or copytruncate) exists to avoid this."
+  - id: cgroup-throttle
+    skills: [linux.boot-kernel, linux.performance]
+    prompt: "A service with CPUQuota=50% is slow, though the host is 70% idle. Where do you look?"
+    options:
+      - "/proc/loadavg"
+      - "nr_throttled in the service's cpu.stat under /sys/fs/cgroup"
+      - "dmesg for OOM kills"
+      - "/etc/fstab"
+    answer: 1
+    explanation: "The quota caps the cgroup however idle the host is. A rising nr_throttled shows the service hitting it."
+  - id: cgroup-oom
+    skills: [linux.boot-kernel]
+    prompt: "free shows 10 GiB available, yet a service with MemoryMax=1G keeps being OOM-killed. Why?"
+    options:
+      - "free is wrong"
+      - "The kernel enforces memory.max per cgroup, so the OOM killer acts inside the service's cgroup, whatever the host has"
+      - "Swap is disabled"
+      - "The service has a memory leak in the kernel"
+    answer: 1
+    explanation: "memory.events of that cgroup counts the oom_kill events. Raise the limit or fix the service's memory use."
+  - id: kernel-cmdline
+    skills: [linux.boot-kernel]
+    prompt: "How do you add psi=1 to the kernel command line on Debian so that it stays after reboots?"
+    options:
+      - "echo 1 > /proc/pressure"
+      - "Add it to GRUB_CMDLINE_LINUX in /etc/default/grub, run update-grub and reboot"
+      - "sysctl -w psi=1"
+      - "Put it in /etc/fstab"
+    answer: 1
+    explanation: "Boot parameters come from the boot loader. /proc/cmdline shows what the running kernel received."
+  - id: reboot-required
+    skills: [linux.operations]
+    prompt: "unattended-upgrades installed a new kernel last night. What tells you the server still runs the old one?"
+    options:
+      - "Nothing, the new kernel is live"
+      - "uname -r differs from the newest /boot/vmlinuz-*, and /run/reboot-required exists"
+      - "apt list --upgradable is empty"
+      - "The load average"
+    answer: 1
+    explanation: "A kernel update takes effect only after a reboot. Plan it with Automatic-Reboot or a maintenance window, one node at a time."
+  - id: triage-order
+    skills: [linux.operations, linux.performance]
+    prompt: "An API is down and you have found an OOM-killed service. What do you do first?"
+    options:
+      - "Write the postmortem"
+      - "Restore service (restart it, or raise the limit or roll back the release), while you record what you saw and keep everyone informed"
+      - "Rebuild the server from scratch"
+      - "Wait for it to recover by itself"
+    answer: 1
+    explanation: "Mitigate first and find the root cause later. The timeline you record now feeds the blameless postmortem."
