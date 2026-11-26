@@ -1,0 +1,101 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #1c1917;
+  background: #fff;
+}
+
+.shop-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #d6d3d1;
+}
+
+.shop-name {
+  margin: 0;
+  font-weight: 700;
+}
+
+.checkout {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e7e5e4;
+}
+
+.item p {
+  margin: 0;
+}
+
+.item-name {
+  font-weight: 700;
+}
+
+quantity-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* The label stays for assistive technology; the item name above already shows it. */
+quantity-input label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+quantity-input input {
+  width: 4rem;
+  font: inherit;
+  padding: 0.25rem;
+  text-align: center;
+}
+
+button {
+  font: inherit;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0.25rem 0.75rem;
+  border: 2px solid #9a3412;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #9a3412;
+  cursor: pointer;
+}
+
+button:disabled {
+  border-color: #a8a29e;
+  color: #57534e;
+  cursor: not-allowed;
+}
+
+.summary {
+  font-size: 1.25rem;
+}
+
+#total {
+  font-weight: 700;
+}

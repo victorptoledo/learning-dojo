@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dojo Tee | The Kata Shop</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="analytics.js" defer></script>
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <header class="shop-header">
+      <p class="shop-name">The Kata Shop</p>
+    </header>
+    <main class="product">
+      <h1>Dojo Tee</h1>
+      <p class="price">€29.00</p>
+
+      <img class="hero" src="assets/tee-hero.5d41a2.svg" alt="The Dojo Tee in terracotta, seen from the front" width="1200" height="900" fetchpriority="high">
+      <ul class="thumbs" aria-label="More photos">
+        <li><img src="assets/tee-front.8f14e4.svg" alt="Front of the tee" width="300" height="300" loading="lazy"></li>
+        <li><img src="assets/tee-back.c9f0f8.svg" alt="Back of the tee" width="300" height="300" loading="lazy"></li>
+        <li><img src="assets/tee-detail.45c48c.svg" alt="Collar detail" width="300" height="300" loading="lazy"></li>
+      </ul>
+
+      <section class="details" aria-labelledby="details-heading">
+        <h2 id="details-heading">Details</h2>
+        <p>Organic cotton, a relaxed fit and a belt-coloured collar. Made to survive a thousand katas.</p>
+        <button type="button" id="size-guide-button" aria-expanded="false" aria-controls="size-guide">Size guide</button>
+        <div id="size-guide" hidden></div>
+      </section>
+
+      <section class="reviews" aria-labelledby="reviews-heading">
+        <h2 id="reviews-heading">Reviews</h2>
+        <p id="reviews-status" role="status"></p>
+        <ul id="reviews" aria-label="Reviews"></ul>
+      </section>
+    </main>
+  </body>
+</html>

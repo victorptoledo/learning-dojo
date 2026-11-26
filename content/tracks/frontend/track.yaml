@@ -13,8 +13,8 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Layout Craftsman" }
   - { name: "Purple Belt", required_xp: 1500, title: "Event Wrangler" }
   - { name: "Brown Belt", required_xp: 2500, title: "Web Performance Ninja" }
-  - { name: "Black Belt", required_xp: 3500, title: "Platform Guardian" }
-  - { name: "Sensei", required_xp: 4500, title: "Frontend Grandmaster" }
+  - { name: "Black Belt", required_xp: 4000, title: "Platform Guardian" }
+  - { name: "Sensei", required_xp: 5500, title: "Frontend Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "How a page gets from a URL to the screen, the DevTools, and the dojo's browser-checked katas" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Semantic HTML, accessibility, the cascade and box model, flexbox, grid and responsive design" }

@@ -1,0 +1,49 @@
+id: frontend.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz over the rendering pipeline, Core Web Vitals, browser security and build tools, and an integration kata, a product page made ready for launch: no parser-blocking scripts or layout shifts, a prioritized LCP image, reviews rendered as text, the size guide as a lazy chunk, a strict CSP with Trusted Types and cache headers for hashed files."
+objectives:
+  - { id: o1, text: "Explain blocking resources, rendering costs, the three Core Web Vitals, XSS sinks, CSP, CORS and caching of build output", skills: [frontend.rendering, frontend.web-vitals, frontend.security, frontend.build-tools] }
+  - { id: o2, text: "Ship a page that loads fast and stable, renders untrusted data safely, splits off code nobody needs at load and caches it correctly", skills: [frontend.web-vitals, frontend.security, frontend.build-tools] }
+prerequisites: [frontend.p3.build-tools]
+difficulty: 4
+estimated_minutes: 100
+xp: 450
+closes_phase: p3
+covers_skills: [frontend.rendering, frontend.web-vitals, frontend.security, frontend.build-tools]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-web, timeout_secs: 150 }
+  hints:
+    - |-
+      Work file by file and rerun the checks after each. `index.html`: which attribute stops a script from blocking the parser, and what does the browser need to know about an image before it arrives? `app.js`: which DOM methods build an element without parsing HTML, and how do you load a module only when you need it? `_headers`: which files can be cached forever, and which must be checked on every visit?
+    - |-
+      `index.html`: `defer` on analytics.js, delete the inline script, and on the hero `width="1200" height="900" fetchpriority="high"` without `loading="lazy"`; the thumbnails get `width="300" height="300" loading="lazy"`. `app.js`: `safeUrl` is `new URL(value.trim())` in a `try`, accepting only `http:` and `https:`; `reviewElement` builds three `<p>` with `textContent`; `loadReviews` checks `response.ok` and puts the items in a `DocumentFragment` before one `replaceChildren`. Delete the static import: `openSizeGuide` does `const { renderSizeGuide } = await import("./size-guide.js")` when the guide is still empty.
+    - |-
+      ```text
+      /*
+        X-Content-Type-Options: nosniff
+        Referrer-Policy: strict-origin-when-cross-origin
+        Cache-Control: no-cache
+        Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'
+
+      /assets/*
+        Cache-Control: public, max-age=31536000, immutable
+      ```
+
+      Keep the whole policy on one line. The `/assets/*` rule comes after `/*`, so its `Cache-Control` wins for the hashed files.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-web runner image
+    image: dojo-web
+    why: The Node.js 26 container with headless Chromium, axe-core and html-validate that loads your page and runs the tests.

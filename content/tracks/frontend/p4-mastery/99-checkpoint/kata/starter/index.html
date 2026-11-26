@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en-IE">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="release" content="2026.11.26-3">
+    <title>Your cart | The Kata Shop</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <header class="shop-header">
+      <p class="shop-name">The Kata Shop</p>
+    </header>
+    <main class="checkout">
+      <h1>Your cart</h1>
+      <!-- Works without JavaScript: the server recalculates the cart when the form is posted. -->
+      <form id="cart" action="/cart" method="post" data-currency="EUR">
+        <ul class="items">
+          <li class="item" data-price="2900">
+            <p class="item-name">Dojo Tee</p>
+            <quantity-input>
+              <label for="qty-tee">Dojo Tee quantity</label>
+              <input id="qty-tee" name="qty-tee" type="number" inputmode="numeric" min="0" max="10" value="1">
+            </quantity-input>
+            <p class="item-price">€29.00 each</p>
+          </li>
+          <li class="item" data-price="1250">
+            <p class="item-name">Belt Mug</p>
+            <quantity-input>
+              <label for="qty-mug">Belt Mug quantity</label>
+              <input id="qty-mug" name="qty-mug" type="number" inputmode="numeric" min="0" max="10" value="2">
+            </quantity-input>
+            <p class="item-price">€12.50 each</p>
+          </li>
+        </ul>
+        <p class="summary">
+          <span id="count">3 items</span>, total
+          <output id="total" for="qty-tee qty-mug">€54.00</output>
+        </p>
+        <button type="submit" id="update">Update cart</button>
+      </form>
+
+      <section class="payment" aria-labelledby="payment-heading">
+        <h2 id="payment-heading">Payment</h2>
+        <div id="payment">
+          <p id="payment-status" role="status">Card payments need JavaScript.</p>
+        </div>
+        <div id="bank-transfer">
+          <h3>Pay by bank transfer</h3>
+          <p>Send the total to IE29 AIBK 9311 5212 3456 78 with your order number as the reference.</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

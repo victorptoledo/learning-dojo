@@ -81,7 +81,7 @@ All 30 tracks are complete, with 746 lessons and checkpoints and 280 katas betwe
 | Cyber Security | defensive application and infrastructure security | 25 | 10 | `dojo-python`, `dojo-java` (JCA) and `dojo-linux` (bash, awk); defensive and offline |
 | Prompt Engineering | prompts for LLMs, from instructions to evals | 23 | 9 | `dojo-python` (prompt builders, parsers and eval harnesses; no model calls) |
 | Backend Developer | HTTP, auth, data, reliability | 24 | 10 | `dojo-java` |
-| Frontend Developer | HTML, CSS, the DOM and browser APIs, no framework | 25 | 9 | `dojo-web` (headless Chromium, axe-core, html-validate) |
+| Frontend Developer | HTML, CSS, the DOM and browser APIs, no framework | 27 | 11 | `dojo-web` (headless Chromium, axe-core, html-validate) |
 | Full Stack Developer | browser to database: contracts, auth, caching, deploys, observability | 24 | 9 | `dojo-node`, `dojo-java`, `dojo-sql`, `dojo-docker` |
 | DevOps & Cloud | CI/CD, Terraform, GitOps, releases, SLOs, DevSecOps | 25 | 8 | `dojo-devops` (actionlint, Terraform 1.17, promtool, bats), `dojo-linux`, `dojo-k8s` |
 | AI Engineer | LLM features: APIs, RAG, tools, evals, guardrails | 24 | 10 | `dojo-python` (pytest against a fake, offline model) |

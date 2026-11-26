@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Choose the right kind of test for each behavior and balance the test suite", skills: [frontend.testing] }
   - { id: o2, text: "Write user-centric tests with role and label queries that do not flake", skills: [frontend.testing, frontend.accessibility] }
   - { id: o3, text: "Automate accessibility and cross-browser checks in CI", skills: [frontend.testing] }
-prerequisites: [frontend.p3.build-tools]
+prerequisites: [frontend.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 55
 xp: 250

@@ -1,0 +1,54 @@
+id: frontend.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz over testing, web components, rendering strategies and running a frontend in production, and a cart page for release day: a progressively enhanced quantity custom element, a live total formatted with Intl, errors reported with the release, and a payment script that may fail or never arrive."
+objectives:
+  - { id: o1, text: "Choose tests that do not flake, build accessible framework-free components and pick a rendering strategy, monitoring and release plan for a product", skills: [frontend.testing, frontend.web-components, frontend.production] }
+  - { id: o2, text: "Ship a page that works without JavaScript, gets better with it, reports its own errors and degrades gracefully when a third party fails", skills: [frontend.web-components, frontend.production, frontend.accessibility] }
+prerequisites: [frontend.p4.production]
+difficulty: 5
+estimated_minutes: 110
+xp: 500
+closes_phase: p4
+covers_skills: [frontend.testing, frontend.web-components, frontend.production, frontend.accessibility, frontend.dom-events]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-web, timeout_secs: 150 }
+  hints:
+    - |-
+      Start with the component, because the total depends on its event. What must `connectedCallback` do when the element is moved and the callback runs a second time? Then the formatting: which `Intl` objects know a locale's currency format and its plural rules? For the payment script, what are the three ways it can end, and which of them can still happen after you have given up?
+    - |-
+      `QuantityInput`: keep the input in a private field and return early when it is already set; create two `<button type="button">` with `aria-label` "Decrease LABEL" and "Increase LABEL" (LABEL is `input.labels[0].textContent.trim()`), put them with `input.before()` and `input.after()`. One private method clamps with `Number.parseInt` between `min` and `max`, updates `disabled`, and dispatches `new CustomEvent("quantity-change", { bubbles: true, detail })` only when the value changed. `itemsLabel`: `new Intl.PluralRules(locale).select(count)` picks the word, `new Intl.Locale(locale).language` picks the language. `reportProblem`: a `Set` of messages and `navigator.sendBeacon`.
+    - |-
+      ```js
+      export function loadScript(src, timeoutMs) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          const timer = setTimeout(() => {
+            script.remove();
+            reject(new Error(`${src} took longer than ${timeoutMs} ms`));
+          }, timeoutMs);
+          script.addEventListener("load", () => { clearTimeout(timer); resolve(); });
+          script.addEventListener("error", () => { clearTimeout(timer); reject(new Error(`${src} failed to load`)); });
+          script.src = src;
+          document.head.append(script);
+        });
+      }
+      ```
+
+      A promise settles once: after the timeout rejects, a late `load` cannot resolve it, so `setupPayments` (in a `try`/`catch` around `await loadScript(...)`) never mounts late.
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-web runner image
+    image: dojo-web
+    why: The Node.js 26 container with headless Chromium, axe-core and html-validate that loads your page and runs the tests.
