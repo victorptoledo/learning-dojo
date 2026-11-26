@@ -1,0 +1,52 @@
+id: prompt-engineering.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 4: Context Engineering"
+summary: "Prove the context-engineering phase: a quiz over agent contexts, compaction, notes, briefs and metaprompting, and an integration kata, a prompt optimiser that feeds a bounded sample of failures to a fresh context each round, checks the template contract and keeps a candidate only if it holds on a holdout set."
+objectives:
+  - { id: o1, text: "Explain how an agent's context is kept small and useful, and how metaprompts draft and improve prompts, in your own words", skills: [prompt-engineering.context-engineering, prompt-engineering.metaprompting] }
+  - { id: o2, text: "Build an optimisation loop with fresh, bounded optimiser contexts, template-contract checks, a margin and a holdout set", skills: [prompt-engineering.metaprompting, prompt-engineering.context-engineering, prompt-engineering.evaluation] }
+prerequisites: [prompt-engineering.p4.metaprompting]
+difficulty: 5
+estimated_minutes: 110
+xp: 450
+closes_phase: p4
+covers_skills: [prompt-engineering.context-engineering, prompt-engineering.metaprompting]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Build it bottom-up: `placeholders` and `render`, then `score`, then the optimiser's side (`render_metaprompt`, `extract_candidate`), and the loop last. In the loop, what is the only thing the optimiser needs to see in a round, and which data must it never see?
+    - |-
+      `PLACEHOLDER.findall` gives the names and `PLACEHOLDER.sub` with a function replaces them. In `render_metaprompt`, sort, slice `[:max_failures]`, then for each field cut it first and escape it afterwards. In `extract_candidate`, compare `set(required)` with the set of found names in both directions. In the loop, keep `best` and its `Score`; each round sends `[{"role": "user", "content": metaprompt}]`, a new list every time.
+    - |-
+      ```python
+      for number in range(1, rounds + 1):
+          if not best_score.failures:
+              break
+          metaprompt = render_metaprompt(best, best_score.failures, max_failures=max_failures, max_chars=max_chars)
+          reply = optimiser([{"role": "user", "content": metaprompt}])
+          try:
+              candidate = extract_candidate(reply, ["input"])
+          except ValueError as error:
+              log.append(Round(number, "invalid", None, str(error)))
+              continue
+          ...  # unchanged, then score on dev: accepted (rate > best + min_gain) or rejected
+      seed_holdout = score(seed, holdout, model, grader).rate
+      ...  # still the seed, overfit, or shipped
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

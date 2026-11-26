@@ -11,7 +11,8 @@ phases:
   p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
-  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+  p4: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p5: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
 early_stop: { wrong_in_first: 2, of: 3 }
 skill_placed_out_threshold: 0.75
 weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
@@ -202,9 +203,76 @@ items:
     options: ["It is better", "The difference is within noise; run more cases or more runs before deciding", "It is worse"]
     answer: 1
     explanation: "One case is 2.5 points here; small differences need more data."
-  # ---- P4 Mastery --------------------------------------------------------------
-  - id: p4-regression
+  # ---- P4 Context Engineering ----------------------------------------------------
+  - id: p4-tool-results
     phase: p4
+    skills: [prompt-engineering.context-engineering]
+    difficulty: 3
+    prompt: "A long-running agent is near its context budget. Which step usually saves the most for the least loss?"
+    options:
+      - "Shortening the system prompt"
+      - "Replacing old tool results with short placeholders, keeping each call paired with its result"
+      - "Removing the tool definitions"
+    answer: 1
+    explanation: "Old tool results dominate long contexts, and the agent can call the tool again if needed."
+  - id: p4-split
+    phase: p4
+    skills: [prompt-engineering.context-engineering, prompt-engineering.tool-use]
+    difficulty: 4
+    prompt: "When compacting history, which cut point is wrong?"
+    options:
+      - "Between a user turn and the next assistant turn"
+      - "Between an assistant tool call and its tool result"
+      - "Before the most recent user turn"
+    answer: 1
+    explanation: "A tool result without its call is invalid; move the cut so they stay together."
+  - id: p4-pin
+    phase: p4
+    skills: [prompt-engineering.context-engineering]
+    difficulty: 3
+    prompt: "In a two-hour agent session, the user's first message said \"do not change the public API\". How do you keep it through compaction?"
+    options:
+      - "Hope the summary mentions it"
+      - "Pin that turn (or keep it in notes or the system prompt) so it is never summarised away"
+      - "Repeat it in every tool result"
+    answer: 1
+    explanation: "Constraints that must survive go in pinned turns, notes or the system prompt."
+  - id: p4-brief
+    phase: p4
+    skills: [prompt-engineering.context-engineering]
+    difficulty: 3
+    prompt: "Which brief for a research sub-agent is best?"
+    options:
+      - "\"Research the bug.\""
+      - "The goal, the paths and ids it needs, what was already tried, the constraints (read-only) and the exact format of the result"
+      - "The whole conversation so far, so it knows everything"
+    answer: 1
+    explanation: "The sub-agent knows only its brief: goal, context, constraints and the expected output."
+  - id: p4-contract
+    phase: p4
+    skills: [prompt-engineering.metaprompting]
+    difficulty: 3
+    prompt: "A model rewrote your template and it reads better, but `{{order_id}}` is gone. What do you do?"
+    options:
+      - "Ship it and fix the code later"
+      - "Reject the candidate before scoring: it breaks the template contract"
+      - "Score it first; if it passes, keep it"
+    answer: 1
+    explanation: "Generated templates must keep every placeholder the code fills; check it in code."
+  - id: p4-holdout
+    phase: p4
+    skills: [prompt-engineering.metaprompting, prompt-engineering.evaluation]
+    difficulty: 4
+    prompt: "An optimisation loop improved the dev score from 60% to 95%. What tells you whether it generalises?"
+    options:
+      - "The dev score itself"
+      - "A holdout set the optimiser never saw, compared with the original prompt"
+      - "The length of the new prompt"
+    answer: 1
+    explanation: "Only unseen data shows whether the optimiser learned the task or memorised the cases."
+  # ---- P5 Mastery --------------------------------------------------------------
+  - id: p5-regression
+    phase: p5
     skills: [prompt-engineering.evaluation, prompt-engineering.versioning]
     difficulty: 4
     prompt: "A candidate prompt has the same overall pass rate as the baseline. May it ship?"
@@ -214,32 +282,32 @@ items:
       - "No, never"
     answer: 1
     explanation: "Equal rates can hide regressions; compare case by case and per tag."
-  - id: p4-pin
-    phase: p4
+  - id: p5-pin
+    phase: p5
     skills: [prompt-engineering.versioning]
     difficulty: 3
     prompt: "Which part of a prompt version is most often forgotten and lets behaviour change without a commit?"
     options: ["The template", "The model snapshot (using a moving alias instead)", "The file name"]
     answer: 1
     explanation: "A moving alias lets the provider change your model."
-  - id: p4-major
-    phase: p4
+  - id: p5-major
+    phase: p5
     skills: [prompt-engineering.versioning]
     difficulty: 3
     prompt: "You rename the JSON field `prio` to `priority`. What kind of prompt change is it?"
     options: ["Patch", "Minor", "Major, shipped together with the parsing code"]
     answer: 2
     explanation: "The output contract changed."
-  - id: p4-stop
-    phase: p4
+  - id: p5-stop
+    phase: p5
     skills: [prompt-engineering.production]
     difficulty: 4
     prompt: "Parse failures jump from 0.2% to 3% after inputs got longer. Which signal confirms the cause fastest?"
     options: ["CPU usage", "The share of calls whose stop reason is the output token limit", "The number of users"]
     answer: 1
     explanation: "Truncated JSON fails to parse; the stop reason shows it."
-  - id: p4-fallback
-    phase: p4
+  - id: p5-fallback
+    phase: p5
     skills: [prompt-engineering.production]
     difficulty: 4
     prompt: "Your provider is down for an hour. Which plan is best?"

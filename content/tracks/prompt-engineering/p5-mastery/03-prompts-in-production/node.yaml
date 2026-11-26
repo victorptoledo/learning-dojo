@@ -1,4 +1,4 @@
-id: prompt-engineering.p4.prompts-in-production
+id: prompt-engineering.p5.prompts-in-production
 kind: lesson
 status: draft
 title: "Prompts in Production"
@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Recognise the common production failure modes of prompts and the signal that reveals each one", skills: [prompt-engineering.production] }
   - { id: o2, text: "Design guardrails, fallbacks and monitoring around a prompt", skills: [prompt-engineering.production, prompt-engineering.evaluation] }
   - { id: o3, text: "Control cost, latency and privacy of prompts at scale", skills: [prompt-engineering.production, prompt-engineering.long-context] }
-prerequisites: [prompt-engineering.p4.versioning-prompts]
+prerequisites: [prompt-engineering.p5.versioning-prompts]
 difficulty: 5
 estimated_minutes: 50
 xp: 250

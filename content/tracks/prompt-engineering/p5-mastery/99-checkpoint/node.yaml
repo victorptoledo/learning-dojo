@@ -1,0 +1,53 @@
+id: prompt-engineering.p5.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 5: Final Exam"
+summary: "The final exam of the track: a quiz over evaluation harnesses, versioning and production, and an integration kata, a prompt release with a parsed prompt file, a semantic-version check, sticky percentage rollout, guarded calls with retry and fallback, and a promote-or-rollback decision."
+objectives:
+  - { id: o1, text: "Explain how prompts are evaluated, versioned, rolled out and operated in production in your own words", skills: [prompt-engineering.evaluation, prompt-engineering.versioning, prompt-engineering.production] }
+  - { id: o2, text: "Build a prompt release that pins every part of a version, checks the bump, rolls out by stable buckets, guards each call and decides from the records", skills: [prompt-engineering.versioning, prompt-engineering.production, prompt-engineering.structured-output] }
+prerequisites: [prompt-engineering.p5.prompts-in-production]
+difficulty: 5
+estimated_minutes: 130
+xp: 500
+closes_phase: p5
+covers_skills: [prompt-engineering.evaluation, prompt-engineering.versioning, prompt-engineering.production]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Five parts, each testable alone: the file (`parse_prompt_file`), the release (`required_bump`, `check_release`), the rollout (`bucket`, `pick`), the calls (`build_request`, `check_output`, `call`) and the decision. In `call`, which problems is it pointless to retry with the same request, and why?
+    - |-
+      In `parse_prompt_file`, find the closing `---` with a loop from line 2, and report `index + 1` as the line number. Collect the values in a dict first and convert them only after every key is there. In `check_release`, build a dict from the three valid next versions to `"major"`, `"minor"` and `"patch"`, and compare ranks with `BUMPS.index`. In `call`, a truncated or refused reply would fail again with the same request, so only format problems get the retry.
+    - |-
+      ```python
+      def call(version, input_text, model, *, fallback=None):
+          request = build_request(version, input_text)
+          reply = model(request)
+          attempts = 1
+          data, problems = check_output(version, reply)
+          if problems and problems not in (["truncated"], ["refused"]):
+              messages = request.messages + [
+                  {"role": "assistant", "content": reply.text},
+                  {"role": "user", "content": RETRY.format(problems="; ".join(problems))},
+              ]
+              reply = model(Request(request.model, request.temperature, request.max_tokens, messages))
+              attempts += 1
+              data, problems = check_output(version, reply)
+          ...  # ok, failed without fallback, or one call to the fallback
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

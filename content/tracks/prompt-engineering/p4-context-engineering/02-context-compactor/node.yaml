@@ -1,0 +1,50 @@
+id: prompt-engineering.p4.context-compactor
+kind: kata
+status: draft
+title: "Context Compactor: A Long Conversation in a Budget"
+summary: "Keep an agent's history within a token budget: check that every tool call has its result, clear old tool results to placeholders, compact older turns into an escaped summary without splitting a call from its result, keep pinned turns, and keep notes outside the window."
+objectives:
+  - { id: o1, text: "Check the shape of an agent's history and clear old tool results while keeping each call paired with its result", skills: [prompt-engineering.context-engineering, prompt-engineering.tool-use] }
+  - { id: o2, text: "Compact older turns into a summary, cheapest technique first, with pinned turns and recent turns kept verbatim", skills: [prompt-engineering.context-engineering, prompt-engineering.how-models-read] }
+  - { id: o3, text: "Keep durable notes outside the history and render them into the system prompt", skills: [prompt-engineering.context-engineering, prompt-engineering.system-prompts] }
+prerequisites: [prompt-engineering.p4.context-engineering]
+difficulty: 4
+estimated_minutes: 75
+xp: 300
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Write `check_turns` first: `compact` refuses a broken history, and the other tests use it to prove your output is still valid. Walk the turns once and remember the id of the assistant call that is still waiting for its result. What should happen when the next turn is not a tool result?
+    - |-
+      Turns are frozen, so clear a result with `dataclasses.replace(turn, content=placeholder)`. For `clear_tool_results`, first collect the indexes of the tool turns and keep the last `keep_last` of them. In `split_point`, start at `len(turns) - keep_recent` (not below 0) and step back while the turn at that index is a tool result. In `compact`, try the three stages in order and recompute the tokens after each one.
+    - |-
+      ```python
+      turns, cleared = clear_tool_results(turns, keep_last=keep_tool_results)
+      tokens = context_tokens(system, turns)
+      if tokens <= budget_tokens:
+          return Context(system, turns, tokens, cleared, 0)
+      start = split_point(turns, keep_recent)
+      old, recent = turns[:start], turns[start:]
+      pinned = [turn for turn in old if turn.pinned]
+      to_summarise = [turn for turn in old if not turn.pinned]
+      if not to_summarise:
+          raise ContextOverflow(tokens, budget_tokens)
+      summary = html.escape(summarise(to_summarise).strip(), quote=False)
+      turns = pinned + [Turn("user", f"<summary>\n{summary}\n</summary>")] + recent
+      ...  # recompute the tokens; still too big is an overflow
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

@@ -1,0 +1,51 @@
+id: prompt-engineering.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz over long context, prompt injection and evaluation, and an integration kata, a grounded-answer flow over untrusted documents with a budget, injection flags, quote and link checks, and an evaluation by tag."
+objectives:
+  - { id: o1, text: "Explain long-context layout, layered injection defences and evaluation with graders and slices in your own words", skills: [prompt-engineering.long-context, prompt-engineering.injection, prompt-engineering.evaluation] }
+  - { id: o2, text: "Build an answer flow that packs and neutralises untrusted documents, accepts only answers with real quotes and safe links, and measures itself on labelled cases", skills: [prompt-engineering.long-context, prompt-engineering.injection, prompt-engineering.evaluation] }
+prerequisites: [prompt-engineering.p3.evaluating-prompts]
+difficulty: 4
+estimated_minutes: 110
+xp: 400
+closes_phase: p3
+covers_skills: [prompt-engineering.long-context, prompt-engineering.injection, prompt-engineering.evaluation]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 60 }
+  hints:
+    - |-
+      Work in three layers and test each one: the prompt (`neutralise`, `find_suspicious`, `build_prompt`), the checks (`parse_answer`, `unapproved_links`, `check_answer`), then the flow (`answer_question`, `evaluate`). In `build_prompt`, how do you know whether one more document fits? And should a document that is too big stop the loop, or only be skipped?
+    - |-
+      Write two small helpers: one that renders a document block and one that renders the whole user message from a list of blocks. Then a document fits when `estimate_tokens(RULES) + estimate_tokens(user_with_it) <= budget_tokens`; if it does not, append its id to `omitted` and `continue`. For the quote check, the model saw the **escaped, cleaned** text: unescape the quote, and compare `" ".join(text.casefold().split())` of both sides after removing the hidden characters from the source too.
+    - |-
+      ```python
+      def answer_question(question, sources, model, *, budget_tokens, allowed_domains=()):
+          sources = list(sources)
+          prompt = build_prompt(question, sources, budget_tokens=budget_tokens)
+          reply = model([dict(message) for message in prompt.messages])
+          try:
+              answer = parse_answer(reply)
+          except ValueError as error:
+              return Result("rejected", None, [str(error)], prompt)
+          problems = check_answer(answer, prompt, sources, allowed_domains=allowed_domains)
+          if problems:
+              return Result("rejected", None, problems, prompt)
+          ...  # insufficient, or answered with the text
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

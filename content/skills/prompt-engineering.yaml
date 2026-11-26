@@ -12,5 +12,7 @@ skills:
   - { id: prompt-engineering.long-context, title: "Long Context" }
   - { id: prompt-engineering.injection, title: "Prompt Injection and Defence" }
   - { id: prompt-engineering.evaluation, title: "Evaluating and Iterating on Prompts" }
+  - { id: prompt-engineering.context-engineering, title: "Context Engineering for Agents" }
+  - { id: prompt-engineering.metaprompting, title: "Metaprompting and Prompt Optimisation" }
   - { id: prompt-engineering.versioning, title: "Versioning Prompts" }
   - { id: prompt-engineering.production, title: "Prompts in Production" }

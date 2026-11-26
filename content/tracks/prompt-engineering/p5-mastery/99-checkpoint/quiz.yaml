@@ -1,0 +1,70 @@
+questions:
+  - id: case-by-case
+    skills: [prompt-engineering.evaluation, prompt-engineering.versioning]
+    prompt: "A candidate prompt has the same overall pass rate as the current one. What must you check before it ships?"
+    options:
+      - "Nothing: the rate did not change"
+      - "Case by case and per tag: it may fix some cases and break critical ones"
+      - "Only its length"
+    answer: 1
+    explanation: "Equal averages can hide regressions on the cases that matter most."
+  - id: pin
+    skills: [prompt-engineering.versioning]
+    prompt: "A prompt file says `model: claude-sonnet-latest`. Why does the release check reject it?"
+    options:
+      - "Aliases are slower"
+      - "A moving alias lets the provider change the behaviour of your product without a new version on your side"
+      - "Aliases are more expensive"
+    answer: 1
+    explanation: "Pin a dated snapshot so every behaviour change goes through a release."
+  - id: bump
+    skills: [prompt-engineering.versioning]
+    prompt: "Version 2.3.0 adds the output field `team`. Which version is the smallest correct release?"
+    options: ["2.3.1", "2.4.0", "3.0.0"]
+    answer: 2
+    explanation: "The output contract changed, so the parsing code changes too: a major release."
+  - id: sticky
+    skills: [prompt-engineering.versioning, prompt-engineering.production]
+    prompt: "Why choose the canary users by a hash of the user id instead of at random on every request?"
+    options:
+      - "Hashes are faster than random numbers"
+      - "Each user sees one version consistently, so their experience and the metrics are not mixed"
+      - "Random choices are not allowed"
+    answer: 1
+    explanation: "A stable bucket keeps a user on one version during the rollout."
+  - id: no-retry
+    skills: [prompt-engineering.production]
+    prompt: "A call stopped because it hit the output token limit. Why is retrying the same request not useful?"
+    options:
+      - "Retries are always forbidden"
+      - "The same request with the same limit will most likely be cut again; fall back or change the limit instead"
+      - "The model remembers the first attempt"
+    answer: 1
+    explanation: "Retry with the error for format problems; treat truncation and refusals differently."
+  - id: fallback-counts
+    skills: [prompt-engineering.production]
+    prompt: "During a canary, 3% of the candidate's calls were answered by the fallback version. How should they count?"
+    options:
+      - "As successes: the user got an answer"
+      - "As failures of the candidate: the user did not get the candidate's answer"
+      - "They should be ignored"
+    answer: 1
+    explanation: "The fallback hides the candidate's failures from users, not from the rollout decision."
+  - id: early
+    skills: [prompt-engineering.production]
+    prompt: "The rule is \"at most 2% failures over at least 100 calls\". After 20 calls the candidate already has 3 failures. What now?"
+    options:
+      - "Wait for 80 more calls"
+      - "Roll back: even 100 good calls could not bring 3 failures in 100 under 2%"
+      - "Promote it"
+    answer: 1
+    explanation: "When the threshold can no longer be met, waiting only exposes more users."
+  - id: trace
+    skills: [prompt-engineering.versioning, prompt-engineering.production]
+    prompt: "A user reports a wrong classification from last Tuesday. What lets you reproduce it?"
+    options:
+      - "The current prompt file"
+      - "The call record with the prompt id and version, model snapshot, parameters and the input"
+      - "The average latency of that day"
+    answer: 1
+    explanation: "Log the version and everything it pins on every call."

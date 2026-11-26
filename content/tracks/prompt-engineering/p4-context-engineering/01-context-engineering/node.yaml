@@ -1,0 +1,24 @@
+id: prompt-engineering.p4.context-engineering
+kind: lesson
+status: draft
+title: "Context Engineering for Agents"
+summary: "An agent's context is rebuilt on every turn: system prompt, tools, memory, history and tool results. Context rot, the right altitude for system prompts, clearing tool results, compaction, structured notes, just-in-time retrieval, sub-agent briefs and the cost of breaking the cache."
+objectives:
+  - { id: o1, text: "Explain why an agent's context is a finite budget with diminishing returns, and name what fills it on a long task", skills: [prompt-engineering.context-engineering] }
+  - { id: o2, text: "Keep a long-running conversation within budget by clearing old tool results, compacting history and keeping notes outside the window", skills: [prompt-engineering.context-engineering, prompt-engineering.long-context] }
+  - { id: o3, text: "Write system prompts at the right altitude and briefs that give a sub-agent a clean, sufficient context", skills: [prompt-engineering.context-engineering, prompt-engineering.system-prompts] }
+prerequisites: [prompt-engineering.p3.checkpoint]
+difficulty: 4
+estimated_minutes: 50
+xp: 200
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A coding agent works on a bug for two hours. It reads about 80 files, runs the tests 30 times, and after a while it starts repeating searches it already did, forgets that the user asked it not to touch the public API, and finally fails with a context-length error. Write a short design note (about 300 words) that explains what went wrong and how you would manage its context: what stays in the system prompt, what happens to old tool results, when and how the history is compacted, what goes into notes outside the window, and when you would hand part of the work to a sub-agent and what its brief would contain.'
+  criteria:
+    - 'Explains that tool results (file contents, test output) fill the window and that quality degrades well before the hard limit (context rot)'
+    - 'Clears or shortens old tool results while keeping each call paired with its result, and keeps recent turns verbatim'
+    - 'Compacts older history into a summary that keeps decisions, constraints (do not touch the public API), open problems and identifiers, and drops raw output'
+    - 'Keeps durable facts in structured notes or a memory file that the agent reads back, and loads files just in time by path instead of all up front'
+    - 'Gives a sub-agent a brief with the goal, the needed context, the constraints and the expected output format, and gets back a condensed result'

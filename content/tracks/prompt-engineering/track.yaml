@@ -4,7 +4,7 @@ name: "Prompt Engineering"
 archetype: concept
 category: "Architecture & Engineering"
 icon: "🧠"
-description: "Writing prompts that work and keep working: how models read text, clear instructions, system prompts, few-shot examples, structured output, chaining, reasoning, prompts for tools, long context, prompt injection, evaluation and versioning. Katas build and check prompts in Python, offline."
+description: "Writing prompts that work and keep working: how models read text, clear instructions, system prompts, few-shot examples, structured output, chaining, reasoning, prompts for tools, long context, prompt injection, evaluation, context engineering for agents, metaprompting and versioning. Katas build and check prompts in Python, offline."
 status: reviewed
 bridges_available: [java, python, javascript, csharp, go]
 belts:
@@ -13,14 +13,15 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Few-Shot Tuner" }
   - { name: "Purple Belt", required_xp: 1500, title: "Chain-of-Thought Master" }
   - { name: "Brown Belt", required_xp: 2500, title: "Structured Output Engineer" }
-  - { name: "Black Belt", required_xp: 4000, title: "Metaprompt Architect" }
-  - { name: "Sensei", required_xp: 6000, title: "Prompt Grandmaster" }
+  - { name: "Black Belt", required_xp: 5000, title: "Metaprompt Architect" }
+  - { name: "Sensei", required_xp: 6500, title: "Prompt Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "How a model reads a prompt, the parts of a good prompt, and the dojo's prompt katas" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Clear instructions and context, system prompts, few-shot examples and structured output" }
   - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Decomposition and chaining, reasoning prompts and prompts for tool use" }
   - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Long context, prompt injection and its defences, and evaluating prompts" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "Eval harnesses, versioning prompts and running prompts in production" }
+  - { id: p4, dir: p4-context-engineering, title: "Context Engineering", goal: "Managing an agent's context over many turns, sub-agent briefs, and prompts that write and improve prompts" }
+  - { id: p5, dir: p5-mastery, title: "Mastery", goal: "Eval harnesses, versioning prompts and running prompts in production" }
 requirements:
   - kind: tool
     name: uv

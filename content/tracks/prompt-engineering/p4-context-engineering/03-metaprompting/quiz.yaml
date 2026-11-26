@@ -1,0 +1,46 @@
+questions:
+  - id: what
+    prompt: "What is a metaprompt?"
+    options:
+      - "A prompt with more than one example"
+      - "A prompt whose output is another prompt, such as a draft or a rewrite"
+      - "The system prompt of a chat"
+    answer: 1
+    explanation: "Metaprompts draft, rewrite and critique prompts, or write briefs for other models."
+  - id: contract
+    prompt: "The optimiser returns a better-sounding template, but `{{customer_name}}` became `{{name}}`. What should happen?"
+    options:
+      - "Score it anyway; the model knows best"
+      - "Reject it in code before scoring, because the code fills `{{customer_name}}`"
+      - "Rename the variable in the code at once"
+    answer: 1
+    explanation: "A rewrite must keep the template contract: the same placeholders and output format."
+  - id: fresh
+    prompt: "In an optimisation loop, what should the optimiser see in each round?"
+    options:
+      - "Every earlier attempt and all their outputs"
+      - "The current best prompt and a capped, escaped sample of its current failures"
+      - "The whole holdout set"
+    answer: 1
+    explanation: "A fresh, bounded context keeps the pattern visible and the cost flat."
+  - id: holdout
+    prompt: "A candidate goes from 70% to 85% on the development set and from 80% to 72% on the holdout set. What do you do?"
+    options:
+      - "Ship it: 85% is the best score"
+      - "Keep the original: the candidate overfits the development cases"
+      - "Average the two scores"
+    answer: 1
+    explanation: "A drop on data the optimiser never saw means it memorised the development set."
+  - id: leakage
+    prompt: "Reviewing a generated prompt, you find \"If the ticket mentions invoice 4411, answer billing\". What is this?"
+    options: ["A useful few-shot example", "Leakage of an evaluation case into the prompt", "A new output format"]
+    answer: 1
+    explanation: "The optimiser copied a case it saw in the failures; it will not generalise."
+  - id: margin
+    prompt: "Why accept a candidate only when it beats the current prompt by more than a margin?"
+    options:
+      - "Because small differences on a small set are often noise"
+      - "Because longer prompts are always worse"
+      - "Because the optimiser charges per accepted prompt"
+    answer: 0
+    explanation: "One case on 30 is more than 3 points; require a margin and confirm with more data."

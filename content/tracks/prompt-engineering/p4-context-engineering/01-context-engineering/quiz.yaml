@@ -1,0 +1,46 @@
+questions:
+  - id: what
+    prompt: "What does context engineering add to prompt engineering?"
+    options:
+      - "Nothing: it is a new name for the same thing"
+      - "Deciding what is in the model's context on every turn of a loop, as instructions, memory, history and tool results change"
+      - "Training the model on your own data"
+    answer: 1
+    explanation: "The context of an agent is rebuilt and grows on every call, so it needs rules for what goes in and what leaves."
+  - id: biggest
+    prompt: "After an hour of work, what usually takes most of a coding agent's context?"
+    options: ["The system prompt", "Tool results such as file contents and test output", "The tool definitions"]
+    answer: 1
+    explanation: "Tool results pile up on every turn, and most of the old ones no longer matter."
+  - id: clear
+    prompt: "You clear an old tool result to save tokens. What must you keep?"
+    options:
+      - "Nothing: delete the call and the result"
+      - "The tool call and a placeholder result with the same id, so the pair stays valid"
+      - "Only the result"
+    answer: 1
+    explanation: "APIs reject a result without its call, and the model needs to know the call happened."
+  - id: summary
+    prompt: "Which belongs in a compaction summary?"
+    options:
+      - "The full output of every test run"
+      - "Decisions and their reasons, the user's constraints, open problems and the identifiers the agent will need"
+      - "Only the last user message"
+    answer: 1
+    explanation: "Keep what the next steps depend on; drop raw output and dead ends."
+  - id: brief
+    prompt: "A sub-agent keeps returning pages of raw search results and repeating work. What is the most likely fix?"
+    options:
+      - "A larger context window for the sub-agent"
+      - "A better brief: the goal, the context it needs, the constraints and the exact output format"
+      - "A higher temperature"
+    answer: 1
+    explanation: "The sub-agent knows only its brief; vague briefs cause duplicated work and bloated results."
+  - id: cache
+    prompt: "Why compact rarely and in larger steps instead of trimming a little on every turn?"
+    options:
+      - "Because every change to the prefix invalidates the prompt cache from that point on"
+      - "Because summaries are free"
+      - "Because providers limit the number of summaries"
+    answer: 0
+    explanation: "A stable prefix keeps caching effective; frequent edits make every call pay full price."
