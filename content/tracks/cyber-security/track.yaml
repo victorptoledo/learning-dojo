@@ -13,8 +13,8 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "AppSec Craftsman" }
   - { name: "Purple Belt", required_xp: 1500, title: "Cryptographic Guardian" }
   - { name: "Brown Belt", required_xp: 2500, title: "Threat Modeling Architect" }
-  - { name: "Black Belt", required_xp: 4000, title: "SecOps & CISO Mind" }
-  - { name: "Sensei", required_xp: 6000, title: "Cyber Security Grandmaster" }
+  - { name: "Black Belt", required_xp: 5400, title: "SecOps & CISO Mind" }
+  - { name: "Sensei", required_xp: 6500, title: "Cyber Security Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Think like a defender: the CIA triad, risk, ethics, and your first defensive kata" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "The OWASP Top 10, injection, XSS, authentication and access control" }

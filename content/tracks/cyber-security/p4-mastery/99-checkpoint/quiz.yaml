@@ -1,0 +1,81 @@
+questions:
+  - id: stride-store
+    skills: [cyber-security.threat-modeling]
+    prompt: "In STRIDE per element, which threats apply to a data store such as a database?"
+    options:
+      - "All six"
+      - "Tampering, information disclosure and denial of service (and repudiation when it is a log)"
+      - "Only spoofing"
+      - "Spoofing and elevation of privilege"
+    answer: 1
+    explanation: "A store does not act, so it cannot spoof or elevate; its data can be changed, read or made unavailable. A log adds repudiation."
+  - id: boundary
+    skills: [cyber-security.threat-modeling]
+    prompt: "Where in a data flow diagram should you look hardest for threats?"
+    options:
+      - "At the processes with the most code"
+      - "Where data flows cross a trust boundary"
+      - "At the external entities"
+      - "Everywhere equally"
+    answer: 1
+    explanation: "A trust boundary is where the level of trust changes, so authentication, validation and encryption must happen there."
+  - id: volatile
+    skills: [cyber-security.incident-response]
+    prompt: "A compromised cloud server is still running. What do you do first?"
+    options:
+      - "Power it off to stop the attacker"
+      - "Isolate it (for example with a security group that blocks traffic) and collect volatile data such as memory before anything else"
+      - "Reinstall it from a clean image"
+      - "Delete the attacker's files"
+    answer: 1
+    explanation: "Shutting down or cleaning destroys memory, connections and the attacker's state. Contain by isolating, collect in order of volatility, then eradicate."
+  - id: custody
+    skills: [cyber-security.incident-response]
+    prompt: "Why record a SHA-256 hash of every collected evidence file, with who collected it and when?"
+    options:
+      - "To compress the files"
+      - "To show later, for example in court, that the evidence is exactly what was collected and who handled it"
+      - "To encrypt the evidence"
+      - "To speed up the analysis"
+    answer: 1
+    explanation: "Hashes prove integrity, and the chain of custody proves handling. Without both, evidence can be challenged."
+  - id: notify-clock
+    skills: [cyber-security.incident-response]
+    prompt: "Under GDPR, when does the 72-hour window to notify the supervisory authority start?"
+    options:
+      - "When the attacker first got in"
+      - "When the organisation becomes aware of the personal data breach"
+      - "When the investigation is complete"
+      - "When the first customer complains"
+    answer: 1
+    explanation: "The clock runs from awareness. Notify with what you know and add details later; the UTC timeline is the basis."
+  - id: kev-first
+    skills: [cyber-security.security-program]
+    prompt: "Which vulnerability should be fixed first?"
+    options:
+      - "CVSS 9.8 in a test-only dependency that never runs in production"
+      - "CVSS 7.5, listed in CISA KEV, on the internet-facing payment API"
+      - "CVSS 5.0 on an internal wiki"
+      - "The oldest one in the list"
+    answer: 1
+    explanation: "Known exploitation and exposure beat raw severity. CVSS describes the bug in general; KEV and your context describe your risk."
+  - id: exception
+    skills: [cyber-security.security-program]
+    prompt: "A team cannot patch a critical finding this quarter. What makes the risk exception acceptable?"
+    options:
+      - "Marking the finding as a false positive"
+      - "A named owner, a compensating control and an expiry date, after which the finding is overdue again"
+      - "Lowering its CVSS score"
+      - "Removing it from the scanner"
+    answer: 1
+    explanation: "An exception is a time-boxed, owned decision to accept risk. Without expiry it silently becomes permanent."
+  - id: whole-track
+    skills: [cyber-security.security-program, cyber-security.logging-detection]
+    prompt: "After the incident, which change most directly stops the same attack (a stolen VPN password) from working again?"
+    options:
+      - "A longer password policy"
+      - "Phishing-resistant MFA on the VPN, plus a detection for logins from new devices or impossible travel"
+      - "Hiding the VPN's version banner"
+      - "Moving the VPN to another port"
+    answer: 1
+    explanation: "A stolen password alone should not be enough to log in; MFA removes that, and the detection catches what slips through. Banners and ports are obscurity."

@@ -1,0 +1,54 @@
+id: cyber-security.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz on threat modeling, incident response and running a security program, and a post-incident review kit with STRIDE per element, hashed evidence and a hash-chained custody log, a UTC timeline with the notification deadline, and a remediation plan with SLAs and exceptions."
+objectives:
+  - { id: o1, text: "Explain STRIDE per element, evidence handling, notification deadlines and risk-based vulnerability prioritisation in your own words", skills: [cyber-security.threat-modeling, cyber-security.incident-response, cyber-security.security-program] }
+  - { id: o2, text: "Build a post-incident review kit: unmitigated threats from a data flow diagram, evidence integrity and custody, a merged UTC timeline with scope, and a remediation plan", skills: [cyber-security.threat-modeling, cyber-security.incident-response, cyber-security.security-program, cyber-security.logging-detection] }
+prerequisites: [cyber-security.p4.security-program]
+difficulty: 5
+estimated_minutes: 120
+xp: 450
+closes_phase: p4
+covers_skills: [cyber-security.threat-modeling, cyber-security.incident-response, cyber-security.security-program, cyber-security.logging-detection, cyber-security.cryptography-secrets]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 120 }
+  hints:
+    - |-
+      Start each part from a table. For STRIDE: `THREATS = {"external": "SR", "process": "STRIDE", "store": "TID", "log": "TRID"}`; build a dict from every element and every flow to its letters (a flow gets `"TID"` only when `any((a in b) != (c in b) for b in boundaries)`), check each mitigation against that dict, and sort with `key=lambda t: (t[0], "STRIDE".index(t[1]))`. For the plan, `SLAS = {"P1": 3, "P2": 14, "P3": 30, "P4": 90, "P5": 180}` and a `_priority(vuln)` that validates first (`isinstance(cvss, bool)` is the trap) and then returns at the first matching row.
+    - |-
+      Evidence: `sorted(Path(root).rglob("*"))`, keep `path.is_file() and not path.is_symlink()`, key by `path.relative_to(root).as_posix()` and hash with `hashlib.file_digest(handle, "sha256")`. Custody: `prev = chain[-1]["hash"] if chain else "0" * 64`, return `[*chain, record]`. Timeline: `datetime.fromisoformat(at)`; when `tzinfo is None`, `replace(tzinfo=ZoneInfo(source["tz"]))`; then `astimezone(UTC)`. Sort tuples `(utc, source_name, index)` and format with `strftime("%Y-%m-%dT%H:%M:%SZ")`.
+    - |-
+      ```python
+      GENESIS = "0" * 64
+
+
+      def _record_hash(prev, entry):
+          canonical = json.dumps(entry, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+          return hashlib.sha256((prev + canonical).encode("utf-8")).hexdigest()
+
+
+      def custody_verify(chain):
+          prev = GENESIS
+          for index, record in enumerate(chain):
+              if record["prev"] != prev or record["hash"] != _record_hash(prev, record["entry"]):
+                  return index
+              prev = record["hash"]
+          return None
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.

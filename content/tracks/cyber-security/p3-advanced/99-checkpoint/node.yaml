@@ -1,0 +1,53 @@
+id: cyber-security.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz over logging and detection, hardening, web hardening and the cloud and supply chain, and a release gate that reviews an IAM policy and a CI workflow, raises spraying and brute-force detections and writes unforgeable, redacted log lines."
+objectives:
+  - { id: o1, text: "Explain security logging, detections, hardening baselines, security headers, cloud IAM and supply chain controls in your own words", skills: [cyber-security.logging-detection, cyber-security.hardening, cyber-security.web-hardening, cyber-security.cloud-supply-chain] }
+  - { id: o2, text: "Build a pre-deploy gate that finds over-broad IAM and unsafe CI workflows, detects authentication attacks in a sliding window and logs events safely", skills: [cyber-security.logging-detection, cyber-security.cloud-supply-chain] }
+prerequisites: [cyber-security.p3.cloud-supply-chain]
+difficulty: 4
+estimated_minutes: 100
+xp: 400
+closes_phase: p3
+covers_skills: [cyber-security.logging-detection, cyber-security.hardening, cyber-security.web-hardening, cyber-security.cloud-supply-chain]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 120 }
+  hints:
+    - |-
+      Normalise before you check. Write `_as_list(value)` (`None` becomes `[]`, a string becomes a one-item list) and use it for `Statement`, `Action`, `Resource` and `Principal["AWS"]`; lower-case the actions once. In the workflow, find the triggers with `workflow["on"] if "on" in workflow else workflow.get(True)` and turn a string, list or mapping into a set of names. Collect workflow findings in a `set` and return `sorted(...)`.
+    - |-
+      Pins: `owner/repo@ref` is pinned only when `re.fullmatch(r"[0-9a-fA-F]{40}", ref)`; `docker://` needs `re.search(r"@sha256:[0-9a-f]{64}$", uses)`; `./` is always fine. Script injection is `re.search(r"\$\{\{\s*(github\.event\.|github\.head_ref\b)", run)`. For `detect`, sort with `sorted(events, key=lambda e: e["ts"])` (stable for ties) and keep, per IP and per user, a list of `(ts, other)` failures that you trim to `now - ts < window` every time you add one. A `set` of `(kind, subject)` makes each alert fire once.
+    - |-
+      ```python
+      def _redact(value):
+          if isinstance(value, dict):
+              return {
+                  key: "[REDACTED]" if any(word in str(key).lower() for word in SENSITIVE)
+                  else _redact(item)
+                  for key, item in value.items()
+              }
+          if isinstance(value, list):
+              return [_redact(item) for item in value]
+          return value
+
+
+      def log_line(event):
+          return json.dumps(_redact(event), sort_keys=True, ensure_ascii=True, separators=(",", ":"))
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.
