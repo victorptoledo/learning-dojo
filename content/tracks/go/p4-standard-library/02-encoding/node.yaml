@@ -1,0 +1,24 @@
+id: go.p4.encoding
+kind: lesson
+status: draft
+title: "Encoding: JSON, CSV and Struct Tags"
+summary: "encoding/json with struct tags, omitempty and omitzero, pointers to tell missing from zero, strict decoding with Decoder and its typed errors, Marshaler and TextMarshaler on your own types, RawMessage, the json/v2 experiment, and CSV with encoding/csv."
+objectives:
+  - { id: o1, text: "Encode and decode JSON with struct tags, omitempty and omitzero, and pointers for optional fields", skills: [go.encoding] }
+  - { id: o2, text: "Decode strictly and handle SyntaxError and UnmarshalTypeError, and give your own types a JSON form with MarshalText or MarshalJSON", skills: [go.encoding, go.errors-idiomatic] }
+  - { id: o3, text: "Read and write CSV with encoding/csv: headers, quoting, field counts and line numbers", skills: [go.encoding] }
+prerequisites: [go.p4.files-io]
+difficulty: 3
+estimated_minutes: 45
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A payments service receives `{"amount": 1999, "currency": "EUR", "capture": false, "metadata": {...}}`. Today it decodes with `json.Unmarshal` into `map[string]any`, reads `m["amount"].(float64)`, treats a missing `capture` as false, and logs a charge of 0 when the sender wrote `"amout"`. Design the Go types and the decoding: which fields, which tags, how a missing `capture` (default true) differs from `false`, how an unknown key is rejected, and how `Money` is written back out as `"19.99 EUR"`.'
+  criteria:
+    - 'Decodes into a typed struct with json tags instead of map[string]any, so amount is an int64 and not a float64'
+    - 'Uses *bool for capture so nil means missing and gets the default true, while false stays false'
+    - 'Uses json.NewDecoder with DisallowUnknownFields (and a check for trailing data), wrapping the error with %w'
+    - 'Gives Money a MarshalText (and UnmarshalText) method that writes "19.99 EUR", explaining why text rather than MarshalJSON'
+    - 'Keeps metadata as json.RawMessage or map[string]any only if its shape is really unknown'

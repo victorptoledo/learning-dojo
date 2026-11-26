@@ -4,7 +4,7 @@ name: "Go"
 archetype: language
 category: "Programming Languages"
 icon: "🐹"
-description: "Go 1.27 as it is written today: modules and the toolchain, slices and maps inside, interfaces, errors, generics and iterators, testing and fuzzing, goroutines, channels, the memory model and context, net/http, log/slog, pprof and Go in production."
+description: "Go 1.27 as it is written today: modules and the toolchain, slices and maps inside, interfaces, errors, generics and iterators, testing and fuzzing, goroutines, channels, the memory model and context, files and io, JSON and CSV, time and zones, net/http, log/slog, pprof and Go in production."
 status: draft
 bridges_available: [java, python, javascript, csharp, go]
 belts:
@@ -13,14 +13,15 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Error Wrapper" }
   - { name: "Purple Belt", required_xp: 1500, title: "Interface Hacker" }
   - { name: "Brown Belt", required_xp: 2500, title: "Channel Piper" }
-  - { name: "Black Belt", required_xp: 4000, title: "Race-Free Architect" }
-  - { name: "Sensei", required_xp: 6000, title: "Cloud Native Gopher" }
+  - { name: "Black Belt", required_xp: 5000, title: "Race-Free Architect" }
+  - { name: "Sensei", required_xp: 9000, title: "Cloud Native Gopher" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Install Go 1.27, understand modules and the go command, and meet the dojo's Go katas" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "Types and zero values, slices and maps inside, structs and methods, and errors as values" }
   - { id: p2, dir: p2-intermediate, title: "Intermediate", goal: "Interfaces and embedding, generics and iterators, and testing with table tests, fuzzing and benchmarks" }
   - { id: p3, dir: p3-advanced, title: "Advanced", goal: "Goroutines, channels and select, sync and the memory model, the race detector and context" }
-  - { id: p4, dir: p4-mastery, title: "Mastery", goal: "HTTP services, structured logging, profiling and Go in production" }
+  - { id: p4, dir: p4-standard-library, title: "The Standard Library", goal: "Files, io and bufio, encoding with JSON and CSV, and time with zones and daylight saving: the packages every Go service and tool leans on" }
+  - { id: p5, dir: p5-mastery, title: "Mastery", goal: "HTTP services, structured logging, profiling and Go in production" }
 requirements:
   - kind: tool
     name: Go 1.27 (go)

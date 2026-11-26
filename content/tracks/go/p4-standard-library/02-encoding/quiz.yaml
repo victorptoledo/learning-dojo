@@ -1,0 +1,46 @@
+questions:
+  - id: unknown-default
+    prompt: "A config file has the key \"listn\" instead of \"listen\". What does json.Unmarshal do by default?"
+    options:
+      - "Returns an error naming the unknown field"
+      - "Ignores the key, so Listen keeps its zero value"
+      - "Fills Listen, because names match case-insensitively"
+    answer: 1
+    explanation: "Unknown keys are ignored unless you decode with a Decoder and call DisallowUnknownFields."
+  - id: omitzero-time
+    prompt: "A field `PaidAt time.Time `json:\"paid_at,omitempty\"`` is the zero time. What is written?"
+    options:
+      - "Nothing: the field is left out"
+      - "\"paid_at\": \"0001-01-01T00:00:00Z\", because omitempty never leaves out a struct"
+      - "\"paid_at\": null"
+    answer: 1
+    explanation: "omitempty knows only empty values of basic kinds, slices, maps and nil. omitzero (Go 1.24) uses IsZero and leaves the zero time out."
+  - id: pointer-missing
+    prompt: "A PATCH body may set \"done\" to false, or leave it out. Which field type tells the two apart?"
+    options: ["bool", "*bool", "bool with omitempty"]
+    answer: 1
+    explanation: "A nil pointer means the key was absent; a pointer to false means it was sent as false."
+  - id: text-marshaler
+    prompt: "Why give a Duration type MarshalText rather than MarshalJSON?"
+    options:
+      - "MarshalText is faster"
+      - "Its form is a string: the encoder adds quotes and escaping, and the same method works for map keys and other encodings"
+      - "MarshalJSON is deprecated"
+    answer: 1
+    explanation: "TextMarshaler is the general hook for string-shaped values; MarshalJSON is for shapes that are not strings."
+  - id: recursion
+    prompt: "Inside `func (o Order) MarshalJSON() ([]byte, error)` you call json.Marshal(o). What happens?"
+    options:
+      - "It works and adds your fields"
+      - "Infinite recursion: Marshal calls MarshalJSON again. Convert to a type without the method first"
+      - "A compile error"
+    answer: 1
+    explanation: "The usual fix is `type plain Order` and json.Marshal(plain(o)), since plain has the fields but not the method."
+  - id: csv-columns
+    prompt: "Why map CSV columns by header name instead of by position?"
+    options:
+      - "encoding/csv requires it"
+      - "Exports add, remove and reorder columns, and a header map keeps working when they do"
+      - "Positions are slower to read"
+    answer: 1
+    explanation: "Read the header once into map[string]int and look up the index of each column you need."

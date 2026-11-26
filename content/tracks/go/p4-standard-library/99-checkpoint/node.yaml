@@ -1,0 +1,66 @@
+id: go.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 4: The Standard Library"
+summary: "Prove the standard library phase: a quiz over files and io, encoding and time, and an integration kata, a meter readings import that reads CSV from an fs.FS, adds up energy per local day across daylight saving changes and writes a JSON report atomically."
+objectives:
+  - { id: o1, text: "Explain io.Reader and fs.FS, buffered I/O, atomic writes, struct tags and custom marshalers, the reference layout, monotonic time and time zones in your own words", skills: [go.files-io, go.encoding, go.time] }
+  - { id: o2, text: "Build an import that reads CSV from an fs.FS, groups instants by local calendar day in a zone with daylight saving time, and writes JSON with a temporary file and a rename", skills: [go.files-io, go.encoding, go.time, go.errors-idiomatic] }
+prerequisites: [go.p4.strict-config]
+difficulty: 4
+estimated_minutes: 100
+xp: 450
+closes_phase: p4
+covers_skills: [go.files-io, go.encoding, go.time]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-go, timeout_secs: 120 }
+  hints:
+    - |-
+      Work from the inside out: `ParseEnergy` and `Energy.String` first (they are pure functions), then one file with `encoding/csv`, then the loop over the folder, and `WriteReport` last. Which value identifies a reading, the text in the file or the instant it means? And how do you find out how many hours a local day has without counting them?
+    - |-
+      Map the header once: `cols[strings.ToLower(strings.TrimSpace(h))] = i`, after `strings.TrimPrefix(h, "﻿")` on the first cell. For each row, `r.FieldPos(0)` gives the line; when `Read` returns `csv.ErrFieldCount`, keep a row error and go on. Turn every time into a `time.Time` (`time.Parse(time.RFC3339, s)` or `time.ParseInLocation(LocalLayout, s, zone)`), and reject a local time when `t.Format(LocalLayout) != s`, since Go silently moves a time that does not exist. Deduplicate on `struct{ meter string; at time.Time }` with `at` in UTC, and group on `at.In(zone).Format(time.DateOnly)`. The length of the day is `time.Date(y, m, d+1, 0, 0, 0, 0, zone).Sub(time.Date(y, m, d, 0, 0, 0, 0, zone))`.
+    - |-
+      ```go
+      func WriteReport(dir string, r Report) (err error) {
+      	if r.Days == nil {
+      		r.Days = []Day{}
+      	}
+      	tmp, err := os.CreateTemp(dir, ".report-*.json")
+      	if err != nil {
+      		return fmt.Errorf("write report: %w", err)
+      	}
+      	defer func() {
+      		if err != nil {
+      			tmp.Close()
+      			os.Remove(tmp.Name())
+      		}
+      	}()
+      	enc := json.NewEncoder(tmp)
+      	enc.SetIndent("", "  ")
+      	if err := enc.Encode(r); err != nil {
+      		return fmt.Errorf("write report: %w", err)
+      	}
+      	if err := tmp.Sync(); err != nil {
+      		return fmt.Errorf("write report: %w", err)
+      	}
+      	if err := tmp.Close(); err != nil { // a failed Close can mean lost data
+      		return fmt.Errorf("write report: %w", err)
+      	}
+      	return os.Rename(tmp.Name(), filepath.Join(dir, "report.json"))
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-go runner image
+    image: dojo-go
+    why: The Go 1.27 container with the race detector, go vet and gofmt that runs the grading tests.

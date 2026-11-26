@@ -1,0 +1,37 @@
+questions:
+  - id: layout
+    prompt: "Which layout parses \"25/10/2026 01:30\"?"
+    options: ["\"dd/MM/yyyy HH:mm\"", "\"02/01/2006 15:04\"", "\"01/02/2006 03:04\""]
+    answer: 1
+    explanation: "A layout writes the reference time Mon Jan 2 15:04:05 2006 in the target format: day 02, month 01, year 2006, hour 15, minute 04."
+  - id: parse-utc
+    prompt: "time.Parse(\"2006-01-02 15:04\", \"2026-07-02 00:30\") runs on a server in Lisbon. Which zone does the result have?"
+    options: ["Lisbon, the server's local zone", "UTC", "No zone: it is a naive time"]
+    answer: 1
+    explanation: "Without an offset in the text, Parse assumes UTC. Use ParseInLocation for wall-clock text from a known zone."
+  - id: equal
+    prompt: "t1 is an instant in UTC and t2 is the same instant In(lisbon). What are t1 == t2 and t1.Equal(t2)?"
+    options: ["true and true", "false and true", "false and false"]
+    answer: 1
+    explanation: "== compares the location and the monotonic reading too; Equal compares instants. Normalise with UTC() before using a Time as a map key."
+  - id: monotonic
+    prompt: "Why does `elapsed := time.Since(start)` stay correct when NTP moves the wall clock back during the measure?"
+    options:
+      - "Since rounds to the nearest second"
+      - "time.Now records a monotonic reading, and Since uses it when both values have one"
+      - "It does not stay correct"
+    answer: 1
+    explanation: "The monotonic clock never jumps. It is dropped by UTC, In, Round(0) and serialisation, which do not matter for measuring."
+  - id: gap
+    prompt: "In Lisbon on 2026-03-29, clocks jump from 01:00 to 02:00. What does time.Date(2026, 3, 29, 1, 30, 0, 0, lisbon) return?"
+    options:
+      - "An error"
+      - "A valid instant an hour away from the requested wall time, with no error"
+      - "The zero time"
+    answer: 1
+    explanation: "Go normalises times in a gap. Compare t.Format(layout) with the input when you must reject them."
+  - id: add-vs-adddate
+    prompt: "A reminder must fire every day at 09:00 local time, also across daylight saving changes. Which step gives the next one?"
+    options: ["t.Add(24 * time.Hour)", "t.AddDate(0, 0, 1)", "t.Add(time.Duration(24))"]
+    answer: 1
+    explanation: "AddDate counts calendar days in the location; Add counts elapsed time, so after a change it lands at 08:00 or 10:00. time.Duration(24) is 24 nanoseconds."

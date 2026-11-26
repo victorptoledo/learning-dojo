@@ -1,0 +1,67 @@
+questions:
+  - id: fs-fs
+    skills: [go.files-io]
+    prompt: "Why does Import take an fs.FS instead of a folder name?"
+    options:
+      - "fs.FS is faster than the os package"
+      - "Any file tree works (os.DirFS, embed.FS, a zip), and tests use fstest.MapFS without touching the disk"
+      - "fs.FS can write files, and a folder name cannot"
+    answer: 1
+    explanation: "fs.FS is the read-only file system interface of Go 1.16: the io.Reader idea applied to whole trees."
+  - id: close-error
+    skills: [go.files-io]
+    prompt: "You write a file with a deferred f.Close() and ignore its error. What can you miss?"
+    options:
+      - "Nothing: Close never fails"
+      - "A write that only fails when buffered data is flushed on Close, so the file is silently incomplete"
+      - "Only a panic"
+    answer: 1
+    explanation: "For files you write, check Close (and Sync when it must survive a crash). For files you only read, a deferred Close is fine."
+  - id: atomic-rename
+    skills: [go.files-io]
+    prompt: "Why write report.json as a temporary file in the same folder, then rename it?"
+    options:
+      - "Rename is faster than writing"
+      - "On one file system the rename replaces the old file in one step, so readers see the old report or the new one, never half"
+      - "Temporary files are not counted against the disk quota"
+    answer: 1
+    explanation: "os.Rename is atomic within one file system on POSIX systems; a temporary file in another folder may be on another device, where rename fails."
+  - id: omitzero
+    skills: [go.encoding]
+    prompt: "A Duration field should be left out of the JSON when it is zero. Which tag does that?"
+    options: ["`json:\"timeout,omitzero\"`", "`json:\"timeout,string\"`", "`json:\"-\"`"]
+    answer: 0
+    explanation: "omitzero (Go 1.24) leaves out the zero value, or any value whose IsZero method returns true; omitempty only knows empty strings, slices, maps, false, 0 and nil."
+  - id: text-marshaler
+    skills: [go.encoding]
+    prompt: "Energy implements only MarshalText. What does encoding/json write for Energy(12345)?"
+    options: ["12345", "\"12.345\", the text in a JSON string", "An error: MarshalJSON is required"]
+    answer: 1
+    explanation: "encoding/json uses TextMarshaler for values (as strings) and for map keys; MarshalJSON is only needed when the JSON is not a string."
+  - id: reference-time
+    skills: [go.time]
+    prompt: "What does the layout \"2006-01-02 15:04\" mean?"
+    options:
+      - "Any date in 2006, by example"
+      - "The reference time Mon Jan 2 15:04:05 MST 2006 written the way your input is written: year, month, day, hour, minute"
+      - "A strftime pattern"
+    answer: 1
+    explanation: "Go layouts are the reference time 01/02 03:04:05PM '06 -0700 written in the target format."
+  - id: missing-local-time
+    skills: [go.time]
+    prompt: "In Lisbon, clocks jump from 01:00 to 02:00 on 2026-03-29. What does ParseInLocation(\"2006-01-02 15:04\", \"2026-03-29 01:30\", lisbon) return?"
+    options:
+      - "An error"
+      - "A valid time moved by an hour, with no error, so you must compare t.Format(layout) with the input to notice"
+      - "The zero time"
+    answer: 1
+    explanation: "time.Date and ParseInLocation normalise a time in a gap instead of failing. In an overlap, they pick one of the two instants."
+  - id: day-length
+    skills: [go.time]
+    prompt: "How many hours does the local day 2026-10-25 have in Lisbon, and how do you compute it?"
+    options:
+      - "24: days always have 24 hours"
+      - "25: time.Date(2026, 10, 26, 0, 0, 0, 0, lisbon).Sub(time.Date(2026, 10, 25, 0, 0, 0, 0, lisbon))"
+      - "23: the clocks go back"
+    answer: 1
+    explanation: "Going back repeats an hour, so the day is 25 hours long. AddDate and time.Date work in calendar days; Add(24*time.Hour) works in elapsed time."

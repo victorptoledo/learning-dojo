@@ -1,0 +1,73 @@
+questions:
+  - id: who-closes
+    skills: [go.channels-select]
+    prompt: "Many goroutines call Add, which sends on b.in. How should Close tell them the batcher has stopped?"
+    options:
+      - "close(b.in), so their sends fail"
+      - "Close a separate quit channel that Add selects on next to the send, and never close b.in"
+      - "Set a bool field to true and check it in Add"
+    answer: 1
+    explanation: "Sending on a closed channel panics, and only the sender may close a channel. A closed quit channel is a broadcast every select can see; a plain bool would be a data race."
+  - id: nil-channel
+    skills: [go.channels-select]
+    prompt: "In the batcher's loop, `timeout` is a nil `<-chan time.Time` while the batch is empty. What does `case <-timeout:` do then?"
+    options:
+      - "It panics"
+      - "It never fires, so the select waits on the other cases"
+      - "It fires at once with the zero time"
+    answer: 1
+    explanation: "A receive from a nil channel blocks forever, which is the standard way to switch a select case off."
+  - id: unbuffered-backpressure
+    skills: [go.channels-select]
+    prompt: "Why is b.in unbuffered?"
+    options:
+      - "Buffered channels are slower"
+      - "A send completes only when the loop receives, so Add returning nil means the loop holds the item, and callers wait while a flush runs"
+      - "Generic types cannot be sent on buffered channels"
+    answer: 1
+    explanation: "An unbuffered send is a hand-off: it gives backpressure and a clear moment of acceptance. A buffer would hide items that Close might never see."
+  - id: happens-before-done
+    skills: [go.sync-memory-model]
+    prompt: "Only the loop appends to b.errs, and Close reads b.errs after `<-b.done`. Is that a data race?"
+    options:
+      - "Yes, b.errs needs a mutex"
+      - "No: the loop closes done after its last write, and closing a channel happens before a receive that returns because it is closed"
+      - "No, slices are safe for concurrent use"
+    answer: 1
+    explanation: "Channel close creates the happens-before edge, so every write before close(done) is visible after <-done."
+  - id: atomic-stats
+    skills: [go.sync-memory-model]
+    prompt: "Stats() is called from any goroutine while the loop updates three counters. What is the simplest race-free choice?"
+    options:
+      - "Three atomic.Int64 fields, each read with Load"
+      - "Plain int64 fields, because reads are harmless"
+      - "A sync.Map from name to count"
+    answer: 0
+    explanation: "Atomics fit independent single values. The three loads are not one snapshot together, which is fine for counters; if they had to agree, a mutex would."
+  - id: once
+    skills: [go.sync-memory-model]
+    prompt: "Close may be called twice, or from two goroutines at once. What makes `close(b.quit)` safe?"
+    options:
+      - "Wrapping it in a sync.Once"
+      - "Checking `if b.quit != nil` first"
+      - "recover() in Close"
+    answer: 0
+    explanation: "Closing a closed channel panics. sync.Once runs the close exactly once and makes every other caller wait until it has."
+  - id: without-cancel
+    skills: [go.context-lifecycle]
+    prompt: "The Start context was cancelled, and the loop must still flush its last batch to the database. Which context should that flush get?"
+    options:
+      - "The cancelled ctx: the flush should fail fast"
+      - "context.WithoutCancel(ctx): it keeps the values but is not cancelled, so cleanup can finish"
+      - "A new context.Background() with a fresh request ID"
+    answer: 1
+    explanation: "WithoutCancel (Go 1.21) exists for exactly this: cleanup that must outlive the cancellation, while keeping trace IDs and other values. In production, add your own timeout on top."
+  - id: synctest-leak
+    skills: [go.goroutines-concurrency, go.testing]
+    prompt: "A test runs inside synctest.Test and forgets to call Close. The batcher's goroutine is blocked in its select. What happens?"
+    options:
+      - "Nothing; the goroutine is collected"
+      - "The test fails with a deadlock panic, because a goroutine in the bubble is still blocked when the test function returns"
+      - "The test waits for the real Wait duration"
+    answer: 1
+    explanation: "synctest.Test waits for every goroutine in the bubble and reports the ones that can never run again, which turns a goroutine leak into a failing test."
