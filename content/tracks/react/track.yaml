@@ -13,8 +13,8 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Custom Hook Crafter" }
   - { name: "Purple Belt", required_xp: 1500, title: "Context & Memo Tuner" }
   - { name: "Brown Belt", required_xp: 2500, title: "Fiber & Suspense Pro" }
-  - { name: "Black Belt", required_xp: 4000, title: "RSC & Server Component Architect" }
-  - { name: "Sensei", required_xp: 6000, title: "React Grandmaster" }
+  - { name: "Black Belt", required_xp: 3500, title: "RSC & Server Component Architect" }
+  - { name: "Sensei", required_xp: 4500, title: "React Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "Create a React 19 project with Vite and TypeScript, write a first component and meet the dojo's React katas" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "JSX and components, props and state, events and lists, effects and refs, and forms" }

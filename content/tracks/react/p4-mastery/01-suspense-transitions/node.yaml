@@ -7,7 +7,7 @@ objectives:
   - { id: o1, text: "Place Suspense and error boundaries to design loading and failure states for a page", skills: [react.suspense-transitions] }
   - { id: o2, text: "Read cached promises with use and explain why the promise must be stable", skills: [react.suspense-transitions, react.data-fetching] }
   - { id: o3, text: "Keep the UI responsive with useTransition and useDeferredValue, and show optimistic updates", skills: [react.suspense-transitions, react.performance] }
-prerequisites: [react.p3.accessible-tabs]
+prerequisites: [react.p3.checkpoint]
 difficulty: 4
 estimated_minutes: 65
 xp: 100

@@ -1,0 +1,51 @@
+id: react.p3.checkpoint
+kind: checkpoint
+status: draft
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz on reconciliation, performance, state management, testing and accessibility, and an issue tracker on an external store with useSyncExternalStore, the filter in the URL, keys that keep state where it belongs and a render budget."
+objectives:
+  - { id: o1, text: "Explain reconciliation, memoisation, where each kind of state belongs, and behaviour-first accessible testing in your own words", skills: [react.reconciliation-fiber, react.performance, react.state-management, react.testing-a11y] }
+  - { id: o2, text: "Build a page on an external store that meets a render budget, keeps the filter in the URL, resets a draft with a key and stays accessible", skills: [react.state-management, react.performance, react.reconciliation-fiber, react.testing-a11y] }
+prerequisites: [react.p3.accessible-tabs]
+difficulty: 4
+estimated_minutes: 110
+xp: 400
+closes_phase: p3
+covers_skills: [react.reconciliation-fiber, react.performance, react.state-management, react.testing-a11y]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-react, timeout_secs: 90 }
+  hints:
+    - |-
+      Go from the inside out: `issues.ts` and `store.ts` are tested without React, so finish them first. Then the page, and for each line of the budget ask: which state changes, which component owns it, and which props of each row would change? A row can only skip a render when every prop it gets is the same value as last time.
+    - |-
+      `toggleIssue` maps the issues and returns the untouched ones as they are (`issue.id === id ? { ...issue, done: !issue.done } : issue`). The store keeps a `Set` of listeners and skips `Object.is(next, state)`. `useStore` is `useSyncExternalStore(store.subscribe, () => selector(store.getState()))`: a selector that builds a new array every call never settles. In the page: `memo` the row, give it `onToggle` and `onSelect` from `useCallback`, key rows by `issue.id` (an index key moves the DOM between issues when the order changes), filter with `useMemo`, write `q` with `history.replaceState`, and render the editor with `key={selected.id}` so its draft starts over for each issue.
+    - |-
+      ```tsx
+      export function IssueTracker({ store }: IssueTrackerProps) {
+        const issues = useStore(store, selectIssues); // const selectIssues = (s: IssueState) => s.issues;
+        const [query, setQuery] = useState(readQuery); // reads ?q= once
+        const [selectedId, setSelectedId] = useState<string | null>(null);
+        const toggle = useCallback((id: string) => store.setState((s) => toggleIssue(s, id)), [store]);
+        const select = useCallback((id: string) => setSelectedId(id), []);
+        const visible = useMemo(() => issues.filter((issue) => matchesQuery(issue, query)), [issues, query]);
+        const selected = issues.find((issue) => issue.id === selectedId) ?? null;
+        // <input onChange={(e) => { setQuery(e.target.value); writeQuery(e.target.value.trim()); }} />
+        // {visible.map((issue) => <IssueRow key={issue.id} issue={issue} selected={issue.id === selectedId} onToggle={toggle} onSelect={select} />)}
+        // {selected ? <IssueEditor key={selected.id} issue={selected} onRename={rename} /> : <p>Select an issue to edit it</p>}
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-react runner image
+    image: dojo-react
+    why: The Node.js 26 container with TypeScript 7, React 19, jsdom and Testing Library that checks your components.
