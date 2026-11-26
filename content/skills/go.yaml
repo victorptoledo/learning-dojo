@@ -11,6 +11,9 @@ skills:
   - { id: go.channels-select, title: "Channels, select and Concurrency Patterns" }
   - { id: go.sync-memory-model, title: "sync, Atomics, the Memory Model and the Race Detector" }
   - { id: go.context-lifecycle, title: "Context: Cancellation, Deadlines and Propagation" }
+  - { id: go.files-io, title: "Files, io and bufio" }
+  - { id: go.encoding, title: "Encoding: JSON, CSV and Struct Tags" }
+  - { id: go.time, title: "Time: Instants, Durations, Layouts and Zones" }
   - { id: go.http, title: "HTTP Services with net/http and ServeMux Patterns" }
   - { id: go.observability, title: "Structured Logging with log/slog and Observability" }
   - { id: go.performance, title: "Profiling and Performance: pprof, Benchmarks, Escape Analysis and the GC" }

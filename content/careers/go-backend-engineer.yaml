@@ -21,6 +21,6 @@ stages:
   - id: s4
     title: "Services at scale"
     requires:
-      - { track: go, phase: p4 }
+      - { track: go, phase: p5 }
       - { track: system-design, phase: p3 }
 next_paths: [platform-sre, backend-to-microservices]

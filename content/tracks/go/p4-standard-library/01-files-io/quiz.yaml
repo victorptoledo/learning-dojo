@@ -1,0 +1,43 @@
+questions:
+  - id: read-contract
+    prompt: "A call to r.Read(buf) returns n = 120 and err = io.EOF. What should you do?"
+    options:
+      - "Ignore the 120 bytes: the error comes first"
+      - "Use the 120 bytes, then stop because the data is over"
+      - "Call Read again until it returns n = 0"
+    answer: 1
+    explanation: "Read may return data and an error together. Process the n bytes first, then handle the error."
+  - id: close-write
+    prompt: "Why check the error of Close on a file you have written?"
+    options:
+      - "Close can report a write that failed, so ignoring it can hide a half-written file"
+      - "Close deletes the file when it fails"
+      - "go vet requires it"
+    answer: 0
+    explanation: "Buffered data can fail to reach the disk on Close. For files you only read, a deferred Close without a check is fine."
+  - id: atomic
+    prompt: "Where should the temporary file go when you replace report.json atomically with os.Rename?"
+    options: ["In os.TempDir()", "In the same folder as report.json", "Anywhere: rename always works"]
+    answer: 1
+    explanation: "Rename is atomic only within one file system. A temporary folder may be on another device, where the rename fails."
+  - id: scanner-err
+    prompt: "A loop `for sc.Scan() { ... }` ends. What must you still do?"
+    options:
+      - "Nothing"
+      - "Check sc.Err(): the loop also ends on a read error or a line longer than the buffer"
+      - "Call sc.Close()"
+    answer: 1
+    explanation: "Scan returns false on EOF and on errors alike; Err tells them apart and is nil at a clean EOF."
+  - id: bufio-flush
+    prompt: "A program writes lines through bufio.NewWriter(f) and closes f. The last lines are missing. Why?"
+    options:
+      - "bufio drops lines longer than 4 KiB"
+      - "Nobody called w.Flush(), so the buffered bytes never reached the file"
+      - "The file was opened without O_APPEND"
+    answer: 1
+    explanation: "A bufio.Writer keeps data until its buffer is full or Flush is called."
+  - id: fs-fs
+    prompt: "Which value lets a function that takes an fs.FS run in a test without touching the disk?"
+    options: ["os.DirFS(t.TempDir())", "fstest.MapFS{\"a.csv\": {Data: []byte(\"...\")}}", "bytes.Buffer"]
+    answer: 1
+    explanation: "testing/fstest.MapFS is an in-memory fs.FS; os.DirFS works too but uses the disk."

@@ -1,0 +1,57 @@
+id: go.p5.http-api
+kind: kata
+status: draft
+title: "To-do API with net/http"
+summary: "A JSON to-do API on http.ServeMux with method and wildcard patterns, 201, 204, 400, 404 and 405 answers, partial updates with pointer fields, a mutex-guarded store under concurrent requests and a panic-recovery middleware."
+objectives:
+  - { id: o1, text: "Route with ServeMux patterns and answer with the right status codes, headers and JSON errors", skills: [go.http] }
+  - { id: o2, text: "Decode and validate JSON bodies, including optional fields with pointers", skills: [go.http, go.structs-methods] }
+  - { id: o3, text: "Guard shared state hit by concurrent requests and recover panics in middleware", skills: [go.sync-memory-model, go.http] }
+prerequisites: [go.p5.http-services]
+difficulty: 4
+estimated_minutes: 75
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-go, timeout_secs: 120 }
+  hints:
+    - |-
+      Write the `Store` first: every method starts with `s.mu.Lock()` and `defer s.mu.Unlock()`, and `Add` creates the map when it is still `nil`. Then `NewHandler`: which pattern syntax lets the mux itself answer 405 for `POST /healthz`? And for `GET /todos`, what does `json` encode for a `nil` slice?
+    - |-
+      Register each route with its method: `mux.HandleFunc("PATCH /todos/{id}", s.update)`, with the handlers as methods on a small `server` struct that holds the store. A helper that reads `r.PathValue("id")` with `strconv.Atoi` and answers 400 itself keeps the three `{id}` handlers short. A `nil` slice encodes as `null`, so build the list with `make([]Todo, 0, len(...))`. For PATCH, decode into `struct { Title *string; Done *bool }` (with json tags): a nil pointer means "not sent". `Recover` returns an `http.HandlerFunc` whose first line is a deferred function calling `recover()`.
+    - |-
+      ```go
+      func NewHandler(store *Store, logger *slog.Logger) http.Handler {
+      	s := &server{store: store}
+      	mux := http.NewServeMux()
+      	mux.HandleFunc("GET /healthz", s.health)
+      	mux.HandleFunc("GET /todos", s.list)
+      	mux.HandleFunc("POST /todos", s.create)
+      	// GET, PATCH and DELETE on "/todos/{id}"
+      	return Recover(logger, mux)
+      }
+
+      func Recover(logger *slog.Logger, next http.Handler) http.Handler {
+      	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+      		defer func() {
+      			if v := recover(); v != nil {
+      				// log v with logger.Error, then writeError(w, 500, "internal error")
+      			}
+      		}()
+      		next.ServeHTTP(w, r)
+      	})
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-go runner image
+    image: dojo-go
+    why: The Go 1.27 container with the race detector, go vet and gofmt that runs the grading tests.

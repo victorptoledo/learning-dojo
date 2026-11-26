@@ -1,0 +1,73 @@
+questions:
+  - id: method-pattern
+    skills: [go.http]
+    prompt: "A mux has `GET /{code}` and a client sends DELETE /abc. What answers it?"
+    options:
+      - "Your handler, which must check r.Method"
+      - "The mux itself, with 405 Method Not Allowed and an Allow header"
+      - "404 Not Found"
+    answer: 1
+    explanation: "Since Go 1.22, patterns with methods let ServeMux answer 405 for paths that exist with another method."
+  - id: max-bytes
+    skills: [go.http]
+    prompt: "How do you stop a client from sending a 2 GB JSON body to POST /links?"
+    options:
+      - "Check r.ContentLength"
+      - "Wrap the body with http.MaxBytesReader and answer 413 when decoding fails with *http.MaxBytesError"
+      - "Set the server's WriteTimeout"
+    answer: 1
+    explanation: "ContentLength can be missing or wrong; MaxBytesReader stops reading at the limit and tells the server to close the connection."
+  - id: base-context
+    skills: [go.http, go.context-lifecycle]
+    prompt: "Run passes the signal context to the server with BaseContext returning ctx. What happens on SIGTERM?"
+    options:
+      - "Nothing special: Shutdown handles it"
+      - "Every in-flight request's context is cancelled at once, so their store calls fail before Shutdown can let them finish"
+      - "New requests are rejected and old ones finish"
+    answer: 1
+    explanation: "Request contexts derive from BaseContext. Return context.WithoutCancel(ctx) so the signal stops the server, not the requests."
+  - id: readiness
+    skills: [go.production]
+    prompt: "Why answer 503 on /readyz for a few seconds before calling Shutdown?"
+    options:
+      - "To make the container restart faster"
+      - "So the load balancer stops sending new requests before the listener closes, and none are refused mid-rollout"
+      - "Because Shutdown requires it"
+    answer: 1
+    explanation: "Removing an endpoint from a load balancer takes time; failing readiness first, then draining, avoids connection errors during deploys."
+  - id: leak-error
+    skills: [go.production]
+    prompt: "The store returns `pq: password authentication failed for user billing`. What should the client see?"
+    options:
+      - "The error text, so they can report it"
+      - "A generic 500 JSON error, while the full error goes to the log with the request ID"
+      - "A 400, because the request failed"
+    answer: 1
+    explanation: "Internal errors can carry credentials, SQL or hostnames. Clients get a generic message and the request ID; operators get the details in the log."
+  - id: slog-attrs
+    skills: [go.observability]
+    prompt: "Which access log record is the most useful in production?"
+    options:
+      - "log.Printf(\"GET /abc?token=x 302 3ms\")"
+      - "slog with request_id, method, pattern, path (without the query), status and duration as separate attributes"
+      - "One record with the whole request dumped with %+v"
+    answer: 1
+    explanation: "Separate attributes can be filtered and aggregated (by pattern, by status); the query string and headers may carry secrets."
+  - id: middleware-order
+    skills: [go.http, go.observability]
+    prompt: "With handler = recover(accessLog(mux)), a handler panics. What does the access log record?"
+    options:
+      - "Status 500, as expected"
+      - "Nothing, or a wrong status: the panic unwinds through the access log before recover writes the 500"
+      - "Status 200"
+    answer: 1
+    explanation: "Middleware wraps from the outside in. Put recover inside the access log, accessLog(recover(mux)), so the log sees the 500."
+  - id: profile-first
+    skills: [go.performance]
+    prompt: "After the launch, p99 latency of GET /{code} doubles. What do you do first?"
+    options:
+      - "Add sync.Pool to every handler"
+      - "Measure: a CPU and a block or mutex profile from net/http/pprof (or the execution tracer) under real load, then fix what they show"
+      - "Raise GOMAXPROCS"
+    answer: 1
+    explanation: "Optimise what a profile shows. Latency often comes from waiting (locks, the store, the GC), which CPU profiles alone do not show."

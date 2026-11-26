@@ -1,0 +1,63 @@
+id: go.p4.strict-config
+kind: kata
+status: draft
+title: "Strict Config: JSON, Custom Types and Durations"
+summary: "A strict JSON configuration loader: a Duration type written as a string through TextMarshaler, unknown fields and trailing data rejected, omitzero and omitempty, pointer fields to tell missing from zero, and every invalid field reported with errors.Join."
+objectives:
+  - { id: o1, text: "Give a type its own JSON form with MarshalText and UnmarshalText, and control fields with struct tags", skills: [go.encoding, go.time] }
+  - { id: o2, text: "Decode strictly with json.Decoder: unknown fields, trailing data and wrapped decoding errors", skills: [go.encoding, go.errors-idiomatic] }
+  - { id: o3, text: "Fill defaults only for missing fields and report every invalid field at once", skills: [go.encoding, go.errors-idiomatic] }
+prerequisites: [go.p4.time]
+difficulty: 3
+estimated_minutes: 60
+xp: 400
+lesson: lesson.md
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-go, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with `Duration`: two short methods, and `time.Duration(d)` converts back. Then the struct tags, then `Load`. Which method of `json.Decoder` turns unknown fields into errors, and what does a second `Decode` return when there is nothing left but white space?
+    - |-
+      `dec := json.NewDecoder(r)`, `dec.DisallowUnknownFields()`, `dec.Decode(&c)` (wrap its error with `%w`), then `dec.Decode(&struct{}{})` must return `io.EOF`, or the input had more. A nil `c.Retries` was missing, so give it `new(int(DefaultRetries))`; a zero `c.Timeout` gets `Duration(DefaultTimeout)`. In `Validate`, append one `&FieldError{...}` per problem to a slice and return `errors.Join(problems...)`, which is nil for an empty slice.
+    - |-
+      ```go
+      type Config struct {
+      	Name    string   `json:"name"`
+      	Listen  string   `json:"listen"`
+      	Timeout Duration `json:"timeout,omitzero"`
+      	Retries *int     `json:"retries,omitempty"`
+      	Tags    []string `json:"tags,omitempty"`
+      }
+
+      func (d *Duration) UnmarshalText(text []byte) error {
+      	parsed, err := time.ParseDuration(string(text))
+      	if err != nil {
+      		return err
+      	}
+      	if parsed < 0 {
+      		return fmt.Errorf("%q: %w", text, ErrNegativeDuration)
+      	}
+      	*d = Duration(parsed)
+      	return nil
+      }
+
+      // in Validate:
+      if _, port, err := net.SplitHostPort(c.Listen); err != nil {
+      	bad("listen", "must be host:port")
+      } else if n, err := strconv.Atoi(port); err != nil || n < 1 || n > 65535 {
+      	bad("listen", "port must be a number from 1 to 65535")
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-go runner image
+    image: dojo-go
+    why: The Go 1.27 container with the race detector, go vet and gofmt that runs the grading tests.

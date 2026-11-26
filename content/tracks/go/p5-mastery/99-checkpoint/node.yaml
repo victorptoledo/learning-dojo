@@ -1,0 +1,64 @@
+id: go.p5.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Final Exam: Go in Production"
+summary: "The final exam of the Go track: a quiz over HTTP services, structured logging, profiling and production, and an integration project, a link shortener with strict input, store deadlines from the request context, request IDs, a structured access log, panic recovery, and a drain and graceful shutdown that drop no request."
+objectives:
+  - { id: o1, text: "Explain how a Go service handles requests, deadlines, logs, panics, profiles and shutdown in production, in your own words", skills: [go.http, go.observability, go.performance, go.production] }
+  - { id: o2, text: "Build a production-ready HTTP service with net/http and log/slog: validation, timeouts through context, request IDs, an access log, recovery, readiness and graceful shutdown", skills: [go.http, go.observability, go.production, go.context-lifecycle] }
+prerequisites: [go.p5.production-go]
+difficulty: 5
+estimated_minutes: 150
+xp: 500
+closes_phase: p5
+covers_skills: [go.http, go.observability, go.performance, go.production]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-go, timeout_secs: 180 }
+  hints:
+    - |-
+      Build it in layers. First the mux with the four routes and JSON helpers (`writeJSON`, `writeError`), and make the visible test pass. Then the store calls with their deadline, then the middlewares, and `Run` last. In which order must the middlewares wrap the mux, so that the access log sees the 500 of a recovered panic and every log record already has the request ID?
+    - |-
+      Wrap as `requestID(accessLog(recover(mux)))`: the outermost runs first. `requestID` stores the ID with `context.WithValue(r.Context(), ctxKey{}, id)` and passes `r.WithContext(...)` down. `accessLog` wraps the `ResponseWriter` in a struct that records the first `WriteHeader` (and 200 on a `Write` without one), calls `next`, then logs `r.Pattern`, which the mux has set on the request by then. Each store call runs under `context.WithTimeout(r.Context(), StoreTimeout)`, and `errors.Is(err, context.DeadlineExceeded)` picks the 504. In `Run`, set `BaseContext` to return `context.WithoutCancel(ctx)`, or requests are cancelled the moment the signal arrives.
+    - |-
+      ```go
+      func (s *Server) Run(ctx context.Context, ln net.Listener, opts RunOptions) error {
+      	srv := &http.Server{
+      		Handler:           s,
+      		ReadHeaderTimeout: 5 * time.Second,
+      		BaseContext:       func(net.Listener) context.Context { return context.WithoutCancel(ctx) },
+      	}
+      	served := make(chan error, 1)
+      	go func() { served <- srv.Serve(ln) }()
+      	select {
+      	case err := <-served:
+      		return fmt.Errorf("serve: %w", err)
+      	case <-ctx.Done():
+      	}
+      	s.draining.Store(true) // /readyz answers 503 from now on
+      	time.Sleep(opts.DrainDelay)
+      	shutdownCtx, cancel := context.WithTimeout(context.Background(), opts.ShutdownTimeout)
+      	defer cancel()
+      	if err := srv.Shutdown(shutdownCtx); err != nil {
+      		srv.Close()
+      		<-served
+      		return fmt.Errorf("shutdown: %w", err)
+      	}
+      	<-served // http.ErrServerClosed
+      	return nil
+      }
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-go runner image
+    image: dojo-go
+    why: The Go 1.27 container with the race detector, go vet and gofmt that runs the grading tests.

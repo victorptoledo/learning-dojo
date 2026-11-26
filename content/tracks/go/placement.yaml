@@ -11,7 +11,8 @@ phases:
   p1: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p2: { items_per_phase: 6, pass: 0.8, partial: 0.5 }
   p3: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
-  p4: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
+  p4: { items_per_phase: 5, pass: 0.8, partial: 0.5 }
+  p5: { items_per_phase: 4, pass: 0.85, partial: 0.6 }
 early_stop: { wrong_in_first: 2, of: 3 }
 skill_placed_out_threshold: 0.75
 weights_by_difficulty: { 1: 0.5, 2: 1.0, 3: 1.5, 4: 2.0, 5: 2.5 }
@@ -264,40 +265,99 @@ items:
     prompt: "A call failed with a wrapped error after its context's deadline passed. Which check is right?"
     answers: ["errors.Is(err, context.DeadlineExceeded)"]
     explanation: "Libraries wrap context errors, so compare with errors.Is, not ==."
-  # ---- P4 Mastery --------------------------------------------------------------
-  - id: p4-pathvalue
+  # ---- P4 The Standard Library --------------------------------------------------
+  - id: p4-read-eof
     phase: p4
+    skills: [go.files-io]
+    difficulty: 2
+    prompt: "A call to Read returns n = 512 and err = io.EOF. What do you do with the 512 bytes?"
+    options: ["Drop them: an error came back", "Use them, then stop reading", "Call Read again to get them"]
+    answer: 1
+    explanation: "Read may return data and io.EOF together; process the n bytes before looking at the error."
+  - id: p4-scanner-err
+    phase: p4
+    skills: [go.files-io]
+    difficulty: 3
+    prompt: "A `for sc.Scan()` loop over a file ends after a line of 100 KB. Where is the reason?"
+    options: ["Nowhere: the file ended", "In sc.Err(), which returns bufio.ErrTooLong", "In a panic"]
+    answer: 1
+    explanation: "Scanner's default limit is 64 KiB per token; Scan returns false and Err tells you why."
+  - id: p4-atomic-replace
+    phase: p4
+    skills: [go.files-io]
+    difficulty: 3
+    prompt: "How do you replace config.json so a reader never sees half of the new file?"
+    options:
+      - "os.WriteFile straight over it"
+      - "Write a temporary file in the same folder, Sync and Close it, then os.Rename it over config.json"
+      - "Truncate it first, then write"
+    answer: 1
+    explanation: "A rename within one file system is atomic; the temporary file must be on the same file system."
+  - id: p4-omitzero
+    phase: p4
+    skills: [go.encoding]
+    difficulty: 3
+    prompt: "Which tag leaves a zero time.Time out of the JSON?"
+    options: ["`json:\"at,omitempty\"`", "`json:\"at,omitzero\"`", "`json:\"at,string\"`"]
+    answer: 1
+    explanation: "omitempty never omits a struct; omitzero (Go 1.24) uses IsZero."
+  - id: p4-unknown-fields
+    phase: p4
+    skills: [go.encoding]
+    difficulty: 2
+    prompt: "Which call makes a json.Decoder reject keys that match no struct field?"
+    answers: ["DisallowUnknownFields", "dec.DisallowUnknownFields()", "DisallowUnknownFields()"]
+    explanation: "By default unknown keys are ignored; DisallowUnknownFields turns them into errors."
+  - id: p4-layout
+    phase: p4
+    skills: [go.time]
+    difficulty: 2
+    prompt: "Which layout parses \"2026-07-02 00:30\"?"
+    options: ["\"YYYY-MM-DD hh:mm\"", "\"2006-01-02 15:04\"", "\"%Y-%m-%d %H:%M\""]
+    answer: 1
+    explanation: "Go layouts write the reference time Mon Jan 2 15:04:05 MST 2006 in the target format."
+  - id: p4-adddate
+    phase: p4
+    skills: [go.time]
+    difficulty: 4
+    prompt: "In Lisbon, t is midnight on 2026-10-25, the day the clocks go back. What is t.AddDate(0, 0, 1).Sub(t)?"
+    options: ["24h0m0s", "25h0m0s", "23h0m0s"]
+    answer: 1
+    explanation: "AddDate moves to the next local midnight; that day repeats an hour, so it is 25 hours long."
+  # ---- P5 Mastery --------------------------------------------------------------
+  - id: p5-pathvalue
+    phase: p5
     skills: [go.http]
     difficulty: 3
     prompt: "Patterns \"GET /items/{id}\" and \"GET /items/new\" are both registered. Which handles GET /items/new?"
     options: ["The {id} pattern, registered first", "The /items/new pattern, because it is more specific", "It panics at registration"]
     answer: 1
     explanation: "ServeMux picks the most specific matching pattern regardless of registration order."
-  - id: p4-client-timeout
-    phase: p4
+  - id: p5-client-timeout
+    phase: p5
     skills: [go.http]
     difficulty: 3
     prompt: "What is the timeout of `http.Get(url)`?"
     options: ["30 seconds", "None: http.DefaultClient has no timeout", "It inherits the server's WriteTimeout"]
     answer: 1
     explanation: "Create an http.Client with Timeout and pass contexts with NewRequestWithContext."
-  - id: p4-slog-with
-    phase: p4
+  - id: p5-slog-with
+    phase: p5
     skills: [go.observability]
     difficulty: 2
     prompt: "Which slog call returns a logger that adds `request_id` to every record?"
     answers: ["logger.With(\"request_id\", id)", "With", "logger.With"]
     explanation: "With returns a derived logger; the original is unchanged."
-  - id: p4-pprof-heap
-    phase: p4
+  - id: p5-pprof-heap
+    phase: p5
     skills: [go.performance]
     difficulty: 4
     prompt: "Memory of a service grows steadily. Which heap profile view shows what is still alive now?"
     options: ["alloc_space", "inuse_space", "the CPU profile"]
     answer: 1
     explanation: "inuse_space shows memory held at the time of the profile; alloc_space counts everything ever allocated."
-  - id: p4-govulncheck
-    phase: p4
+  - id: p5-govulncheck
+    phase: p5
     skills: [go.production]
     difficulty: 3
     prompt: "Which tool from the Go team reports known vulnerabilities that your code actually reaches?"

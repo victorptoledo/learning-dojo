@@ -1,0 +1,23 @@
+id: go.p4.files-io
+kind: lesson
+status: draft
+title: "Files, io and bufio"
+summary: "The Read and Write contracts and the io helpers that compose them, opening, writing and closing files, atomic replacement with a temporary file and a rename, bufio scanners and writers, filepath and path, io/fs file systems with embed and fstest, and os.Root for paths that come from users."
+objectives:
+  - { id: o1, text: "Read and write files and streams with os, io and bufio, and handle the errors of Read, Scan and Close correctly", skills: [go.files-io] }
+  - { id: o2, text: "Replace a file atomically and keep paths from user input inside a folder with os.Root", skills: [go.files-io] }
+  - { id: o3, text: "Write code against fs.FS and test it with fstest.MapFS", skills: [go.files-io, go.testing] }
+prerequisites: [go.p3.checkpoint]
+difficulty: 3
+estimated_minutes: 45
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A nightly job reads `orders.csv` (sometimes 2 GB) with `os.ReadFile`, splits it with `strings.Split(string(data), "\n")`, and writes `summary.json` with `os.WriteFile`. Twice this month the dashboard read an empty or truncated summary while the job was running, and once the job died with out of memory. Rewrite the plan: how you read the input, how you write the output so readers never see half of it, and how you would test the reading code without real files.'
+  criteria:
+    - 'Streams the input with os.Open and bufio.Scanner (or csv.Reader over a bufio.Reader) instead of loading 2 GB into memory, checks Scanner.Err and mentions the line length limit'
+    - 'Writes the summary to a temporary file in the same folder with os.CreateTemp, syncs and closes it checking the Close error, then os.Rename over summary.json'
+    - 'Explains that rename within one file system is atomic, so readers see the old or the new file, and removes the temporary file on error'
+    - 'Makes the reading code take an io.Reader or an fs.FS, and tests it with strings.NewReader or fstest.MapFS'

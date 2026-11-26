@@ -1,0 +1,24 @@
+id: go.p4.time
+kind: lesson
+status: draft
+title: "Time: Instants, Durations, Layouts and Zones"
+summary: "time.Time and time.Duration, comparing instants, the monotonic clock, layouts written as the reference time, parsing in a location and the IANA database with time/tzdata, daylight saving gaps and overlaps, Add versus AddDate, timers and tickers, and testing time with an injected clock or testing/synctest."
+objectives:
+  - { id: o1, text: "Measure, compare and format time correctly with time.Time, time.Duration, the monotonic clock and layouts", skills: [go.time] }
+  - { id: o2, text: "Parse wall-clock text in a time zone and handle daylight saving gaps, overlaps and days of 23 or 25 hours", skills: [go.time] }
+  - { id: o3, text: "Make time-dependent code testable with an injected clock or testing/synctest", skills: [go.time, go.testing] }
+prerequisites: [go.p4.encoding]
+difficulty: 3
+estimated_minutes: 45
+xp: 350
+lesson: lesson.md
+bridges: bridges
+quiz: quiz.yaml
+exercise:
+  task: 'A booking service stores appointments as `"2026-10-25 01:30"` strings parsed with `time.Parse("2006-01-02 15:04", s)`, sends reminders with `next = last.Add(24 * time.Hour)`, keys a cache by `time.Time`, and measures request latency with `time.Now().UTC()` at both ends. Customers in Lisbon get reminders an hour off after the clocks change, some bookings show the wrong hour, and the cache misses. Explain each bug and the fix.'
+  criteria:
+    - 'Explains that time.Parse without an offset assumes UTC, and fixes it with ParseInLocation and LoadLocation("Europe/Lisbon"), storing instants in UTC or RFC 3339 with an offset'
+    - 'Explains the daylight saving gap and overlap for local times like 01:30 on 25 October, and rejects or flags them (t.Format(layout) != input)'
+    - 'Replaces Add(24*time.Hour) with AddDate(0, 0, 1) (or time.Date with d+1) for calendar reminders'
+    - 'Explains that == on time.Time compares location and monotonic reading, and keys the cache by t.UTC() or compares with Equal'
+    - 'Measures latency with time.Now() and time.Since, without UTC(), so the monotonic reading is kept'
