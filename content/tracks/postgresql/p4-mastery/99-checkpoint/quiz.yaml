@@ -1,0 +1,50 @@
+pass_percent: 85
+questions:
+  - id: inactive-slot
+    skills: [postgresql.replication]
+    prompt: "pg_wal has grown to 300 GB on the primary. pg_replication_slots shows a logical slot with active = false. What happened, and what limits the damage next time?"
+    options: ["Checkpoints are too rare; raise checkpoint_timeout", "The slot keeps every WAL file its consumer has not confirmed; drop the slot if the consumer is gone, and set max_slot_wal_keep_size", "The archive is too slow; add archive_timeout", "Logical slots never retain WAL; the cause is elsewhere"]
+    answer: 1
+    explanation: "A slot holds WAL until its consumer catches up, even when nobody is connected; max_slot_wal_keep_size caps it, at the cost of the slot becoming lost."
+  - id: sync-quorum
+    skills: [postgresql.replication]
+    prompt: "With synchronous_standby_names = 'ANY 1 (s1, s2)', what does a commit wait for?"
+    options: ["Both standbys", "Either standby to confirm it, so one standby can be down without blocking commits", "Nothing: ANY means asynchronous", "The archive"]
+    answer: 1
+    explanation: "Quorum commit waits for any one of the listed standbys, which keeps no-data-loss without making a single standby a single point of failure."
+  - id: standby-is-not-backup
+    skills: [postgresql.backup-recovery]
+    prompt: "Someone ran DELETE FROM payments without a WHERE. Why does the streaming standby not help?"
+    options: ["It is always hours behind", "It replays the DELETE within seconds; only a backup with archived WAL can go back to a moment before it", "Standbys cannot be read", "It only has the schema"]
+    answer: 1
+    explanation: "Replication copies mistakes as faithfully as everything else; point-in-time recovery from a base backup and the WAL archive undoes them."
+  - id: pitr-backup
+    skills: [postgresql.backup-recovery]
+    prompt: "You need to recover to 14:29. One base backup finished at 01:35, another started at 14:20 and finished at 14:41. Which one can you use?"
+    options: ["The one from 14:20, it is closer", "The one that finished at 01:35, replaying its WAL up to 14:29", "Either one", "Neither: PITR needs a backup taken exactly at 14:29"]
+    answer: 1
+    explanation: "A restore is only consistent after replaying past the backup's end, so a backup that ends after the target cannot reach it."
+  - id: archive-gap
+    skills: [postgresql.backup-recovery]
+    prompt: "One WAL segment between the backup and the target is missing from the archive. How far can the restore go?"
+    options: ["To the target: PostgreSQL skips the missing file", "Only to the end of the last segment before the hole: WAL must be replayed without gaps", "Nowhere: the whole backup is unusable", "To the target, if checksums are on"]
+    answer: 1
+    explanation: "Recovery replays WAL strictly in order; a missing segment ends it, so restore tests and archive monitoring matter."
+  - id: insert-lsn
+    skills: [postgresql.monitoring-tuning]
+    prompt: "Inside one transaction you compare pg_current_wal_lsn() before and after a small INSERT and get 0. Why?"
+    options: ["INSERT writes no WAL", "pg_current_wal_lsn is the write position; the record is still in the WAL buffers, and pg_current_wal_insert_lsn shows it", "fsync is off", "WAL is only written at COMMIT"]
+    answer: 1
+    explanation: "The insert position moves as soon as a record is placed in the buffers; the write and flush positions follow when the buffers are written out."
+  - id: unlogged
+    skills: [postgresql.monitoring-tuning, postgresql.replication]
+    prompt: "What do you give up when you make a staging table UNLOGGED?"
+    options: ["Indexes", "Crash safety and replication: it is emptied after a crash and is empty on standbys and in physical backups", "Transactions", "Nothing at all"]
+    answer: 1
+    explanation: "Unlogged tables skip WAL, so they are fast to load but only fit data that can be loaded again."
+  - id: first-fix
+    skills: [postgresql.monitoring-tuning, postgresql.query-planner]
+    prompt: "A server is slow and nothing has been measured yet. What do you do first?"
+    options: ["Double shared_buffers", "Enable pg_stat_statements, rank queries by total time, and read the worst one with EXPLAIN (ANALYZE, BUFFERS)", "Add an index on every foreign key", "Restart the server"]
+    answer: 1
+    explanation: "Tuning in order of payoff starts with the queries, and only from measurements; change one thing at a time and measure again."

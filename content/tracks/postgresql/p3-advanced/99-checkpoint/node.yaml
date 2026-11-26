@@ -1,0 +1,52 @@
+id: postgresql.p3.checkpoint
+kind: checkpoint
+status: reviewed
+title: "📋 Checkpoint 3: Advanced"
+summary: "Prove the advanced phase: a quiz over index types, partitioning, roles and row-level security, extensions and pooling, and an integration kata over a telehealth network with a list-partitioned visits table that adopts an imported table, a GiST index for address lookups, a partial unique expression index, an index clean-up report from the catalog, and column privileges, a clinic policy and a SECURITY DEFINER function that a temporary table cannot fool."
+objectives:
+  - { id: o1, text: "Explain index types, partition rules, privileges and row-level security, extensions and pooling modes in your own words", skills: [postgresql.indexes-advanced, postgresql.partitioning, postgresql.security, postgresql.extensions, postgresql.connection-pooling] }
+  - { id: o2, text: "Partition a table by list and attach existing data, choose GiST and partial unique expression indexes, and find invalid, redundant and unused indexes in the catalog", skills: [postgresql.partitioning, postgresql.indexes-advanced] }
+  - { id: o3, text: "Lay out least-privilege roles with column privileges, a policy that fails closed and a SECURITY DEFINER function with a safe search_path", skills: [postgresql.security] }
+prerequisites: [postgresql.p3.extensions-pooling]
+difficulty: 4
+estimated_minutes: 110
+xp: 500
+closes_phase: p3
+covers_skills: [postgresql.indexes-advanced, postgresql.partitioning, postgresql.security, postgresql.extensions, postgresql.connection-pooling]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-sql, timeout_secs: 180 }
+  hints:
+    - |-
+      Which statement makes an existing table a partition without copying it, and what happens to the identity's next value when the rows keep their old ids? Which operator class lets an index answer `>>=` on `cidr`? A unique index can have a `WHERE` and an expression at once. For the report, `pg_index` has `indisvalid`, `indkey`, `indpred` and `indexprs`; when does one B-tree make another useless? For security: which privileges can be granted per column, what do a query on a partition and a call to a new function skip or allow, and where does PostgreSQL look for tables before the schemas of the `search_path`?
+    - |-
+      `PARTITION BY LIST (region)`, `PRIMARY KEY (id, region)`, `FOR VALUES IN ('eu')`, then `ALTER TABLE visits ATTACH PARTITION visits_br FOR VALUES IN ('br')` and `setval(pg_get_serial_sequence('visits', 'id'), ...)`. `USING gist (net inet_ops)` and `CREATE UNIQUE INDEX ... (patient_id, lower(drug)) WHERE active`. In the report, `string_to_array(indkey::text, ' ')::int[]` gives the key columns, and `b.cols[1:cardinality(a.cols)] = a.cols` says that a's columns lead b's. `GRANT SELECT (id, ...) ON patients`, `GRANT UPDATE (status, notes)`, a policy `TO reception, clinician` with `nullif(current_setting('app.clinic_id', true), '')::integer`, and a function with `SECURITY DEFINER SET search_path = public, pg_temp` and `REVOKE EXECUTE ... FROM PUBLIC`.
+    - |-
+      ```sql
+      -- index_report.sql (the reasons, in order)
+      CASE
+          WHEN NOT a.indisvalid THEN 'invalid'
+          WHEN NOT a.is_unique AND a.plain AND a.amname = 'btree' AND EXISTS (
+              SELECT 1 FROM idx AS b
+              WHERE b.indrelid = a.indrelid AND b.indexrelid <> a.indexrelid
+                AND b.indisvalid AND b.plain AND b.amname = 'btree'
+                AND b.cols[1:cardinality(a.cols)] = a.cols
+                AND (cardinality(b.cols) > cardinality(a.cols) OR b.index_name < a.index_name)
+          ) THEN 'redundant'
+          WHEN NOT a.is_unique AND u.idx_scan = 0 THEN 'unused'
+      END
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-sql runner image
+    image: dojo-sql
+    why: The Debian 13 container with PostgreSQL 17 that runs the grading tests.

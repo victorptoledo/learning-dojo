@@ -13,8 +13,8 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Vacuum Tamer" }
   - { name: "Purple Belt", required_xp: 1500, title: "Query Plan Whisperer" }
   - { name: "Brown Belt", required_xp: 2500, title: "MVCC & Lock Specialist" }
-  - { name: "Black Belt", required_xp: 4000, title: "Database Reliability Titan" }
-  - { name: "Sensei", required_xp: 6000, title: "Postgres Grandmaster" }
+  - { name: "Black Belt", required_xp: 5000, title: "Database Reliability Titan" }
+  - { name: "Sensei", required_xp: 7500, title: "Postgres Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "How a PostgreSQL cluster is built, psql, and asking the system catalogs about the database" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "PostgreSQL's own types, MVCC, VACUUM and HOT updates, and configuration" }
