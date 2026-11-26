@@ -13,8 +13,8 @@ belts:
   - { name: "Green Belt", required_xp: 800, title: "Pipeline Builder" }
   - { name: "Purple Belt", required_xp: 1500, title: "Data Lakehouse Architect" }
   - { name: "Brown Belt", required_xp: 2500, title: "Distributed Spark Specialist" }
-  - { name: "Black Belt", required_xp: 4000, title: "Big Data Titan" }
-  - { name: "Sensei", required_xp: 6000, title: "Data Engineering Grandmaster" }
+  - { name: "Black Belt", required_xp: 5000, title: "Big Data Titan" }
+  - { name: "Sensei", required_xp: 8000, title: "Data Engineering Grandmaster" }
 phases:
   - { id: p0, dir: p0-first-steps, title: "First Steps", goal: "What a data engineer does, the data lifecycle, and a first pipeline from CSV to SQLite" }
   - { id: p1, dir: p1-fundamentals, title: "Fundamentals", goal: "ETL and ELT, dimensional modelling, file formats and idempotent incremental loads" }

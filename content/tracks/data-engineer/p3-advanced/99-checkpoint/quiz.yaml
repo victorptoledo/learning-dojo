@@ -1,0 +1,82 @@
+pass_percent: 85
+questions:
+  - id: lakehouse-commit
+    skills: [data-engineer.warehouses-lakehouses]
+    prompt: "A Delta or Iceberg write has added its Parquet files but crashes before the commit. What do readers see?"
+    options:
+      - "The new files, because they are in the table's folder"
+      - "Half of the new files"
+      - "The previous snapshot: files no commit adds are not part of the table"
+      - "An error until someone deletes the files"
+    answer: 2
+    explanation: "The commit (a new log entry or metadata pointer) is the atomic step; files without it are orphans that maintenance removes."
+  - id: lakehouse-expire
+    skills: [data-engineer.warehouses-lakehouses]
+    prompt: "After daily compaction, the table's storage keeps growing although the data does not. Why, and what fixes it?"
+    options:
+      - "Parquet compression is off; turn it on"
+      - "Old snapshots still reference the compacted files; expire snapshots and vacuum, giving up time travel before that point"
+      - "Compaction duplicates rows; deduplicate them"
+      - "The catalog caches files; restart it"
+    answer: 1
+    explanation: "Time travel keeps removed files alive until snapshots are expired and the files vacuumed."
+  - id: parquet-statistics
+    skills: [data-engineer.columnar-storage]
+    prompt: "A query asks for amount_cents > 10000. How can a Parquet reader skip most of a file without reading its values?"
+    options:
+      - "By reading the file backwards"
+      - "With the min/max statistics of each row group in the footer"
+      - "By decompressing only the first page"
+      - "It cannot: Parquet must be read in full"
+    answer: 1
+    explanation: "Row groups whose max is 10000 or less cannot match, so predicate pushdown skips them."
+  - id: overpartition
+    skills: [data-engineer.columnar-storage]
+    prompt: "An events table is partitioned by user_id (millions of users). What is the main problem?"
+    options:
+      - "Millions of tiny files and folders: slow listing, poor compression and no useful pruning for most queries"
+      - "Parquet cannot store strings in partitions"
+      - "Queries by date become faster"
+      - "None, more partitions are always better"
+    answer: 0
+    explanation: "Partition by a low-cardinality column that queries filter on, such as the date."
+  - id: kafka-commit-before
+    skills: [data-engineer.streaming-kafka]
+    prompt: "A consumer commits its offsets before processing each batch, and crashes in the middle of one. What happens to that batch?"
+    options:
+      - "It is processed again: at least once"
+      - "Its unprocessed records are skipped: at most once"
+      - "Kafka rolls the offsets back automatically"
+      - "Nothing, it is exactly once"
+    answer: 1
+    explanation: "The committed position is already past records that were never processed."
+  - id: kafka-effectively-once
+    skills: [data-engineer.streaming-kafka]
+    prompt: "A stream writes into a lakehouse table and must not lose or duplicate rows after crashes. What gives that?"
+    options:
+      - "Committing offsets to Kafka after each write"
+      - "A larger consumer group"
+      - "Storing the offsets in the same table commit as the rows, and reading them back on restart"
+      - "Disabling retries in the producer"
+    answer: 2
+    explanation: "Rows and offsets succeed or fail together; Delta's txn action and Spark's foreachBatch ids work this way."
+  - id: spark-shuffle
+    skills: [data-engineer.spark-distributed]
+    prompt: "Which of these Spark operations causes a shuffle?"
+    options:
+      - "filter(col('amount') > 0)"
+      - "withColumn('cents', col('amount') * 100)"
+      - "groupBy('customer_id').agg(sum('amount'))"
+      - "select('customer_id', 'amount')"
+    answer: 2
+    explanation: "A wide transformation needs all rows of a key in one partition; the other three are narrow."
+  - id: spark-skew
+    skills: [data-engineer.spark-distributed]
+    prompt: "A join stage has 199 tasks that finish in 20 seconds and one that runs 40 minutes and spills. What is the likely cause and a fix?"
+    options:
+      - "Too few executors; double them"
+      - "A skewed key such as NULL or one giant customer; handle it apart, let AQE split it or salt the key"
+      - "Parquet files are too large; write CSV"
+      - "The driver is slow; give it more memory"
+    answer: 1
+    explanation: "One hot key sends most rows to one task; more executors do not help that task."

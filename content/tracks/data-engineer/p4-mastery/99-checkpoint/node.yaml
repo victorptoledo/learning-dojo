@@ -1,0 +1,52 @@
+id: data-engineer.p4.checkpoint
+kind: checkpoint
+status: draft
+title: "🥋 Checkpoint 4: Final Exam"
+summary: "Prove the whole track: a quiz weighted towards lineage, governance, reliable data products and platform leadership, and an integration kata where you build the governance and reliability tooling of a warehouse: column lineage, personal data that follows it, deny-by-default access with masks and row filters, freshness, blast radius, backfill plans and error budgets."
+objectives:
+  - { id: o1, text: "Explain lineage, personal data and access control, data SLOs and incidents, and how to organise a data platform in your own words", skills: [data-engineer.lineage-governance, data-engineer.data-reliability, data-engineer.platform-leadership] }
+  - { id: o2, text: "Build column-level lineage with personal data that follows it, deny-by-default access with masks and row filters, and freshness, blast radius, backfill and error budget reports for data products", skills: [data-engineer.lineage-governance, data-engineer.data-reliability, data-engineer.orchestration] }
+prerequisites: [data-engineer.p4.platform-leadership]
+difficulty: 5
+estimated_minutes: 120
+xp: 550
+closes_phase: p4
+covers_skills: [data-engineer.lineage-governance, data-engineer.data-reliability, data-engineer.platform-leadership, data-engineer.orchestration]
+lesson: lesson.md
+quiz: quiz.yaml
+kata:
+  statement: kata/README.md
+  starter: kata/starter
+  tests: kata/tests
+  reference: kata/reference
+  runner: { image: dojo-python, timeout_secs: 90 }
+  hints:
+    - |-
+      Start with `Lineage`: everything else walks it. How do you split `raw.customers.email` into a model and a column when the model's name has a dot too? Which algorithm gave the alphabetical topological order in Checkpoint 2? For personal data, in which order must you visit the models so that a column's sources are already classified when you reach it?
+    - |-
+      `ref.rpartition(".")` splits at the **last** dot. Keep a `dict` of children per model and run Kahn's algorithm with a `heapq`. `upstream` and `downstream` are a walk over parents or children with a set of visited models, returned filtered through `order()`. In `personal_data`, walk `order()` and mark a column when its transform is not `aggregate` and any source is already marked. In `freshness`, take `min(loaded_through[m] for m in [name, *lineage.upstream(name)])`. In `error_budget`, `Fraction(str(objective))` keeps 0.9 exact.
+    - |-
+      ```python
+      def read(lineage, grants, role, model, rows, personal):
+          grant = grants.get(role)
+          if grant is None or model not in grant.models:
+              raise PermissionError(f"{role} may not read {model}")
+          columns = {column.name for column in lineage.models[model].columns}
+          if grant.row_filter is not None:
+              column, value = grant.row_filter
+              if column not in columns:
+                  return []
+              rows = [row for row in rows if row.get(column) == value]
+          masked = set() if grant.pii else {c for c in columns if f"{model}.{c}" in personal}
+          return [{key: (None if key in masked else value) for key, value in row.items()}
+                  for row in rows]
+      ```
+requirements:
+  - kind: docker-engine
+    name: Docker Desktop running
+    why: Your kata is checked inside a container.
+    install_hint: "install Docker Desktop (winget install Docker.DockerDesktop) and start it"
+  - kind: docker-image
+    name: dojo-python runner image
+    image: dojo-python
+    why: The Python 3.15 container with pytest and ruff that runs the grading tests.
